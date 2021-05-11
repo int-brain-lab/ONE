@@ -683,6 +683,9 @@ class One(ConversionMixin):
 
 def ONE(mode='auto', **kwargs):
     """ONE factory"""
+    if kwargs.pop('offline', False):
+        _logger.warning('the offline kwarg will probably be removed.  ONE is now offline by '
+                        'default anyway')
     if mode == 'local' and not kwargs.get('base_url', False):
         return One(**kwargs)
     else:
