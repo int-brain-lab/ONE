@@ -7,6 +7,7 @@
  - search cache tables without hitting db by default
  - onepqt module to build cache from local filesystem
  - silent mode now suppresses print statements
+ - rest GET requests are now cached for seven days
  
 ### Modified
 

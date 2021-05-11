@@ -566,11 +566,11 @@ class One(ConversionMixin):
             return file
         return alfio.load_file_content(file)
 
-    def load_dataset(self,
-                     dset_id: Union[str, UUID],
-                     download_only: bool = False,
-                     details: bool = False,
-                     **kwargs) -> Any:
+    def load_dataset_from_id(self,
+                             dset_id: Union[str, UUID],
+                             download_only: bool = False,
+                             details: bool = False,
+                             **kwargs) -> Any:
         if isinstance(dset_id, str):
             dset_id = parquet.str2np(dset_id)
         elif isinstance(dset_id, UUID):
@@ -1005,6 +1005,9 @@ class OneAlyx(One):
         full_key = (x for x in self.search_terms if x.lower().startswith(term))
         key_ = next(full_key, None)
         if not key_:
+            if term.lower() in ('dtype', 'dtypes', 'dataset_types', 'dataset_type'):
+                _logger.warning('Searching by dataset type is deprecated')
+                return 'dataset_type'
             raise ValueError(f'Invalid search term "{term}"')
         elif next(full_key, None):
             raise ValueError(f'Ambiguous search term "{term}"')
@@ -1083,7 +1086,7 @@ class OneAlyx(One):
             if field == 'date_range':
                 query = _validate_date_range(value)
                 url += f'&{field}=' + ','.join(x.date().isoformat() for x in query)
-            elif key.lower() in ('type', 'dtype', 'dataset_type'):  # legacy TODO Throw warning
+            elif field == 'dataset_type':  # legacy
                 url += f'&dataset_type=' + ','.join(validate_input(value))
             elif field == 'dataset':
                 url += (f'&django=data_dataset_session_related__dataset_type__name__icontains,' +

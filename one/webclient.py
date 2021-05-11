@@ -3,9 +3,11 @@ import logging
 import math
 import os
 import re
+import functools
 import urllib.request
 from urllib.error import HTTPError
 from collections.abc import Mapping
+from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
 import hashlib
 
@@ -20,6 +22,34 @@ import one.alf.io as alfio
 SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')
 _logger = logging.getLogger('ibllib')
 
+
+def cache_response(func, mode='get'):
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        if args[1].__name__ != mode:
+            return func(*args, **kwargs)
+        # Check cache
+        proc, loc = args[0].base_url.replace(':/', '').split('/')
+        rest_cache = Path(one.params.get_params_dir(), '.rest', loc, proc)
+        hash = hashlib.sha1()
+        hash.update(bytes(args[2], 'utf-8'))
+        name = hash.hexdigest()
+        files = list(rest_cache.glob(name))
+        if len(files) == 1:
+            print('loading rest from cache')
+            with open(files[0], 'r') as f:
+                response, when = json.load(f)
+            if datetime.now() - datetime.fromisoformat(when) < timedelta(days=7):
+                return response
+        response = func(*args, **kwargs)
+        # Save response into cache
+        rest_cache.mkdir(exist_ok=True, parents=True)
+        print('saving rest into cache')
+        with open(rest_cache / name, 'w') as f:
+            json.dump((response, datetime.now().isoformat()), f)
+        return response
+
+    return wrapper_decorator
 
 class _PaginatedResponse(Mapping):
     """
@@ -353,6 +383,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     def base_url(self):
         return self._par.ALYX_URL
 
+    @cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
         # makes sure the base url is the one from the instance
         rest_query = rest_query.replace(self._par.ALYX_URL, '')
