@@ -1,0 +1,14 @@
+docs/_build
+__pycache__
+*.*~
+*.pyc
+python/scratch
+.idea/*
+.vscode/
+*checkpoint.ipynb
+build/
+venv/
+dist/
+.DS_Store
+scratch/
+_autosummary/
