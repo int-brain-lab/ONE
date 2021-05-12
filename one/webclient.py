@@ -10,46 +10,50 @@ from collections.abc import Mapping
 from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
 import hashlib
+import shutil
 
 import requests
 from tqdm import tqdm
 
 from pprint import pprint
 import one.params
-from one.lib.io import hashfile
+from one.lib.io import hashfile, spikeglx
 import one.alf.io as alfio
 
 SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')
 _logger = logging.getLogger('ibllib')
 
 
-def cache_response(func, mode='get'):
+def cache_response(func, mode='get', expires=timedelta(days=1)):
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
+        _expires = kwargs.pop('expires', expires) or timedelta()
         if args[1].__name__ != mode:
             return func(*args, **kwargs)
         # Check cache
         proc, loc = args[0].base_url.replace(':/', '').split('/')
         rest_cache = Path(one.params.get_params_dir(), '.rest', loc, proc)
-        hash = hashlib.sha1()
-        hash.update(bytes(args[2], 'utf-8'))
-        name = hash.hexdigest()
+        sha1 = hashlib.sha1()
+        sha1.update(bytes(args[2], 'utf-8'))
+        name = sha1.hexdigest()
         files = list(rest_cache.glob(name))
         if len(files) == 1:
-            print('loading rest from cache')
+            _logger.debug('loading REST response from cache')
             with open(files[0], 'r') as f:
                 response, when = json.load(f)
-            if datetime.now() - datetime.fromisoformat(when) < timedelta(days=7):
+            if datetime.fromisoformat(when) > datetime.now():
                 return response
         response = func(*args, **kwargs)
         # Save response into cache
         rest_cache.mkdir(exist_ok=True, parents=True)
-        print('saving rest into cache')
+        _logger.debug('caching REST response')
+        expiry_datetime = datetime.now() + _expires
         with open(rest_cache / name, 'w') as f:
-            json.dump((response, datetime.now().isoformat()), f)
+            json.dump((response, expiry_datetime.isoformat()), f)
         return response
 
     return wrapper_decorator
+
 
 class _PaginatedResponse(Mapping):
     """
@@ -191,6 +195,8 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     """
     :param full_link_to_file: http link to the file.
     :type full_link_to_file: str
+    :param chunks: chunks to download
+    :type chunks: tuple of ints
     :param clobber: [False] If True, force overwrite the existing file.
     :type clobber: bool
     :param username: [''] authentication for password protected file server.
@@ -200,6 +206,8 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     :param cache_dir: [''] directory in which files are cached; defaults to user's
      Download directory.
     :type cache_dir: str
+    :param return_md5: if true an MD5 hash of the file is additionally returned
+    :type return_md5: bool
     :param: headers: [{}] additional headers to add to the request (auth tokens etc..)
     :type headers: dict
     :param: silent: [False] suppress download progress bar
@@ -476,6 +484,88 @@ class AlyxClient(metaclass=UniqueSingletons):
         )
         return download_fcn(url, **pars)
 
+    def download_raw_partial(self, url_cbin, url_ch, first_chunk=0, last_chunk=0):
+        """
+        TODO Document
+        :param url_cbin:
+        :param url_ch:
+        :param first_chunk:
+        :param last_chunk:
+        :return:
+        """
+        assert str(url_cbin).endswith('.cbin')
+        assert str(url_ch).endswith('.ch')
+
+        relpath = Path(url_cbin.replace(self._par.HTTP_DATA_SERVER, '.')).parents[0]
+        target_dir = Path(self.cache_dir, relpath)
+        Path(target_dir).mkdir(parents=True, exist_ok=True)
+
+        # First, download the .ch file if necessary
+        if isinstance(url_ch, Path):
+            ch_file = url_ch
+        else:
+            ch_file = Path(self.download_file(
+                url_ch, cache_dir=target_dir, clobber=True, return_md5=False))
+            ch_file = alfio.remove_uuid_file(ch_file)
+        ch_file_stream = ch_file.with_suffix('.stream.ch')
+
+        # Load the .ch file.
+        with open(ch_file, 'r') as f:
+            cmeta = json.load(f)
+
+        # Get the first byte and number of bytes to download.
+        i0 = cmeta['chunk_bounds'][first_chunk]
+        ns_stream = cmeta['chunk_bounds'][last_chunk + 1] - i0
+
+        # if the cached version happens to be the same as the one on disk, just load it
+        if ch_file_stream.exists():
+            with open(ch_file_stream, 'r') as f:
+                cmeta_stream = json.load(f)
+            if (cmeta_stream.get('chopped_first_sample', None) == i0 and
+                    cmeta_stream.get('chopped_total_samples', None) == ns_stream):
+                return spikeglx.Reader(ch_file_stream.with_suffix('.cbin'))
+        else:
+            shutil.copy(ch_file, ch_file_stream)
+        assert ch_file_stream.exists()
+
+        # prepare the metadata file
+        cmeta['chunk_bounds'] = cmeta['chunk_bounds'][first_chunk:last_chunk + 2]
+        cmeta['chunk_bounds'] = [_ - i0 for _ in cmeta['chunk_bounds']]
+        assert len(cmeta['chunk_bounds']) >= 2
+        assert cmeta['chunk_bounds'][0] == 0
+
+        first_byte = cmeta['chunk_offsets'][first_chunk]
+        cmeta['chunk_offsets'] = cmeta['chunk_offsets'][first_chunk:last_chunk + 2]
+        cmeta['chunk_offsets'] = [_ - first_byte for _ in cmeta['chunk_offsets']]
+        assert len(cmeta['chunk_offsets']) >= 2
+        assert cmeta['chunk_offsets'][0] == 0
+        n_bytes = cmeta['chunk_offsets'][-1]
+        assert n_bytes > 0
+
+        # Save the chopped chunk bounds and offets.
+        cmeta['sha1_compressed'] = None
+        cmeta['sha1_uncompressed'] = None
+        cmeta['chopped'] = True
+        cmeta['chopped_first_sample'] = i0
+        cmeta['chopped_total_samples'] = ns_stream
+
+        with open(ch_file_stream, 'w') as f:
+            json.dump(cmeta, f, indent=2, sort_keys=True)
+
+        # Download the requested chunks
+        cbin_local_path = self.download_file(
+            url_cbin, chunks=(first_byte, n_bytes),
+            cache_dir=target_dir, clobber=True, return_md5=False)
+        cbin_local_path = alfio.remove_uuid_file(cbin_local_path)
+        cbin_local_path_renamed = cbin_local_path.with_suffix('.stream.cbin')
+        cbin_local_path.rename(cbin_local_path_renamed)
+        assert cbin_local_path_renamed.exists()
+
+        shutil.copy(cbin_local_path.with_suffix('.meta'),
+                    cbin_local_path_renamed.with_suffix('.meta'))
+        reader = spikeglx.Reader(cbin_local_path_renamed)
+        return reader
+
     def _validate_file_url(self, url):
         """
         TODO Document
@@ -604,7 +694,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             url = url[1:]
         # and split to the next slash or question mark
         endpoint = re.findall("^/*[^?/]*", url)[0].replace('/', '')
-        # make sure the queryied endpoint exists, if not throw an informative error
+        # make sure the queried endpoint exists, if not throw an informative error
         if endpoint not in self._rest_schemes.keys():
             av = [k for k in self._rest_schemes.keys() if not k.startswith('_') and k]
             raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +

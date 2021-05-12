@@ -44,7 +44,6 @@ from functools import wraps
 from inspect import unwrap
 from collections.abc import Iterable
 from pathlib import Path
-import shutil
 from typing import Any, Sequence, Union, Optional, List, Dict
 from uuid import UUID
 
@@ -59,7 +58,7 @@ from .alf.files import is_valid, alf_parts, COLLECTION_SPEC, FILE_SPEC, regex as
 # from ibllib.misc.exp_ref import is_exp_ref
 from .alf.exceptions import \
     ALFMultipleObjectsFound, ALFObjectNotFound, ALFMultipleCollectionsFound
-from one.lib.io import hashfile, spikeglx
+from one.lib.io import hashfile
 from pprint import pprint
 from one.lib.brainbox.io import parquet
 from one.lib.brainbox.core import Bunch
@@ -1399,87 +1398,6 @@ class OneAlyx(One):
             assert (all(map(lambda t: t == np.int64, typs)))
             # if this gets too big, look into saving only when destroying the ONE object
             parquet.save(self._cache_file, self._cache)
-
-    def download_raw_partial(self, url_cbin, url_ch, first_chunk=0, last_chunk=0):
-        # TODO Move to WebClient
-        assert str(url_cbin).endswith('.cbin')
-        assert str(url_ch).endswith('.ch')
-
-        relpath = Path(url_cbin.replace(self._par.HTTP_DATA_SERVER, '.')).parents[0]
-        target_dir = Path(self._cache_dir, relpath)
-        Path(target_dir).mkdir(parents=True, exist_ok=True)
-
-        # First, download the .ch file if necessary
-        if isinstance(url_ch, Path):
-            ch_file = url_ch
-        else:
-            ch_file = Path(wc.http_download_file(
-                url_ch,
-                username=self._par.HTTP_DATA_SERVER_LOGIN,
-                password=self._par.HTTP_DATA_SERVER_PWD,
-                cache_dir=target_dir, clobber=True, return_md5=False))
-            ch_file = alfio.remove_uuid_file(ch_file)
-        ch_file_stream = ch_file.with_suffix('.stream.ch')
-
-        # Load the .ch file.
-        with open(ch_file, 'r') as f:
-            cmeta = json.load(f)
-
-        # Get the first byte and number of bytes to download.
-        i0 = cmeta['chunk_bounds'][first_chunk]
-        ns_stream = cmeta['chunk_bounds'][last_chunk + 1] - i0
-
-        # if the cached version happens to be the same as the one on disk, just load it
-        if ch_file_stream.exists():
-            with open(ch_file_stream, 'r') as f:
-                cmeta_stream = json.load(f)
-            if (cmeta_stream.get('chopped_first_sample', None) == i0 and
-                    cmeta_stream.get('chopped_total_samples', None) == ns_stream):
-                return spikeglx.Reader(ch_file_stream.with_suffix('.cbin'))
-        else:
-            shutil.copy(ch_file, ch_file_stream)
-        assert ch_file_stream.exists()
-
-        # prepare the metadata file
-        cmeta['chunk_bounds'] = cmeta['chunk_bounds'][first_chunk:last_chunk + 2]
-        cmeta['chunk_bounds'] = [_ - i0 for _ in cmeta['chunk_bounds']]
-        assert len(cmeta['chunk_bounds']) >= 2
-        assert cmeta['chunk_bounds'][0] == 0
-
-        first_byte = cmeta['chunk_offsets'][first_chunk]
-        cmeta['chunk_offsets'] = cmeta['chunk_offsets'][first_chunk:last_chunk + 2]
-        cmeta['chunk_offsets'] = [_ - first_byte for _ in cmeta['chunk_offsets']]
-        assert len(cmeta['chunk_offsets']) >= 2
-        assert cmeta['chunk_offsets'][0] == 0
-        n_bytes = cmeta['chunk_offsets'][-1]
-        assert n_bytes > 0
-
-        # Save the chopped chunk bounds and ossets.
-        cmeta['sha1_compressed'] = None
-        cmeta['sha1_uncompressed'] = None
-        cmeta['chopped'] = True
-        cmeta['chopped_first_sample'] = i0
-        cmeta['chopped_total_samples'] = ns_stream
-
-        with open(ch_file_stream, 'w') as f:
-            json.dump(cmeta, f, indent=2, sort_keys=True)
-
-        # Download the requested chunks
-        cbin_local_path = wc.http_download_file(
-            url_cbin,
-            username=self._par.HTTP_DATA_SERVER_LOGIN,
-            password=self._par.HTTP_DATA_SERVER_PWD,
-            cache_dir=target_dir, clobber=True, return_md5=False,
-            chunks=(first_byte, n_bytes))
-        cbin_local_path = alfio.remove_uuid_file(cbin_local_path)
-        cbin_local_path_renamed = cbin_local_path.with_suffix('.stream.cbin')
-        cbin_local_path.rename(cbin_local_path_renamed)
-        assert cbin_local_path_renamed.exists()
-
-        shutil.copy(cbin_local_path.with_suffix('.meta'),
-                    cbin_local_path_renamed.with_suffix('.meta'))
-        reader = spikeglx.Reader(cbin_local_path_renamed)
-        return reader
 
 
 def _validate_date_range(date_range):
