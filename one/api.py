@@ -289,9 +289,13 @@ class One(ConversionMixin):
 
         # Iterate over search filters, reducing the sessions table
         sessions = self._cache['sessions']
-        # TODO Ensure kwargs ordered in switch order to improve performance
-        for key, value in kwargs.items():
-            key = autocomplete(key)  # Validate and get full name
+
+        # Ensure sessions filtered in a particular order, with datasets last
+        search_order = ('date_range', 'number', 'dataset')
+        sort_fcn = lambda itm: -1 if itm[0] not in search_order else search_order.index(itm[0])
+        queries = {autocomplete(k): v for k, v in kwargs.items()}  # Validate and get full name
+        for key, value in sorted(queries.items(), key=sort_fcn):
+            # key = autocomplete(key)  # Validate and get full name
             # No matches; short circuit
             if sessions.size == 0:
                 return []
@@ -299,6 +303,7 @@ class One(ConversionMixin):
             elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
                 query = '|'.join(validate_input(value))
                 mask = sessions['lab' if key == 'laboratory' else key].str.contains(query)
+                mask = mask.values == True  # FIXME cache not generated properly
                 sessions = sessions[mask]
             elif key == 'date_range':
                 start, end = _validate_date_range(value)
