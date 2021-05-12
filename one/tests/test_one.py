@@ -13,6 +13,7 @@ from one.api import ONE, OneAlyx
 import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
+from one.lib.brainbox.io import parquet
 
 dset = {
     'url': 'https://alyx.internationalbrainlab.org/datasets/00059298-1b33-429c-a802-fa51bb662d72',
@@ -108,10 +109,10 @@ class TestONECache(unittest.TestCase):
             filename = shutil.copy(fixture / f'{cache_file}.pqt', cls.tempdir.name)
             assert Path(filename).exists()
         # Create ONE object with temp cache dir
-        cls.one = ONE(offline=True, cache_dir=cls.tempdir.name)
+        cls.one = ONE(mode='local', cache_dir=cls.tempdir.name)
         # Create dset files from cache
-        for file in cls.one._cache.datasets['dset_id']:
-            filepath = Path(cls.tempdir.name).joinpath(file)
+        for session_path, rel_path in cls.one._cache.datasets[['session_path', 'rel_path']].values:
+            filepath = Path(cls.tempdir.name).joinpath(session_path, rel_path)
             filepath.parent.mkdir(exist_ok=True, parents=True)
             filepath.touch()
 
@@ -119,44 +120,55 @@ class TestONECache(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
 
+    def test_list_subjects(self):
+        subjects = self.one.list_subjects()
+        expected = ['KS005', 'ZFM-01935', 'ZM_1094', 'ZM_1150',
+                    'ZM_1743', 'ZM_335', 'clns0730', 'flowers']
+        self.assertCountEqual(expected, subjects)
+
     def test_one_search(self):
         one = self.one
         # Search subject
-        eids = one.search(subject='KS050')
-        expected = ['cortexlab/Subjects/KS050/2021-03-07/001',
-                    'cortexlab/Subjects/KS050/2021-03-08/001']
+        eids = one.search(subject='ZM_335')
+        expected = ['3473f9d2-aa5d-41a6-9048-c65d0b7ab97c',
+                    'dfe99506-b873-45db-bc93-731f9362e304']
         self.assertEqual(expected, eids)
 
         # Search lab
         labs = ['mainen', 'cortexlab']
         eids = one.search(laboratory=labs)
-        self.assertTrue(all(any(y in x for y in labs) for x in eids))
+        expected = ['d3372b15-f696-4279-9be5-98f15783b5bb',
+                    '3473f9d2-aa5d-41a6-9048-c65d0b7ab97c']
+        self.assertEqual(len(eids), 25)
+        self.assertEqual(expected, eids[:2])
 
-        # Search date
-        eids = one.search(date='2021-03-19')
-        self.assertTrue(all('2021-03-19' in x for x in eids))
+        # Search exact date
+        eids = one.search(date='2019-06-07')
+        self.assertEqual(eids, ['db524c42-6356-4c61-b236-4967c54d2665'])
 
-        dates = ['2021-03-16', '2021-03-18']
+        # Search date range
+        dates = ['2019-04-01', '2019-04-10']
         eids = one.search(date=dates)
-        self.assertEqual(len(eids), 22)
+        expected = ['13c99443-01ee-462e-b668-717daa526fc0',
+                    'abf5109c-d780-44c8-9561-83e857c7bc01']
+        self.assertEqual(len(eids), 9)
+        self.assertEqual(expected, eids[:2])
 
-        dates = ['2021-03-16', None]
+        # Search from a given date
+        dates = ['2021-01-01', None]
         eids = one.search(date_range=dates)
-        self.assertEqual(len(eids), 27)
-
-        date = '2021-03-16'
-        eids = one.search(date=date)
-        self.assertTrue(all(date in x for x in eids))
+        self.assertEqual(eids, ['d3372b15-f696-4279-9be5-98f15783b5bb'])
 
         # Search datasets
         query = 'gpio'.upper()
         eids = one.search(data=query)
         self.assertTrue(eids)
-        self.assertTrue(all(any(Path(self.tempdir.name, x).rglob(f'*{query}*')) for x in eids))
+        self.assertEqual(eids, ['d3372b15-f696-4279-9be5-98f15783b5bb'])
 
         # Filter non-existent
         # Set exist for one of the eids to false
-        one._cache['datasets'].at[one._cache['datasets']['eid'] == eids[0], 'exists'] = False
+        id = parquet.str2np(eids[0])
+        one._cache['datasets'].at[id, 'exists'] = False
         self.assertTrue(len(eids) == len(one.search(data=query, exists_only=True)) + 1)
 
         # Search task_protocol
@@ -257,24 +269,24 @@ class TestONECache(unittest.TestCase):
                                              download_only=True, collection='raw_video_data')
         self.assertIsNotNone(file)
 
-    def test_load_dataset(self):
+    def test_load_dataset_from_id(self):
         id = np.array([[-2578956635146322139, -3317321292073090886]])
-        file = self.one.load_dataset(id, download_only=True)
+        file = self.one.load_dataset_from_id(id, download_only=True)
         self.assertIsInstance(file, Path)
         expected = 'FMR019/2021-03-18/002/alf/_ibl_wheel.position.npy'
         self.assertTrue(file.as_posix().endswith(expected))
 
         # Details
-        _, details = self.one.load_dataset(id, download_only=True, details=True)
+        _, details = self.one.load_dataset_from_id(id, download_only=True, details=True)
         self.assertIsInstance(details, pd.Series)
 
         # Load file content with str id
         np.save(str(file), np.arange(3))  # Ensure data to load
-        dset = self.one.load_dataset('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1')
+        dset = self.one.load_dataset_from_id('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1')
         self.assertTrue(np.all(dset == np.arange(3)))
 
         # Load file content with UUID
-        dset = self.one.load_dataset(UUID('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1'))
+        dset = self.one.load_dataset_from_id(UUID('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1'))
         self.assertTrue(np.all(dset == np.arange(3)))
 
     def test_load_object(self):
@@ -314,16 +326,45 @@ class TestONECache(unittest.TestCase):
         self.assertIsNone(self.one.record_from_path(file))
 
 
-@unittest.skip
 class TestOneAlyx(unittest.TestCase):
-    def test_download_datasets(self):
-        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
-        one = ONE(
+    tempdir = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        fixture = Path(__file__).parent.joinpath('fixtures')
+        cls.tempdir = tempfile.TemporaryDirectory()
+        # Copy cache files to temporary directory
+        for cache_file in ('sessions', 'datasets'):
+            filename = shutil.copy(fixture / f'{cache_file}.pqt', cls.tempdir.name)
+            assert Path(filename).exists()
+        # Copy cached rest responses
+        rest_cache_dir = Path(one.params.get_params_dir(),
+                              '.rest', 'test.alyx.internationalbrainlab.org', 'https')
+        rest_cache_dir.mkdir(parents=True, exist_ok=True)
+        for file in fixture.joinpath('rest_responses').glob('*'):
+            filename = shutil.copy(file, rest_cache_dir)
+            assert Path(filename).exists()
+
+    def setUp(self) -> None:
+        # Create ONE object with temp cache dir
+        self.one = OneAlyx(
             base_url='https://test.alyx.internationalbrainlab.org',
             username='test_user',
-            password='TapetesBloc18'
+            password='TapetesBloc18',
+            cache_dir=self.tempdir.name
         )
+
+    @unittest.skip
+    def test_download_datasets(self):
+        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
+
         files = one.download_datasets(['channels.brainLocation.tsv'])
+
+    def test_pid2eid(self):
+        pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
+        eid, collection = self.one.pid2eid(pid)
+        self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
+        self.assertEqual('probe00', collection)
 
 
 class TestOneSetup(unittest.TestCase):

@@ -707,7 +707,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         """
         # if endpoint is None, list available endpoints
         if not url:
-            pprint([k for k in self._rest_schemes.keys() if not k.startswith('_') and k])
+            pprint([k for k in self.rest_schemes.keys() if not k.startswith('_') and k])
             return
         # remove beginning slash if any
         if url.startswith('/'):
@@ -715,11 +715,11 @@ class AlyxClient(metaclass=UniqueSingletons):
         # and split to the next slash or question mark
         endpoint = re.findall("^/*[^?/]*", url)[0].replace('/', '')
         # make sure the queried endpoint exists, if not throw an informative error
-        if endpoint not in self._rest_schemes.keys():
-            av = [k for k in self._rest_schemes.keys() if not k.startswith('_') and k]
+        if endpoint not in self.rest_schemes.keys():
+            av = [k for k in self.rest_schemes.keys() if not k.startswith('_') and k]
             raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +
                              'endpoints are \n       ' + '\n       '.join(av))
-        endpoint_scheme = self._rest_schemes[endpoint]
+        endpoint_scheme = self.rest_schemes[endpoint]
         # on a filter request, override the default action parameter
         if '?' in url:
             action = 'list'
@@ -787,8 +787,8 @@ class AlyxClient(metaclass=UniqueSingletons):
     # JSON field interface convenience methods
     def _check_inputs(self, endpoint: str) -> None:
         # make sure the queryied endpoint exists, if not throw an informative error
-        if endpoint not in self._rest_schemes.keys():
-            av = [k for k in self._rest_schemes.keys() if not k.startswith('_') and k]
+        if endpoint not in self.rest_schemes.keys():
+            av = [k for k in self.rest_schemes.keys() if not k.startswith('_') and k]
             raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +
                              'endpoints are \n       ' + '\n       '.join(av))
         return

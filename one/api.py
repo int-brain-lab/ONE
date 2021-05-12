@@ -1,16 +1,17 @@
 """
 TODO Document
-TODO Rename id field
 TODO Add query_type
-TODO Add cache download function
 TODO Include exp_ref parsing
 TODO Add Offline property?
-TODO Add ONE Light/offline setup params
 TODO Add sig to ONE Light uuids
-TODO Add load_cache method to WebClient, add param for location, add folders to FI
-TODO Cache rest queries
+TODO Save changes to cache
+TODO Fix update cache in AlyxONE
+TODO pid_to_eid
 
 Points of discussion:
+    - Module structure: oneibl is too restrictive, naming module `one` means obj should have
+    different name
+    - How to deal with factory?
     - Does remote query mean REST query (current) or re-downloading the cache?
         - Option 1: 'remote' means REST query, 'auto' means refresh cache if old, 'local' means
           use current cache, 'refresh' re-download cache
@@ -143,7 +144,7 @@ class One(ConversionMixin):
         # init the cache file
         self._load_cache()
 
-    def _load_cache(self, cache_dir=None):
+    def _load_cache(self, cache_dir=None, **kwargs):
         self._cache = Bunch({'expired': False})
         INDEX_KEY = 'id'
         for table in ('sessions', 'datasets'):
@@ -190,7 +191,7 @@ class One(ConversionMixin):
                 self._load_cache()
         elif mode == 'refresh':
             _logger.debug('Forcing reload of cache')
-            self._load_cache()
+            self._load_cache(clobber=True)
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['loaded_time']
@@ -450,6 +451,9 @@ class One(ConversionMixin):
             det = self._cache['datasets'].join(det, on=det.index.names, how='right')
         return det
 
+    def list_subjects(self):
+        return self._cache['sessions']['subject'].sort_values().unique()
+
     def list_datasets(self, eid=None) -> Union[np.ndarray, pd.DataFrame]:
         """
         Given one or more eids, return the datasets for those sessions.  If no eid is provided,
@@ -707,11 +711,12 @@ class OneAlyx(One):
         # get parameters override if inputs provided
         super(OneAlyx, self).__init__(**kwargs)
 
-    def _load_cache(self, cache_dir=None):
+    def _load_cache(self, cache_dir=None, clobber=False):
         N_TABLES = 2
-        super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
-        if (self._cache and not self._cache['expired']) or self.mode == 'local':
-            return
+        if not clobber:
+            super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
+            if (self._cache and not self._cache['expired']) or self.mode == 'local':
+                return
         _logger.info('Downloading remote caches...')
         # Download the remote cache files
         try:
@@ -964,6 +969,17 @@ class OneAlyx(One):
                 return id
         else:
             raise ValueError('Unrecognized experiment ID')
+
+    def pid2eid(self, pid: str) -> (str, str):
+        """
+        Given an Alyx probe UUID string, returns the session id string and the probe label
+        (i.e. the ALF collection)
+
+        :param pid: A probe UUID
+        :return: (experiment ID, probe label)
+        """
+        rec = self.alyx.rest('insertions', 'read', id=pid)
+        return rec['session'], rec['name']
 
     def _ls(self, table=None, verbose=False):
         """
