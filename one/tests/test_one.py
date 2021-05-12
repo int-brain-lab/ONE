@@ -4,6 +4,7 @@ from unittest import mock
 import tempfile
 import shutil
 from uuid import UUID
+import json
 
 import numpy as np
 import pandas as pd
@@ -167,8 +168,10 @@ class TestONECache(unittest.TestCase):
 
         # Filter non-existent
         # Set exist for one of the eids to false
-        id = parquet.str2np(eids[0])
-        one._cache['datasets'].at[id, 'exists'] = False
+        mask = (one._cache['datasets'][['eid_0', 'eid_1']] == parquet.str2np(eids[0]))
+        i = one._cache['datasets'][mask].index[0]
+        one._cache['datasets'].loc[i, 'exists'] = False  # TODO not lexsorted
+
         self.assertTrue(len(eids) == len(one.search(data=query, exists_only=True)) + 1)
 
         # Search task_protocol
@@ -357,7 +360,6 @@ class TestOneAlyx(unittest.TestCase):
     @unittest.skip
     def test_download_datasets(self):
         eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
-
         files = one.download_datasets(['channels.brainLocation.tsv'])
 
     def test_pid2eid(self):
@@ -370,6 +372,7 @@ class TestOneAlyx(unittest.TestCase):
 class TestOneSetup(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
 
     def get_file(self, str_id):
         parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
@@ -377,7 +380,12 @@ class TestOneSetup(unittest.TestCase):
         return pfile
 
     def test_setup_silent(self):
-        with mock.patch('one.lib.io.params.getfile', new=self.get_file):
+        """Test setting up parameters with silent flag
+        - Mock getfile to return temp dir as param file location
+        - Mock input function as fail safe in case function erroneously prompts user for input
+        """
+        with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
+                mock.patch('one.params.input', new=self.assertFalse):
             one_obj = ONE(silent=True)
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
@@ -402,6 +410,26 @@ class TestOneSetup(unittest.TestCase):
         self.assertEqual(one_obj.alyx._par.ALYX_URL, url)
         client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
         self.assertEqual(len(list(client_pars)), 1)
+
+    # @unittest.skip('TODO')
+    def test_patch_params(self):
+        """Test patching legacy params to the new location"""
+        # Save some old-style params
+        old_pars = (one.params.default()
+                    .set('CACHE_DIR', self.tempdir.name)
+                    .set('HTTP_DATA_SERVER_PWD', '123'))
+        with open(Path(self.tempdir.name, '.one_params'), 'w') as f:
+            json.dump(old_pars.as_dict(), f)
+
+        with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
+                mock.patch('one.params.input', new=self.assertFalse):
+            one_obj = ONE(silent=False, mode='local')
+        self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER_PWD, '123')
+
+
+
+
+
 
     def tearDown(self) -> None:
         self.tempdir.cleanup()
