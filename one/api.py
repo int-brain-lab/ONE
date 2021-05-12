@@ -703,21 +703,15 @@ class OneAlyx(One):
         super(OneAlyx, self).__init__(**kwargs)
 
     def _load_cache(self, cache_dir=None):
+        N_TABLES = 2
         super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
         if (self._cache and not self._cache['expired']) or self.mode == 'local':
             return
         _logger.info('Downloading remote caches...')
         # Download the remote cache files
-        TABLES = ('sessions', 'datasets')
-        cache_dir = cache_dir or self._cache_dir
         try:
-            files = self.alyx.download_file(
-                [f'/json/{datetime.now().date()}_{x}.pqt' for x in TABLES],
-                cache_dir=cache_dir, clobber=True, return_md5=False)
-            for file, name in zip(files, TABLES):
-                old_file = Path(file)
-                old_file.replace(old_file.parent.joinpath(f'{name}.pqt'))
-            assert len(files) == len(TABLES) and all(files)
+            files = self.alyx.download_cache_tables()
+            assert len(files) == N_TABLES and all(files)
         except HTTPError:
             # TODO Check for local cache
             _logger.error(f'Failed to load the remote cache file')

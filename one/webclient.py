@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
 import hashlib
 import shutil
+import zipfile
+import tempfile
 
 import requests
 from tqdm import tqdm
@@ -542,7 +544,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         n_bytes = cmeta['chunk_offsets'][-1]
         assert n_bytes > 0
 
-        # Save the chopped chunk bounds and offets.
+        # Save the chopped chunk bounds and offsets.
         cmeta['sha1_compressed'] = None
         cmeta['sha1_uncompressed'] = None
         cmeta['chopped'] = True
@@ -565,6 +567,24 @@ class AlyxClient(metaclass=UniqueSingletons):
                     cbin_local_path_renamed.with_suffix('.meta'))
         reader = spikeglx.Reader(cbin_local_path_renamed)
         return reader
+
+    def download_cache_tables(self):
+        """
+        TODO Document
+        :return: List of parquet table file paths
+        """
+        with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
+            file = http_download_file(f'{self.base_url}/cache',
+                                      username=self._par.ALYX_LOGIN,
+                                      password=self._par.ALYX_PWD,
+                                      headers=self._headers,
+                                      silent=self.silent,
+                                      cache_dir=tmp,
+                                      clobber=True)
+            with zipfile.ZipFile(file, 'r') as zipped:
+                files = zipped.namelist()
+                zipped.extractall(self.cache_dir)
+        return [Path(self.cache_dir, table) for table in files]
 
     def _validate_file_url(self, url):
         """

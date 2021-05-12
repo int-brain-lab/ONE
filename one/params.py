@@ -131,6 +131,7 @@ def get_cache_dir() -> Path:
 def get_params_dir() -> Path:
     return iopar.getfile(_PAR_ID_STR)
 
+
 def _check_cache_conflict(cache_dir):
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}).get('CLIENT_MAP', None)
     if cache_map:
