@@ -1,12 +1,20 @@
+# TODO Copied from oneibl; needs updating
 import unittest
+from unittest import mock
+from pathlib import Path
 import numpy as np
 import os
 import one.webclient as wc
 import one.params
 import tempfile
 import shutil
+import requests
+import json
+from datetime import datetime, timedelta
 
 from one.lib.io import hashfile
+from . import OFFLINE_ONLY
+from . import util
 
 par = one.params.get()
 
@@ -94,6 +102,78 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac.json_field_write(self.endpoint, self.eid2, self.field_name, self.eid2_eqc)
 
 
+class TestRestCache(unittest.TestCase):
+    def setUp(self):
+        util.setup_test_params()  # Ensure test alyx set up
+        util.setup_rest_cache()  # Copy rest cache fixtures
+        self.query = '/insertions/b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
+        self.tempdir = util.set_up_env()
+        self.addCleanup(self.tempdir.cleanup)
+        one.webclient.datetime = _FakeDateTime
+        _FakeDateTime._now = None
+
+    def test_loads_cached(self):
+        # Check returns cache
+        wrapped = wc.cache_response(lambda *args: self.assertTrue(False))
+        client = ac  # Bunch({'base_url': 'https://test.alyx.internationalbrainlab.org'})
+        res = wrapped(client, requests.get, self.query)
+        self.assertEqual(res['id'], self.query.split('/')[-1])
+
+    def test_expired_cache(self):
+        # Checks expired
+        wrapped = wc.cache_response(lambda *args: 'called')
+        _FakeDateTime._now = datetime.fromisoformat('3001-01-01')
+        res = wrapped(ac, requests.get, self.query)
+        self.assertTrue(res == 'called')
+
+    def test_caches_response(self):
+        # Default expiry time
+        dt = timedelta(minutes=1)
+        wrapped = wc.cache_response(lambda *args: 'called', default_expiry=dt)
+        _FakeDateTime._now = datetime(2021, 5, 13)  # Freeze time
+        res = wrapped(ac, requests.get, '/endpoint?id=5')
+        self.assertTrue(res == 'called')
+
+        # Check cache file created
+        filename = '64b5b3476c015e04ee7c4753606b5e967325d34a'
+        path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https', filename)
+        cache_file = Path(one.params.get_params_dir()).joinpath(*path_parts)
+        self.assertTrue(cache_file.exists())
+        with open(cache_file, 'r') as f:
+            q, when = json.load(f)
+        self.assertEqual('called', q)
+        self.assertEqual(when, '2021-05-13T00:01:00')
+
+    def test_expiry_param(self):
+        # Check expiry param
+        wrapped = wc.cache_response(lambda *args: '123')
+        res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
+        self.assertTrue(res == '123')
+
+        # A second call should yield a new response as cache immediately expired
+        wrapped = wc.cache_response(lambda *args: '456')
+        res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
+        self.assertTrue(res == '456')
+
+    def test_cache_returned_on_error(self):
+        func = mock.Mock(side_effect=requests.ConnectionError())
+        wrapped = wc.cache_response(func)
+        _FakeDateTime._now = datetime.fromisoformat('3001-01-01')  # Expired
+        with self.assertWarns(RuntimeWarning):
+            res = wrapped(ac, requests.get, self.query)
+        self.assertEqual(res['id'], self.query.split('/')[-1])
+
+
+
+class _FakeDateTime(datetime):
+    _now = None
+
+    @staticmethod
+    def now(*args, **kwargs):
+        return _FakeDateTime._now or datetime.now(*args, **kwargs)
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online')
 class TestDownloadHTTP(unittest.TestCase):
 
     def setUp(self):

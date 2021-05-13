@@ -9,6 +9,7 @@ from urllib.error import HTTPError
 from collections.abc import Mapping
 from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
+import warnings
 import hashlib
 import shutil
 import zipfile
@@ -26,10 +27,10 @@ SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')
 _logger = logging.getLogger('ibllib')
 
 
-def cache_response(func, mode='get', expires=timedelta(days=1)):
+def cache_response(func, mode='get', default_expiry=timedelta(days=1)):
     @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
-        _expires = kwargs.pop('expires', expires) or timedelta()
+    def wrapper_decorator(*args, expires=None, **kwargs):
+        expires = expires or default_expiry
         if args[1].__name__ != mode:
             return func(*args, **kwargs)
         # Check cache
@@ -38,20 +39,28 @@ def cache_response(func, mode='get', expires=timedelta(days=1)):
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[2], 'utf-8'))
         name = sha1.hexdigest()
-        # Reversable but length may exceed 255 chars
+        # Reversible but length may exceed 255 chars
         # name = base64.urlsafe_b64encode(args[2].encode('UTF-8')).decode('UTF-8')
         files = list(rest_cache.glob(name))
+        cached = None
         if len(files) == 1:
             _logger.debug('loading REST response from cache')
             with open(files[0], 'r') as f:
-                response, when = json.load(f)
+                cached, when = json.load(f)
             if datetime.fromisoformat(when) > datetime.now():
-                return response
-        response = func(*args, **kwargs)
+                return cached
+        try:
+            response = func(*args, **kwargs)
+        except requests.exceptions.ConnectionError as ex:
+            if cached:
+                warnings.warn('Failed to connect, returning cached response', RuntimeWarning)
+                return cached
+            raise ex  # No cache and can't connect to database; re-raise
+
         # Save response into cache
         rest_cache.mkdir(exist_ok=True, parents=True)
         _logger.debug('caching REST response')
-        expiry_datetime = datetime.now() + _expires
+        expiry_datetime = datetime.now() + (timedelta() if expires is True else expires)
         with open(rest_cache / name, 'w') as f:
             json.dump((response, expiry_datetime.isoformat()), f)
         return response

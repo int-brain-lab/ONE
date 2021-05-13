@@ -5,8 +5,11 @@ TODO Include exp_ref parsing
 TODO Add Offline property?
 TODO Add sig to ONE Light uuids
 TODO Save changes to cache
-TODO Fix update cache in AlyxONE
-TODO pid_to_eid
+TODO Fix update cache in AlyxONE - save parquet table
+TODO save parquet in update_filesystem
+TODO Fix one.search exist_only
+TODO Update cache fixtures with new test alyx cache
+
 
 Points of discussion:
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
@@ -206,7 +209,7 @@ class One(ConversionMixin):
             self._load_cache(clobber=True)
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
-        return self._cache['loaded_time']
+        return self._cache.get('loaded_time', None)
 
     def download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -317,8 +320,7 @@ class One(ConversionMixin):
             elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
                 query = '|'.join(validate_input(value))
                 mask = sessions['lab' if key == 'laboratory' else key].str.contains(query)
-                mask = mask.values == True  # FIXME cache not generated properly
-                sessions = sessions[mask]
+                sessions = sessions[mask.astype(bool, copy=False)]
             elif key == 'date_range':
                 start, end = _validate_date_range(value)
                 session_date = pd.to_datetime(sessions['date'])
@@ -473,7 +475,8 @@ class One(ConversionMixin):
         self.refresh_cache(query_type)
         return self._cache['sessions']['subject'].sort_values().unique()
 
-    def list_datasets(self, eid=None, sorted=False, query_type='auto') -> Union[np.ndarray, pd.DataFrame]:
+    def list_datasets(self, eid=None, sorted=False, query_type='auto') -> Union[
+        np.ndarray, pd.DataFrame]:
         """
         Given one or more eids, return the datasets for those sessions.  If no eid is provided,
         a list of all unique datasets is returned
@@ -752,7 +755,7 @@ class OneAlyx(One):
                 return
 
         # Determine whether a newer cache is available
-        cache_info = self.alyx.get('cache/info', expires=None)
+        cache_info = self.alyx.get('cache/info', expires=True)
         remote_created = datetime.fromisoformat(cache_info['date_created'])
         if (remote_created - self._cache['created_time']) < timedelta(minutes=1):
             _logger.info('No newer cache available')
@@ -776,6 +779,7 @@ class OneAlyx(One):
         return self._web_client.cache_dir
 
     def help(self, dataset_type=None):
+        # TODO Move the AlyxClient; add to rest examples
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
         if isinstance(dataset_type, list):

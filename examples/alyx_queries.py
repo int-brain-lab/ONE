@@ -36,7 +36,7 @@ ses = one.alyx.rest('sessions', 'list', django='~project__name__icontains,matlab
 ses = one.alyx.rest('sessions', 'list',
                     django='~data_dataset_session_related__dataset_type__name__icontains,wheel')
 
-
+# FIXME Use to_eid instead
 def session_response_to_eids(ses):
     """A simple function to return a list of eids from a sessions list response"""
     return [x['url'][-36:] for x in ses]
