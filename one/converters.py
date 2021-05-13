@@ -140,14 +140,14 @@ class ConversionMixin:
         if record is None:
             return
         assert len(record) == 1
-        uuid, = parquet.np2str(record.reset_index()[['dset_id_0', 'dset_id_1']])
+        uuid, = parquet.np2str(record.reset_index()[['id_0', 'id_1']])
         filepath = alfio.add_uuid_string(filepath, uuid).as_posix()
         root = self._cache_dir.replace('\\', '/')
         assert filepath.startswith(root)
         return filepath.replace(root, self._web_client.base_url)
 
     def url_from_record(self, dataset):
-        # FIXME Need lab name from sessions
+        # FIXME Should be OneAlyx converter only
         # for i, rec in dataset.iterrows():
         if isinstance(dataset, pd.Series):
             uuid, = parquet.np2str(np.array([dataset.name]))

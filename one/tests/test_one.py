@@ -300,7 +300,7 @@ class TestONECache(unittest.TestCase):
         self.assertCountEqual(wheel.keys(), ('position', 'velocity', 'timestamps'))
 
     def test_url_from_path(self):
-        file = Path(self.tempdir.name).joinpath('KS005', '2019-04-04',
+        file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',
                                                 '004', 'alf', '_ibl_wheel.position.npy')
         url = self.one.url_from_path(file)
         self.assertTrue(url.startswith(self.one._par.HTTP_DATA_SERVER))
