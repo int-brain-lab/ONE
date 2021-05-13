@@ -42,7 +42,6 @@ import logging
 import os
 import fnmatch
 import re
-from urllib.error import HTTPError
 from datetime import datetime, timedelta
 from functools import wraps
 from inspect import unwrap
@@ -54,6 +53,7 @@ from uuid import UUID
 import tqdm
 import pandas as pd
 import numpy as np
+import requests.exceptions
 
 import one.params
 import one.webclient as wc
@@ -754,21 +754,25 @@ class OneAlyx(One):
             if (self._cache and not self._cache['expired']) or self.mode == 'local':
                 return
 
-        # Determine whether a newer cache is available
-        cache_info = self.alyx.get('cache/info', expires=True)
-        remote_created = datetime.fromisoformat(cache_info['date_created'])
-        if (remote_created - self._cache['created_time']) < timedelta(minutes=1):
-            _logger.info('No newer cache available')
-            return
-
-        # Download the remote cache files
-        _logger.info('Downloading remote caches...')
         try:
+            # Determine whether a newer cache is available
+            cache_info = self.alyx.get('cache/info', expires=True)
+            remote_created = datetime.fromisoformat(cache_info['date_created'])
+            if (remote_created - self._cache['created_time']) < timedelta(minutes=1):
+                _logger.info('No newer cache available')
+                return
+
+            # Download the remote cache files
+            _logger.info('Downloading remote caches...')
             files = self.alyx.download_cache_tables()
             assert any(files)
             super(OneAlyx, self)._load_cache(self._cache_dir)  # Reload cache after download
-        except HTTPError:
+        except requests.exceptions.HTTPError:
             _logger.error(f'Failed to load the remote cache file')
+            self._mode = 'remote'
+        except (ConnectionError, requests.exceptions.ConnectionError):
+            _logger.error(f'Failed to connect to Alyx')
+            self._mode = 'local'
 
     @property
     def alyx(self):

@@ -379,6 +379,7 @@ class TestOneSetup(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
         self.get_file = partial(get_file, self.tempdir.name)
+        wc.UniqueSingletons._instances = []  # Delete any active instances
 
     def test_setup_silent(self):
         """Test setting up parameters with silent flag
@@ -397,7 +398,7 @@ class TestOneSetup(unittest.TestCase):
 
         # Check uses defaults on second instantiation
         with mock.patch('one.lib.io.params.getfile', new=self.get_file):
-            one_obj = ONE()
+            one_obj = ONE(mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
     def test_setup(self):
@@ -443,7 +444,11 @@ class TestOneSetup(unittest.TestCase):
             self.assertIsInstance(one_obj, OneAlyx)
 
             # A db URL was provided; use OneAlyx
-            one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org', silent=True)
+            one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org',
+                          username='test_user',
+                          password='TapetesBloc18',
+                          mode='local',  # Don't download cache (could also set cache_dir)
+                          silent=True)
             self.assertIsInstance(one_obj, OneAlyx)
 
             # The offline param was given, raise deprecation warning (via log)
@@ -451,9 +456,6 @@ class TestOneSetup(unittest.TestCase):
             #     ONE(offline=True, cache_dir=self.tempdir.name)
             with self.assertWarns(DeprecationWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
-
-    def tearDown(self) -> None:
-        self.tempdir.cleanup()
 
 
 def get_file(root: str, str_id: str) -> str:
