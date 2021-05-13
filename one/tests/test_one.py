@@ -104,6 +104,7 @@ class TestONECache(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        # FIXME Use util fixture
         fixture = Path(__file__).parent.joinpath('fixtures')
         cls.tempdir = tempfile.TemporaryDirectory()
         # Copy cache files to temporary directory
@@ -274,10 +275,10 @@ class TestONECache(unittest.TestCase):
         self.assertIsNotNone(file)
 
     def test_load_dataset_from_id(self):
-        id = np.array([[-2578956635146322139, -3317321292073090886]])
+        id = np.array([[-9204203870374650458, -6411285612086772563]])
         file = self.one.load_dataset_from_id(id, download_only=True)
         self.assertIsInstance(file, Path)
-        expected = 'FMR019/2021-03-18/002/alf/_ibl_wheel.position.npy'
+        expected = 'ZFM-01935/2021-02-05/001/alf/probe00/_phy_spikes_subset.waveforms.npy'
         self.assertTrue(file.as_posix().endswith(expected))
 
         # Details
@@ -286,23 +287,21 @@ class TestONECache(unittest.TestCase):
 
         # Load file content with str id
         np.save(str(file), np.arange(3))  # Ensure data to load
-        dset = self.one.load_dataset_from_id('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1')
+        dset = self.one.load_dataset_from_id('a61d0b8a-5819-4480-adbc-fe49b48906a7')
         self.assertTrue(np.all(dset == np.arange(3)))
 
         # Load file content with UUID
-        dset = self.one.load_dataset_from_id(UUID('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1'))
+        dset = self.one.load_dataset_from_id(UUID('a61d0b8a-5819-4480-adbc-fe49b48906a7'))
         self.assertTrue(np.all(dset == np.arange(3)))
 
     def test_load_object(self):
-        wheel = self.one.load_object('FMR019/2021-03-18/002', 'wheel')
+        wheel = self.one.load_object('aaf101c3-2581-450a-8abd-ddb8f557a5ad', 'wheel')
         self.assertIsInstance(wheel, dict)
-        # dsets = self.one._cache['datasets']
-        # dsets = dsets[dsets['dset_id'].str.contains('FMR019/2021-03-18/002/.*wheel.*')]
-        # Path(self.tempdir.name, 'angelakilab', 'Subjects', 'FMR019', '2021-03-18').rmdir()
+        self.assertCountEqual(wheel.keys(), ('position', 'velocity', 'timestamps'))
 
     def test_url_from_path(self):
-        file = Path(self.tempdir.name).joinpath('angelakilab', 'Subjects', 'FMR019', '2021-03-18',
-                                                '002', 'alf', '_ibl_wheel.position.npy')
+        file = Path(self.tempdir.name).joinpath('KS005', '2019-04-04',
+                                                '004', 'alf', '_ibl_wheel.position.npy')
         url = self.one.url_from_path(file)
         self.assertTrue(url.startswith(self.one._par.HTTP_DATA_SERVER))
         self.assertTrue('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1' in url)

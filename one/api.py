@@ -138,12 +138,13 @@ class One(ConversionMixin):
         'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
     )
 
-    def __init__(self, cache_dir=None):
+    def __init__(self, cache_dir=None, mode='auto'):
         # get parameters override if inputs provided
         super().__init__()
         if not getattr(self, '_cache_dir', None):  # May already be set by subclass
             self._cache_dir = cache_dir or one.params.get_cache_dir()
         self.cache_expiry = timedelta(hours=24)
+        self.mode = mode
         # init the cache file
         self._load_cache()
 
@@ -416,8 +417,10 @@ class One(ConversionMixin):
         """
         if offline or not getattr(self, '_web_client', None):
             files = []
-            if not isinstance(datasets, pd.DataFrame):
-                # Cast from Series or set of dicts (i.e. from REST datasets endpoint)
+            if isinstance(datasets, pd.Series):
+                datasets = pd.DataFrame([datasets])
+            elif not isinstance(datasets, pd.DataFrame):
+                # Cast set of dicts (i.e. from REST datasets endpoint)
                 datasets = pd.DataFrame(list(datasets))
             for i, rec in datasets.iterrows():
                 file = Path(self._cache_dir, *rec[['session_path', 'rel_path']])
@@ -553,7 +556,6 @@ class One(ConversionMixin):
         # return alfio.load_object(path, table[match]['object'].values[0])
         download_only = kwargs.pop('download_only', False)
         files = self._update_filesystem(datasets, offline=query_type == 'local')
-        pprint(files)
         files = [x for x in files if x]
         if not files:
             raise ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
@@ -738,7 +740,7 @@ def ONE(mode='auto', **kwargs):
 
 
 class OneAlyx(One):
-    def __init__(self, username=None, password=None, base_url=None, mode='auto', **kwargs):
+    def __init__(self, username=None, password=None, base_url=None, **kwargs):
         # Load Alyx Web client
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
@@ -769,10 +771,10 @@ class OneAlyx(One):
             super(OneAlyx, self)._load_cache(self._cache_dir)  # Reload cache after download
         except requests.exceptions.HTTPError:
             _logger.error(f'Failed to load the remote cache file')
-            self._mode = 'remote'
+            self.mode = 'remote'
         except (ConnectionError, requests.exceptions.ConnectionError):
             _logger.error(f'Failed to connect to Alyx')
-            self._mode = 'local'
+            self.mode = 'local'
 
     @property
     def alyx(self):
@@ -905,7 +907,7 @@ class OneAlyx(One):
                     obj: str,
                     collection: Optional[str] = 'alf',
                     download_only: bool = False,
-                    query_type: str = 'auto',
+                    query_type: str = None,
                     clobber: bool = False,
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
@@ -918,6 +920,7 @@ class OneAlyx(One):
         Supports asterisks as wildcards.
         :param download_only: When true the data are downloaded and the file paths are returned
         :param query_type: Query cache ('local') or Alyx database ('remote')
+        :param clobber: If true, local data are re-downloaded
         :param kwargs: Optional filters for the ALF objects, including namespace and timescale
         :return: An ALF bunch or if download_only is True, a list of Paths objects
 
@@ -926,8 +929,8 @@ class OneAlyx(One):
         load_object(eid, 'trials')
         load_object(eid, 'spikes', collection='*probe01')
         """
-        # TODO
-        if query_type != 'remote' or (query_type == 'auto' and self.offline == True):
+        query_type = query_type or self.mode
+        if query_type != 'remote':
             load_object_offline = unwrap(super().load_object)  # Skip parse_id decorator
             return load_object_offline(self, eid, obj,
                                        collection=collection, download_only=download_only,
@@ -1081,7 +1084,7 @@ class OneAlyx(One):
 
     # def search(self, dataset_types=None, users=None, subjects=None, date_range=None,
     #            lab=None, number=None, task_protocol=None, details=False):
-    def search(self, details=False, limit=None, query_type='auto', **kwargs):
+    def search(self, details=False, limit=None, query_type=None, **kwargs):
         """
         Applies a filter to the sessions (eid) table and returns a list of json dictionaries
          corresponding to sessions.
@@ -1124,7 +1127,7 @@ class OneAlyx(One):
                               any task protocol containing that str will be found)
         :type task_protocol: str
 
-        :param users: a list of users
+        :param users: a list of Alyx usernames
         :type users: list or str
 
         :return: list of eids, if details is True, also returns a list of json dictionaries,
@@ -1133,8 +1136,9 @@ class OneAlyx(One):
 
 
         """
+        query_type = query_type or self.mode
         if query_type != 'remote':
-            return super(OneAlyx, self).search(details=details, **kwargs)
+            return super(OneAlyx, self).search(details=details, query_type=query_type, **kwargs)
 
         # small function to make sure string inputs are interpreted as lists
         def validate_input(inarg):
