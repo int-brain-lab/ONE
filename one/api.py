@@ -145,7 +145,7 @@ class One(ConversionMixin):
         self._load_cache()
 
     def _load_cache(self, cache_dir=None, **kwargs):
-        self._cache = Bunch({'expired': False})
+        self._cache = Bunch({'expired': False, 'created_time': None})
         INDEX_KEY = 'id'
         for table in ('sessions', 'datasets'):
             cache_file = Path(cache_dir or self._cache_dir).joinpath(table + '.pqt')
@@ -153,6 +153,10 @@ class One(ConversionMixin):
                 # we need to keep this part fast enough for transient objects
                 cache, info = parquet.load(cache_file)
                 created = datetime.fromisoformat(info['date_created'])
+                if self._cache['created_time']:
+                    self._cache['created_time'] = min([self._cache['created_time'], created])
+                else:
+                    self._cache['created_time'] = created
                 self._cache['loaded_time'] = datetime.now()
                 self._cache['expired'] |= datetime.now() - created > self.cache_expiry
                 if self._cache['expired']:
@@ -742,21 +746,26 @@ class OneAlyx(One):
         super(OneAlyx, self).__init__(**kwargs)
 
     def _load_cache(self, cache_dir=None, clobber=False):
-        N_TABLES = 2
         if not clobber:
             super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
             if (self._cache and not self._cache['expired']) or self.mode == 'local':
                 return
-        _logger.info('Downloading remote caches...')
+
+        # Determine whether a newer cache is available
+        cache_info = self.alyx.get('cache/info', expires=None)
+        remote_created = datetime.fromisoformat(cache_info['date_created'])
+        if (remote_created - self._cache['created_time']) < timedelta(minutes=1):
+            _logger.info('No newer cache available')
+            return
+
         # Download the remote cache files
+        _logger.info('Downloading remote caches...')
         try:
             files = self.alyx.download_cache_tables()
-            assert len(files) == N_TABLES and all(files)
+            assert any(files)
+            super(OneAlyx, self)._load_cache(self._cache_dir)  # Reload cache after download
         except HTTPError:
-            # TODO Check for local cache
             _logger.error(f'Failed to load the remote cache file')
-            return
-        super(OneAlyx, self)._load_cache(self._cache_dir)  # Reload cache after download
 
     @property
     def alyx(self):

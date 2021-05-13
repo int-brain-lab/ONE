@@ -324,7 +324,7 @@ def dataset_record_to_url(dataset_record):
     return urls
 
 
-class UniqueSingletons(type):
+class UniqueSingletons(type):  # TODO Perhaps make ONE the singleton
     _instances: list = []
 
     def __call__(cls, *args, **kwargs):
@@ -349,7 +349,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     Class that implements simple GET/POST wrappers for the Alyx REST API
     http://alyx.readthedocs.io/en/latest/api.html
     """
-    _token = None  # TODO Check is compatible with singleton
+    _token = None
     _headers = None
 
     def __init__(self, base_url=None, username=None, password=None, silent=False):
@@ -500,13 +500,15 @@ class AlyxClient(metaclass=UniqueSingletons):
 
     def download_raw_partial(self, url_cbin, url_ch, first_chunk=0, last_chunk=0):
         """
-        TODO Document
+        TODO Document; move into ibllib
         :param url_cbin:
         :param url_ch:
         :param first_chunk:
         :param last_chunk:
         :return:
         """
+        import warnings
+        warnings.warn('This method will soon be moved to ibllib.io.one', DeprecationWarning)
         assert str(url_cbin).endswith('.cbin')
         assert str(url_ch).endswith('.ch')
 
@@ -585,8 +587,9 @@ class AlyxClient(metaclass=UniqueSingletons):
         TODO Document
         :return: List of parquet table file paths
         """
+        # query the database for the latest cache; expires=None overrides cached response
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
-            file = http_download_file(f'{self.base_url}/cache',
+            file = http_download_file(f'{self.base_url}/cache.zip',
                                       username=self._par.ALYX_LOGIN,
                                       password=self._par.ALYX_PWD,
                                       headers=self._headers,
@@ -622,7 +625,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         assert not path.startswith('http')
         return f'{self._par.HTTP_DATA_SERVER}/{path}'
 
-    def get(self, rest_query):
+    def get(self, rest_query, **kwargs):
         """
         Sends a GET request to the Alyx server. Will raise an exception on any status_code
         other than 200, 201.
@@ -634,7 +637,7 @@ class AlyxClient(metaclass=UniqueSingletons):
 
         :return: (dict/list) json interpreted dictionary from response
         """
-        rep = self._generic_request(requests.get, rest_query)
+        rep = self._generic_request(requests.get, rest_query, **kwargs)
         _logger.debug(rest_query)
         if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
             if len(rep['results']) < rep['count']:
