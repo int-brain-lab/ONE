@@ -1,4 +1,5 @@
 from pathlib import Path, PurePosixPath, PureWindowsPath
+from functools import partial
 import unittest
 from unittest import mock
 import tempfile
@@ -10,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 from one import webclient as wc
-from one.api import ONE, OneAlyx
+from one.api import ONE, One, OneAlyx
 import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
@@ -350,12 +351,16 @@ class TestOneAlyx(unittest.TestCase):
 
     def setUp(self) -> None:
         # Create ONE object with temp cache dir
-        self.one = OneAlyx(
-            base_url='https://test.alyx.internationalbrainlab.org',
-            username='test_user',
-            password='TapetesBloc18',
-            cache_dir=self.tempdir.name
-        )
+        # TODO Copy over params fixture instead
+        with mock.patch('one.lib.io.params.getfile', new=partial(get_file, self.tempdir.name)):
+            self.one = OneAlyx(
+                base_url='https://test.alyx.internationalbrainlab.org',
+                username='test_user',
+                password='TapetesBloc18',
+                cache_dir=self.tempdir.name,
+                silent=True,
+                mode='local'
+            )
 
     @unittest.skip
     def test_download_datasets(self):
@@ -373,11 +378,7 @@ class TestOneSetup(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
-
-    def get_file(self, str_id):
-        parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
-        pfile = Path(self.tempdir.name, *parts).as_posix()
-        return pfile
+        self.get_file = partial(get_file, self.tempdir.name)
 
     def test_setup_silent(self):
         """Test setting up parameters with silent flag
@@ -386,7 +387,7 @@ class TestOneSetup(unittest.TestCase):
         """
         with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
                 mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=True)
+            one_obj = ONE(silent=True, mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
         # Check param files were saved
@@ -411,7 +412,6 @@ class TestOneSetup(unittest.TestCase):
         client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
         self.assertEqual(len(list(client_pars)), 1)
 
-    # @unittest.skip('TODO')
     def test_patch_params(self):
         """Test patching legacy params to the new location"""
         # Save some old-style params
@@ -426,10 +426,43 @@ class TestOneSetup(unittest.TestCase):
             one_obj = ONE(silent=False, mode='local')
         self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER_PWD, '123')
 
+    def test_one_factory(self):
+        """Tests the ONE class factory"""
+        with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
+                mock.patch('one.params.input', new=self.assertFalse):
+            # Cache dir not in client cache map; use One (light)
+            one_obj = ONE(cache_dir=self.tempdir.name)
+            self.assertIsInstance(one_obj, One)
 
+            # No cache dir provided; use OneAlyx (silent setup mode)
+            one_obj = ONE(silent=True, mode='local')
+            self.assertIsInstance(one_obj, OneAlyx)
 
+            # The cache dir is in client cache map; use OneAlyx
+            one_obj = ONE(cache_dir=one_obj.alyx.cache_dir, mode='local')
+            self.assertIsInstance(one_obj, OneAlyx)
 
+            # A db URL was provided; use OneAlyx
+            one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org', silent=True)
+            self.assertIsInstance(one_obj, OneAlyx)
 
+            # The offline param was given, raise deprecation warning (via log)
+            # with self.assertLogs(logging.getLogger('ibllib'), logging.WARNING):
+            #     ONE(offline=True, cache_dir=self.tempdir.name)
+            with self.assertWarns(DeprecationWarning):
+                ONE(offline=True, cache_dir=self.tempdir.name)
 
     def tearDown(self) -> None:
         self.tempdir.cleanup()
+
+
+def get_file(root: str, str_id: str) -> str:
+    """
+    A stub function for one.lib.io.params.getfile.  Allows the injection of a different param dir.
+    :param root: The root directory of the new parameters
+    :param str_id: The parameter string identifier
+    :return: The parameter filename
+    """
+    parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
+    pfile = Path(root, *parts).as_posix()
+    return pfile

@@ -38,6 +38,8 @@ def cache_response(func, mode='get', expires=timedelta(days=1)):
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[2], 'utf-8'))
         name = sha1.hexdigest()
+        # Reversable but length may exceed 255 chars
+        # name = base64.urlsafe_b64encode(args[2].encode('UTF-8')).decode('UTF-8')
         files = list(rest_cache.glob(name))
         if len(files) == 1:
             _logger.debug('loading REST response from cache')
@@ -350,7 +352,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     _token = None  # TODO Check is compatible with singleton
     _headers = None
 
-    def __init__(self, base_url=None, username=None, password=None, silent=False, **kwargs):
+    def __init__(self, base_url=None, username=None, password=None, silent=False):
         """
         Create a client instance that allows to GET and POST to the Alyx server
         For oneibl, constructor attempts to authenticate with credentials in params.py
@@ -365,8 +367,10 @@ class AlyxClient(metaclass=UniqueSingletons):
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
+        # TODO Pass these to `get` and have it deal with setup defaults
         self._par = self._par.set('ALYX_LOGIN', username or self._par.ALYX_LOGIN)
         self._par = self._par.set('ALYX_PWD', password or self._par.ALYX_PWD)
+        self._par = self._par.set('ALYX_URL', base_url or self._par.ALYX_URL)
         self.authenticate()
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
@@ -393,6 +397,14 @@ class AlyxClient(metaclass=UniqueSingletons):
     def base_url(self):
         return self._par.ALYX_URL
 
+    def list_endpoints(self):
+        """
+        Return a list of available REST endpoints
+        :return: List of REST endpoint strings
+        """
+        EXCLUDE = ('_type', '_meta', '', 'auth-token')
+        return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
+
     @cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
         # makes sure the base url is the one from the instance
@@ -415,12 +427,12 @@ class AlyxClient(metaclass=UniqueSingletons):
             _logger.error(r.text)
             raise (requests.HTTPError(r))
 
-    def authenticate(self, cache_token=True):
+    def authenticate(self, cache_token=True, force=False):
         """
         Gets a security token from the Alyx REST API to create requests headers.
         Credentials are loaded via oneibl.params
         """
-        if getattr(self._par, 'TOKEN', False) and cache_token:
+        if getattr(self._par, 'TOKEN', False) and not force:
             self._token = self._par.TOKEN
             self._headers = {
                 'Authorization': f'Token {list(self._token.values())[0]}',

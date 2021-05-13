@@ -1,6 +1,6 @@
 """
 TODO Document
-TODO Add query_type
+TODO Add query_type; handle param in decorator
 TODO Include exp_ref parsing
 TODO Add Offline property?
 TODO Add sig to ONE Light uuids
@@ -34,7 +34,7 @@ Points of discussion:
 """
 import abc
 import concurrent.futures
-import json
+import warnings
 import logging
 import os
 import fnmatch
@@ -63,10 +63,10 @@ from one.lib.io import hashfile
 from pprint import pprint
 from one.lib.brainbox.io import parquet
 from one.lib.brainbox.core import Bunch
-from one.lib.brainbox.numerical import ismember, ismember2d, find_first_2d
+from one.lib.brainbox.numerical import ismember2d, find_first_2d
 from one.converters import ConversionMixin
 
-_logger = logging.getLogger('ibllib')
+_logger = logging.getLogger('ibllib')  # TODO Refactor log
 
 
 def Listable(t): return Union[t, Sequence[t]]  # noqa
@@ -174,6 +174,14 @@ class One(ConversionMixin):
                     int_eids = False
                 cache.set_index(num_index if int_eids else INDEX_KEY, inplace=True)
 
+            # Check sorted
+            is_sorted = (cache.index.is_lexsorted()
+                         if isinstance(cache.index, pd.MultiIndex)
+                         else True)
+            # Sorting makes MultiIndex indexing O(N) -> O(1)
+            if table == 'datasets' and not is_sorted:
+                cache.sort_index(inplace=True)
+
             self._cache[table] = cache
         return self._cache.get('loaded_time', None)
 
@@ -271,8 +279,9 @@ class One(ConversionMixin):
             """Ensure input is a list"""
             return [inarg] if isinstance(inarg, str) or not isinstance(inarg, Iterable) else inarg
 
-        def all_present(x, dsets):
+        def all_present(x, dsets, exists=None):
             """Returns true if all datasets present in Series"""
+
             return all(any(x.str.contains(y)) for y in dsets)
 
         def autocomplete(term):
@@ -322,17 +331,18 @@ class One(ConversionMixin):
                                      np.array(sessions.index.values.tolist()))
                 if exists_only:
                     # For each session check any dataset both contains query and exists
+                    # FIXME This doesn't work
                     mask = (
                         datasets[isin]
-                        .groupby(index, sort=False)
-                        .apply(lambda x: all_present(x['rel_path'], query) & x['exists'])
+                            .groupby(index, sort=False)
+                            .apply(lambda x: all_present(x['rel_path'], query) & x['exists'])
                     )
                 else:
                     # For each session check any dataset contains query
                     mask = (
                         datasets[isin]
-                        .groupby(index, sort=False)['rel_path']
-                        .aggregate(lambda x: all_present(x, query))
+                            .groupby(index, sort=False)['rel_path']
+                            .aggregate(lambda x: all_present(x, query))
                     )
                 # eids of matching dataset records
                 idx = mask[mask].index
@@ -451,13 +461,21 @@ class One(ConversionMixin):
             det = self._cache['datasets'].join(det, on=det.index.names, how='right')
         return det
 
-    def list_subjects(self):
+    def list_subjects(self, query_type='auto') -> List[str]:
+        """
+        List all subjects in database
+        :return: Sorted list of subject names
+        """
+        self.refresh_cache(query_type)
         return self._cache['sessions']['subject'].sort_values().unique()
 
-    def list_datasets(self, eid=None) -> Union[np.ndarray, pd.DataFrame]:
+    def list_datasets(self, eid=None, sorted=False, query_type='auto') -> Union[np.ndarray, pd.DataFrame]:
         """
         Given one or more eids, return the datasets for those sessions.  If no eid is provided,
         a list of all unique datasets is returned
+
+        TODO Return datasets sorted by session date, relpath
+
         :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
         details dict or Path
         :return: Slice of datasets table or numpy array if eid is None
@@ -690,13 +708,25 @@ class One(ConversionMixin):
 
 
 def ONE(mode='auto', **kwargs):
-    """ONE factory"""
+    """ONE API factory
+    Determine which class to instantiate depending on parameters passed.
+    """
     if kwargs.pop('offline', False):
-        _logger.warning('the offline kwarg will probably be removed.  ONE is now offline by '
-                        'default anyway')
-    if mode == 'local' and not kwargs.get('base_url', False):
+        _logger.warning('the offline kwarg will probably be removed. '
+                        'ONE is now offline by default anyway')
+        warnings.warn('"offline" param will be removed; use mode="local"', DeprecationWarning)
+
+    if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
+            not kwargs.get('cache_dir', False)):
+        return OneAlyx(mode=mode, **kwargs)
+
+    # TODO This feels hacky
+    # If cache dir was provided and corresponds to one configured with an Alyx client, use OneAlyx
+    try:
+        one.params._check_cache_conflict(kwargs.get('cache_dir'))
         return One(**kwargs)
-    else:
+    except AssertionError:
+        # Cache dir corresponds to a Alyx repo, call OneAlyx
         return OneAlyx(mode=mode, **kwargs)
 
 
@@ -970,14 +1000,19 @@ class OneAlyx(One):
         else:
             raise ValueError('Unrecognized experiment ID')
 
-    def pid2eid(self, pid: str) -> (str, str):
+    def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
         (i.e. the ALF collection)
 
         :param pid: A probe UUID
+        :param query_type: Query mode, options include 'auto', 'remote' and 'refresh'
         :return: (experiment ID, probe label)
         """
+        if query_type != 'remote':
+            self.refresh_cache(query_type)
+        if query_type == 'local' and 'insertions' not in self._cache.keys():
+            raise NotImplemented('Converting probe IDs required remote connection')
         rec = self.alyx.rest('insertions', 'read', id=pid)
         return rec['session'], rec['name']
 
@@ -1083,6 +1118,7 @@ class OneAlyx(One):
         """
         if query_type != 'remote':
             return super(OneAlyx, self).search(details=details, **kwargs)
+
         # small function to make sure string inputs are interpreted as lists
         def validate_input(inarg):
             if isinstance(inarg, str):
@@ -1130,7 +1166,7 @@ class OneAlyx(One):
         else:
             return eids
 
-    def download_dataset(self, dset, cache_dir=None, update_exists=True, **kwargs):
+    def download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """
         Download a dataset from an alyx REST dictionary
         :param dset: single dataset dictionary from an Alyx REST query OR URL string
@@ -1153,7 +1189,7 @@ class OneAlyx(One):
             # str_dset = Path(dset['collection']).joinpath(dset['name'])
             # str_dset = dset['rel_path']
             _logger.warning(f"Dataset not found")
-            if update_exists:  # TODO Rename to update_cache
+            if update_cache:
                 if isinstance(id, str) and self._index_type('datasets') is int:
                     id = parquet.str2np(id)
                 elif self._index_type('datasets') is str and not isinstance(id, str):
@@ -1215,26 +1251,6 @@ class OneAlyx(One):
             return local_path
         else:
             return alfio.remove_uuid_file(local_path)
-
-    # @staticmethod
-    # def search_terms():
-    #     """
-    #     Returns possible search terms to be used in the one.search method.
-    #
-    #     :return: a tuple containing possible search terms:
-    #     :rtype: tuple
-    #     """
-    #     return sorted(SEARCH_TERMS)
-
-    @staticmethod
-    def keywords():
-        """
-        Returns possible keywords to be used in the one.list method
-
-        :return: a tuple containing possible search terms:
-        :rtype: tuple
-        """
-        return sorted(list(set(_ENDPOINTS.values())))
 
     @staticmethod
     def setup(**kwargs):

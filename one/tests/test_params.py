@@ -54,5 +54,17 @@ class TestONEParams(unittest.TestCase):
         params.print = print
 
 
+class TestONEParamUtil(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_key_from_url(self):
+        key = params._key_from_url('https://sub.domain.org/')
+        self.assertEqual(key, 'sub.domain.org')
+
+        key = params._key_from_url('http://www.domain.org/db/?rest=True')
+        self.assertEqual(key, 'www.domain.org_db__rest_true')
+
+
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)

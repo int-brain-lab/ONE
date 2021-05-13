@@ -11,6 +11,7 @@ import re
 from one.lib.io import params as iopar
 from getpass import getpass
 from pathlib import Path
+import unicodedata
 
 _PAR_ID_STR = 'one'
 _CLIENT_ID_STR = 'caches'
@@ -36,8 +37,22 @@ def _get_current_par(k, par_current):
     return cpar
 
 
-def _key_from_url(url):
-    return re.sub('^https?://', '', url).replace('/', '')
+def _key_from_url(url: str) -> str:
+    """
+    Convert a URL str to one valid for use as a file name or dict key.  URL Protocols are
+    removed entirely.  The returned string will have characters in the set [a-zA-Z.-_].
+
+    Example:
+        url = _key_from_url('http://test.alyx.internationalbrainlab.org/')
+        assert url == 'test.alyx.internationalbrainlab.org'
+
+    :param url: A URL string
+    :return: A file-name-safe string
+    """
+    url = unicodedata.normalize('NFKC', url)  # Ensure ASCII
+    url = re.sub('^https?://', '', url).strip('/')  # Remove protocol and trialing slashes
+    url = re.sub(r'[^.\w\s-]', '_', url.lower())  # Convert non word chars to underscore
+    return re.sub(r'[-\s]+', '-', url)  # Convert spaces to hyphens
 
 
 def setup(client=None, silent=False, make_default=None):
@@ -133,7 +148,7 @@ def get_params_dir() -> Path:
 
 
 def _check_cache_conflict(cache_dir):
-    cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}).get('CLIENT_MAP', None)
+    cache_map = getattr(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}), 'CLIENT_MAP', None)
     if cache_map:
         assert not any(x == str(cache_dir) for x in cache_map.values())
 
