@@ -3,14 +3,14 @@ A module for inter-converting experiment identifiers.
 
 There are multiple ways to uniquely identify an experiment:
     - eid (str) : An experiment UUID as a string
-    - np (int16) : An experiment UUID encoded as 2 int16s
+    - np (int64) : An experiment UUID encoded as 2 int64s
     - path (Path) : A pathlib ALF path of the form <lab>/Subjects/<subject>/<date>/<number>
     - ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject
     - url (str) : An remote http session path of the form <lab>/Subjects/<subject>/<date>/<number>
 """
 import functools
 import datetime
-from inspect import getmembers, isfunction
+from inspect import getmembers, isfunction, unwrap
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union, Sequence, Mapping, Iterable
 
@@ -136,12 +136,7 @@ class ConversionMixin:
         record = self.record_from_path(filepath)
         if record is None:
             return
-        assert len(record) == 1
-        uuid, = parquet.np2str(record.reset_index()[['id_0', 'id_1']])
-        filepath = alfio.add_uuid_string(filepath, uuid).as_posix()
-        root = self._cache_dir.replace('\\', '/')
-        assert filepath.startswith(root)
-        return filepath.replace(root, self._web_client.base_url)
+        return unwrap(self.url_from_record)(self, record)
 
     def url_from_record(self, dataset):
         # FIXME Should be OneAlyx converter only
@@ -152,8 +147,7 @@ class ConversionMixin:
             assert len(dataset) == 1
             uuid, = parquet.np2str(dataset.reset_index()[['id_0', 'id_1']])
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
-        lab, = self._cache.sessions.loc[[dataset[['eid_0', 'eid_1']]], 'lab'].values
-        url = PurePosixPath(lab, 'Subjects', session_path, rel_path)
+        url = PurePosixPath(session_path, rel_path)
         return self._web_client.rel_path_to_url(alfio.add_uuid_string(url, uuid).as_posix())
 
     def path_from_record(self, dataset) -> Optional[Path]:

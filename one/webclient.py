@@ -361,7 +361,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     _token = None
     _headers = None
 
-    def __init__(self, base_url=None, username=None, password=None, silent=False):
+    def __init__(self, base_url=None, username=None, password=None, cache_dir=None, silent=False):
         """
         Create a client instance that allows to GET and POST to the Alyx server
         For oneibl, constructor attempts to authenticate with credentials in params.py
@@ -380,6 +380,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         self._par = self._par.set('ALYX_LOGIN', username or self._par.ALYX_LOGIN)
         self._par = self._par.set('ALYX_PWD', password or self._par.ALYX_PWD)
         self._par = self._par.set('ALYX_URL', base_url or self._par.ALYX_URL)
+        self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
         self.authenticate()
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
@@ -731,7 +732,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         """
         # if endpoint is None, list available endpoints
         if not url:
-            pprint([k for k in self.rest_schemes.keys() if not k.startswith('_') and k])
+            pprint(self.list_endpoints())
             return
         # remove beginning slash if any
         if url.startswith('/'):

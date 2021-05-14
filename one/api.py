@@ -735,7 +735,7 @@ def ONE(mode='auto', **kwargs):
     # If cache dir was provided and corresponds to one configured with an Alyx client, use OneAlyx
     try:
         one.params._check_cache_conflict(kwargs.get('cache_dir'))
-        return One(**kwargs)
+        return One(mode=mode, **kwargs)
     except AssertionError:
         # Cache dir corresponds to a Alyx repo, call OneAlyx
         return OneAlyx(mode=mode, **kwargs)
@@ -747,10 +747,10 @@ class OneAlyx(One):
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
                                          base_url=base_url,
-                                         silent=kwargs.pop('silent', False))
-        self.mode = mode
+                                         silent=kwargs.pop('silent', False),
+                                         cache_dir=kwargs.get('cache_dir', None))
         # get parameters override if inputs provided
-        super(OneAlyx, self).__init__(**kwargs)
+        super(OneAlyx, self).__init__(mode=mode, **kwargs)
 
     def _load_cache(self, cache_dir=None, clobber=False):
         if not clobber:

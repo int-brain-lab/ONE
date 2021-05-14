@@ -16,6 +16,7 @@ import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
 from one.lib.brainbox.io import parquet
+from . import util
 
 dset = {
     'url': 'https://alyx.internationalbrainlab.org/datasets/00059298-1b33-429c-a802-fa51bb662d72',
@@ -327,19 +328,7 @@ class TestOneAlyx(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         # TODO Use util fixture
-        fixture = Path(__file__).parent.joinpath('fixtures')
-        cls.tempdir = tempfile.TemporaryDirectory()
-        # Copy cache files to temporary directory
-        for cache_file in ('sessions', 'datasets'):
-            filename = shutil.copy(fixture / f'{cache_file}.pqt', cls.tempdir.name)
-            assert Path(filename).exists()
-        # Copy cached rest responses
-        rest_cache_dir = Path(one.params.get_params_dir(),
-                              '.rest', 'test.alyx.internationalbrainlab.org', 'https')
-        rest_cache_dir.mkdir(parents=True, exist_ok=True)
-        for file in fixture.joinpath('rest_responses').glob('*'):
-            filename = shutil.copy(file, rest_cache_dir)
-            assert Path(filename).exists()
+        cls.tempdir = util.set_up_env()
 
         with mock.patch('one.lib.io.params.getfile', new=partial(get_file, cls.tempdir.name)):
             cls.one = OneAlyx(
@@ -351,10 +340,6 @@ class TestOneAlyx(unittest.TestCase):
                 mode='local'
             )
 
-
-    def setUp(self) -> None:
-        # Create ONE object with temp cache dir
-        # TODO Copy over params fixture instead
 
     @unittest.skip
     def test_download_datasets(self):
@@ -371,18 +356,19 @@ class TestOneAlyx(unittest.TestCase):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',
                                                 '004', 'alf', '_ibl_wheel.position.npy')
         url = self.one.url_from_path(file)
-        self.assertTrue(url.startswith(self.one._par.HTTP_DATA_SERVER))
-        self.assertTrue('257ff7ae-9ab4-35dc-bac0-245cdc81f6d1' in url)
+        self.assertTrue(url.startswith(self.one.alyx._par.HTTP_DATA_SERVER))
+        self.assertTrue('91546fc6-b67c-4a69-badc-5e66088519c4' in url)
 
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.url_from_path(file))
 
     def test_url_from_record(self):
-        dataset = self.one._cache['datasets'].loc[[[-2578956635146322139, -3317321292073090886]]]
+        parquet.str2np('91546fc6-b67c-4a69-badc-5e66088519c4')
+        dataset = self.one._cache['datasets'].loc[[[7587013646714098833, -4316272496734184262]]]
         url = self.one.url_from_record(dataset)
         expected = ('https://ibl.flatironinstitute.org/'
-                    'angelakilab/Subjects/FMR019/2021-03-18/002/alf/'
-                    '_ibl_wheel.position.257ff7ae-9ab4-35dc-bac0-245cdc81f6d1.npy')
+                    'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
+                    '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
         self.assertEqual(expected, url)
 
 
