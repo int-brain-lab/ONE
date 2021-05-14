@@ -740,7 +740,7 @@ def ONE(mode='auto', **kwargs):
 
 
 class OneAlyx(One):
-    def __init__(self, username=None, password=None, base_url=None, **kwargs):
+    def __init__(self, username=None, password=None, base_url=None, mode='auto', **kwargs):
         # Load Alyx Web client
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
