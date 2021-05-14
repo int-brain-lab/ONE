@@ -225,52 +225,61 @@ class TestONECache(unittest.TestCase):
         verifiable = self.one.eid_from_path('CSK-im-007/2021-03-21/002')
         self.assertIsNone(verifiable)
 
-        session_path = Path.home() / 'lab' / 'FMR008' / '2021-03-18' / '001' / 'alf'
+        verifiable = self.one.eid_from_path('ZFM-01935/2021-02-05/001')
+        expected = 'd3372b15-f696-4279-9be5-98f15783b5bb'
+        self.assertEqual(verifiable, expected)
+
+        session_path = Path.home().joinpath('mainenlab', 'Subjects', 'ZFM-01935',
+                                            '2021-02-05', '001', 'alf')
         verifiable = self.one.eid_from_path(session_path)
-        self.assertEqual(verifiable, 'e7826370-21e5-3aad-ba01-4bd36d39ae3f')
+        self.assertEqual(verifiable, expected)
 
     def test_path_from_eid(self):
-        eid = 'e7826370-21e5-3aad-ba01-4bd36d39ae3f'
+        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.path_from_eid(eid)
-        expected = Path(self.tempdir.name).joinpath('angelakilab', 'Subjects', 'FMR008',
-                                                    '2021-03-18', '001')
+        expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
+                                                    '2021-02-05', '001',)
         self.assertEqual(expected, verifiable)
 
         with self.assertRaises(ValueError):
             self.one.path_from_eid('fakeid')
-        self.assertIsNone(self.one.path_from_eid(eid.replace('a', 'b')))
+        self.assertIsNone(self.one.path_from_eid(eid.replace('d', 'b')))
 
+    @unittest.skip('TODO Move this test?')
     def test_check_exists(self):
         pass
 
     def test_list_datasets(self):
         dsets = self.one.list_datasets()
         self.assertIsInstance(dsets, np.ndarray)
-        self.assertTrue(len(dsets), 28)
+        self.assertTrue(len(dsets) == np.unique(dsets).size)
 
+        # Test list for eid
+        dsets = self.one.list_datasets('KS005/2019-04-02/001')
+        self.assertTrue(len(dsets), 27)
+
+        # Test empty
         dsets = self.one.list_datasets('FMR019/2021-03-18/002')
         self.assertIsInstance(dsets, pd.DataFrame)
-        self.assertTrue(len(dsets), 7)
+        self.assertEqual(len(dsets), 0)
 
     def test_load_session_dataset(self):
+        eid = 'KS005/2019-04-02/001'
         # Check download only
-        file = self.one.load_session_dataset('FMR019/2021-03-18/002', '_ibl_wheel.position.npy',
-                                             download_only=True)
+        file = self.one.load_session_dataset(eid, '_ibl_wheel.position.npy', download_only=True)
         self.assertIsInstance(file, Path)
 
         # Check loading data
         np.save(str(file), np.arange(3))  # Make sure we have something to load
-        dset = self.one.load_session_dataset('FMR019/2021-03-18/002', '_ibl_wheel.position.npy')
+        dset = self.one.load_session_dataset(eid, '_ibl_wheel.position.npy')
         self.assertTrue(np.all(dset == np.arange(3)))
 
         # Check revision filter
         with self.assertRaises(alferr.ALFObjectNotFound):
-            self.one.load_session_dataset('FMR019/2021-03-18/002', '_ibl_wheel.position.npy',
-                                          revision='v2.3.4')
+            self.one.load_session_dataset(eid, '_ibl_wheel.position.npy', revision='v2.3.4')
 
         # Check collection filter
-        file = self.one.load_session_dataset('FMR019/2021-03-18/002',
-                                             '_iblrig_leftCamera.frame_counter.bin',
+        file = self.one.load_session_dataset(eid, '_iblrig_leftCamera.timestamps.ssv',
                                              download_only=True, collection='raw_video_data')
         self.assertIsNotNone(file)
 
@@ -299,6 +308,65 @@ class TestONECache(unittest.TestCase):
         self.assertIsInstance(wheel, dict)
         self.assertCountEqual(wheel.keys(), ('position', 'velocity', 'timestamps'))
 
+    def test_record_from_path(self):
+        file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
+                                                '001', 'alf', '_ibl_wheel.position.npy')
+        rec = self.one.record_from_path(file)
+        self.assertIsInstance(rec, pd.DataFrame)
+        rel_path, = rec['rel_path'].values
+        self.assertTrue(file.as_posix().endswith(rel_path))
+
+        file = file.parent / '_fake_obj.attr.npy'
+        self.assertIsNone(self.one.record_from_path(file))
+
+
+class TestOneAlyx(unittest.TestCase):
+    tempdir = None
+    one = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        # TODO Use util fixture
+        fixture = Path(__file__).parent.joinpath('fixtures')
+        cls.tempdir = tempfile.TemporaryDirectory()
+        # Copy cache files to temporary directory
+        for cache_file in ('sessions', 'datasets'):
+            filename = shutil.copy(fixture / f'{cache_file}.pqt', cls.tempdir.name)
+            assert Path(filename).exists()
+        # Copy cached rest responses
+        rest_cache_dir = Path(one.params.get_params_dir(),
+                              '.rest', 'test.alyx.internationalbrainlab.org', 'https')
+        rest_cache_dir.mkdir(parents=True, exist_ok=True)
+        for file in fixture.joinpath('rest_responses').glob('*'):
+            filename = shutil.copy(file, rest_cache_dir)
+            assert Path(filename).exists()
+
+        with mock.patch('one.lib.io.params.getfile', new=partial(get_file, cls.tempdir.name)):
+            cls.one = OneAlyx(
+                base_url='https://test.alyx.internationalbrainlab.org',
+                username='test_user',
+                password='TapetesBloc18',
+                cache_dir=cls.tempdir.name,
+                silent=True,
+                mode='local'
+            )
+
+
+    def setUp(self) -> None:
+        # Create ONE object with temp cache dir
+        # TODO Copy over params fixture instead
+
+    @unittest.skip
+    def test_download_datasets(self):
+        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
+        files = one.download_datasets(['channels.brainLocation.tsv'])
+
+    def test_pid2eid(self):
+        pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
+        eid, collection = self.one.pid2eid(pid, query_type='remote')
+        self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
+        self.assertEqual('probe00', collection)
+
     def test_url_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',
                                                 '004', 'alf', '_ibl_wheel.position.npy')
@@ -316,61 +384,6 @@ class TestONECache(unittest.TestCase):
                     'angelakilab/Subjects/FMR019/2021-03-18/002/alf/'
                     '_ibl_wheel.position.257ff7ae-9ab4-35dc-bac0-245cdc81f6d1.npy')
         self.assertEqual(expected, url)
-
-    def test_record_from_path(self):
-        file = Path(self.tempdir.name).joinpath('angelakilab', 'Subjects', 'FMR019', '2021-03-18',
-                                                '002', 'alf', '_ibl_wheel.position.npy')
-        rec = self.one.record_from_path(file)
-        self.assertIsInstance(rec, pd.DataFrame)
-        rel_path, = rec['rel_path'].values
-        self.assertTrue(file.as_posix().endswith(rel_path))
-
-        file = file.parent / '_fake_obj.attr.npy'
-        self.assertIsNone(self.one.record_from_path(file))
-
-
-class TestOneAlyx(unittest.TestCase):
-    tempdir = None
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        fixture = Path(__file__).parent.joinpath('fixtures')
-        cls.tempdir = tempfile.TemporaryDirectory()
-        # Copy cache files to temporary directory
-        for cache_file in ('sessions', 'datasets'):
-            filename = shutil.copy(fixture / f'{cache_file}.pqt', cls.tempdir.name)
-            assert Path(filename).exists()
-        # Copy cached rest responses
-        rest_cache_dir = Path(one.params.get_params_dir(),
-                              '.rest', 'test.alyx.internationalbrainlab.org', 'https')
-        rest_cache_dir.mkdir(parents=True, exist_ok=True)
-        for file in fixture.joinpath('rest_responses').glob('*'):
-            filename = shutil.copy(file, rest_cache_dir)
-            assert Path(filename).exists()
-
-    def setUp(self) -> None:
-        # Create ONE object with temp cache dir
-        # TODO Copy over params fixture instead
-        with mock.patch('one.lib.io.params.getfile', new=partial(get_file, self.tempdir.name)):
-            self.one = OneAlyx(
-                base_url='https://test.alyx.internationalbrainlab.org',
-                username='test_user',
-                password='TapetesBloc18',
-                cache_dir=self.tempdir.name,
-                silent=True,
-                mode='local'
-            )
-
-    @unittest.skip
-    def test_download_datasets(self):
-        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
-        files = one.download_datasets(['channels.brainLocation.tsv'])
-
-    def test_pid2eid(self):
-        pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
-        eid, collection = self.one.pid2eid(pid, query_type='remote')
-        self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
-        self.assertEqual('probe00', collection)
 
 
 class TestOneSetup(unittest.TestCase):

@@ -25,6 +25,7 @@ def set_up_env():
 
 
 def setup_rest_cache(param_dir=None):
+    """Copy REST cache fixtures to the .one parameter directory"""
     fixture = Path(__file__).parent.joinpath('fixtures')
     path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
     rest_cache_dir = Path(param_dir or one.params.get_params_dir()).joinpath(*path_parts)
@@ -38,8 +39,8 @@ def setup_rest_cache(param_dir=None):
         assert Path(filename).exists()
 
 
-
 def create_file_tree(one):
+    """Touch all the files in the datasets table"""
     # Create dset files from cache
     for session_path, rel_path in one._cache.datasets[['session_path', 'rel_path']].values:
         filepath = Path(one._cache_dir).joinpath(session_path, rel_path)

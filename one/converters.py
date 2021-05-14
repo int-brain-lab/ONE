@@ -9,6 +9,7 @@ There are multiple ways to uniquely identify an experiment:
     - url (str) : An remote http session path of the form <lab>/Subjects/<subject>/<date>/<number>
 """
 import functools
+import datetime
 from inspect import getmembers, isfunction
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union, Sequence, Mapping, Iterable
@@ -85,15 +86,7 @@ class ConversionMixin:
         :param path_obj: local path or list of local paths
         :return: eid or list of eids
         """
-        # If path_obj is a list recurse through it and return a list
-        if isinstance(path_obj, list):
-            path_obj = [Path(x) for x in path_obj]
-            eid_list = []
-            for p in path_obj:
-                eid_list.append(self.eid_from_path(p))
-            return eid_list
         # else ensure the path ends with mouse,date, number
-        path_obj = Path(path_obj)
         session_path = alfio.get_session_path(path_obj)
         sessions = self._cache['sessions']
 
@@ -102,8 +95,9 @@ class ConversionMixin:
             return None
 
         # reduce session records from cache
+        toDate = datetime.date.fromisoformat
         subject, date, number = session_path.parts[-3:]
-        for col, val in zip(('subject', 'date', 'number'), (subject, date, int(number))):
+        for col, val in zip(('subject', 'date', 'number'), (subject, toDate(date), int(number))):
             sessions = sessions[sessions[col] == val]
             if sessions.size == 0:
                 return
@@ -117,6 +111,7 @@ class ConversionMixin:
 
     def record_from_path(self, filepath):
         """
+        TODO Return Series instead of DataFrame
         NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
         :param filepath: File path or http URL
         :return:
@@ -125,10 +120,12 @@ class ConversionMixin:
             # Remove the UUID from path
             filepath = alfio.remove_uuid_file(PurePosixPath(filepath), dry=True)
         session_path = '/'.join(alfio.get_session_path(filepath).parts[-5:])
-        rec = self._cache['datasets']
+        if (rec := self._cache['datasets']).empty:
+            return
         rec = rec[rec['session_path'] == session_path]
         rec = rec[rec['rel_path'].apply(lambda x: filepath.as_posix().endswith(x))]
-        return None if len(rec) == 0 else rec
+        assert len(rec) < 2, 'Multiple records found'
+        return None if rec.empty else rec
 
     def url_from_path(self, filepath):
         """

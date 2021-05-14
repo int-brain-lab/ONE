@@ -478,8 +478,8 @@ class One(ConversionMixin):
         self.refresh_cache(query_type)
         return self._cache['sessions']['subject'].sort_values().unique()
 
-    def list_datasets(self, eid=None, sorted=False, query_type='auto') -> Union[
-        np.ndarray, pd.DataFrame]:
+    def list_datasets(self, eid=None, sorted=False, query_type='auto')\
+            -> Union[np.ndarray, pd.DataFrame]:
         """
         Given one or more eids, return the datasets for those sessions.  If no eid is provided,
         a list of all unique datasets is returned
@@ -493,6 +493,8 @@ class One(ConversionMixin):
         if not eid:
             return self._cache['datasets']['rel_path'].unique()
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
+        if not eid:
+            return self._cache['datasets'].iloc[0:0]  # Return empty
         if self._index_type() is int:
             eid_num = parquet.str2np(eid)
             index = ['eid_0', 'eid_1']
@@ -1356,7 +1358,10 @@ class OneAlyx(One):
         Given a local file path, returns the URL of the remote file.
         :param filepath: A local file path
         :return: A URL string
+        TODO Standardize query_type
         """
+        if query_type == 'auto':
+            query_type = 'local'
         if query_type not in ('local', 'remote'):
             raise ValueError(f'Unknown query_type "{query_type}"')
         if query_type == 'local':
