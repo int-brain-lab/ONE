@@ -389,7 +389,7 @@ class One(ConversionMixin):
                 ('%03d' % id['number']))
 
         if alfio.is_session_path(id):
-            return self.eid_from_path(id)
+            return self.path2eid(id)
         elif isinstance(id, str):
             if len(id) > 36:
                 id = id[-36:]
@@ -1011,7 +1011,7 @@ class OneAlyx(One):
                 ('%03d' % id['number']))
 
         if alfio.is_session_path(id):
-            return self.eid_from_path(id)
+            return self.path2eid(id)
         elif isinstance(id, str):
             if len(id) > 36:
                 id = id[-36:]
@@ -1198,10 +1198,10 @@ class OneAlyx(One):
         """
         if isinstance(dset, str):
             url = dset
-            id = self.record_from_path(url).index
+            id = self.path2record(url).index
         else:
             if 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
-                url = self.url_from_record(dset)
+                url = self.record2url(dset)
                 id = dset.index
             else:
                 url = next((fr['data_url'] for fr in dset['file_records']
@@ -1286,7 +1286,7 @@ class OneAlyx(One):
             print('Building ONE cache from filesystem...')
             alf.onepqt.make_parquet_db(root_dir, **kwargs)
 
-    def path_from_eid(self, eid: str, use_cache: bool = True) -> Listable(Path):
+    def eid2path(self, eid: str, use_cache: bool = True) -> Listable(Path):
         """
         From an experiment id or a list of experiment ids, gets the local cache path
         :param eid: eid (UUID) or list of UUIDs
@@ -1297,7 +1297,7 @@ class OneAlyx(One):
         if isinstance(eid, list):
             path_list = []
             for p in eid:
-                path_list.append(self.path_from_eid(p))
+                path_list.append(self.eid2path(p))
             return path_list
         # If not valid return None
         if not alfio.is_uuid_string(eid):
@@ -1306,7 +1306,7 @@ class OneAlyx(One):
 
         # first try avoid hitting the database
         if self._cache['sessions'].size > 0 and use_cache:
-            cache_path = super().path_from_eid(eid)
+            cache_path = super().eid2path(eid)
             if cache_path:
                 return cache_path
 
@@ -1319,7 +1319,7 @@ class OneAlyx(One):
                 ses[0]['lab'], 'Subjects', ses[0]['subject'], ses[0]['start_time'][:10],
                 str(ses[0]['number']).zfill(3))
 
-    def eid_from_path(self, path_obj: Union[str, Path], use_cache: bool = True) -> Listable(Path):
+    def path2eid(self, path_obj: Union[str, Path], use_cache: bool = True) -> Listable(Path):
         """
         From a local path, gets the experiment id
         :param path_obj: local path or list of local paths
@@ -1331,7 +1331,7 @@ class OneAlyx(One):
             path_obj = [Path(x) for x in path_obj]
             eid_list = []
             for p in path_obj:
-                eid_list.append(self.eid_from_path(p))
+                eid_list.append(self.path2eid(p))
             return eid_list
         # else ensure the path ends with mouse,date, number
         path_obj = Path(path_obj)
@@ -1341,7 +1341,7 @@ class OneAlyx(One):
             return None
 
         # try the cached info to possibly avoid hitting database
-        cache_eid = super().eid_from_path(path_obj)
+        cache_eid = super().path2eid(path_obj)
         if cache_eid:
             return cache_eid
 
@@ -1353,7 +1353,7 @@ class OneAlyx(One):
         # Return the uuid if any
         return uuid[0] if uuid else None
 
-    def url_from_path(self, filepath, query_type='local'):
+    def path2url(self, filepath, query_type='local'):
         """
         Given a local file path, returns the URL of the remote file.
         :param filepath: A local file path
@@ -1365,8 +1365,8 @@ class OneAlyx(One):
         if query_type not in ('local', 'remote'):
             raise ValueError(f'Unknown query_type "{query_type}"')
         if query_type == 'local':
-            return super(OneAlyx, self).url_from_path(filepath)
-        eid = self.eid_from_path(filepath)
+            return super(OneAlyx, self).path2url(filepath)
+        eid = self.path2eid(filepath)
         try:
             dataset, = self.alyx.rest('datasets', 'list', session=eid, name=Path(filepath).name)
             return next(
@@ -1410,7 +1410,7 @@ class OneAlyx(One):
         det_fields = ["subject", "start_time", "number", "lab", "project",
                       "url", "task_protocol", "local_path"]
         out = {k: v for k, v in dets.items() if k in det_fields}
-        out.update({'local_path': self.path_from_eid(eid)})
+        out.update({'local_path': self.eid2path(eid)})
         return out
 
     def _update_cache(self, ses, dataset_types):

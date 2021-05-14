@@ -622,10 +622,10 @@ class AlyxClient(metaclass=UniqueSingletons):
                 ('remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:\n' +
                  f'"{url[:40]}..." should start with "{self._par.HTTP_DATA_SERVER}"')
         elif not url.startswith(self._par.HTTP_DATA_SERVER):
-            url = self.rel_path_to_url(url)
+            url = self.rel_path2url(url)
         return url
 
-    def rel_path_to_url(self, path):
+    def rel_path2url(self, path):
         """
         TODO Document
         :param path:

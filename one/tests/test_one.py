@@ -223,28 +223,28 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(all(any(Path(self.tempdir.name, x).rglob(f'*{query}*')) for x in eids))
 
     def test_eid_from_path(self):
-        verifiable = self.one.eid_from_path('CSK-im-007/2021-03-21/002')
+        verifiable = self.one.path2eid('CSK-im-007/2021-03-21/002')
         self.assertIsNone(verifiable)
 
-        verifiable = self.one.eid_from_path('ZFM-01935/2021-02-05/001')
+        verifiable = self.one.path2eid('ZFM-01935/2021-02-05/001')
         expected = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         self.assertEqual(verifiable, expected)
 
         session_path = Path.home().joinpath('mainenlab', 'Subjects', 'ZFM-01935',
                                             '2021-02-05', '001', 'alf')
-        verifiable = self.one.eid_from_path(session_path)
+        verifiable = self.one.path2eid(session_path)
         self.assertEqual(verifiable, expected)
 
     def test_path_from_eid(self):
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
-        verifiable = self.one.path_from_eid(eid)
+        verifiable = self.one.eid2path(eid)
         expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
                                                     '2021-02-05', '001',)
         self.assertEqual(expected, verifiable)
 
         with self.assertRaises(ValueError):
-            self.one.path_from_eid('fakeid')
-        self.assertIsNone(self.one.path_from_eid(eid.replace('d', 'b')))
+            self.one.eid2path('fakeid')
+        self.assertIsNone(self.one.eid2path(eid.replace('d', 'b')))
 
     @unittest.skip('TODO Move this test?')
     def test_check_exists(self):
@@ -312,13 +312,13 @@ class TestONECache(unittest.TestCase):
     def test_record_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
                                                 '001', 'alf', '_ibl_wheel.position.npy')
-        rec = self.one.record_from_path(file)
+        rec = self.one.path2record(file)
         self.assertIsInstance(rec, pd.DataFrame)
         rel_path, = rec['rel_path'].values
         self.assertTrue(file.as_posix().endswith(rel_path))
 
         file = file.parent / '_fake_obj.attr.npy'
-        self.assertIsNone(self.one.record_from_path(file))
+        self.assertIsNone(self.one.path2record(file))
 
 
 class TestOneAlyx(unittest.TestCase):
@@ -355,17 +355,17 @@ class TestOneAlyx(unittest.TestCase):
     def test_url_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',
                                                 '004', 'alf', '_ibl_wheel.position.npy')
-        url = self.one.url_from_path(file)
+        url = self.one.path2url(file)
         self.assertTrue(url.startswith(self.one.alyx._par.HTTP_DATA_SERVER))
         self.assertTrue('91546fc6-b67c-4a69-badc-5e66088519c4' in url)
 
         file = file.parent / '_fake_obj.attr.npy'
-        self.assertIsNone(self.one.url_from_path(file))
+        self.assertIsNone(self.one.path2url(file))
 
     def test_url_from_record(self):
         parquet.str2np('91546fc6-b67c-4a69-badc-5e66088519c4')
         dataset = self.one._cache['datasets'].loc[[[7587013646714098833, -4316272496734184262]]]
-        url = self.one.url_from_record(dataset)
+        url = self.one.record2url(dataset)
         expected = ('https://ibl.flatironinstitute.org/'
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
                     '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
