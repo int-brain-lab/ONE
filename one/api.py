@@ -212,7 +212,7 @@ class One(ConversionMixin):
         """
         pass
 
-    def search(self, details=False, exists_only=False, **kwargs):
+    def search(self, details=False, exists_only=False, query_type='auto', **kwargs):
         """
         Applies a filter to the sessions (eid) table and returns a list of json dictionaries
          corresponding to sessions.
@@ -240,10 +240,9 @@ class One(ConversionMixin):
             """Ensure input is a list"""
             return [inarg] if isinstance(inarg, str) or not isinstance(inarg, Iterable) else inarg
 
-        def all_present(x, dsets, exists=None):
+        def all_present(x, dsets, exists=True):
             """Returns true if all datasets present in Series"""
-
-            return all(any(x.str.contains(y)) for y in dsets)
+            return all(any(x.str.contains(y) & exists) for y in dsets)
 
         def autocomplete(term):
             """
@@ -269,7 +268,7 @@ class One(ConversionMixin):
             # key = autocomplete(key)  # Validate and get full name
             # No matches; short circuit
             if sessions.size == 0:
-                return []
+                return ([], None) if details else []
             # String fields
             elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
                 query = '|'.join(validate_input(value))
@@ -281,21 +280,23 @@ class One(ConversionMixin):
                 sessions = sessions[(session_date >= start) & (session_date <= end)]
             elif key == 'number':
                 query = validate_input(value)
-                sessions = sessions[sessions[key].isin(query)]
+                sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset check is biggest so this should be done last
             elif key == 'dataset':
                 index = ['eid_0', 'eid_1'] if self._index_type('datasets') is int else 'eid'
                 query = validate_input(value)
                 datasets = self._cache['datasets']
-                isin, _ = ismember2d(datasets[['eid_0', 'eid_1']].values,
-                                     np.array(sessions.index.values.tolist()))
+                if self._index_type() is int:
+                    isin, _ = ismember2d(datasets[['eid_0', 'eid_1']].values,
+                                         np.array(sessions.index.values.tolist()))
+                else:
+                    isin = datasets['eid'].isin(sessions.index.values)
                 if exists_only:
                     # For each session check any dataset both contains query and exists
-                    # FIXME This doesn't work
                     mask = (
                         datasets[isin]
                             .groupby(index, sort=False)
-                            .apply(lambda x: all_present(x['rel_path'], query) & x['exists'])
+                            .apply(lambda x: all_present(x['rel_path'], query, x['exists']))
                     )
                 else:
                     # For each session check any dataset contains query
@@ -312,7 +313,7 @@ class One(ConversionMixin):
 
         # Return results
         if sessions.size == 0:
-            return []
+            return ([], None) if details else []
         eids = sessions.index.to_list()
         if self._index_type() is int:
             eids = parquet.np2str(np.array(eids))

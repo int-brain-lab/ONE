@@ -31,7 +31,8 @@ def recurse(func):
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
         obj, first, *args = args
-        if isinstance(first, Iter) and not isinstance(first, (str, Mapping)):
+        exclude = (str, Mapping, pd.Series, pd.DataFrame)
+        if isinstance(first, Iter) and not isinstance(first, exclude):
             return [func(obj, item, *args, **kwargs) for item in first]
         else:
             return func(obj, first, *args, **kwargs)
@@ -60,9 +61,6 @@ class ConversionMixin:
     def __init__(self):
         self._cache = None
         self._par = None
-
-    # def to_eid(self, id):
-    #     pass
 
     @recurse
     def to_eid(self,
@@ -191,7 +189,7 @@ class ConversionMixin:
         record = self.path2record(filepath)
         if record is None:
             return
-        return unwrap(self.record2url)(self, record)
+        return unwrap(self.record2url)(record)
 
     def record2url(self, dataset):
         assert self._web_client
@@ -434,7 +432,7 @@ class ConversionMixin:
         if type == 'path':
             return self.eid2path(eid)
         elif type == 'ref':
-            return self.eid2ref(eid)
+            return self.eid2ref(eid, as_dict=False)
         else:
             raise ValueError(f'Unsupported type "{type}"')
 
@@ -453,6 +451,6 @@ def deprecate(func):
 from_funcs = getmembers(ConversionMixin,
                         lambda x: isfunction(x) and '2' in x.__name__)
 for name, fn in from_funcs:
-    setattr(ConversionMixin, name, recurse(fn))  # Add recursion decorator
+    # setattr(ConversionMixin, name, recurse(fn))  # Add recursion decorator
     attr = '{1}_from_{0}'.format(*name.split('2'))
     setattr(ConversionMixin, attr, deprecate(recurse(fn)))  # Add from function alias

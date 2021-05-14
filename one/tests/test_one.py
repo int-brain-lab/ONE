@@ -164,40 +164,47 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(eids, ['d3372b15-f696-4279-9be5-98f15783b5bb'])
 
         # Search datasets
-        query = 'gpio'.upper()
+        query = 'spikes.depths'
         eids = one.search(data=query)
         self.assertTrue(eids)
-        self.assertEqual(eids, ['d3372b15-f696-4279-9be5-98f15783b5bb'])
+        expected = [
+            'd3372b15-f696-4279-9be5-98f15783b5bb',
+            'cf264653-2deb-44cb-aa84-89b82507028a',
+            'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
+        ]
+        self.assertEqual(eids, expected)
 
         # Filter non-existent
         # Set exist for one of the eids to false
-        mask = (one._cache['datasets'][['eid_0', 'eid_1']] == parquet.str2np(eids[0]))
+        mask = (one._cache['datasets']['rel_path'].str.contains(query))
         i = one._cache['datasets'][mask].index[0]
-        one._cache['datasets'].loc[i, 'exists'] = False  # TODO not lexsorted
+        one._cache['datasets'].loc[i, 'exists'] = False
 
         self.assertTrue(len(eids) == len(one.search(data=query, exists_only=True)) + 1)
 
         # Search task_protocol
-        n = 4
-        one._cache['sessions'].iloc[:n, -2] = '_iblrig_tasks_biasedChoiceWorld6.4.2'
-        eids = one.search(task='biased')
-        self.assertEqual(len(eids), n)
+        eids = one.search(task='habituation')
+        self.assertEqual(eids, ['ac80cd12-49e5-4aff-b5f2-1a718679ceeb'])
 
         # Search project
-        one._cache['sessions'].iloc[:n, -1] = 'ibl_certif_neuropix_recording'
         eids = one.search(proj='neuropix')
-        self.assertEqual(len(eids), n)
+        self.assertEqual(len(eids), 20)
 
         # Search number
         number = 1
         eids = one.search(num=number)
-        self.assertTrue(all(x.endswith(str(number)) for x in eids))
+
+        sess_num = self.one._cache.sessions.loc[parquet.str2np(eids).tolist(), 'number']
+        self.assertTrue(all(sess_num == number))
+
         number = '002'
         eids = one.search(number=number)
-        self.assertTrue(all(x.endswith(number) for x in eids))
+
+        sess_num = self.one._cache.sessions.loc[parquet.str2np(eids).tolist(), 'number']
+        self.assertTrue(all(sess_num == int(number)))
 
         # Test multiple fields, with short params
-        eids = one.search(subj='ZFM-02183', date='2021-03-05', num='002', lab='mainen')
+        eids = one.search(subj='KS005', date='2019-04-10', num='003', lab='cortexlab')
         self.assertTrue(len(eids) == 1)
 
         # Test param error validation
@@ -207,20 +214,30 @@ class TestONECache(unittest.TestCase):
             one.search(user='mister')  # invalid search term
 
         # Test details parameter
-        eids, details = one.search(date='2021-03-16', lab='witten', details=True)
+        eids, details = one.search(date='2019-04-10', lab='cortexlab', details=True)
         self.assertEqual(len(eids), len(details))
-        self.assertTrue(all(eid == det.eid for eid, det in zip(eids, details)))
+        self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
 
         # Test search without integer ids
-        for table in ('sessions', 'datasets'):
-            # Set integer uuids to NaN
-            cache = self.one._cache[table].reset_index()
-            cache[cache.filter(regex=r'_\d{1}$').columns] = np.nan
-            self.one._cache[table] = cache.set_index('eid' if table == 'sessions' else 'dset_id')
-        query = 'clusters'
-        eids = one.search(data=query)
-        self.assertTrue(eids)
-        self.assertTrue(all(any(Path(self.tempdir.name, x).rglob(f'*{query}*')) for x in eids))
+        backup = {}
+        try:
+            for table in ('sessions', 'datasets'):
+                # Set integer uuids to NaN
+                backup[table] = self.one._cache[table].copy()
+                cache = self.one._cache[table].reset_index()
+                int_cols = cache.filter(regex=r'_\d{1}$').columns
+                for i in range(0, len(int_cols), 2):
+                    name = int_cols.values[i].rsplit('_', 1)[0]
+                    cache[name] = parquet.np2str(cache[int_cols[i:i+2]])
+                cache[int_cols] = np.nan
+                self.one._cache[table] = cache.set_index('id')
+            query = 'clusters'
+            eids = one.search(data=query)
+            assert all(isinstance(x, str) for x in eids)
+            assert len(eids) == 3
+        finally:
+            for k, v in backup.items():
+                self.one._cache[k] = v
 
     def test_eid_from_path(self):
         verifiable = self.one.path2eid('CSK-im-007/2021-03-21/002')
