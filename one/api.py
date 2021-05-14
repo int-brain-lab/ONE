@@ -43,7 +43,7 @@ import os
 import fnmatch
 import re
 from datetime import datetime, timedelta
-from functools import wraps
+from functools import wraps, lru_cache
 from inspect import unwrap
 from collections.abc import Iterable
 from pathlib import Path
@@ -718,6 +718,7 @@ class One(ConversionMixin):
         one.params.setup(**kwargs)
 
 
+@lru_cache(maxsize=1)
 def ONE(mode='auto', **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.

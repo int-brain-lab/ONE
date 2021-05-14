@@ -8,6 +8,7 @@ There are multiple ways to uniquely identify an experiment:
     - ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject
     - url (str) : An remote http session path of the form <lab>/Subjects/<subject>/<date>/<number>
 """
+import re
 import functools
 import datetime
 from inspect import getmembers, isfunction, unwrap
@@ -182,8 +183,45 @@ class ConversionMixin:
         file = Path(self._cache_dir, session_path, rel_path)
         return file  # files[0] if len(datasets) == 1 else files
 
-    def eid2ref(self, eid):
-        pass
+    @recurse
+    def eid2ref(self, eid: Union[str, Iter], as_dict=True, parse=True) \
+            -> Union[str, Mapping, List]:
+        """
+        Get human-readable session ref from path
+        :param eid: The experiment uuid to find reference for
+        :param as_dict: If false a string is returned in the form 'subject_sequence_yyyy-mm-dd'
+        :param parse: If true, the reference date and sequence are parsed from strings to their
+        respective data types
+        :return: one or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+        form yyyy-mm-dd_n_subject
+
+        Examples:
+        >>> base = 'https://test.alyx.internationalbrainlab.org'
+        >>> one = ONE(username='test_user', password='TapetesBloc18', base_url=base)
+        Connected to...
+        >>> eid = '4e0b3320-47b7-416e-b842-c34dc9004cf8'
+        >>> one.eid2ref(eid)
+        {'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}
+        >>> one.eid2ref(eid, parse=False)
+        {'subject': 'flowers', 'date': '2018-07-13', 'sequence': '001'}
+        >>> one.eid2ref(eid, as_dict=False)
+        '2018-07-13_1_flowers'
+        >>> one.eid2ref(eid, as_dict=False, parse=False)
+        '2018-07-13_001_flowers'
+        >>> one.eid2ref([eid, '7dc3c44b-225f-4083-be3d-07b8562885f4'])
+        [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},
+         {'subject': 'KS005', 'date': datetime.date(2019, 4, 11), 'sequence': 1}]
+        """
+        d = self.get_details(eid)
+        if parse:
+            date = datetime.datetime.fromisoformat(d['start_time']).date()
+            ref = {'subject': d['subject'], 'date': date, 'sequence': d['number']}
+            format_str = '{date:%Y-%m-%d}_{sequence:d}_{subject:s}'
+        else:
+            date = d['start_time'][:10]
+            ref = {'subject': d['subject'], 'date': date, 'sequence': '%03d' % d['number']}
+            format_str = '{date:s}_{sequence:s}_{subject:s}'
+        return Bunch(ref) if as_dict else format_str.format(**ref)
 
     @recurse
     def ref2eid(self, ref: Union[Mapping, str, Iter]) -> Union[str, List]:
@@ -213,11 +251,121 @@ class ConversionMixin:
         assert len(session) == 1, 'session not found'
         return session[0]
 
+    @recurse
     def ref2path(self, ref):
-        pass
+        """
+        Convert one or more experiment references to session path(s)
+        :param ref: One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+        form yyyy-mm-dd_n_subject
+        :return: a Path object for the experiment session
 
-    def path2pid(self, pid):
-        pass
+        Examples:
+        >>> base = 'https://test.alyx.internationalbrainlab.org'
+        >>> one = ONE(username='test_user', password='TapetesBloc18', base_url=base)
+        Connected to...
+        >>> ref = {'subject': 'flowers', 'date': datetime(2018, 7, 13).date(), 'sequence': 1}
+        >>> one.ref2path(ref)
+        WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001')
+        >>> one.ref2path(['2018-07-13_1_flowers', '2019-04-11_1_KS005'])
+        [WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001'),
+         WindowsPath('E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001')]
+        """
+        eid2path = unwrap(self.eid2path)
+        ref2eid = unwrap(self.eid2path)
+        return eid2path(ref2eid(ref))
+
+    @staticmethod
+    @recurse
+    @parse_values
+    def path2ref(path_str: Union[str, Path, Iter]) -> Union[Bunch, List]:
+        """
+        Returns a human readable experiment reference, given a session path.  The path need not exist.
+        :param path_str: A path to a given session
+        :return: one or more objects with keys ('subject', 'date', 'sequence')
+
+        Examples:
+        >>> path_str = Path('E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001')
+        >>> path2ref(path_str)
+        {'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}
+        >>> path2ref(path_str, parse=False)
+        {'subject': 'flowers', 'date': '2018-07-13', 'sequence': '001'}
+        >>> path_str2 = Path('E:/FlatIron/Subjects/churchlandlab/CSHL046/2020-06-20/002')
+        >>> path2ref([path_str, path_str2])
+        [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},
+         {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}]
+        """
+        pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{3})'
+        match = re.search(pattern, str(path_str)).groupdict()
+        return Bunch(match)
+
+    def ref2dj(self, ref: Union[str, Mapping, Iter]):
+        """
+        Return an ibl-pipeline sessions table, restricted by experiment reference(s)
+        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+        form yyyy-mm-dd_n_subject
+        :return: an acquisition.Session table
+
+        Examples:
+        >>> ref2dj('2020-06-20_2_CSHL046').fetch1()
+        Connecting...
+        {'subject_uuid': UUID('dffc24bc-bd97-4c2a-bef3-3e9320dc3dd7'),
+         'session_start_time': datetime.datetime(2020, 6, 20, 13, 31, 47),
+         'session_number': 2,
+         'session_date': datetime.date(2020, 6, 20),
+         'subject_nickname': 'CSHL046'}
+        >>> len(ref2dj({'date':'2020-06-20', 'sequence':'002', 'subject':'CSHL046'}))
+        1
+        >>> len(ref2dj(['2020-06-20_2_CSHL046', '2019-11-01_1_ibl_witten_13']))
+        2
+        """
+        from ibl_pipeline import subject, acquisition
+        sessions = acquisition.Session.proj('session_number',
+                                            session_date='date(session_start_time)')
+        sessions = sessions * subject.Subject.proj('subject_nickname')
+
+        ref = self.ref2dict(ref)  # Ensure dict-like
+
+        @recurse
+        def restrict(r):
+            date, sequence, subject = dict(sorted(r.items())).values()  # Unpack sorted
+            restriction = {
+                'subject_nickname': subject,
+                'session_number': sequence,
+                'session_date': date}
+            return restriction
+
+        return sessions & restrict(ref)
+
+    @staticmethod
+    @recurse
+    def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
+        """
+        Returns True is ref is a valid experiment reference
+        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+        form yyyy-mm-dd_n_subject
+        :return: True if ref is valid
+
+        Examples:
+        >>> ref = {'date': datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}
+        >>> is_exp_ref(ref)
+        True
+        >>> is_exp_ref('2018-07-13_001_flowers')
+        True
+        >>> is_exp_ref('invalid_ref')
+        False
+        """
+        if isinstance(ref, (Bunch, dict)):
+            if not {'subject', 'date', 'sequence'}.issubset(ref):
+                return False
+            ref = '{date}_{sequence}_{subject}'.format(**ref)
+        elif not isinstance(ref, str):
+            return False
+        return re.compile(r'\d{4}(-\d{2}){2}_(\d{1}|\d{3})_\w+').match(ref) is not None
+
+    @recurse
+    def path2pid(self, path):
+        """Returns a portion of the path that represents the session and probe label"""
+        path = Path(path).as_posix()
 
     @staticmethod
     @recurse
@@ -246,7 +394,7 @@ class ConversionMixin:
         if type == 'path':
             return self.eid2path(eid)
         elif type == 'ref':
-            return self.ref_from_eid(eid)
+            return self.eid2ref(eid)
         else:
             raise ValueError(f'Unsupported type "{type}"')
 
