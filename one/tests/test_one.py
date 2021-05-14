@@ -246,6 +246,11 @@ class TestONECache(unittest.TestCase):
             self.one.eid2path('fakeid')
         self.assertIsNone(self.one.eid2path(eid.replace('d', 'b')))
 
+        # Test list
+        verifiable = self.one.eid2path([eid, eid])
+        self.assertIsInstance(verifiable, list)
+        self.assertTrue(len(verifiable) == 2)
+
     @unittest.skip('TODO Move this test?')
     def test_check_exists(self):
         pass

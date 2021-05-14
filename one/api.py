@@ -1,7 +1,6 @@
 """
 TODO Document
 TODO Add query_type; handle param in decorator
-TODO Include exp_ref parsing
 TODO Add Offline property?
 TODO Add sig to ONE Light uuids
 TODO Save changes to cache
@@ -14,25 +13,15 @@ TODO Update cache fixtures with new test alyx cache
 Points of discussion:
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
     different name
-    - How to deal with factory?
-    - Does remote query mean REST query (current) or re-downloading the cache?
-        - Option 1: 'remote' means REST query, 'auto' means refresh cache if old, 'local' means
-          use current cache, 'refresh' re-download cache
-        - Option 2: 'remote' means clobber datasets, 'auto' means download missing,
-          'local' means load local datasets only, 'refresh' means re-download cache then use auto
     - NB: Wildcards will behave differently between REST and pandas
-    - Currently downloading cache is lazy - no cache files are downloaded until a load method is
-      called
     - How to deal with load? Just remove it? Keep it in OneAlyx as legacy? How to release ONE2.0
     - Dealing with lists must be consistent.  Three options:
         - two methods each, e.g. load_dataset and load_datasets (con: a lot of overhead)
         - allow list inputs, recursive calls (con: function logic slightly more complex)
         - no list inputs; rely on list comprehensions (con: makes accessing meta data complex)
-    - Suggestion to store params file in cache dir, with master params location in the usual place.
-      Master params file could store map of URLs to caches + the default location.
-      This would allow for multiple database cache directories and solve tests issue.
-    - Do we need the cache dir to be a param for every function?
     - Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array
+    - NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
+    Datasets table has sortex index.
     - Conceivably you could have a subclass for Figshare, etc., not just Alyx
 """
 import abc
@@ -59,7 +48,6 @@ import one.params
 import one.webclient as wc
 import one.alf.io as alfio
 from .alf.files import is_valid, alf_parts, COLLECTION_SPEC, FILE_SPEC, regex as alf_regex
-# from ibllib.misc.exp_ref import is_exp_ref
 from .alf.exceptions import \
     ALFMultipleObjectsFound, ALFObjectNotFound, ALFMultipleCollectionsFound
 from one.lib.io import hashfile
@@ -76,23 +64,6 @@ def Listable(t): return Union[t, Sequence[t]]  # noqa
 
 
 NTHREADS = 4  # number of download threads
-
-_ENDPOINTS = {  # keynames are possible input arguments and values are actual endpoints
-    'data': 'dataset-types',
-    'dataset': 'datasets',
-    'datasets': 'datasets',
-    'dataset-types': 'dataset-types',
-    'dataset_types': 'dataset-types',
-    'dataset-type': 'dataset-types',
-    'dataset_type': 'dataset-types',
-    'dtypes': 'dataset-types',
-    'dtype': 'dataset-types',
-    'users': 'users',
-    'user': 'users',
-    'subject': 'subjects',
-    'subjects': 'subjects',
-    'labs': 'labs',
-    'lab': 'labs'}
 
 
 def _ses2pandas(ses, dtypes=None):
@@ -251,36 +222,18 @@ class One(ConversionMixin):
          one.search_terms
 
         :param dataset: list of datasets
-        :type dataset: list of str
-
         :param date_range: list of 2 strings or list of 2 dates that define the range (inclusive)
-        :type date_range: list, str, timestamp
-
         :param details: default False, returns also the session details as per the REST response
-        :type details: bool
-
         :param lab: a str or list of lab names
-        :type lab: list or str
-
         :param number: number of session to be returned; will take the first n sessions found
-        :type number: list, str or int
-
         :param subjects: a list of subjects nickname
-        :type subjects: list or str
-
         :param task_protocol: task protocol name (can be partial, i.e. any task protocol
                               containing that str will be found)
-        :type task_protocol: list or str
-
         :param project: project name (can be partial, i.e. any task protocol containing
                         that str will be found)
-        :type project: list or str
 
         :return: list of eids, if details is True, also returns a list of dictionaries,
          each entry corresponding to a matching session
-        :rtype: list, list
-
-
         """
 
         def validate_input(inarg):
@@ -369,40 +322,10 @@ class One(ConversionMixin):
         else:
             return eids
 
-    def to_eid(self,
-               id: Listable(Union[str, Path, UUID, dict]) = None,
-               cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
-        # TODO Could add np2str here
-        if isinstance(id, (list, tuple)):  # Recurse
-            return [self.to_eid(i, cache_dir) for i in id]
-        if isinstance(id, UUID):
-            return str(id)
-        # elif is_exp_ref(id):
-        #     return ref2eid(id, one=self)
-        elif isinstance(id, dict):
-            assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
-            root = Path(cache_dir or self._cache_dir)
-            id = root.joinpath(
-                id['lab'],
-                'Subjects', id['subject'],
-                id['start_time'][:10],
-                ('%03d' % id['number']))
-
-        if alfio.is_session_path(id):
-            return self.path2eid(id)
-        elif isinstance(id, str):
-            if len(id) > 36:
-                id = id[-36:]
-            if not alfio.is_uuid_string(id):
-                raise ValueError('Invalid experiment ID')
-            else:
-                return id
-        else:
-            raise ValueError('Unrecognized experiment ID')
-
     def _update_filesystem(self, datasets, offline=True, update_exists=True, clobber=False):
         """Update the local filesystem for the given datasets
-        Given a set of datasets, check whether records correctly reflect the filesystem.  If
+        Given a set of datasets, check whether records correctly reflect the filesystem.
+        Called by load methods, this returns a list of file paths to load and return.
         TODO This needs changing; overlaod for downloading?
         TODO change name to check_files, check_present, present_datasets, check_local_files?
          check_filesystem?
@@ -993,36 +916,6 @@ class OneAlyx(One):
                     out.append(self._load(e, **kwargs)[0])
             return out
 
-    def to_eid(self,
-               id: Listable(Union[str, Path, UUID, dict]) = None,
-               cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
-        if isinstance(id, (list, tuple)):  # Recurse
-            return [self.to_eid(i, cache_dir) for i in id]
-        if isinstance(id, UUID):
-            return str(id)
-        # elif is_exp_ref(id):
-        #     return ref2eid(id, one=self)
-        elif isinstance(id, dict):
-            assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
-            root = Path(self._cache_dir)
-            id = root.joinpath(
-                id['lab'],
-                'Subjects', id['subject'],
-                id['start_time'][:10],
-                ('%03d' % id['number']))
-
-        if alfio.is_session_path(id):
-            return self.path2eid(id)
-        elif isinstance(id, str):
-            if len(id) > 36:
-                id = id[-36:]
-            if not alfio.is_uuid_string(id):
-                raise ValueError('Invalid experiment ID')
-            else:
-                return id
-        else:
-            raise ValueError('Unrecognized experiment ID')
-
     def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
@@ -1039,7 +932,7 @@ class OneAlyx(One):
         rec = self.alyx.rest('insertions', 'read', id=pid)
         return rec['session'], rec['name']
 
-    def _ls(self, table=None, verbose=False):
+    def _ls(self, table, verbose=False):
         """
         Queries the database for a list of 'users' and/or 'dataset-types' and/or 'subjects' fields
 
@@ -1052,19 +945,17 @@ class OneAlyx(One):
         :return: list of names to query, list of full raw output in json serialized format
         :rtype: list, list
         """
-        assert (isinstance(table, str))
+        assert isinstance(table, str)
+        table = self.autocomplete(table)
         table_field_names = {
             'dataset-types': 'name',
             'datasets': 'name',
             'users': 'username',
             'subjects': 'nickname',
             'labs': 'name'}
-        if not table or table not in list(set(_ENDPOINTS.keys())):
-            raise KeyError("The attribute/endpoint: " + table + " doesn't exist \n" +
-                           "possible values are " + str(set(_ENDPOINTS.values())))
 
-        field_name = table_field_names[_ENDPOINTS[table]]
-        full_out = self.alyx.get('/' + _ENDPOINTS[table])
+        field_name = table_field_names[table]
+        full_out = self.alyx.get('/' + table)
         list_out = [f[field_name] for f in full_out]
         if verbose:
             pprint(list_out)

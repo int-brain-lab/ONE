@@ -11,6 +11,7 @@ There are multiple ways to uniquely identify an experiment:
 import re
 import functools
 import datetime
+from uuid import UUID
 from inspect import getmembers, isfunction, unwrap
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union, Sequence, Mapping, List, Iterable as Iter
@@ -29,11 +30,11 @@ def Listable(t): return Union[t, Sequence[t]]  # noqa
 def recurse(func):
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
-        first, *args = args
+        obj, first, *args = args
         if isinstance(first, Iter) and not isinstance(first, (str, Mapping)):
-            return [func(item, *args, **kwargs) for item in first]
+            return [func(obj, item, *args, **kwargs) for item in first]
         else:
-            return func(first, *args, **kwargs)
+            return func(obj, first, *args, **kwargs)
     return wrapper_decorator
 
 
@@ -63,6 +64,38 @@ class ConversionMixin:
     # def to_eid(self, id):
     #     pass
 
+    @recurse
+    def to_eid(self,
+               id: Listable(Union[str, Path, UUID, dict]) = None,
+               cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
+        # TODO Could add np2str here
+        # if isinstance(id, (list, tuple)):  # Recurse
+        #     return [self.to_eid(i, cache_dir) for i in id]
+        if isinstance(id, UUID):
+            return str(id)
+        elif self.is_exp_ref(id):
+            return self.ref2eid(id, one=self)
+        elif isinstance(id, dict):
+            assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
+            root = Path(cache_dir or self._cache_dir)
+            id = root.joinpath(
+                id['lab'],
+                'Subjects', id['subject'],
+                id['start_time'][:10],
+                ('%03d' % id['number']))
+        if alfio.is_session_path(id):
+            return self.path2eid(id)
+        elif isinstance(id, str):
+            if len(id) > 36:
+                id = id[-36:]
+            if not alfio.is_uuid_string(id):
+                raise ValueError('Invalid experiment ID')
+            else:
+                return id
+        else:
+            raise ValueError('Unrecognized experiment ID')
+
+    @recurse
     def eid2path(self, eid: str) -> Optional[Listable(Path)]:
         """
         From an experiment id or a list of experiment ids, gets the local cache path
@@ -99,6 +132,7 @@ class ConversionMixin:
         except KeyError:
             return
 
+    @recurse
     def path2eid(self, path_obj):
         """
         From a local path, gets the experiment id
@@ -128,6 +162,7 @@ class ConversionMixin:
             eid = parquet.np2str(np.array(eid))
         return eid
 
+    @recurse
     def path2record(self, filepath):
         """
         TODO Return Series instead of DataFrame
@@ -146,6 +181,7 @@ class ConversionMixin:
         assert len(rec) < 2, 'Multiple records found'
         return None if rec.empty else rec
 
+    @recurse
     def path2url(self, filepath):
         """
         Given a local file path, constructs the URL of the remote file.
@@ -275,7 +311,6 @@ class ConversionMixin:
         return eid2path(ref2eid(ref))
 
     @staticmethod
-    @recurse
     @parse_values
     def path2ref(path_str: Union[str, Path, Iter]) -> Union[Bunch, List]:
         """
@@ -294,6 +329,8 @@ class ConversionMixin:
         [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},
          {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}]
         """
+        if isinstance(path_str, (list, tuple)):
+            return [ConversionMixin.path2ref(x) for x in path_str]
         pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{3})'
         match = re.search(pattern, str(path_str)).groupdict()
         return Bunch(match)
@@ -337,7 +374,6 @@ class ConversionMixin:
         return sessions & restrict(ref)
 
     @staticmethod
-    @recurse
     def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
         """
         Returns True is ref is a valid experiment reference
@@ -354,6 +390,8 @@ class ConversionMixin:
         >>> is_exp_ref('invalid_ref')
         False
         """
+        if isinstance(ref, (list, tuple)):
+            return [ConversionMixin.is_exp_ref(x) for x in ref]
         if isinstance(ref, (Bunch, dict)):
             if not {'subject', 'date', 'sequence'}.issubset(ref):
                 return False
@@ -365,10 +403,10 @@ class ConversionMixin:
     @recurse
     def path2pid(self, path):
         """Returns a portion of the path that represents the session and probe label"""
+        raise NotImplemented()
         path = Path(path).as_posix()
 
     @staticmethod
-    @recurse
     @parse_values
     def ref2dict(ref: Union[str, Mapping, Iter]) -> Union[Bunch, List]:
         """
@@ -385,6 +423,8 @@ class ConversionMixin:
         [{'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'},
          {'date': datetime.date(2020, 1, 23), 'sequence': 2, 'subject': 'ibl_witten_01'}]
         """
+        if isinstance(ref, (list, tuple)):
+            return [ConversionMixin.ref2dict(x) for x in ref]
         if isinstance(ref, (Bunch, dict)):
             return Bunch(ref)  # Short circuit
         ref = dict(zip(['date', 'sequence', 'subject'], ref.split('_', 2)))
