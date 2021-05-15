@@ -250,9 +250,6 @@ class TestsAlf(unittest.TestCase):
         a['timestamps.titi'] = np.ones([3, 1])
         status = alfio.check_dimensions(a)
         self.assertTrue(status == 0)
-        # gracefully exit if the dictionary only contains excepted attributes
-        status = alfio.check_dimensions({'timestamps': None})
-        self.assertTrue(status == 0)
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)

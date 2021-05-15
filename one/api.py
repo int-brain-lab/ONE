@@ -47,7 +47,8 @@ import requests.exceptions
 import one.params
 import one.webclient as wc
 import one.alf.io as alfio
-from .alf.files import is_valid, alf_parts, COLLECTION_SPEC, FILE_SPEC, regex as alf_regex
+from .alf.files import alf_parts
+from .alf.spec import is_valid, COLLECTION_SPEC, FILE_SPEC, regex as alf_regex
 from .alf.exceptions import \
     ALFMultipleObjectsFound, ALFObjectNotFound, ALFMultipleCollectionsFound
 from one.lib.io import hashfile
@@ -370,7 +371,7 @@ class One(ConversionMixin):
                         self._cache['datasets'].at[i, 'exists'] = rec['exists']
         else:
             # TODO deal with clobber and exists here?
-            files = self.download_datasets(datasets, update_exists=update_exists, clobber=clobber)
+            files = self.download_datasets(datasets, update_cache=update_exists, clobber=clobber)
         return files
 
     def _index_type(self, table='sessions'):

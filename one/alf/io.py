@@ -22,6 +22,7 @@ from one.lib.brainbox.io import parquet
 from one.lib.io import jsonable
 from .exceptions import ALFObjectNotFound
 from . import files
+from .spec import SESSION_SPEC, FILE_SPEC, COLLECTION_SPEC, to_alf, is_valid, regex as alf_regex
 
 _logger = logging.getLogger('ibllib')
 
@@ -97,40 +98,16 @@ def dataframe(adict):
     return df
 
 
-def _find_metadata(file_alf):
+def _find_metadata(file_alf) -> Path:
     """
-    Loof for an existing meta-data file for an alf_file
+    File path for an existing meta-data file for an alf_file
     :param file_alf: PurePath of existing alf file
-    :return: PurePath of meta-data if exists
+    :return: Path of meta-data file if exists
     """
     ns, obj = file_alf.name.split('.')[:2]
     meta_data_file = list(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'))
     if meta_data_file:
         return meta_data_file[0]
-
-
-def check_dimensions(dico):
-    """
-    Test for consistency of dimensions as per ALF specs in a dictionary. Raises a Value Error.
-
-    Alf broadcasting rules: only accepts consistent dimensions for a given axis
-    a dimension is consistent with another if it's empty, 1, or equal to the other arrays
-    dims [a, 1],  [1, b] and [a, b] are all consistent, [c, 1] is not
-
-    :param dico: dictionary containing data
-    :return: status 0 for consistent dimensions, 1 for inconsistent dimensions
-    """
-    excluded_attributes = ['timestamps']
-    shapes = [dico[lab].shape for lab in dico if isinstance(dico[lab], np.ndarray) and
-              lab.split('.')[0] not in excluded_attributes]
-    # the dictionary may contain only excluded attributes, in this case return success
-    if not shapes:
-        return int(0)
-    first_shapes = [sh[0] for sh in shapes]
-    if set(first_shapes).issubset(set([max(first_shapes), 1])):
-        return int(0)
-    else:
-        return int(1)
 
 
 def read_ts(filename):
@@ -149,11 +126,35 @@ def read_ts(filename):
                                       attribute='timestamps', extension=ext)
 
     if not time_file:
-        name = files.to_alf(obj, attr, ext)
+        name = to_alf(obj, attr, ext)
         _logger.error(name + ' not found! no time-scale for' + str(filename))
         raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
 
     return np.load(filename.parent / time_file), np.load(filename)
+
+
+def check_dimensions(dico):
+    """
+    Test for consistency of dimensions as per ALF specs in a dictionary.
+
+    Alf broadcasting rules: only accepts consistent dimensions for a given axis
+    a dimension is consistent with another if it's empty, 1, or equal to the other arrays
+    dims [a, 1],  [1, b] and [a, b] are all consistent, [c, 1] is not
+
+    :param dico: dictionary containing data
+    :return: status 0 for consistent dimensions, 1 for inconsistent dimensions
+    """
+    shapes = [dico[lab].shape for lab in dico if isinstance(dico[lab], np.ndarray) and
+              lab.split('.')[0] != 'timestamps']
+    first_shapes = [sh[0] for sh in shapes]
+    # Continuous timeseries are permitted to be a (2, 2)
+    if 'timestamps' in dico and isinstance(dico['timestamps'], np.ndarray):
+        if dico['timestamps'].ndim > 1 and dico['timestamps'].shape != (2, 2):
+            return 0
+        # Otherwise should be vector with same length as other attributes
+        first_shapes.append(dico['timestamps'].shape[0])
+    ok = len(first_shapes) == 0 or set(first_shapes).issubset({max(first_shapes), 1})
+    return int(ok is False)
 
 
 def load_file_content(fil):
@@ -329,8 +330,8 @@ def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale
                          str([(k, v.shape) for k, v in dico.items()]))
     out_files = []
     for k, v in dico.items():
-        out_file = alfpath / files.to_alf(object, k, 'npy',
-                                          extra=parts, namespace=namespace, timescale=timescale)
+        out_file = alfpath / to_alf(object, k, 'npy',
+                                    extra=parts, namespace=namespace, timescale=timescale)
         np.save(out_file, v)
         out_files.append(out_file)
     return out_files
@@ -351,7 +352,7 @@ def save_metadata(file_alf, dico):
     :param dico: dictionary containing meta-data.
     :return: None
     """
-    assert files.is_valid(file_alf.parts[-1]), 'ALF filename not valid'
+    assert is_valid(file_alf.parts[-1]), 'ALF filename not valid'
     file_meta_data = file_alf.parent / (file_alf.stem + '.metadata.json')
     with open(file_meta_data, 'w+') as fid:
         fid.write(json.dumps(dico, indent=1))
@@ -458,15 +459,15 @@ def get_alf_path(path: Union[str, Path]) -> str:
     path = path.strip('/')
 
     # Check if session path
-    match_session = re.search(files.regex(files.SESSION_SPEC), path)
+    match_session = re.search(alf_regex(SESSION_SPEC), path)
     if match_session:
         return path[match_session.start():]
 
     # Check if filename / relative path (i.e. collection + filename)
     parts = path.rsplit('/', 1)
-    match_filename = re.match(files.regex(files.FILE_SPEC), parts[-1])
+    match_filename = re.match(alf_regex(FILE_SPEC), parts[-1])
     if match_filename:
-        if re.match(files.regex(f'{files.COLLECTION_SPEC}{files.FILE_SPEC}'), path):
+        if re.match(alf_regex(f'{COLLECTION_SPEC}{FILE_SPEC}'), path):
             return path
         else:
             return parts[-1]
