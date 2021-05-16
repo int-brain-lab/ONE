@@ -4,7 +4,6 @@
 import re
 from pprint import pprint
 
-import numpy as np
 
 SPEC_DESCRIPTION = {
     'lab': 'The name of the lab where the data were collected',

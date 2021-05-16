@@ -130,7 +130,37 @@ def read_ts(filename):
         _logger.error(name + ' not found! no time-scale for' + str(filename))
         raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
 
-    return np.load(filename.parent / time_file), np.load(filename)
+    ts = np.load(filename.parent / time_file)
+    val = np.load(filename)
+    # Ensure timestamps
+    return ts2vec(ts, val.shape[0]), ensure_flat(val)
+
+
+def ensure_flat(arr):
+    """
+    Given a single column array, returns a flat vector.  Other shapes are returned unchanged.
+    :param arr: an array with shape (n, 1)
+    :return: a vector with shape (n,)
+    """
+    return arr.flatten() if arr.ndim == 2 and arr.shape[1] == 1 else arr
+
+
+def ts2vec(ts: np.ndarray, n_samples: int) -> np.ndarray:
+    """
+    Interpolate a continuous timeseries of the shape (2, 2)
+    :param ts: a 2x2 numpy array of the form (sample, ts)
+    :param n_samples: number of samples; i.e. the size of the resulting vector
+    :return: a vector of interpolated timestamps
+    """
+    if len(ts.shape) == 1:
+        return ts
+    elif ts.ndim == 2 and ts.shape[1] == 1:
+        return ts.flatten()  # Deal with MATLAB single column array
+    if ts.ndim > 2 or ts.shape[1] != 2:
+        raise ValueError('Array shape should be (2, 2)')
+    # Linearly interpolate the times
+    x = np.arange(n_samples)
+    return np.interp(x, ts[:, 0], ts[:, 1])
 
 
 def check_dimensions(dico):
@@ -148,11 +178,15 @@ def check_dimensions(dico):
               lab.split('.')[0] != 'timestamps']
     first_shapes = [sh[0] for sh in shapes]
     # Continuous timeseries are permitted to be a (2, 2)
-    if 'timestamps' in dico and isinstance(dico['timestamps'], np.ndarray):
-        if dico['timestamps'].ndim > 1 and dico['timestamps'].shape != (2, 2):
-            return 0
-        # Otherwise should be vector with same length as other attributes
-        first_shapes.append(dico['timestamps'].shape[0])
+    timeseries = [k for k, v in dico.items() if 'timestamps' in k and isinstance(v, np.ndarray)]
+    if any(timeseries):
+        for key in timeseries:
+            if dico[key].ndim == 1 or (dico[key].ndim == 2 and dico[key].shape[1] == 1):
+                # Should be vector with same length as other attributes
+                first_shapes.append(dico[key].shape[0])
+            elif dico[key].ndim > 1 and dico[key].shape != (2, 2):
+                return 1  # ts not a (2, 2) arr or a vector
+
     ok = len(first_shapes) == 0 or set(first_shapes).issubset({max(first_shapes), 1})
     return int(ok is False)
 
@@ -182,7 +216,7 @@ def load_file_content(fil):
     if fil.suffix == '.jsonable':
         return jsonable.read(fil)
     if fil.suffix == '.npy':
-        return np.load(file=fil, allow_pickle=True)
+        return ensure_flat(np.load(file=fil, allow_pickle=True))
     if fil.suffix == '.pqt':
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
@@ -300,6 +334,13 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             if meta:
                 out[att + 'metadata'] = meta
     status = check_dimensions(out)
+    timeseries = [k for k in out.keys() if 'timestamps' in k]
+    if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
+        # Get length of one of the other arrays
+        n_samples = next(v for k, v in out.items() if 'timestamps' not in k).shape[0]
+        for key in timeseries:
+            # Expand timeseries if necessary
+            out[key] = ts2vec(out[key], n_samples)
     if status != 0:
         _logger.warning('Inconsistent dimensions for object:' + object + '\n' +
                         '\n'.join([f'{v.shape},    {k}' for k, v in out.items()]))
@@ -379,7 +420,7 @@ def remove_uuid_recursive(folder, dry=False):
     Within a folder, recursive renaming of all files to remove UUID
     """
     for fn in Path(folder).rglob('*.*'):
-        print(remove_uuid_file(fn, dry=False))
+        print(remove_uuid_file(fn, dry=dry))
 
 
 def add_uuid_string(file_path, uuid):

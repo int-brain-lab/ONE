@@ -129,9 +129,13 @@ class TestsAlf(unittest.TestCase):
                              self.tmpdir / 'neuveu.fifi.npy',
                              self.tmpdir / 'neuveu.loulou.npy',
                              self.tmpdir / 'object.attribute.part1.part2.npy',
-                             self.tmpdir / 'object.attribute.part1.npy']
+                             self.tmpdir / 'object.attribute.part1.npy',
+                             self.tmpdir / 'neuveu.foobar_matlab.npy']
         for f in self.object_files:
-            np.save(file=f, arr=np.random.rand(5,))
+            shape = (5, 1) if 'matlab' in str(f) else (5,)
+            np.save(file=f, arr=np.random.rand(*shape))
+        self.object_files.append(self.tmpdir / 'neuveu.timestamps.npy')
+        np.save(file=self.object_files[-1], arr=np.ones((2, 2)))
 
     def test_exists(self):
         self.assertFalse(alfio.exists(self.tmpdir, 'asodiujfas'))
@@ -191,14 +195,26 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(np.all(t_ == t))
         self.assertTrue(np.all(d_ == d))
 
+        # Test expands timeseries and deals with single column 2D vectors
+        t = np.array([[0, 10], [0.3, 0.4]]).T
+        d = np.random.rand(10, 1)
+        np.save(self.vfile, d)
+        np.save(self.tfile, t)
+        t_, d_ = alfio.read_ts(str(self.vfile))
+        self.assertEqual(d_.ndim, 1)
+        expected = np.around(np.arange(t[0, 1], t[1, 1], .01)[:-1], 2)
+        np.testing.assert_array_equal(t_, expected)
+
     def test_load_object(self):
         # first usage of load object is to provide one of the files belonging to the object
+        expected_keys = {'riri', 'fifi', 'loulou', 'foobar_matlab', 'timestamps'}
         obj = alfio.load_object(self.object_files[0])
-        self.assertTrue(set(obj.keys()) == {'riri', 'fifi', 'loulou'})
+        self.assertTrue(obj.keys() == expected_keys)
+        # Check flattens single column 2D vectors
         self.assertTrue(all([obj[o].shape == (5,) for o in obj]))
         # the second usage is to provide a directory and the object name
         obj = alfio.load_object(self.tmpdir, 'neuveu')
-        self.assertTrue(set(obj.keys()) == {'riri', 'fifi', 'loulou'})
+        self.assertTrue(obj.keys() == expected_keys)
         self.assertTrue(all([obj[o].shape == (5,) for o in obj]))
         # providing directory without object will return all ALF files
         with self.assertRaises(ValueError) as context:
@@ -246,10 +262,29 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(status == 1)
         # test for timestamps which is an exception to the rule
         a = {'a': np.ones([10, 15]), 'b': np.ones([1, 15]), 'c': np.ones([10])}
-        a['timestamps'] = np.ones([3, 1])
-        a['timestamps.titi'] = np.ones([3, 1])
+        a['timestamps'] = np.ones([2, 2])
+        a['timestamps_titi'] = np.ones([10, 1])
         status = alfio.check_dimensions(a)
         self.assertTrue(status == 0)
+        a['timestamps'] = np.ones([2, 4])
+        status = alfio.check_dimensions(a)
+        self.assertTrue(status == 1)
+
+    def test_ts2vec(self):
+        n = 10
+        # Test interpolate
+        ts = np.array([[0, 10], [0, 100]]).T
+        ts_ = alfio.ts2vec(ts, n)
+        np.testing.assert_array_equal(ts_.astype(int), np.arange(0, 100, 10, dtype=int))
+        # Test flatten
+        ts = np.ones((n, 1))
+        ts_ = alfio.ts2vec(ts, n)
+        np.testing.assert_array_equal(ts_, np.ones(n))
+        # Test identity
+        np.testing.assert_array_equal(ts_, alfio.ts2vec(ts_, n))
+        # Test ValueError
+        with self.assertRaises(ValueError):
+            alfio.ts2vec(np.empty((n, 2, 3)), n)
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
@@ -369,6 +404,9 @@ class TestUUID_Files(unittest.TestCase):
         for tup in inout:
             self.assertEqual(tup[1], alfio.add_uuid_string(tup[0], _uuid))
             self.assertEqual(tup[1], alfio.add_uuid_string(tup[0], str(_uuid)))
+
+        with self.assertRaises(ValueError):
+            alfio.add_uuid_string('/foo/bar.npy', 'fake')
 
 
 if __name__ == "__main__":
