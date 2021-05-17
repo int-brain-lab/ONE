@@ -487,7 +487,8 @@ class One(ConversionMixin):
         # For those that don't exist, download them
         # return alfio.load_object(path, table[match]['object'].values[0])
         download_only = kwargs.pop('download_only', False)
-        files = self._update_filesystem(datasets, offline=query_type == 'local')
+        offline = None if query_type == 'auto' else self.mode == 'local'
+        files = self._update_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
         if not files:
             raise ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
@@ -1149,7 +1150,6 @@ class OneAlyx(One):
         """
         if offline is None:
             offline = self.mode == 'local'
-        offline = offline
         Path(target_dir).mkdir(parents=True, exist_ok=True)
         local_path = target_dir / os.path.basename(url)
         if not keep_uuid:

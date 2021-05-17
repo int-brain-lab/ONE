@@ -293,8 +293,8 @@ class TestsAlf(unittest.TestCase):
 class TestSessionFolder(unittest.TestCase):
 
     def test_isdatetime(self):
-        inp = ['açsldfkça', '12312', 34, '2020-01-01', '01-01-2020']
-        out = [False, False, False, True, False]
+        inp = ['açsldfkça', '12312', '2020-01-01', '01-01-2020']
+        out = [False, False, True, False]
         for i, o in zip(inp, out):
             self.assertEqual(o, alfio._isdatetime(i))
 
