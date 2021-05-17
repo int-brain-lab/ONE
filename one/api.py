@@ -67,27 +67,35 @@ def Listable(t): return Union[t, Sequence[t]]  # noqa
 N_THREADS = 4  # number of download threads
 
 
-def _ses2pandas(ses, dtypes=None):
-    """
+def _ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
+    """Extract session cache record and datasets cache from a remote session data record
     TODO Fix for new tables; use to update caches from remote queries
     :param ses: session dictionary from rest endpoint
-    :param dtypes: list of dataset types
-    :return:
+    :return: session record, datasets frame
     """
-    # selection: get relevant dtypes only if there is an url associated
-    rec = list(filter(lambda x: x['url'], ses['data_dataset_session_related']))
-    if dtypes == ['__all__'] or dtypes == '__all__':
-        dtypes = None
-    if dtypes is not None:
-        rec = list(filter(lambda x: x['dataset_type'] in dtypes, rec))
-    include = ['id', 'hash', 'dataset_type', 'name', 'file_size', 'collection']
-    uuid_fields = ['id', 'eid']
-    join = {'subject': ses['subject'], 'lab': ses['lab'], 'eid': ses['url'][-36:],
-            'start_time': np.datetime64(ses['start_time']), 'number': ses['number'],
-            'task_protocol': ses['task_protocol']}
-    col = parquet.rec2col(rec, include=include, uuid_fields=uuid_fields, join=join,
-                          types={'file_size': np.double}).to_df()
-    return col
+    # Extract session record
+    eid = parquet.str2np(ses['url'][-36:])
+    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'project')
+    session_data = {k: v for k, v in ses.items() if k in session_keys}
+    # session_data['id_0'], session_data['id_1'] = eid.flatten().tolist()
+    session = (
+        pd.Series(data=session_data, name=tuple(eid.flatten()))
+          .rename({'start_time': 'date'}, axis=1)
+    )
+    session['date'] = session['date'][:10]
+
+    # Extract datasets table
+    def _to_record(d):
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
+        rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
+        rec['eid_0'], rec['eid_1'] = session.name
+        file_path = alfio.get_alf_path(d['data_url'])
+        rec['session_path'] = alfio.get_session_path(file_path).as_posix()
+        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        return rec
+    records = map(_to_record, ses['data_dataset_session_related'])
+    datasets = pd.DataFrame(records).set_index(['id_0', 'id_1'])
+    return session, datasets
 
 
 def parse_id(method):
@@ -998,47 +1006,22 @@ class OneAlyx(One):
         >>> one.search_terms
 
         :param dataset_types: list of dataset_types
-        :type dataset_types: list of str
-
         :param date_range: list of 2 strings or list of 2 dates that define the range
-        :type date_range: list
-
         :param details: default False, returns also the session details as per the REST response
-        :type details: bool
-
         :param lab: a str or list of lab names
-        :type lab: list or str
-
         :param limit: default None, limits results (if pagination enabled on server)
-        :type limit: int List of possible search terms
-
         :param location: a str or list of lab location (as per Alyx definition) name
                          Note: this corresponds to the specific rig, not the lab geographical
                          location per se
-        :type location: str
-
         :param number: number of session to be returned; will take the first n sessions found
-        :type number: str or int
-
         :param performance_lte / performance_gte: search only for sessions whose performance is
         less equal or greater equal than a pre-defined threshold as a percentage (0-100)
-        :type performance_gte: float
-
         :param subjects: a list of subjects nickname
-        :type subjects: list or str
-
         :param task_protocol: a str or list of task protocol name (can be partial, i.e.
                               any task protocol containing that str will be found)
-        :type task_protocol: str
-
         :param users: a list of Alyx usernames
-        :type users: list or str
-
         :return: list of eids, if details is True, also returns a list of json dictionaries,
          each entry corresponding to a matching session
-        :rtype: list, list
-
-
         """
         query_type = query_type or self.mode
         if query_type != 'remote':

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 from one import webclient as wc
-from one.api import ONE, One, OneAlyx
+from one.api import ONE, One, OneAlyx, _ses2records
 import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
@@ -379,6 +379,19 @@ class TestOneAlyx(unittest.TestCase):
     def test_download_datasets(self):
         eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
         files = one.download_datasets(['channels.brainLocation.tsv'])
+
+    def test_ses2records(self):
+        eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
+        ses = self.one.alyx.rest('sessions', 'read', id=eid)
+        session, datasets = _ses2records(ses)
+        # Verify returned tables are compatible with cache tables
+        self.assertIsInstance(session, pd.Series)
+        self.assertIsInstance(datasets, pd.DataFrame)
+        self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
+        self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
+        self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
+        self.assertCountEqual(datasets.columns, self.one._cache['datasets'].columns)
+        self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
