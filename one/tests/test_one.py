@@ -3,7 +3,6 @@ from functools import partial
 import unittest
 from unittest import mock
 import tempfile
-import shutil
 from uuid import UUID
 import json
 
@@ -11,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from one import webclient as wc
-from one.api import ONE, One, OneAlyx, _ses2records
+from one.api import ONE, One, OneAlyx, _ses2records, _validate_date_range
 import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
@@ -105,20 +104,11 @@ class TestONECache(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # FIXME Use util fixture
-        fixture = Path(__file__).parent.joinpath('fixtures')
-        cls.tempdir = tempfile.TemporaryDirectory()
-        # Copy cache files to temporary directory
-        for cache_file in ('sessions', 'datasets'):
-            filename = shutil.copy(fixture / f'{cache_file}.pqt', cls.tempdir.name)
-            assert Path(filename).exists()
+        cls.tempdir = util.set_up_env()
         # Create ONE object with temp cache dir
         cls.one = ONE(mode='local', cache_dir=cls.tempdir.name)
         # Create dset files from cache
-        for session_path, rel_path in cls.one._cache.datasets[['session_path', 'rel_path']].values:
-            filepath = Path(cls.tempdir.name).joinpath(session_path, rel_path)
-            filepath.parent.mkdir(exist_ok=True, parents=True)
-            filepath.touch()
+        util.create_file_tree(cls.one)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -361,7 +351,6 @@ class TestOneAlyx(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # TODO Use util fixture
         cls.tempdir = util.set_up_env()
 
         with mock.patch('one.lib.io.params.getfile', new=partial(get_file, cls.tempdir.name)):
@@ -501,6 +490,46 @@ class TestOneSetup(unittest.TestCase):
             #     ONE(offline=True, cache_dir=self.tempdir.name)
             with self.assertWarns(DeprecationWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
+
+
+class TestOneMisc(unittest.TestCase):
+    def test_validate_date_range(self):
+        # Single string date
+        actual = _validate_date_range('2020-01-01')  # On this day
+        expected = (pd.Timestamp('2020-01-01 00:00:00'),
+                    pd.Timestamp('2020-01-01 23:59:59.999000'))
+        self.assertEqual(actual, expected)
+
+        # Single datetime.date object
+        actual = _validate_date_range(pd.Timestamp('2020-01-01 00:00:00').date())
+        self.assertEqual(actual, expected)
+
+        # Single pandas Timestamp
+        actual = _validate_date_range(pd.Timestamp(2020, 1, 1))
+        self.assertEqual(actual, expected)
+
+        # Array of two datetime64
+        actual = _validate_date_range(np.array(['2022-01-30', '2022-01-30'],
+                                               dtype='datetime64[D]'))
+        expected = (pd.Timestamp('2022-01-30 00:00:00'), pd.Timestamp('2022-01-30 00:00:00'))
+        self.assertEqual(actual, expected)
+
+        # From date (lower bound)
+        actual = _validate_date_range(['2020-01-01'])  # from date
+        self.assertEqual(actual[0], pd.Timestamp('2020-01-01 00:00:00'))
+        dt = actual[1] - pd.Timestamp.now()
+        self.assertTrue(dt.days > 10 * 365)
+
+        actual = _validate_date_range(['2020-01-01', None])  # from date
+        self.assertEqual(actual[0], pd.Timestamp('2020-01-01 00:00:00'))
+        dt = actual[1] - pd.Timestamp.now()
+        self.assertTrue(dt.days > 10 * 365)  # Upper bound at least 60 years in the future
+
+        # To date (upper bound)
+        actual = _validate_date_range([None, '2020-01-01'])  # up to date
+        self.assertEqual(actual[1], pd.Timestamp('2020-01-01 00:00:00'))
+        dt = pd.Timestamp.now().date().year - actual[0].date().year
+        self.assertTrue(dt > 60)  # Lower bound at least 60 years in the past
 
 
 def get_file(root: str, str_id: str) -> str:

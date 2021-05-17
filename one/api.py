@@ -448,6 +448,7 @@ class One(ConversionMixin):
                     eid: Union[str, Path, UUID],
                     obj: str,
                     collection: Optional[str] = 'alf',
+                    revision: Optional[str] = None,
                     query_type: str = 'auto',
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
@@ -472,12 +473,13 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             raise ALFObjectNotFound(f'ALF object "{obj}" not found in cache')
 
-        expression = alf_regex(f'{COLLECTION_SPEC}/{FILE_SPEC}', object=obj, collection=collection)
+        expression = alf_regex(f'{COLLECTION_SPEC}/{FILE_SPEC}',
+                               object=obj, collection=collection, revision=revision)
         REGEX = True
         if not REGEX:
             obj.replace('*', '.*')
         table = datasets['rel_path'].str.extract(expression)
-        match = ~table[['collection', 'object']].isna().all(axis=1)
+        match = ~table[['collection', 'object', 'revision']].isna().all(axis=1)
 
         # Validate result before loading
         if table['object'][match].unique().size > 1:
@@ -514,6 +516,15 @@ class One(ConversionMixin):
                              collection: Optional[str] = 'alf',
                              revision: Optional[str] = None,
                              **kwargs) -> Any:
+        """
+        Load a dataset for a given session id and dataset name
+        :param eid: an
+        :param dataset:
+        :param collection:
+        :param revision:
+        :param kwargs:
+        :return:
+        """
         datasets = self.list_datasets(eid)
 
         if len(datasets) == 0:
@@ -801,11 +812,13 @@ class OneAlyx(One):
                                     download_only=download_only, clobber=clobber, offline=offline)
 
     @parse_id
-    def load_dataset(self,
-                     eid: Union[str, Path, UUID],
-                     dataset: str,
-                     collection: Optional[str] = None,
-                     download_only: bool = False) -> Any:
+    def load_session_dataset(self,
+                             eid: Union[str, Path, UUID],
+                             dataset: str,
+                             collection: str = None,
+                             revision: str = None,
+                             query_type: str = None,
+                             download_only: bool = False) -> Any:
         """
         Load a single dataset from a Session ID and a dataset type.
 
@@ -819,11 +832,20 @@ class OneAlyx(One):
         :return: dataset or a Path object if download_only is true
 
         Examples:
+        TODO Update examples
             intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
             intervals = one.load_dataset(eid, '*trials.intervals*')
             filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
             spikes = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
         """
+        query_type = query_type or self.mode
+        if query_type != 'remote':
+            load_dataset_offline = unwrap(super().load_session_dataset)  # Skip parse_id decorator
+            return load_dataset_offline(self, eid, dataset,
+                                        collection=collection,
+                                        revision=revision,
+                                        download_only=download_only,
+                                        query_type=query_type)
         search_str = 'name__regex,' + dataset.replace('.', r'\.').replace('*', '.*')
         if collection:
             search_str += ',collection__regex,' + collection.replace('*', '.*')
