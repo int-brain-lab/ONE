@@ -12,7 +12,7 @@ import re
 from uuid import UUID
 from datetime import datetime
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -24,7 +24,7 @@ from .exceptions import ALFObjectNotFound
 from . import files
 from .spec import SESSION_SPEC, FILE_SPEC, COLLECTION_SPEC, to_alf, is_valid, regex as alf_regex
 
-_logger = logging.getLogger('ibllib')
+_logger = logging.getLogger('ONE')
 
 
 class AlfBunch(Bunch):
@@ -36,7 +36,7 @@ class AlfBunch(Bunch):
     def append(self, b, inplace=False):
         """
         Appends one bunch to another, key by key
-        :param bunch:
+        :param b: A Bunch to append
         :return: Bunch
         """
         # default is to return a copy
@@ -133,10 +133,10 @@ def read_ts(filename):
     ts = np.load(filename.parent / time_file)
     val = np.load(filename)
     # Ensure timestamps
-    return ts2vec(ts, val.shape[0]), ensure_flat(val)
+    return ts2vec(ts, val.shape[0]), _ensure_flat(val)
 
 
-def ensure_flat(arr):
+def _ensure_flat(arr):
     """
     Given a single column array, returns a flat vector.  Other shapes are returned unchanged.
     :param arr: an array with shape (n, 1)
@@ -216,7 +216,7 @@ def load_file_content(fil):
     if fil.suffix == '.jsonable':
         return jsonable.read(fil)
     if fil.suffix == '.npy':
-        return ensure_flat(np.load(file=fil, allow_pickle=True))
+        return _ensure_flat(np.load(file=fil, allow_pickle=True))
     if fil.suffix == '.pqt':
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
@@ -235,7 +235,7 @@ def _ls(alfpath, object=None, **kwargs):
     """
     alfpath = Path(alfpath)
     if not alfpath.exists():
-        files_alf = None
+        files_alf = attributes = None
     elif alfpath.is_dir():
         if object is None:
             # List all ALF files
@@ -471,11 +471,11 @@ def _isdatetime(s: str) -> bool:
     try:
         datetime.strptime(s, '%Y-%m-%d')
         return True
-    except Exception:
+    except ValueError:
         return False
 
 
-def get_session_path(path: Union[str, Path]) -> Path:
+def get_session_path(path: Union[str, Path]) -> Optional[Path]:
     """Returns the session path from any filepath if the date/number
     pattern is found"""
     if path is None:

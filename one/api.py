@@ -36,7 +36,7 @@ from functools import wraps, lru_cache
 from inspect import unwrap
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Sequence, Union, Optional, List, Dict
+from typing import Any, Sequence, Union, Optional, List
 from uuid import UUID
 
 import tqdm
@@ -58,17 +58,18 @@ from one.lib.brainbox.core import Bunch
 from one.lib.brainbox.numerical import ismember2d, find_first_2d
 from one.converters import ConversionMixin
 
-_logger = logging.getLogger('ibllib')  # TODO Refactor log
+_logger = logging.getLogger('ONE')  # TODO Refactor log
 
 
 def Listable(t): return Union[t, Sequence[t]]  # noqa
 
 
-NTHREADS = 4  # number of download threads
+N_THREADS = 4  # number of download threads
 
 
 def _ses2pandas(ses, dtypes=None):
     """
+    TODO Fix for new tables; use to update caches from remote queries
     :param ses: session dictionary from rest endpoint
     :param dtypes: list of dataset types
     :return:
@@ -195,7 +196,7 @@ class One(ConversionMixin):
         if hasattr(dsets, 'iterrows'):
             dsets = map(lambda x: x[1], dsets.iterrows())
         # FIXME Thread timeout?
-        with concurrent.futures.ThreadPoolExecutor(max_workers=NTHREADS) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
             # TODO Subclass can just call web client method directly, no need to pass hash, etc.
             futures = [executor.submit(self.download_dataset, dset, file_size=dset['file_size'],
                                        hash=dset['hash'], **kwargs) for dset in dsets]
@@ -324,13 +325,15 @@ class One(ConversionMixin):
         else:
             return eids
 
-    def _update_filesystem(self, datasets, offline=True, update_exists=True, clobber=False):
+    def _update_filesystem(self, datasets, offline=None, update_exists=True, clobber=False):
         """Update the local filesystem for the given datasets
         Given a set of datasets, check whether records correctly reflect the filesystem.
         Called by load methods, this returns a list of file paths to load and return.
         TODO This needs changing; overlaod for downloading?
         TODO change name to check_files, check_present, present_datasets, check_local_files?
          check_filesystem?
+         This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
+         update and save tables.  Download_datasets can also call this function.
 
         :param datasets: A list or DataFrame of dataset records
         :param offline: If false and Web client present, downloads the missing datasets from a
@@ -340,7 +343,9 @@ class One(ConversionMixin):
         filesystem
         :return: A list of file paths for the datasets (None elements for non-existent datasets)
         """
-        if offline or not getattr(self, '_web_client', None):
+        if offline is None:
+            offline = self.mode == 'local' or not getattr(self, '_web_client', None)
+        if offline:
             files = []
             if isinstance(datasets, pd.Series):
                 datasets = pd.DataFrame([datasets])
@@ -509,7 +514,7 @@ class One(ConversionMixin):
         # TODO This could maybe be an ALF function
         expression = alf_regex(COLLECTION_SPEC, revision=revision, collection=collection)
         table = datasets['rel_path'].str.rsplit('/', 1, expand=True)
-        match = table[1] == dataset
+        match = table[1].str.contains(dataset)
         # Check collection and revision matches
         table = table[0].str.extract(expression)
         match &= ~table['collection'].isna() & (~table['revision'].isna() if revision else True)
@@ -688,7 +693,8 @@ class OneAlyx(One):
             # Determine whether a newer cache is available
             cache_info = self.alyx.get('cache/info', expires=True)
             remote_created = datetime.fromisoformat(cache_info['date_created'])
-            if (remote_created - self._cache['created_time']) < timedelta(minutes=1):
+            local_created = self._cache.get('created_time', None)
+            if local_created and (remote_created - local_created) < timedelta(minutes=1):
                 _logger.info('No newer cache available')
                 return
 
@@ -712,42 +718,43 @@ class OneAlyx(One):
     def _cache_dir(self):
         return self._web_client.cache_dir
 
-    def help(self, dataset_type=None):
-        # TODO Move the AlyxClient; add to rest examples
+    def describe_dataset(self, dataset_type=None):
+        # TODO Move the AlyxClient; add to rest examples; rename to describe?
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
-        if isinstance(dataset_type, list):
-            for dt in dataset_type:
-                self.help(dataset_type=dt)
-                return
-        if not isinstance(dataset_type, str):
-            print('No dataset_type provided or wrong type. Should be str')
-            return
-        out = self.alyx.rest('dataset-types', 'read', dataset_type)
+        # if not isinstance(dataset_type, str):
+        #     print('No dataset_type provided or wrong type. Should be str')
+        #     return
+        try:
+            assert isinstance(dataset_type, str) and not alfio.is_uuid_string(dataset_type)
+            out = self.alyx.rest('dataset-types', 'read', dataset_type)
+        except (AssertionError, requests.exceptions.HTTPError):
+            # Try to get dataset type from dataset name
+            out = self.alyx.rest('dataset-types', 'read', self.dataset2type(dataset_type))
         print(out['description'])
 
-    def list(self, eid: Optional[Union[str, Path, UUID]] = None, details=False
-             ) -> Union[List, Dict[str, str]]:
-        """
-        From a Session ID, queries Alyx database for datasets related to a session.
-
-        :param eid: Experiment session uuid str
-        :type eid: str
-
-        :param details: If false returns a list of path, otherwise returns the REST dictionary
-        :type eid: bool
-
-        :return: list of strings or dict of lists if details is True
-        :rtype:  list, dict
-        """
-        if not eid:
-            return [x['name'] for x in self.alyx.rest('dataset-types', 'list')]
-
-        # Session specific list
-        dsets = self.alyx.rest('datasets', 'list', session=eid, exists=True)
-        if not details:
-            dsets = sorted([Path(dset['collection']).joinpath(dset['name']) for dset in dsets])
-        return dsets
+    # def list(self, eid: Optional[Union[str, Path, UUID]] = None, details=False
+    #          ) -> Union[List, Dict[str, str]]:
+    #     """
+    #     From a Session ID, queries Alyx database for datasets related to a session.
+    #
+    #     :param eid: Experiment session uuid str
+    #     :type eid: str
+    #
+    #     :param details: If false returns a list of path, otherwise returns the REST dictionary
+    #     :type eid: bool
+    #
+    #     :return: list of strings or dict of lists if details is True
+    #     :rtype:  list, dict
+    #     """
+    #     if not eid:
+    #         return [x['name'] for x in self.alyx.rest('dataset-types', 'list')]
+    #
+    #     # Session specific list
+    #     dsets = self.alyx.rest('datasets', 'list', session=eid, exists=True)
+    #     if not details:
+    #         dsets = sorted([Path(dset['collection']).joinpath(dset['name']) for dset in dsets])
+    #     return dsets
 
     @parse_id
     def load(self, eid, dataset_types=None, dclass_output=False, dry_run=False, cache_dir=None,
@@ -1129,7 +1136,7 @@ class OneAlyx(One):
                            data={'json': json_field})
 
     def _download_file(self, url, target_dir,
-                       clobber=False, offline=False, keep_uuid=False, file_size=None, hash=None):
+                       clobber=False, offline=None, keep_uuid=False, file_size=None, hash=None):
         """
         Downloads a single file from an HTTP webserver
         :param url:
@@ -1140,6 +1147,9 @@ class OneAlyx(One):
         :param hash:
         :return:
         """
+        if offline is None:
+            offline = self.mode == 'local'
+        offline = offline
         Path(target_dir).mkdir(parents=True, exist_ok=True)
         local_path = target_dir / os.path.basename(url)
         if not keep_uuid:
@@ -1148,7 +1158,7 @@ class OneAlyx(One):
             # the local file hash doesn't match the dataset table cached hash
             hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
             file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-            if hash_mismatch or file_size_mismatch:
+            if (hash_mismatch or file_size_mismatch) and not offline:
                 clobber = True
                 _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
         # if there is no cached file, download
@@ -1282,6 +1292,25 @@ class OneAlyx(One):
         datasets = self.alyx.rest('datasets', 'list', django=restriction)
         return datasets if full else [d['name'] for d in datasets]
 
+    def dataset2type(self, dset):
+        """Return dataset type from dataset"""
+        # Ensure dset is a str uuid
+        if isinstance(dset, str) and not alfio.is_uuid_string(dset):
+            dset = self._dataset_name2id(dset).values
+        if isinstance(dset, np.ndarray):
+            dset = parquet.np2str(dset)[0]
+        if not alfio.is_uuid_string(dset):
+            raise ValueError()
+        return self.alyx.rest('datasets', 'read', id=dset)['dataset_type']
+
+    def _dataset_name2id(self, dset_name, eid=None):
+        # TODO finish function
+        datasets = self.list_datasets(eid) if eid else self._cache['datasets']
+        # Get ID of fist matching dset
+        for rel_path in datasets['rel_path']:
+            if dset_name in rel_path:
+                return rel_path.index
+
     def get_details(self, eid: str, full: bool = False):
         """ Returns details of eid like from one.search, optional return full
         session details.
@@ -1307,48 +1336,48 @@ class OneAlyx(One):
         out.update({'local_path': self.eid2path(eid)})
         return out
 
-    def _update_cache(self, ses, dataset_types):
-        """
-        TODO move to One
-        :param ses: session details dictionary as per Alyx response
-        :param dataset_types:
-        :return: is_updated (bool): if the cache was updated or not
-        """
-        save = False
-        pqt_dsets = _ses2pandas(ses, dtypes=dataset_types)
-        # if the dataframe is empty, return
-        if pqt_dsets.size == 0:
-            return
-        # if the cache is empty create the cache variable
-        elif self._cache.size == 0:
-            self._cache = pqt_dsets
-            save = True
-        # the cache is not empty and there are datasets in the query
-        else:
-            isin, icache = ismember2d(pqt_dsets[['id_0', 'id_1']].to_numpy(),
-                                      self._cache[['id_0', 'id_1']].to_numpy())
-            # check if the hash / filesize fields have changed on patching
-            heq = (self._cache['hash'].iloc[icache].to_numpy() ==
-                   pqt_dsets['hash'].iloc[isin].to_numpy())
-            feq = np.isclose(self._cache['file_size'].iloc[icache].to_numpy(),
-                             pqt_dsets['file_size'].iloc[isin].to_numpy(),
-                             rtol=0, atol=0, equal_nan=True)
-            eq = np.logical_and(heq, feq)
-            # update new hash / filesizes
-            if not np.all(eq):
-                self._cache.iloc[icache, 4:6] = pqt_dsets.iloc[np.where(isin)[0], 4:6].to_numpy()
-                save = True
-            # append datasets that haven't been found
-            if not np.all(isin):
-                self._cache = self._cache.append(pqt_dsets.iloc[np.where(~isin)[0]])
-                self._cache = self._cache.reindex()
-                save = True
-        if save:
-            # before saving makes sure pandas did not cast uuids in float
-            typs = [t for t, k in zip(self._cache.dtypes, self._cache.keys()) if 'id_' in k]
-            assert (all(map(lambda t: t == np.int64, typs)))
-            # if this gets too big, look into saving only when destroying the ONE object
-            parquet.save(self._cache_file, self._cache)
+    # def _update_cache(self, ses, dataset_types):
+    #     """
+    #     TODO move to One; currently unused
+    #     :param ses: session details dictionary as per Alyx response
+    #     :param dataset_types:
+    #     :return: is_updated (bool): if the cache was updated or not
+    #     """
+    #     save = False
+    #     pqt_dsets = _ses2pandas(ses, dtypes=dataset_types)
+    #     # if the dataframe is empty, return
+    #     if pqt_dsets.size == 0:
+    #         return
+    #     # if the cache is empty create the cache variable
+    #     elif self._cache.size == 0:
+    #         self._cache = pqt_dsets
+    #         save = True
+    #     # the cache is not empty and there are datasets in the query
+    #     else:
+    #         isin, icache = ismember2d(pqt_dsets[['id_0', 'id_1']].to_numpy(),
+    #                                   self._cache[['id_0', 'id_1']].to_numpy())
+    #         # check if the hash / filesize fields have changed on patching
+    #         heq = (self._cache['hash'].iloc[icache].to_numpy() ==
+    #                pqt_dsets['hash'].iloc[isin].to_numpy())
+    #         feq = np.isclose(self._cache['file_size'].iloc[icache].to_numpy(),
+    #                          pqt_dsets['file_size'].iloc[isin].to_numpy(),
+    #                          rtol=0, atol=0, equal_nan=True)
+    #         eq = np.logical_and(heq, feq)
+    #         # update new hash / filesizes
+    #         if not np.all(eq):
+    #             self._cache.iloc[icache, 4:6] = pqt_dsets.iloc[np.where(isin)[0], 4:6].to_numpy()
+    #             save = True
+    #         # append datasets that haven't been found
+    #         if not np.all(isin):
+    #             self._cache = self._cache.append(pqt_dsets.iloc[np.where(~isin)[0]])
+    #             self._cache = self._cache.reindex()
+    #             save = True
+    #     if save:
+    #         # before saving makes sure pandas did not cast uuids in float
+    #         typs = [t for t, k in zip(self._cache.dtypes, self._cache.keys()) if 'id_' in k]
+    #         assert (all(map(lambda t: t == np.int64, typs)))
+    #         # if this gets too big, look into saving only when destroying the ONE object
+    #         parquet.save(self._cache_file, self._cache)
 
 
 def _validate_date_range(date_range):

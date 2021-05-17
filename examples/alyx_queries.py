@@ -17,8 +17,16 @@ assert isinstance(one, OneAlyx)
 # List the available endpoints:
 print(one.alyx.list_endpoints())
 
+# The main GET requests are 'list' and 'read'.  The parameters for each are described in the
+# rest_schemas property.  For example, for the parameters available for listing sessions...
+print(one.alyx.rest_schemes['sessions']['list']['description'])
+
 # query sessions that have histology available
 ses = one.alyx.rest('sessions', 'list', histology=True)
+
+# convert session dicts to eids:
+eids = one.to_eid(x['url'] for x in ses[:5])
+
 # the generic way
 ses = one.alyx.rest('sessions', 'list',
                     django="subject__actions_sessions__procedures__name,Histology")
@@ -35,11 +43,6 @@ ses = one.alyx.rest('sessions', 'list', django='~project__name__icontains,matlab
 # query sessions that do not contain a given dataset type
 ses = one.alyx.rest('sessions', 'list',
                     django='~data_dataset_session_related__dataset_type__name__icontains,wheel')
-
-# FIXME Use to_eid instead
-def session_response_to_eids(ses):
-    """A simple function to return a list of eids from a sessions list response"""
-    return [x['url'][-36:] for x in ses]
 
 # query probe insertions for a given task protocol
 one.alyx.rest('insertions', 'list', django='session__task_protocol__icontains,choiceworld')

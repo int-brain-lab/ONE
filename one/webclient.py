@@ -391,12 +391,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     def rest_schemes(self):
         """Delayed fetch of rest schemes speeds up instantiation"""
         if not self._rest_schemes:
-            headers = self._headers.copy()
-            self._headers['Accept'] = 'application/coreapi+json'
-            try:
-                self._rest_schemes = self.get('/docs')
-            finally:
-                self._headers = headers
+            self._rest_schemes = self.get('/docs')
         return self._rest_schemes
 
     @property
@@ -426,6 +421,9 @@ class AlyxClient(metaclass=UniqueSingletons):
         if files is None:
             data = json.dumps(data) if isinstance(data, dict) or isinstance(data, list) else data
             headers['Content-Type'] = 'application/json'
+        if rest_query.startswith('/docs'):
+            # the mixed accept application may cause errors sometimes, only necessary for the docs
+            headers['Accept'] = 'application/coreapi+json'
         r = reqfunction(self._par.ALYX_URL + rest_query, stream=True, headers=headers,
                         data=data, files=files)
         if r and r.status_code in (200, 201):
