@@ -327,9 +327,21 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(np.all(dset == np.arange(3)))
 
     def test_load_object(self):
-        wheel = self.one.load_object('aaf101c3-2581-450a-8abd-ddb8f557a5ad', 'wheel')
+        eid = 'aaf101c3-2581-450a-8abd-ddb8f557a5ad'
+        files = self.one.load_object(eid, 'wheel', download_only=True)
+        self.assertEqual(len(files), 3)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+
+        # Save some data into the files
+        N = 10  # length of data
+        for f in files:
+            np.save(str(f), np.random.rand(N))
+        wheel = self.one.load_object(eid, 'wheel')
         self.assertIsInstance(wheel, dict)
         self.assertCountEqual(wheel.keys(), ('position', 'velocity', 'timestamps'))
+        self.assertTrue(
+            all(x.size == N for x in wheel.values())
+        )
 
     def test_record_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
