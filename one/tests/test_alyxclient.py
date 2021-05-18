@@ -2,6 +2,7 @@
 import unittest
 from unittest import mock
 from pathlib import Path
+import random
 import numpy as np
 import os
 import one.webclient as wc
@@ -46,13 +47,14 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac = ac
         self.eid1 = '242f2929-faaf-4e7c-ae3f-4a935c6d8da5'
         self.eid2 = 'dfe99506-b873-45db-bc93-731f9362e304'
-        self.endpoint = "sessions"
-        self.field_name = "extended_qc"
+        self.endpoint = 'sessions'
+        self.field_name = 'extended_qc'
         self.data_dict = {'some': 0, 'data': 1}
         self.ac.json_field_delete(self.endpoint, self.eid1, self.field_name)
         self.ac.json_field_delete(self.endpoint, self.eid2, self.field_name)
         self.eid1_eqc = None
         self.eid2_eqc = None
+        util.clear_rest_cache(self.ac.base_url)
 
     def _json_field_write(self):
         written1 = self.ac.json_field_write(
@@ -63,7 +65,8 @@ class TestJsonFieldMethods(unittest.TestCase):
         )
         self.assertTrue(written1 == written2)
         self.assertTrue(written1 == self.data_dict)
-        sess_dict = self.ac.rest(self.endpoint, 'list', extended_qc='some__lt,0.5')
+        url = f'/{self.endpoint}?&extended_qc=some__lt,0.5'
+        sess_dict = self.ac.get(url, expires=True)
         self.assertTrue(len(sess_dict) == 2)
 
     def _json_field_update(self):
@@ -72,20 +75,23 @@ class TestJsonFieldMethods(unittest.TestCase):
         )
         self.assertTrue('data' in modified)
         self.assertTrue('some' in modified)
-        self.assertTrue(len(self.ac.rest(self.endpoint, 'list', extended_qc='some__lt,0.5')) == 1)
+        url = f'/{self.endpoint}?&extended_qc=some__lt,0.5'
+        self.assertTrue(len(self.ac.get(url, expires=True)) == 1)
 
     def _json_field_remove_key(self):
-        pre_delete = self.ac.rest(self.endpoint, 'list', extended_qc='data__gte,0.5')
+        url = f'/{self.endpoint}?&extended_qc=data__gte,0.5'
+        pre_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(pre_delete) == 2)
         deleted = self.ac.json_field_remove_key(self.endpoint, self.eid2, self.field_name, 'data')
         self.assertTrue('data' not in deleted)
-        post_delete = self.ac.rest(self.endpoint, 'list', extended_qc='data__gte,0.5')
+        post_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(post_delete) == 1)
 
     def _json_field_delete(self):
         deleted = self.ac.json_field_delete(self.endpoint, self.eid2, self.field_name)
         self.assertTrue(deleted is None)
-        self.assertTrue(len(self.ac.rest(self.endpoint, 'list', extended_qc='data__gte,0.5')) == 1)
+        ses = self.ac.get(f'/{self.endpoint}?&extended_qc=data__gte,0.5', expires=True)
+        self.assertTrue(len(ses) == 1)
 
     def test_json_methods(self):
         self._json_field_write()
@@ -95,7 +101,8 @@ class TestJsonFieldMethods(unittest.TestCase):
 
     def tearDown(self):
         # Delete any dict created by this test
-        for x in self.ac.rest(self.endpoint, 'list', extended_qc='some__lt,0.5'):
+        url = f'/{self.endpoint}?&extended_qc=some__lt,0.5'
+        for x in self.ac.get(url, expires=True):
             self.ac.json_field_delete(self.endpoint, x['url'][-36:], self.field_name)
         # Restore whatever was there in the first place
         self.ac.json_field_write(self.endpoint, self.eid1, self.field_name, self.eid1_eqc)
@@ -162,7 +169,6 @@ class TestRestCache(unittest.TestCase):
         with self.assertWarns(RuntimeWarning):
             res = wrapped(ac, requests.get, self.query)
         self.assertEqual(res['id'], self.query.split('/')[-1])
-
 
 
 class _FakeDateTime(datetime):
@@ -289,34 +295,38 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertTrue(len(b) > 0)
 
     def test_rest_all_actions(self):
+        # randint reduces conflicts with parallel tests
+        nickname = f'foobar_{random.randint(0, 10000)}'
         newsub = {
-            'nickname': 'tutu',
+            'nickname': nickname,
             'responsible_user': 'olivier',
             'birth_date': '2019-06-15',
             'death_date': None,
             'lab': 'cortexlab',
         }
         # look for the subject, create it if necessary
-        sub = self.ac.rest('subjects', 'list', nickname='tutu')
+        sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
         if sub:
-            self.ac.rest('subjects', 'delete', id='tutu')
-        newsub = self.ac.rest('subjects', 'create', data=newsub)
+            self.ac.rest('subjects', 'delete', id=nickname)
+        self.ac.rest('subjects', 'create', data=newsub)
         # partial update and full update
-        newsub = self.ac.rest('subjects', 'partial_update', id='tutu', data={'description': 'hey'})
+        newsub = self.ac.rest('subjects', 'partial_update',
+                              id=nickname, data={'description': 'hey'})
         self.assertEqual(newsub['description'], 'hey')
         newsub['description'] = 'hoy'
-        newsub = self.ac.rest('subjects', 'update', id='tutu', data=newsub)
+        newsub = self.ac.rest('subjects', 'update', id=nickname, data=newsub)
         self.assertEqual(newsub['description'], 'hoy')
         # read
-        newsub_ = self.ac.rest('subjects', 'read', id='tutu')
+        newsub_ = self.ac.rest('subjects', 'read', id=nickname)
         self.assertEqual(newsub, newsub_)
         # list with filter
-        sub = self.ac.rest('subjects', 'list', nickname='tutu')
+        sub = self.ac.rest('subjects', 'list', nickname=nickname)
         self.assertEqual(sub[0]['nickname'], newsub['nickname'])
         self.assertTrue(len(sub) == 1)
         # delete
-        self.ac.rest('subjects', 'delete', id='tutu')
-        sub = self.ac.rest('subjects', 'list', nickname='tutu')
+        self.ac.rest('subjects', 'delete', id=nickname)
+        util.clear_rest_cache(self.ac.base_url)  # Make sure we hit db
+        sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
         self.assertFalse(sub)
 
 

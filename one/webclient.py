@@ -1,3 +1,7 @@
+"""
+TODO Document module
+ Move converters to another module
+"""
 import json
 import logging
 import math

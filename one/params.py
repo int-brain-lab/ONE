@@ -6,6 +6,8 @@ Scenarios:
 The ONE params comprise two files: a caches file that contains a map of Alyx db URLs to cache
 directories, and a separate parameter file for each url containing the client parameters.  The
 caches file also sets the default client for when no url is provided.
+
+TODO Rename 'client' kwarg
 """
 import re
 from one.lib.io import params as iopar

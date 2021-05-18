@@ -2,7 +2,6 @@ from pathlib import Path
 import unittest
 import tempfile
 
-import matplotlib.image
 import numpy as np
 
 from one.api import ONE
@@ -42,6 +41,7 @@ class Tests_REST(unittest.TestCase):
         ses_ = one.alyx.rest('sessions', 'list', id=ses['url'][-36:])[0]
         self.assertEqual(ses, ses_)
 
+    @unittest.skip
     def test_note_with_picture_upload(self):
         my_note = {'user': 'olivier',
                    'content_type': 'session',
@@ -53,6 +53,7 @@ class Tests_REST(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tdir:
             png = Path(tdir) / f'img{np.random.randint(5000)}.png'
             # TODO Use fixture instead of matplotlib dependency
+            import matplotlib.image
             matplotlib.image.imsave(png, np.random.random((500, 500)))
             with open(png, 'rb') as img_file:
                 files = {'image': img_file}
