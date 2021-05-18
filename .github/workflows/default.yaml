@@ -15,7 +15,7 @@ jobs:
     # Standard drop-in approach that should work for most people.
     - uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "pip install sphinx-automodapi sphinx_material"
+        pre-build-command: "pip install requirements-docs.txt && jupyter nbextension enable --py --sys-prefix ipyevents"
         docs-folder: "docs/"
     # Publish built docs to gh-pages branch.
     # ===============================

@@ -29,12 +29,15 @@ author = 'International Brain Lab'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
-    'sphinx.ext.doctest',
-    'sphinx.ext.inheritance_diagram',
-    'sphinx_automodapi.automodapi',
-    'sphinx_material',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.githubpages',
+    'sphinx_copybutton',
+    'nbsphinx',
+    'nbsphinx_link',
+    'myst_parser',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
 ]
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,9 +53,55 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = ['css/style.css']
+
+
+# -- Options for autosummary and autodoc ------------------------------------
+autosummary_generate = True
+# Don't add module names to function docs
+add_module_names = False
+
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'undoc-members': True,
+    'show-inheritance': False
+}
+
+
+# -- Options for nbsphinx ------------------------------------
+
+# Only use nbsphinx for formatting the notebooks i.e never execute
+nbsphinx_execute = 'never'
+# Cancel compile on errors in notebooks
+nbsphinx_allow_errors = False
+# Add cell execution out number
+nbsphinx_output_prompt = 'Out[%s]:'
+# Configuration for images
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
+plot_formats = [('png', 512)]
+
+# Add extra prolog to beginning of each .ipynb file
+# Add option to download notebook and link to github page
+nbsphinx_prolog = r"""
+{% if env.metadata[env.docname]['nbsphinx-link-target'] %}
+{% set nb_path = env.metadata[env.docname]['nbsphinx-link-target'] | dirname %}
+{% set nb_name = env.metadata[env.docname]['nbsphinx-link-target'] | basename %}
+{% else %}
+{% set nb_name = env.doc2path(env.docname, base=None) | basename %}
+{% set nb_path = env.doc2path(env.docname, base=None) | dirname %}
+{% endif %}
+.. raw:: html
+      <a href="{{ nb_name }}"><button id="download">Download tutorial notebook</button></a>
+      <a href="https://github.com/int-brain-lab/ibllib/tree/docsMayo/docs_gh_pages/{{ nb_path }}/
+      {{ nb_name }}"><button id="github">Github link</button></a>
+"""

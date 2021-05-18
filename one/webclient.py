@@ -1,6 +1,30 @@
-"""
-TODO Document module
- Move converters to another module
+"""API for interacting with a remote Alyx instance
+The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
+files through Alyx.
+
+Examples:
+    alyx = AlyxClient(
+        username='test_user', password='TapetesBloc18',
+        base_url='https://test.alyx.internationalbrainlab.org')
+
+    # List subjects
+    subjects = alyx.rest('subjects', 'list')
+
+    # Create a subject
+    record = {
+        'nickname': nickname,
+        'responsible_user': 'olivier',
+        'birth_date': '2019-06-15',
+        'death_date': None,
+        'lab': 'cortexlab',
+    }
+    new_subj = alyx.rest('subjects', 'create', data=record)
+
+    # Download a remote file, given a local path
+    url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
+    local_path = self.alyx.download_file(url)
+
+TODO Move converters to another module
 """
 import json
 import logging
