@@ -263,9 +263,10 @@ class TestONECache(unittest.TestCase):
         pass
 
     def test_list_datasets(self):
+        # Test no eid
         dsets = self.one.list_datasets()
-        self.assertIsInstance(dsets, np.ndarray)
-        self.assertTrue(len(dsets) == np.unique(dsets).size)
+        self.assertEqual(len(dsets), len(self.one._cache.datasets))
+        self.assertFalse(dsets is self.one._cache.datasets)
 
         # Test list for eid
         dsets = self.one.list_datasets('KS005/2019-04-02/001')
@@ -275,6 +276,12 @@ class TestONECache(unittest.TestCase):
         dsets = self.one.list_datasets('FMR019/2021-03-18/002')
         self.assertIsInstance(dsets, pd.DataFrame)
         self.assertEqual(len(dsets), 0)
+
+        # Test details=False, with and without eid
+        for eid in [None, 'KS005/2019-04-02/001']:
+            dsets = self.one.list_datasets(eid, details=False)
+            self.assertIsInstance(dsets, np.ndarray)
+            self.assertTrue(len(dsets) == np.unique(dsets).size)
 
     def test_load_session_dataset(self):
         eid = 'KS005/2019-04-02/001'

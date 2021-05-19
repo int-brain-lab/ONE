@@ -27,7 +27,8 @@ assert that the dimensions match using the check_dimensions property:
 assert trials.check_dimensions == 0
 
 """
-Datasets... TODO 
+Datasets can be individually downloaded using the download_session_datasets method.  This 
+function takes an experiment ID and a dataset name as positional args.
 """
 reward_volume = one.load_session_dataset(eid, 'trials.rewardVolume')  # c.f. load_object, above
 

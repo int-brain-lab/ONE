@@ -32,7 +32,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
-    'sphinx_copybutton',
+    # 'sphinx_copybutton',
     'nbsphinx',
     'nbsphinx_link',
     'myst_parser',

@@ -45,7 +45,7 @@ def parse_values(func):
     def wrapper_decorator(*args, **kwargs):
         parse = kwargs.pop('parse', True)
         ref = func(*args, **kwargs)
-        if parse:
+        if parse and ref:
             if isinstance(ref['date'], str):
                 if len(ref['date']) == 10:
                     ref['date'] = datetime.date.fromisoformat(ref['date'])
@@ -328,16 +328,16 @@ class ConversionMixin:
          {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}]
         """
         if isinstance(path_str, (list, tuple)):
-            return [ConversionMixin.path2ref(x) for x in path_str]
+            return [unwrap(ConversionMixin.path2ref)(x) for x in path_str]
         pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{3})'
-        match = re.search(pattern, str(path_str)).groupdict()
-        return Bunch(match)
+        match = re.search(pattern, str(path_str))
+        return Bunch(match.groupdict()) if match else match
 
     def ref2dj(self, ref: Union[str, Mapping, Iter]):
         """
         Return an ibl-pipeline sessions table, restricted by experiment reference(s)
-        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with the
-        form yyyy-mm-dd_n_subject
+        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with
+        the form yyyy-mm-dd_n_subject
         :return: an acquisition.Session table
 
         Examples:
@@ -375,8 +375,8 @@ class ConversionMixin:
     def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
         """
         Returns True is ref is a valid experiment reference
-        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with the
-        form yyyy-mm-dd_n_subject
+        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with
+        the form yyyy-mm-dd_n_subject
         :return: True if ref is valid
 
         Examples:
@@ -427,6 +427,16 @@ class ConversionMixin:
             return Bunch(ref)  # Short circuit
         ref = dict(zip(['date', 'sequence', 'subject'], ref.split('_', 2)))
         return Bunch(ref)
+
+    @staticmethod
+    def dict2ref(ref_dict):
+        if not ref_dict:
+            return
+        parsed = any(not isinstance(k, str) for k in ref_dict.values())
+        format_str = ('{date:%Y-%m-%d}_{sequence:d}_{subject:s}'
+                      if parsed
+                      else '{date:s}_{sequence:s}_{subject:s}')
+        return format_str.format(**ref_dict)
 
     def to(self, eid, type):
         if type == 'path':

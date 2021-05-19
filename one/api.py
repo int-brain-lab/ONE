@@ -8,7 +8,7 @@ TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
 TODO Fix one.search exist_only
 TODO Update cache fixtures with new test alyx cache
-
+TODO store cache matadata in meta map
 
 Points of discussion:
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
@@ -114,6 +114,22 @@ def parse_id(method):
     return wrapper
 
 
+def refresh(method):
+    """
+    Refresh cache depending of query_type kwarg
+    """
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        mode = kwargs.get('query_type', None)
+        if not mode or mode == 'auto':
+            mode = self.mode
+        self.refresh_cache(mode=mode)
+        return method(self, *args, **kwargs)
+
+    return wrapper
+
+
 class One(ConversionMixin):
     search_terms = (
         'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
@@ -180,7 +196,7 @@ class One(ConversionMixin):
         :param mode:
         :return: Loaded time
         """
-        if mode == 'local':  # TODO maybe rename mode
+        if mode in ('local', 'remote'):  # TODO maybe rename mode
             pass
         elif mode == 'auto':
             if datetime.now() - self._cache['loaded_time'] > self.cache_expiry:
@@ -408,41 +424,45 @@ class One(ConversionMixin):
             det = self._cache['datasets'].join(det, on=det.index.names, how='right')
         return det
 
-    def list_subjects(self, query_type='auto') -> List[str]:
+    @refresh
+    def list_subjects(self) -> List[str]:
         """
         List all subjects in database
         :return: Sorted list of subject names
         """
-        self.refresh_cache(query_type)
         return self._cache['sessions']['subject'].sort_values().unique()
 
-    def list_datasets(self, eid=None, sorted=False, query_type='auto')\
-            -> Union[np.ndarray, pd.DataFrame]:
+    @refresh
+    def list_datasets(self, eid=None, details=True) -> Union[np.ndarray, pd.DataFrame]:
         """
         Given one or more eids, return the datasets for those sessions.  If no eid is provided,
-        a list of all unique datasets is returned
-
-        TODO Return datasets sorted by session date, relpath
+        a list of all datasets is returned.  When details is false, a sorted array of unique
+        datasets is returned (their relative paths).
 
         :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
         details dict or Path
-        :return: Slice of datasets table or numpy array if eid is None
+        :param details: When true, a pandas slice is returned, otherwise a numpy array of
+        relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
+        :return: Slice of datasets table or numpy array details is False
         """
+        datasets = self._cache['datasets']
         if not eid:
-            return self._cache['datasets']['rel_path'].unique()
+            return datasets.copy() if details else datasets['rel_path'].unique()
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
-            return self._cache['datasets'].iloc[0:0]  # Return empty
+            return datasets.iloc[0:0]  # Return empty
         if self._index_type() is int:
             eid_num = parquet.str2np(eid)
             index = ['eid_0', 'eid_1']
-            isin, _ = ismember2d(self._cache['datasets'][index].to_numpy(), eid_num)
-            datasets = self._cache['datasets'][isin]
+            isin, _ = ismember2d(datasets[index].to_numpy(), eid_num)
+            datasets = datasets[isin]
         else:
-            session_match = self._cache['datasets']['eid'].isin(eid)
-            datasets = self._cache['datasets'][session_match]
-        return datasets
+            session_match = datasets['eid'].isin(eid)
+            datasets = datasets[session_match]
+        # Return only the relative path
+        return datasets if details else datasets['rel_path'].sort_values().values
 
+    @refresh
     @parse_id
     def load_object(self,
                     eid: Union[str, Path, UUID],
@@ -509,6 +529,7 @@ class One(ConversionMixin):
         # self._check_exists(datasets[~datasets['exists']])
         return alfio.load_object(files[0].parent, table[match]['object'].values[0], **kwargs)
 
+    @refresh
     @parse_id
     def load_session_dataset(self,
                              eid: Union[str, Path, UUID],
@@ -553,6 +574,7 @@ class One(ConversionMixin):
             return file
         return alfio.load_file_content(file)
 
+    @refresh
     def load_dataset_from_id(self,
                              dset_id: Union[str, UUID],
                              download_only: bool = False,
@@ -664,6 +686,7 @@ class One(ConversionMixin):
     def setup(**kwargs):
         """
         Interactive command tool that populates parameter file for ONE IBL.
+        FIXME See subclass
         """
         one.params.setup(**kwargs)
 
@@ -776,6 +799,7 @@ class OneAlyx(One):
     #         dsets = sorted([Path(dset['collection']).joinpath(dset['name']) for dset in dsets])
     #     return dsets
 
+    @refresh
     @parse_id
     def load(self, eid, dataset_types=None, dclass_output=False, dry_run=False, cache_dir=None,
              download_only=False, clobber=False, offline=False, keep_uuid=False):
@@ -811,6 +835,7 @@ class OneAlyx(One):
                                     dry_run=dry_run, cache_dir=cache_dir, keep_uuid=keep_uuid,
                                     download_only=download_only, clobber=clobber, offline=offline)
 
+    @refresh
     @parse_id
     def load_session_dataset(self,
                              eid: Union[str, Path, UUID],
@@ -867,6 +892,11 @@ class OneAlyx(One):
 
         return filename if download_only else alfio.load_file_content(filename)
 
+    @refresh
+    def load_collection(self):
+        raise NotImplemented()
+
+    @refresh
     @parse_id
     def load_object(self,
                     eid: Union[str, Path, UUID],
@@ -956,6 +986,7 @@ class OneAlyx(One):
                     out.append(self._load(e, **kwargs)[0])
             return out
 
+    @refresh
     def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
@@ -1262,18 +1293,15 @@ class OneAlyx(One):
         # Return the uuid if any
         return uuid[0] if uuid else None
 
-    def path2url(self, filepath, query_type='local'):
+    @refresh
+    def path2url(self, filepath, query_type='auto'):
         """
         Given a local file path, returns the URL of the remote file.
         :param filepath: A local file path
         :return: A URL string
         TODO Standardize query_type
         """
-        if query_type == 'auto':
-            query_type = 'local'
-        if query_type not in ('local', 'remote'):
-            raise ValueError(f'Unknown query_type "{query_type}"')
-        if query_type == 'local':
+        if query_type != 'remote':
             return super(OneAlyx, self).path2url(filepath)
         eid = self.path2eid(filepath)
         try:
