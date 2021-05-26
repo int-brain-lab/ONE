@@ -1,0 +1,8 @@
+{
+    "ALYX_LOGIN": "test_user",
+    "ALYX_PWD": "TapetesBloc18",
+    "ALYX_URL": "https://test.alyx.internationalbrainlab.org",
+    "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org",
+    "HTTP_DATA_SERVER_LOGIN": "iblmember",
+    "HTTP_DATA_SERVER_PWD": None,
+}

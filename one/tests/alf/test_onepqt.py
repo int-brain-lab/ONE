@@ -3,12 +3,11 @@ import tempfile
 from pathlib import Path
 import shutil
 
-import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from brainbox.io import parquet
-import alf.onepqt as apt
+from iblutil.io import parquet
+import one.alf.onepqt as apt
 
 
 class TestsONEParquet(unittest.TestCase):

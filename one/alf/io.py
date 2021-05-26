@@ -17,9 +17,9 @@ from typing import Union, Optional
 import numpy as np
 import pandas as pd
 
-from one.lib.brainbox.core import Bunch
-from one.lib.brainbox.io import parquet
-from one.lib.io import jsonable
+from iblutil.util import Bunch
+from iblutil.io import parquet
+from iblutil.io import jsonable
 from .exceptions import ALFObjectNotFound
 from . import files
 from .spec import SESSION_SPEC, FILE_SPEC, COLLECTION_SPEC, to_alf, is_valid, regex as alf_regex
@@ -123,7 +123,7 @@ def read_ts(filename):
 
     # looking for matching object with attribute timestamps: '_ibl_wheel.timestamps.npy'
     (time_file,), _ = files.filter_by(filename.parent, object=obj,
-                                      attribute='timestamps', extension=ext)
+                                      attribute='times*', extension=ext)
 
     if not time_file:
         name = to_alf(obj, attr, ext)

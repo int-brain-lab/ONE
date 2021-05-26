@@ -1,10 +1,12 @@
 from one.api import ONE
+import one.alf.io as alfio
+
 one = ONE(base_url='https://openalyx.internationalbrainlab.org', silent=True)
 
 """
-The datasets are organized into directory trees by subject, date and session number.  For a 
-given session there are data files grouped by object (e.g. 'trials'), each with a specific 
-attribute (e.g. 'rewardVolume').  The dataset name follows the pattern 'object.attribute', 
+The datasets are organized into directory trees by subject, date and session number.  For a
+given session there are data files grouped by object (e.g. 'trials'), each with a specific
+attribute (e.g. 'rewardVolume').  The dataset name follows the pattern 'object.attribute',
 for example 'trials.rewardVolume.npy'.
 """
 
@@ -20,39 +22,57 @@ print(trials['rewardVolume'][:5])
 trials.to_df().head()
 
 """
-If the data don't exist locally, they will be downloaded, then loaded.  The *should* be 
+If the data don't exist locally, they will be downloaded, then loaded.  The *should* be
 consistent, however for some sessions there may be data extraction errors.  For analysis you can
 assert that the dimensions match using the check_dimensions property:
 """
 assert trials.check_dimensions == 0
 
 """
-Datasets can be individually downloaded using the download_session_datasets method.  This 
+Datasets can be individually downloaded using the download_session_datasets method.  This
 function takes an experiment ID and a dataset name as positional args.
 """
 reward_volume = one.load_session_dataset(eid, 'trials.rewardVolume')  # c.f. load_object, above
 
 # To list the datasets available for a given session:
-dsets = one.list_datasets(eid)['rel_path']
+dsets = one.list_datasets(eid, details=False)
 
-# To get information on a dataset # FIXME Currently doesn't work
-dset_id = dsets.index[0]
-one.describe_dataset(dset_id)
+# To get information on a dataset
+one.describe_dataset(dsets[0])  # alf/_ibl_trials.choice.npy
+# e.g. prints 'which choice was made in choiceworld: -1 (turn CCW), +1 (turn CW), or 0 (nogo)'
 
 """
 Collections
+
+For any given session there may be multiple datasets with the same name that are organized into
+separate subfolders called collections.  For example there may be spike times for two probes, one
+in 'alf/probe00/spikes.times.npy', the other in 'alf/probe01/spikes.times.npy'.
+
+When loading data for a given session the collection may need to be specified when multiple
+matching datasets are found:
 """
+probe1_spikes = one.load_session_dataset(eid, 'spikes.times', collection='alf/probe01')
 
 """
 Download only
+
+By default the load methods will download any missing data, then load and return the data.
+When the 'download_only' kwarg is true, the data are not loaded.  Instead a list of file paths
+are returned, and any missing datasets are represented by None.
 """
+files = one.load_object(eid, 'trials', download_only=True)
 
 """
-Loading from file path
+You can load objects and datasets from a file path
 """
+trials = one.load_object(files[0], 'trials')
+contrast_left = one.load_session_dataset(files[0], files[0].name)
 
 """
 Loading with timeseries
+
+For loading a dataset along with its timestamps, alf.io.read_ts can be used. It requires a
+filepath as input.
 """
-import one.alf.io as alfio
-ts, values = alfio.read_ts()
+files = one.load_object(eid, 'spikes', collection='alf/probe01', download_only=True)
+ts, clusters = alfio.read_ts(files[1])

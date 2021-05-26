@@ -14,8 +14,7 @@ from one.alf.exceptions import ALFObjectNotFound
 class TestAlfBunch(unittest.TestCase):
 
     def test_to_dataframe_scalars(self):
-        simple = alfio.AlfBunch({'titi': np.random.rand(500),
-                                  'toto': np.random.rand(500)})
+        simple = alfio.AlfBunch({'titi': np.random.rand(500), 'toto': np.random.rand(500)})
         df = simple.to_df()
         self.assertTrue(np.all(df['titi'].values == simple.titi))
         self.assertTrue(np.all(df['toto'].values == simple.toto))
@@ -23,8 +22,8 @@ class TestAlfBunch(unittest.TestCase):
 
     def test_to_dataframe_vectors(self):
         vectors = alfio.AlfBunch({'titi': np.random.rand(500, 1),
-                                   'toto': np.random.rand(500),
-                                   'tata': np.random.rand(500, 2)})
+                                  'toto': np.random.rand(500),
+                                  'tata': np.random.rand(500, 2)})
         df = vectors.to_df()
         self.assertTrue(np.all(df['titi'].values == vectors.titi[:, 0]))
         self.assertTrue(np.all(df['toto'].values == vectors.toto))
@@ -33,8 +32,7 @@ class TestAlfBunch(unittest.TestCase):
         self.assertTrue(len(df.columns) == 4)
 
     def test_append_numpy(self):
-        a = alfio.AlfBunch({'titi': np.random.rand(500),
-                             'toto': np.random.rand(500)})
+        a = alfio.AlfBunch({'titi': np.random.rand(500), 'toto': np.random.rand(500)})
         b = alfio.AlfBunch({})
         # test with empty elements
         self.assertTrue(np.all(np.equal(a.append({})['titi'], a['titi'])))
@@ -42,7 +40,7 @@ class TestAlfBunch(unittest.TestCase):
         self.assertEqual(b.append({}), {})
         # test with numpy arrays
         b = alfio.AlfBunch({'titi': np.random.rand(250),
-                             'toto': np.random.rand(250)})
+                            'toto': np.random.rand(250)})
         c = a.append(b)
         t = np.all(np.equal(c['titi'][0:500], a['titi']))
         t &= np.all(np.equal(c['toto'][0:500], a['toto']))
@@ -55,10 +53,8 @@ class TestAlfBunch(unittest.TestCase):
 
     def test_append_list(self):
         # test with lists
-        a = alfio.AlfBunch({'titi': [0, 1, 3],
-                             'toto': ['a', 'b', 'c']})
-        b = alfio.AlfBunch({'titi': [1, 2, 4],
-                             'toto': ['d', 'e', 'f']})
+        a = alfio.AlfBunch({'titi': [0, 1, 3], 'toto': ['a', 'b', 'c']})
+        b = alfio.AlfBunch({'titi': [1, 2, 4], 'toto': ['d', 'e', 'f']})
         c = a.append(b)
         self.assertTrue(len(c['toto']) == 6)
         self.assertTrue(len(a['toto']) == 3)
@@ -77,8 +73,7 @@ class TestsAlfPartsFilters(unittest.TestCase):
         self.tmpdir.mkdir(exist_ok=True)
 
     def test_npy_parts_and_file_filters(self):
-        a = {'riri': np.random.rand(100),
-             'fifi': np.random.rand(100)}
+        a = {'riri': np.random.rand(100), 'fifi': np.random.rand(100)}
         alfio.save_object_npy(self.tmpdir, a, 'neuveux', parts='tutu')
         alfio.save_object_npy(self.tmpdir, a, 'neuveux', parts='tutu', timescale='toto')
         self.assertTrue(alfio.exists(self.tmpdir, 'neuveux'))

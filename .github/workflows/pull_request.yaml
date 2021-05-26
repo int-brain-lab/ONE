@@ -26,7 +26,6 @@ jobs:
         pip install -e .
     - name: ONE tests
       run: |
-        cd ONE
         python -m unittest discover
     # Standard drop-in approach that should work for most people.
     - name: Build docs

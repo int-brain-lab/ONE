@@ -15,8 +15,8 @@ import re
 
 import pandas as pd
 
-from one.lib.brainbox.io import parquet
-from one.lib.io.hashfile import md5
+from iblutil.io import parquet
+from iblutil.io.hashfile import md5
 from .folders import session_path
 
 

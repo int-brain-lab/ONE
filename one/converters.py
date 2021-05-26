@@ -20,9 +20,8 @@ import numpy as np
 import pandas as pd
 
 import one.alf.io as alfio
-import one.alf.files
-from .lib.brainbox.io import parquet
-from .lib.brainbox.core import Bunch
+from iblutil.io import parquet
+from iblutil.util import Bunch
 
 def Listable(t): return Union[t, Sequence[t]]  # noqa
 
@@ -81,7 +80,7 @@ class ConversionMixin:
                 'Subjects', id['subject'],
                 id['start_time'][:10],
                 ('%03d' % id['number']))
-        if alfio.is_session_path(id):
+        if isinstance(id, Path) or alfio.is_session_path(id):
             return self.path2eid(id)
         elif isinstance(id, str):
             if len(id) > 36:
@@ -289,8 +288,8 @@ class ConversionMixin:
     def ref2path(self, ref):
         """
         Convert one or more experiment references to session path(s)
-        :param ref: One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
-        form yyyy-mm-dd_n_subject
+        :param ref: One or more objects with keys ('subject', 'date', 'sequence'), or strings with
+        the form yyyy-mm-dd_n_subject
         :return: a Path object for the experiment session
 
         Examples:
@@ -312,7 +311,8 @@ class ConversionMixin:
     @parse_values
     def path2ref(path_str: Union[str, Path, Iter]) -> Union[Bunch, List]:
         """
-        Returns a human readable experiment reference, given a session path.  The path need not exist.
+        Returns a human readable experiment reference, given a session path.
+        The path need not exist.
         :param path_str: A path to a given session
         :return: one or more objects with keys ('subject', 'date', 'sequence')
 
@@ -401,7 +401,7 @@ class ConversionMixin:
     @recurse
     def path2pid(self, path):
         """Returns a portion of the path that represents the session and probe label"""
-        raise NotImplemented()
+        raise NotImplementedError()
         path = Path(path).as_posix()
 
     @staticmethod

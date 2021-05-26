@@ -288,8 +288,7 @@ def merge_clusters_channels(dic_clus, channels, keys_to_add_extra=None):
                     dic_clus[label][key] = []
         except KeyError:
             logger.warning(
-                f'Either clusters or channels does not have key {label}, could not'
-                f' merge')
+                f'Either clusters or channels does not have key {label}, could not merge')
             continue
 
     return dic_clus

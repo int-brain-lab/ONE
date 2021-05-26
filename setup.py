@@ -23,7 +23,7 @@ with open('requirements.txt') as f:
     require = [x.strip() for x in f.readlines() if not x.startswith('git+')]
 
 setup(
-    name='ONE',
+    name='ONE-api',
     version='2.0.0',
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
     description='Open Neurophysiology Environment',
@@ -31,8 +31,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='IBL Staff',
-    url="https://www.internationalbrainlab.com/",
-    packages=find_packages(exclude=['scratch']),  # same as name
+    url="https://github.com/int-brain-lab/ONE",
+    packages=find_packages(exclude=['scratch', 'tests']),  # same as name
     include_package_data=True,
     # external packages as dependencies
     install_requires=require,

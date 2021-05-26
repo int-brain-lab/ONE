@@ -46,4 +46,3 @@ ses = one.alyx.rest('sessions', 'list',
 
 # query probe insertions for a given task protocol
 one.alyx.rest('insertions', 'list', django='session__task_protocol__icontains,choiceworld')
-

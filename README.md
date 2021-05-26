@@ -71,8 +71,8 @@ wheel = one.load_object(eid, 'wheel')
 
 # Load a specific dataset
 eid = 'a7540211-2c60-40b7-88c6-b081b2213b21'
-ts = one.load_dataset(eid, 'wheel.timestamps')
+ts = one.load_session_dataset(eid, 'wheel.timestamps')
 
 # Download, but not load, a dataset
-filename = ts = one.load_dataset(eid, 'wheel.timestamps', download_only=True)
+filename = one.load_session_dataset(eid, 'wheel.timestamps', download_only=True)
 ```

@@ -10,7 +10,7 @@ caches file also sets the default client for when no url is provided.
 TODO Rename 'client' kwarg
 """
 import re
-from one.lib.io import params as iopar
+from iblutil.io import params as iopar
 from getpass import getpass
 from pathlib import Path
 import unicodedata

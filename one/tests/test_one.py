@@ -5,6 +5,7 @@ from unittest import mock
 import tempfile
 from uuid import UUID
 import json
+import io
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from one.api import ONE, One, OneAlyx, _ses2records, _validate_date_range
 import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
-from one.lib.brainbox.io import parquet
+from iblutil.io import parquet
 from . import util
 
 dset = {
@@ -218,7 +219,7 @@ class TestONECache(unittest.TestCase):
                 int_cols = cache.filter(regex=r'_\d{1}$').columns
                 for i in range(0, len(int_cols), 2):
                     name = int_cols.values[i].rsplit('_', 1)[0]
-                    cache[name] = parquet.np2str(cache[int_cols[i:i+2]])
+                    cache[name] = parquet.np2str(cache[int_cols[i:i + 2]])
                 cache[int_cols] = np.nan
                 self.one._cache[table] = cache.set_index('id')
             query = 'clusters'
@@ -370,11 +371,11 @@ class TestOneAlyx(unittest.TestCase):
                 mode='local'
             )
 
-
     @unittest.skip
     def test_download_datasets(self):
-        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
-        files = one.download_datasets(['channels.brainLocation.tsv'])
+        # eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
+        # files = one.download_datasets(['channels.brainLocation.tsv'])
+        pass
 
     def test_ses2records(self):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
@@ -394,6 +395,18 @@ class TestOneAlyx(unittest.TestCase):
         eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
         self.assertEqual('probe00', collection)
+
+    @unittest.skip('Requires changes to Alyx')
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_describe_revision(self, mock_stdout):
+        record = {
+            'name': 'ks2.1',
+            'description': 'Spike data sorted using Kilosort version 2.1\n'
+        }
+        self.one.describe_revision(record['name'])
+        self.assertEqual(mock_stdout.getvalue(), record['description'])
+        self.one.describe_revision('foobar')
+        self.assertTrue('not found' in mock_stdout.getvalue())
 
     def test_url_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',

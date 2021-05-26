@@ -3,8 +3,9 @@ import shutil
 from pathlib import Path
 
 import one.params as params
-from one.lib.io import params as iopar
+from iblutil.io import params as iopar
 from getpass import getpass
+
 
 # TODO Re-do tests for ONE Params
 class TestONEParams(unittest.TestCase):
