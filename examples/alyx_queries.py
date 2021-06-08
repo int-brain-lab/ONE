@@ -36,7 +36,6 @@ ses = one.alyx.rest('sessions', 'list', atlas_id=500)
 ses = one.alyx.rest('sessions', 'list', atlas_acronym="MO")
 ses = one.alyx.rest('sessions', 'list', atlas_name="Somatomotor areas")
 
-
 # query sessions that do not have matlab in the project name
 ses = one.alyx.rest('sessions', 'list', django='~project__name__icontains,matlab')
 

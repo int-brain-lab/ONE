@@ -67,11 +67,3 @@ def setup_test_params(token=False):
         pars = one.params.get(client=test_pars[1:])
         if not getattr(pars, 'TOKEN', False):
             one.params.save(pars.set('TOKEN', {'token': 'T0k3N'}), test_pars[1:])
-
-
-def clear_rest_cache(client):
-    """Delete GET REST response cache for a given db url"""
-    proc, loc = client.replace(':/', '').split('/')
-    rest_cache = Path(one.params.get_params_dir(), '.rest', loc, proc)
-    for file in rest_cache.glob('*'):
-        file.unlink()

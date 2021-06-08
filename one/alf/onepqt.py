@@ -262,7 +262,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False):
     df_dsets = _make_datasets_df(root_dir, hash_files=hash_files)
 
     # Add integer id columns
-    if hash_ids:
+    if hash_ids and len(df_ses) > 0:
         _ids_to_int(df_ses, df_dsets, drop_id=True)
 
     # Output directory.

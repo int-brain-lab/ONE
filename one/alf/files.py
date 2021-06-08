@@ -20,8 +20,9 @@ Created on Tue Sep 11 18:06:21 2018
 import re
 import os
 from fnmatch import fnmatch
+from collections import OrderedDict
 
-from .spec import is_valid
+from .spec import is_valid, COLLECTION_SPEC, FILE_SPEC, regex
 
 # FIXME Replace ALF_EXP with FILE_SPEC
 # to include underscores: r'(?P<namespace>(?:^_)\w+(?:_))?'
@@ -143,6 +144,56 @@ def filter_by(alf_path, **kwargs):
                     break
 
     return alf_files, [tuple(attr.values()) for attr in attributes]
+
+
+def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
+    # TODO Can be simplified if we make collections optional in spec regex
+    empty_collection = OrderedDict.fromkeys(('collection', 'revision'))
+    if hasattr(rel_path, 'as_posix'):
+        rel_path = rel_path.as_posix()
+    par_path = rel_path.rsplit('/', 1)
+    if len(par_path) == 1:
+        m = filename_parts(par_path[0], as_dict=as_dict, assert_valid=assert_valid)
+        if any(m.values() if as_dict else m):
+            return OrderedDict(**empty_collection, **m) if as_dict else (None, None, *m)
+        else:
+            empty = re.compile(regex(f'{COLLECTION_SPEC}/{FILE_SPEC}')).groupindex.keys()
+            return OrderedDict.fromkeys(empty) if as_dict else tuple([None] * len(empty))
+    else:
+        folders, filname = par_path
+        rel_parts = re.match(regex(f'^{COLLECTION_SPEC}$'), folders)
+        file_parts = filename_parts(filname, as_dict=as_dict, assert_valid=assert_valid)
+        if rel_parts:
+            return OrderedDict(**rel_parts.groupdict(), **file_parts)\
+                if as_dict else (*rel_parts.groupdict().values(), *file_parts)
+        elif assert_valid:
+            raise ValueError('Invalid collection/revision')
+        return OrderedDict({**empty_collection, **file_parts})\
+            if as_dict else (None, None, *file_parts)
+
+
+def session_path_parts(session_path: str) -> dict:
+    pass
+
+
+def filename_parts(filename, as_dict=False, assert_valid=True):
+    pattern = re.compile(regex(FILE_SPEC))
+    empty = OrderedDict.fromkeys(pattern.groupindex.keys())
+    m = pattern.match(str(filename))
+    if m:  # py3.8
+        return OrderedDict(m.groupdict()) if as_dict else m.groups()
+    elif assert_valid:
+        raise ValueError('Invalid ALF filename')
+    else:
+        return empty if as_dict else empty.values()
+
+
+def path_parts(file_path: str) -> dict:
+    pass
+
+
+def folder_parts(folder_path: str) -> dict:
+    pass
 
 
 if __name__ == "__main__":

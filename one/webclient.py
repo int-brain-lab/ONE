@@ -51,14 +51,33 @@ from iblutil.io import hashfile
 import one.alf.io as alfio
 
 SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')
-_logger = logging.getLogger('ibllib')
+_logger = logging.getLogger(__name__)
 
 
 def cache_response(func, mode='get', default_expiry=timedelta(days=1)):
+    """
+    Decorator for the generic request method; caches the result of the query and on subsequent
+    calls, returns cache instead of hitting the database
+    :param func: function to wrap (i.e. AlyxClient._generic_request)
+    :param mode: which type http method to apply cache to; if None, all requests are cached
+    :param default_expiry: The default length of time that cache file is valid for,
+    The default expiry is overridden by the `expires` kwarg.  If False, the caching is turned off.
+    :return: handle to wrapped method
+    """
     @functools.wraps(func)
-    def wrapper_decorator(*args, expires=None, **kwargs):
+    def wrapper_decorator(*args, expires=None, clobber=False, **kwargs):
+        """
+        REST caching wrapper
+        :param args: positional arguments for applying to wrapped function
+        :param expires: an optional timedelta for how long cached response is valid.  If True,
+        the cached response will not be used on subsequent calls.  If None, the default expiry
+        is applied.
+        :param clobber: If True any existing cached response is overwritten
+        :param kwargs: keyword arguments for applying to wrapped function
+        :return: the REST response JSON either from cached file or directly from remote endpoint
+        """
         expires = expires or default_expiry
-        if args[1].__name__ != mode:
+        if mode and args[1].__name__ != mode:
             return func(*args, **kwargs)
         # Check cache
         proc, loc = args[0].base_url.replace(':/', '').split('/')
@@ -70,7 +89,7 @@ def cache_response(func, mode='get', default_expiry=timedelta(days=1)):
         # name = base64.urlsafe_b64encode(args[2].encode('UTF-8')).decode('UTF-8')
         files = list(rest_cache.glob(name))
         cached = None
-        if len(files) == 1:
+        if len(files) == 1 and not clobber:
             _logger.debug('loading REST response from cache')
             with open(files[0], 'r') as f:
                 cached, when = json.load(f)
@@ -79,7 +98,7 @@ def cache_response(func, mode='get', default_expiry=timedelta(days=1)):
         try:
             response = func(*args, **kwargs)
         except requests.exceptions.ConnectionError as ex:
-            if cached:
+            if cached and not clobber:
                 warnings.warn('Failed to connect, returning cached response', RuntimeWarning)
                 return cached
             raise ex  # No cache and can't connect to database; re-raise
@@ -387,6 +406,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     """
     _token = None
     _headers = None
+    user = None
 
     def __init__(self, base_url=None, username=None, password=None, cache_dir=None, silent=False):
         """
@@ -428,6 +448,9 @@ class AlyxClient(metaclass=UniqueSingletons):
     @property
     def base_url(self):
         return self._par.ALYX_URL
+
+    def is_logged_in(self):
+        return self._token and self.user
 
     def list_endpoints(self):
         """
@@ -472,6 +495,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             self._headers = {
                 'Authorization': f'Token {list(self._token.values())[0]}',
                 'Accept': 'application/json'}
+            self.user = self._par.ALYX_LOGIN
             return
         try:
             credentials = {'username': self._par.ALYX_LOGIN, 'password': self._par.ALYX_PWD}
@@ -493,6 +517,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         if cache_token:
             par = one.params.get(client=self.base_url, silent=True).set('TOKEN', self._token)
             one.params.save(par, self.base_url)
+        self.user = self._par.ALYX_LOGIN
         if not self.silent:
             print(f"Connected to {self._par.ALYX_URL} as {self._par.ALYX_LOGIN}")
 
@@ -645,7 +670,8 @@ class AlyxClient(metaclass=UniqueSingletons):
         """
         return self._generic_request(requests.put, rest_query, data=data, files=files)
 
-    def rest(self, url=None, action=None, id=None, data=None, files=None, **kwargs):
+    def rest(self, url=None, action=None, id=None, data=None, files=None,
+             no_cache=False, **kwargs):
         """
         alyx_client.rest(): lists endpoints
         alyx_client.rest(endpoint): lists actions for endpoint
@@ -667,6 +693,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         :param id: lookup string for actions 'read', 'update', 'partial_update', and 'delete'
         :param data: data dictionary for actions 'update', 'partial_update' and 'create'
         :param files: if file upload
+        :param no_cache: if true the `list` and `read` actions are performed without caching
         :param ``**kwargs``: filter as per the Alyx REST documentation
             cf. https://alyx.internationalbrainlab.org/docs/
         :return: list of queried dicts ('list') or dict (other actions)
@@ -711,6 +738,8 @@ class AlyxClient(metaclass=UniqueSingletons):
             _logger.warning('REST action "' + action + '" requires a data dict with above keys')
             return
 
+        # clobber=True means remote request always made, expires=True means response is not cached
+        cache_args = {'clobber': no_cache, 'expires': no_cache}
         if action == 'list':
             # list doesn't require id nor
             assert (endpoint_scheme[action]['action'] == 'get')
@@ -733,10 +762,10 @@ class AlyxClient(metaclass=UniqueSingletons):
                     else:
                         query = str(kwargs[k])
                     url = url + f"&{k}=" + query
-            return self.get('/' + url)
+            return self.get('/' + url, **cache_args)
         if action == 'read':
             assert (endpoint_scheme[action]['action'] == 'get')
-            return self.get('/' + endpoint + '/' + id.split('/')[-1])
+            return self.get('/' + endpoint + '/' + id.split('/')[-1], **cache_args)
         elif action == 'create':
             assert (endpoint_scheme[action]['action'] == 'post')
             return self.post('/' + endpoint, data=data, files=files)
@@ -886,3 +915,8 @@ class AlyxClient(metaclass=UniqueSingletons):
         self._check_inputs(endpoint)
         _ = self.rest(endpoint, "partial_update", id=uuid, data={field_name: None})
         return _[field_name]
+
+    def clear_rest_cache(self):
+        proc, loc = self.base_url.replace(':/', '').split('/')
+        for file in Path(one.params.get_params_dir(), '.rest', loc, proc).glob('*'):
+            file.unlink()

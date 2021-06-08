@@ -1,5 +1,5 @@
 """The complete AlF specification
-
+TODO Currently collections and extensions are not optional
 """
 import re
 from pprint import pprint
@@ -13,72 +13,72 @@ SPEC_DESCRIPTION = {
     'date': 'The date on which the experiment session took place, in ISO format, i.e. yyyy-mm-dd',
     'number': 'The sequential session number of the day, optionally zero-padded to be three '
               'numbers, e.g. 001, 002, etc.',
-    'collection': 'An optional folder to group data by modality, device, etc.  This is necessary '
-                  'when a session contains multiple measurements of the same type, from example '
-                  'spike times from multiple probes.  Label examples include "probe00", '
-                  '"raw_video_data".',
+    'collection': """An optional folder to group data by modality, device, etc.  This is necessary 
+                  when a session contains multiple measurements of the same type, from example 
+                  spike times from multiple probes.  Label examples include "probe00", 
+                  "raw_video_data".""",
     'revision': 'An optional folder to organize data by version.  The version label is arbitrary, '
                 'however the folder must start and end with pound signs, e.g. "#v1.0.0#".',
-    'namespace': 'An option filename prefix for data that are not not expected to be a community '
-                 'standard, for example task specific events.  The namespace may also be used to '
-                 'indicate data unique to a given piece of hardware or software, and is '
-                 'identified by underscores, e.g. "_iblrig_", "_phy_".',
-    'object': 'Every file describing a given object has the same number of rows (i.e. the 1st '
-              'dimension of an npy file, number of frames in a video file, etc).  You can '
-              'therefore think of the files for an object as together defining a table, with '
-              'column headings given by the attribute in the file names, and values given by the '
-              'file contents.  Object names should be in Haskell case and pluralized, '
-              'e.g. "wheelMoves", "sparseNoise", "trials".\nEncoding of relations between objects '
-              'can be achieved by a simplified relational model.  If the attribute name of one '
-              'file matches the object name of a second, then the first file is guaranteed to '
-              'contain integers referring to the rows of the second. For example, '
-              '"spikes.clusters.npy" would contain integer references to the rows of '
-              '"clusters.brain_location.json" and "clusters.probes.npy"; and '
-              '"clusters.probes.npy" would contain integer references to "probes.insertion.json". '
-              'Be careful of plurals ("clusters.probe.npy" would not correspond to '
-              '"probes.insertion.json") and remember we count arrays starting from 0.',
-    'attribute': 'Together with the object, the attribute represents the type of data in the '
-                 'file, for example "times", "amplitudes", "clusters".  The names should be in '
-                 'Haskell case, however the following three attributes may be separated by an '
-                 'underscore, e.g. "stimOn_times".\nThe attribute "times" is reserved for '
-                 'discrete event times and comprises a numerical array containing times of the '
-                 'events in seconds, relative to a universal timescale common to all files.\n'
-                 'The attribute "intervals" should have two columns, indicating the start and end '
-                 'times of each interval relative to the universal timescale.\n'
-                 'Continuous timeseries are represented by the "timestamps" attribute.  The file '
-                 'may contain a vector of times in universal seconds if unevenly sampled, or two '
-                 'rows each representing a synchronization point, the first column giving the '
-                 'sample number (counting from 0), and the second column giving the '
-                 'corresponding time in universal seconds.  The times corresponding to all '
-                 'samples are then found by linear interpolation.  NB: the "timestamps" file is '
-                 'an exception to the rule that all files representing a continuous timeseries '
-                 'object must have one row per sample, as it will often have substantially less.',
-    'timescale': 'If you want to represent times relative to another (non-universal) timescale, '
-                 'a timescale can be appended after an underscore e.g. '
-                 '"spikes.times_ephysClock.npy", "trials.intervals_nidaq",'
-                 '"wheel.timestamps_bpod.csv"',
-    'extra': 'File names could have as many optional parts as you like: '
-             '"object.attribute.x1.x2.[…].xN.extension".  The extra name parts play no formal '
-             'role, but can serve several additional purposes. For example, it could be a UUID or '
-             'file hash for archiving purposes.  If there are multiple files with the same '
-             'object, attribute, and extensions but different extra parts, these should be '
-             'treated as files to be concatenated, for example to allow multiple-part tif files '
-             'as produced by scanimage to be encoded in ALF. The concatenation would happen in '
-             'hierarchical lexicographical order: i.e. by lexicographic order of x1, '
-             'then x2, etc.',
-    'extension': 'ALF can deal with any sort of file, as long as it has a concept of a number of '
-                 'rows (or primary dimension). The type of file is recognized by its extension. '
-                 'Preferred choices:\n.npy: numpy array file. This is recommended over flat '
-                 'binary since datatype and shape is stored in the file.  If you have an array of '
-                 '3 or more dimensions, the first dimension counts as the number of rows.\n'
-                 '.tsv: tab-delimited text file. This is recommended over comma-separated files '
-                 'since text fields often have commas in. All rows should have the same number '
-                 'of columns. The first row contains tab-separated names for each column.\n'
-                 '.bin: flat binary file. It’s better to use .npy for storing binary data but '
-                 'some recording systems save in flat binary.  Rather than convert them, '
-                 'you can ALFize a flat binary file by adding a metadata file, which specifies '
-                 'the number of columns (as the size of the "columns" array) and the binary '
-                 'datatype as a top-level key "dtype", using numpy naming conventions.'
+    'namespace': """An option filename prefix for data that are not not expected to be a community 
+                 standard, for example task specific events.  The namespace may also be used to 
+                 indicate data unique to a given piece of hardware or software, and is 
+                 identified by underscores, e.g. "_iblrig_", "_phy_".""",
+    'object': """Every file describing a given object has the same number of rows (i.e. the 1st 
+              dimension of an npy file, number of frames in a video file, etc).  You can 
+              therefore think of the files for an object as together defining a table, with 
+              column headings given by the attribute in the file names, and values given by the 
+              file contents.  Object names should be in Haskell case and pluralized, 
+              e.g. "wheelMoves", "sparseNoise", "trials".\nEncoding of relations between objects 
+              can be achieved by a simplified relational model.  If the attribute name of one 
+              file matches the object name of a second, then the first file is guaranteed to 
+              contain integers referring to the rows of the second. For example, 
+              "spikes.clusters.npy" would contain integer references to the rows of 
+              "clusters.brain_location.json" and "clusters.probes.npy"; and 
+              "clusters.probes.npy" would contain integer references to "probes.insertion.json". 
+              Be careful of plurals ("clusters.probe.npy" would not correspond to 
+              "probes.insertion.json") and remember we count arrays starting from 0.""",
+    'attribute': """Together with the object, the attribute represents the type of data in the 
+                 file, for example "times", "amplitudes", "clusters".  The names should be in 
+                 Haskell case, however the following three attributes may be separated by an 
+                 underscore, e.g. "stimOn_times".\nThe attribute "times" is reserved for 
+                 discrete event times and comprises a numerical array containing times of the 
+                 events in seconds, relative to a universal timescale common to all files.\n
+                 The attribute "intervals" should have two columns, indicating the start and end 
+                 times of each interval relative to the universal timescale.\n
+                 Continuous timeseries are represented by the "timestamps" attribute.  The file 
+                 may contain a vector of times in universal seconds if unevenly sampled, or two 
+                 rows each representing a synchronization point, the first column giving the 
+                 sample number (counting from 0), and the second column giving the 
+                 corresponding time in universal seconds.  The times corresponding to all 
+                 samples are then found by linear interpolation.  NB: the "timestamps" file is 
+                 an exception to the rule that all files representing a continuous timeseries 
+                 object must have one row per sample, as it will often have substantially less.""",
+    'timescale': """If you want to represent times relative to another (non-universal) timescale, 
+                 a timescale can be appended after an underscore e.g. 
+                 "spikes.times_ephysClock.npy", "trials.intervals_nidaq",
+                 "wheel.timestamps_bpod.csv".""",
+    'extra': """File names could have as many optional parts as you like: 
+             "object.attribute.x1.x2.[…].xN.extension".  The extra name parts play no formal 
+             role, but can serve several additional purposes. For example, it could be a UUID or 
+             file hash for archiving purposes.  If there are multiple files with the same 
+             object, attribute, and extensions but different extra parts, these should be 
+             treated as files to be concatenated, for example to allow multiple-part tif files 
+             as produced by scanimage to be encoded in ALF. The concatenation would happen in 
+             hierarchical lexicographical order: i.e. by lexicographic order of x1, 
+             then x2, etc.""",
+    'extension': """ALF can deal with any sort of file, as long as it has a concept of a number of 
+                 rows (or primary dimension). The type of file is recognized by its extension. 
+                 Preferred choices:\n.npy: numpy array file. This is recommended over flat 
+                 binary since datatype and shape is stored in the file.  If you have an array of 
+                 3 or more dimensions, the first dimension counts as the number of rows.\n
+                 .tsv: tab-delimited text file. This is recommended over comma-separated files 
+                 since text fields often have commas in. All rows should have the same number 
+                 of columns. The first row contains tab-separated names for each column.\n
+                 .bin: flat binary file. It’s better to use .npy for storing binary data but 
+                 some recording systems save in flat binary.  Rather than convert them, 
+                 you can ALFize a flat binary file by adding a metadata file, which specifies 
+                 the number of columns (as the size of the "columns" array) and the binary 
+                 datatype as a top-level key "dtype", using numpy naming conventions."""
 }
 
 
@@ -244,6 +244,8 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
         raise ValueError('ALF parts must not contain a period (`.`)')
     if '_' in (namespace or ''):
         raise ValueError('Namespace must not contain extra underscores')
+    if object[0] == '_':
+        raise ValueError('Objects must not contain underscores; use namespace arg instead')
     # Ensure parts are camel case (converts whitespace and snake case)
     object, timescale = map(_dromedary, (object, timescale))
 

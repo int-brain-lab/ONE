@@ -35,6 +35,12 @@ class ALFMultipleCollectionsFound(ALFError):
                    'file "alf/probe01/spikes.times.npy" the collection is "alf/probe01"')
 
 
+class ALFMultipleRevisionsFound(ALFError):
+    explanation = ('The matching object/file(s) belong to more than one revision.  '
+                   'Multiple datasets in different revision folders were found with no default'
+                   'specified.')
+
+
 class ALFObjectNotFound(ALFError):
     explanation = ('The ALF object was not found.  This may occur if the object or namespace or '
                    'incorrectly formatted e.g. the object "_ibl_trials.intervals.npy" would be '

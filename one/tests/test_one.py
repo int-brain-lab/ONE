@@ -284,25 +284,33 @@ class TestONECache(unittest.TestCase):
             self.assertIsInstance(dsets, np.ndarray)
             self.assertTrue(len(dsets) == np.unique(dsets).size)
 
-    def test_load_session_dataset(self):
+    def test_load_dataset(self):
         eid = 'KS005/2019-04-02/001'
         # Check download only
-        file = self.one.load_session_dataset(eid, '_ibl_wheel.position.npy', download_only=True)
+        file = self.one.load_dataset(eid, '_ibl_wheel.position.npy', download_only=True)
         self.assertIsInstance(file, Path)
 
         # Check loading data
         np.save(str(file), np.arange(3))  # Make sure we have something to load
-        dset = self.one.load_session_dataset(eid, '_ibl_wheel.position.npy')
+        dset = self.one.load_dataset(eid, '_ibl_wheel.position.npy')
         self.assertTrue(np.all(dset == np.arange(3)))
 
         # Check revision filter
         with self.assertRaises(alferr.ALFObjectNotFound):
-            self.one.load_session_dataset(eid, '_ibl_wheel.position.npy', revision='v2.3.4')
+            self.one.load_dataset(eid, '_ibl_wheel.position.npy', revision='v2.3.4')
 
         # Check collection filter
-        file = self.one.load_session_dataset(eid, '_iblrig_leftCamera.timestamps.ssv',
-                                             download_only=True, collection='raw_video_data')
+        file = self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv',
+                                     download_only=True, collection='raw_video_data')
         self.assertIsNotNone(file)
+
+    def test_load_datasets(self):
+        eid = 'KS005/2019-04-02/001'
+        # Check download only
+        dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps.npy']
+        files, meta = self.one.load_datasets(eid, dsets,
+                                             download_only=True, assert_present=False)
+        self.assertIsInstance(files, list)
 
     def test_load_dataset_from_id(self):
         id = np.array([[-9204203870374650458, -6411285612086772563]])
@@ -440,7 +448,7 @@ class TestOneSetup(unittest.TestCase):
         - Mock getfile to return temp dir as param file location
         - Mock input function as fail safe in case function erroneously prompts user for input
         """
-        with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
                 mock.patch('one.params.input', new=self.assertFalse):
             one_obj = ONE(silent=True, mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
@@ -451,7 +459,7 @@ class TestOneSetup(unittest.TestCase):
         self.assertEqual(len(list(client_pars)), 1)
 
         # Check uses defaults on second instantiation
-        with mock.patch('one.lib.io.params.getfile', new=self.get_file):
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file):
             one_obj = ONE(mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
@@ -461,7 +469,7 @@ class TestOneSetup(unittest.TestCase):
         one.params.getpass = lambda prompt: 'mock_pwd'
         one.params.print = lambda text: 'mock_print'
         # Mock getfile function to return a path to non-existent file instead of usual one pars
-        with mock.patch('one.lib.io.params.getfile', new=self.get_file):
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file):
             one_obj = OneAlyx(mode='local', username='test_user', password='TapetesBloc18')
         self.assertEqual(one_obj.alyx._par.ALYX_URL, url)
         client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
@@ -476,14 +484,14 @@ class TestOneSetup(unittest.TestCase):
         with open(Path(self.tempdir.name, '.one_params'), 'w') as f:
             json.dump(old_pars.as_dict(), f)
 
-        with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
                 mock.patch('one.params.input', new=self.assertFalse):
             one_obj = ONE(silent=False, mode='local')
         self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER_PWD, '123')
 
     def test_one_factory(self):
         """Tests the ONE class factory"""
-        with mock.patch('one.lib.io.params.getfile', new=self.get_file),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
                 mock.patch('one.params.input', new=self.assertFalse):
             # Cache dir not in client cache map; use One (light)
             one_obj = ONE(cache_dir=self.tempdir.name)

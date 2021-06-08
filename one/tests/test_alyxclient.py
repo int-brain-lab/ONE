@@ -54,7 +54,7 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac.json_field_delete(self.endpoint, self.eid2, self.field_name)
         self.eid1_eqc = None
         self.eid2_eqc = None
-        util.clear_rest_cache(self.ac.base_url)
+        self.ac.clear_rest_cache()
 
     def _json_field_write(self):
         written1 = self.ac.json_field_write(
@@ -118,6 +118,8 @@ class TestRestCache(unittest.TestCase):
         self.addCleanup(self.tempdir.cleanup)
         one.webclient.datetime = _FakeDateTime
         _FakeDateTime._now = None
+        path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
+        self.cache_dir = Path(one.params.get_params_dir()).joinpath(*path_parts)
 
     def test_loads_cached(self):
         # Check returns cache
@@ -143,8 +145,7 @@ class TestRestCache(unittest.TestCase):
 
         # Check cache file created
         filename = '64b5b3476c015e04ee7c4753606b5e967325d34a'
-        path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https', filename)
-        cache_file = Path(one.params.get_params_dir()).joinpath(*path_parts)
+        cache_file = self.cache_dir / filename
         self.assertTrue(cache_file.exists())
         with open(cache_file, 'r') as f:
             q, when = json.load(f)
@@ -159,8 +160,13 @@ class TestRestCache(unittest.TestCase):
 
         # A second call should yield a new response as cache immediately expired
         wrapped = wc.cache_response(lambda *args: '456')
-        res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
+        res = wrapped(ac, requests.get, '/endpoint?id=5', expires=False)
         self.assertTrue(res == '456')
+
+        # With clobber=True the cache should be overwritten
+        wrapped = wc.cache_response(lambda *args: '789')
+        res = wrapped(ac, requests.get, '/endpoint?id=5', clobber=True)
+        self.assertTrue(res == '789')
 
     def test_cache_returned_on_error(self):
         func = mock.Mock(side_effect=requests.ConnectionError())
@@ -169,6 +175,15 @@ class TestRestCache(unittest.TestCase):
         with self.assertWarns(RuntimeWarning):
             res = wrapped(ac, requests.get, self.query)
         self.assertEqual(res['id'], self.query.split('/')[-1])
+
+        # With clobber=True exception should be raised
+        with self.assertRaises(requests.ConnectionError):
+            wrapped(ac, requests.get, self.query, clobber=True)
+
+    def test_clear_cache(self):
+        assert any(self.cache_dir.glob('*'))
+        ac.clear_rest_cache()
+        self.assertFalse(any(self.cache_dir.glob('*')))
 
 
 class _FakeDateTime(datetime):
@@ -325,7 +340,7 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertTrue(len(sub) == 1)
         # delete
         self.ac.rest('subjects', 'delete', id=nickname)
-        util.clear_rest_cache(self.ac.base_url)  # Make sure we hit db
+        self.ac.clear_rest_cache()  # Make sure we hit db
         sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
         self.assertFalse(sub)
 
