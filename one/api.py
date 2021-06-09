@@ -399,7 +399,7 @@ class One(ConversionMixin):
                 if rec['exists'] != file.exists():
                     datasets.at[i, 'exists'] = not rec['exists']
                     if update_exists:
-                        self._cache['datasets'].at[i, 'exists'] = rec['exists']
+                        self._cache['datasets'].loc[i, 'exists'] = rec['exists']
         else:
             # TODO deal with clobber and exists here?
             files = self.download_datasets(datasets, update_cache=update_exists, clobber=clobber)

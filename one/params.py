@@ -63,7 +63,7 @@ def setup(client=None, silent=False, make_default=None):
     client_key = _key_from_url(client or par_default.ALYX_URL)
 
     # If a client URL has been provided, set it as the default URL
-    par_default.set('ALYX_URL', client or par_default.ALYX_URL)
+    par_default = par_default.set('ALYX_URL', client or par_default.ALYX_URL)
     par_current = iopar.read(f'{_PAR_ID_STR}/{client_key}', par_default)
     # Load the db URL map
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {'CLIENT_MAP': dict()})

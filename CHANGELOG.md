@@ -1,13 +1,20 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [beta]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.1]
+
+### Modified
+
+ - fix setting default ALYX_URL in setup
+ - fix for updating missing records in cache
+
+## 0.1.0
 
 ### Added
 
  - search cache tables without hitting db by default
  - onepqt module to build cache from local filesystem
  - silent mode now suppresses print statements
- - rest GET requests are now cached for seven days
+ - rest GET requests are now cached for 24 hours
  - alf.spec module for constructing, documenting, and validating ALyx Files
  
 ### Modified

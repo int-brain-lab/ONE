@@ -1,6 +1,9 @@
-# -*- coding: utf-8 -*-
-
-"""Construct Parquet database from local file system."""
+"""Construct Parquet database from local file system.
+TODO Consolidate functions with ALF.files
+TODO Deal graciously with empty tables
+TODO Support Subjects folder as optional
+TODO Allow lab passed as arg instead of folder structure
+"""
 
 
 # -------------------------------------------------------------------------------------------------

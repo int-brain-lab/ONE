@@ -24,7 +24,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='ONE-api',
-    version='0.1.0',
+    version='0.1.1',
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
     description='Open Neurophysiology Environment',
     license="MIT",
@@ -32,8 +32,8 @@ setup(
     long_description_content_type='text/markdown',
     author='IBL Staff',
     url="https://github.com/int-brain-lab/ONE",
-    packages=find_packages(exclude=['scratch', 'tests']),  # same as name
-    include_package_data=True,
+    packages=find_packages(exclude=['one.tests*']),  # same as name
+    include_package_data=False,
     # external packages as dependencies
     install_requires=require,
     entry_points={},
