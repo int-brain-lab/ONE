@@ -16,7 +16,7 @@ install it on Python {}.{}.
 """.format(*(REQUIRED_PYTHON + CURRENT_PYTHON)))
     sys.exit(1)
 
-with open("README.md", 'r') as f:
+with open('README.md', 'r') as f:
     long_description = f.read()
 
 with open('requirements.txt') as f:
@@ -24,7 +24,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='ONE-api',
-    version='2.0.0',
+    version='0.1.0',
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
     description='Open Neurophysiology Environment',
     license="MIT",

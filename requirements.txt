@@ -1,5 +1,6 @@
 flake8>=3.7.8
 numpy>=1.18
 pandas>=0.24.2
-tqdm>=4.32.1  # lib.io.hashfile
-requests>=2.22.0  # webclient
+tqdm>=4.32.1
+requests>=2.22.0
+iblutil
