@@ -13,7 +13,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 
-from one.lib.io import hashfile
+from iblutil.io import hashfile
 from . import OFFLINE_ONLY
 from . import util
 

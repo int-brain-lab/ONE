@@ -2,8 +2,7 @@ import unittest
 from pathlib import Path
 import tempfile
 
-from ibllib.tests.fixtures.utils import create_fake_session_folder
-import alf.folders
+import one.alf.folders as folders
 
 
 class TestALFFolders(unittest.TestCase):
@@ -12,7 +11,9 @@ class TestALFFolders(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.tempdir = tempfile.TemporaryDirectory()
-        cls.session_path = create_fake_session_folder(cls.tempdir.name)
+        cls.session_path = (Path(cls.tempdir.name)
+                            .joinpath('fakelab', 'Subjects', 'fakemouse',  '1900-01-01', '001'))
+        cls.session_path.mkdir(parents=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -20,28 +21,28 @@ class TestALFFolders(unittest.TestCase):
 
     def test_next_num_folder(self):
         self.session_path.rmdir()  # Remove '001' folder
-        next_num = alf.folders.next_num_folder(self.session_path.parent)
+        next_num = folders.next_num_folder(self.session_path.parent)
         self.assertEqual('001', next_num)
 
         self.session_path.parent.rmdir()  # Remove date folder
-        next_num = alf.folders.next_num_folder(self.session_path.parent)
+        next_num = folders.next_num_folder(self.session_path.parent)
         self.assertEqual('001', next_num)
 
         self.session_path.parent.joinpath(next_num).mkdir(parents=True)  # Add '001' folder
-        next_num = alf.folders.next_num_folder(self.session_path.parent)
+        next_num = folders.next_num_folder(self.session_path.parent)
         self.assertEqual('002', next_num)
 
         self.session_path.parent.joinpath('053').mkdir()  # Add '053' folder
-        next_num = alf.folders.next_num_folder(self.session_path.parent)
+        next_num = folders.next_num_folder(self.session_path.parent)
         self.assertEqual('054', next_num)
 
         self.session_path.parent.joinpath('099').mkdir()  # Add '099' folder
-        next_num = alf.folders.next_num_folder(self.session_path.parent)
+        next_num = folders.next_num_folder(self.session_path.parent)
         self.assertEqual('100', next_num)
 
         self.session_path.parent.joinpath('999').mkdir()  # Add '999' folder
         with self.assertRaises(AssertionError):
-            alf.folders.next_num_folder(self.session_path.parent)
+            folders.next_num_folder(self.session_path.parent)
 
     def test_remove_empty_folders(self):
         root = Path(self.tempdir.name) / 'glob_dir'
@@ -50,7 +51,7 @@ class TestALFFolders(unittest.TestCase):
         root.joinpath('full0').mkdir(exist_ok=True)
         root.joinpath('full0', 'file.txt').touch()
         self.assertTrue(len(list(root.glob('*'))) == 2)
-        alf.folders.remove_empty_folders(root)
+        folders.remove_empty_folders(root)
         self.assertTrue(len(list(root.glob('*'))) == 1)
 
 

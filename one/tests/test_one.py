@@ -12,7 +12,6 @@ import pandas as pd
 
 from one import webclient as wc
 from one.api import ONE, One, OneAlyx, _ses2records, _validate_date_range
-import one.lib.io.params
 import one.params
 import one.alf.exceptions as alferr
 from iblutil.io import parquet
@@ -304,6 +303,7 @@ class TestONECache(unittest.TestCase):
                                      download_only=True, collection='raw_video_data')
         self.assertIsNotNone(file)
 
+    @unittest.skip('test unfinished')
     def test_load_datasets(self):
         eid = 'KS005/2019-04-02/001'
         # Check download only
@@ -369,7 +369,7 @@ class TestOneAlyx(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.tempdir = util.set_up_env()
 
-        with mock.patch('one.lib.io.params.getfile', new=partial(get_file, cls.tempdir.name)):
+        with mock.patch('params.iopar.getfile', new=partial(get_file, cls.tempdir.name)):
             cls.one = OneAlyx(
                 base_url='https://test.alyx.internationalbrainlab.org',
                 username='test_user',
@@ -562,7 +562,7 @@ class TestOneMisc(unittest.TestCase):
 
 def get_file(root: str, str_id: str) -> str:
     """
-    A stub function for one.lib.io.params.getfile.  Allows the injection of a different param dir.
+    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.
     :param root: The root directory of the new parameters
     :param str_id: The parameter string identifier
     :return: The parameter filename
