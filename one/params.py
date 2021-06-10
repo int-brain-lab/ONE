@@ -26,7 +26,7 @@ def default():
            "ALYX_PWD": "international",
            "ALYX_URL": "https://openalyx.internationalbrainlab.org",
            "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org",
-           "HTTP_DATA_SERVER_LOGIN": "iblmember",
+           "HTTP_DATA_SERVER_LOGIN": None,
            "HTTP_DATA_SERVER_PWD": None,
            }
     return iopar.from_dict(par)

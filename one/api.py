@@ -6,6 +6,7 @@ TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
 TODO store cache matadata in meta map
 TODO Figure out why limit arg doesn't work in Alyx
+TODO Is alf is default collection it's a pain for non-IBL users
 
 Points of discussion:
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
@@ -142,6 +143,9 @@ class One(ConversionMixin):
         # init the cache file
         self._load_cache()
 
+    def __repr__(self):
+        return f'One ({"off" if self.offline else "on"}line, {self._cache_dir})'
+
     @property
     def offline(self):
         return self.mode == 'local' or not getattr(self, '_web_client', False)
@@ -205,7 +209,7 @@ class One(ConversionMixin):
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache.get('loaded_time', None)
 
-    def download_datasets(self, dsets, **kwargs) -> List[Path]:
+    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
         TODO Support slice, dicts and URLs?
         Download several datasets given a slice of the datasets table
@@ -218,14 +222,14 @@ class One(ConversionMixin):
         # FIXME Thread timeout?
         with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
             # TODO Subclass can just call web client method directly, no need to pass hash, etc.
-            futures = [executor.submit(self.download_dataset, dset, file_size=dset['file_size'],
+            futures = [executor.submit(self._download_dataset, dset, file_size=dset['file_size'],
                                        hash=dset['hash'], **kwargs) for dset in dsets]
             concurrent.futures.wait(futures)
             for future in futures:
                 out_files.append(future.result())
         return out_files
 
-    def download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
+    def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
         """
         Download a dataset from an alyx REST dictionary
         :param dset: single dataset dictionary from an Alyx REST query OR URL string
@@ -402,7 +406,7 @@ class One(ConversionMixin):
                         self._cache['datasets'].loc[i, 'exists'] = rec['exists']
         else:
             # TODO deal with clobber and exists here?
-            files = self.download_datasets(datasets, update_cache=update_exists, clobber=clobber)
+            files = self._download_datasets(datasets, update_cache=update_exists, clobber=clobber)
         return files
 
     def _index_type(self, table='sessions'):
@@ -441,6 +445,7 @@ class One(ConversionMixin):
         a list of all datasets is returned.  When details is false, a sorted array of unique
         datasets is returned (their relative paths).
         TODO Change default to False
+        TODO Optional collection filter
 
         :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
         details dict or Path
@@ -790,6 +795,9 @@ class OneAlyx(One):
         # get parameters override if inputs provided
         super(OneAlyx, self).__init__(mode=mode, **kwargs)
 
+    def __repr__(self):
+        return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
+
     def _load_cache(self, cache_dir=None, clobber=False):
         if not clobber:
             super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
@@ -916,7 +924,7 @@ class OneAlyx(One):
     def load_dataset(self,
                      eid: Union[str, Path, UUID],
                      dataset: str,
-                     collection: str = None,
+                     collection: str = 'alf',
                      revision: str = None,
                      query_type: str = None,
                      download_only: bool = False) -> Any:
@@ -963,7 +971,7 @@ class OneAlyx(One):
         if len(results) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found on Alyx')
 
-        filename = self.download_dataset(results[0])
+        filename = self._download_dataset(results[0])
         assert filename is not None, 'failed to download dataset'
 
         return filename if download_only else alfio.load_file_content(filename)
@@ -1199,28 +1207,33 @@ class OneAlyx(One):
         else:
             return eids
 
-    def download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
+    def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """
         Download a dataset from an alyx REST dictionary
         :param dset: single dataset dictionary from an Alyx REST query OR URL string
         :param cache_dir: root directory to save the data in (home/downloads by default)
         :return: local file path
         """
-        if isinstance(dset, str):
+        if isinstance(dset, str) and dset.startswith('http'):
             url = dset
-            id = self.path2record(url).index
+        elif isinstance(dset, (str, Path)):
+            url = self.path2url(dset)
+            if not url:
+                _logger.warning('Dataset not found in cache')
+                return
         else:
-            if 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
+            if 'data_url' in dset:  # data_dataset_session_related dict
+                url = dset['data_url']
+                id = dset['id']
+            elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)
                 id = dset.index
-            else:
+            else:  # from datasets endpoint
                 url = next((fr['data_url'] for fr in dset['file_records']
                             if fr['data_url'] and fr['exists']), None)
-                id = dset['id']
+                id = dset['url'][-36:]
 
         if not url:
-            # str_dset = Path(dset['collection']).joinpath(dset['name'])
-            # str_dset = dset['rel_path']
             _logger.warning("Dataset not found")
             if update_cache:
                 if isinstance(id, str) and self._index_type('datasets') is int:
@@ -1233,8 +1246,10 @@ class OneAlyx(One):
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
 
     def _tag_mismatched_file_record(self, url):
-        fr = self.alyx.rest('files', 'list', django=f'dataset,{Path(url).name.split(".")[-2]},'
-                                                    f'data_repository__globus_is_personal,False')
+        fr = self.alyx.rest('files', 'list',
+                            django=f'dataset,{Path(url).name.split(".")[-2]},'
+                                   f'data_repository__globus_is_personal,False',
+                            no_cache=True)
         if len(fr) > 0:
             json_field = fr[0]['json']
             if json_field is None:
@@ -1295,9 +1310,10 @@ class OneAlyx(One):
         """
         root_dir = input('Select a directory from which to build cache')
         if root_dir:
-            import alf.onepqt
             print('Building ONE cache from filesystem...')
-            alf.onepqt.make_parquet_db(root_dir, **kwargs)
+            from one.alf import onepqt
+            onepqt.make_parquet_db(root_dir, **kwargs)
+            return One(cache_dir=root_dir)
 
     def eid2path(self, eid: str, query_type=None) -> Listable(Path):
         """

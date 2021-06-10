@@ -1,3 +1,26 @@
+"""Tests for the one.api module
+
+Wherever possible the ONE tests should not rely on an internet connection
+
+The cache tables for the public test instance are in tests/fixtures/
+The test db parameters can be found in tests/fixtures/params/
+Some REST GET requests can be found in tests/fixtures/rest_responses/
+These can be copied over to a temporary directory using the functions in tests/util.py,
+then construct ONE with the directory as cache_dir, mode='local' and silent=True
+
+For tests that do require a remote connection use the tests.OFFLINE_ONLY flag in the skipIf
+decorator
+For testing REST POST requests use test.alyx.internationalbrainlab.org
+For testing download functions, use openalyx.internationalbrainlab.org
+
+Note ONE and AlyxClient use caching:
+    - When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
+    databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
+    or mock iblutil.io.params.getfile to return a temporary cache directory
+    - An One object created through the one.api.ONE function, make sure you restore the
+    properties to their original state on teardown, or call one.api.ONE.cache_clear()
+
+"""
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from functools import partial
 import unittest
@@ -16,6 +39,7 @@ import one.params
 import one.alf.exceptions as alferr
 from iblutil.io import parquet
 from . import util
+from . import OFFLINE_ONLY
 
 dset = {
     'url': 'https://alyx.internationalbrainlab.org/datasets/00059298-1b33-429c-a802-fa51bb662d72',
@@ -379,12 +403,6 @@ class TestOneAlyx(unittest.TestCase):
                 mode='local'
             )
 
-    @unittest.skip
-    def test_download_datasets(self):
-        # eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
-        # files = one.download_datasets(['channels.brainLocation.tsv'])
-        pass
-
     def test_ses2records(self):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
         ses = self.one.alyx.rest('sessions', 'read', id=eid)
@@ -400,7 +418,8 @@ class TestOneAlyx(unittest.TestCase):
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
-        eid, collection = self.one.pid2eid(pid, query_type='remote')
+        with mock.patch('params.iopar.getfile', new=partial(get_file, self.tempdir.name)):
+            eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
         self.assertEqual('probe00', collection)
 
@@ -434,6 +453,53 @@ class TestOneAlyx(unittest.TestCase):
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
                     '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
         self.assertEqual(expected, url)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.tempdir.cleanup()
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestOneDownload(unittest.TestCase):
+    """Test downloading datasets using OpenAlyx"""
+    tempdir = None
+    one = None
+
+    def setUp(self) -> None:
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.patch = mock.patch('params.iopar.getfile', new=partial(get_file, self.tempdir.name))
+        self.patch.start()
+        self.one = OneAlyx(
+            base_url='https://openalyx.internationalbrainlab.org',
+            cache_dir=self.tempdir.name,
+            silent=True
+        )
+
+    def test_download_datasets(self):
+        eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
+        det = self.one.get_details(eid, True)
+        rec = next(x for x in det['data_dataset_session_related']
+                   if 'channels.brainLocation' in x['dataset_type'])
+        file = self.one._download_dataset(rec)
+        self.assertIsInstance(file, Path)
+        self.assertTrue(file.exists())
+
+        url = rec['data_url']
+        file = self.one._download_dataset(url)
+        self.assertIsNotNone(file)
+
+        rec = self.one.alyx.get(rec['url'])
+        file = self.one._download_dataset(rec)
+        self.assertIsNotNone(file)
+
+        rec = self.one.list_datasets(eid, details=True)
+        rec = rec[rec.rel_path.str.contains('channels.brainLocation')]
+        files = self.one._download_datasets(rec)
+        self.assertFalse(None in files)
+
+    def tearDown(self) -> None:
+        self.patch.stop()
+        self.tempdir.cleanup()
 
 
 class TestOneSetup(unittest.TestCase):

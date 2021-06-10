@@ -6,10 +6,10 @@ import json
 import one.params
 
 
-def set_up_env():
+def set_up_env() -> tempfile.TemporaryDirectory:
     """
-
-    :return:
+    Create a temporary directory and copy cache fixtures over
+    :return: TemporaryDirectory object
     """
     fixture = Path(__file__).parent.joinpath('fixtures')
     tempdir = tempfile.TemporaryDirectory()
@@ -19,7 +19,7 @@ def set_up_env():
         assert Path(filename).exists()
 
     # Copy cached rest responses
-    setup_rest_cache(tempdir.name)
+    setup_rest_cache(Path(tempdir.name) / '.one')
 
     return tempdir
 

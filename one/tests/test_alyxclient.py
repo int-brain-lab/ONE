@@ -1,4 +1,3 @@
-# TODO Copied from oneibl; needs updating
 import unittest
 from unittest import mock
 from pathlib import Path
@@ -11,6 +10,7 @@ import tempfile
 import shutil
 import requests
 import json
+import logging
 from datetime import datetime, timedelta
 
 from iblutil.io import hashfile
@@ -194,7 +194,7 @@ class _FakeDateTime(datetime):
         return _FakeDateTime._now or datetime.now(*args, **kwargs)
 
 
-@unittest.skipIf(OFFLINE_ONLY, 'online')
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestDownloadHTTP(unittest.TestCase):
 
     def setUp(self):
@@ -268,21 +268,33 @@ class TestDownloadHTTP(unittest.TestCase):
         ac = self.ac  # easier to debug in console
         test_data_uuid = self.test_data_uuid
         cache_dir = tempfile.mkdtemp()
+        self.addCleanup(lambda: shutil.rmtree(cache_dir))
 
         # Test 1: empty dir, dict mode
         dset = ac.get('/datasets/' + test_data_uuid)
         url = wc.dataset_record_to_url(dset)
-        file_name = wc.http_download_file_list(url, username=par.HTTP_DATA_SERVER_LOGIN,
-                                               password=par.HTTP_DATA_SERVER_PWD,
-                                               cache_dir=cache_dir)
+        file_name, = ac.download_file(url, cache_dir=cache_dir)
+        self.assertTrue(os.path.isfile(file_name))
+        os.unlink(file_name)
+
         # Test 2: empty dir, list mode
         dset = ac.get('/datasets?id=' + test_data_uuid)
         url = wc.dataset_record_to_url(dset)
-        file_name = wc.http_download_file_list(url, username=par.HTTP_DATA_SERVER_LOGIN,
-                                               password=par.HTTP_DATA_SERVER_PWD,
-                                               cache_dir=cache_dir)
-        self.assertTrue(os.path.isfile(file_name[0]))
-        shutil.rmtree(cache_dir)
+        file_name, = ac.download_file(url, cache_dir=cache_dir)
+        self.assertTrue(os.path.isfile(file_name))
+        os.unlink(file_name)
+
+        # Test 3: Log unauthorized error with url
+        old_par = ac._par
+        ac._par = ac._par.set('HTTP_DATA_SERVER_PWD', 'foobar')
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.ERROR) as log:
+            try:
+                ac.download_file(url, cache_dir=cache_dir)
+                self.assertTrue(url[0] in log.output[-1])
+            except Exception:
+                pass
+            finally:
+                ac._par = old_par
 
     def test_download_datasets(self):
         # test downloading a single file

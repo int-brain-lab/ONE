@@ -14,6 +14,7 @@ import datetime
 from uuid import UUID
 from inspect import getmembers, isfunction, unwrap
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit
 from typing import Optional, Union, Sequence, Mapping, List, Iterable as Iter
 
 import numpy as np
@@ -169,8 +170,12 @@ class ConversionMixin:
         """
         if isinstance(filepath, str) and filepath.startswith('http'):
             # Remove the UUID from path
+            filepath = urlsplit(filepath).path.strip('/')
             filepath = alfio.remove_uuid_file(PurePosixPath(filepath), dry=True)
-        session_path = '/'.join(alfio.get_session_path(filepath).parts[-5:])
+            session_path = alfio.get_session_path(filepath).as_posix()
+        else:
+            # FIXME root is brittle
+            session_path = '/'.join(alfio.get_session_path(filepath).parts[-5:])
         if (rec := self._cache['datasets']).empty:
             return
         rec = rec[rec['session_path'] == session_path]

@@ -279,7 +279,7 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
 
     # default cache directory is the home dir
     if not cache_dir:
-        cache_dir = str(Path.home().joinpath("Downloads"))
+        cache_dir = str(Path.home().joinpath('Downloads'))
 
     # This is the local file name
     file_name = str(cache_dir) + os.sep + os.path.basename(full_link_to_file)
@@ -307,7 +307,7 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     req = urllib.request.Request(full_link_to_file)
     if chunks is not None:
         first_byte, n_bytes = chunks
-        req.add_header("Range", "bytes=%d-%d" % (first_byte, first_byte + n_bytes - 1))
+        req.add_header('Range', 'bytes=%d-%d' % (first_byte, first_byte + n_bytes - 1))
 
     # add additional headers
     if headers is not None:
@@ -318,12 +318,12 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     try:
         u = urllib.request.urlopen(req)
     except HTTPError as e:
-        _logger.error(f"{str(e)} {full_link_to_file}")
+        _logger.error(f'{str(e)} {full_link_to_file}')
         raise e
 
     file_size = int(u.getheader('Content-length'))
     if not silent:
-        print(f"Downloading: {file_name} Bytes: {file_size}")
+        print(f'Downloading: {file_name} Bytes: {file_size}')
     file_size_dl = 0
     block_sz = 8192 * 64 * 8
 
@@ -405,7 +405,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     http://alyx.readthedocs.io/en/latest/api.html
     """
     _token = None
-    _headers = None
+    _headers = None  # Headers for REST requests only
     user = None
 
     def __init__(self, base_url=None, username=None, password=None, cache_dir=None, silent=False):
@@ -549,7 +549,6 @@ class AlyxClient(metaclass=UniqueSingletons):
             url = (self._validate_file_url(x) for x in url)
             download_fcn = http_download_file_list
         pars = dict(
-            headers=self._headers,
             silent=kwargs.pop('silent', self.silent),
             cache_dir=kwargs.pop('cache_dir', self._par.CACHE_DIR),
             username=self._par.HTTP_DATA_SERVER_LOGIN,

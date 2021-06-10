@@ -1,6 +1,13 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.2]
+
+### Modified
+
+ - REST headers no longer used in download_file, fixes behaviour for 401 errors
+ - fix to download_dataset error with alyx record
+
+## 0.1.1
 
 ### Modified
 
