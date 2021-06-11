@@ -153,6 +153,5 @@ class TestAlfParse(unittest.TestCase):
         self.assertFalse(any(verifiable))
 
 
-
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)

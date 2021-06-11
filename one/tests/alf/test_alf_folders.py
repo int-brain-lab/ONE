@@ -12,7 +12,7 @@ class TestALFFolders(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.tempdir = tempfile.TemporaryDirectory()
         cls.session_path = (Path(cls.tempdir.name)
-                            .joinpath('fakelab', 'Subjects', 'fakemouse',  '1900-01-01', '001'))
+                            .joinpath('fakelab', 'Subjects', 'fakemouse', '1900-01-01', '001'))
         cls.session_path.mkdir(parents=True)
 
     @classmethod

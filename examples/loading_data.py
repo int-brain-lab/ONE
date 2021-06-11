@@ -45,8 +45,8 @@ Collections
 
 For any given session there may be multiple datasets with the same name that are organized into
 separate subfolders called collections.  For example there may be spike times for two probes, one
-in 'alf/probe00/spikes.times.npy', the other in 'alf/probe01/spikes.times.npy'.  In IBL, the 'alf' 
-directory (for ALyx Files) contains the main datasets that people use.  Raw data is in other 
+in 'alf/probe00/spikes.times.npy', the other in 'alf/probe01/spikes.times.npy'.  In IBL, the 'alf'
+directory (for ALyx Files) contains the main datasets that people use.  Raw data is in other
 directories.
 
 In this case you must specify the collection when multiple matching datasets are found:
@@ -79,7 +79,7 @@ files = one.load_object(eid, 'spikes', collection='alf/probe01', download_only=T
 ts, clusters = alfio.read_ts(files[1])
 
 """
-For any given object the first dimension of every attribute should match in length.  For 
+For any given object the first dimension of every attribute should match in length.  For
 analysis you can assert that the dimensions match using the check_dimensions property:
 """
 assert trials.check_dimensions == 0

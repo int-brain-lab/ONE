@@ -15,16 +15,15 @@ from uuid import UUID
 from inspect import getmembers, isfunction, unwrap
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
-from typing import Optional, Union, Sequence, Mapping, List, Iterable as Iter
+from typing import Optional, Union, Mapping, List, Iterable as Iter
 
 import numpy as np
 import pandas as pd
-
-import one.alf.io as alfio
 from iblutil.io import parquet
 from iblutil.util import Bunch
 
-def Listable(t): return Union[t, Sequence[t]]  # noqa
+import one.alf.io as alfio
+from .util import Listable
 
 
 def recurse(func):

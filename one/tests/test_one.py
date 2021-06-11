@@ -34,7 +34,8 @@ import numpy as np
 import pandas as pd
 
 from one import webclient as wc
-from one.api import ONE, One, OneAlyx, _ses2records, _validate_date_range
+from one.api import ONE, One, OneAlyx
+from one.util import ses2records, validate_date_range
 import one.params
 import one.alf.exceptions as alferr
 from iblutil.io import parquet
@@ -406,7 +407,7 @@ class TestOneAlyx(unittest.TestCase):
     def test_ses2records(self):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
         ses = self.one.alyx.rest('sessions', 'read', id=eid)
-        session, datasets = _ses2records(ses)
+        session, datasets = ses2records(ses)
         # Verify returned tables are compatible with cache tables
         self.assertIsInstance(session, pd.Series)
         self.assertIsInstance(datasets, pd.DataFrame)
@@ -589,38 +590,38 @@ class TestOneSetup(unittest.TestCase):
 class TestOneMisc(unittest.TestCase):
     def test_validate_date_range(self):
         # Single string date
-        actual = _validate_date_range('2020-01-01')  # On this day
+        actual = validate_date_range('2020-01-01')  # On this day
         expected = (pd.Timestamp('2020-01-01 00:00:00'),
                     pd.Timestamp('2020-01-01 23:59:59.999000'))
         self.assertEqual(actual, expected)
 
         # Single datetime.date object
-        actual = _validate_date_range(pd.Timestamp('2020-01-01 00:00:00').date())
+        actual = validate_date_range(pd.Timestamp('2020-01-01 00:00:00').date())
         self.assertEqual(actual, expected)
 
         # Single pandas Timestamp
-        actual = _validate_date_range(pd.Timestamp(2020, 1, 1))
+        actual = validate_date_range(pd.Timestamp(2020, 1, 1))
         self.assertEqual(actual, expected)
 
         # Array of two datetime64
-        actual = _validate_date_range(np.array(['2022-01-30', '2022-01-30'],
-                                               dtype='datetime64[D]'))
+        actual = validate_date_range(np.array(['2022-01-30', '2022-01-30'],
+                                              dtype='datetime64[D]'))
         expected = (pd.Timestamp('2022-01-30 00:00:00'), pd.Timestamp('2022-01-30 00:00:00'))
         self.assertEqual(actual, expected)
 
         # From date (lower bound)
-        actual = _validate_date_range(['2020-01-01'])  # from date
+        actual = validate_date_range(['2020-01-01'])  # from date
         self.assertEqual(actual[0], pd.Timestamp('2020-01-01 00:00:00'))
         dt = actual[1] - pd.Timestamp.now()
         self.assertTrue(dt.days > 10 * 365)
 
-        actual = _validate_date_range(['2020-01-01', None])  # from date
+        actual = validate_date_range(['2020-01-01', None])  # from date
         self.assertEqual(actual[0], pd.Timestamp('2020-01-01 00:00:00'))
         dt = actual[1] - pd.Timestamp.now()
         self.assertTrue(dt.days > 10 * 365)  # Upper bound at least 60 years in the future
 
         # To date (upper bound)
-        actual = _validate_date_range([None, '2020-01-01'])  # up to date
+        actual = validate_date_range([None, '2020-01-01'])  # up to date
         self.assertEqual(actual[1], pd.Timestamp('2020-01-01 00:00:00'))
         dt = pd.Timestamp.now().date().year - actual[0].date().year
         self.assertTrue(dt > 60)  # Lower bound at least 60 years in the past

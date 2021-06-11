@@ -30,17 +30,20 @@ import os
 import fnmatch
 import re
 from datetime import datetime, timedelta
-from functools import wraps, lru_cache
+from functools import lru_cache
 from inspect import unwrap
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Sequence, Union, Optional, List
+from typing import Any, Union, Optional, List
 from uuid import UUID
 
 import tqdm
 import pandas as pd
 import numpy as np
 import requests.exceptions
+from iblutil.io import parquet, hashfile
+from iblutil.util import Bunch
+from iblutil.numerical import ismember2d, find_first_2d
 
 import one.params
 import one.webclient as wc
@@ -49,83 +52,12 @@ import one.alf.exceptions as alferr
 from .alf.onepqt import make_parquet_db
 from .alf.files import alf_parts, rel_path_parts
 from .alf.spec import is_valid, COLLECTION_SPEC, FILE_SPEC, regex as alf_regex
-from pprint import pprint
-from iblutil.io import parquet, hashfile
-from iblutil.util import Bunch
-from iblutil.numerical import ismember2d, find_first_2d
 from one.converters import ConversionMixin
+from .util import parse_id, refresh, Listable, validate_date_range
 
-_logger = logging.getLogger(__name__)  # TODO Refactor log
-
-
-def Listable(t): return Union[t, Sequence[t]]  # noqa
-
+_logger = logging.getLogger(__name__)
 
 N_THREADS = 4  # number of download threads
-
-
-def _ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
-    """Extract session cache record and datasets cache from a remote session data record
-    TODO Fix for new tables; use to update caches from remote queries
-    :param ses: session dictionary from rest endpoint
-    :return: session record, datasets frame
-    """
-    # Extract session record
-    eid = parquet.str2np(ses['url'][-36:])
-    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'project')
-    session_data = {k: v for k, v in ses.items() if k in session_keys}
-    # session_data['id_0'], session_data['id_1'] = eid.flatten().tolist()
-    session = (
-        (pd.Series(data=session_data, name=tuple(eid.flatten()))
-            .rename({'start_time': 'date'}, axis=1))
-    )
-    session['date'] = session['date'][:10]
-
-    # Extract datasets table
-    def _to_record(d):
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
-        rec['eid_0'], rec['eid_1'] = session.name
-        file_path = alfio.get_alf_path(d['data_url'])
-        rec['session_path'] = alfio.get_session_path(file_path).as_posix()
-        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
-        return rec
-
-    records = map(_to_record, ses['data_dataset_session_related'])
-    datasets = pd.DataFrame(records).set_index(['id_0', 'id_1'])
-    return session, datasets
-
-
-def parse_id(method):
-    """
-    Ensures the input experiment identifier is an experiment UUID string
-    :param method: An ONE method whose second arg is an experiment id
-    :return: A wrapper function that parses the id to the expected string
-    TODO Move to converters.py
-    """
-
-    @wraps(method)
-    def wrapper(self, id, *args, **kwargs):
-        id = self.to_eid(id)
-        return method(self, id, *args, **kwargs)
-
-    return wrapper
-
-
-def refresh(method):
-    """
-    Refresh cache depending of query_type kwarg
-    """
-
-    @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        mode = kwargs.get('query_type', None)
-        if not mode or mode == 'auto':
-            mode = self.mode
-        self.refresh_cache(mode=mode)
-        return method(self, *args, **kwargs)
-
-    return wrapper
 
 
 class One(ConversionMixin):
@@ -307,7 +239,7 @@ class One(ConversionMixin):
                 mask = sessions['lab' if key == 'laboratory' else key].str.contains(query)
                 sessions = sessions[mask.astype(bool, copy=False)]
             elif key == 'date_range':
-                start, end = _validate_date_range(value)
+                start, end = validate_date_range(value)
                 session_date = pd.to_datetime(sessions['date'])
                 sessions = sessions[(session_date >= start) & (session_date <= end)]
             elif key == 'number':
@@ -483,6 +415,7 @@ class One(ConversionMixin):
                     query_type: str = 'auto',
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
+        TODO Add more examples; document revision, query_type
         Load all attributes of an ALF object from a Session ID and an object name.  Any datasets
         with matching object name will be loaded.
 
@@ -525,7 +458,7 @@ class One(ConversionMixin):
             raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
         if table['collection'][match].unique().size > 1:
             raise alferr.ALFMultipleCollectionsFound(
-                'Matching object belongs to multiple collections:' +
+                'Matching object belongs to multiple collections: ' +
                 ', '.join(table['collection'][match].unique())
             )
 
@@ -586,6 +519,7 @@ class One(ConversionMixin):
         if not match.any():
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
         elif sum(match) != 1:
+            # TODO List in error; make constructor take list as input instead of str
             raise alferr.ALFMultipleCollectionsFound('Multiple datasets returned')
 
         download_only = kwargs.pop('download_only', False)
@@ -846,7 +780,7 @@ class OneAlyx(One):
         return self._web_client.cache_dir
 
     def describe_dataset(self, dataset_type=None):
-        # TODO Move the AlyxClient; add to rest examples; rename to describe?
+        # TODO Move to AlyxClient; add to rest examples; rename to describe?
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
         # if not isinstance(dataset_type, str):
@@ -859,65 +793,6 @@ class OneAlyx(One):
             # Try to get dataset type from dataset name
             out = self.alyx.rest('dataset-types', 'read', self.dataset2type(dataset_type))
         print(out['description'])
-
-    # def list(self, eid: Optional[Union[str, Path, UUID]] = None, details=False
-    #          ) -> Union[List, Dict[str, str]]:
-    #     """
-    #     From a Session ID, queries Alyx database for datasets related to a session.
-    #
-    #     :param eid: Experiment session uuid str
-    #     :type eid: str
-    #
-    #     :param details: If false returns a list of path, otherwise returns the REST dictionary
-    #     :type eid: bool
-    #
-    #     :return: list of strings or dict of lists if details is True
-    #     :rtype:  list, dict
-    #     """
-    #     if not eid:
-    #         return [x['name'] for x in self.alyx.rest('dataset-types', 'list')]
-    #
-    #     # Session specific list
-    #     dsets = self.alyx.rest('datasets', 'list', session=eid, exists=True)
-    #     if not details:
-    #         dsets = sorted([Path(dset['collection']).joinpath(dset['name']) for dset in dsets])
-    #     return dsets
-
-    @refresh
-    @parse_id
-    def load(self, eid, dataset_types=None, dclass_output=False, dry_run=False, cache_dir=None,
-             download_only=False, clobber=False, offline=False, keep_uuid=False):
-        """
-        From a Session ID and dataset types, queries Alyx database, downloads the data
-        from Globus, and loads into numpy array.
-
-        :param eid: Experiment ID, for IBL this is the UUID of the Session as per Alyx
-         database. Could be a full Alyx URL:
-         'http://localhost:8000/sessions/698361f6-b7d0-447d-a25d-42afdef7a0da' or only the UUID:
-         '698361f6-b7d0-447d-a25d-42afdef7a0da'. Can also be a list of the above for multiple eids.
-        :type eid: str
-        :param dataset_types: [None]: Alyx dataset types to be returned.
-        :type dataset_types: list
-        :param dclass_output: [False]: forces the output as dataclass to provide context.
-        :type dclass_output: bool
-         If None or an empty dataset_type is specified, the output will be a dictionary by default.
-        :param cache_dir: temporarly overrides the cache_dir from the parameter file
-        :type cache_dir: str
-        :param download_only: do not attempt to load data in memory, just download the files
-        :type download_only: bool
-        :param clobber: force downloading even if files exists locally
-        :type clobber: bool
-        :param keep_uuid: keeps the UUID at the end of the filename (defaults to False)
-        :type keep_uuid: bool
-
-        :return: List of numpy arrays matching the size of dataset_types parameter, OR
-         a dataclass containing arrays and context data.
-        :rtype: list, dict, dataclass SessionDataInfo
-        """
-        # this is a wrapping function to keep signature and docstring accessible for IDE's
-        return self._load_recursive(eid, dataset_types=dataset_types, dclass_output=dclass_output,
-                                    dry_run=dry_run, cache_dir=cache_dir, keep_uuid=keep_uuid,
-                                    download_only=download_only, clobber=clobber, offline=offline)
 
     @refresh
     @parse_id
@@ -1049,27 +924,6 @@ class OneAlyx(One):
         else:
             return alfio.load_object(out_files[0].parent, obj, **kwargs)
 
-    def _load_recursive(self, eid, **kwargs):
-        """
-        From a Session ID and dataset types, queries Alyx database, downloads the data
-        from Globus, and loads into numpy array. Supports multiple sessions
-        """
-        if isinstance(eid, str):
-            return self._load(eid, **kwargs)
-        if isinstance(eid, list):
-            # dataclass output requested
-            if kwargs.get('dclass_output', False):
-                for i, e in enumerate(eid):
-                    if i == 0:
-                        out = self._load(e, **kwargs)
-                    else:
-                        out.append(self._load(e, **kwargs))
-            else:  # list output requested
-                out = []
-                for e in eid:
-                    out.append(self._load(e, **kwargs)[0])
-            return out
-
     @refresh
     def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
@@ -1086,35 +940,6 @@ class OneAlyx(One):
             raise NotImplementedError('Converting probe IDs required remote connection')
         rec = self.alyx.rest('insertions', 'read', id=pid)
         return rec['session'], rec['name']
-
-    def _ls(self, table, verbose=False):
-        """
-        Queries the database for a list of 'users' and/or 'dataset-types' and/or 'subjects' fields
-
-        :param table: the table (s) to query among: 'dataset-types','users'
-         and 'subjects'; if empty or None assumes all tables
-        :type table: str
-        :param verbose: [False] prints the list in the current window
-        :type verbose: bool
-
-        :return: list of names to query, list of full raw output in json serialized format
-        :rtype: list, list
-        """
-        assert isinstance(table, str)
-        table = self.autocomplete(table)
-        table_field_names = {
-            'dataset-types': 'name',
-            'datasets': 'name',
-            'users': 'username',
-            'subjects': 'nickname',
-            'labs': 'name'}
-
-        field_name = table_field_names[table]
-        full_out = self.alyx.get('/' + table)
-        list_out = [f[field_name] for f in full_out]
-        if verbose:
-            pprint(list_out)
-        return list_out, full_out
 
     def autocomplete(self, term):
         """ TODO Move to super class
@@ -1178,7 +1003,7 @@ class OneAlyx(One):
             field = self.autocomplete(key)  # Validate and get full name
             # check that the input matches one of the defined filters
             if field == 'date_range':
-                query = _validate_date_range(value)
+                query = validate_date_range(value)
                 url += f'&{field}=' + ','.join(x.date().isoformat() for x in query)
             elif field == 'dataset_type':  # legacy
                 url += '&dataset_type=' + ','.join(validate_input(value))
@@ -1224,23 +1049,23 @@ class OneAlyx(One):
         else:
             if 'data_url' in dset:  # data_dataset_session_related dict
                 url = dset['data_url']
-                id = dset['id']
+                did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)
-                id = dset.index
+                did = dset.index
             else:  # from datasets endpoint
                 url = next((fr['data_url'] for fr in dset['file_records']
                             if fr['data_url'] and fr['exists']), None)
-                id = dset['url'][-36:]
+                did = dset['url'][-36:]
 
         if not url:
             _logger.warning("Dataset not found")
             if update_cache:
-                if isinstance(id, str) and self._index_type('datasets') is int:
-                    id = parquet.str2np(id)
-                elif self._index_type('datasets') is str and not isinstance(id, str):
-                    id = parquet.np2str(id)
-                self._cache['datasets'].at[id, 'exists'] = False
+                if isinstance(did, str) and self._index_type('datasets') is int:
+                    did = parquet.str2np(did)
+                elif self._index_type('datasets') is str and not isinstance(did, str):
+                    did = parquet.np2str(did)
+                self._cache['datasets'].at[did, 'exists'] = False
             return
         target_dir = Path(cache_dir or self._cache_dir, alfio.get_alf_path(url)).parent
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
@@ -1319,7 +1144,7 @@ class OneAlyx(One):
         """
         From an experiment id or a list of experiment ids, gets the local cache path
         :param eid: eid (UUID) or list of UUIDs
-        :param query_type: if set to 'remote', will force database connection TODO rename to query_type
+        :param query_type: if set to 'remote', will force database connection
         :return: eid or list of eids
         """
         # If eid is a list of eIDs recurse through list and return the results
@@ -1392,8 +1217,8 @@ class OneAlyx(One):
         """
         Given a local file path, returns the URL of the remote file.
         :param filepath: A local file path
+        :param query_type: if set to 'remote', will force database connection
         :return: A URL string
-        TODO add query_type to docstring
         """
         if query_type != 'remote':
             return super(OneAlyx, self).path2url(filepath)
@@ -1514,45 +1339,3 @@ class OneAlyx(One):
     #         assert (all(map(lambda t: t == np.int64, typs)))
     #         # if this gets too big, look into saving only when destroying the ONE object
     #         parquet.save(self._cache_file, self._cache)
-
-
-def _validate_date_range(date_range):
-    """
-    Validates and arrange date range in a 2 elements list
-
-    Examples:
-        _validate_date_range('2020-01-01')  # On this day
-        _validate_date_range(datetime.date(2020, 1, 1))
-        _validate_date_range(np.array(['2022-01-30', '2022-01-30'], dtype='datetime64[D]'))
-        _validate_date_range(pd.Timestamp(2020, 1, 1))
-        _validate_date_range(np.datetime64(2021, 3, 11))
-        _validate_date_range(['2020-01-01'])  # from date
-        _validate_date_range(['2020-01-01', None])  # from date
-        _validate_date_range([None, '2020-01-01'])  # up to date
-    """
-    if date_range is None:
-        return
-
-    # Ensure we have exactly two values
-    if isinstance(date_range, str) or not isinstance(date_range, Iterable):
-        # date_range = (date_range, pd.Timestamp(date_range) + pd.Timedelta(days=1))
-        dt = pd.Timedelta(days=1) - pd.Timedelta(milliseconds=1)
-        date_range = (date_range, pd.Timestamp(date_range) + dt)
-    elif len(date_range) == 1:
-        date_range = [date_range[0], pd.Timestamp.max]
-    elif len(date_range) != 2:
-        raise ValueError
-
-    # For comparisons, ensure both values are pd.Timestamp (datetime, date and datetime64
-    # objects will be converted)
-    start, end = date_range
-    start = start or pd.Timestamp.min  # Convert None to lowest possible date
-    end = end or pd.Timestamp.max  # Convert None to highest possible date
-
-    # Convert to timestamp
-    if not isinstance(start, pd.Timestamp):
-        start = pd.Timestamp(start)
-    if not isinstance(end, pd.Timestamp):
-        end = pd.Timestamp(end)
-
-    return start, end

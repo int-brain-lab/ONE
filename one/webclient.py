@@ -35,6 +35,7 @@ import functools
 import urllib.request
 from urllib.error import HTTPError
 from collections.abc import Mapping
+from typing import Optional
 from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
 import warnings
@@ -344,18 +345,16 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     return (file_name, md5.hexdigest()) if return_md5 else file_name
 
 
-def file_record_to_url(file_records, urls=[]):
+def file_record_to_url(file_records):
     """
-    Translate a Json dictionary to an usable http url for downlading files.
+    Translate a Json dictionary to an usable http url for downloading files.
 
     :param file_records: json containing a 'data_url' field
     :type file_records: dict
-    :param urls: a list of strings containing previous data_urls on which new urls
-     will be appended
-    :type urls: list
 
     :return: urls: (list) a list of strings representing full data urls
     """
+    urls = []
     for fr in file_records:
         if fr['data_url'] is not None:
             urls.append(fr['data_url'])
@@ -372,10 +371,10 @@ def dataset_record_to_url(dataset_record):
     :return: (list) a list of strings representing files urls corresponding to the datasets records
     """
     urls = []
-    if type(dataset_record) is dict:
+    if isinstance(dataset_record, dict):
         dataset_record = [dataset_record]
     for ds in dataset_record:
-        urls = file_record_to_url(ds['file_records'], urls)
+        urls += file_record_to_url(ds['file_records'])
     return urls
 
 
@@ -676,16 +675,16 @@ class AlyxClient(metaclass=UniqueSingletons):
         alyx_client.rest(endpoint): lists actions for endpoint
         alyx_client.rest(endpoint, action): lists fields and URL
 
-        Example with a rest endpoint with all actions
+        Example REST endpoint with all actions:
 
-        >>> alyx.client.rest('subjects', 'list')
-            alyx.client.rest('subjects', 'list', field_filter1='filterval')
-            alyx.client.rest('subjects', 'create', data=sub_dict)
-            alyx.client.rest('subjects', 'read', id='nickname')
-            alyx.client.rest('subjects', 'update', id='nickname', data=sub_dict)
-            alyx.client.rest('subjects', 'partial_update', id='nickname', data=sub_dict)
-            alyx.client.rest('subjects', 'delete', id='nickname')
-            alyx.client.rest('notes', 'create', data=nd, files={'image': open(image_file, 'rb')})
+            client.rest('subjects', 'list')
+            client.rest('subjects', 'list', field_filter1='filterval')
+            client.rest('subjects', 'create', data=sub_dict)
+            client.rest('subjects', 'read', id='nickname')
+            client.rest('subjects', 'update', id='nickname', data=sub_dict)
+            client.rest('subjects', 'partial_update', id='nickname', data=sub_dict)
+            client.rest('subjects', 'delete', id='nickname')
+            client.rest('notes', 'create', data=nd, files={'image': open(image_file, 'rb')})
 
         :param url: endpoint name
         :param action: 'list', 'create', 'read', 'update', 'partial_update', 'delete'
@@ -869,7 +868,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             uuid: str = None,
             field_name: str = 'json',
             key: str = None
-    ) -> dict:
+    ) -> Optional[dict]:
         """json_field_remove_key
         Will remove inputted key from json field dict and reupload it to Alyx.
         Needs endpoint, uuid and json field name
@@ -893,7 +892,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         # if contents are not dict, cannot remove key, return contents
         if isinstance(current, str):
             _logger.warning(f"Cannot remove key {key} content of json field is of type str")
-            return current
+            return None
         # If key not present in contents of json field cannot remove key, return contents
         if current.get(key, None) is None:
             _logger.warning(
