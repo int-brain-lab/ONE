@@ -27,6 +27,6 @@ jobs:
         pip install -r requirements.txt
         pip install -e .
     - name: run tests
-        run: |
-          flake8 .
-          python -m unittest discover
+      run: |
+        flake8 .
+        python -m unittest discover
