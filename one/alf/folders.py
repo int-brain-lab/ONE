@@ -42,6 +42,7 @@ def remove_empty_folders(folder: Union[str, Path]) -> None:
 
 
 def _isdatetime(s: str) -> bool:
+    # FIXME Duplicate of alf.io._isdatetime
     try:
         datetime.strptime(s, '%Y-%m-%d')
         return True
@@ -50,6 +51,7 @@ def _isdatetime(s: str) -> bool:
 
 
 def session_path(path: Union[str, Path]) -> str:
+    # FIXME Duplicate of alf.io.get_session_path
     """Returns the session path from any filepath if the date/number pattern is found"""
     path = Path(path)
     sess = None

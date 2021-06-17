@@ -10,7 +10,7 @@ class TestALFSpec(unittest.TestCase):
         verifiable = alf_spec.regex()
         expected = ('(?P<lab>\\w+)/(Subjects/)?'
                     '(?P<subject>[\\w-]+)/(?P<date>\\d{4}-\\d{2}-\\d{2})/(?P<number>\\d{1,3})/'
-                    '(?P<collection>[\\w/]+)(/#(?P<revision>[\\w-]+)#)?/'
+                    '((?P<collection>[\\w/]+)/)?(#(?P<revision>[\\w-]+)#/)?'
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
                     '(?P<attribute>[a-zA-Z0-9]+(?:_times(?=[_\\b.])|_intervals(?=[_\\b.]))?)_?'
                     '(?P<timescale>(?:_?)\\w+)*\\.?(?P<extra>[.\\w-]+)*\\.(?P<extension>\\w+)$')
@@ -23,7 +23,7 @@ class TestALFSpec(unittest.TestCase):
 
         # Should replace the collection pattern
         verifiable = alf_spec.regex(spec=alf_spec.COLLECTION_SPEC, collection=r'probe\d{2}')
-        self.assertEqual('(?P<collection>probe\\d{2})(/#(?P<revision>[\\w-]+)#)?', verifiable)
+        self.assertEqual('((?P<collection>probe\\d{2})/)?(#(?P<revision>[\\w-]+)#/)?', verifiable)
 
         # Should raise a key error
         with self.assertRaises(KeyError):
@@ -48,7 +48,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertCountEqual(verifiable, expected)
 
         # Match collection with filename
-        spec = f'{alf_spec.COLLECTION_SPEC}/{alf_spec.FILE_SPEC}'
+        spec = f'{alf_spec.COLLECTION_SPEC}{alf_spec.FILE_SPEC}'
         rel_path = 'alf/_ibl_trials.contrastRight.npy'
         expected = {
             'collection': 'alf',
@@ -98,6 +98,15 @@ class TestALFSpec(unittest.TestCase):
             'extra': 'e8c9d765764778b7ee5bda08c982037f8f07e690',
             'extension': 'tar'
         }
+        verifiable = re.match(alf_spec.regex(), full).groupdict()
+        self.assertCountEqual(verifiable, expected)
+
+        # Test a full path with no collection, no Subjects and no number padding
+        full = (
+            'angelakilab/NYU-40/2021-04-12/1/'
+            '_kilosort_raw.output.e8c9d765764778b7ee5bda08c982037f8f07e690.tar'
+        )
+        expected.update(collection=None, number='1')
         verifiable = re.match(alf_spec.regex(), full).groupdict()
         self.assertCountEqual(verifiable, expected)
 

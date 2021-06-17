@@ -1,10 +1,14 @@
 """Decorators and small standalone functions for api module"""
 from functools import wraps
-from typing import Sequence, Union, Iterable
+from typing import Sequence, Union, Iterable, Optional, List
 
 import pandas as pd
 from iblutil.io import parquet
+import numpy as np
 
+import one.alf.exceptions as alferr
+from one.alf.files import rel_path_parts
+from one.alf.spec import FILE_SPEC, regex as alf_regex
 import one.alf.io as alfio
 
 
@@ -116,3 +120,147 @@ def validate_date_range(date_range):
         end = pd.Timestamp(end)
 
     return start, end
+
+
+def _collection_spec(collection=None, revision=None):
+    """
+    Return a template string for a collection/revision regular expression.  Because both are
+    optional in the ALF spec, None will match any (including absent), while an empty string will
+    match absent.
+
+    :param collection:
+    :param revision:
+    :return: a string format for matching the collection/revision
+    """
+    spec = ''
+    for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
+        if not value:
+            default = f'({default})?' if value is None else ''
+        spec += default
+    return spec
+
+
+def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
+                    revision_last_before=True, assert_unique=True):
+    """
+    Filter the datasets cache table by the relative path (dataset name, collection and revision).
+    When None is passed, all values will match.  To match on empty parts, use an empty string.
+    When revision_last_before is true, None means return latest revision.
+
+    Examples:
+        # Filter by dataset name and collection
+        datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
+        # Filter datasets not in a collection
+        datasets = filter_datasets(all_datasets, collection='')
+        # Filter by matching revision
+        datasets = filter_datasets(all_datasets, 'spikes.times.npy',
+                                   revision='2020-01-12', revision_last_before=False)
+        # Filter by filename parts
+        datasets = filter_datasets(all_datasets, {object='spikes', attribute='times'})
+
+    :param all_datasets: a datasets cache table
+    :param filename: a regex string or a dict of alf parts
+    :param collection: a regex string
+    :param revision: a regex string
+    :param revision_last_before: if true, the datasets are filtered by the last revision before
+    the given revision string when ordered lexicographically, otherwise the revision is matched
+    like the other strings
+    :param assert_unique: raise an error with more than one dataset matches the filters
+    :return: a slice of all_datasets that match the filters
+    """
+    # Create a regular expression string to match relative path against
+    filename = filename or {}
+    regex_args = {'collection': collection}
+    spec_str = _collection_spec(collection, None if revision_last_before else revision)
+
+    if isinstance(filename, dict):
+        spec_str += FILE_SPEC
+        regex_args.update(**filename)
+    else:
+        spec_str += filename + '$'  # Assert end of string
+
+    # If matching revision name, add to regex string
+    if not revision_last_before:
+        regex_args.update(revision=revision)
+
+    # Build regex string
+    pattern = alf_regex('^' + spec_str, **regex_args)
+    match = all_datasets[all_datasets['rel_path'].str.match(pattern)]
+    if len(match) == 0 or not (revision_last_before or assert_unique):
+        return match
+
+    revisions = [rel_path_parts(x)[1] or '' for x in match.rel_path.values]
+    if assert_unique:
+        collections = set(rel_path_parts(x)[0] or '' for x in match.rel_path.values)
+        if len(collections) > 1:
+            _list = '"' + '", "'.join(collections) + '"'
+            raise alferr.ALFMultipleCollectionsFound(_list)
+        if filename and len(match) > 1:
+            _list = '"' + '", "'.join(match['rel_path']) + '"'
+            raise alferr.ALFMultipleObjectsFound(_list)
+        if not revision_last_before:
+            if len(set(revisions)) > 1:
+                _list = '"' + '", "'.join(set(revisions)) + '"'
+                raise alferr.ALFMultipleRevisionsFound(_list)
+            else:
+                return match
+
+    # # If no revision is specified for this dataset, use the default one
+    # if revision is None and 'default_revision' in match.columns:
+    #     if assert_unique and sum(match.default_revision) > 1:
+    #         revisions = np.array(revisions)[match.default_revision.values]
+    #         rev_list = '"' + '", "'.join(revisions) + '"'
+    #         raise alferr.ALFMultipleRevisionsFound(rev_list)
+    #     return match[match.default_revision]
+    # else:  # Compare revisions lexicographically
+    #     if assert_unique and len(set(revisions)) > 1:
+    #         rev_list = '"' + '", "'.join(set(revisions)) + '"'
+    #         raise alferr.ALFMultipleRevisionsFound(rev_list)
+    #     # Square brackets forces 1 row DataFrame returned instead of Series
+    #     idx = _index_last_before(revisions, revision)
+    #     return match.iloc[slice(0, 0) if idx is None else [idx], :]
+    return filter_revision_last_before(match, revision, assert_unique=assert_unique)
+
+
+def filter_revision_last_before(datasets, revision=None, assert_unique=True):
+    def _last_before(df):
+        if revision is None and 'default_revision' in df.columns:
+            if assert_unique and sum(df.default_revision) > 1:
+                revisions = df['revision'][df.default_revision.values]
+                rev_list = '"' + '", "'.join(revisions) + '"'
+                raise alferr.ALFMultipleRevisionsFound(rev_list)
+            return df[df.default_revision]
+        else:  # Compare revisions lexicographically
+            if assert_unique and len(df['revision'].unique()) > 1:
+                rev_list = '"' + '", "'.join(df['revision'].unique()) + '"'
+                raise alferr.ALFMultipleRevisionsFound(rev_list)
+            # Square brackets forces 1 row DataFrame returned instead of Series
+            idx = _index_last_before(df['revision'].tolist(), revision)
+            return df.iloc[slice(0, 0) if idx is None else [idx], :]
+
+    with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
+        datasets['revision'] = [rel_path_parts(x)[1] or '' for x in datasets.rel_path]
+    groups = datasets.rel_path.str.replace('#.*#/', '', regex=True).values
+    grouped = datasets.groupby(groups)
+    return grouped.apply(_last_before).reset_index(0, drop=True)  # .drop('revision', axis=1)
+
+
+def _index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
+    """
+    Returns the index of string that occurs directly before the provided revision string when
+    lexicographic sorted.  If revision is None, the index of the most recent revision is returned.
+
+    Example:
+        idx = _index_last_before([], '2020-08-01')
+
+    :param revisions: a list of revision strings
+    :param revision: revision string to match on
+    :return: index of revision before matching string in sorted list or None
+    """
+    if len(revisions) == 0:
+        return  # No revisions, just return
+    revisions_sorted = sorted(revisions, reverse=True)
+    if revision is None:  # Return most recent revision
+        return revisions.index(revisions_sorted[0])
+    lt = np.array(revisions_sorted) < revision
+    return revisions.index(revisions_sorted[lt.argmax()]) if any(lt) else None

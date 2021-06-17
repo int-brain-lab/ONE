@@ -7,7 +7,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from iblutil.io import parquet
-import one.alf.onepqt as apt
+import one.alf.cache as apt
 
 
 class TestsONEParquet(unittest.TestCase):

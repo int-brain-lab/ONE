@@ -378,11 +378,10 @@ def dataset_record_to_url(dataset_record):
     return urls
 
 
-class UniqueSingletons(type):  # TODO Perhaps make ONE the singleton
+class UniqueSingletons(type):
     _instances: list = []
 
     def __call__(cls, *args, **kwargs):
-        # print('args', args, '\nkwargs', kwargs)
         for inst in UniqueSingletons._instances:
             if cls in inst and inst.get(cls, None).get('args') == (args, kwargs):
                 return inst[cls].get('instance')

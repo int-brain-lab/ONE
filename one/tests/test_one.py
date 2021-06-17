@@ -22,6 +22,7 @@ Note ONE and AlyxClient use caching:
 
 """
 from pathlib import Path, PurePosixPath, PureWindowsPath
+from itertools import permutations, combinations_with_replacement
 from functools import partial
 import unittest
 from unittest import mock
@@ -35,7 +36,10 @@ import pandas as pd
 
 from one import webclient as wc
 from one.api import ONE, One, OneAlyx
-from one.util import ses2records, validate_date_range
+from one.util import (
+    ses2records, validate_date_range, _index_last_before, filter_datasets, _collection_spec,
+    filter_revision_last_before
+)
 import one.params
 import one.alf.exceptions as alferr
 from iblutil.io import parquet
@@ -287,18 +291,123 @@ class TestONECache(unittest.TestCase):
     def test_check_exists(self):
         pass
 
+    def test_filter_by_collection(self):
+        datasets = self.one._cache.datasets.iloc[:5]
+        # If None is passed, should be identity
+        self.assertTrue(datasets is One._filter_by_collection(datasets, None))
+
+        verifiable = One._filter_by_collection(datasets, 'alf')
+        self.assertEqual(len(verifiable), 3)
+        self.assertTrue(verifiable['rel_path'].str.startswith('alf').all())
+
+        # Check regex input
+        verifiable = One._filter_by_collection(datasets, r'alf/probe0\d{1}')['rel_path'].values
+        self.assertEqual(len(verifiable), 1)
+        self.assertTrue(verifiable[0].startswith('alf/probe00'))
+
+        # No match behaviour
+        verifiable = One._filter_by_collection(datasets, '')
+        self.assertEqual(len(verifiable), 0)
+
+        # Compatibility with no collections
+        datasets = datasets.copy()
+        datasets['rel_path'] = datasets['rel_path'].apply(lambda x: x.split('/')[-1])
+        verifiable = One._filter_by_collection(datasets, '')
+        self.assertEqual(len(verifiable), 5)
+        verifiable = One._filter_by_collection(datasets, 'alf')
+        self.assertEqual(len(verifiable), 0)
+
+    def test_filter(self):
+        datasets = self.one._cache.datasets.iloc[:5].copy()
+        # Test identity
+        verifiable = filter_datasets(datasets, None, None, None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(len(datasets), len(verifiable))
+
+        # Test collection filter
+        verifiable = filter_datasets(datasets, None, 'alf', None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(3, len(verifiable))
+        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
+            filter_datasets(datasets, None, 'alf.*', None, revision_last_before=False)
+        # Test filter empty collection
+        verifiable = filter_datasets(datasets, None, '', None, revision_last_before=False)
+        self.assertTrue(len(verifiable), 1)
+
+        # Test dataset filter
+        verifiable = filter_datasets(datasets, '_ibl_trials.*', None, None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(2, len(verifiable))
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            filter_datasets(datasets, '_ibl_trials.*', None, None, revision_last_before=False)
+        # Test as dict  # TODO can't filter by empty parts
+        dataset = dict(namespace='ibl', object='trials')
+        verifiable = filter_datasets(datasets, dataset, None, None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(2, len(verifiable))
+
+        # Revisions
+        revisions = [
+            'alf/probe00/#2020-01-01#/spikes.times.npy',
+            'alf/probe00/#2020-08-31#/spikes.times.npy',
+            'alf/probe00/spikes.times.npy',
+            'alf/probe00/#2021-xx-xx#/spikes.times.npy',
+            'alf/probe01/#2020-01-01#/spikes.times.npy'
+        ]
+        datasets['rel_path'] = revisions
+
+        # Should return last revision before date for each collection/dataset
+        revision = '2020-09-06'
+        verifiable = filter_datasets(datasets, None, None, revision, assert_unique=False)
+        self.assertEqual(2, len(verifiable))
+        self.assertTrue(all(x.split('#')[1] < revision for x in verifiable['rel_path']))
+
+        # Should return matching revision
+        verifiable = filter_datasets(datasets, None, None, r'2020-08-\d{2}',
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(1, len(verifiable))
+        self.assertTrue(verifiable['rel_path'].str.contains('#2020-08-31#').all())
+
+        # Matches more than one revision; should raise error
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
+            filter_datasets(datasets, None, '.*probe00', r'2020-0[18]-\d{2}',
+                            revision_last_before=False)
+
+        # Should return revision that's lexicographically first for each dataset
+        verifiable = filter_datasets(datasets, None, None, None, assert_unique=False)
+        self.assertEqual(2, len(verifiable))
+        actual = tuple(x.split('#')[1] for x in verifiable['rel_path'])
+        self.assertEqual(('2021-xx-xx', '2020-01-01'), actual)
+
+        # Should return those without revision
+        verifiable = filter_datasets(datasets, None, None, '', assert_unique=False)
+        self.assertFalse(verifiable['rel_path'].str.contains('#').any())
+
+        # Should return empty
+        verifiable = filter_datasets(datasets, None, '.*01', '', assert_unique=False)
+        self.assertEqual(0, len(verifiable))
+
+        verifiable = filter_datasets(datasets, None, '.*01', None, assert_unique=False)
+        self.assertEqual(1, len(verifiable))
+        self.assertTrue(verifiable['rel_path'].str.contains('#2020-01-01#').all())
+
+        # Should return dataset marked as default
+        datasets['default_revision'] = [True] + [False] * 4
+        verifiable = filter_datasets(datasets, None, None, None, assert_unique=False)
+        self.assertEqual(revisions[0], verifiable.rel_path.values[0])
+
     def test_list_datasets(self):
         # Test no eid
-        dsets = self.one.list_datasets()
+        dsets = self.one.list_datasets(details=True)
         self.assertEqual(len(dsets), len(self.one._cache.datasets))
         self.assertFalse(dsets is self.one._cache.datasets)
 
         # Test list for eid
-        dsets = self.one.list_datasets('KS005/2019-04-02/001')
+        dsets = self.one.list_datasets('KS005/2019-04-02/001', details=True)
         self.assertTrue(len(dsets), 27)
 
         # Test empty
-        dsets = self.one.list_datasets('FMR019/2021-03-18/002')
+        dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True)
         self.assertIsInstance(dsets, pd.DataFrame)
         self.assertEqual(len(dsets), 0)
 
@@ -320,22 +429,44 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(np.all(dset == np.arange(3)))
 
         # Check revision filter
-        with self.assertRaises(alferr.ALFObjectNotFound):
-            self.one.load_dataset(eid, '_ibl_wheel.position.npy', revision='v2.3.4')
+        # TODO Add revisions to test cache
+        # with self.assertRaises(alferr.ALFObjectNotFound):
+        #     self.one.load_dataset(eid, '_ibl_wheel.position.npy', revision='v2.3.4')
 
         # Check collection filter
         file = self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv',
                                      download_only=True, collection='raw_video_data')
         self.assertIsNotNone(file)
 
-    @unittest.skip('test unfinished')
     def test_load_datasets(self):
         eid = 'KS005/2019-04-02/001'
         # Check download only
         dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps.npy']
-        files, meta = self.one.load_datasets(eid, dsets,
-                                             download_only=True, assert_present=False)
+        files, meta = self.one.load_datasets(eid, dsets, download_only=True, assert_present=False)
         self.assertIsInstance(files, list)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+
+        # Check loading data and missing dataset
+        dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps_bpod.npy']
+        np.save(str(files[0]), np.arange(3))  # Make sure we have something to load
+        data, meta = self.one.load_datasets(eid, dsets, download_only=False, assert_present=False)
+        self.assertEqual(2, len(data))
+        self.assertEqual(2, len(meta))
+        self.assertTrue(np.all(data[0] == np.arange(3)))
+
+        # Check assert_present raises error
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_datasets(eid, dsets, assert_present=True)
+
+        # Check collection and revision filters
+        dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps.npy']
+        files, meta = self.one.load_datasets(eid, dsets, collections='alf', revisions=[None, None],
+                                             download_only=True, assert_present=False)
+        self.assertTrue(all(files))
+
+        files, meta = self.one.load_datasets(eid, dsets, collections=['alf', ''],
+                                             download_only=True, assert_present=False)
+        self.assertIsNone(files[-1])
 
     def test_load_dataset_from_id(self):
         id = np.array([[-9204203870374650458, -6411285612086772563]])
@@ -394,7 +525,7 @@ class TestOneAlyx(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.tempdir = util.set_up_env()
 
-        with mock.patch('params.iopar.getfile', new=partial(get_file, cls.tempdir.name)):
+        with mock.patch('one.params.iopar.getfile', new=partial(get_file, cls.tempdir.name)):
             cls.one = OneAlyx(
                 base_url='https://test.alyx.internationalbrainlab.org',
                 username='test_user',
@@ -419,7 +550,7 @@ class TestOneAlyx(unittest.TestCase):
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
-        with mock.patch('params.iopar.getfile', new=partial(get_file, self.tempdir.name)):
+        with mock.patch('one.params.iopar.getfile', new=partial(get_file, self.tempdir.name)):
             eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
         self.assertEqual('probe00', collection)
@@ -468,7 +599,8 @@ class TestOneDownload(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
-        self.patch = mock.patch('params.iopar.getfile', new=partial(get_file, self.tempdir.name))
+        self.patch = mock.patch('one.params.iopar.getfile',
+                                new=partial(get_file, self.tempdir.name))
         self.patch.start()
         self.one = OneAlyx(
             base_url='https://openalyx.internationalbrainlab.org',
@@ -625,6 +757,39 @@ class TestOneMisc(unittest.TestCase):
         self.assertEqual(actual[1], pd.Timestamp('2020-01-01 00:00:00'))
         dt = pd.Timestamp.now().date().year - actual[0].date().year
         self.assertTrue(dt > 60)  # Lower bound at least 60 years in the past
+
+    def test_index_last_before(self):
+        revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
+        verifiable = _index_last_before(revisions, '2021-01-01')
+        self.assertEqual(3, verifiable)
+
+        verifiable = _index_last_before(revisions, '2020-09-15')
+        self.assertEqual(1, verifiable)
+
+        self.assertIsNone(_index_last_before(revisions, ''))
+        self.assertIsNone(_index_last_before([], '2009-01-01'))
+
+        verifiable = _index_last_before(revisions, None)
+        self.assertEqual(0, verifiable, 'should return most recent')
+
+    def test_collection_spec(self):
+        # Test every combination of input
+        inputs = []
+        _collection = {None: '({collection}/)?', '': '', '-': '{collection}/'}
+        _revision = {None: '(#{revision}#/)?', '': '', '-': '#{revision}#/'}
+        combs = combinations_with_replacement((None, '', '-'), 2)
+        [inputs.extend(set(permutations(x))) for x in combs]
+        for collection, revision in inputs:
+            verifiable = _collection_spec(collection, revision)
+            expected = _collection[collection] + _revision[revision]
+            self.assertEqual(expected, verifiable)
+
+    def test_revision_last_before(self):
+        datasets = util.revisions_datasets_table()
+        df = datasets[datasets.rel_path.str.startswith('alf/probe00')]
+        verifiable = filter_revision_last_before(df.copy(),
+                                                 revision='2020-09-01', assert_unique=False)
+        self.assertTrue(len(verifiable) == 2)
 
 
 def get_file(root: str, str_id: str) -> str:

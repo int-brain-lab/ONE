@@ -1,5 +1,5 @@
 """The complete AlF specification
-TODO Currently collections and extensions are not optional
+TODO Currently extensions are not optional
 """
 import re
 from pprint import pprint
@@ -84,9 +84,15 @@ SPEC_DESCRIPTION = {
 
 """The following are the specifications and patterns for ALFs"""
 SESSION_SPEC = '{lab}/(Subjects/)?{subject}/{date}/{number}'
-COLLECTION_SPEC = r'{collection}(/#{revision}#)?'
+# COLLECTION_SPEC = r'{collection}(/#{revision}#)?'
+# COLLECTION_SPEC = r'({collection}(/#{revision}#)?/)?'
+COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
+# COLLECTION_SPEC = r'(/{collection})?(/#{revision}#)?'
 FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
-FULL_SPEC = f'{SESSION_SPEC}/{COLLECTION_SPEC}/{FILE_SPEC}'
+# FULL_SPEC = f'{SESSION_SPEC}/({COLLECTION_SPEC}/)?{FILE_SPEC}'
+FULL_SPEC = f'{SESSION_SPEC}/{COLLECTION_SPEC}{FILE_SPEC}'
+# FULL_SPEC = f'{SESSION_SPEC}{COLLECTION_SPEC}/{FILE_SPEC}'
+
 _DEFAULT = (
     ('lab', r'\w+'),
     ('subject', r'[\w-]+'),

@@ -2,6 +2,10 @@ import tempfile
 from pathlib import Path
 import shutil
 import json
+from uuid import uuid4
+
+import pandas as pd
+from iblutil.io.parquet import uuid2np
 
 import one.params
 
@@ -67,3 +71,25 @@ def setup_test_params(token=False):
         pars = one.params.get(client=test_pars[1:])
         if not getattr(pars, 'TOKEN', False):
             one.params.save(pars.set('TOKEN', {'token': 'T0k3N'}), test_pars[1:])
+
+
+def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
+                             revisions=('', '2020-01-08', '2021-07-06'),
+                             object='spikes',
+                             attributes=('times', 'waveforems')):
+    rel_path = []
+    for attr in attributes:
+        for collec in collections:
+            for rev in (f'#{x}#' if x else '' for x in revisions):
+                rel_path.append('/'.join(x for x in (collec, rev, f'{object}.{attr}.npy') if x))
+    ids = uuid2np([uuid4() for _ in range(len(rel_path))])
+    eid_0, eid_1 = uuid2np([uuid4()])[0]
+
+    return pd.DataFrame(data={
+        'rel_path': rel_path,
+        'session_path': 'subject/1900-01-01/001',
+        'file_size': None,
+        'hash': None,
+        'eid_0': eid_0,
+        'eid_1': eid_1
+    }, index=[ids[:, 0], ids[:, 1]])

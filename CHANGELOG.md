@@ -1,11 +1,21 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.3]
+
+### Added
+
+- Proper support for loading revisions in local mode
+- Separate function for filtering by collection
+- Tests for cache table filter functions
+- A load_datasets method for loading multiple datasets at once
+
+## 0.1.2
 
 ### Modified
 
  - REST headers no longer used in download_file, fixes behaviour for 401 errors
- - fix to download_dataset error with alyx record
+ - fix to download_dataset error with alyx record; tests added
+ - api utils moved to new module
 
 ## 0.1.1
 

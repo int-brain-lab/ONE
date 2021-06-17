@@ -313,11 +313,12 @@ class ConversionMixin:
 
     @staticmethod
     @parse_values
-    def path2ref(path_str: Union[str, Path, Iter]) -> Union[Bunch, List]:
+    def path2ref(path_str: Union[str, Path, Iter], as_dict=True) -> Union[Bunch, List]:
         """
         Returns a human readable experiment reference, given a session path.
         The path need not exist.
         :param path_str: A path to a given session
+        :param as_dict: If True a Bunch is returned, otherwise a string
         :return: one or more objects with keys ('subject', 'date', 'sequence')
 
         Examples:
@@ -335,7 +336,9 @@ class ConversionMixin:
             return [unwrap(ConversionMixin.path2ref)(x) for x in path_str]
         pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{3})'
         match = re.search(pattern, str(path_str))
-        return Bunch(match.groupdict()) if match else match
+        if match:
+            ref = match.groupdict()
+            return Bunch(ref) if as_dict else '{date:s}_{sequence:s}_{subject:s}'.format(**ref)
 
     def ref2dj(self, ref: Union[str, Mapping, Iter]):
         """

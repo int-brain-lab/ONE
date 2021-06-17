@@ -287,6 +287,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     For example, if the file provided to the function is `spikes.times`, the function will
     load `spikes.time`, `spikes.clusters`, `spikes.depths`, `spike.amps` in a dictionary
     whose keys will be `time`, `clusters`, `depths`, `amps`
+    # TODO Change URL
     Full Reference here: https://docs.internationalbrainlab.org/en/latest/04_reference.html#alf
     Simplified example: _namespace_object.attribute_timescale.part1.part2.extension
 
@@ -305,9 +306,14 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         trials = ibllib.io.alf.load_object(session_path, 'trials', namespace='ibl')
 
     """
-    if Path(alfpath).is_dir() and object is None:
-        raise ValueError('If a directory is provided, the object name should be provided too')
-    files_alf, parts = _ls(alfpath, object, **kwargs)
+    if isinstance(alfpath, (Path, str)):
+        if Path(alfpath).is_dir() and object is None:
+            raise ValueError('If a directory is provided, the object name should be provided too')
+        files_alf, parts = _ls(alfpath, object, **kwargs)
+    else:  # A list of paths allows us to load an object from different revisions
+        files_alf = alfpath
+        parts = [files.alf_parts(x.name) for x in files_alf]
+        assert len(set(p[1] for p in parts)) == 1
     # Take attribute and timescale from parts list
     attributes = [p[2] if not p[3] else '_'.join(p[2:4]) for p in parts]
     if not short_keys:  # Include extra parts in the keys
@@ -352,7 +358,7 @@ def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale
     """
     Saves a dictionary in alf format using object as object name and dictionary keys as attribute
     names. Dimensions have to be consistent.
-    Reference here: https://github.com/cortex-lab/ALF
+    Reference here: https://github.com/cortex-lab/ALF TODO Fix link
     Simplified example: _namespace_object.attribute.part1.part2.extension
 
     :param alfpath: path of the folder to save data to

@@ -127,7 +127,7 @@ def get(silent=False, client=None):
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
     if not cache_map:  # This can be removed in the future
         cache_map = _patch_params()
-    # If there are no
+    # If there are no params for this client, run setup routine
     if not cache_map or (client_key and client_key not in cache_map.CLIENT_MAP):
         cache_map = setup(client=client, silent=silent)
     cache = cache_map.CLIENT_MAP[client_key or cache_map.DEFAULT]
