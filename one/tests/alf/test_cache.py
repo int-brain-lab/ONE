@@ -61,7 +61,7 @@ class TestsONEParquet(unittest.TestCase):
         columns = ('colA', 'colB')
         rows = [('a1', 'b1'), ('a2', 'b2')]
         metadata = apt._metadata('dbname')
-        filename = self.tmpdir / 'mypqt.pqt'
+        filename = self.tmpdir.resolve() / 'mypqt.pqt'
 
         # Save parquet file.
         df = pd.DataFrame(rows, columns=columns)

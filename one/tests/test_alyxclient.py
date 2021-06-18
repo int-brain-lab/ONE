@@ -17,7 +17,7 @@ from iblutil.io import hashfile
 from . import OFFLINE_ONLY
 from . import util
 
-par = one.params.get()
+par = one.params.get(silent=True)
 
 # Init connection to the database
 ac = wc.AlyxClient(

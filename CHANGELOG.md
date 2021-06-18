@@ -1,13 +1,22 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.4]
 
 ### Added
 
-- Proper support for loading revisions in local mode
-- Separate function for filtering by collection
-- Tests for cache table filter functions
-- A load_datasets method for loading multiple datasets at once
+- proper support for loading revisions in local mode
+- separate function for filtering by collection
+- tests for cache table filter functions
+
+### Modified
+
+- refactored load methods to use the same filter functions
+
+## 0.1.3
+
+### Added
+
+- a load_datasets method for loading multiple datasets at once
 
 ## 0.1.2
 
