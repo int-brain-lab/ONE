@@ -242,7 +242,7 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
         datasets['revision'] = [rel_path_parts(x)[1] or '' for x in datasets.rel_path]
     groups = datasets.rel_path.str.replace('#.*#/', '', regex=True).values
     grouped = datasets.groupby(groups)
-    return grouped.apply(_last_before).reset_index(0, drop=True)  # .drop('revision', axis=1)
+    return grouped.apply(_last_before)  # .drop('revision', axis=1)
 
 
 def _index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:

@@ -159,7 +159,7 @@ class One(ConversionMixin):
         """
         out_files = []
         if hasattr(dsets, 'iterrows'):
-            dsets = map(lambda x: x[1], dsets.iterrows())
+            dsets = list(map(lambda x: x[1], dsets.iterrows()))
         timeout = reduce(lambda x, y: x + y.get('file_size', 0), dsets, 0) / 625000  # 5 Mb/s
         with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
             # TODO Subclass can just call web client method directly, no need to pass hash, etc.
@@ -317,9 +317,7 @@ class One(ConversionMixin):
         filesystem
         :return: A list of file paths for the datasets (None elements for non-existent datasets)
         """
-        if offline is None:
-            offline = self.mode == 'local' or not getattr(self, '_web_client', None)
-        if offline:
+        if offline or self.offline:
             files = []
             if isinstance(datasets, pd.Series):
                 datasets = pd.DataFrame([datasets])

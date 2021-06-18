@@ -2,7 +2,6 @@ import unittest
 from unittest import mock
 from pathlib import Path
 import random
-import numpy as np
 import os
 import one.webclient as wc
 import one.params
@@ -22,7 +21,9 @@ par = one.params.get(silent=True)
 # Init connection to the database
 ac = wc.AlyxClient(
     username='test_user', password='TapetesBloc18',
-    base_url='https://test.alyx.internationalbrainlab.org')
+    base_url='https://test.alyx.internationalbrainlab.org',
+    silent=True
+)
 
 
 class TestSingletonPattern(unittest.TestCase):
@@ -31,11 +32,15 @@ class TestSingletonPattern(unittest.TestCase):
         self.sameac = wc.AlyxClient(
             username='test_user',
             password='TapetesBloc18',
-            base_url='https://test.alyx.internationalbrainlab.org')
+            base_url='https://test.alyx.internationalbrainlab.org',
+            silent=True
+        )
         self.sameac2 = wc.AlyxClient(
             username='test_user',
             password='TapetesBloc18',
-            base_url='https://test.alyx.internationalbrainlab.org')
+            base_url='https://test.alyx.internationalbrainlab.org',
+            silent=True
+        )
 
     def test_multiple_singletons(self):
         self.assertTrue(id(self.ac) == id(self.sameac))
@@ -199,7 +204,7 @@ class TestDownloadHTTP(unittest.TestCase):
 
     def setUp(self):
         self.ac = ac
-        self.test_data_uuid = '3ddd45be-7d24-4fc7-9dd3-a98717342af6'
+        self.test_data_uuid = '84116a5c-131e-40a2-92d4-62c4aaae5c52'  # OpenAlyx dataset
 
     def test_paginated_request(self):
         rep = self.ac.rest('datasets', 'list')
@@ -265,26 +270,29 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertEqual(sub1, sub2)
 
     def test_download_datasets_with_api(self):
-        ac = self.ac  # easier to debug in console
-        test_data_uuid = self.test_data_uuid
+        ac_open = wc.AlyxClient(
+            base_url='https://openalyx.internationalbrainlab.org',
+            silent=True
+        )
         cache_dir = tempfile.mkdtemp()
         self.addCleanup(lambda: shutil.rmtree(cache_dir))
 
         # Test 1: empty dir, dict mode
-        dset = ac.get('/datasets/' + test_data_uuid)
+        dset = ac_open.get('/datasets/' + self.test_data_uuid)
         url = wc.dataset_record_to_url(dset)
-        file_name, = ac.download_file(url, cache_dir=cache_dir)
+        file_name, = ac_open.download_file(url, cache_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
         # Test 2: empty dir, list mode
-        dset = ac.get('/datasets?id=' + test_data_uuid)
+        dset = ac_open.get('/datasets?id=' + self.test_data_uuid)
         url = wc.dataset_record_to_url(dset)
-        file_name, = ac.download_file(url, cache_dir=cache_dir)
+        file_name, = ac_open.download_file(url, cache_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
-        # Test 3: Log unauthorized error with url
+        # Test 3: Log unauthorized error with url (using test alyx)
+        url = next(x['data_url'] for x in ac.get('/datasets?exists=True')[0]['file_records'])
         old_par = ac._par
         ac._par = ac._par.set('HTTP_DATA_SERVER_PWD', 'foobar')
         with self.assertLogs(logging.getLogger('one.webclient'), logging.ERROR) as log:
@@ -298,28 +306,28 @@ class TestDownloadHTTP(unittest.TestCase):
 
     def test_download_datasets(self):
         # test downloading a single file
-        full_link_to_file = r'http://ibl.flatironinstitute.org/mainenlab/Subjects/clns0730'\
-                            '/2018-08-24/1/licks.times.51852a2f-c76e-4c0c-95cb-9c7ba54be0f9.npy'
+        full_link_to_file = (
+            r'https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
+            '2020-09-21/001/alf/probes.trajectory.84116a5c-131e-40a2-92d4-62c4aaae5c52.json'
+        )
         file_name, md5 = wc.http_download_file(full_link_to_file,
-                                               username=par.HTTP_DATA_SERVER_LOGIN,
-                                               password=par.HTTP_DATA_SERVER_PWD,
                                                return_md5=True, clobber=True)
-        a = np.load(file_name)
+        with open(file_name, 'r') as json_file:
+            data = json.load(json_file)
+        self.assertTrue(len(data) > 0)
         self.assertTrue(hashfile.md5(file_name) == md5)
-        self.assertTrue(len(a) > 0)
 
         # test downloading a list of files
-        links = [r'http://ibl.flatironinstitute.org/mainenlab/Subjects/clns0730'
-                 '/2018-08-24/1/licks.times.51852a2f-c76e-4c0c-95cb-9c7ba54be0f9.npy',
-                 r'http://ibl.flatironinstitute.org/mainenlab/Subjects/clns0730'
-                 '/2018-08-24/1/probes.sitePositions.3ddd45be-7d24-4fc7-9dd3-a98717342af6.npy'
+        links = [full_link_to_file,
+                 r'https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
+                 r'2020-09-21/001/alf/probes.description.c4df1eea-c92c-479f-a907-41fa6e770094.json'
                  ]
         file_list = wc.http_download_file_list(links, username=par.HTTP_DATA_SERVER_LOGIN,
                                                password=par.HTTP_DATA_SERVER_PWD)
-        a = np.load(file_list[0])
-        b = np.load(file_list[1])
-        self.assertTrue(len(a) > 0)
-        self.assertTrue(len(b) > 0)
+        for file in file_list:
+            with open(file, 'r') as json_file:
+                data = json.load(json_file)
+            self.assertTrue(len(data) > 0)
 
     def test_rest_all_actions(self):
         # randint reduces conflicts with parallel tests

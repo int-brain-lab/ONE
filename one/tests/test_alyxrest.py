@@ -8,7 +8,8 @@ from one.api import ONE
 
 
 one = ONE(username='test_user', password='TapetesBloc18',
-          base_url='https://test.alyx.internationalbrainlab.org')
+          base_url='https://test.alyx.internationalbrainlab.org',
+          silent=True)
 
 EID = 'cf264653-2deb-44cb-aa84-89b82507028a'
 EID_EPHYS = 'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
