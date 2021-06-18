@@ -89,7 +89,7 @@ class TestsONEParquet(unittest.TestCase):
 
     def tests_db(self):
         fn_ses, fn_dsets = apt.make_parquet_db(self.tmpdir, hash_ids=False)
-        metadata_exp = apt._metadata(self.tmpdir)
+        metadata_exp = apt._metadata(self.tmpdir.resolve())
 
         df_ses, metadata = parquet.load(fn_ses)
 
