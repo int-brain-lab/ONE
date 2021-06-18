@@ -1,6 +1,6 @@
 # Open Neurophysiology Environment
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
-![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yml/badge.svg?branch=main)
+![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
 
 **NB: This package is currently in beta**
 
