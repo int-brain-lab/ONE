@@ -13,38 +13,26 @@ import logging
 from datetime import datetime, timedelta
 
 from iblutil.io import hashfile
-from . import OFFLINE_ONLY
+from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 from . import util
 
 par = one.params.get(silent=True)
 
 # Init connection to the database
-ac = wc.AlyxClient(
-    username='test_user', password='TapetesBloc18',
-    base_url='https://test.alyx.internationalbrainlab.org',
-    silent=True
-)
+ac = wc.AlyxClient(**TEST_DB_1)
 
 
 class TestSingletonPattern(unittest.TestCase):
     def setUp(self):
         self.ac = ac
-        self.sameac = wc.AlyxClient(
-            username='test_user',
-            password='TapetesBloc18',
-            base_url='https://test.alyx.internationalbrainlab.org',
-            silent=True
-        )
-        self.sameac2 = wc.AlyxClient(
-            username='test_user',
-            password='TapetesBloc18',
-            base_url='https://test.alyx.internationalbrainlab.org',
-            silent=True
-        )
+        self.sameac = wc.AlyxClient(**TEST_DB_1)
+        self.sameac2 = wc.AlyxClient(**TEST_DB_1)
+        self.diffac = wc.AlyxClient(**TEST_DB_1, cache_rest=False)
 
     def test_multiple_singletons(self):
         self.assertTrue(id(self.ac) == id(self.sameac))
         self.assertTrue(id(self.ac) == id(self.sameac2))
+        self.assertFalse(id(self.ac) == id(self.diffac))
 
 
 class TestJsonFieldMethods(unittest.TestCase):
@@ -123,7 +111,7 @@ class TestRestCache(unittest.TestCase):
         self.addCleanup(self.tempdir.cleanup)
         one.webclient.datetime = _FakeDateTime
         _FakeDateTime._now = None
-        path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
+        path_parts = ('.rest', one.params._key_from_url(TEST_DB_1['base_url']), 'https')
         self.cache_dir = Path(one.params.get_params_dir()).joinpath(*path_parts)
 
     def test_loads_cached(self):
@@ -256,9 +244,10 @@ class TestDownloadHTTP(unittest.TestCase):
         c = self.ac.rest('labs', 'read', 'mainenlab')
         self.assertTrue([lab for lab in a if
                          lab['name'] == 'mainenlab'][0] == c)
+        # Test with full URL
         d = self.ac.rest(
             'labs', 'read',
-            'https://test.alyx.internationalbrainlab.org/labs/mainenlab')
+            f'{TEST_DB_1["base_url"]}/labs/mainenlab')
         self.assertEqual(c, d)
         # test a more complex endpoint with a filter and a selection
         sub = self.ac.rest('subjects/flowers', 'list')
@@ -270,10 +259,7 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertEqual(sub1, sub2)
 
     def test_download_datasets_with_api(self):
-        ac_open = wc.AlyxClient(
-            base_url='https://openalyx.internationalbrainlab.org',
-            silent=True
-        )
+        ac_open = wc.AlyxClient(**TEST_DB_2)
         cache_dir = tempfile.mkdtemp()
         self.addCleanup(lambda: shutil.rmtree(cache_dir))
 

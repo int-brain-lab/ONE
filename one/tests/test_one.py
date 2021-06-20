@@ -10,8 +10,8 @@ then construct ONE with the directory as cache_dir, mode='local' and silent=True
 
 For tests that do require a remote connection use the tests.OFFLINE_ONLY flag in the skipIf
 decorator
-For testing REST POST requests use test.alyx.internationalbrainlab.org
-For testing download functions, use openalyx.internationalbrainlab.org
+For testing REST POST requests use TEST_DB_1 (test.alyx.internationalbrainlab.org)
+For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org)
 
 Note ONE and AlyxClient use caching:
     - When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
@@ -44,7 +44,7 @@ import one.params
 import one.alf.exceptions as alferr
 from iblutil.io import parquet
 from . import util
-from . import OFFLINE_ONLY
+from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 
 dset = {
     'url': 'https://alyx.internationalbrainlab.org/datasets/00059298-1b33-429c-a802-fa51bb662d72',
@@ -148,6 +148,10 @@ class TestONECache(unittest.TestCase):
         expected = ['KS005', 'ZFM-01935', 'ZM_1094', 'ZM_1150',
                     'ZM_1743', 'ZM_335', 'clns0730', 'flowers']
         self.assertCountEqual(expected, subjects)
+
+    def test_offline_repr(self):
+        self.assertTrue('offline' in str(self.one))
+        self.assertTrue(str(self.tempdir.name) in str(self.one))
 
     def test_one_search(self):
         one = self.one
@@ -527,11 +531,8 @@ class TestOneAlyx(unittest.TestCase):
 
         with mock.patch('one.params.iopar.getfile', new=partial(get_file, cls.tempdir.name)):
             cls.one = OneAlyx(
-                base_url='https://test.alyx.internationalbrainlab.org',
-                username='test_user',
-                password='TapetesBloc18',
+                **TEST_DB_1,
                 cache_dir=cls.tempdir.name,
-                silent=True,
                 mode='local'
             )
 
@@ -592,6 +593,16 @@ class TestOneAlyx(unittest.TestCase):
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestOneOnline(unittest.TestCase):
+    def setUp(self) -> None:
+        self.one = OneAlyx(**TEST_DB_2)
+
+    def test_online_repr(self):
+        self.assertTrue('online' in str(self.one))
+        self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
     """Test downloading datasets using OpenAlyx"""
     tempdir = None
@@ -602,11 +613,7 @@ class TestOneDownload(unittest.TestCase):
         self.patch = mock.patch('one.params.iopar.getfile',
                                 new=partial(get_file, self.tempdir.name))
         self.patch.start()
-        self.one = OneAlyx(
-            base_url='https://openalyx.internationalbrainlab.org',
-            cache_dir=self.tempdir.name,
-            silent=True
-        )
+        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
 
     def test_download_datasets(self):
         eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
@@ -663,13 +670,15 @@ class TestOneSetup(unittest.TestCase):
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
     def test_setup(self):
-        url = 'https://test.alyx.internationalbrainlab.org'
+        url = TEST_DB_1['base_url']
         one.params.input = lambda prompt: url if 'url' in prompt.lower() else 'mock_input'
         one.params.getpass = lambda prompt: 'mock_pwd'
         one.params.print = lambda text: 'mock_print'
         # Mock getfile function to return a path to non-existent file instead of usual one pars
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
-            one_obj = OneAlyx(mode='local', username='test_user', password='TapetesBloc18')
+            one_obj = OneAlyx(mode='local',
+                              username=TEST_DB_1['username'],
+                              password=TEST_DB_1['password'])
         self.assertEqual(one_obj.alyx._par.ALYX_URL, url)
         client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
         self.assertEqual(len(list(client_pars)), 1)
@@ -705,11 +714,8 @@ class TestOneSetup(unittest.TestCase):
             self.assertIsInstance(one_obj, OneAlyx)
 
             # A db URL was provided; use OneAlyx
-            one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org',
-                          username='test_user',
-                          password='TapetesBloc18',
-                          mode='local',  # Don't download cache (could also set cache_dir)
-                          silent=True)
+            # mode = 'local' ensures we don't download cache (could also set cache_dir)
+            one_obj = ONE(**TEST_DB_1, mode='local')
             self.assertIsInstance(one_obj, OneAlyx)
 
             # The offline param was given, raise deprecation warning (via log)

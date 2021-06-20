@@ -177,7 +177,7 @@ class One(ConversionMixin):
         :param cache_dir (optional): root directory to save the data in (home/downloads by default)
         :return: local file path
         """
-        pass
+        pass  # pragma: no cover
 
     def search(self, details=False, exists_only=False, query_type='auto', **kwargs):
         """
@@ -737,15 +737,15 @@ def ONE(mode='auto', **kwargs):
 
 
 class OneAlyx(One):
-    def __init__(self, username=None, password=None, base_url=None, mode='auto', **kwargs):
+    def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
+                 mode='auto', **kwargs):
         # Load Alyx Web client
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
                                          base_url=base_url,
-                                         silent=kwargs.pop('silent', False),
-                                         cache_dir=kwargs.get('cache_dir', None))
+                                         **kwargs)
         # get parameters override if inputs provided
-        super(OneAlyx, self).__init__(mode=mode, **kwargs)
+        super(OneAlyx, self).__init__(mode=mode, cache_dir=cache_dir)
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'

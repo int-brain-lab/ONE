@@ -5,11 +5,10 @@ import tempfile
 import numpy as np
 
 from one.api import ONE
+from one.tests import TEST_DB_1
 
 
-one = ONE(username='test_user', password='TapetesBloc18',
-          base_url='https://test.alyx.internationalbrainlab.org',
-          silent=True)
+one = ONE(**TEST_DB_1)
 
 EID = 'cf264653-2deb-44cb-aa84-89b82507028a'
 EID_EPHYS = 'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
@@ -42,23 +41,16 @@ class Tests_REST(unittest.TestCase):
         ses_ = one.alyx.rest('sessions', 'list', id=ses['url'][-36:])[0]
         self.assertEqual(ses, ses_)
 
-    @unittest.skip
     def test_note_with_picture_upload(self):
         my_note = {'user': 'olivier',
                    'content_type': 'session',
                    'object_id': EID,
                    'text': "gnagnagna"}
 
-        # NB: On Windows the name can be used to open the file a second time, while the named
-        # temporary file is still open
-        with tempfile.TemporaryDirectory() as tdir:
-            png = Path(tdir) / f'img{np.random.randint(5000)}.png'
-            # TODO Use fixture instead of matplotlib dependency
-            import matplotlib.image
-            matplotlib.image.imsave(png, np.random.random((500, 500)))
-            with open(png, 'rb') as img_file:
-                files = {'image': img_file}
-                ar_note = one.alyx.rest('notes', 'create', data=my_note, files=files)
+        png = Path(__file__).parent.joinpath('fixtures', 'test_img.png')
+        with open(png, 'rb') as img_file:
+            files = {'image': img_file}
+            ar_note = one.alyx.rest('notes', 'create', data=my_note, files=files)
 
         self.assertTrue(len(ar_note['image']))
         self.assertTrue(ar_note['content_type'] == 'actions.session')
@@ -67,7 +59,8 @@ class Tests_REST(unittest.TestCase):
     def test_channels(self):
         # need to build insertion + trajectory + channels to test the serialization of a
         # record array in the channel endpoint
-        probe_insertions = one.alyx.rest('insertions', 'list', session=EID_EPHYS, name='tutu')
+        probe_insertions = one.alyx.rest('insertions', 'list',
+                                         session=EID_EPHYS, name='tutu', no_cache=True)
         for pi in probe_insertions:
             one.alyx.rest('insertions', 'delete', pi['id'])
         probe_insertion = one.alyx.rest(

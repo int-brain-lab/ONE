@@ -51,7 +51,7 @@ import one.params
 from iblutil.io import hashfile
 import one.alf.io as alfio
 
-SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')
+SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')  # FIXME Move to ibllib, or get from Alyx
 _logger = logging.getLogger(__name__)
 
 
@@ -208,7 +208,7 @@ def _path_from_dataset(dset, root_path=None, repository=None, uuid=False):
     return _path_from_filerecord(fr, root_path=root_path, uuid=uuid)
 
 
-def _path_from_filerecord(fr, root_path=SDSC_ROOT_PATH, uuid=None):
+def _path_from_filerecord(fr, root_path=SDSC_ROOT_PATH, uuid=None):  # FIXME change default to '/'
     """
     Returns a data file Path constructed from an Alyx file record.  The Path type returned
     depends on the type of root_path: If root_path is a string a Path object is returned,
@@ -413,11 +413,8 @@ class AlyxClient(metaclass=UniqueSingletons):
         For standalone cases, AlyxClient(username='', password='', base_url='')
 
         :param username: Alyx database user
-        :type username: str
         :param password: Alyx database password
-        :type password: str
         :param base_url: Alyx server address, including port and protocol
-        :type base_url: str
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
