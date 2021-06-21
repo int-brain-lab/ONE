@@ -28,11 +28,11 @@ from .folders import session_path
 # -------------------------------------------------------------------------------------------------
 
 SESSIONS_COLUMNS = (
-    'id',
+    'id',               # int64
     'lab',
     'subject',
-    'date',
-    'number',
+    'date',             # datetime.date
+    'number',           # int
     'task_protocol',
     'project',
 )
@@ -44,7 +44,7 @@ DATASETS_COLUMNS = (
     'rel_path',         # relative to the session path, includes the filename
     'file_size',
     'hash',             # sha1/md5, computed in load function
-    'exists',
+    'exists',           # bool
 )
 
 
@@ -97,6 +97,7 @@ def _parse_rel_ses_path(rel_ses_path):
     out = {n: m.group(n) for n in ('lab', 'subject', 'date', 'number')}
     out['id'] = SESSION_PATTERN.format(**out)
     out['number'] = int(out['number'])
+    out['date'] = pd.to_datetime(out['date']).date()
     out['task_protocol'] = ''
     out['project'] = ''
     return out

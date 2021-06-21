@@ -5,12 +5,7 @@
 **NB: This package is currently in beta**
 
 ## Installing
-For development:
-```
-pip install git+https://github.com/int-brain-lab/ONE.git@main
-```
-
-For production (not yet ready):
+For Python 3.8 or later, run
 ```
 pip install ONE
 ```

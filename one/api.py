@@ -502,9 +502,9 @@ class One(ConversionMixin):
         unique_objects = set(x[3] or '' for x in parts)
         unique_collections = set(x[0] or '' for x in parts)
         if len(unique_objects) > 1:
-            raise alferr.ALFMultipleObjectsFound(', '.join(unique_objects))
+            raise alferr.ALFMultipleObjectsFound('"' + '", "'.join(unique_objects) + '"')
         if len(unique_collections) > 1:
-            raise alferr.ALFMultipleCollectionsFound(', '.join(unique_collections))
+            raise alferr.ALFMultipleCollectionsFound('"' + '", "'.join(unique_collections) + '"')
 
         # parquet.np2str(np.array(datasets.index.values.tolist()))
         # For those that don't exist, download them
@@ -1220,10 +1220,6 @@ class OneAlyx(One):
             return eid_list
         # else ensure the path ends with mouse,date, number
         path_obj = Path(path_obj)
-        session_path = alfio.get_session_path(path_obj)
-        # if path does not have a date and a number return None
-        if session_path is None:
-            return None
 
         # try the cached info to possibly avoid hitting database
         mode = query_type or self.mode
@@ -1231,6 +1227,11 @@ class OneAlyx(One):
             cache_eid = super().path2eid(path_obj)
             if cache_eid or mode == 'local':
                 return cache_eid
+
+        session_path = alfio.get_session_path(path_obj)
+        # if path does not have a date and a number return None
+        if session_path is None:
+            return None
 
         # if not search for subj, date, number XXX: hits the DB
         search = unwrap(self.search)

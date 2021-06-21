@@ -53,13 +53,14 @@ def parse_id(method):
     Ensures the input experiment identifier is an experiment UUID string
     :param method: An ONE method whose second arg is an experiment id
     :return: A wrapper function that parses the id to the expected string
-    TODO Move to converters.py
     """
 
     @wraps(method)
     def wrapper(self, id, *args, **kwargs):
-        id = self.to_eid(id)
-        return method(self, id, *args, **kwargs)
+        eid = self.to_eid(id)
+        if eid is None:
+            raise ValueError(f'Cannot parse session ID {id}')
+        return method(self, eid, *args, **kwargs)
 
     return wrapper
 

@@ -11,6 +11,7 @@
 
 - test image upload without matplotlib
 - clearer One.search docstring
+- make_parquet_db date column now datetime.date dtype
 
 ## [0.1.4]
 

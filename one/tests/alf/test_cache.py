@@ -2,6 +2,7 @@ import unittest
 import tempfile
 from pathlib import Path
 import shutil
+import datetime
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -15,7 +16,7 @@ class TestsONEParquet(unittest.TestCase):
     ses_info = {
         'lab': 'mylab',
         'subject': 'mysub',
-        'date': '2021-02-28',
+        'date': datetime.date.fromisoformat('2021-02-28'),
         'number': int('001'),
         'project': '',
         'task_protocol': '',
