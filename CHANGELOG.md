@@ -6,7 +6,6 @@
 
 - configurable test databases
 - configurable REST cache mode and default expiry
-- default PEP max line length
 
 ### Modified
 

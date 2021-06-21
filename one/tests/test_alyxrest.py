@@ -1,6 +1,5 @@
 from pathlib import Path
 import unittest
-import tempfile
 
 import numpy as np
 
