@@ -191,7 +191,9 @@ class One(ConversionMixin):
         the sessions returned will contain all listed datasets.  For the other parameters,
         the session must contain at least one of the entries
 
-        :param dataset: list of dataset names. Returns sessions containing all these datasets
+        :param dataset: list of dataset names. Returns sessions containing all these datasets.
+        A dataset matches if it contains the search string e.g. 'wheel.position' matches
+        '_ibl_wheel.position.npy'
         :param date_range: list of 2 strings or list of 2 dates that define the range (inclusive)
         :param lab: a str or list of lab names, returns sessions from any of these labs
         :param number: number of session to be returned, i.e. number in sequence for a given date
@@ -991,18 +993,22 @@ class OneAlyx(One):
 
         >>> one.search_terms
 
-        :param dataset_types: list of dataset_types
-        :param date_range: list of 2 strings or list of 2 dates that define the range
-        :param lab: a str or list of lab names
+        :param dataset: list of dataset names. Returns sessions containing all these datasets.
+        A dataset matches if it contains the search string e.g. 'wheel.position' matches
+        '_ibl_wheel.position.npy'
+        :param date_range: list of 2 strings or list of 2 dates that define the range (inclusive)
+        :param lab: a str or list of lab names, returns sessions from any of these labs
+        :param number: number of session to be returned, i.e. number in sequence for a given date
+        :param subjects: a list of subjects nickname, returns sessions for any of these subjects
+        :param task_protocol: task protocol name (can be partial, i.e. any task protocol
+                              containing that str will be found)
+        :param project: project name (can be partial, i.e. any task protocol containing
+                        that str will be found)
         :param location: a str or list of lab location (as per Alyx definition) name
                          Note: this corresponds to the specific rig, not the lab geographical
                          location per se
-        :param number: number of session to be returned; will take the first n sessions found
         :param performance_lte / performance_gte: search only for sessions whose performance is
         less equal or greater equal than a pre-defined threshold as a percentage (0-100)
-        :param subjects: a list of subjects nickname
-        :param task_protocol: a str or list of task protocol name (can be partial, i.e.
-                              any task protocol containing that str will be found)
         :param users: a list of Alyx usernames
 
         :param details: default False, returns also the session details as per the REST response

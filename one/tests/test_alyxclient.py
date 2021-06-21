@@ -27,7 +27,7 @@ class TestSingletonPattern(unittest.TestCase):
         self.ac = ac
         self.sameac = wc.AlyxClient(**TEST_DB_1)
         self.sameac2 = wc.AlyxClient(**TEST_DB_1)
-        self.diffac = wc.AlyxClient(**TEST_DB_1, cache_rest=False)
+        self.diffac = wc.AlyxClient(**TEST_DB_2)
 
     def test_multiple_singletons(self):
         self.assertTrue(id(self.ac) == id(self.sameac))
@@ -113,25 +113,27 @@ class TestRestCache(unittest.TestCase):
         _FakeDateTime._now = None
         path_parts = ('.rest', one.params._key_from_url(TEST_DB_1['base_url']), 'https')
         self.cache_dir = Path(one.params.get_params_dir()).joinpath(*path_parts)
+        self.default_expiry = ac.default_expiry
+        self.cache_mode = ac.cache_mode
 
     def test_loads_cached(self):
         # Check returns cache
-        wrapped = wc.cache_response(lambda *args: self.assertTrue(False))
+        wrapped = wc._cache_response(lambda *args: self.assertTrue(False))
         client = ac  # Bunch({'base_url': 'https://test.alyx.internationalbrainlab.org'})
         res = wrapped(client, requests.get, self.query)
         self.assertEqual(res['id'], self.query.split('/')[-1])
 
     def test_expired_cache(self):
         # Checks expired
-        wrapped = wc.cache_response(lambda *args: 'called')
+        wrapped = wc._cache_response(lambda *args: 'called')
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')
         res = wrapped(ac, requests.get, self.query)
         self.assertTrue(res == 'called')
 
     def test_caches_response(self):
         # Default expiry time
-        dt = timedelta(minutes=1)
-        wrapped = wc.cache_response(lambda *args: 'called', default_expiry=dt)
+        ac.default_expiry = timedelta(minutes=1)
+        wrapped = wc._cache_response(lambda *args: 'called')
         _FakeDateTime._now = datetime(2021, 5, 13)  # Freeze time
         res = wrapped(ac, requests.get, '/endpoint?id=5')
         self.assertTrue(res == 'called')
@@ -145,25 +147,32 @@ class TestRestCache(unittest.TestCase):
         self.assertEqual('called', q)
         self.assertEqual(when, '2021-05-13T00:01:00')
 
+    def test_cache_mode(self):
+        # With cache mode off, wrapped method should be called even in presence of valid cache
+        ac.cache_mode = None  # cache nothing
+        wrapped = wc._cache_response(lambda *args: 'called')
+        res = wrapped(ac, requests.get, self.query)
+        self.assertTrue(res == 'called')
+
     def test_expiry_param(self):
         # Check expiry param
-        wrapped = wc.cache_response(lambda *args: '123')
+        wrapped = wc._cache_response(lambda *args: '123')
         res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
         self.assertTrue(res == '123')
 
         # A second call should yield a new response as cache immediately expired
-        wrapped = wc.cache_response(lambda *args: '456')
+        wrapped = wc._cache_response(lambda *args: '456')
         res = wrapped(ac, requests.get, '/endpoint?id=5', expires=False)
         self.assertTrue(res == '456')
 
         # With clobber=True the cache should be overwritten
-        wrapped = wc.cache_response(lambda *args: '789')
+        wrapped = wc._cache_response(lambda *args: '789')
         res = wrapped(ac, requests.get, '/endpoint?id=5', clobber=True)
         self.assertTrue(res == '789')
 
     def test_cache_returned_on_error(self):
         func = mock.Mock(side_effect=requests.ConnectionError())
-        wrapped = wc.cache_response(func)
+        wrapped = wc._cache_response(func)
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')  # Expired
         with self.assertWarns(RuntimeWarning):
             res = wrapped(ac, requests.get, self.query)
@@ -177,6 +186,10 @@ class TestRestCache(unittest.TestCase):
         assert any(self.cache_dir.glob('*'))
         ac.clear_rest_cache()
         self.assertFalse(any(self.cache_dir.glob('*')))
+
+    def tearDown(self) -> None:
+        ac.cache_mode = self.cache_mode
+        ac.default_expiry = self.default_expiry
 
 
 class _FakeDateTime(datetime):

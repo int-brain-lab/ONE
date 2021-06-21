@@ -25,6 +25,7 @@ Examples:
     local_path = self.alyx.download_file(url)
 
 TODO Move converters to another module
+TODO Add logout method to delete the active token
 """
 import json
 import logging
@@ -55,36 +56,37 @@ SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')  # FIXME Move to ibllib, or get from 
 _logger = logging.getLogger(__name__)
 
 
-def cache_response(func, mode='get', default_expiry=timedelta(days=1)):
+def _cache_response(method):
     """
     Decorator for the generic request method; caches the result of the query and on subsequent
     calls, returns cache instead of hitting the database
-    :param func: function to wrap (i.e. AlyxClient._generic_request)
-    :param mode: which type http method to apply cache to; if None, all requests are cached
-    :param default_expiry: The default length of time that cache file is valid for,
-    The default expiry is overridden by the `expires` kwarg.  If False, the caching is turned off.
+    :param method: function to wrap (i.e. AlyxClient._generic_request)
     :return: handle to wrapped method
     """
-    @functools.wraps(func)
-    def wrapper_decorator(*args, expires=None, clobber=False, **kwargs):
+
+    @functools.wraps(method)
+    def wrapper_decorator(alyx_client, *args, expires=None, clobber=False, **kwargs):
         """
         REST caching wrapper
+        :param alyx_client: an instance of the AlyxClient class
         :param args: positional arguments for applying to wrapped function
         :param expires: an optional timedelta for how long cached response is valid.  If True,
         the cached response will not be used on subsequent calls.  If None, the default expiry
         is applied.
         :param clobber: If True any existing cached response is overwritten
         :param kwargs: keyword arguments for applying to wrapped function
-        :return: the REST response JSON either from cached file or directly from remote endpoint
+        :return: the REST response JSON either from cached file or directly from remote
+        endpoint
         """
-        expires = expires or default_expiry
-        if mode and args[1].__name__ != mode:
-            return func(*args, **kwargs)
+        expires = expires or alyx_client.default_expiry
+        mode = (alyx_client.cache_mode or '').lower()
+        if args[0].__name__ != mode and mode != '*':
+            return method(alyx_client, *args, **kwargs)
         # Check cache
-        proc, loc = args[0].base_url.replace(':/', '').split('/')
+        proc, loc = alyx_client.base_url.replace(':/', '').split('/')
         rest_cache = Path(one.params.get_params_dir(), '.rest', loc, proc)
         sha1 = hashlib.sha1()
-        sha1.update(bytes(args[2], 'utf-8'))
+        sha1.update(bytes(args[1], 'utf-8'))
         name = sha1.hexdigest()
         # Reversible but length may exceed 255 chars
         # name = base64.urlsafe_b64encode(args[2].encode('UTF-8')).decode('UTF-8')
@@ -97,7 +99,7 @@ def cache_response(func, mode='get', default_expiry=timedelta(days=1)):
             if datetime.fromisoformat(when) > datetime.now():
                 return cached
         try:
-            response = func(*args, **kwargs)
+            response = method(alyx_client, *args, **kwargs)
         except requests.exceptions.ConnectionError as ex:
             if cached and not clobber:
                 warnings.warn('Failed to connect, returning cached response', RuntimeWarning)
@@ -400,13 +402,15 @@ class UniqueSingletons(type):
 class AlyxClient(metaclass=UniqueSingletons):
     """
     Class that implements simple GET/POST wrappers for the Alyx REST API
-    http://alyx.readthedocs.io/en/latest/api.html
+    http://alyx.readthedocs.io/en/latest/api.html  # FIXME old link
     """
     _token = None
     _headers = None  # Headers for REST requests only
     user = None
+    base_url = None
 
-    def __init__(self, base_url=None, username=None, password=None, cache_dir=None, silent=False):
+    def __init__(self, base_url=None, username=None, password=None,
+                 cache_dir=None, silent=False, cache_rest='GET'):
         """
         Create a client instance that allows to GET and POST to the Alyx server
         For oneibl, constructor attempts to authenticate with credentials in params.py
@@ -415,18 +419,26 @@ class AlyxClient(metaclass=UniqueSingletons):
         :param username: Alyx database user
         :param password: Alyx database password
         :param base_url: Alyx server address, including port and protocol
+        :param cache_rest: which type of http method to apply cache to; if '*', all requests are
+        cached.
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
         # TODO Pass these to `get` and have it deal with setup defaults
         self._par = self._par.set('ALYX_LOGIN', username or self._par.ALYX_LOGIN)
         self._par = self._par.set('ALYX_PWD', password or self._par.ALYX_PWD)
-        self._par = self._par.set('ALYX_URL', base_url or self._par.ALYX_URL)
+        self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
         self.authenticate()
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
         self._headers['Accept'] = 'application/json'
+        # REST cache parameters
+        # The default length of time that cache file is valid for,
+        # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
+        # turned off.
+        self.default_expiry = timedelta(days=1)
+        self.cache_mode = cache_rest
         self._obj_id = id(self)
 
     @property
@@ -440,10 +452,6 @@ class AlyxClient(metaclass=UniqueSingletons):
     def cache_dir(self):
         return self._par.CACHE_DIR
 
-    @property
-    def base_url(self):
-        return self._par.ALYX_URL
-
     def is_logged_in(self):
         return self._token and self.user
 
@@ -455,13 +463,13 @@ class AlyxClient(metaclass=UniqueSingletons):
         EXCLUDE = ('_type', '_meta', '', 'auth-token')
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
 
-    @cache_response
+    @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
         # makes sure the base url is the one from the instance
-        rest_query = rest_query.replace(self._par.ALYX_URL, '')
+        rest_query = rest_query.replace(self.base_url, '')
         if not rest_query.startswith('/'):
             rest_query = '/' + rest_query
-        _logger.debug(f"{self._par.ALYX_URL + rest_query}, headers: {self._headers}")
+        _logger.debug(f"{self.base_url + rest_query}, headers: {self._headers}")
         headers = self._headers.copy()
         if files is None:
             data = json.dumps(data) if isinstance(data, dict) or isinstance(data, list) else data
@@ -469,14 +477,14 @@ class AlyxClient(metaclass=UniqueSingletons):
         if rest_query.startswith('/docs'):
             # the mixed accept application may cause errors sometimes, only necessary for the docs
             headers['Accept'] = 'application/coreapi+json'
-        r = reqfunction(self._par.ALYX_URL + rest_query, stream=True, headers=headers,
+        r = reqfunction(self.base_url + rest_query, stream=True, headers=headers,
                         data=data, files=files)
         if r and r.status_code in (200, 201):
             return json.loads(r.text)
         elif r and r.status_code == 204:
             return
         else:
-            _logger.error(self._par.ALYX_URL + rest_query)
+            _logger.error(self.base_url + rest_query)
             _logger.error(r.text)
             raise (requests.HTTPError(r))
 
@@ -494,10 +502,10 @@ class AlyxClient(metaclass=UniqueSingletons):
             return
         try:
             credentials = {'username': self._par.ALYX_LOGIN, 'password': self._par.ALYX_PWD}
-            rep = requests.post(self._par.ALYX_URL + '/auth-token', data=credentials)
+            rep = requests.post(self.base_url + '/auth-token', data=credentials)
         except requests.exceptions.ConnectionError:
             raise ConnectionError(
-                f"Can't connect to {self._par.ALYX_URL}.\n" +
+                f"Can't connect to {self.base_url}.\n" +
                 "IP addresses are filtered on IBL database servers. \n" +
                 "Are you connecting from an IBL participating institution ?"
             )
@@ -514,7 +522,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             one.params.save(par, self.base_url)
         self.user = self._par.ALYX_LOGIN
         if not self.silent:
-            print(f"Connected to {self._par.ALYX_URL} as {self._par.ALYX_LOGIN}")
+            print(f"Connected to {self.base_url} as {self.user}")
 
     def delete(self, rest_query):
         """

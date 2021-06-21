@@ -5,10 +5,13 @@
 ### Added
 
 - configurable test databases
+- configurable REST cache mode and default expiry
+- default PEP max line length
 
 ### Modified
 
 - test image upload without matplotlib
+- clearer One.search docstring
 
 ## [0.1.4]
 
