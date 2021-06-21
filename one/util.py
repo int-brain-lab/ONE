@@ -205,20 +205,6 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
             else:
                 return match
 
-    # # If no revision is specified for this dataset, use the default one
-    # if revision is None and 'default_revision' in match.columns:
-    #     if assert_unique and sum(match.default_revision) > 1:
-    #         revisions = np.array(revisions)[match.default_revision.values]
-    #         rev_list = '"' + '", "'.join(revisions) + '"'
-    #         raise alferr.ALFMultipleRevisionsFound(rev_list)
-    #     return match[match.default_revision]
-    # else:  # Compare revisions lexicographically
-    #     if assert_unique and len(set(revisions)) > 1:
-    #         rev_list = '"' + '", "'.join(set(revisions)) + '"'
-    #         raise alferr.ALFMultipleRevisionsFound(rev_list)
-    #     # Square brackets forces 1 row DataFrame returned instead of Series
-    #     idx = _index_last_before(revisions, revision)
-    #     return match.iloc[slice(0, 0) if idx is None else [idx], :]
     return filter_revision_last_before(match, revision, assert_unique=assert_unique)
 
 

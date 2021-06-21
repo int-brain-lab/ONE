@@ -546,7 +546,10 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        self.assertCountEqual(datasets.columns, self.one._cache['datasets'].columns)
+        # TODO May want to add default revision to datasets_session_related serializer
+        expected = [x for x in self.one._cache['datasets'].columns
+                    if x != 'default_revision']
+        self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
 
     def test_pid2eid(self):
