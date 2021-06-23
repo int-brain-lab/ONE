@@ -7,7 +7,7 @@
 ## Installing
 For Python 3.8 or later, run
 ```
-pip install ONE
+pip install ONE-api
 ```
 
 ## Set up

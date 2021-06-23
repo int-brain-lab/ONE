@@ -1290,7 +1290,9 @@ class OneAlyx(One):
 
     def describe_revision(self, revision):
         raise NotImplementedError('Requires changes to revisions endpoint')
-        if rec := self.alyx.rest('revisions', 'list', name=revision):
+        rec = self.alyx.rest('revisions', 'list', name=revision)
+        if rec:
+        # if rec := self.alyx.rest('revisions', 'list', name=revision):  # py 3.8
             print(rec[0]['description'])
         else:
             print(f'Revision "{revision}" not found')
