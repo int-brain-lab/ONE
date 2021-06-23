@@ -70,7 +70,7 @@ class ConversionMixin:
         if isinstance(id, UUID):
             return str(id)
         elif self.is_exp_ref(id):
-            return self.ref2eid(id, one=self)
+            return self.ref2eid(id)
         elif isinstance(id, dict):
             assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
             root = Path(cache_dir or self._cache_dir)
@@ -79,7 +79,7 @@ class ConversionMixin:
                 'Subjects', id['subject'],
                 id['start_time'][:10],
                 ('%03d' % id['number']))
-        if isinstance(id, Path) or alfio.is_session_path(id):
+        if isinstance(id, Path) or alfio.is_session_path(id) or alfio.get_session_path(id):
             return self.path2eid(id)
         elif isinstance(id, str):
             if len(id) > 36:
@@ -172,10 +172,14 @@ class ConversionMixin:
             filepath = alfio.remove_uuid_file(PurePosixPath(filepath), dry=True)
             session_path = alfio.get_session_path(filepath).as_posix()
         else:
-            # FIXME root is brittle
-            session_path = '/'.join(alfio.get_session_path(filepath).parts[-5:])
-        if (rec := self._cache['datasets']).empty:
+            # No way of knowing root session path parts without cache tables
+            eid = self.path2eid(filepath)
+            session_path, *_ = self.list_datasets(eid, details=True).session_path
+        rec = self._cache['datasets']
+        if rec.empty:
             return
+        # if (rec := self._cache['datasets']).empty:  # py 3.8
+        #     return
         rec = rec[rec['session_path'] == session_path]
         rec = rec[rec['rel_path'].apply(lambda x: filepath.as_posix().endswith(x))]
         assert len(rec) < 2, 'Multiple records found'
@@ -281,7 +285,7 @@ class ConversionMixin:
         """
         ref = self.ref2dict(ref, parse=False)  # Ensure dict
         session = self.search(
-            subjects=ref['subject'],
+            subject=ref['subject'],
             date_range=str(ref['date']),
             number=ref['sequence'])
         assert len(session) == 1, 'session not found'
@@ -307,8 +311,8 @@ class ConversionMixin:
          WindowsPath('E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001')]
         """
         eid2path = unwrap(self.eid2path)
-        ref2eid = unwrap(self.eid2path)
-        return eid2path(ref2eid(ref))
+        ref2eid = unwrap(self.ref2eid)
+        return eid2path(self, ref2eid(self, ref))
 
     @staticmethod
     @parse_values
@@ -436,6 +440,9 @@ class ConversionMixin:
 
     @staticmethod
     def dict2ref(ref_dict):
+        if isinstance(ref_dict, (list, tuple)):
+            return [ConversionMixin.dict2ref(x) for x in ref_dict]
+
         if not ref_dict:
             return
         parsed = any(not isinstance(k, str) for k in ref_dict.values())
