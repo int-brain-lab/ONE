@@ -15,8 +15,8 @@ print(alf_spec.path_pattern())
 alf_spec.describe('collection')
 
 """
-When using `One.load_object` an object is passed to the method for loading.  Other specifiers 
-such as attributes, collection and revision may be passed.  For example given the following file 
+When using `One.load_object` an object is passed to the method for loading.  Other specifiers
+such as attributes, collection and revision may be passed.  For example given the following file
 structure:
 
     subject/
@@ -33,7 +33,7 @@ structure:
     │  │  │  │  ├─ spikes.clusters.npy
     │  │  │  │  ├─ spikes.times.npy
     │  │  ├─ probes.description.json
-    
+
     subject/2021-06-01/001/probes.description.json
     subject/2021-06-01/001/alf/probe00/spikes.times.npy
     subject/2021-06-01/001/alf/probe00/spikes.clusters.npy
