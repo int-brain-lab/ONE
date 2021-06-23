@@ -463,6 +463,10 @@ class TestONECache(unittest.TestCase):
         self.assertIsInstance(dsets['2020-01-08'], pd.DataFrame)
         self.assertTrue(dsets['2020-01-08'].rel_path.str.contains('#2020-01-08#').all())
 
+        # Test dataset filter
+        dsets = self.one.list_revisions(eid, dataset='spikes.times.npy', details=True)
+        self.assertTrue(dsets['2020-01-08'].rel_path.str.endswith('spikes.times.npy').all())
+
         # Test collections filter
         dsets = self.one.list_revisions(eid, collection='alf/probe01', details=True)
         self.assertTrue(dsets['2020-01-08'].rel_path.str.startswith('alf/probe01').all())
@@ -559,6 +563,19 @@ class TestONECache(unittest.TestCase):
             all(x.size == N for x in wheel.values())
         )
 
+        # Test errors
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_object(eid, 'spikes')
+        # Test behaviour with missing session
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_object(eid.replace('a', 'b'), 'wheel')
+
+        eid = 'ZFM-01935/2021-02-05/001'
+        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
+            self.one.load_object(eid, 'ephysData_g0_t0')
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.load_object(eid, '.*Camera')
+
     def test_record_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
                                                 '001', 'alf', '_ibl_wheel.position.npy')
@@ -571,15 +588,19 @@ class TestONECache(unittest.TestCase):
         self.assertIsNone(self.one.path2record(file))
 
 
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneAlyx(unittest.TestCase):
+    """
+    This could be an offline test.  Would need to add /docs REST cache fixture.
+    """
     tempdir = None
     one = None
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.tempdir = util.set_up_env()
-
         with mock.patch('one.params.iopar.getfile', new=partial(get_file, cls.tempdir.name)):
+            # util.setup_test_params(token=True)
             cls.one = OneAlyx(
                 **TEST_DB_1,
                 cache_dir=cls.tempdir.name,
@@ -620,6 +641,26 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(mock_stdout.getvalue(), record['description'])
         self.one.describe_revision('foobar')
         self.assertTrue('not found' in mock_stdout.getvalue())
+
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_describe_dataset(self, mock_stdout):
+        """NB This could be offline: REST responses in fixtures"""
+        # Test all datasets
+        dset_types = self.one.describe_dataset()
+        self.assertEqual(7, len(dset_types))
+        self.assertEqual('unknown', dset_types[0]['name'])
+
+        # Test dataset type
+        out = self.one.describe_dataset('wheel.velocity')
+        expected = 'Signed velocity of wheel'
+        self.assertTrue(expected in mock_stdout.getvalue())
+        self.assertEqual(expected, out['description'])
+
+        # Test dataset name
+        expected = 'amplitude of the wheel move'
+        out = self.one.describe_dataset('_ibl_wheelMoves.peakAmplitude.npy')
+        self.assertTrue(expected in mock_stdout.getvalue())
+        self.assertEqual(expected, out['description'])
 
     def test_url_from_path(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',

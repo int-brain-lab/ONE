@@ -803,6 +803,7 @@ class OneAlyx(One):
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
                                          base_url=base_url,
+                                         cache_dir=cache_dir,
                                          **kwargs)
         # get parameters override if inputs provided
         super(OneAlyx, self).__init__(mode=mode, cache_dir=cache_dir)
@@ -861,16 +862,17 @@ class OneAlyx(One):
         # TODO Move to AlyxClient?; add to rest examples; rename to describe?
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
-        # if not isinstance(dataset_type, str):
-        #     print('No dataset_type provided or wrong type. Should be str')
-        #     return
         try:
             assert isinstance(dataset_type, str) and not alfio.is_uuid_string(dataset_type)
+            _logger.disabled = True
             out = self.alyx.rest('dataset-types', 'read', dataset_type)
         except (AssertionError, requests.exceptions.HTTPError):
             # Try to get dataset type from dataset name
             out = self.alyx.rest('dataset-types', 'read', self.dataset2type(dataset_type))
+        finally:
+            _logger.disabled = False
         print(out['description'])
+        return out
 
     @refresh
     @parse_id

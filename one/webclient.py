@@ -484,8 +484,9 @@ class AlyxClient(metaclass=UniqueSingletons):
         elif r and r.status_code == 204:
             return
         else:
-            _logger.error(self.base_url + rest_query)
-            _logger.error(r.text)
+            if not self.silent:
+                _logger.error(self.base_url + rest_query)
+                _logger.error(r.text)
             raise (requests.HTTPError(r))
 
     def authenticate(self, cache_token=True, force=False):
