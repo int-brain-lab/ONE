@@ -1,6 +1,18 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.5]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.6]
+
+### Added
+
+- list_collections and list_revisions methods
+- added example scripts on experiment ids and ALF spec
+
+### Modified
+
+- removed walruses (support for python 3.7)
+- fixed bugs in various converter methods
+
+## [0.1.5]
 
 ### Added
 

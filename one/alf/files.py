@@ -183,7 +183,7 @@ def filename_parts(filename, as_dict=False, assert_valid=True):
     if m:  # py3.8
         return OrderedDict(m.groupdict()) if as_dict else m.groups()
     elif assert_valid:
-        raise ValueError('Invalid ALF filename')
+        raise ValueError(f'Invalid ALF filename: "{filename}"')
     else:
         return empty if as_dict else empty.values()
 

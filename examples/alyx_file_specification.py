@@ -69,6 +69,22 @@ datasets = one.list_datasets('subject/2021-06-01/001', collection='')
     probes.description.json
 """
 
+# To list all revisions for a given session
+revisions = one.list_revisions('subject/2021-06-01/001')
+"""
+    None
+    2021-07-05
+"""
+
+# To list all collections for a given session
+collections = one.list_collections('subject/2021-06-01/001')
+"""
+    None
+    alf
+    alf/probe00
+    alf/probe01
+"""
+
 # To load the 'spikes' object from the 'alf/probe00' collection
 spikes = one.load_object('subject/2021-06-01/001', 'spikes', collection='alf/probe00')
 

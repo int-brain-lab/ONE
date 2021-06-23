@@ -139,6 +139,10 @@ class TestONECache(unittest.TestCase):
         # Create dset files from cache
         util.create_file_tree(cls.one)
 
+    def tearDown(self) -> None:
+        # Reload cache table after each test
+        self.one.refresh_cache('refresh')
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
@@ -420,6 +424,52 @@ class TestONECache(unittest.TestCase):
             dsets = self.one.list_datasets(eid, details=False)
             self.assertIsInstance(dsets, np.ndarray)
             self.assertTrue(len(dsets) == np.unique(dsets).size)
+
+    def test_list_collections(self):
+        # Test no eid
+        dsets = self.one.list_collections()
+        expected = [
+            '', 'alf', 'alf/ks2', 'alf/probe00', 'raw_behavior_data', 'raw_ephys_data',
+            'raw_ephys_data/probe00', 'raw_passive_data', 'raw_video_data'
+        ]
+        self.assertCountEqual(expected, dsets)
+
+        # Test details for eid
+        dsets = self.one.list_collections('KS005/2019-04-02/001', details=True)
+        self.assertIsInstance(dsets, dict)
+        self.assertTrue(set(dsets.keys()) <= set(expected))
+        self.assertIsInstance(dsets['alf'], pd.DataFrame)
+        self.assertTrue(dsets['alf'].rel_path.str.startswith('alf').all())
+
+        # Test empty
+        self.assertFalse(len(self.one.list_collections('FMR019/2021-03-18/002', details=True)))
+        self.assertFalse(len(self.one.list_collections('FMR019/2021-03-18/002', details=False)))
+
+    def test_list_revisions(self):
+        """No revisions in cache fixture so generate our own"""
+        revisions_datasets = util.revisions_datasets_table()
+        self.one._cache.datasets = pd.concat([self.one._cache.datasets, revisions_datasets])
+        eid = parquet.np2str(revisions_datasets[['eid_0', 'eid_1']].iloc[0].values)
+
+        # Test no eid
+        dsets = self.one.list_revisions()
+        expected = ['', '2020-01-08', '2021-07-06']
+        self.assertCountEqual(expected, dsets)
+
+        # Test details for eid
+        dsets = self.one.list_revisions(eid, details=True)
+        self.assertIsInstance(dsets, dict)
+        self.assertTrue(set(dsets.keys()) <= set(expected))
+        self.assertIsInstance(dsets['2020-01-08'], pd.DataFrame)
+        self.assertTrue(dsets['2020-01-08'].rel_path.str.contains('#2020-01-08#').all())
+
+        # Test collections filter
+        dsets = self.one.list_revisions(eid, collection='alf/probe01', details=True)
+        self.assertTrue(dsets['2020-01-08'].rel_path.str.startswith('alf/probe01').all())
+
+        # Test empty
+        self.assertFalse(len(self.one.list_revisions('FMR019/2021-03-18/002', details=True)))
+        self.assertFalse(len(self.one.list_revisions('FMR019/2021-03-18/002', details=False)))
 
     def test_load_dataset(self):
         eid = 'KS005/2019-04-02/001'

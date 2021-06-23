@@ -388,7 +388,7 @@ class One(ConversionMixin):
                       eid=None, collection=None, details=False) -> Union[np.ndarray, pd.DataFrame]:
 
         """
-        Given one or more eids, return the datasets for those sessions.  If no eid is provided,
+        Given an eid, return the datasets for those sessions.  If no eid is provided,
         a list of all datasets is returned.  When details is false, a sorted array of unique
         datasets is returned (their relative paths).
 
@@ -419,6 +419,67 @@ class One(ConversionMixin):
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values
 
+    @refresh
+    def list_collections(self, eid=None, details=False) -> Union[np.ndarray, dict]:
+        """
+        List the collections for a given experiment.  If no experiment id is given,
+        all collections are returned.
+
+        Parameters
+        ----------
+        eid : [str, UUID, Path, dict]
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path
+        details : bool
+            If true a dict of pandas datasets tables is returned with collections as keys,
+            otherwise a numpy array of unique collections
+
+        Returns
+        -------
+            A numpy array of unique collections or dict of datasets tables
+        """
+        datasets = self.list_datasets(eid, details=True).copy()
+        datasets['collection'] = datasets.rel_path.apply(
+            lambda x: rel_path_parts(x, assert_valid=False)[0] or ''
+        )
+        if details:
+            return {k: table.drop('collection', axis=1)
+                    for k, table in datasets.groupby('collection')}
+        else:
+            return np.sort(datasets['collection'].unique())
+
+    @refresh
+    def list_revisions(self, eid=None, dataset=None, collection=None, details=False):
+        """
+        List the revisions for a given experiment.  If no experiment id is given,
+        all collections are returned.
+
+        Parameters
+        ----------
+        eid : [str, UUID, Path, dict]
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path
+        details : bool
+            If true a dict of pandas datasets tables is returned with collections as keys,
+            otherwise a numpy array of unique collections
+
+        Returns
+        -------
+            A numpy array of unique collections or dict of datasets tables
+        """
+        datasets = self.list_datasets(eid, collection, details=True).copy()
+        if dataset:
+            match = datasets.rel_path.apply(lambda x: x.split('/')[-1]).str.match(dataset)
+            datasets = datasets[match]
+        datasets['revision'] = datasets.rel_path.apply(
+            lambda x: (rel_path_parts(x, assert_valid=False)[1] or '').strip('#')
+        )
+        if details:
+            return {k: table.drop('revision', axis=1)
+                    for k, table in datasets.groupby('revision')}
+        else:
+            return np.sort(datasets['revision'].unique())
+
     @staticmethod
     def _filter_by_collection(datasets: pd.DataFrame, collection: str) -> pd.DataFrame:
         """
@@ -438,9 +499,6 @@ class One(ConversionMixin):
             table = (table[0] + '/').str.extract(expression)
             match = ~table['collection'].isna()
         return datasets[match]
-
-    def list_revisions(self, eid, dataset, collection=None):
-        raise NotImplementedError()
 
     @refresh
     @parse_id
