@@ -1,4 +1,4 @@
-"""API for interacting with a remote Alyx instance
+"""API for interacting with a remote Alyx instance through REST
 The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
 files through Alyx.
 

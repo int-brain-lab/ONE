@@ -1,7 +1,7 @@
-"""
+"""Funtions for modifying, loading and saving ONE and Alyx database parameters
 Scenarios:
     - Load ONE with a cache dir: tries to load the Web client params from the dir
-    - Load ONE with http address - gets cache dir from the address?
+    - Load ONE with http address - gets cache dir from the URL map
 
 The ONE params comprise two files: a caches file that contains a map of Alyx db URLs to cache
 directories, and a separate parameter file for each url containing the client parameters.  The

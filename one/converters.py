@@ -1,5 +1,4 @@
-"""
-A module for inter-converting experiment identifiers.
+"""A module for inter-converting experiment identifiers.
 
 There are multiple ways to uniquely identify an experiment:
     - eid (str) : An experiment UUID as a string

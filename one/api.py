@@ -1,4 +1,4 @@
-"""
+"""Classes for searching, listing and (down)loading ALyx Files
 TODO Document
 TODO Add sig to ONE Light uuids
 TODO Save changes to cache
@@ -1290,9 +1290,9 @@ class OneAlyx(One):
 
     def describe_revision(self, revision):
         raise NotImplementedError('Requires changes to revisions endpoint')
-        rec = self.alyx.rest('revisions', 'list', name=revision)
-        if rec:
+        rec = self.alyx.rest('revisions', 'list', name=revision)  # py 3.8
         # if rec := self.alyx.rest('revisions', 'list', name=revision):  # py 3.8
+        if rec:
             print(rec[0]['description'])
         else:
             print(f'Revision "{revision}" not found')

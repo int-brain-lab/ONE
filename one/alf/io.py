@@ -1,8 +1,7 @@
-"""
-Generic ALF I/O module.
+"""I/O functions for ALyx Files
 Provides support for time-series reading and interpolation as per the specifications
 For a full overview of the scope of the format, see:
-https://ibllib.readthedocs.io/en/develop/04_reference.html#alf
+https://ibllib.readthedocs.io/en/develop/04_reference.html#alf  # FIXME Old link
 """
 
 import json

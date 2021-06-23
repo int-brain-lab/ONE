@@ -1,3 +1,4 @@
+"""The Open Neurophysiology Environment (ONE) API"""
 import warnings
 warnings.filterwarnings('always', category=DeprecationWarning, module='one')
 try:

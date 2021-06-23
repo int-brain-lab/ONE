@@ -1,4 +1,4 @@
-"""The complete AlF specification
+"""The complete AlF specification descriptors and validators
 TODO Currently extensions are not optional
 """
 import re
