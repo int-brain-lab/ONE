@@ -4,9 +4,6 @@ TODO Add sig to ONE Light uuids
 TODO Save changes to cache
 TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
-TODO store cache matadata in meta map
-TODO Figure out why limit arg doesn't work in Alyx
-TODO Is alf is default collection it's a pain for non-IBL users
 TODO Make autocomplete a private method
 TODO edit alf exceptions constructor with default message template?
 
