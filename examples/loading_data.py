@@ -31,7 +31,7 @@ trials.to_df().head()
 Datasets can be individually downloaded using the load_dataset method.  This
 function takes an experiment ID and a dataset name as positional args.
 """
-reward_volume = one.load_dataset(eid, 'trials.rewardVolume')  # c.f. load_object, above
+reward_volume = one.load_dataset(eid, 'trials.rewardVolume.npy')  # c.f. load_object, above
 
 # To list the datasets available for a given session:
 dsets = one.list_datasets(eid, details=False)
@@ -51,7 +51,7 @@ directories.
 
 In this case you must specify the collection when multiple matching datasets are found:
 """
-probe1_spikes = one.load_dataset(eid, 'spikes.times', collection='alf/probe01')
+probe1_spikes = one.load_dataset(eid, 'spikes.times.npy', collection='alf/probe01')
 
 """
 Download only
@@ -83,3 +83,55 @@ For any given object the first dimension of every attribute should match in leng
 analysis you can assert that the dimensions match using the check_dimensions property:
 """
 assert trials.check_dimensions == 0
+
+"""
+Advanced loading:
+
+The load methods require an exact match, therefore `one.load_dataset(eid, 'spikes.times')` will
+raise an exception because 'spikes.times' does not exactly match 'spikes.times.npy'.
+Likeswise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
+
+Loading can be done using regular expressions, allowing you to load objects and datasets that
+match a particular pattern.
+
+Soon unix-style wildcards will be supported by default, however for now regex syntax must be used.
+
+ Regex   |    Wildcard    |         Description        |    Example
+-----------------------------------------------------------------------
+   .*            *          Match zero or more chars     spikes.times.*
+   .?            ?          Match one char               timestamps.?sv
+   []            []         Match a range of chars       obj.attr.part[0-9].npy
+
+Examples:
+    spikes.times.* (regex), spikes.times* (wildcard) matches...
+        spikes.times.npy
+        spikes.times
+        spikes.times_ephysClock.npy
+        spikes.times.bin
+
+    clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...
+        clusters.uuids.ssv
+        clusters.uuids.csv
+
+    alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
+        alf/probe00
+        alf/probe01
+        [...]
+        alf/probe05
+"""
+
+# More regex examples
+
+# Load specific attributes from an object ('|' represents a logical OR in regex)
+spikes = one.load_object(eid, 'spikes', collection='alf/probe01', attribute='times|clusters')
+assert 'amps' not in spikes
+
+# Load a dataset ignoring any namespace or extension:
+spike_times = one.load_dataset(eid, '.*spikes.times.*', collection='alf/probe01')
+
+# List all datasets in any probe collection (matches 0 or more of any number)
+dsets = one.list_datasets(eid, collection='alf/probe[0-9]*')
+
+# Load object attributes that are not delimited text files (i.e. tsv, ssv, csv, etc.)
+files = one.load_object(eid, 'clusters', extension='[^sv]*', download_only=True)
+assert not any(str(x).endswith('csv') for x in files)

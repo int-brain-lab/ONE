@@ -51,7 +51,7 @@ import numpy as np
 import requests.exceptions
 from iblutil.io import parquet, hashfile
 from iblutil.util import Bunch
-from iblutil.numerical import ismember2d, find_first_2d
+from iblutil.numerical import ismember2d
 
 import one.params
 import one.webclient as wc
@@ -365,15 +365,22 @@ class One(ConversionMixin):
 
     @parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
+        # Int ids return DataFrame, making str eid a list ensures Series not returned
         int_ids = self._index_type() is int
-        if int_ids:
-            eid = parquet.str2np(eid).tolist()
-        det = self._cache['sessions'].loc[eid]
-        if full:
-            # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']
-            # det = det.drop(to_drop, axis=1)
-            det = self._cache['datasets'].join(det, on=det.index.names, how='right')
-        return det
+        idx = parquet.str2np(eid).tolist() if int_ids else [eid]
+        try:
+            det = self._cache['sessions'].loc[idx]
+            assert len(det) == 1
+        except KeyError:
+            raise alferr.ALFObjectNotFound(eid)
+        except AssertionError:
+            raise alferr.ALFMultipleObjectsFound(f'Multiple sessions in cache for eid {eid}')
+        if not full:
+            return det.iloc[0]
+        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']
+        # det = det.drop(to_drop, axis=1)
+        column = ['eid_0', 'eid_1'] if int_ids else 'eid'
+        return self._cache['datasets'].join(det, on=column, how='right')
 
     @refresh
     def list_subjects(self) -> List[str]:
@@ -412,7 +419,7 @@ class One(ConversionMixin):
             isin, _ = ismember2d(datasets[index].to_numpy(), eid_num)
             datasets = datasets[isin]
         else:
-            session_match = datasets['eid'].isin(eid)
+            session_match = datasets['eid'] == eid
             datasets = datasets[session_match]
 
         datasets = self._filter_by_collection(datasets, collection)
@@ -571,7 +578,7 @@ class One(ConversionMixin):
         files = self._update_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
         if not files:
-            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
+            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
 
         if download_only:
             return files
@@ -727,30 +734,21 @@ class One(ConversionMixin):
                              download_only: bool = False,
                              details: bool = False,
                              **kwargs) -> Any:
-        if isinstance(dset_id, str):
+        int_idx = self._index_type('datasets') is int
+        if isinstance(dset_id, str) and int_idx:
             dset_id = parquet.str2np(dset_id)
         elif isinstance(dset_id, UUID):
-            dset_id = parquet.uuid2np([dset_id])
-        # else:
-        #     dset_id = np.asarray(dset_id)
-        if self._index_type('datasets') is int:
-            try:
-                dataset = self._cache['datasets'].loc[dset_id.tolist()]
-                assert len(dataset) == 1
-                dataset = dataset.iloc[0]
-            except KeyError:
-                raise alferr.ALFObjectNotFound('Dataset not found')
-            except AssertionError:
-                raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
-        else:
-            ids = self._cache['datasets'][['id_0', 'id_1']].to_numpy()
-            try:
-                dataset = self._cache['datasets'].iloc[find_first_2d(ids, dset_id)]
-                assert len(dataset) == 1
-            except TypeError:
-                raise alferr.ALFObjectNotFound('Dataset not found')
-            except AssertionError:
-                raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
+            dset_id = parquet.uuid2np([dset_id]) if int_idx else str(dset_id)
+        try:
+            if int_idx:
+                dataset = self._cache['datasets'].loc[dset_id.tolist()].iloc[0]
+            else:
+                dataset = self._cache['datasets'].loc[[dset_id]]
+            assert isinstance(dataset, pd.Series) or len(dataset) == 1
+        except KeyError:
+            raise alferr.ALFObjectNotFound('Dataset not found')
+        except AssertionError:
+            raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
 
         filepath, = self._update_filesystem(dataset)
         if not filepath:

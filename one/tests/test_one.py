@@ -129,6 +129,9 @@ class TestAlyx2Path(unittest.TestCase):
 
 
 class TestONECache(unittest.TestCase):
+    """Test methods that use sessions and datasets tables
+    This class loads the parquet tables from the fixtures and builds a file tree in a temp folder
+    """
     tempdir = None
 
     @classmethod
@@ -230,6 +233,11 @@ class TestONECache(unittest.TestCase):
         sess_num = self.one._cache.sessions.loc[parquet.str2np(eids).tolist(), 'number']
         self.assertTrue(all(sess_num == int(number)))
 
+        # Empty results
+        eids, det = one.search(num=100, subject='KS000', details=True)
+        self.assertTrue(len(eids) == 0)
+        self.assertIsNone(det)
+
         # Test multiple fields, with short params
         eids = one.search(subj='KS005', date='2019-04-10', num='003', lab='cortexlab')
         self.assertTrue(len(eids) == 1)
@@ -246,25 +254,11 @@ class TestONECache(unittest.TestCase):
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
 
         # Test search without integer ids
-        backup = {}
-        try:
-            for table in ('sessions', 'datasets'):
-                # Set integer uuids to NaN
-                backup[table] = self.one._cache[table].copy()
-                cache = self.one._cache[table].reset_index()
-                int_cols = cache.filter(regex=r'_\d{1}$').columns
-                for i in range(0, len(int_cols), 2):
-                    name = int_cols.values[i].rsplit('_', 1)[0]
-                    cache[name] = parquet.np2str(cache[int_cols[i:i + 2]])
-                cache[int_cols] = np.nan
-                self.one._cache[table] = cache.set_index('id')
-            query = 'clusters'
-            eids = one.search(data=query)
-            assert all(isinstance(x, str) for x in eids)
-            assert len(eids) == 3
-        finally:
-            for k, v in backup.items():
-                self.one._cache[k] = v
+        caches_int2str(one._cache)
+        query = 'clusters'
+        eids = one.search(data=query)
+        self.assertTrue(all(isinstance(x, str) for x in eids))
+        self.assertEqual(3, len(eids))
 
     def test_eid_from_path(self):
         verifiable = self.one.path2eid('CSK-im-007/2021-03-21/002')
@@ -412,7 +406,12 @@ class TestONECache(unittest.TestCase):
 
         # Test list for eid
         dsets = self.one.list_datasets('KS005/2019-04-02/001', details=True)
-        self.assertTrue(len(dsets), 27)
+        self.assertEqual(27, len(dsets))
+
+        # Test using str ids as index
+        caches_int2str(self.one._cache)
+        dsets = self.one.list_datasets('KS005/2019-04-02/001')
+        self.assertEqual(27, len(dsets))
 
         # Test empty
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True)
@@ -475,6 +474,40 @@ class TestONECache(unittest.TestCase):
         self.assertFalse(len(self.one.list_revisions('FMR019/2021-03-18/002', details=True)))
         self.assertFalse(len(self.one.list_revisions('FMR019/2021-03-18/002', details=False)))
 
+    def test_get_details(self):
+        eid = 'aaf101c3-2581-450a-8abd-ddb8f557a5ad'
+        det = self.one.get_details(eid)
+        self.assertIsInstance(det, pd.Series)
+        self.assertEqual('KS005', det.subject)
+        self.assertEqual('2019-04-04', str(det.date))
+        self.assertEqual(4, det.number)
+
+        # Test details flag
+        det = self.one.get_details(eid, full=True)
+        self.assertIsInstance(det, pd.DataFrame)
+        self.assertTrue('rel_path' in det.columns)
+
+        # Test with str index ids
+        caches_int2str(self.one._cache)
+        det = self.one.get_details(eid)
+        self.assertIsInstance(det, pd.Series)
+
+        # Test errors
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.get_details(eid.replace('a', 'b'))
+        sessions = self.one._cache.sessions
+        self.one._cache.sessions = pd.concat([sessions, det.to_frame().T]).sort_index()
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.get_details(eid)
+
+    def test_index_type(self):
+        self.assertIs(int, self.one._index_type())
+        caches_int2str(self.one._cache)
+        self.assertIs(str, self.one._index_type())
+        self.one._cache.datasets.reset_index(inplace=True)
+        with self.assertRaises(IndexError):
+            self.one._index_type('datasets')
+
     def test_load_dataset(self):
         eid = 'KS005/2019-04-02/001'
         # Check download only
@@ -486,15 +519,21 @@ class TestONECache(unittest.TestCase):
         dset = self.one.load_dataset(eid, '_ibl_wheel.position.npy')
         self.assertTrue(np.all(dset == np.arange(3)))
 
-        # Check revision filter
-        # TODO Add revisions to test cache
-        # with self.assertRaises(alferr.ALFObjectNotFound):
-        #     self.one.load_dataset(eid, '_ibl_wheel.position.npy', revision='v2.3.4')
-
         # Check collection filter
         file = self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv',
                                      download_only=True, collection='raw_video_data')
         self.assertIsNotNone(file)
+
+        # Test errors
+        # ID not in cache
+        fake_id = self.one.to_eid(eid).replace('b', 'a')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset(fake_id, '_iblrig_leftCamera.timestamps.ssv')
+        # File missing
+        self.addCleanup(file.touch)  # File may be required by other tests
+        file.unlink()
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv')
 
     def test_load_datasets(self):
         eid = 'KS005/2019-04-02/001'
@@ -538,13 +577,36 @@ class TestONECache(unittest.TestCase):
         self.assertIsInstance(details, pd.Series)
 
         # Load file content with str id
-        np.save(str(file), np.arange(3))  # Ensure data to load
-        dset = self.one.load_dataset_from_id('a61d0b8a-5819-4480-adbc-fe49b48906a7')
-        self.assertTrue(np.all(dset == np.arange(3)))
+        eid, = parquet.np2str(id)
+        data = np.arange(3)
+        np.save(str(file), data)  # Ensure data to load
+        dset = self.one.load_dataset_from_id(eid)
+        self.assertTrue(np.array_equal(dset, data))
 
         # Load file content with UUID
-        dset = self.one.load_dataset_from_id(UUID('a61d0b8a-5819-4480-adbc-fe49b48906a7'))
-        self.assertTrue(np.all(dset == np.arange(3)))
+        dset = self.one.load_dataset_from_id(UUID(eid))
+        self.assertTrue(np.array_equal(dset, data))
+
+        # Load without int ids as index
+        caches_int2str(self.one._cache)
+        dset = self.one.load_dataset_from_id(eid)
+        self.assertTrue(np.array_equal(dset, data))
+
+        # Test errors
+        # ID not in cache
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset_from_id(eid.replace('a', 'b'))
+        # File missing
+        self.addCleanup(file.touch)  # File may be required by other tests
+        file.unlink()
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset_from_id(eid)
+        # Duplicate ids in cache
+        details.name = eid
+        datasets = self.one._cache.datasets
+        self.one._cache.datasets = pd.concat([datasets, details.to_frame().T]).sort_index()
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.load_dataset_from_id(eid)
 
     def test_load_object(self):
         eid = 'aaf101c3-2581-450a-8abd-ddb8f557a5ad'
@@ -569,6 +631,11 @@ class TestONECache(unittest.TestCase):
         # Test behaviour with missing session
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_object(eid.replace('a', 'b'), 'wheel')
+        # Test missing files on disk
+        self.addCleanup(lambda: [f.touch() for f in files])  # Restore files on cleanup
+        [f.unlink() for f in files]
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_object(eid, 'wheel')
 
         eid = 'ZFM-01935/2021-02-05/001'
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
@@ -902,3 +969,26 @@ def get_file(root: str, str_id: str) -> str:
     parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
     pfile = Path(root, *parts).as_posix()
     return pfile
+
+
+def caches_int2str(caches):
+    """Convert int ids to str ids for cache tables
+
+    Parameters
+    ----------
+    caches : Bunch
+        A bunch of cache tables (from One._cache)
+
+    Returns
+    -------
+        None
+    """
+    for table in ('sessions', 'datasets'):
+        # Set integer uuids to NaN
+        cache = caches[table].reset_index()
+        int_cols = cache.filter(regex=r'_\d{1}$').columns
+        for i in range(0, len(int_cols), 2):
+            name = int_cols.values[i].rsplit('_', 1)[0]
+            cache[name] = parquet.np2str(cache[int_cols[i:i + 2]])
+        cache[int_cols] = np.nan
+        caches[table] = cache.set_index('id')
