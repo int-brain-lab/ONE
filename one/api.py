@@ -365,6 +365,7 @@ class One(ConversionMixin):
         else:
             raise IndexError
 
+    @refresh
     @parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
         # Int ids return DataFrame, making str eid a list ensures Series not returned
@@ -1366,10 +1367,14 @@ class OneAlyx(One):
             if dset_name in rel_path:
                 return idx
 
-    def get_details(self, eid: str, full: bool = False):
+    @refresh
+    @parse_id
+    def get_details(self, eid: str, full: bool = False, query_type=None):
         """ Returns details of eid like from one.search, optional return full
         session details.
         """
+        if (query_type or self.mode) == 'local':
+            return super().get_details(eid, full=full)
         # If eid is a list of eIDs recurse through list and return the results
         if isinstance(eid, list):
             details_list = []

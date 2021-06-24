@@ -39,11 +39,8 @@ def recurse(func):
 
 def parse_values(func):
     """Convert str values in reference dict to appropriate type"""
-    @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
-        parse = kwargs.pop('parse', True)
-        ref = func(*args, **kwargs)
-        if parse and ref:
+    def parse_ref(ref):
+        if ref:
             if isinstance(ref['date'], str):
                 if len(ref['date']) == 10:
                     ref['date'] = datetime.date.fromisoformat(ref['date'])
@@ -51,6 +48,17 @@ def parse_values(func):
                     ref['date'] = datetime.datetime.fromisoformat(ref['date']).date()
             ref['sequence'] = int(ref['sequence'])
         return ref
+
+    @functools.wraps(func)
+    def wrapper_decorator(*args, **kwargs):
+        parse = kwargs.pop('parse', True)
+        ref = func(*args, **kwargs)
+        if not parse or isinstance(ref, str):
+            return ref
+        elif isinstance(ref, list):
+            return list(map(parse_ref, ref))
+        else:
+            return parse_ref(ref)
     return wrapper_decorator
 
 
@@ -79,9 +87,11 @@ class ConversionMixin:
                 'Subjects', id['subject'],
                 id['start_time'][:10],
                 ('%03d' % id['number']))
-        if isinstance(id, Path) or alfio.is_session_path(id) or alfio.get_session_path(id):
+        if isinstance(id, Path):
             return self.path2eid(id)
         elif isinstance(id, str):
+            if alfio.is_session_path(id) or alfio.get_session_path(id):
+                return self.path2eid(id)
             if len(id) > 36:
                 id = id[-36:]
             if not alfio.is_uuid_string(id):
@@ -112,11 +122,6 @@ class ConversionMixin:
 
         # load path from cache
         if self._index_type() is int:
-            # ids = np.array(self._cache['sessions'].index.tolist())
-            # ids = self._cache['sessions'].reset_index()[['eid_0', 'eid_1']].to_numpy()
-            # ic = find_first_2d(ids, parquet.str2np(eid))
-            # if ic is not None:
-            #     ses = self._cache['sessions'].iloc[ic]
             eid = parquet.str2np(eid).tolist()
         try:
             ses = self._cache['sessions'].loc[eid]
@@ -218,7 +223,7 @@ class ConversionMixin:
         :param dataset: A datasets dataframe slice
         :return: File path for the record
         """
-        assert len(dataset) == 1
+        assert isinstance(dataset, pd.Series) or len(dataset) == 1
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         file = Path(self._cache_dir, session_path, rel_path)
         return file  # files[0] if len(datasets) == 1 else files
@@ -442,7 +447,6 @@ class ConversionMixin:
     def dict2ref(ref_dict):
         if isinstance(ref_dict, (list, tuple)):
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
-
         if not ref_dict:
             return
         parsed = any(not isinstance(k, str) for k in ref_dict.values())
@@ -450,14 +454,6 @@ class ConversionMixin:
                       if parsed
                       else '{date:s}_{sequence:s}_{subject:s}')
         return format_str.format(**ref_dict)
-
-    def to(self, eid, type):
-        if type == 'path':
-            return self.eid2path(eid)
-        elif type == 'ref':
-            return self.eid2ref(eid, as_dict=False)
-        else:
-            raise ValueError(f'Unsupported type "{type}"')
 
 
 def deprecate(func):

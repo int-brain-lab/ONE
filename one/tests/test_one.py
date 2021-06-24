@@ -260,35 +260,6 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(all(isinstance(x, str) for x in eids))
         self.assertEqual(3, len(eids))
 
-    def test_eid_from_path(self):
-        verifiable = self.one.path2eid('CSK-im-007/2021-03-21/002')
-        self.assertIsNone(verifiable)
-
-        verifiable = self.one.path2eid('ZFM-01935/2021-02-05/001')
-        expected = 'd3372b15-f696-4279-9be5-98f15783b5bb'
-        self.assertEqual(verifiable, expected)
-
-        session_path = Path.home().joinpath('mainenlab', 'Subjects', 'ZFM-01935',
-                                            '2021-02-05', '001', 'alf')
-        verifiable = self.one.path2eid(session_path)
-        self.assertEqual(verifiable, expected)
-
-    def test_path_from_eid(self):
-        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
-        verifiable = self.one.eid2path(eid)
-        expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
-                                                    '2021-02-05', '001',)
-        self.assertEqual(expected, verifiable)
-
-        with self.assertRaises(ValueError):
-            self.one.eid2path('fakeid')
-        self.assertIsNone(self.one.eid2path(eid.replace('d', 'b')))
-
-        # Test list
-        verifiable = self.one.eid2path([eid, eid])
-        self.assertIsInstance(verifiable, list)
-        self.assertTrue(len(verifiable) == 2)
-
     @unittest.skip('TODO Move this test?')
     def test_check_exists(self):
         pass
@@ -642,17 +613,6 @@ class TestONECache(unittest.TestCase):
             self.one.load_object(eid, 'ephysData_g0_t0')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             self.one.load_object(eid, '.*Camera')
-
-    def test_record_from_path(self):
-        file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
-                                                '001', 'alf', '_ibl_wheel.position.npy')
-        rec = self.one.path2record(file)
-        self.assertIsInstance(rec, pd.DataFrame)
-        rel_path, = rec['rel_path'].values
-        self.assertTrue(file.as_posix().endswith(rel_path))
-
-        file = file.parent / '_fake_obj.attr.npy'
-        self.assertIsNone(self.one.path2record(file))
 
     def test_load_cache(self):
         # Test loading unsorted table with no id index set

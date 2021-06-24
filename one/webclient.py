@@ -445,7 +445,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     def rest_schemes(self):
         """Delayed fetch of rest schemes speeds up instantiation"""
         if not self._rest_schemes:
-            self._rest_schemes = self.get('/docs')
+            self._rest_schemes = self.get('/docs', expires=timedelta(weeks=1))
         return self._rest_schemes
 
     @property
@@ -724,7 +724,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             pprint(list(endpoint_scheme.keys()))
             return
         # make sure the the desired action exists, if not throw an informative error
-        if action not in endpoint_scheme.keys():
+        if action not in endpoint_scheme:
             raise ValueError('Action "' + action + '" for REST endpoint "' + endpoint + '" does ' +
                              'not exist. Available actions are: ' +
                              '\n       ' + '\n       '.join(endpoint_scheme.keys()))

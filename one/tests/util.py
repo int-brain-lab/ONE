@@ -97,3 +97,12 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         'eid_0': eid_0,
         'eid_1': eid_1
     }, index=[ids[:, 0], ids[:, 1]])
+
+
+def create_schema_cache(param_dir=None):
+    actions = dict.fromkeys(['list', 'read', 'create', 'update', 'partial_update', 'delete'])
+    endpoints = ['cache', 'dataset-types', 'datasets', 'downloads', 'insertions', 'sessions']
+    path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
+    rest_cache_dir = Path(param_dir or one.params.get_params_dir()).joinpath(*path_parts)
+    with open(rest_cache_dir / '1baff95c2d0e31059720a3716ad5b5a34b61a207', 'r') as f:
+        json.dump({k: actions for k in endpoints}, f)
