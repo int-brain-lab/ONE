@@ -82,7 +82,14 @@ class One(ConversionMixin):
             self._cache_dir = cache_dir or one.params.get_cache_dir()
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
+        self.regex = True  # Flag indicating whether to use regex or wildcards
         # init the cache file
+        self._cache = Bunch({'_meta': {
+            'expired': False,
+            'created_time': None,
+            'loaded_time': None,
+            'raw': {}  # map of original table metadata
+        }})
         self._load_cache()
 
     def __repr__(self):
@@ -93,24 +100,16 @@ class One(ConversionMixin):
         return self.mode == 'local' or not getattr(self, '_web_client', False)
 
     def _load_cache(self, cache_dir=None, **kwargs):
-        self._cache = Bunch({'expired': False, 'created_time': None})
+        meta = self._cache['_meta']
         INDEX_KEY = 'id'
-        for table in ('sessions', 'datasets'):
-            cache_file = Path(cache_dir or self._cache_dir).joinpath(table + '.pqt')
-            if cache_file.exists():
-                # we need to keep this part fast enough for transient objects
-                cache, info = parquet.load(cache_file)
-                created = datetime.fromisoformat(info['date_created'])
-                if self._cache['created_time']:
-                    self._cache['created_time'] = min([self._cache['created_time'], created])
-                else:
-                    self._cache['created_time'] = created
-                self._cache['loaded_time'] = datetime.now()
-                self._cache['expired'] |= datetime.now() - created > self.cache_expiry
-            else:
-                self._cache['expired'] = True
-                self._cache[table] = pd.DataFrame()
-                continue
+        for cache_file in Path(cache_dir or self._cache_dir).glob('*.pqt'):
+            table = cache_file.stem
+            # we need to keep this part fast enough for transient objects
+            cache, meta['raw'][table] = parquet.load(cache_file)
+            created = datetime.fromisoformat(meta['raw'][table]['date_created'])
+            meta['created_time'] = min([meta['created_time'] or datetime.max, created])
+            meta['loaded_time'] = datetime.now()
+            meta['expired'] |= datetime.now() - created > self.cache_expiry
 
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
@@ -130,7 +129,13 @@ class One(ConversionMixin):
                 cache.sort_index(inplace=True)
 
             self._cache[table] = cache
-        return self._cache.get('loaded_time', None)
+
+        if len(self._cache) == 1:
+            # No tables present
+            meta['expired'] = True
+            self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
+        self._cache['_meta'] = meta
+        return self._cache['_meta']['loaded_time']
 
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
@@ -141,7 +146,7 @@ class One(ConversionMixin):
         if mode in ('local', 'remote'):  # TODO maybe rename mode
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['loaded_time'] > self.cache_expiry:
+            if datetime.now() - self._cache['_meta']['loaded_time'] > self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
                 self._load_cache()
         elif mode == 'refresh':
@@ -149,7 +154,7 @@ class One(ConversionMixin):
             self._load_cache(clobber=True)
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
-        return self._cache.get('loaded_time', None)
+        return self._cache['_meta']['loaded_time']
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -810,18 +815,19 @@ class OneAlyx(One):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
 
     def _load_cache(self, cache_dir=None, clobber=False):
+        cache_meta = self._cache['_meta']
         if not clobber:
             super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
-            if (self._cache and not self._cache['expired']) or self.mode == 'local':
+            if (self._cache and not cache_meta['expired']) or self.mode == 'local':
                 return
 
         # Warn user if expired
         if (
-            self._cache['expired'] and
-            self._cache.get('created_time', False) and
+            cache_meta['expired'] and
+            cache_meta.get('created_time', False) and
             not self.alyx.silent
         ):
-            age = datetime.now() - self._cache['created_time']
+            age = datetime.now() - cache_meta['created_time']
             t_str = (f'{age.days} days(s)'
                      if age.days >= 1
                      else f'{np.floor(age.seconds / (60 * 2))} hour(s)')
@@ -831,7 +837,7 @@ class OneAlyx(One):
             # Determine whether a newer cache is available
             cache_info = self.alyx.get('cache/info', expires=True)
             remote_created = datetime.fromisoformat(cache_info['date_created'])
-            local_created = self._cache.get('created_time', None)
+            local_created = cache_meta.get('created_time', None)
             if local_created and (remote_created - local_created) < timedelta(minutes=1):
                 _logger.info('No newer cache available')
                 return

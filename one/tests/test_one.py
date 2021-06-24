@@ -38,7 +38,7 @@ from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, _index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before
+    filter_revision_last_before, parse_id
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -654,6 +654,31 @@ class TestONECache(unittest.TestCase):
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.path2record(file))
 
+    def test_load_cache(self):
+        # Test loading unsorted table with no id index set
+        df = self.one._cache['datasets'].reset_index()
+        info = self.one._cache['_meta']['raw']['datasets']
+        with tempfile.TemporaryDirectory() as tdir:
+            # Loading from empty dir
+            self.one._load_cache(tdir)
+            self.assertTrue(self.one._cache['_meta']['expired'])
+            # Save unindexed
+            parquet.save(Path(tdir) / 'datasets.pqt', df, info)
+            del self.one._cache['datasets']
+            self.one._load_cache(tdir)
+            self.assertIsInstance(self.one._cache['datasets'].index, pd.MultiIndex)
+            # Save shuffled
+            df[['id_0', 'id_1']] = np.random.permutation(df[['id_0', 'id_1']])
+            parquet.save(Path(tdir) / 'datasets.pqt', df, info)
+            del self.one._cache['datasets']
+            self.one._load_cache(tdir)
+            self.assertTrue(self.one._cache['datasets'].index.is_lexsorted())
+            # Save table with missing id columns
+            df.drop(['id_0', 'id_1'], axis=1, inplace=True)
+            parquet.save(Path(tdir) / 'datasets.pqt', df, info)
+            with self.assertRaises(KeyError):
+                self.one._load_cache(tdir)
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneAlyx(unittest.TestCase):
@@ -925,6 +950,10 @@ class TestOneMisc(unittest.TestCase):
         dt = pd.Timestamp.now().date().year - actual[0].date().year
         self.assertTrue(dt > 60)  # Lower bound at least 60 years in the past
 
+        self.assertIsNone(validate_date_range(None))
+        with self.assertRaises(ValueError):
+            validate_date_range(['2020-01-01', '2019-09-06', '2021-10-04'])
+
     def test_index_last_before(self):
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
         verifiable = _index_last_before(revisions, '2021-01-01')
@@ -957,6 +986,27 @@ class TestOneMisc(unittest.TestCase):
         verifiable = filter_revision_last_before(df.copy(),
                                                  revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
+
+        # Test assert unique
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
+            filter_revision_last_before(df.copy(), revision='2020-09-01', assert_unique=True)
+        # Test with default revisions
+        df['default_revision'] = True
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
+            filter_revision_last_before(df.copy(), assert_unique=True)
+
+    def test_parse_id(self):
+        obj = unittest.mock.MagicMock()  # Mock object to decorate
+        obj.to_eid.return_value = 'parsed_id'  # Method to be called
+        input = 'subj/date/num'  # Input id to pass to `to_eid`
+        parse_id(obj.method)(obj, input)
+        obj.to_eid.assert_called_with(input)
+        obj.method.assert_called_with(obj, 'parsed_id')
+
+        # Test raises value error when None returned
+        obj.to_eid.return_value = None  # Simulate failure to parse id
+        with self.assertRaises(ValueError):
+            parse_id(obj.method)(obj, input)
 
 
 def get_file(root: str, str_id: str) -> str:

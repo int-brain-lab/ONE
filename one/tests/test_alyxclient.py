@@ -230,7 +230,6 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertEqual(a, b)
         self.ac.rest('weighings', 'delete', id=a['url'])
         # test patch object with subjects
-        sub = self.ac.rest('subjects', 'read', id='flowers')
         data = {'birth_date': '2018-04-01',
                 'death_date': '2018-09-10'}
         sub = self.ac.rest('subjects', 'partial_update', id='flowers', data=data)
@@ -315,6 +314,8 @@ class TestDownloadHTTP(unittest.TestCase):
             data = json.load(json_file)
         self.assertTrue(len(data) > 0)
         self.assertTrue(hashfile.md5(file_name) == md5)
+
+        self.assertFalse(wc.http_download_file('', clobber=True))
 
         # test downloading a list of files
         links = [full_link_to_file,
