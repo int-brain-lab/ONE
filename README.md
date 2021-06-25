@@ -49,9 +49,9 @@ from one.api import ONE
 one = ONE()
 print(one.search_terms)  # A list of search keyword arguments
 
-# Search session with wheel timestamps from May onward
-eids = one.search(date_range=['2021-05-01',], dataset='wheel.timestamps')
->> ['TODO']
+# Search session with wheel timestamps from January 2021 onward
+eids = one.search(date_range=['2021-01-01',], dataset='wheel.timestamps')
+['d3372b15-f696-4279-9be5-98f15783b5bb']
 
 # Search for project sessions with two probes
 eids = one.search(data=['probe00', 'probe01'], project='brainwide')
@@ -68,7 +68,7 @@ wheel = one.load_object(eid, 'wheel')
 
 # Load a specific dataset
 eid = 'a7540211-2c60-40b7-88c6-b081b2213b21'
-ts = one.load_dataset(eid, 'wheel.timestamps')
+ts = one.load_dataset(eid, 'wheel.timestamps', collection='alf')
 
 # Download, but not load, a dataset
 filename = one.load_dataset(eid, 'wheel.timestamps', download_only=True)

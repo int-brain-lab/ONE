@@ -773,7 +773,7 @@ class One(ConversionMixin):
 
 
 @lru_cache(maxsize=1)
-def ONE(mode='auto', **kwargs):
+def ONE(*, mode='auto', **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.
     """
