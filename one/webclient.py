@@ -83,8 +83,7 @@ def _cache_response(method):
         if args[0].__name__ != mode and mode != '*':
             return method(alyx_client, *args, **kwargs)
         # Check cache
-        proc, loc = alyx_client.base_url.replace(':/', '').split('/')
-        rest_cache = Path(one.params.get_params_dir(), '.rest', loc, proc)
+        rest_cache = one.params.get_rest_dir(alyx_client.base_url)
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[1], 'utf-8'))
         name = sha1.hexdigest()
@@ -920,6 +919,5 @@ class AlyxClient(metaclass=UniqueSingletons):
         return _[field_name]
 
     def clear_rest_cache(self):
-        proc, loc = self.base_url.replace(':/', '').split('/')
-        for file in Path(one.params.get_params_dir(), '.rest', loc, proc).glob('*'):
+        for file in one.params.get_rest_dir(self.base_url).glob('*'):
             file.unlink()

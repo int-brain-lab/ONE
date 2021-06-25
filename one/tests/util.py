@@ -106,3 +106,15 @@ def create_schema_cache(param_dir=None):
     rest_cache_dir = Path(param_dir or one.params.get_params_dir()).joinpath(*path_parts)
     with open(rest_cache_dir / '1baff95c2d0e31059720a3716ad5b5a34b61a207', 'r') as f:
         json.dump({k: actions for k in endpoints}, f)
+
+
+def get_file(root: str, str_id: str) -> str:
+    """
+    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.
+    :param root: The root directory of the new parameters
+    :param str_id: The parameter string identifier
+    :return: The parameter filename
+    """
+    parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
+    pfile = Path(root, *parts).as_posix()
+    return pfile

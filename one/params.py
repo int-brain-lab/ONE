@@ -13,6 +13,7 @@ import re
 from iblutil.io import params as iopar
 from getpass import getpass
 from pathlib import Path
+from urllib.parse import urlsplit
 import unicodedata
 
 _PAR_ID_STR = 'one'
@@ -146,7 +147,27 @@ def get_cache_dir() -> Path:
 
 
 def get_params_dir() -> Path:
-    return iopar.getfile(_PAR_ID_STR)
+    return Path(iopar.getfile(_PAR_ID_STR))
+
+
+def get_rest_dir(client=None) -> Path:
+    """Return path to REST cache directory
+
+    Parameters
+    ----------
+    client : str
+        Location of rest cache for a given database URL.  If None, the root REST cache directory is
+        returned
+
+    Returns
+    -------
+        The REST cache directory path
+    """
+    rest_dir = get_params_dir() / '.rest'
+    if client:
+        scheme, loc, *_ = urlsplit(client)
+        rest_dir /= Path(loc, scheme)
+    return rest_dir
 
 
 def _check_cache_conflict(cache_dir):

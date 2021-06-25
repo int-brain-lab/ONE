@@ -651,7 +651,7 @@ class TestOneAlyx(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.tempdir = util.set_up_env()
-        with mock.patch('one.params.iopar.getfile', new=partial(get_file, cls.tempdir.name)):
+        with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, cls.tempdir.name)):
             # util.setup_test_params(token=True)
             cls.one = OneAlyx(
                 **TEST_DB_1,
@@ -677,7 +677,7 @@ class TestOneAlyx(unittest.TestCase):
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
-        with mock.patch('one.params.iopar.getfile', new=partial(get_file, self.tempdir.name)):
+        with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, self.tempdir.name)):
             eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
         self.assertEqual('probe00', collection)
@@ -757,7 +757,7 @@ class TestOneDownload(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.patch = mock.patch('one.params.iopar.getfile',
-                                new=partial(get_file, self.tempdir.name))
+                                new=partial(util.get_file, self.tempdir.name))
         self.patch.start()
         self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
 
@@ -792,7 +792,7 @@ class TestOneSetup(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
-        self.get_file = partial(get_file, self.tempdir.name)
+        self.get_file = partial(util.get_file, self.tempdir.name)
         wc.UniqueSingletons._instances = []  # Delete any active instances
 
     def test_setup_silent(self):
@@ -967,18 +967,6 @@ class TestOneMisc(unittest.TestCase):
         obj.to_eid.return_value = None  # Simulate failure to parse id
         with self.assertRaises(ValueError):
             parse_id(obj.method)(obj, input)
-
-
-def get_file(root: str, str_id: str) -> str:
-    """
-    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.
-    :param root: The root directory of the new parameters
-    :param str_id: The parameter string identifier
-    :return: The parameter filename
-    """
-    parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
-    pfile = Path(root, *parts).as_posix()
-    return pfile
 
 
 def caches_int2str(caches):
