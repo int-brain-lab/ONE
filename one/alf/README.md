@@ -98,6 +98,12 @@ trials.intervals.9198edcd-e8a4-4e8a-994f-d68a2e300380.npy
 2p.raw.part02.tiff
 ```
 
+### Relations
+Alf objects can be related through their attributes. If the attribute name of one file matches the object name of a 
+second, then the first file is guaranteed to contain integers referring to the rows of the second. For example, 
+spikes.clusters.npy would contain integer references to the rows of clusters.brain_location.json and 
+clusters.probes.npy; and clusters.probes.npy would contain integer references to probes.insertion.json.
+
 ## Glossary
 
 ### Dataset name
