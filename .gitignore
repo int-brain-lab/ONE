@@ -12,3 +12,4 @@ dist/
 .DS_Store
 scratch/
 _autosummary/
+.coverage

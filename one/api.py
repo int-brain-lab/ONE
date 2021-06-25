@@ -4,9 +4,6 @@ TODO Add sig to ONE Light uuids
 TODO Save changes to cache
 TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
-TODO store cache matadata in meta map
-TODO Figure out why limit arg doesn't work in Alyx
-TODO Is alf is default collection it's a pain for non-IBL users
 TODO Make autocomplete a private method
 TODO edit alf exceptions constructor with default message template?
 
@@ -51,7 +48,7 @@ import numpy as np
 import requests.exceptions
 from iblutil.io import parquet, hashfile
 from iblutil.util import Bunch
-from iblutil.numerical import ismember2d, find_first_2d
+from iblutil.numerical import ismember2d
 
 import one.params
 import one.webclient as wc
@@ -82,7 +79,14 @@ class One(ConversionMixin):
             self._cache_dir = cache_dir or one.params.get_cache_dir()
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
+        self.regex = True  # Flag indicating whether to use regex or wildcards
         # init the cache file
+        self._cache = Bunch({'_meta': {
+            'expired': False,
+            'created_time': None,
+            'loaded_time': None,
+            'raw': {}  # map of original table metadata
+        }})
         self._load_cache()
 
     def __repr__(self):
@@ -93,24 +97,16 @@ class One(ConversionMixin):
         return self.mode == 'local' or not getattr(self, '_web_client', False)
 
     def _load_cache(self, cache_dir=None, **kwargs):
-        self._cache = Bunch({'expired': False, 'created_time': None})
+        meta = self._cache['_meta']
         INDEX_KEY = 'id'
-        for table in ('sessions', 'datasets'):
-            cache_file = Path(cache_dir or self._cache_dir).joinpath(table + '.pqt')
-            if cache_file.exists():
-                # we need to keep this part fast enough for transient objects
-                cache, info = parquet.load(cache_file)
-                created = datetime.fromisoformat(info['date_created'])
-                if self._cache['created_time']:
-                    self._cache['created_time'] = min([self._cache['created_time'], created])
-                else:
-                    self._cache['created_time'] = created
-                self._cache['loaded_time'] = datetime.now()
-                self._cache['expired'] |= datetime.now() - created > self.cache_expiry
-            else:
-                self._cache['expired'] = True
-                self._cache[table] = pd.DataFrame()
-                continue
+        for cache_file in Path(cache_dir or self._cache_dir).glob('*.pqt'):
+            table = cache_file.stem
+            # we need to keep this part fast enough for transient objects
+            cache, meta['raw'][table] = parquet.load(cache_file)
+            created = datetime.fromisoformat(meta['raw'][table]['date_created'])
+            meta['created_time'] = min([meta['created_time'] or datetime.max, created])
+            meta['loaded_time'] = datetime.now()
+            meta['expired'] |= datetime.now() - created > self.cache_expiry
 
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
@@ -130,7 +126,13 @@ class One(ConversionMixin):
                 cache.sort_index(inplace=True)
 
             self._cache[table] = cache
-        return self._cache.get('loaded_time', None)
+
+        if len(self._cache) == 1:
+            # No tables present
+            meta['expired'] = True
+            self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
+        self._cache['_meta'] = meta
+        return self._cache['_meta']['loaded_time']
 
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
@@ -141,7 +143,7 @@ class One(ConversionMixin):
         if mode in ('local', 'remote'):  # TODO maybe rename mode
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['loaded_time'] > self.cache_expiry:
+            if datetime.now() - self._cache['_meta']['loaded_time'] > self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
                 self._load_cache()
         elif mode == 'refresh':
@@ -149,7 +151,7 @@ class One(ConversionMixin):
             self._load_cache(clobber=True)
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
-        return self._cache.get('loaded_time', None)
+        return self._cache['_meta']['loaded_time']
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -363,17 +365,25 @@ class One(ConversionMixin):
         else:
             raise IndexError
 
+    @refresh
     @parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
+        # Int ids return DataFrame, making str eid a list ensures Series not returned
         int_ids = self._index_type() is int
-        if int_ids:
-            eid = parquet.str2np(eid).tolist()
-        det = self._cache['sessions'].loc[eid]
-        if full:
-            # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']
-            # det = det.drop(to_drop, axis=1)
-            det = self._cache['datasets'].join(det, on=det.index.names, how='right')
-        return det
+        idx = parquet.str2np(eid).tolist() if int_ids else [eid]
+        try:
+            det = self._cache['sessions'].loc[idx]
+            assert len(det) == 1
+        except KeyError:
+            raise alferr.ALFObjectNotFound(eid)
+        except AssertionError:
+            raise alferr.ALFMultipleObjectsFound(f'Multiple sessions in cache for eid {eid}')
+        if not full:
+            return det.iloc[0]
+        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']
+        # det = det.drop(to_drop, axis=1)
+        column = ['eid_0', 'eid_1'] if int_ids else 'eid'
+        return self._cache['datasets'].join(det, on=column, how='right')
 
     @refresh
     def list_subjects(self) -> List[str]:
@@ -412,7 +422,7 @@ class One(ConversionMixin):
             isin, _ = ismember2d(datasets[index].to_numpy(), eid_num)
             datasets = datasets[isin]
         else:
-            session_match = datasets['eid'].isin(eid)
+            session_match = datasets['eid'] == eid
             datasets = datasets[session_match]
 
         datasets = self._filter_by_collection(datasets, collection)
@@ -571,7 +581,7 @@ class One(ConversionMixin):
         files = self._update_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
         if not files:
-            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
+            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
 
         if download_only:
             return files
@@ -727,30 +737,21 @@ class One(ConversionMixin):
                              download_only: bool = False,
                              details: bool = False,
                              **kwargs) -> Any:
-        if isinstance(dset_id, str):
+        int_idx = self._index_type('datasets') is int
+        if isinstance(dset_id, str) and int_idx:
             dset_id = parquet.str2np(dset_id)
         elif isinstance(dset_id, UUID):
-            dset_id = parquet.uuid2np([dset_id])
-        # else:
-        #     dset_id = np.asarray(dset_id)
-        if self._index_type('datasets') is int:
-            try:
-                dataset = self._cache['datasets'].loc[dset_id.tolist()]
-                assert len(dataset) == 1
-                dataset = dataset.iloc[0]
-            except KeyError:
-                raise alferr.ALFObjectNotFound('Dataset not found')
-            except AssertionError:
-                raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
-        else:
-            ids = self._cache['datasets'][['id_0', 'id_1']].to_numpy()
-            try:
-                dataset = self._cache['datasets'].iloc[find_first_2d(ids, dset_id)]
-                assert len(dataset) == 1
-            except TypeError:
-                raise alferr.ALFObjectNotFound('Dataset not found')
-            except AssertionError:
-                raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
+            dset_id = parquet.uuid2np([dset_id]) if int_idx else str(dset_id)
+        try:
+            if int_idx:
+                dataset = self._cache['datasets'].loc[dset_id.tolist()].iloc[0]
+            else:
+                dataset = self._cache['datasets'].loc[[dset_id]]
+            assert isinstance(dataset, pd.Series) or len(dataset) == 1
+        except KeyError:
+            raise alferr.ALFObjectNotFound('Dataset not found')
+        except AssertionError:
+            raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
 
         filepath, = self._update_filesystem(dataset)
         if not filepath:
@@ -772,7 +773,7 @@ class One(ConversionMixin):
 
 
 @lru_cache(maxsize=1)
-def ONE(mode='auto', **kwargs):
+def ONE(*, mode='auto', **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.
     """
@@ -803,6 +804,7 @@ class OneAlyx(One):
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
                                          base_url=base_url,
+                                         cache_dir=cache_dir,
                                          **kwargs)
         # get parameters override if inputs provided
         super(OneAlyx, self).__init__(mode=mode, cache_dir=cache_dir)
@@ -811,18 +813,19 @@ class OneAlyx(One):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
 
     def _load_cache(self, cache_dir=None, clobber=False):
+        cache_meta = self._cache['_meta']
         if not clobber:
             super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
-            if (self._cache and not self._cache['expired']) or self.mode == 'local':
+            if (self._cache and not cache_meta['expired']) or self.mode == 'local':
                 return
 
         # Warn user if expired
         if (
-            self._cache['expired'] and
-            self._cache.get('created_time', False) and
+            cache_meta['expired'] and
+            cache_meta.get('created_time', False) and
             not self.alyx.silent
         ):
-            age = datetime.now() - self._cache['created_time']
+            age = datetime.now() - cache_meta['created_time']
             t_str = (f'{age.days} days(s)'
                      if age.days >= 1
                      else f'{np.floor(age.seconds / (60 * 2))} hour(s)')
@@ -832,7 +835,7 @@ class OneAlyx(One):
             # Determine whether a newer cache is available
             cache_info = self.alyx.get('cache/info', expires=True)
             remote_created = datetime.fromisoformat(cache_info['date_created'])
-            local_created = self._cache.get('created_time', None)
+            local_created = cache_meta.get('created_time', None)
             if local_created and (remote_created - local_created) < timedelta(minutes=1):
                 _logger.info('No newer cache available')
                 return
@@ -861,16 +864,17 @@ class OneAlyx(One):
         # TODO Move to AlyxClient?; add to rest examples; rename to describe?
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
-        # if not isinstance(dataset_type, str):
-        #     print('No dataset_type provided or wrong type. Should be str')
-        #     return
         try:
             assert isinstance(dataset_type, str) and not alfio.is_uuid_string(dataset_type)
+            _logger.disabled = True
             out = self.alyx.rest('dataset-types', 'read', dataset_type)
         except (AssertionError, requests.exceptions.HTTPError):
             # Try to get dataset type from dataset name
             out = self.alyx.rest('dataset-types', 'read', self.dataset2type(dataset_type))
+        finally:
+            _logger.disabled = False
         print(out['description'])
+        return out
 
     @refresh
     @parse_id
@@ -1363,10 +1367,14 @@ class OneAlyx(One):
             if dset_name in rel_path:
                 return idx
 
-    def get_details(self, eid: str, full: bool = False):
+    @refresh
+    @parse_id
+    def get_details(self, eid: str, full: bool = False, query_type=None):
         """ Returns details of eid like from one.search, optional return full
         session details.
         """
+        if (query_type or self.mode) == 'local':
+            return super().get_details(eid, full=full)
         # If eid is a list of eIDs recurse through list and return the results
         if isinstance(eid, list):
             details_list = []

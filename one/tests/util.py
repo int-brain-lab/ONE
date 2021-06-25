@@ -56,15 +56,19 @@ def setup_test_params(token=False):
     params_dir = Path(one.params.get_params_dir())
     fixture = Path(__file__).parent.joinpath('fixtures')
     test_pars = '.test.alyx.internationalbrainlab.org'
-    if not params_dir.glob(test_pars):
-        filename = shutil.copy(fixture / test_pars, params_dir)
+    if not list(params_dir.glob(test_pars)):
+        filename = shutil.copy(fixture / 'params' / test_pars, params_dir)
         assert Path(filename).exists()
 
         # Add to cache map
-        with open(params_dir / '.caches', 'rw') as f:
-            data = json.load(f)
-            data['CLIENT_MAP'][test_pars[1:]] = None
-            json.dump(data, f)
+        if (map_file := params_dir / '.caches').exists():
+            with open(map_file, 'rw') as f:
+                data = json.load(f)
+                data['CLIENT_MAP'][test_pars[1:]] = None
+                json.dump(data, f)
+        else:
+            shutil.copy(fixture / 'params' / '.caches', map_file)
+            assert Path(filename).exists()
 
     # Add token to file so db not hit
     if token:
@@ -93,3 +97,24 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         'eid_0': eid_0,
         'eid_1': eid_1
     }, index=[ids[:, 0], ids[:, 1]])
+
+
+def create_schema_cache(param_dir=None):
+    actions = dict.fromkeys(['list', 'read', 'create', 'update', 'partial_update', 'delete'])
+    endpoints = ['cache', 'dataset-types', 'datasets', 'downloads', 'insertions', 'sessions']
+    path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
+    rest_cache_dir = Path(param_dir or one.params.get_params_dir()).joinpath(*path_parts)
+    with open(rest_cache_dir / '1baff95c2d0e31059720a3716ad5b5a34b61a207', 'r') as f:
+        json.dump({k: actions for k in endpoints}, f)
+
+
+def get_file(root: str, str_id: str) -> str:
+    """
+    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.
+    :param root: The root directory of the new parameters
+    :param str_id: The parameter string identifier
+    :return: The parameter filename
+    """
+    parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
+    pfile = Path(root, *parts).as_posix()
+    return pfile

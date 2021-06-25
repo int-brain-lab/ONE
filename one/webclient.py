@@ -83,8 +83,7 @@ def _cache_response(method):
         if args[0].__name__ != mode and mode != '*':
             return method(alyx_client, *args, **kwargs)
         # Check cache
-        proc, loc = alyx_client.base_url.replace(':/', '').split('/')
-        rest_cache = Path(one.params.get_params_dir(), '.rest', loc, proc)
+        rest_cache = one.params.get_rest_dir(alyx_client.base_url)
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[1], 'utf-8'))
         name = sha1.hexdigest()
@@ -445,7 +444,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     def rest_schemes(self):
         """Delayed fetch of rest schemes speeds up instantiation"""
         if not self._rest_schemes:
-            self._rest_schemes = self.get('/docs')
+            self._rest_schemes = self.get('/docs', expires=timedelta(weeks=1))
         return self._rest_schemes
 
     @property
@@ -484,8 +483,9 @@ class AlyxClient(metaclass=UniqueSingletons):
         elif r and r.status_code == 204:
             return
         else:
-            _logger.error(self.base_url + rest_query)
-            _logger.error(r.text)
+            if not self.silent:
+                _logger.error(self.base_url + rest_query)
+                _logger.error(r.text)
             raise (requests.HTTPError(r))
 
     def authenticate(self, cache_token=True, force=False):
@@ -723,7 +723,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             pprint(list(endpoint_scheme.keys()))
             return
         # make sure the the desired action exists, if not throw an informative error
-        if action not in endpoint_scheme.keys():
+        if action not in endpoint_scheme:
             raise ValueError('Action "' + action + '" for REST endpoint "' + endpoint + '" does ' +
                              'not exist. Available actions are: ' +
                              '\n       ' + '\n       '.join(endpoint_scheme.keys()))
@@ -919,6 +919,5 @@ class AlyxClient(metaclass=UniqueSingletons):
         return _[field_name]
 
     def clear_rest_cache(self):
-        proc, loc = self.base_url.replace(':/', '').split('/')
-        for file in Path(one.params.get_params_dir(), '.rest', loc, proc).glob('*'):
+        for file in one.params.get_rest_dir(self.base_url).glob('*'):
             file.unlink()

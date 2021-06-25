@@ -59,7 +59,7 @@ def parse_id(method):
     def wrapper(self, id, *args, **kwargs):
         eid = self.to_eid(id)
         if eid is None:
-            raise ValueError(f'Cannot parse session ID {id}')
+            raise ValueError(f'Cannot parse session ID "{id}" (session may not exist)')
         return method(self, eid, *args, **kwargs)
 
     return wrapper

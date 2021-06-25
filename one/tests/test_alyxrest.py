@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from one.api import ONE
-from one.tests import TEST_DB_1
+from one.tests import TEST_DB_1, OFFLINE_ONLY
 
 
 one = ONE(**TEST_DB_1)
@@ -13,6 +13,7 @@ EID = 'cf264653-2deb-44cb-aa84-89b82507028a'
 EID_EPHYS = 'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
 
 
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class Tests_REST(unittest.TestCase):
 
     def test_water_restriction(self):
