@@ -1,4 +1,6 @@
 """
+Experiment Ids
+==============
 There are multiple ways to uniquely identify an experiment:
     - eID (str) : An experiment UUID as a string
     - np (int64) : An experiment UUID encoded as 2 int64s
