@@ -84,6 +84,14 @@ analysis you can assert that the dimensions match using the check_dimensions pro
 """
 assert trials.check_dimensions == 0
 
+# Load spike times from a probe UUID
+pid = 'b749446c-18e3-4987-820a-50649ab0f826'
+session, probe = one.pid2eid(pid)
+spikes_times = one.load_dataset(session, 'spikes.times.npy', collection=f'alf/{probe}')
+
+# List all probes for a session
+print([x for x in one.list_collections(session) if 'alf/probe' in x])
+
 """
 Advanced loading:
 
