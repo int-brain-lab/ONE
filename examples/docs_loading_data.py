@@ -88,3 +88,63 @@ For any given object the first dimension of every attribute should match in leng
 analysis you can assert that the dimensions match using the check_dimensions property:
 """
 assert trials.check_dimensions == 0
+
+# Load spike times from a probe UUID
+pid = 'b749446c-18e3-4987-820a-50649ab0f826'
+session, probe = one.pid2eid(pid)
+spikes_times = one.load_dataset(session, 'spikes.times.npy', collection=f'alf/{probe}')
+
+# List all probes for a session
+print([x for x in one.list_collections(session) if 'alf/probe' in x])
+
+"""
+Advanced loading:
+
+The load methods require an exact match, therefore `one.load_dataset(eid, 'spikes.times')` will
+raise an exception because 'spikes.times' does not exactly match 'spikes.times.npy'.
+Likeswise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
+
+Loading can be done using regular expressions, allowing you to load objects and datasets that
+match a particular pattern.
+
+Soon unix-style wildcards will be supported by default, however for now regex syntax must be used.
+
+ Regex   |    Wildcard    |         Description        |    Example
+-----------------------------------------------------------------------
+   .*            *          Match zero or more chars     spikes.times.*
+   .?            ?          Match one char               timestamps.?sv
+   []            []         Match a range of chars       obj.attr.part[0-9].npy
+
+Examples:
+    spikes.times.* (regex), spikes.times* (wildcard) matches...
+        spikes.times.npy
+        spikes.times
+        spikes.times_ephysClock.npy
+        spikes.times.bin
+
+    clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...
+        clusters.uuids.ssv
+        clusters.uuids.csv
+
+    alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
+        alf/probe00
+        alf/probe01
+        [...]
+        alf/probe05
+"""
+
+# More regex examples
+
+# Load specific attributes from an object ('|' represents a logical OR in regex)
+spikes = one.load_object(eid, 'spikes', collection='alf/probe01', attribute='times|clusters')
+assert 'amps' not in spikes
+
+# Load a dataset ignoring any namespace or extension:
+spike_times = one.load_dataset(eid, '.*spikes.times.*', collection='alf/probe01')
+
+# List all datasets in any probe collection (matches 0 or more of any number)
+dsets = one.list_datasets(eid, collection='alf/probe[0-9]*')
+
+# Load object attributes that are not delimited text files (i.e. tsv, ssv, csv, etc.)
+files = one.load_object(eid, 'clusters', extension='[^sv]*', download_only=True)
+assert not any(str(x).endswith('csv') for x in files)
