@@ -11,6 +11,7 @@
 
 - removed walruses (support for python 3.7)
 - fixed bugs in various converter methods
+- fix for silent setup when base url provided
 
 ## [0.1.5]
 

@@ -254,7 +254,7 @@ class TestONECache(unittest.TestCase):
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
 
         # Test search without integer ids
-        caches_int2str(one._cache)
+        util.caches_int2str(one._cache)
         query = 'clusters'
         eids = one.search(data=query)
         self.assertTrue(all(isinstance(x, str) for x in eids))
@@ -380,7 +380,7 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(27, len(dsets))
 
         # Test using str ids as index
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         dsets = self.one.list_datasets('KS005/2019-04-02/001')
         self.assertEqual(27, len(dsets))
 
@@ -459,7 +459,7 @@ class TestONECache(unittest.TestCase):
         self.assertTrue('rel_path' in det.columns)
 
         # Test with str index ids
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         det = self.one.get_details(eid)
         self.assertIsInstance(det, pd.Series)
 
@@ -473,7 +473,7 @@ class TestONECache(unittest.TestCase):
 
     def test_index_type(self):
         self.assertIs(int, self.one._index_type())
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         self.assertIs(str, self.one._index_type())
         self.one._cache.datasets.reset_index(inplace=True)
         with self.assertRaises(IndexError):
@@ -559,7 +559,7 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(np.array_equal(dset, data))
 
         # Load without int ids as index
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         dset = self.one.load_dataset_from_id(eid)
         self.assertTrue(np.array_equal(dset, data))
 
@@ -815,6 +815,16 @@ class TestOneSetup(unittest.TestCase):
             one_obj = ONE(mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
+        # Check saves base_url arg
+        with self.subTest('Test setup with base URL'):
+            if OFFLINE_ONLY:
+                self.skipTest('Requires remote db connection')
+            with mock.patch('iblutil.io.params.getfile', new=self.get_file):
+                one_obj = ONE(**TEST_DB_1)
+                self.assertEqual(one_obj.alyx.base_url, TEST_DB_1['base_url'])
+                params_url = one.params.get(client=TEST_DB_1['base_url']).ALYX_URL
+                self.assertEqual(params_url, one_obj.alyx.base_url)
+
     def test_setup(self):
         url = TEST_DB_1['base_url']
         one.params.input = lambda prompt: url if 'url' in prompt.lower() else 'mock_input'
@@ -851,24 +861,27 @@ class TestOneSetup(unittest.TestCase):
             one_obj = ONE(cache_dir=self.tempdir.name)
             self.assertIsInstance(one_obj, One)
 
-            # No cache dir provided; use OneAlyx (silent setup mode)
-            one_obj = ONE(silent=True, mode='local')
-            self.assertIsInstance(one_obj, OneAlyx)
-
-            # The cache dir is in client cache map; use OneAlyx
-            one_obj = ONE(cache_dir=one_obj.alyx.cache_dir, mode='local')
-            self.assertIsInstance(one_obj, OneAlyx)
-
-            # A db URL was provided; use OneAlyx
-            # mode = 'local' ensures we don't download cache (could also set cache_dir)
-            one_obj = ONE(**TEST_DB_1, mode='local')
-            self.assertIsInstance(one_obj, OneAlyx)
-
             # The offline param was given, raise deprecation warning (via log)
             # with self.assertLogs(logging.getLogger('ibllib'), logging.WARNING):
             #     ONE(offline=True, cache_dir=self.tempdir.name)
             with self.assertWarns(DeprecationWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
+
+            with self.subTest('ONE setup with database URL'):
+                if OFFLINE_ONLY:
+                    self.skipTest('Requires remote db connection')
+                # No cache dir provided; use OneAlyx (silent setup mode)
+                one_obj = ONE(silent=True, mode='local')
+                self.assertIsInstance(one_obj, OneAlyx)
+
+                # The cache dir is in client cache map; use OneAlyx
+                one_obj = ONE(cache_dir=one_obj.alyx.cache_dir, mode='local')
+                self.assertIsInstance(one_obj, OneAlyx)
+
+                # A db URL was provided; use OneAlyx
+                # mode = 'local' ensures we don't download cache (could also set cache_dir)
+                one_obj = ONE(**TEST_DB_1, mode='local')
+                self.assertIsInstance(one_obj, OneAlyx)
 
 
 class TestOneMisc(unittest.TestCase):
@@ -936,9 +949,10 @@ class TestOneMisc(unittest.TestCase):
         combs = combinations_with_replacement((None, '', '-'), 2)
         [inputs.extend(set(permutations(x))) for x in combs]
         for collection, revision in inputs:
-            verifiable = _collection_spec(collection, revision)
-            expected = _collection[collection] + _revision[revision]
-            self.assertEqual(expected, verifiable)
+            with self.subTest(collection=collection, revision=revision):
+                verifiable = _collection_spec(collection, revision)
+                expected = _collection[collection] + _revision[revision]
+                self.assertEqual(expected, verifiable)
 
     def test_revision_last_before(self):
         datasets = util.revisions_datasets_table()
@@ -967,26 +981,3 @@ class TestOneMisc(unittest.TestCase):
         obj.to_eid.return_value = None  # Simulate failure to parse id
         with self.assertRaises(ValueError):
             parse_id(obj.method)(obj, input)
-
-
-def caches_int2str(caches):
-    """Convert int ids to str ids for cache tables
-
-    Parameters
-    ----------
-    caches : Bunch
-        A bunch of cache tables (from One._cache)
-
-    Returns
-    -------
-        None
-    """
-    for table in ('sessions', 'datasets'):
-        # Set integer uuids to NaN
-        cache = caches[table].reset_index()
-        int_cols = cache.filter(regex=r'_\d{1}$').columns
-        for i in range(0, len(int_cols), 2):
-            name = int_cols.values[i].rsplit('_', 1)[0]
-            cache[name] = parquet.np2str(cache[int_cols[i:i + 2]])
-        cache[int_cols] = np.nan
-        caches[table] = cache.set_index('id')

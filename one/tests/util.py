@@ -5,7 +5,8 @@ import json
 from uuid import uuid4
 
 import pandas as pd
-from iblutil.io.parquet import uuid2np
+import numpy as np
+from iblutil.io.parquet import uuid2np, np2str
 
 import one.params
 
@@ -118,3 +119,26 @@ def get_file(root: str, str_id: str) -> str:
     parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
     pfile = Path(root, *parts).as_posix()
     return pfile
+
+
+def caches_int2str(caches):
+    """Convert int ids to str ids for cache tables
+
+    Parameters
+    ----------
+    caches : Bunch
+        A bunch of cache tables (from One._cache)
+
+    Returns
+    -------
+        None
+    """
+    for table in ('sessions', 'datasets'):
+        # Set integer uuids to NaN
+        cache = caches[table].reset_index()
+        int_cols = cache.filter(regex=r'_\d{1}$').columns
+        for i in range(0, len(int_cols), 2):
+            name = int_cols.values[i].rsplit('_', 1)[0]
+            cache[name] = np2str(cache[int_cols[i:i + 2]])
+        cache[int_cols] = np.nan
+        caches[table] = cache.set_index('id')
