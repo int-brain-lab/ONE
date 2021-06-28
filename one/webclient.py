@@ -449,7 +449,7 @@ class AlyxClient(metaclass=UniqueSingletons):
 
     @property
     def cache_dir(self):
-        return self._par.CACHE_DIR
+        return Path(self._par.CACHE_DIR)
 
     def is_logged_in(self):
         return self._token and self.user
@@ -566,6 +566,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         :return: List of parquet table file paths
         """
         # query the database for the latest cache; expires=None overrides cached response
+        self.cache_dir.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(f'{self.base_url}/cache.zip',
                                       username=self._par.ALYX_LOGIN,
