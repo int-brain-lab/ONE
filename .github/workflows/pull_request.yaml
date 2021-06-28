@@ -26,10 +26,3 @@ jobs:
     - name: ONE tests
       run: |
         python -m unittest discover
-    # Standard drop-in approach that should work for most people.
-    - name: Build docs
-      uses: ammaraskar/sphinx-action@master
-      with:
-        pre-build-command: "pip install sphinx-automodapi sphinx_material"
-        docs-folder: "docs/"
-

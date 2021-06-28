@@ -1,3 +1,8 @@
+"""
+Introduction to using ONE
+=========================
+"""
+
 from one.api import ONE
 import one.alf.io as alfio
 
@@ -31,7 +36,7 @@ trials.to_df().head()
 Datasets can be individually downloaded using the load_dataset method.  This
 function takes an experiment ID and a dataset name as positional args.
 """
-reward_volume = one.load_dataset(eid, 'trials.rewardVolume.npy')  # c.f. load_object, above
+reward_volume = one.load_dataset(eid, '_ibl_trials.rewardVolume.npy')  # c.f. load_object, above
 
 # To list the datasets available for a given session:
 dsets = one.list_datasets(eid, details=False)
