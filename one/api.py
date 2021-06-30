@@ -103,6 +103,9 @@ class One(ConversionMixin):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
             cache, meta['raw'][table] = parquet.load(cache_file)
+            if 'date_created' not in meta['raw'][table]:
+                _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
+                continue
             created = datetime.fromisoformat(meta['raw'][table]['date_created'])
             meta['created_time'] = min([meta['created_time'] or datetime.max, created])
             meta['loaded_time'] = datetime.now()

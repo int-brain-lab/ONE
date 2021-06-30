@@ -22,7 +22,8 @@ def set_up_env() -> tempfile.TemporaryDirectory:
     for cache_file in ('sessions', 'datasets'):
         filename = shutil.copy(fixture / f'{cache_file}.pqt', tempdir.name)
         assert Path(filename).exists()
-
+    # create a parasitic table that will not be loaded
+    pd.DataFrame().to_parquet(Path(tempdir.name).joinpath('gnagna.pqt'))
     # Copy cached rest responses
     setup_rest_cache(Path(tempdir.name) / '.one')
 

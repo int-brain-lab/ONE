@@ -30,9 +30,10 @@ def default():
            "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org",
            "HTTP_DATA_SERVER_LOGIN": None,
            "HTTP_DATA_SERVER_PWD": None,
-           "HTTP_DATA_SERVER": None,
+           "FTP_DATA_SERVER": None,
            "FTP_DATA_SERVER_LOGIN": None,
            "FTP_DATA_SERVER_PWD": None,
+           "CACHE_DIR": Path.home().joinpath('sdsc')
            }
     return iopar.from_dict(par)
 
@@ -138,8 +139,7 @@ def get(silent=False, client=None):
         cache_map = setup(client=client, silent=silent)
     cache = cache_map.CLIENT_MAP[client_key or cache_map.DEFAULT]
     params = iopar.read(f'{_PAR_ID_STR}/{client_key or cache_map.DEFAULT}', default=default())
-    params.set('CACHE_DIR', cache)
-    return params
+    return params.set('CACHE_DIR', cache)
 
 
 def save(par, client):
