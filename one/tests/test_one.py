@@ -21,6 +21,7 @@ Note ONE and AlyxClient use caching:
     properties to their original state on teardown, or call one.api.ONE.cache_clear()
 
 """
+import logging
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -633,6 +634,11 @@ class TestONECache(unittest.TestCase):
             del self.one._cache['datasets']
             self.one._load_cache(tdir)
             self.assertTrue(self.one._cache['datasets'].index.is_lexsorted())
+            # Save a parasitic table that will not be loaded
+            pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
+            with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
+                self.one._load_cache(tdir)
+                self.assertTrue('gnagna.pqt' in log.output[0])
             # Save table with missing id columns
             df.drop(['id_0', 'id_1'], axis=1, inplace=True)
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
