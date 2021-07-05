@@ -369,8 +369,8 @@ class One(ConversionMixin):
         return self._cache['sessions']['subject'].sort_values().unique()
 
     @util.refresh
-    def list_datasets(self,
-                      eid=None, collection=None, details=False) -> Union[np.ndarray, pd.DataFrame]:
+    def list_datasets(self, eid=None, collection=None,
+                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
 
         """
         Given an eid, return the datasets for those sessions.  If no eid is provided,
@@ -519,7 +519,7 @@ class One(ConversionMixin):
             load_object(eid, 'spikes', namespace='ibl')
             load_object(eid, 'spikes', timescale='ephysClock')
         """
-        datasets = self.list_datasets(eid, details=True)
+        datasets = self.list_datasets(eid, details=True, query_type=query_type)
 
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(obj)
@@ -590,7 +590,7 @@ class One(ConversionMixin):
         :param kwargs:
         :return:
         """
-        datasets = self.list_datasets(eid, details=True)
+        datasets = self.list_datasets(eid, details=True, query_type=query_type)
 
         datasets = util.filter_datasets(datasets, dataset, collection, revision)
         if len(datasets) == 0:
@@ -874,6 +874,23 @@ class OneAlyx(One):
         return out
 
     @util.refresh
+    def list_datasets(self, eid=None, collection=None,
+                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
+        if (query_type or self.mode) != 'remote':
+            return super().list_datasets(collection=collection, details=details,
+                                         query_type=query_type)
+        elif not eid:
+            warnings.warn('Unable to list all remote datasets')
+            return super().list_datasets(collection=collection, details=details,
+                                         query_type=query_type)
+        eid = self.to_eid(eid)  # Ensure we have a UUID str list
+        if not eid:
+            return self._cache['datasets'].iloc[0:0]  # Return empty
+        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        # Return only the relative path
+        return datasets if details else datasets['rel_path'].sort_values().values
+
+    @util.refresh
     @util.parse_id
     def load_dataset(self,
                      eid: Union[str, Path, UUID],
@@ -897,6 +914,8 @@ class OneAlyx(One):
         :param download_only: When true the data are downloaded and the file path is returned.
         :return: dataset or a Path object if download_only is true.
 
+        TODO This method may be removed once default dataset is added to Alyx serializer
+
         Examples:
             intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
             intervals = one.load_dataset(eid, '*trials.intervals*')
@@ -904,7 +923,6 @@ class OneAlyx(One):
             spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
             old_spikes = one.load_dataset(eid, ''spikes.times.npy',
                                           collection='alf/probe01', revision='2020-08-31')
-        # FIXME Revisions
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -924,19 +942,28 @@ class OneAlyx(One):
         if len(collection_set) > 1:
             raise alferr.ALFMultipleCollectionsFound(
                 'Matching dataset belongs to multiple collections:' + ', '.join(collection_set))
-        if len(results) > 1:
+        dataset_set = {x['name'] for x in results}
+        if len(dataset_set) > 1:
             raise alferr.ALFMultipleObjectsFound('The following matching datasets were found: ' +
                                                  ', '.join(x['name'] for x in results))
+        # Deal with revisions
+        if len(results) > 1:
+            if revision is None:
+                # Take default dataset
+                results = [x for x in results if x['default_dataset']]
+                assert len(results) == 1, 'Number of default revisions != 1'
+            else:
+                idx = util.index_last_before([x['revision'] or '' for x in results], revision)
+                results = [] if idx is None else [results[idx]]
         if len(results) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found on Alyx')
 
         filename = self._download_dataset(results[0])
         assert filename is not None, 'failed to download dataset'
-
         return filename if download_only else alfio.load_file_content(filename)
 
     @util.refresh
-    def load_collection(self):
+    def load_collection(self, eid, collection):
         raise NotImplementedError()
 
     @util.refresh
@@ -945,6 +972,7 @@ class OneAlyx(One):
                     eid: Union[str, Path, UUID],
                     obj: str,
                     collection: Optional[str] = None,
+                    revision: str = None,
                     download_only: bool = False,
                     query_type: str = None,
                     clobber: bool = False,
@@ -957,6 +985,8 @@ class OneAlyx(One):
         :param obj: The ALF object to load.  Supports asterisks as wildcards.
         :param collection: The collection to which the object belongs, e.g. 'alf/probe01'.
         Supports asterisks as wildcards.
+        :param revision: The last revision before a given string (typically an ISO date).  If
+        None, the default dataset is returned (usually the most recent revision).
         :param download_only: When true the data are downloaded and the file paths are returned
         :param query_type: Query cache ('local') or Alyx database ('remote')
         :param clobber: If true, local data are re-downloaded
@@ -967,7 +997,6 @@ class OneAlyx(One):
             load_object(eid, '*moves')
             load_object(eid, 'trials')
             load_object(eid, 'spikes', collection='*probe01')
-        # FIXME Revisions
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -975,39 +1004,32 @@ class OneAlyx(One):
             return load_object_offline(self, eid, obj,
                                        collection=collection, download_only=download_only,
                                        query_type=query_type, **kwargs)
-        # Filter server-side by collection and dataset name
-        search_str = 'name__regex,' + obj.replace('*', '.*')
-        if collection and collection != 'all':
-            search_str += ',collection__regex,' + collection.replace('*', '.*')
-        results = self.alyx.rest('datasets', 'list', exists=True, session=eid, django=search_str)
-        pattern = re.compile(fnmatch.translate(obj))
+        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
 
-        # Further refine by matching object part of ALF datasets
-        def match(r):
-            return is_valid(r['name']) and pattern.match(alf_parts(r['name'])[1])
-
-        # Get filenames of returned ALF files
-        returned_obj = {alf_parts(x['name'])[1] for x in results if match(x)}
+        dataset = {'object': obj, **kwargs}
+        datasets = util.filter_datasets(datasets, dataset, collection, assert_unique=False)
+        datasets = util.filter_revision_last_before(datasets, revision, assert_unique=False)
 
         # Validate result before loading
-        if len(returned_obj) > 1:
-            raise alferr.ALFMultipleObjectsFound('The following matching objects were found: ' +
-                                                 ', '.join(returned_obj))
-        elif len(returned_obj) == 0:
-            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
-        collection_set = {x['collection'] for x in results if match(x)}
-        if len(collection_set) > 1:
-            raise alferr.ALFMultipleCollectionsFound(
-                'Matching object belongs to multiple collections:' + ', '.join(collection_set))
+        if len(datasets) == 0:
+            raise alferr.ALFObjectNotFound(obj)
+        parts = [rel_path_parts(x) for x in datasets.rel_path]
+        unique_objects = set(x[3] or '' for x in parts)
+        unique_collections = set(x[0] or '' for x in parts)
+        if len(unique_objects) > 1:
+            raise alferr.ALFMultipleObjectsFound('"' + '", "'.join(unique_objects) + '"')
+        if len(unique_collections) > 1:
+            raise alferr.ALFMultipleCollectionsFound('"' + '", "'.join(unique_collections) + '"')
 
-        # Download and optionally load the datasets
-        out_files = self._update_filesystem((x for x in results if match(x)), clobber=clobber)
-        # out_files = self.download_datasets(x for x in results if match(x))
-        assert not any(x is None for x in out_files), 'failed to download object'
+        # Download any missing files
+        files = self._update_filesystem(datasets, offline=False)
+        assert not any(x is None for x in files), 'failed to download object'
+        if not files:
+            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
+
         if download_only:
-            return out_files
-        else:
-            return alfio.load_object(out_files[0].parent, obj, **kwargs)
+            return files
+        return alfio.load_object(files, **kwargs)
 
     @util.refresh
     def pid2eid(self, pid: str, query_type='auto') -> (str, str):

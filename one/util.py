@@ -223,7 +223,7 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
                 rev_list = '"' + '", "'.join(df['revision'].unique()) + '"'
                 raise alferr.ALFMultipleRevisionsFound(rev_list)
             # Square brackets forces 1 row DataFrame returned instead of Series
-            idx = _index_last_before(df['revision'].tolist(), revision)
+            idx = index_last_before(df['revision'].tolist(), revision)
             return df.iloc[slice(0, 0) if idx is None else [idx], :]
 
     with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
@@ -233,7 +233,7 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
     return grouped.apply(_last_before)  # .drop('revision', axis=1)
 
 
-def _index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
+def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
     """
     Returns the index of string that occurs directly before the provided revision string when
     lexicographic sorted.  If revision is None, the index of the most recent revision is returned.

@@ -38,7 +38,7 @@ import pandas as pd
 from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
-    ses2records, validate_date_range, _index_last_before, filter_datasets, _collection_spec,
+    ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
     filter_revision_last_before, parse_id, autocomplete, LazyId
 )
 import one.params
@@ -740,13 +740,33 @@ class TestOneAlyx(unittest.TestCase):
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
-class TestOneOnline(unittest.TestCase):
+class TestOneRemote(unittest.TestCase):
+    """Test remote queries"""
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
 
     def test_online_repr(self):
         self.assertTrue('online' in str(self.one))
         self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
+
+    def test_list_datasets(self):
+        # Test list for eid
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        dsets = self.one.list_datasets(eid, details=True, query_type='remote')
+        self.assertEqual(110, len(dsets))
+
+        # Test empty
+        dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
+        self.assertIsInstance(dsets, pd.DataFrame)
+        self.assertEqual(len(dsets), 0)
+
+        # Test details=False, with eid
+        dsets = self.one.list_datasets(eid, details=False, query_type='remote')
+        self.assertIsInstance(dsets, np.ndarray)
+        self.assertEqual(110, len(dsets))
+
+        with self.assertWarns(Warning):
+            self.one.list_datasets(query_type='remote')
 
     def test_search(self):
         eids = self.one.search(subject='SWC_043', query_type='remote')
@@ -774,6 +794,38 @@ class TestOneOnline(unittest.TestCase):
         self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
         eids = self.one.search(lab='hoferlab', query_type='remote')
         self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+
+    def test_load_dataset(self):
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        file = self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv',
+                                     collection='raw_passive_data', query_type='remote',
+                                     download_only=True)
+        self.assertIsInstance(file, Path)
+        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
+        # Test validations
+        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.load_dataset(eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv',
+                                  collection='alf', query_type='remote')
+
+    def test_load_object(self):
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        files = self.one.load_object(eid, 'wheel',
+                                     collection='alf', query_type='remote',
+                                     download_only=True)
+        self.assertIsInstance(file, Path)
+        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
+        # Test validations
+        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.load_dataset(eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset(eid, 'wheel',
+                                  collection='raw_passive_data', query_type='remote')
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -957,16 +1009,16 @@ class TestOneMisc(unittest.TestCase):
 
     def test_index_last_before(self):
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
-        verifiable = _index_last_before(revisions, '2021-01-01')
+        verifiable = index_last_before(revisions, '2021-01-01')
         self.assertEqual(3, verifiable)
 
-        verifiable = _index_last_before(revisions, '2020-09-15')
+        verifiable = index_last_before(revisions, '2020-09-15')
         self.assertEqual(1, verifiable)
 
-        self.assertIsNone(_index_last_before(revisions, ''))
-        self.assertIsNone(_index_last_before([], '2009-01-01'))
+        self.assertIsNone(index_last_before(revisions, ''))
+        self.assertIsNone(index_last_before([], '2009-01-01'))
 
-        verifiable = _index_last_before(revisions, None)
+        verifiable = index_last_before(revisions, None)
         self.assertEqual(0, verifiable, 'should return most recent')
 
     def test_collection_spec(self):
