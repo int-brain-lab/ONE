@@ -21,6 +21,7 @@ Note ONE and AlyxClient use caching:
     properties to their original state on teardown, or call one.api.ONE.cache_clear()
 
 """
+import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -38,7 +39,7 @@ from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, _index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id
+    filter_revision_last_before, parse_id, autocomplete, LazyId
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -747,6 +748,33 @@ class TestOneOnline(unittest.TestCase):
         self.assertTrue('online' in str(self.one))
         self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
 
+    def test_search(self):
+        eids = self.one.search(subject='SWC_043', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
+        correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
+        self.assertTrue(correct)
+        # Test dataset search with Django
+        eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
+                               django='data_dataset_session_related__collection__iexact,alf',
+                               query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        # Test date range
+        eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
+                               query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        # Test limit arg and LazyId
+        eids = self.one.search(limit=2, query_type='remote')
+        self.assertIsInstance(eids, LazyId)
+        self.assertTrue(all(len(x) == 36 for x in eids))
+        # Test laboratory kwarg
+        eids = self.one.search(laboratory='hoferlab', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids = self.one.search(lab='hoferlab', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
@@ -981,3 +1009,12 @@ class TestOneMisc(unittest.TestCase):
         obj.to_eid.return_value = None  # Simulate failure to parse id
         with self.assertRaises(ValueError):
             parse_id(obj.method)(obj, input)
+
+    def test_autocomplete(self):
+        search_terms = ('subject', 'date_range', 'dataset', 'dataset_type')
+        self.assertEqual('subject', autocomplete('Subj', search_terms))
+        self.assertEqual('dataset', autocomplete('dataset', search_terms))
+        with self.assertRaises(ValueError):
+            autocomplete('dtypes', search_terms)
+        with self.assertRaises(ValueError):
+            autocomplete('dat', search_terms)

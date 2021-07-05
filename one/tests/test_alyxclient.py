@@ -213,6 +213,17 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertTrue(len(rep) > 250)
         self.assertTrue(len([d['hash'] for d in rep]) == len(rep))
 
+    def test_update_url_params(self):
+        url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
+        expected = f'{self.ac.base_url}/sessions?param1=foo&limit=10&param3=bar&param4=baz'
+        self.assertEqual(expected, wc.update_url_params(url, {'limit': 10, 'param4': 'baz'}))
+        # Without pars
+        url = url.split('?')[0]
+        self.assertEqual(url, wc.update_url_params(url, {}))
+        # With lists
+        expected = f'{url}?foo=bar&foo=baz'
+        self.assertEqual(expected, wc.update_url_params(url, {'foo': ['bar', 'baz']}))
+
     def test_generic_request(self):
         a = self.ac.get('/labs')
         b = self.ac.get('labs')

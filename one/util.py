@@ -1,6 +1,7 @@
 """Decorators and small standalone functions for api module"""
 from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
+from collections.abc import Mapping
 
 import pandas as pd
 from iblutil.io import parquet
@@ -251,3 +252,49 @@ def _index_last_before(revisions: List[str], revision: Optional[str]) -> Optiona
         return revisions.index(revisions_sorted[0])
     lt = np.array(revisions_sorted) < revision
     return revisions.index(revisions_sorted[lt.argmax()]) if any(lt) else None
+
+
+def autocomplete(term, search_terms):
+    """
+    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
+    """
+    term = term.lower()
+    # Check if term already complete
+    if term in search_terms:
+        return term
+    full_key = (x for x in search_terms if x.lower().startswith(term))
+    key_ = next(full_key, None)
+    if not key_:
+        raise ValueError(f'Invalid search term "{term}", see `one.search_terms()`')
+    elif next(full_key, None):
+        raise ValueError(f'Ambiguous search term "{term}"')
+    return key_
+
+
+def ensure_list(value):
+    """Ensure input is a list"""
+    return [value] if isinstance(value, str) or not isinstance(value, Iterable) else value
+
+
+class LazyId(Mapping):
+    """
+    Using a paginated response object or list of session records, extracts eid string when required
+    """
+    def __init__(self, pg):
+        self._pg = pg
+
+    def __getitem__(self, item):
+        return self.ses2eid(self._pg.__getitem__(item))
+
+    def __len__(self):
+        return self._pg.__len__()
+
+    def __iter__(self):
+        return map(self.ses2eid, self._pg.__iter__())
+
+    @staticmethod
+    def ses2eid(ses):
+        if isinstance(ses, list):
+            return [LazyId.ses2eid(x) for x in ses]
+        else:
+            return ses.get('id', ses['url'].split('/').pop())

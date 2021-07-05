@@ -35,6 +35,7 @@ import re
 import functools
 import urllib.request
 from urllib.error import HTTPError
+import urllib.parse
 from collections.abc import Mapping
 from typing import Optional
 from datetime import datetime, timedelta
@@ -127,12 +128,10 @@ class _PaginatedResponse(Mapping):
         self.alyx = alyx
         self.count = rep['count']
         self.limit = len(rep['results'])
-        # warning: the offset and limit filters are not necessarily the last ones
-        lquery = [q for q in rep['next'].split('&')
-                  if not (q.startswith('offset=') or q.startswith('limit='))]
-        self.query = '&'.join(lquery)
+        # store URL without pagination query params
+        self.query = rep['next']
         # init the cache, list with None with count size
-        self._cache = [None for _ in range(self.count)]
+        self._cache = [None] * self.count
         # fill the cache with results of the query
         for i in range(self.limit):
             self._cache[i] = rep['results'][i]
@@ -141,17 +140,58 @@ class _PaginatedResponse(Mapping):
         return self.count
 
     def __getitem__(self, item):
-        if self._cache[item] is None:
-            offset = self.limit * math.floor(item / self.limit)
-            query = f'{self.query}&limit={self.limit}&offset={offset}'
-            res = self.alyx._generic_request(requests.get, query)
-            for i, r in enumerate(res['results']):
-                self._cache[i + offset] = res['results'][i]
+        if isinstance(item, slice):
+            while None in self._cache[item]:
+                self.populate(self._cache[item].index(None))
+        elif self._cache[item] is None:
+            self.populate(item)
         return self._cache[item]
+
+    def populate(self, idx):
+        offset = self.limit * math.floor(idx / self.limit)
+        query = update_url_params(self.query, {'limit': self.limit, 'offset': offset})
+        res = self.alyx._generic_request(requests.get, query)
+        for i, r in enumerate(res['results']):
+            self._cache[i + offset] = res['results'][i]
 
     def __iter__(self):
         for i in range(self.count):
             yield self.__getitem__(i)
+
+
+def update_url_params(url: str, params: dict) -> str:
+    """Add/update the query parameters of a URL
+
+    Parameters
+    ----------
+    url : str
+        A URL string with which to update the query parameters
+    params : dict
+        A dict of new parameters.  For multiple values for the same query, use a list (see example)
+
+    Returns
+    -------
+        A new URL without said parameters
+
+    Examples
+    -------
+        update_url_params('website.com/?q=', {'pg': 5})
+        'website.com/?pg=5'
+
+        update_url_params('website.com?q=xxx', {'pg': 5, foo: ['bar', 'baz']})
+        'website.com?q=xxx&pg=5&foo=bar&foo=baz'
+    """
+    # Remove percent-encoding
+    url = urllib.parse.unquote(url)
+    parsed_url = urllib.parse.urlsplit(url)
+    # Extract URL query arguments and convert to dict
+    parsed_get_args = urllib.parse.parse_qs(parsed_url.query, keep_blank_values=False)
+    # Merge URL arguments dict with new params
+    parsed_get_args.update(params)
+    # Convert back to query string
+    encoded_get_args = urllib.parse.urlencode(parsed_get_args, doseq=True)
+    # Update parser and convert to full URL str
+    return parsed_url._replace(query=encoded_get_args).geturl()
 
 
 def sdsc_globus_path_from_dataset(dset):
@@ -745,10 +785,10 @@ class AlyxClient(metaclass=UniqueSingletons):
         cache_args = {'clobber': no_cache, 'expires': no_cache}
         if action == 'list':
             # list doesn't require id nor
-            assert (endpoint_scheme[action]['action'] == 'get')
+            assert endpoint_scheme[action]['action'] == 'get'
             # add to url data if it is a string
             if id:
-                # this is a special case of the list where we query an uuid. Usually read is better
+                # this is a special case of the list where we query a uuid. Usually read is better
                 if 'django' in kwargs.keys():
                     kwargs['django'] = kwargs['django'] + ','
                 else:
@@ -761,7 +801,7 @@ class AlyxClient(metaclass=UniqueSingletons):
                     if isinstance(kwargs[k], str):
                         query = kwargs[k]
                     elif isinstance(kwargs[k], list):
-                        query = ','.join(kwargs[k])
+                        query = ','.join(map(str, kwargs[k]))
                     else:
                         query = str(kwargs[k])
                     url = url + f"&{k}=" + query
