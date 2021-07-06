@@ -419,7 +419,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         :param password: Alyx database password
         :param base_url: Alyx server address, including port and protocol
         :param cache_rest: which type of http method to apply cache to; if '*', all requests are
-        cached.
+        cached. Set to None for no cache.
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)

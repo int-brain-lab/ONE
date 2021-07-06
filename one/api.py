@@ -776,6 +776,9 @@ class One(ConversionMixin):
 def ONE(*, mode='auto', **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.
+    :param mode: string: 'default', 'auto' or 'local'
+    :param cache_rest: 'GET', 'all', or None
+    :return: ONE instance
     """
     if kwargs.pop('offline', False):
         _logger.warning('the offline kwarg will probably be removed. '
@@ -1000,11 +1003,11 @@ class OneAlyx(One):
             raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
         collection_set = {x['collection'] for x in results if match(x)}
         if len(collection_set) > 1:
+            # try exact match first
             raise alferr.ALFMultipleCollectionsFound(
                 'Matching object belongs to multiple collections:' + ', '.join(collection_set))
-
         # Download and optionally load the datasets
-        out_files = self._update_filesystem((x for x in results if match(x)), clobber=clobber)
+        out_files = self._update_filesystem([x for x in results if match(x)], clobber=clobber)
         # out_files = self.download_datasets(x for x in results if match(x))
         assert not any(x is None for x in out_files), 'failed to download object'
         if download_only:
