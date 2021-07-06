@@ -58,9 +58,7 @@ from .alf.cache import make_parquet_db
 from .alf.files import alf_parts, rel_path_parts
 from .alf.spec import is_valid, COLLECTION_SPEC, regex as alf_regex
 from one.converters import ConversionMixin
-from .util import (
-    parse_id, refresh, Listable, validate_date_range, filter_datasets, filter_revision_last_before
-)
+from .util import parse_id, refresh, Listable, validate_date_range, filter_datasets
 
 _logger = logging.getLogger(__name__)
 
@@ -563,8 +561,7 @@ class One(ConversionMixin):
         # match = ~table[['collection', 'object', 'revision']].isna().all(axis=1)
 
         dataset = {'object': obj, **kwargs}
-        datasets = filter_datasets(datasets, dataset, collection, assert_unique=False)
-        datasets = filter_revision_last_before(datasets, revision, assert_unique=False)
+        datasets = filter_datasets(datasets, dataset, collection, revision, assert_unique=False)
 
         # Validate result before loading
         if len(datasets) == 0:

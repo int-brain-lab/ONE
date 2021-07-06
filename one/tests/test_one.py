@@ -948,15 +948,33 @@ class TestOneMisc(unittest.TestCase):
 
     def test_revision_last_before(self):
         datasets = util.revisions_datasets_table()
-        df = datasets[datasets.rel_path.str.startswith('alf/probe00')]
-        verifiable = filter_revision_last_before(df.copy(),
+        df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
+        verifiable = filter_revision_last_before(df,
                                                  revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
         # Test assert unique
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_revision_last_before(df.copy(), revision='2020-09-01', assert_unique=True)
+            filter_revision_last_before(df, revision='2020-09-01', assert_unique=True)
+
         # Test with default revisions
+        df['default_revision'] = False
+        with self.assertLogs(logging.getLogger('one.util')):
+            verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
+        self.assertTrue(len(verifiable) == 2)
+
+        # Should have fallen back on lexicographical ordering
+        self.assertTrue(verifiable.rel_path.str.contains('#2021-07-06#').all())
+        with self.assertRaises(alferr.ALFError):
+            filter_revision_last_before(df.copy(), assert_unique=True)
+
+        # Add unique default revisions
+        df.iloc[[0, 4], -1] = True
+        verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
+        self.assertTrue(len(verifiable) == 2)
+        self.assertCountEqual(verifiable['rel_path'], df['rel_path'].iloc[[0, 4]])
+
+        # Add multiple default revisions
         df['default_revision'] = True
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
             filter_revision_last_before(df.copy(), assert_unique=True)

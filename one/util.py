@@ -1,4 +1,5 @@
 """Decorators and small standalone functions for api module"""
+import logging
 from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
 
@@ -10,6 +11,8 @@ import one.alf.exceptions as alferr
 from one.alf.files import rel_path_parts
 from one.alf.spec import FILE_SPEC, regex as alf_regex
 import one.alf.io as alfio
+
+logger = logging.getLogger(__name__)
 
 
 def Listable(t):
@@ -216,14 +219,21 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
                 revisions = df['revision'][df.default_revision.values]
                 rev_list = '"' + '", "'.join(revisions) + '"'
                 raise alferr.ALFMultipleRevisionsFound(rev_list)
-            return df[df.default_revision]
-        else:  # Compare revisions lexicographically
-            if assert_unique and len(df['revision'].unique()) > 1:
-                rev_list = '"' + '", "'.join(df['revision'].unique()) + '"'
-                raise alferr.ALFMultipleRevisionsFound(rev_list)
-            # Square brackets forces 1 row DataFrame returned instead of Series
-            idx = _index_last_before(df['revision'].tolist(), revision)
-            return df.iloc[slice(0, 0) if idx is None else [idx], :]
+            if sum(df.default_revision) == 1:
+                return df[df.default_revision]
+            # default_revision column all False; default doesn't isn't copied to remote repository
+            dset_name = df['rel_path'].iloc[0]
+            if assert_unique:
+                raise alferr.ALFError(f'No default revision for dataset {dset_name}')
+            else:
+                logger.warning(f'No default revision for dataset {dset_name}; using most recent')
+        # Compare revisions lexicographically
+        if assert_unique and len(df['revision'].unique()) > 1:
+            rev_list = '"' + '", "'.join(df['revision'].unique()) + '"'
+            raise alferr.ALFMultipleRevisionsFound(rev_list)
+        # Square brackets forces 1 row DataFrame returned instead of Series
+        idx = _index_last_before(df['revision'].tolist(), revision)
+        return df.iloc[slice(0, 0) if idx is None else [idx], :]
 
     with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
         datasets['revision'] = [rel_path_parts(x)[1] or '' for x in datasets.rel_path]
