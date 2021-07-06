@@ -31,7 +31,7 @@ import concurrent.futures
 import warnings
 import logging
 import os
-import fnmatch
+# import fnmatch
 import re
 from datetime import datetime, timedelta
 from functools import lru_cache, reduce
@@ -102,6 +102,9 @@ class One(ConversionMixin):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
             cache, meta['raw'][table] = parquet.load(cache_file)
+            if 'date_created' not in meta['raw'][table]:
+                _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
+                continue
             created = datetime.fromisoformat(meta['raw'][table]['date_created'])
             meta['created_time'] = min([meta['created_time'] or datetime.max, created])
             meta['loaded_time'] = datetime.now()
@@ -535,8 +538,8 @@ class One(ConversionMixin):
         # match = ~table[['collection', 'object', 'revision']].isna().all(axis=1)
 
         dataset = {'object': obj, **kwargs}
-        datasets = util.filter_datasets(datasets, dataset, collection, assert_unique=False)
-        datasets = util.filter_revision_last_before(datasets, revision, assert_unique=False)
+        datasets = util.filter_datasets(datasets, dataset, collection, revision,
+                                        assert_unique=False)
 
         # Validate result before loading
         if len(datasets) == 0:
