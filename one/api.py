@@ -984,7 +984,10 @@ class OneAlyx(One):
         # Filter server-side by collection and dataset name
         search_str = 'name__regex,' + obj.replace('*', '.*')
         if collection and collection != 'all':
-            search_str += ',collection__regex,' + collection.replace('*', '.*')
+            if '*' in collection:
+                search_str += ',collection__regex,' + collection.replace('*', '.*')
+            else:
+                search_str += ',collection,' + collection
         results = self.alyx.rest('datasets', 'list', exists=True, session=eid, django=search_str)
         pattern = re.compile(fnmatch.translate(obj))
 
