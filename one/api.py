@@ -4,7 +4,6 @@ TODO Add sig to ONE Light uuids
 TODO Save changes to cache
 TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
-TODO Make autocomplete a private method
 TODO edit alf exceptions constructor with default message template?
 
 Points of discussion:
@@ -32,17 +31,15 @@ import concurrent.futures
 import warnings
 import logging
 import os
-import fnmatch
+# import fnmatch
 import re
 from datetime import datetime, timedelta
 from functools import lru_cache, reduce
 from inspect import unwrap
-from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Union, Optional, List
 from uuid import UUID
 
-import tqdm
 import pandas as pd
 import numpy as np
 import requests.exceptions
@@ -55,10 +52,10 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import alf_parts, rel_path_parts
-from .alf.spec import is_valid, COLLECTION_SPEC, regex as alf_regex
+from .alf.files import rel_path_parts
+from .alf.spec import COLLECTION_SPEC, regex as alf_regex
 from one.converters import ConversionMixin
-from .util import parse_id, refresh, Listable, validate_date_range, filter_datasets
+import one.util as util
 
 _logger = logging.getLogger(__name__)
 
@@ -66,7 +63,7 @@ N_THREADS = 4  # number of download threads
 
 
 class One(ConversionMixin):
-    search_terms = (
+    _search_terms = (
         'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
     )
 
@@ -93,6 +90,10 @@ class One(ConversionMixin):
     @property
     def offline(self):
         return self.mode == 'local' or not getattr(self, '_web_client', False)
+
+    @util.refresh
+    def search_terms(self, query_type=None):
+        return self._search_terms
 
     def _load_cache(self, cache_dir=None, **kwargs):
         meta = self._cache['_meta']
@@ -188,7 +189,7 @@ class One(ConversionMixin):
 
         For a list of search terms, use the methods
 
-         one.search_terms
+         one.search_terms()
 
         For all of the search parameters, a single value or list may be provided.  For dataset,
         the sessions returned will contain all listed datasets.  For the other parameters,
@@ -207,34 +208,15 @@ class One(ConversionMixin):
                         that str will be found)
 
         :param details: if true also returns a dict of dataset details
-        :param exists_only: if true, datasets that were recently not found in the filesystem are
-        ignored TODO Remove
         :param query_type: Query cache ('local') or Alyx database ('remote')
 
         :return: list of eids, if details is True, also returns a list of dictionaries,
          each entry corresponding to a matching session
         """
 
-        def validate_input(inarg):
-            """Ensure input is a list"""
-            return [inarg] if isinstance(inarg, str) or not isinstance(inarg, Iterable) else inarg
-
         def all_present(x, dsets, exists=True):
             """Returns true if all datasets present in Series"""
             return all(any(x.str.contains(y) & exists) for y in dsets)
-
-        def autocomplete(term):
-            """
-            Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
-            """
-            full_key = (x for x in self.search_terms if x.lower().startswith(term))
-            key_ = next(full_key, None)
-            if not key_:
-                raise ValueError(f'Invalid search term "{term}"\n'
-                                 'Note: remote search terms may differ')
-            elif next(full_key, None):
-                raise ValueError(f'Ambiguous search term "{term}"')
-            return key_
 
         # Iterate over search filters, reducing the sessions table
         sessions = self._cache['sessions']
@@ -244,48 +226,43 @@ class One(ConversionMixin):
 
         def sort_fcn(itm):
             return -1 if itm[0] not in search_order else search_order.index(itm[0])
-        queries = {autocomplete(k): v for k, v in kwargs.items()}  # Validate and get full name
+
+        # Validate and get full name for queries
+        search_terms = self.search_terms(query_type='local')
+        queries = {util.autocomplete(k, search_terms): v for k, v in kwargs.items()}
         for key, value in sorted(queries.items(), key=sort_fcn):
-            # key = autocomplete(key)  # Validate and get full name
+            # key = util.autocomplete(key)  # Validate and get full name
             # No matches; short circuit
             if sessions.size == 0:
                 return ([], None) if details else []
             # String fields
             elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
-                query = '|'.join(validate_input(value))
+                query = '|'.join(util.ensure_list(value))
                 mask = sessions['lab' if key == 'laboratory' else key].str.contains(query)
                 sessions = sessions[mask.astype(bool, copy=False)]
             elif key == 'date_range':
-                start, end = validate_date_range(value)
+                start, end = util.validate_date_range(value)
                 session_date = pd.to_datetime(sessions['date'])
                 sessions = sessions[(session_date >= start) & (session_date <= end)]
             elif key == 'number':
-                query = validate_input(value)
+                query = util.ensure_list(value)
                 sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset check is biggest so this should be done last
             elif key == 'dataset':
                 index = ['eid_0', 'eid_1'] if self._index_type('datasets') is int else 'eid'
-                query = validate_input(value)
+                query = util.ensure_list(value)
                 datasets = self._cache['datasets']
                 if self._index_type() is int:
                     isin, _ = ismember2d(datasets[['eid_0', 'eid_1']].values,
                                          np.array(sessions.index.values.tolist()))
                 else:
                     isin = datasets['eid'].isin(sessions.index.values)
-                if exists_only:
-                    # For each session check any dataset both contains query and exists
-                    mask = (
-                        (datasets[isin]
-                            .groupby(index, sort=False)
-                            .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
-                    )
-                else:
-                    # For each session check any dataset contains query
-                    mask = (
-                        (datasets[isin]
-                            .groupby(index, sort=False)['rel_path']
-                            .aggregate(lambda x: all_present(x, query)))
-                    )
+                # For each session check any dataset both contains query and exists
+                mask = (
+                    (datasets[isin]
+                        .groupby(index, sort=False)
+                        .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
+                )
                 # eids of matching dataset records
                 idx = mask[mask].index
 
@@ -366,8 +343,8 @@ class One(ConversionMixin):
         else:
             raise IndexError
 
-    @refresh
-    @parse_id
+    @util.refresh
+    @util.parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
         # Int ids return DataFrame, making str eid a list ensures Series not returned
         int_ids = self._index_type() is int
@@ -386,7 +363,7 @@ class One(ConversionMixin):
         column = ['eid_0', 'eid_1'] if int_ids else 'eid'
         return self._cache['datasets'].join(det, on=column, how='right')
 
-    @refresh
+    @util.refresh
     def list_subjects(self) -> List[str]:
         """
         List all subjects in database
@@ -394,9 +371,9 @@ class One(ConversionMixin):
         """
         return self._cache['sessions']['subject'].sort_values().unique()
 
-    @refresh
-    def list_datasets(self,
-                      eid=None, collection=None, details=False) -> Union[np.ndarray, pd.DataFrame]:
+    @util.refresh
+    def list_datasets(self, eid=None, collection=None,
+                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
 
         """
         Given an eid, return the datasets for those sessions.  If no eid is provided,
@@ -430,7 +407,7 @@ class One(ConversionMixin):
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values
 
-    @refresh
+    @util.refresh
     def list_collections(self, eid=None, details=False) -> Union[np.ndarray, dict]:
         """
         List the collections for a given experiment.  If no experiment id is given,
@@ -459,7 +436,7 @@ class One(ConversionMixin):
         else:
             return np.sort(datasets['collection'].unique())
 
-    @refresh
+    @util.refresh
     def list_revisions(self, eid=None, dataset=None, collection=None, details=False):
         """
         List the revisions for a given experiment.  If no experiment id is given,
@@ -511,8 +488,8 @@ class One(ConversionMixin):
             match = ~table['collection'].isna()
         return datasets[match]
 
-    @refresh
-    @parse_id
+    @util.refresh
+    @util.parse_id
     def load_object(self,
                     eid: Union[str, Path, UUID],
                     obj: str,
@@ -545,7 +522,7 @@ class One(ConversionMixin):
             load_object(eid, 'spikes', namespace='ibl')
             load_object(eid, 'spikes', timescale='ephysClock')
         """
-        datasets = self.list_datasets(eid, details=True)
+        datasets = self.list_datasets(eid, details=True, query_type=query_type)
 
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(obj)
@@ -561,7 +538,8 @@ class One(ConversionMixin):
         # match = ~table[['collection', 'object', 'revision']].isna().all(axis=1)
 
         dataset = {'object': obj, **kwargs}
-        datasets = filter_datasets(datasets, dataset, collection, revision, assert_unique=False)
+        datasets = util.filter_datasets(datasets, dataset, collection, revision,
+                                        assert_unique=False)
 
         # Validate result before loading
         if len(datasets) == 0:
@@ -586,11 +564,10 @@ class One(ConversionMixin):
         if download_only:
             return files
 
-        # return alfio.load_object(files[0].parent, parts[0][3], **kwargs)
         return alfio.load_object(files, **kwargs)
 
-    @refresh
-    @parse_id
+    @util.refresh
+    @util.parse_id
     def load_dataset(self,
                      eid: Union[str, Path, UUID],
                      dataset: str,
@@ -615,9 +592,9 @@ class One(ConversionMixin):
         :param kwargs:
         :return:
         """
-        datasets = self.list_datasets(eid, details=True)
+        datasets = self.list_datasets(eid, details=True, query_type=query_type)
 
-        datasets = filter_datasets(datasets, dataset, collection, revision)
+        datasets = util.filter_datasets(datasets, dataset, collection, revision)
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
@@ -630,8 +607,8 @@ class One(ConversionMixin):
             return file
         return alfio.load_file_content(file)
 
-    @refresh
-    @parse_id
+    @util.refresh
+    @util.parse_id
     def load_datasets(self,
                       eid: Union[str, Path, UUID],
                       datasets: List[str],
@@ -696,7 +673,7 @@ class One(ConversionMixin):
             return None, all_datasets.iloc[0:0]  # Return empty
 
         # Filter and load missing
-        slices = [filter_datasets(all_datasets, x, y, z)
+        slices = [util.filter_datasets(all_datasets, x, y, z)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
         present_datasets = pd.concat(slices)
@@ -731,7 +708,7 @@ class One(ConversionMixin):
             return files, records
         return [alfio.load_file_content(x) for x in files], records
 
-    @refresh
+    @util.refresh
     def load_dataset_from_id(self,
                              dset_id: Union[str, UUID],
                              download_only: bool = False,
@@ -806,6 +783,7 @@ class OneAlyx(One):
                                          base_url=base_url,
                                          cache_dir=cache_dir,
                                          **kwargs)
+        self._search_endpoint = 'sessions'
         # get parameters override if inputs provided
         super(OneAlyx, self).__init__(mode=mode, cache_dir=cache_dir)
 
@@ -860,6 +838,27 @@ class OneAlyx(One):
     def _cache_dir(self):
         return self._web_client.cache_dir
 
+    @util.refresh
+    def search_terms(self, query_type=None):
+        """
+        Returns a list of search terms to be passed as kwargs to the search method
+
+        Parameters
+        ----------
+        query_type : str
+            If 'remote', the search terms are largely determined by the REST endpoint used
+
+        Returns
+        -------
+            Tuple of search strings
+        """
+        if (query_type or self.mode) != 'remote':
+            return self._search_terms
+        # Return search terms from REST schema
+        fields = self.alyx.rest_schemes[self._search_endpoint]['list']['fields']
+        excl = ('lab',)  # 'laboratory' already in search terms
+        return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
+
     def describe_dataset(self, dataset_type=None):
         # TODO Move to AlyxClient?; add to rest examples; rename to describe?
         if not dataset_type:
@@ -876,8 +875,25 @@ class OneAlyx(One):
         print(out['description'])
         return out
 
-    @refresh
-    @parse_id
+    @util.refresh
+    def list_datasets(self, eid=None, collection=None,
+                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
+        if (query_type or self.mode) != 'remote':
+            return super().list_datasets(collection=collection, details=details,
+                                         query_type=query_type)
+        elif not eid:
+            warnings.warn('Unable to list all remote datasets')
+            return super().list_datasets(collection=collection, details=details,
+                                         query_type=query_type)
+        eid = self.to_eid(eid)  # Ensure we have a UUID str list
+        if not eid:
+            return self._cache['datasets'].iloc[0:0]  # Return empty
+        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        # Return only the relative path
+        return datasets if details else datasets['rel_path'].sort_values().values
+
+    @util.refresh
+    @util.parse_id
     def load_dataset(self,
                      eid: Union[str, Path, UUID],
                      dataset: str,
@@ -900,6 +916,8 @@ class OneAlyx(One):
         :param download_only: When true the data are downloaded and the file path is returned.
         :return: dataset or a Path object if download_only is true.
 
+        TODO This method may be removed once default dataset is added to Alyx serializer
+
         Examples:
             intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
             intervals = one.load_dataset(eid, '*trials.intervals*')
@@ -907,7 +925,6 @@ class OneAlyx(One):
             spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
             old_spikes = one.load_dataset(eid, ''spikes.times.npy',
                                           collection='alf/probe01', revision='2020-08-31')
-        # FIXME Revisions
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -927,92 +944,31 @@ class OneAlyx(One):
         if len(collection_set) > 1:
             raise alferr.ALFMultipleCollectionsFound(
                 'Matching dataset belongs to multiple collections:' + ', '.join(collection_set))
-        if len(results) > 1:
+        dataset_set = {x['name'] for x in results}
+        if len(dataset_set) > 1:
             raise alferr.ALFMultipleObjectsFound('The following matching datasets were found: ' +
                                                  ', '.join(x['name'] for x in results))
+        # Deal with revisions
+        if len(results) > 1:
+            if revision is None:
+                # Take default dataset
+                results = [x for x in results if x['default_dataset']]
+                assert len(results) == 1, 'Number of default revisions != 1'
+            else:
+                idx = util.index_last_before([x['revision'] or '' for x in results], revision)
+                results = [] if idx is None else [results[idx]]
         if len(results) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found on Alyx')
 
         filename = self._download_dataset(results[0])
         assert filename is not None, 'failed to download dataset'
-
         return filename if download_only else alfio.load_file_content(filename)
 
-    @refresh
-    def load_collection(self):
+    @util.refresh
+    def load_collection(self, eid, collection):
         raise NotImplementedError()
 
-    @refresh
-    @parse_id
-    def load_object(self,
-                    eid: Union[str, Path, UUID],
-                    obj: str,
-                    collection: Optional[str] = None,
-                    download_only: bool = False,
-                    query_type: str = None,
-                    clobber: bool = False,
-                    **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
-        """
-        Load all attributes of an ALF object from a Session ID and an object name.
-
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path
-        :param obj: The ALF object to load.  Supports asterisks as wildcards.
-        :param collection: The collection to which the object belongs, e.g. 'alf/probe01'.
-        Supports asterisks as wildcards.
-        :param download_only: When true the data are downloaded and the file paths are returned
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-        :param clobber: If true, local data are re-downloaded
-        :param kwargs: Optional filters for the ALF objects, including namespace and timescale
-        :return: An ALF bunch or if download_only is True, a list of Paths objects
-
-        Examples:
-            load_object(eid, '*moves')
-            load_object(eid, 'trials')
-            load_object(eid, 'spikes', collection='*probe01')
-        # FIXME Revisions
-        """
-        query_type = query_type or self.mode
-        if query_type != 'remote':
-            load_object_offline = unwrap(super().load_object)  # Skip parse_id decorator
-            return load_object_offline(self, eid, obj,
-                                       collection=collection, download_only=download_only,
-                                       query_type=query_type, **kwargs)
-        # Filter server-side by collection and dataset name
-        search_str = 'name__regex,' + obj.replace('*', '.*')
-        if collection and collection != 'all':
-            search_str += ',collection__regex,' + collection.replace('*', '.*')
-        results = self.alyx.rest('datasets', 'list', exists=True, session=eid, django=search_str)
-        pattern = re.compile(fnmatch.translate(obj))
-
-        # Further refine by matching object part of ALF datasets
-        def match(r):
-            return is_valid(r['name']) and pattern.match(alf_parts(r['name'])[1])
-
-        # Get filenames of returned ALF files
-        returned_obj = {alf_parts(x['name'])[1] for x in results if match(x)}
-
-        # Validate result before loading
-        if len(returned_obj) > 1:
-            raise alferr.ALFMultipleObjectsFound('The following matching objects were found: ' +
-                                                 ', '.join(returned_obj))
-        elif len(returned_obj) == 0:
-            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on Alyx')
-        collection_set = {x['collection'] for x in results if match(x)}
-        if len(collection_set) > 1:
-            raise alferr.ALFMultipleCollectionsFound(
-                'Matching object belongs to multiple collections:' + ', '.join(collection_set))
-
-        # Download and optionally load the datasets
-        out_files = self._update_filesystem((x for x in results if match(x)), clobber=clobber)
-        # out_files = self.download_datasets(x for x in results if match(x))
-        assert not any(x is None for x in out_files), 'failed to download object'
-        if download_only:
-            return out_files
-        else:
-            return alfio.load_object(out_files[0].parent, obj, **kwargs)
-
-    @refresh
+    @util.refresh
     def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
@@ -1029,31 +985,17 @@ class OneAlyx(One):
         rec = self.alyx.rest('insertions', 'read', id=pid)
         return rec['session'], rec['name']
 
-    def autocomplete(self, term):
-        """ TODO Move to super class
-        Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
-        """
-        full_key = (x for x in self.search_terms if x.lower().startswith(term))
-        key_ = next(full_key, None)
-        if not key_:
-            if term.lower() in ('dtype', 'dtypes', 'dataset_types', 'dataset_type'):
-                _logger.warning('Searching by dataset type is deprecated')
-                return 'dataset_type'
-            raise ValueError(f'Invalid search term "{term}"')
-        elif next(full_key, None):
-            raise ValueError(f'Ambiguous search term "{term}"')
-        return key_
-
-    # def search(self, dataset_types=None, users=None, subjects=None, date_range=None,
-    #            lab=None, number=None, task_protocol=None, details=False):
     def search(self, details=False, query_type=None, **kwargs):
         """
-        Applies a filter to the sessions (eid) table and returns a list of json dictionaries
-         corresponding to sessions.
+        Searches sessions matching the given criteria and returns a list of matching eids
 
-        For a list of search terms, use the methods
+        For a list of remote database search terms, use the method
 
-        >>> one.search_terms
+         one.search_terms(query_type='remote')
+
+        For all of the search parameters, a single value or list may be provided.  For dataset,
+        the sessions returned will contain all listed datasets.  For the other parameters,
+        the session must contain at least one of the entries
 
         :param dataset: list of dataset names. Returns sessions containing all these datasets.
         A dataset matches if it contains the search string e.g. 'wheel.position' matches
@@ -1066,65 +1008,47 @@ class OneAlyx(One):
                               containing that str will be found)
         :param project: project name (can be partial, i.e. any task protocol containing
                         that str will be found)
+        :param performance_lte / performance_gte: search only for sessions whose performance is
+                less equal or greater equal than a pre-defined threshold as a percentage (0-100)
+        :param users: a list of users
         :param location: a str or list of lab location (as per Alyx definition) name
                          Note: this corresponds to the specific rig, not the lab geographical
                          location per se
-        :param performance_lte / performance_gte: search only for sessions whose performance is
-        less equal or greater equal than a pre-defined threshold as a percentage (0-100)
-        :param users: a list of Alyx usernames
+        :param dataset_types: list of dataset_types
+        :param limit: the number of results to fetch in one go (if pagination enabled on server)
 
-        :param details: default False, returns also the session details as per the REST response
+        :param details: if true also returns a dict of dataset details
         :param query_type: Query cache ('local') or Alyx database ('remote')
-        :return: list of eids, if details is True, also returns a list of json dictionaries,
+
+        :return: list of eids and, if details is True, also returns a list of dictionaries,
          each entry corresponding to a matching session
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
             return super(OneAlyx, self).search(details=details, query_type=query_type, **kwargs)
 
-        # small function to make sure string inputs are interpreted as lists
-        def validate_input(inarg):
-            if isinstance(inarg, str):
-                return [inarg]
-            elif isinstance(inarg, int):
-                return [str(inarg)]
-            else:
-                return inarg
-
         # loop over input arguments and build the url
-        url = '/sessions?'
-        for key, value in kwargs.items():
-            field = self.autocomplete(key)  # Validate and get full name
+        search_terms = self.search_terms(query_type=query_type)
+        params = {'django': kwargs.pop('django', '')}
+        for key, value in sorted(kwargs.items()):
+            field = util.autocomplete(key, search_terms)  # Validate and get full name
             # check that the input matches one of the defined filters
             if field == 'date_range':
-                query = validate_date_range(value)
-                url += f'&{field}=' + ','.join(x.date().isoformat() for x in query)
-            elif field == 'dataset_type':  # legacy
-                url += '&dataset_type=' + ','.join(validate_input(value))
+                params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
             elif field == 'dataset':
-                url += ('&django=data_dataset_session_related__dataset_type__name__icontains,' +
-                        ','.join(validate_input(value)))
-            else:  # TODO Overload search terms (users, etc.)
-                url += f'&{field}=' + ','.join(validate_input(value))
-        # implements the loading itself
-        ses = self.alyx.get(url)
-        if len(ses) > 2500:
-            eids = [s['url'] for s in tqdm.tqdm(ses)]  # flattens session info
-        else:
-            eids = [s['url'] for s in ses]
-        eids = [e.split('/')[-1] for e in eids]  # remove url to make it portable
+                query = ('data_dataset_session_related__dataset_type__name__icontains,' +
+                         ','.join(util.ensure_list(value)))
+                params['django'] += (',' if params['django'] else '') + query
+            elif field == 'laboratory':
+                params['lab'] = value
+            else:
+                params[field] = value
 
-        if details:
-            for s in ses:
-                if all([s.get('lab'), s.get('subject'), s.get('start_time')]):
-                    s['local_path'] = str(Path(self._cache_dir, s['lab'], 'Subjects',
-                                               s['subject'], s['start_time'][:10],
-                                               str(s['number']).zfill(3)))
-                else:
-                    s['local_path'] = None
-            return eids, ses
-        else:
-            return eids
+        # Make GET request
+        ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+        # LazyId only transforms records when indexed
+        eids = util.LazyId(ses)
+        return (eids, ses) if details else eids
 
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """
@@ -1238,9 +1162,9 @@ class OneAlyx(One):
             onepqt.make_parquet_db(root_dir, **kwargs)
             return One(cache_dir=root_dir)
 
-    @refresh
-    @parse_id
-    def eid2path(self, eid: str, query_type=None) -> Listable(Path):
+    @util.refresh
+    @util.parse_id
+    def eid2path(self, eid: str, query_type=None) -> util.Listable(Path):
         """
         From an experiment id gets the local cache path
         :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
@@ -1264,8 +1188,8 @@ class OneAlyx(One):
                 ses[0]['lab'], 'Subjects', ses[0]['subject'], ses[0]['start_time'][:10],
                 str(ses[0]['number']).zfill(3))
 
-    @refresh
-    def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(Path):
+    @util.refresh
+    def path2eid(self, path_obj: Union[str, Path], query_type=None) -> util.Listable(Path):
         """
         From a local path, gets the experiment id
         :param path_obj: local path or list of local paths
@@ -1305,7 +1229,7 @@ class OneAlyx(One):
         # Return the uuid if any
         return uuid[0] if uuid else None
 
-    @refresh
+    @util.refresh
     def path2url(self, filepath, query_type='auto'):
         """
         Given a local file path, returns the URL of the remote file.
@@ -1323,7 +1247,7 @@ class OneAlyx(One):
         except (ValueError, StopIteration):
             raise alferr.ALFObjectNotFound(f'File record for {filepath} not found on Alyx')
 
-    @parse_id
+    @util.parse_id
     def datasets_from_type(self, eid, dataset_type, full=False):
         """
         Get list of datasets belonging to a given dataset type for a given session
@@ -1367,8 +1291,8 @@ class OneAlyx(One):
             if dset_name in rel_path:
                 return idx
 
-    @refresh
-    @parse_id
+    @util.refresh
+    @util.parse_id
     def get_details(self, eid: str, full: bool = False, query_type=None):
         """ Returns details of eid like from one.search, optional return full
         session details.

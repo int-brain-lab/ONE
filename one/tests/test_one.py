@@ -21,6 +21,7 @@ Note ONE and AlyxClient use caching:
     properties to their original state on teardown, or call one.api.ONE.cache_clear()
 
 """
+import datetime
 import logging
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from itertools import permutations, combinations_with_replacement
@@ -38,8 +39,8 @@ import pandas as pd
 from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
-    ses2records, validate_date_range, _index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id
+    ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
+    filter_revision_last_before, parse_id, autocomplete, LazyId
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -675,11 +676,15 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        # TODO May want to add default revision to datasets_session_related serializer
         expected = [x for x in self.one._cache['datasets'].columns
                     if x != 'default_revision']
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
+        # NB: For now there is no default_revision in the dataset serializer
+        for r in ses['data_dataset_session_related']:
+            r['default_revision'] = True
+        session, datasets = ses2records(ses)
+        self.assertTrue(datasets.default_revision.all())
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
@@ -745,13 +750,90 @@ class TestOneAlyx(unittest.TestCase):
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
-class TestOneOnline(unittest.TestCase):
+class TestOneRemote(unittest.TestCase):
+    """Test remote queries"""
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
 
     def test_online_repr(self):
         self.assertTrue('online' in str(self.one))
         self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
+
+    def test_list_datasets(self):
+        # Test list for eid
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        # Ensure remote by making local datasets table empty
+        self.addCleanup(self.one._load_cache)
+        self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
+
+        dsets = self.one.list_datasets(eid, details=True, query_type='remote')
+        self.assertEqual(110, len(dsets))
+
+        # Test empty
+        dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
+        self.assertIsInstance(dsets, pd.DataFrame)
+        self.assertEqual(len(dsets), 0)
+
+        # Test details=False, with eid
+        dsets = self.one.list_datasets(eid, details=False, query_type='remote')
+        self.assertIsInstance(dsets, np.ndarray)
+        self.assertEqual(110, len(dsets))
+
+        with self.assertWarns(Warning):
+            self.one.list_datasets(query_type='remote')
+
+    def test_search(self):
+        eids = self.one.search(subject='SWC_043', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
+        correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
+        self.assertTrue(correct)
+        # Test dataset search with Django
+        eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
+                               django='data_dataset_session_related__collection__iexact,alf',
+                               query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        # Test date range
+        eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
+                               query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        # Test limit arg and LazyId
+        eids = self.one.search(limit=2, query_type='remote')
+        self.assertIsInstance(eids, LazyId)
+        self.assertTrue(all(len(x) == 36 for x in eids))
+        # Test laboratory kwarg
+        eids = self.one.search(laboratory='hoferlab', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids = self.one.search(lab='hoferlab', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+
+    def test_load_dataset(self):
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        file = self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv',
+                                     collection='raw_passive_data', query_type='remote',
+                                     download_only=True)
+        self.assertIsInstance(file, Path)
+        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
+        # Test validations
+        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.load_dataset(eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv',
+                                  collection='alf', query_type='remote')
+
+    def test_load_object(self):
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        files = self.one.load_object(eid, 'wheel',
+                                     collection='alf', query_type='remote',
+                                     download_only=True)
+        self.assertIsInstance(files[0], Path)
+        self.assertTrue(
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+        )
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -935,16 +1017,16 @@ class TestOneMisc(unittest.TestCase):
 
     def test_index_last_before(self):
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
-        verifiable = _index_last_before(revisions, '2021-01-01')
+        verifiable = index_last_before(revisions, '2021-01-01')
         self.assertEqual(3, verifiable)
 
-        verifiable = _index_last_before(revisions, '2020-09-15')
+        verifiable = index_last_before(revisions, '2020-09-15')
         self.assertEqual(1, verifiable)
 
-        self.assertIsNone(_index_last_before(revisions, ''))
-        self.assertIsNone(_index_last_before([], '2009-01-01'))
+        self.assertIsNone(index_last_before(revisions, ''))
+        self.assertIsNone(index_last_before([], '2009-01-01'))
 
-        verifiable = _index_last_before(revisions, None)
+        verifiable = index_last_before(revisions, None)
         self.assertEqual(0, verifiable, 'should return most recent')
 
     def test_collection_spec(self):
@@ -1005,3 +1087,12 @@ class TestOneMisc(unittest.TestCase):
         obj.to_eid.return_value = None  # Simulate failure to parse id
         with self.assertRaises(ValueError):
             parse_id(obj.method)(obj, input)
+
+    def test_autocomplete(self):
+        search_terms = ('subject', 'date_range', 'dataset', 'dataset_type')
+        self.assertEqual('subject', autocomplete('Subj', search_terms))
+        self.assertEqual('dataset', autocomplete('dataset', search_terms))
+        with self.assertRaises(ValueError):
+            autocomplete('dtypes', search_terms)
+        with self.assertRaises(ValueError):
+            autocomplete('dat', search_terms)

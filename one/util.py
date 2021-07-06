@@ -1,7 +1,9 @@
 """Decorators and small standalone functions for api module"""
 import logging
+import urllib.parse
 from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
+from collections.abc import Mapping
 
 import pandas as pd
 from iblutil.io import parquet
@@ -41,9 +43,12 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
         rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
         rec['eid_0'], rec['eid_1'] = session.name
-        file_path = alfio.get_alf_path(d['data_url'])
+        file_path = urllib.parse.urlsplit(d['data_url']).path.strip('/')
+        file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
         rec['session_path'] = alfio.get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        if 'default_revision' in d:
+            rec['default_revision'] = d['default_revision']
         return rec
 
     records = map(_to_record, ses['data_dataset_session_related'])
@@ -232,7 +237,7 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
             rev_list = '"' + '", "'.join(df['revision'].unique()) + '"'
             raise alferr.ALFMultipleRevisionsFound(rev_list)
         # Square brackets forces 1 row DataFrame returned instead of Series
-        idx = _index_last_before(df['revision'].tolist(), revision)
+        idx = index_last_before(df['revision'].tolist(), revision)
         return df.iloc[slice(0, 0) if idx is None else [idx], :]
 
     with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
@@ -242,7 +247,7 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
     return grouped.apply(_last_before)  # .drop('revision', axis=1)
 
 
-def _index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
+def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
     """
     Returns the index of string that occurs directly before the provided revision string when
     lexicographic sorted.  If revision is None, the index of the most recent revision is returned.
@@ -261,3 +266,49 @@ def _index_last_before(revisions: List[str], revision: Optional[str]) -> Optiona
         return revisions.index(revisions_sorted[0])
     lt = np.array(revisions_sorted) < revision
     return revisions.index(revisions_sorted[lt.argmax()]) if any(lt) else None
+
+
+def autocomplete(term, search_terms):
+    """
+    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
+    """
+    term = term.lower()
+    # Check if term already complete
+    if term in search_terms:
+        return term
+    full_key = (x for x in search_terms if x.lower().startswith(term))
+    key_ = next(full_key, None)
+    if not key_:
+        raise ValueError(f'Invalid search term "{term}", see `one.search_terms()`')
+    elif next(full_key, None):
+        raise ValueError(f'Ambiguous search term "{term}"')
+    return key_
+
+
+def ensure_list(value):
+    """Ensure input is a list"""
+    return [value] if isinstance(value, str) or not isinstance(value, Iterable) else value
+
+
+class LazyId(Mapping):
+    """
+    Using a paginated response object or list of session records, extracts eid string when required
+    """
+    def __init__(self, pg):
+        self._pg = pg
+
+    def __getitem__(self, item):
+        return self.ses2eid(self._pg.__getitem__(item))
+
+    def __len__(self):
+        return self._pg.__len__()
+
+    def __iter__(self):
+        return map(self.ses2eid, self._pg.__iter__())
+
+    @staticmethod
+    def ses2eid(ses):
+        if isinstance(ses, list):
+            return [LazyId.ses2eid(x) for x in ses]
+        else:
+            return ses.get('id', ses['url'].split('/').pop())
