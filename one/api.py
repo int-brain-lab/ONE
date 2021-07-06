@@ -52,8 +52,8 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import alf_parts, rel_path_parts
-from .alf.spec import is_valid, COLLECTION_SPEC, regex as alf_regex
+from .alf.files import rel_path_parts
+from .alf.spec import COLLECTION_SPEC, regex as alf_regex
 from one.converters import ConversionMixin
 import one.util as util
 
@@ -564,7 +564,6 @@ class One(ConversionMixin):
         if download_only:
             return files
 
-        # return alfio.load_object(files[0].parent, parts[0][3], **kwargs)
         return alfio.load_object(files, **kwargs)
 
     @util.refresh
@@ -970,71 +969,6 @@ class OneAlyx(One):
         raise NotImplementedError()
 
     @util.refresh
-    @util.parse_id
-    def load_object(self,
-                    eid: Union[str, Path, UUID],
-                    obj: str,
-                    collection: Optional[str] = None,
-                    revision: str = None,
-                    download_only: bool = False,
-                    query_type: str = None,
-                    clobber: bool = False,
-                    **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
-        """
-        Load all attributes of an ALF object from a Session ID and an object name.
-
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path
-        :param obj: The ALF object to load.  Supports asterisks as wildcards.
-        :param collection: The collection to which the object belongs, e.g. 'alf/probe01'.
-        Supports asterisks as wildcards.
-        :param revision: The last revision before a given string (typically an ISO date).  If
-        None, the default dataset is returned (usually the most recent revision).
-        :param download_only: When true the data are downloaded and the file paths are returned
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-        :param clobber: If true, local data are re-downloaded
-        :param kwargs: Optional filters for the ALF objects, including namespace and timescale
-        :return: An ALF bunch or if download_only is True, a list of Paths objects
-
-        Examples:
-            load_object(eid, '*moves')
-            load_object(eid, 'trials')
-            load_object(eid, 'spikes', collection='*probe01')
-        """
-        query_type = query_type or self.mode
-        if query_type != 'remote':
-            load_object_offline = unwrap(super().load_object)  # Skip parse_id decorator
-            return load_object_offline(self, eid, obj,
-                                       collection=collection, download_only=download_only,
-                                       query_type=query_type, **kwargs)
-        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
-
-        dataset = {'object': obj, **kwargs}
-        datasets = util.filter_datasets(datasets, dataset, collection, assert_unique=False)
-        datasets = util.filter_revision_last_before(datasets, revision, assert_unique=False)
-
-        # Validate result before loading
-        if len(datasets) == 0:
-            raise alferr.ALFObjectNotFound(obj)
-        parts = [rel_path_parts(x) for x in datasets.rel_path]
-        unique_objects = set(x[3] or '' for x in parts)
-        unique_collections = set(x[0] or '' for x in parts)
-        if len(unique_objects) > 1:
-            raise alferr.ALFMultipleObjectsFound('"' + '", "'.join(unique_objects) + '"')
-        if len(unique_collections) > 1:
-            raise alferr.ALFMultipleCollectionsFound('"' + '", "'.join(unique_collections) + '"')
-
-        # Download any missing files
-        files = self._update_filesystem(datasets, offline=False)
-        assert not any(x is None for x in files), 'failed to download object'
-        if not files:
-            raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
-
-        if download_only:
-            return files
-        return alfio.load_object(files, **kwargs)
-
-    @util.refresh
     def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
@@ -1051,8 +985,6 @@ class OneAlyx(One):
         rec = self.alyx.rest('insertions', 'read', id=pid)
         return rec['session'], rec['name']
 
-    # def search(self, dataset_types=None, users=None, subjects=None, date_range=None,
-    #            lab=None, number=None, task_protocol=None, details=False):
     def search(self, details=False, query_type=None, **kwargs):
         """
         Searches sessions matching the given criteria and returns a list of matching eids

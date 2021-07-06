@@ -6,6 +6,7 @@
 
 - list_collections and list_revisions methods
 - added example scripts on experiment ids and ALF spec
+- search_terms now has query type flag
 
 ### Modified
 
@@ -13,6 +14,7 @@
 - fixed bugs in various converter methods
 - fix for silent setup when base url provided
 - deals with default_revision all false
+- one.search works with remote alyx queries
 
 ## [0.1.5]
 

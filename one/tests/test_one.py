@@ -676,11 +676,15 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        # TODO May want to add default revision to datasets_session_related serializer
         expected = [x for x in self.one._cache['datasets'].columns
                     if x != 'default_revision']
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
+        # NB: For now there is no default_revision in the dataset serializer
+        for r in ses['data_dataset_session_related']:
+            r['default_revision'] = True
+        session, datasets = ses2records(ses)
+        self.assertTrue(datasets.default_revision.all())
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
@@ -758,6 +762,10 @@ class TestOneRemote(unittest.TestCase):
     def test_list_datasets(self):
         # Test list for eid
         eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        # Ensure remote by making local datasets table empty
+        self.addCleanup(self.one._load_cache)
+        self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
+
         dsets = self.one.list_datasets(eid, details=True, query_type='remote')
         self.assertEqual(110, len(dsets))
 
@@ -822,16 +830,10 @@ class TestOneRemote(unittest.TestCase):
         files = self.one.load_object(eid, 'wheel',
                                      collection='alf', query_type='remote',
                                      download_only=True)
-        self.assertIsInstance(file, Path)
-        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
-        # Test validations
-        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
-            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
-        with self.assertRaises(alferr.ALFMultipleObjectsFound):
-            self.one.load_dataset(eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
-        with self.assertRaises(alferr.ALFObjectNotFound):
-            self.one.load_dataset(eid, 'wheel',
-                                  collection='raw_passive_data', query_type='remote')
+        self.assertIsInstance(files[0], Path)
+        self.assertTrue(
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+        )
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
