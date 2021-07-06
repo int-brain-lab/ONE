@@ -21,6 +21,7 @@ Note ONE and AlyxClient use caching:
     properties to their original state on teardown, or call one.api.ONE.cache_clear()
 
 """
+import logging
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -633,6 +634,11 @@ class TestONECache(unittest.TestCase):
             del self.one._cache['datasets']
             self.one._load_cache(tdir)
             self.assertTrue(self.one._cache['datasets'].index.is_lexsorted())
+            # Save a parasitic table that will not be loaded
+            pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
+            with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
+                self.one._load_cache(tdir)
+                self.assertTrue('gnagna.pqt' in log.output[0])
             # Save table with missing id columns
             df.drop(['id_0', 'id_1'], axis=1, inplace=True)
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
@@ -956,15 +962,33 @@ class TestOneMisc(unittest.TestCase):
 
     def test_revision_last_before(self):
         datasets = util.revisions_datasets_table()
-        df = datasets[datasets.rel_path.str.startswith('alf/probe00')]
-        verifiable = filter_revision_last_before(df.copy(),
+        df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
+        verifiable = filter_revision_last_before(df,
                                                  revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
         # Test assert unique
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_revision_last_before(df.copy(), revision='2020-09-01', assert_unique=True)
+            filter_revision_last_before(df, revision='2020-09-01', assert_unique=True)
+
         # Test with default revisions
+        df['default_revision'] = False
+        with self.assertLogs(logging.getLogger('one.util')):
+            verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
+        self.assertTrue(len(verifiable) == 2)
+
+        # Should have fallen back on lexicographical ordering
+        self.assertTrue(verifiable.rel_path.str.contains('#2021-07-06#').all())
+        with self.assertRaises(alferr.ALFError):
+            filter_revision_last_before(df.copy(), assert_unique=True)
+
+        # Add unique default revisions
+        df.iloc[[0, 4], -1] = True
+        verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
+        self.assertTrue(len(verifiable) == 2)
+        self.assertCountEqual(verifiable['rel_path'], df['rel_path'].iloc[[0, 4]])
+
+        # Add multiple default revisions
         df['default_revision'] = True
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
             filter_revision_last_before(df.copy(), assert_unique=True)

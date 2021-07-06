@@ -58,9 +58,7 @@ from .alf.cache import make_parquet_db
 from .alf.files import alf_parts, rel_path_parts
 from .alf.spec import is_valid, COLLECTION_SPEC, regex as alf_regex
 from one.converters import ConversionMixin
-from .util import (
-    parse_id, refresh, Listable, validate_date_range, filter_datasets, filter_revision_last_before
-)
+from .util import parse_id, refresh, Listable, validate_date_range, filter_datasets
 
 _logger = logging.getLogger(__name__)
 
@@ -103,6 +101,9 @@ class One(ConversionMixin):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
             cache, meta['raw'][table] = parquet.load(cache_file)
+            if 'date_created' not in meta['raw'][table]:
+                _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
+                continue
             created = datetime.fromisoformat(meta['raw'][table]['date_created'])
             meta['created_time'] = min([meta['created_time'] or datetime.max, created])
             meta['loaded_time'] = datetime.now()
@@ -560,8 +561,7 @@ class One(ConversionMixin):
         # match = ~table[['collection', 'object', 'revision']].isna().all(axis=1)
 
         dataset = {'object': obj, **kwargs}
-        datasets = filter_datasets(datasets, dataset, collection, assert_unique=False)
-        datasets = filter_revision_last_before(datasets, revision, assert_unique=False)
+        datasets = filter_datasets(datasets, dataset, collection, revision, assert_unique=False)
 
         # Validate result before loading
         if len(datasets) == 0:
