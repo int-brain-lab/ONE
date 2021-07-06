@@ -34,6 +34,7 @@ import os
 import re
 import functools
 import urllib.request
+import urllib.parse
 from urllib.error import HTTPError
 from collections.abc import Mapping
 from typing import Optional
@@ -278,6 +279,10 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     """
     if not full_link_to_file:
         return ''
+    # makes sure special characters get encoded (# in file names for example)
+    surl = urllib.parse.urlsplit(full_link_to_file, allow_fragments=False)._asdict()
+    surl['path'] = urllib.parse.quote(surl['path'])
+    full_link_to_file = urllib.parse.urlunsplit(urllib.parse.SplitResult(**surl))
 
     # default cache directory is the home dir
     if not cache_dir:
@@ -764,7 +769,7 @@ class AlyxClient(metaclass=UniqueSingletons):
                         query = ','.join(kwargs[k])
                     else:
                         query = str(kwargs[k])
-                    url = url + f"&{k}=" + query
+                    url = url + f"&{k}=" + urllib.parse.quote(query)
             return self.get('/' + url, **cache_args)
         if action == 'read':
             assert (endpoint_scheme[action]['action'] == 'get')
