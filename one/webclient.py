@@ -423,7 +423,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
-        # TODO Pass these to `get` and have it deal with setup defaults
+        # TODO Pass these to `params.get` and have it deal with setup defaults
         self._par = self._par.set('ALYX_LOGIN', username or self._par.ALYX_LOGIN)
         self._par = self._par.set('ALYX_PWD', password or self._par.ALYX_PWD)
         self.base_url = base_url or self._par.ALYX_URL
@@ -449,7 +449,7 @@ class AlyxClient(metaclass=UniqueSingletons):
 
     @property
     def cache_dir(self):
-        return self._par.CACHE_DIR
+        return Path(self._par.CACHE_DIR)
 
     def is_logged_in(self):
         return self._token and self.user
@@ -566,6 +566,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         :return: List of parquet table file paths
         """
         # query the database for the latest cache; expires=None overrides cached response
+        self.cache_dir.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(f'{self.base_url}/cache.zip',
                                       username=self._par.ALYX_LOGIN,
@@ -756,7 +757,7 @@ class AlyxClient(metaclass=UniqueSingletons):
             # otherwise, look for a dictionary of filter terms
             if kwargs:
                 url += '?'
-                for k in kwargs.keys():
+                for k in sorted(kwargs.keys()):
                     if isinstance(kwargs[k], str):
                         query = kwargs[k]
                     elif isinstance(kwargs[k], list):
