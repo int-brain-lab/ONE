@@ -238,13 +238,14 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
             raise alferr.ALFMultipleRevisionsFound(rev_list)
         # Square brackets forces 1 row DataFrame returned instead of Series
         idx = index_last_before(df['revision'].tolist(), revision)
+        # return df.iloc[slice(0, 0) if idx is None else [idx], :]
         return df.iloc[slice(0, 0) if idx is None else [idx], :]
 
     with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
         datasets['revision'] = [rel_path_parts(x)[1] or '' for x in datasets.rel_path]
     groups = datasets.rel_path.str.replace('#.*#/', '', regex=True).values
-    grouped = datasets.groupby(groups)
-    return grouped.apply(_last_before)  # .drop('revision', axis=1)
+    grouped = datasets.groupby(groups, group_keys=False)
+    return grouped.apply(_last_before)
 
 
 def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:

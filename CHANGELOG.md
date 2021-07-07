@@ -1,6 +1,12 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.2]
+
+### Modified
+
+- HOTFIX: returns correct index when revision returns empty for dataset
+
+## [0.2.1]
 
 ### Modified
 
