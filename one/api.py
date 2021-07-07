@@ -68,6 +68,19 @@ class One(ConversionMixin):
     )
 
     def __init__(self, cache_dir=None, mode='auto'):
+        """An API for searching and loading data on a local filesystem
+
+        Parameters
+        ----------
+        cache_dir : str, Path
+            Path to the data files.  If Alyx parameters have been set up for this location,
+            an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+            location is used.
+        mode : str
+            Query mode, options include 'auto' (reload cache daily), 'local' (offline) and
+            'refresh' (always reload cache tables).  Most methods have a `query_type` parameter
+            that can override the class mode.
+        """
         # get parameters override if inputs provided
         super().__init__()
         if not getattr(self, '_cache_dir', None):  # May already be set by subclass
@@ -751,6 +764,29 @@ class One(ConversionMixin):
 def ONE(*, mode='auto', **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.
+
+    Parameters
+    ----------
+    mode : str
+        Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
+        methods have a `query_type` parameter that can override the class mode.
+    cache_dir : str, Path
+        Path to the data files.  If Alyx parameters have been set up for this location,
+        an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+        location is used.
+    base_url : str
+        An Alyx database URL.  The URL must start with 'http'.
+    username : str
+        An Alyx database login username.
+    password : str
+        An Alyx database password.
+    cache_rest : str
+        If not in 'local' mode, this determines which http request types to cache.  Default is
+        'GET'.  Use None to deactivate cache (not recommended).
+
+    Returns
+    -------
+        An One instance if mode is 'local', otherwise an OneAlyx instance.
     """
     if kwargs.pop('offline', False):
         _logger.warning('the offline kwarg will probably be removed. '
@@ -775,6 +811,28 @@ def ONE(*, mode='auto', **kwargs):
 class OneAlyx(One):
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
                  mode='auto', **kwargs):
+        """An API for searching and loading data through the Alyx database
+
+        Parameters
+        ----------
+        mode : str
+            Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
+            methods have a `query_type` parameter that can override the class mode.
+        cache_dir : str, Path
+            Path to the data files.  If Alyx parameters have been set up for this location,
+            an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+            location is used.
+        base_url : str
+            An Alyx database URL.  The URL must start with 'http'.
+        username : str
+            An Alyx database login username.
+        password : str
+            An Alyx database password.
+        cache_rest : str
+            If not in 'local' mode, this determines which http request types to cache.  Default is
+            'GET'.  Use None to deactivate cache (not recommended).
+        """
+
         # Load Alyx Web client
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
