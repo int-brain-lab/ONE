@@ -376,5 +376,21 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertFalse(sub)
 
 
+class TestMisc(unittest.TestCase):
+    def test_update_url_params(self):
+        url = wc.update_url_params('website.com/?q=', {'pg': 5})
+        self.assertEqual('website.com/?pg=5', url)
+
+        # Check handles lists
+        url = wc.update_url_params('website.com?q=xxx', {'pg': 5, 'foo': ['bar', 'baz']})
+        self.assertEqual('website.com?q=xxx&pg=5&foo=bar&foo=baz', url)
+
+        # Check encodes special chars; handles partial URL
+        url = '/path?param1=foo bar'
+        new_url = wc.update_url_params(url, {'param2': '#2020-01-03#,#2021-02-01#'})
+        expected = '/path?param1=foo+bar&param2=%232020-01-03%23%2C%232021-02-01%23'
+        self.assertEqual(expected, new_url)
+
+
 if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)
