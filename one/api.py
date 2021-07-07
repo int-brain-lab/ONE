@@ -133,7 +133,7 @@ class One(ConversionMixin):
                 cache.set_index(num_index if int_eids else INDEX_KEY, inplace=True)
 
             # Check sorted
-            is_sorted = (cache.index.is_lexsorted()
+            is_sorted = (cache.index.is_monotonic_increasing
                          if isinstance(cache.index, pd.MultiIndex)
                          else True)
             # Sorting makes MultiIndex indexing O(N) -> O(1)

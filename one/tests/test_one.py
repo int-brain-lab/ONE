@@ -647,10 +647,11 @@ class TestONECache(unittest.TestCase):
             self.assertIsInstance(self.one._cache['datasets'].index, pd.MultiIndex)
             # Save shuffled
             df[['id_0', 'id_1']] = np.random.permutation(df[['id_0', 'id_1']])
+            assert not df.set_index(['id_0', 'id_1']).index.is_monotonic_increasing
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             del self.one._cache['datasets']
             self.one._load_cache(tdir)
-            self.assertTrue(self.one._cache['datasets'].index.is_lexsorted())
+            self.assertTrue(self.one._cache['datasets'].index.is_monotonic_increasing)
             # Save a parasitic table that will not be loaded
             pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
             with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
