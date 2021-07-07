@@ -1,6 +1,14 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.1]
+
+### Modified
+
+- webclient encodes characters in URL query parameters
+- docstrings added to ONE factory and classes
+- HOTFIX: list_datasets passes eid in superclass call
+
+## [0.2.0]
 
 ### Added
 

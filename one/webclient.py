@@ -52,6 +52,7 @@ from pprint import pprint
 import one.params
 from iblutil.io import hashfile
 import one.alf.io as alfio
+from one.util import ensure_list
 
 SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')  # FIXME Move to ibllib, or get from Alyx
 _logger = logging.getLogger(__name__)
@@ -160,7 +161,7 @@ class _PaginatedResponse(Mapping):
 
 
 def update_url_params(url: str, params: dict) -> str:
-    """Add/update the query parameters of a URL
+    """Add/update the query parameters of a URL and make url safe
 
     Parameters
     ----------
@@ -171,14 +172,14 @@ def update_url_params(url: str, params: dict) -> str:
 
     Returns
     -------
-        A new URL without said parameters
+        A new URL with said parameters updated
 
     Examples
     -------
         update_url_params('website.com/?q=', {'pg': 5})
         'website.com/?pg=5'
 
-        update_url_params('website.com?q=xxx', {'pg': 5, foo: ['bar', 'baz']})
+        update_url_params('website.com?q=xxx', {'pg': 5, 'foo': ['bar', 'baz']})
         'website.com?q=xxx&pg=5&foo=bar&foo=baz'
     """
     # Remove percent-encoding
@@ -318,6 +319,10 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     """
     if not full_link_to_file:
         return ''
+
+    # makes sure special characters get encoded ('#' in file names for example)
+    surl = urllib.parse.urlsplit(full_link_to_file, allow_fragments=False)
+    full_link_to_file = surl._replace(path=urllib.parse.quote(surl.path)).geturl()
 
     # default cache directory is the home dir
     if not cache_dir:
@@ -796,15 +801,9 @@ class AlyxClient(metaclass=UniqueSingletons):
                 kwargs['django'] = f"{kwargs['django']}pk,{id}"
             # otherwise, look for a dictionary of filter terms
             if kwargs:
-                url += '?'
-                for k in sorted(kwargs.keys()):
-                    if isinstance(kwargs[k], str):
-                        query = kwargs[k]
-                    elif isinstance(kwargs[k], list):
-                        query = ','.join(map(str, kwargs[k]))
-                    else:
-                        query = str(kwargs[k])
-                    url = url + f"&{k}=" + query
+                # Convert all lists in query params to comma separated list
+                query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
+                url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)
         if action == 'read':
             assert (endpoint_scheme[action]['action'] == 'get')

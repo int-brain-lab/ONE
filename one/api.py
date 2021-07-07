@@ -68,6 +68,19 @@ class One(ConversionMixin):
     )
 
     def __init__(self, cache_dir=None, mode='auto'):
+        """An API for searching and loading data on a local filesystem
+
+        Parameters
+        ----------
+        cache_dir : str, Path
+            Path to the data files.  If Alyx parameters have been set up for this location,
+            an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+            location is used.
+        mode : str
+            Query mode, options include 'auto' (reload cache daily), 'local' (offline) and
+            'refresh' (always reload cache tables).  Most methods have a `query_type` parameter
+            that can override the class mode.
+        """
         # get parameters override if inputs provided
         super().__init__()
         if not getattr(self, '_cache_dir', None):  # May already be set by subclass
@@ -120,7 +133,7 @@ class One(ConversionMixin):
                 cache.set_index(num_index if int_eids else INDEX_KEY, inplace=True)
 
             # Check sorted
-            is_sorted = (cache.index.is_lexsorted()
+            is_sorted = (cache.index.is_monotonic_increasing
                          if isinstance(cache.index, pd.MultiIndex)
                          else True)
             # Sorting makes MultiIndex indexing O(N) -> O(1)
@@ -145,7 +158,7 @@ class One(ConversionMixin):
         if mode in ('local', 'remote'):  # TODO maybe rename mode
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['_meta']['loaded_time'] > self.cache_expiry:
+            if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
                 self._load_cache()
         elif mode == 'refresh':
@@ -640,8 +653,6 @@ class One(ConversionMixin):
         :return: Returns a list of data (or file paths) the length of datasets, and a list of
         meta data Bunches. If assert_present is False, missing data will be None
         """
-        if query_type == 'remote':
-            raise NotImplementedError()
 
         def _verify_specifiers(specifiers):
             """Ensure specifiers lists matching datasets length"""
@@ -662,7 +673,7 @@ class One(ConversionMixin):
         collections, revisions = _verify_specifiers([collections, revisions])
 
         # Short circuit
-        all_datasets = self.list_datasets(eid, details=True)
+        all_datasets = self.list_datasets(eid, details=True, query_type=query_type)
         if len(all_datasets) == 0:
             if assert_present:
                 raise alferr.ALFObjectNotFound(f'No datasets found for session {eid}')
@@ -753,6 +764,29 @@ class One(ConversionMixin):
 def ONE(*, mode='auto', **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.
+
+    Parameters
+    ----------
+    mode : str
+        Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
+        methods have a `query_type` parameter that can override the class mode.
+    cache_dir : str, Path
+        Path to the data files.  If Alyx parameters have been set up for this location,
+        an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+        location is used.
+    base_url : str
+        An Alyx database URL.  The URL must start with 'http'.
+    username : str
+        An Alyx database login username.
+    password : str
+        An Alyx database password.
+    cache_rest : str
+        If not in 'local' mode, this determines which http request types to cache.  Default is
+        'GET'.  Use None to deactivate cache (not recommended).
+
+    Returns
+    -------
+        An One instance if mode is 'local', otherwise an OneAlyx instance.
     """
     if kwargs.pop('offline', False):
         _logger.warning('the offline kwarg will probably be removed. '
@@ -777,6 +811,28 @@ def ONE(*, mode='auto', **kwargs):
 class OneAlyx(One):
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
                  mode='auto', **kwargs):
+        """An API for searching and loading data through the Alyx database
+
+        Parameters
+        ----------
+        mode : str
+            Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
+            methods have a `query_type` parameter that can override the class mode.
+        cache_dir : str, Path
+            Path to the data files.  If Alyx parameters have been set up for this location,
+            an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+            location is used.
+        base_url : str
+            An Alyx database URL.  The URL must start with 'http'.
+        username : str
+            An Alyx database login username.
+        password : str
+            An Alyx database password.
+        cache_rest : str
+            If not in 'local' mode, this determines which http request types to cache.  Default is
+            'GET'.  Use None to deactivate cache (not recommended).
+        """
+
         # Load Alyx Web client
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
@@ -879,7 +935,7 @@ class OneAlyx(One):
     def list_datasets(self, eid=None, collection=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
         if (query_type or self.mode) != 'remote':
-            return super().list_datasets(collection=collection, details=details,
+            return super().list_datasets(eid=eid, collection=collection, details=details,
                                          query_type=query_type)
         elif not eid:
             warnings.warn('Unable to list all remote datasets')
