@@ -265,7 +265,7 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     revisions_sorted = sorted(revisions, reverse=True)
     if revision is None:  # Return most recent revision
         return revisions.index(revisions_sorted[0])
-    lt = np.array(revisions_sorted) < revision
+    lt = np.array(revisions_sorted) <= revision
     return revisions.index(revisions_sorted[lt.argmax()]) if any(lt) else None
 
 
