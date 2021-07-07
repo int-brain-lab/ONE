@@ -13,3 +13,4 @@ dist/
 scratch/
 _autosummary/
 .coverage
+*.egg-info/
