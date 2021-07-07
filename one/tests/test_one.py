@@ -538,6 +538,22 @@ class TestONECache(unittest.TestCase):
                                              download_only=True, assert_present=False)
         self.assertIsNone(files[-1])
 
+        # Check validations
+        with self.assertRaises(ValueError):
+            self.one.load_datasets(eid, dsets, collections=['alf', '', 'foo'])
+        with self.assertRaises(TypeError):
+            self.one.load_datasets(eid, 'spikes.times')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_datasets('ff812ca5-ce60-44ac-b07e-66c2c37e98eb', dsets)
+        with self.assertLogs(logging.getLogger('one.api'), 'WARNING'):
+            data, meta = self.one.load_datasets('ff812ca5-ce60-44ac-b07e-66c2c37e98eb', dsets,
+                                                assert_present=False)
+        self.assertIsNone(data)
+        self.assertEqual(0, len(meta))
+        self.assertIsNone(self.one.load_datasets(eid, [])[0])
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
+
     def test_load_dataset_from_id(self):
         id = np.array([[-9204203870374650458, -6411285612086772563]])
         file = self.one.load_dataset_from_id(id, download_only=True)
@@ -645,6 +661,24 @@ class TestONECache(unittest.TestCase):
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             with self.assertRaises(KeyError):
                 self.one._load_cache(tdir)
+
+    def test_refresh_cache(self):
+        self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
+        prev_loaded = self.one._cache['_meta']['loaded_time']
+        for mode in ('auto', 'local', 'remote'):
+            with self.subTest("Message for this subtest", mode=mode):
+                loaded = self.one.refresh_cache(mode)
+                self.assertFalse(len(self.one._cache.datasets))
+                self.assertEqual(prev_loaded, loaded)
+        loaded = self.one.refresh_cache('refresh')
+        self.assertTrue(len(self.one._cache.datasets))
+        self.assertTrue(loaded > prev_loaded)
+        self.one.cache_expiry = datetime.timedelta()  # Immediately expire
+        self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
+        self.one.refresh_cache('auto')
+        self.assertTrue(len(self.one._cache.datasets))
+        with self.assertRaises(ValueError):
+            self.one.refresh_cache('double')
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -1096,3 +1130,18 @@ class TestOneMisc(unittest.TestCase):
             autocomplete('dtypes', search_terms)
         with self.assertRaises(ValueError):
             autocomplete('dat', search_terms)
+
+    def test_LazyID(self):
+        uuids = [
+            'c1a2758d-3ce5-4fa7-8d96-6b960f029fa9',
+            '0780da08-a12b-452a-b936-ebc576aa7670',
+            'ff812ca5-ce60-44ac-b07e-66c2c37e98eb'
+        ]
+        ses = [{'url': f'https://website.org/foo/{x}'} for x in uuids]
+        ez = LazyId(ses)
+        self.assertEqual(len(uuids), len(ez))
+        self.assertCountEqual(map(str, ez), uuids)
+        self.assertEqual(ez[0], uuids[0])
+        self.assertEqual(ez[0:2], uuids[0:2])
+        ez = LazyId([{'id': x} for x in uuids])
+        self.assertCountEqual(map(str, ez), uuids)

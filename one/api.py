@@ -145,7 +145,7 @@ class One(ConversionMixin):
         if mode in ('local', 'remote'):  # TODO maybe rename mode
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['_meta']['loaded_time'] > self.cache_expiry:
+            if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
                 self._load_cache()
         elif mode == 'refresh':
@@ -640,8 +640,6 @@ class One(ConversionMixin):
         :return: Returns a list of data (or file paths) the length of datasets, and a list of
         meta data Bunches. If assert_present is False, missing data will be None
         """
-        if query_type == 'remote':
-            raise NotImplementedError()
 
         def _verify_specifiers(specifiers):
             """Ensure specifiers lists matching datasets length"""
@@ -662,7 +660,7 @@ class One(ConversionMixin):
         collections, revisions = _verify_specifiers([collections, revisions])
 
         # Short circuit
-        all_datasets = self.list_datasets(eid, details=True)
+        all_datasets = self.list_datasets(eid, details=True, query_type=query_type)
         if len(all_datasets) == 0:
             if assert_present:
                 raise alferr.ALFObjectNotFound(f'No datasets found for session {eid}')

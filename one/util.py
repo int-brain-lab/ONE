@@ -311,4 +311,4 @@ class LazyId(Mapping):
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]
         else:
-            return ses.get('id', ses['url'].split('/').pop())
+            return ses.get('id', None) or ses['url'].split('/').pop()
