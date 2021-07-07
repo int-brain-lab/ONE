@@ -1053,12 +1053,14 @@ class TestOneMisc(unittest.TestCase):
     def test_index_last_before(self):
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
         verifiable = index_last_before(revisions, '2021-01-01')
-        self.assertEqual(3, verifiable)
+        self.assertEqual(0, verifiable)
 
         verifiable = index_last_before(revisions, '2020-09-15')
         self.assertEqual(1, verifiable)
 
-        self.assertIsNone(index_last_before(revisions, ''))
+        verifiable = index_last_before(revisions, '')
+        self.assertEqual(2, verifiable)
+
         self.assertIsNone(index_last_before([], '2009-01-01'))
 
         verifiable = index_last_before(revisions, None)
