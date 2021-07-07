@@ -935,7 +935,7 @@ class OneAlyx(One):
     def list_datasets(self, eid=None, collection=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
         if (query_type or self.mode) != 'remote':
-            return super().list_datasets(collection=collection, details=details,
+            return super().list_datasets(eid=eid, collection=collection, details=details,
                                          query_type=query_type)
         elif not eid:
             warnings.warn('Unable to list all remote datasets')
