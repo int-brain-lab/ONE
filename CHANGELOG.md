@@ -1,6 +1,13 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.3]
+
+### Modified
+
+- HOTFIX: default query_mode now None, fixes missing instance mode
+- HOTFIX: correct ses2rec parsing of data URLs (allow_fragments=False)
+
+## [0.2.2]
 
 ### Modified
 
