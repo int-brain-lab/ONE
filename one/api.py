@@ -27,6 +27,7 @@ Points of discussion:
     - Conceivably you could have a subclass for Figshare, etc., not just Alyx
     - We have mode and query_type, stick to just one?
 """
+import collections.abc
 import concurrent.futures
 import warnings
 import logging
@@ -196,7 +197,7 @@ class One(ConversionMixin):
         """
         pass  # pragma: no cover
 
-    def search(self, details=False, exists_only=False, query_type=None, **kwargs):
+    def search(self, details=False, exists_only=False, query_type='auto', **kwargs):
         """
         Searches sessions matching the given criteria and returns a list of matching eids
 
@@ -508,7 +509,7 @@ class One(ConversionMixin):
                     obj: str,
                     collection: Optional[str] = None,
                     revision: Optional[str] = None,
-                    query_type: Optional[str] = None,
+                    query_type: str = 'auto',
                     download_only: bool = False,
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
@@ -535,7 +536,6 @@ class One(ConversionMixin):
             load_object(eid, 'spikes', namespace='ibl')
             load_object(eid, 'spikes', timescale='ephysClock')
         """
-        query_type = query_type or self.mode
         datasets = self.list_datasets(eid, details=True, query_type=query_type)
 
         if len(datasets) == 0:
@@ -545,6 +545,11 @@ class One(ConversionMixin):
         if not REGEX:
             import fnmatch
             obj = re.compile(fnmatch.translate(obj))
+
+        # expression = alf_regex(f'{COLLECTION_SPEC}/{FILE_SPEC}',
+        #                        object=obj, collection=collection, revision=revision)
+        # table = datasets['rel_path'].str.extract(expression)
+        # match = ~table[['collection', 'object', 'revision']].isna().all(axis=1)
 
         dataset = {'object': obj, **kwargs}
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
@@ -561,7 +566,9 @@ class One(ConversionMixin):
         if len(unique_collections) > 1:
             raise alferr.ALFMultipleCollectionsFound('"' + '", "'.join(unique_collections) + '"')
 
+        # parquet.np2str(np.array(datasets.index.values.tolist()))
         # For those that don't exist, download them
+        # return alfio.load_object(path, table[match]['object'].values[0])
         offline = None if query_type == 'auto' else self.mode == 'local'
         files = self._update_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
@@ -580,7 +587,7 @@ class One(ConversionMixin):
                      dataset: str,
                      collection: Optional[str] = None,
                      revision: Optional[str] = None,
-                     query_type: Optional[str] = None,
+                     query_type: str = 'auto',
                      download_only: bool = False,
                      **kwargs) -> Any:
         """
@@ -599,7 +606,7 @@ class One(ConversionMixin):
         :param kwargs:
         :return:
         """
-        datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
+        datasets = self.list_datasets(eid, details=True, query_type=query_type)
 
         datasets = util.filter_datasets(datasets, dataset, collection, revision)
         if len(datasets) == 0:
@@ -621,7 +628,7 @@ class One(ConversionMixin):
                       datasets: List[str],
                       collections: Optional[str] = None,
                       revisions: Optional[str] = None,
-                      query_type: Optional[str] = None,
+                      query_type: str = 'auto',
                       assert_present=True,
                       download_only: bool = False,
                       **kwargs) -> Any:
@@ -667,7 +674,6 @@ class One(ConversionMixin):
         collections, revisions = _verify_specifiers([collections, revisions])
 
         # Short circuit
-        query_type = query_type or self.mode
         all_datasets = self.list_datasets(eid, details=True, query_type=query_type)
         if len(all_datasets) == 0:
             if assert_present:
@@ -1020,16 +1026,15 @@ class OneAlyx(One):
         raise NotImplementedError()
 
     @util.refresh
-    def pid2eid(self, pid: str, query_type=None) -> (str, str):
+    def pid2eid(self, pid: str, query_type='auto') -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
         (i.e. the ALF collection)
 
         :param pid: A probe UUID
-        :param query_type: Query mode, options include 'remote', and 'refresh'
+        :param query_type: Query mode, options include 'auto', 'remote' and 'refresh'
         :return: (experiment ID, probe label)
         """
-        query_type = query_type or self.mode
         if query_type != 'remote':
             self.refresh_cache(query_type)
         if query_type == 'local' and 'insertions' not in self._cache.keys():
@@ -1282,14 +1287,13 @@ class OneAlyx(One):
         return uuid[0] if uuid else None
 
     @util.refresh
-    def path2url(self, filepath, query_type=None):
+    def path2url(self, filepath, query_type='auto'):
         """
         Given a local file path, returns the URL of the remote file.
         :param filepath: A local file path
         :param query_type: if set to 'remote', will force database connection
         :return: A URL string
         """
-        query_type = query_type or self.mode
         if query_type != 'remote':
             return super(OneAlyx, self).path2url(filepath)
         eid = self.path2eid(filepath)
@@ -1306,13 +1310,16 @@ class OneAlyx(One):
         Get list of datasets belonging to a given dataset type for a given session
         :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
         details dict or Path
-        :param dataset_type: A dataset type, e.g. camera.times
+        :param dataset_type: str, list : A dataset type, e.g. camera.times or a list of dtypes
         :param full: If True, a dictionary of details is returned for each dataset
         :return: A list of datasets belonging to that session's dataset type
         """
-        restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'
+        if isinstance(dataset_type, collections.abc.Sequence):
+            restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
+        else:
+            restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'
         datasets = self.alyx.rest('datasets', 'list', django=restriction)
-        return datasets if full else [d['name'] for d in datasets]
+        return datasets if full else [f"{d['collection']}/{d['name']}" for d in datasets]
 
     def dataset2type(self, dset):
         """Return dataset type from dataset"""
