@@ -1314,10 +1314,10 @@ class OneAlyx(One):
         :param full: If True, a dictionary of details is returned for each dataset
         :return: A list of datasets belonging to that session's dataset type
         """
-        if isinstance(dataset_type, collections.abc.Sequence):
-            restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
-        else:
+        if isinstance(dataset_type, str):
             restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'
+        elif isinstance(dataset_type, collections.abc.Sequence):
+            restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
         datasets = self.alyx.rest('datasets', 'list', django=restriction)
         return datasets if full else [f"{d['collection']}/{d['name']}" for d in datasets]
 
