@@ -213,6 +213,17 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertTrue(len(rep) > 250)
         self.assertTrue(len([d['hash'] for d in rep]) == len(rep))
 
+    def test_update_url_params(self):
+        url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
+        expected = f'{self.ac.base_url}/sessions?param1=foo&limit=10&param3=bar&param4=baz'
+        self.assertEqual(expected, wc.update_url_params(url, {'limit': 10, 'param4': 'baz'}))
+        # Without pars
+        url = url.split('?')[0]
+        self.assertEqual(url, wc.update_url_params(url, {}))
+        # With lists
+        expected = f'{url}?foo=bar&foo=baz'
+        self.assertEqual(expected, wc.update_url_params(url, {'foo': ['bar', 'baz']}))
+
     def test_generic_request(self):
         a = self.ac.get('/labs')
         b = self.ac.get('labs')
@@ -363,6 +374,22 @@ class TestDownloadHTTP(unittest.TestCase):
         self.ac.clear_rest_cache()  # Make sure we hit db
         sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
         self.assertFalse(sub)
+
+
+class TestMisc(unittest.TestCase):
+    def test_update_url_params(self):
+        url = wc.update_url_params('website.com/?q=', {'pg': 5})
+        self.assertEqual('website.com/?pg=5', url)
+
+        # Check handles lists
+        url = wc.update_url_params('website.com?q=xxx', {'pg': 5, 'foo': ['bar', 'baz']})
+        self.assertEqual('website.com?q=xxx&pg=5&foo=bar&foo=baz', url)
+
+        # Check encodes special chars; handles partial URL
+        url = '/path?param1=foo bar'
+        new_url = wc.update_url_params(url, {'param2': '#2020-01-03#,#2021-02-01#'})
+        expected = '/path?param1=foo+bar&param2=%232020-01-03%23%2C%232021-02-01%23'
+        self.assertEqual(expected, new_url)
 
 
 if __name__ == '__main__':

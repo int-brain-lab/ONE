@@ -1,16 +1,41 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.1.6]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.3]
+
+### Modified
+
+- HOTFIX: default query_mode now None, fixes missing instance mode
+- HOTFIX: correct ses2rec parsing of data URLs (allow_fragments=False)
+
+## [0.2.2]
+
+### Modified
+
+- HOTFIX: returns correct index when revision returns empty for dataset
+
+## [0.2.1]
+
+### Modified
+
+- webclient encodes characters in URL query parameters
+- docstrings added to ONE factory and classes
+- HOTFIX: list_datasets passes eid in superclass call
+
+## [0.2.0]
 
 ### Added
 
 - list_collections and list_revisions methods
 - added example scripts on experiment ids and ALF spec
+- search_terms now has query type flag
 
 ### Modified
 
 - removed walruses (support for python 3.7)
 - fixed bugs in various converter methods
+- fix for silent setup when base url provided
+- deals with default_revision all false
+- one.search works with remote alyx queries
 
 ## [0.1.5]
 

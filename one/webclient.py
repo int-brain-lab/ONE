@@ -35,6 +35,7 @@ import re
 import functools
 import urllib.request
 from urllib.error import HTTPError
+import urllib.parse
 from collections.abc import Mapping
 from typing import Optional
 from datetime import datetime, timedelta
@@ -51,6 +52,7 @@ from pprint import pprint
 import one.params
 from iblutil.io import hashfile
 import one.alf.io as alfio
+from one.util import ensure_list
 
 SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')  # FIXME Move to ibllib, or get from Alyx
 _logger = logging.getLogger(__name__)
@@ -127,12 +129,10 @@ class _PaginatedResponse(Mapping):
         self.alyx = alyx
         self.count = rep['count']
         self.limit = len(rep['results'])
-        # warning: the offset and limit filters are not necessarily the last ones
-        lquery = [q for q in rep['next'].split('&')
-                  if not (q.startswith('offset=') or q.startswith('limit='))]
-        self.query = '&'.join(lquery)
+        # store URL without pagination query params
+        self.query = rep['next']
         # init the cache, list with None with count size
-        self._cache = [None for _ in range(self.count)]
+        self._cache = [None] * self.count
         # fill the cache with results of the query
         for i in range(self.limit):
             self._cache[i] = rep['results'][i]
@@ -141,17 +141,58 @@ class _PaginatedResponse(Mapping):
         return self.count
 
     def __getitem__(self, item):
-        if self._cache[item] is None:
-            offset = self.limit * math.floor(item / self.limit)
-            query = f'{self.query}&limit={self.limit}&offset={offset}'
-            res = self.alyx._generic_request(requests.get, query)
-            for i, r in enumerate(res['results']):
-                self._cache[i + offset] = res['results'][i]
+        if isinstance(item, slice):
+            while None in self._cache[item]:
+                self.populate(self._cache[item].index(None))
+        elif self._cache[item] is None:
+            self.populate(item)
         return self._cache[item]
+
+    def populate(self, idx):
+        offset = self.limit * math.floor(idx / self.limit)
+        query = update_url_params(self.query, {'limit': self.limit, 'offset': offset})
+        res = self.alyx._generic_request(requests.get, query)
+        for i, r in enumerate(res['results']):
+            self._cache[i + offset] = res['results'][i]
 
     def __iter__(self):
         for i in range(self.count):
             yield self.__getitem__(i)
+
+
+def update_url_params(url: str, params: dict) -> str:
+    """Add/update the query parameters of a URL and make url safe
+
+    Parameters
+    ----------
+    url : str
+        A URL string with which to update the query parameters
+    params : dict
+        A dict of new parameters.  For multiple values for the same query, use a list (see example)
+
+    Returns
+    -------
+        A new URL with said parameters updated
+
+    Examples
+    -------
+        update_url_params('website.com/?q=', {'pg': 5})
+        'website.com/?pg=5'
+
+        update_url_params('website.com?q=xxx', {'pg': 5, 'foo': ['bar', 'baz']})
+        'website.com?q=xxx&pg=5&foo=bar&foo=baz'
+    """
+    # Remove percent-encoding
+    url = urllib.parse.unquote(url)
+    parsed_url = urllib.parse.urlsplit(url)
+    # Extract URL query arguments and convert to dict
+    parsed_get_args = urllib.parse.parse_qs(parsed_url.query, keep_blank_values=False)
+    # Merge URL arguments dict with new params
+    parsed_get_args.update(params)
+    # Convert back to query string
+    encoded_get_args = urllib.parse.urlencode(parsed_get_args, doseq=True)
+    # Update parser and convert to full URL str
+    return parsed_url._replace(query=encoded_get_args).geturl()
 
 
 def sdsc_globus_path_from_dataset(dset):
@@ -278,6 +319,10 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     """
     if not full_link_to_file:
         return ''
+
+    # makes sure special characters get encoded ('#' in file names for example)
+    surl = urllib.parse.urlsplit(full_link_to_file, allow_fragments=False)
+    full_link_to_file = surl._replace(path=urllib.parse.quote(surl.path)).geturl()
 
     # default cache directory is the home dir
     if not cache_dir:
@@ -423,7 +468,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
-        # TODO Pass these to `get` and have it deal with setup defaults
+        # TODO Pass these to `params.get` and have it deal with setup defaults
         self._par = self._par.set('ALYX_LOGIN', username or self._par.ALYX_LOGIN)
         self._par = self._par.set('ALYX_PWD', password or self._par.ALYX_PWD)
         self.base_url = base_url or self._par.ALYX_URL
@@ -449,7 +494,7 @@ class AlyxClient(metaclass=UniqueSingletons):
 
     @property
     def cache_dir(self):
-        return self._par.CACHE_DIR
+        return Path(self._par.CACHE_DIR)
 
     def is_logged_in(self):
         return self._token and self.user
@@ -566,6 +611,7 @@ class AlyxClient(metaclass=UniqueSingletons):
         :return: List of parquet table file paths
         """
         # query the database for the latest cache; expires=None overrides cached response
+        self.cache_dir.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(f'{self.base_url}/cache.zip',
                                       username=self._par.ALYX_LOGIN,
@@ -744,10 +790,10 @@ class AlyxClient(metaclass=UniqueSingletons):
         cache_args = {'clobber': no_cache, 'expires': no_cache}
         if action == 'list':
             # list doesn't require id nor
-            assert (endpoint_scheme[action]['action'] == 'get')
+            assert endpoint_scheme[action]['action'] == 'get'
             # add to url data if it is a string
             if id:
-                # this is a special case of the list where we query an uuid. Usually read is better
+                # this is a special case of the list where we query a uuid. Usually read is better
                 if 'django' in kwargs.keys():
                     kwargs['django'] = kwargs['django'] + ','
                 else:
@@ -755,15 +801,9 @@ class AlyxClient(metaclass=UniqueSingletons):
                 kwargs['django'] = f"{kwargs['django']}pk,{id}"
             # otherwise, look for a dictionary of filter terms
             if kwargs:
-                url += '?'
-                for k in kwargs.keys():
-                    if isinstance(kwargs[k], str):
-                        query = kwargs[k]
-                    elif isinstance(kwargs[k], list):
-                        query = ','.join(kwargs[k])
-                    else:
-                        query = str(kwargs[k])
-                    url = url + f"&{k}=" + query
+                # Convert all lists in query params to comma separated list
+                query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
+                url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)
         if action == 'read':
             assert (endpoint_scheme[action]['action'] == 'get')

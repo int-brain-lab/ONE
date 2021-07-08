@@ -21,6 +21,8 @@ Note ONE and AlyxClient use caching:
     properties to their original state on teardown, or call one.api.ONE.cache_clear()
 
 """
+import datetime
+import logging
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -37,8 +39,8 @@ import pandas as pd
 from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
-    ses2records, validate_date_range, _index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id
+    ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
+    filter_revision_last_before, parse_id, autocomplete, LazyId
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -254,7 +256,7 @@ class TestONECache(unittest.TestCase):
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
 
         # Test search without integer ids
-        caches_int2str(one._cache)
+        util.caches_int2str(one._cache)
         query = 'clusters'
         eids = one.search(data=query)
         self.assertTrue(all(isinstance(x, str) for x in eids))
@@ -380,7 +382,7 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(27, len(dsets))
 
         # Test using str ids as index
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         dsets = self.one.list_datasets('KS005/2019-04-02/001')
         self.assertEqual(27, len(dsets))
 
@@ -459,7 +461,7 @@ class TestONECache(unittest.TestCase):
         self.assertTrue('rel_path' in det.columns)
 
         # Test with str index ids
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         det = self.one.get_details(eid)
         self.assertIsInstance(det, pd.Series)
 
@@ -473,7 +475,7 @@ class TestONECache(unittest.TestCase):
 
     def test_index_type(self):
         self.assertIs(int, self.one._index_type())
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         self.assertIs(str, self.one._index_type())
         self.one._cache.datasets.reset_index(inplace=True)
         with self.assertRaises(IndexError):
@@ -536,6 +538,22 @@ class TestONECache(unittest.TestCase):
                                              download_only=True, assert_present=False)
         self.assertIsNone(files[-1])
 
+        # Check validations
+        with self.assertRaises(ValueError):
+            self.one.load_datasets(eid, dsets, collections=['alf', '', 'foo'])
+        with self.assertRaises(TypeError):
+            self.one.load_datasets(eid, 'spikes.times')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_datasets('ff812ca5-ce60-44ac-b07e-66c2c37e98eb', dsets)
+        with self.assertLogs(logging.getLogger('one.api'), 'WARNING'):
+            data, meta = self.one.load_datasets('ff812ca5-ce60-44ac-b07e-66c2c37e98eb', dsets,
+                                                assert_present=False)
+        self.assertIsNone(data)
+        self.assertEqual(0, len(meta))
+        self.assertIsNone(self.one.load_datasets(eid, [])[0])
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
+
     def test_load_dataset_from_id(self):
         id = np.array([[-9204203870374650458, -6411285612086772563]])
         file = self.one.load_dataset_from_id(id, download_only=True)
@@ -559,7 +577,7 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(np.array_equal(dset, data))
 
         # Load without int ids as index
-        caches_int2str(self.one._cache)
+        util.caches_int2str(self.one._cache)
         dset = self.one.load_dataset_from_id(eid)
         self.assertTrue(np.array_equal(dset, data))
 
@@ -629,15 +647,39 @@ class TestONECache(unittest.TestCase):
             self.assertIsInstance(self.one._cache['datasets'].index, pd.MultiIndex)
             # Save shuffled
             df[['id_0', 'id_1']] = np.random.permutation(df[['id_0', 'id_1']])
+            assert not df.set_index(['id_0', 'id_1']).index.is_monotonic_increasing
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             del self.one._cache['datasets']
             self.one._load_cache(tdir)
-            self.assertTrue(self.one._cache['datasets'].index.is_lexsorted())
+            self.assertTrue(self.one._cache['datasets'].index.is_monotonic_increasing)
+            # Save a parasitic table that will not be loaded
+            pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
+            with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
+                self.one._load_cache(tdir)
+                self.assertTrue('gnagna.pqt' in log.output[0])
             # Save table with missing id columns
             df.drop(['id_0', 'id_1'], axis=1, inplace=True)
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             with self.assertRaises(KeyError):
                 self.one._load_cache(tdir)
+
+    def test_refresh_cache(self):
+        self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
+        prev_loaded = self.one._cache['_meta']['loaded_time']
+        for mode in ('auto', 'local', 'remote'):
+            with self.subTest("Message for this subtest", mode=mode):
+                loaded = self.one.refresh_cache(mode)
+                self.assertFalse(len(self.one._cache.datasets))
+                self.assertEqual(prev_loaded, loaded)
+        loaded = self.one.refresh_cache('refresh')
+        self.assertTrue(len(self.one._cache.datasets))
+        self.assertTrue(loaded > prev_loaded)
+        self.one.cache_expiry = datetime.timedelta()  # Immediately expire
+        self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
+        self.one.refresh_cache('auto')
+        self.assertTrue(len(self.one._cache.datasets))
+        with self.assertRaises(ValueError):
+            self.one.refresh_cache('double')
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -669,11 +711,15 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        # TODO May want to add default revision to datasets_session_related serializer
         expected = [x for x in self.one._cache['datasets'].columns
                     if x != 'default_revision']
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
+        # NB: For now there is no default_revision in the dataset serializer
+        for r in ses['data_dataset_session_related']:
+            r['default_revision'] = True
+        session, datasets = ses2records(ses)
+        self.assertTrue(datasets.default_revision.all())
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
@@ -739,13 +785,90 @@ class TestOneAlyx(unittest.TestCase):
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
-class TestOneOnline(unittest.TestCase):
+class TestOneRemote(unittest.TestCase):
+    """Test remote queries"""
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
 
     def test_online_repr(self):
         self.assertTrue('online' in str(self.one))
         self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
+
+    def test_list_datasets(self):
+        # Test list for eid
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        # Ensure remote by making local datasets table empty
+        self.addCleanup(self.one._load_cache)
+        self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
+
+        dsets = self.one.list_datasets(eid, details=True, query_type='remote')
+        self.assertEqual(110, len(dsets))
+
+        # Test empty
+        dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
+        self.assertIsInstance(dsets, pd.DataFrame)
+        self.assertEqual(len(dsets), 0)
+
+        # Test details=False, with eid
+        dsets = self.one.list_datasets(eid, details=False, query_type='remote')
+        self.assertIsInstance(dsets, np.ndarray)
+        self.assertEqual(110, len(dsets))
+
+        with self.assertWarns(Warning):
+            self.one.list_datasets(query_type='remote')
+
+    def test_search(self):
+        eids = self.one.search(subject='SWC_043', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
+        correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
+        self.assertTrue(correct)
+        # Test dataset search with Django
+        eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
+                               django='data_dataset_session_related__collection__iexact,alf',
+                               query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        # Test date range
+        eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
+                               query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        # Test limit arg and LazyId
+        eids = self.one.search(limit=2, query_type='remote')
+        self.assertIsInstance(eids, LazyId)
+        self.assertTrue(all(len(x) == 36 for x in eids))
+        # Test laboratory kwarg
+        eids = self.one.search(laboratory='hoferlab', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+        eids = self.one.search(lab='hoferlab', query_type='remote')
+        self.assertCountEqual(eids, ['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'])
+
+    def test_load_dataset(self):
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        file = self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv',
+                                     collection='raw_passive_data', query_type='remote',
+                                     download_only=True)
+        self.assertIsInstance(file, Path)
+        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
+        # Test validations
+        with self.assertRaises(alferr.ALFMultipleCollectionsFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            self.one.load_dataset(eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_dataset(eid, '_iblrig_encoderEvents.raw.ssv',
+                                  collection='alf', query_type='remote')
+
+    def test_load_object(self):
+        eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        files = self.one.load_object(eid, 'wheel',
+                                     collection='alf', query_type='remote',
+                                     download_only=True)
+        self.assertIsInstance(files[0], Path)
+        self.assertTrue(
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+        )
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -815,6 +938,16 @@ class TestOneSetup(unittest.TestCase):
             one_obj = ONE(mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
+        # Check saves base_url arg
+        with self.subTest('Test setup with base URL'):
+            if OFFLINE_ONLY:
+                self.skipTest('Requires remote db connection')
+            with mock.patch('iblutil.io.params.getfile', new=self.get_file):
+                one_obj = ONE(**TEST_DB_1)
+                self.assertEqual(one_obj.alyx.base_url, TEST_DB_1['base_url'])
+                params_url = one.params.get(client=TEST_DB_1['base_url']).ALYX_URL
+                self.assertEqual(params_url, one_obj.alyx.base_url)
+
     def test_setup(self):
         url = TEST_DB_1['base_url']
         one.params.input = lambda prompt: url if 'url' in prompt.lower() else 'mock_input'
@@ -851,24 +984,27 @@ class TestOneSetup(unittest.TestCase):
             one_obj = ONE(cache_dir=self.tempdir.name)
             self.assertIsInstance(one_obj, One)
 
-            # No cache dir provided; use OneAlyx (silent setup mode)
-            one_obj = ONE(silent=True, mode='local')
-            self.assertIsInstance(one_obj, OneAlyx)
-
-            # The cache dir is in client cache map; use OneAlyx
-            one_obj = ONE(cache_dir=one_obj.alyx.cache_dir, mode='local')
-            self.assertIsInstance(one_obj, OneAlyx)
-
-            # A db URL was provided; use OneAlyx
-            # mode = 'local' ensures we don't download cache (could also set cache_dir)
-            one_obj = ONE(**TEST_DB_1, mode='local')
-            self.assertIsInstance(one_obj, OneAlyx)
-
             # The offline param was given, raise deprecation warning (via log)
             # with self.assertLogs(logging.getLogger('ibllib'), logging.WARNING):
             #     ONE(offline=True, cache_dir=self.tempdir.name)
             with self.assertWarns(DeprecationWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
+
+            with self.subTest('ONE setup with database URL'):
+                if OFFLINE_ONLY:
+                    self.skipTest('Requires remote db connection')
+                # No cache dir provided; use OneAlyx (silent setup mode)
+                one_obj = ONE(silent=True, mode='local')
+                self.assertIsInstance(one_obj, OneAlyx)
+
+                # The cache dir is in client cache map; use OneAlyx
+                one_obj = ONE(cache_dir=one_obj.alyx.cache_dir, mode='local')
+                self.assertIsInstance(one_obj, OneAlyx)
+
+                # A db URL was provided; use OneAlyx
+                # mode = 'local' ensures we don't download cache (could also set cache_dir)
+                one_obj = ONE(**TEST_DB_1, mode='local')
+                self.assertIsInstance(one_obj, OneAlyx)
 
 
 class TestOneMisc(unittest.TestCase):
@@ -916,16 +1052,16 @@ class TestOneMisc(unittest.TestCase):
 
     def test_index_last_before(self):
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
-        verifiable = _index_last_before(revisions, '2021-01-01')
+        verifiable = index_last_before(revisions, '2021-01-01')
         self.assertEqual(3, verifiable)
 
-        verifiable = _index_last_before(revisions, '2020-09-15')
+        verifiable = index_last_before(revisions, '2020-09-15')
         self.assertEqual(1, verifiable)
 
-        self.assertIsNone(_index_last_before(revisions, ''))
-        self.assertIsNone(_index_last_before([], '2009-01-01'))
+        self.assertIsNone(index_last_before(revisions, ''))
+        self.assertIsNone(index_last_before([], '2009-01-01'))
 
-        verifiable = _index_last_before(revisions, None)
+        verifiable = index_last_before(revisions, None)
         self.assertEqual(0, verifiable, 'should return most recent')
 
     def test_collection_spec(self):
@@ -936,21 +1072,40 @@ class TestOneMisc(unittest.TestCase):
         combs = combinations_with_replacement((None, '', '-'), 2)
         [inputs.extend(set(permutations(x))) for x in combs]
         for collection, revision in inputs:
-            verifiable = _collection_spec(collection, revision)
-            expected = _collection[collection] + _revision[revision]
-            self.assertEqual(expected, verifiable)
+            with self.subTest(collection=collection, revision=revision):
+                verifiable = _collection_spec(collection, revision)
+                expected = _collection[collection] + _revision[revision]
+                self.assertEqual(expected, verifiable)
 
     def test_revision_last_before(self):
         datasets = util.revisions_datasets_table()
-        df = datasets[datasets.rel_path.str.startswith('alf/probe00')]
-        verifiable = filter_revision_last_before(df.copy(),
+        df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
+        verifiable = filter_revision_last_before(df,
                                                  revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
         # Test assert unique
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_revision_last_before(df.copy(), revision='2020-09-01', assert_unique=True)
+            filter_revision_last_before(df, revision='2020-09-01', assert_unique=True)
+
         # Test with default revisions
+        df['default_revision'] = False
+        with self.assertLogs(logging.getLogger('one.util')):
+            verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
+        self.assertTrue(len(verifiable) == 2)
+
+        # Should have fallen back on lexicographical ordering
+        self.assertTrue(verifiable.rel_path.str.contains('#2021-07-06#').all())
+        with self.assertRaises(alferr.ALFError):
+            filter_revision_last_before(df.copy(), assert_unique=True)
+
+        # Add unique default revisions
+        df.iloc[[0, 4], -1] = True
+        verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
+        self.assertTrue(len(verifiable) == 2)
+        self.assertCountEqual(verifiable['rel_path'], df['rel_path'].iloc[[0, 4]])
+
+        # Add multiple default revisions
         df['default_revision'] = True
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
             filter_revision_last_before(df.copy(), assert_unique=True)
@@ -968,25 +1123,26 @@ class TestOneMisc(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_id(obj.method)(obj, input)
 
+    def test_autocomplete(self):
+        search_terms = ('subject', 'date_range', 'dataset', 'dataset_type')
+        self.assertEqual('subject', autocomplete('Subj', search_terms))
+        self.assertEqual('dataset', autocomplete('dataset', search_terms))
+        with self.assertRaises(ValueError):
+            autocomplete('dtypes', search_terms)
+        with self.assertRaises(ValueError):
+            autocomplete('dat', search_terms)
 
-def caches_int2str(caches):
-    """Convert int ids to str ids for cache tables
-
-    Parameters
-    ----------
-    caches : Bunch
-        A bunch of cache tables (from One._cache)
-
-    Returns
-    -------
-        None
-    """
-    for table in ('sessions', 'datasets'):
-        # Set integer uuids to NaN
-        cache = caches[table].reset_index()
-        int_cols = cache.filter(regex=r'_\d{1}$').columns
-        for i in range(0, len(int_cols), 2):
-            name = int_cols.values[i].rsplit('_', 1)[0]
-            cache[name] = parquet.np2str(cache[int_cols[i:i + 2]])
-        cache[int_cols] = np.nan
-        caches[table] = cache.set_index('id')
+    def test_LazyID(self):
+        uuids = [
+            'c1a2758d-3ce5-4fa7-8d96-6b960f029fa9',
+            '0780da08-a12b-452a-b936-ebc576aa7670',
+            'ff812ca5-ce60-44ac-b07e-66c2c37e98eb'
+        ]
+        ses = [{'url': f'https://website.org/foo/{x}'} for x in uuids]
+        ez = LazyId(ses)
+        self.assertEqual(len(uuids), len(ez))
+        self.assertCountEqual(map(str, ez), uuids)
+        self.assertEqual(ez[0], uuids[0])
+        self.assertEqual(ez[0:2], uuids[0:2])
+        ez = LazyId([{'id': x} for x in uuids])
+        self.assertCountEqual(map(str, ez), uuids)
