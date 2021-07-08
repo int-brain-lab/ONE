@@ -1319,7 +1319,8 @@ class OneAlyx(One):
         elif isinstance(dataset_type, collections.abc.Sequence):
             restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
         datasets = self.alyx.rest('datasets', 'list', django=restriction)
-        return datasets if full else [f"{d['collection']}/{d['name']}" for d in datasets]
+        return (datasets if full else
+                [(f"{d['collection']}/" if d['collection'] else '') + d['name'] for d in datasets])
 
     def dataset2type(self, dset):
         """Return dataset type from dataset"""

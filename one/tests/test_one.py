@@ -701,6 +701,21 @@ class TestOneAlyx(unittest.TestCase):
                 mode='local'
             )
 
+    def test_dataset_from_type(self):
+        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
+        # when the dataset is at the root, there shouldn't be the separator
+        dsets = self.one.datasets_from_type(eid, 'eye.blink')
+        assert(dsets == ['eye.blink.npy'])
+        # test multiples datasets with collections
+        eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
+        dtypes = ['trials.feedback_times', '_iblrig_codeFiles.raw']
+        dsets = self.one.datasets_from_type(eid, dtypes)
+        assert(dsets == ['alf/_ibl_trials.feedback_times.npy',
+                         'raw_behavior_data/_iblrig_codeFiles.raw.zip'])
+        # this returns a list of dicts
+        dsets = self.one.datasets_from_type(eid, dtypes, full=True)
+        self.assertIsInstance(dsets[0], dict)
+
     def test_ses2records(self):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
         ses = self.one.alyx.rest('sessions', 'read', id=eid)
