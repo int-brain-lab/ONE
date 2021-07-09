@@ -125,7 +125,20 @@ def setup(client=None, silent=False, make_default=None):
     return cache_map
 
 
-def get(silent=False, client=None):
+def get(client=None, silent=False):
+    """Returns the AlyxClient parameters
+
+    Parameters
+    ----------
+    silent : bool
+        If true, defaults are chosen if no parameters found
+    client : str
+        The database URL to retrieve parameters for.  If None, the default is loaded
+
+    Returns
+    -------
+    A Params object for the AlyxClient
+    """
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
     if not cache_map:  # This can be removed in the future
@@ -137,9 +150,15 @@ def get(silent=False, client=None):
     return iopar.read(f'{_PAR_ID_STR}/{client_key or cache_map.DEFAULT}').set('CACHE_DIR', cache)
 
 
+def get_default_client():
+    """Returns the default AlyxClient URL, or None if no default is set."""
+    cache_map = iopar.as_dict(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})) or {}
+    return cache_map.get('DEFAULT', None)
+
+
 def save(par, client):
     # Remove cache dir variable before saving
-    par = {k: v for k, v in par.as_dict().items() if 'CACHE_DIR' not in k}
+    par = {k: v for k, v in iopar.as_dict(par).items() if 'CACHE_DIR' not in k}
     iopar.write(f'{_PAR_ID_STR}/{_key_from_url(client)}', par)
 
 

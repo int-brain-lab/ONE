@@ -38,6 +38,15 @@ class TestONEParamUtil(unittest.TestCase):
         expected = (*expected, 'sub.domain.net', 'https')
         self.assertCountEqual(expected, path2.parts)
 
+    def test_get_default_client(self):
+        temp_dir = util.set_up_env()
+        self.addCleanup(temp_dir.cleanup)
+        with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, temp_dir.name)):
+            self.assertIsNone(params.get_default_client())
+            # Copy over caches fixture
+            params.setup(silent=True)
+            self.assertEqual(params.get_default_client(), 'openalyx.internationalbrainlab.org')
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)
