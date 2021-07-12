@@ -916,7 +916,6 @@ class TestOneSetup(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
         self.get_file = partial(util.get_file, self.tempdir.name)
-        wc.UniqueSingletons._instances = []  # Delete any active instances
 
     def test_setup_silent(self):
         """Test setting up parameters with silent flag
@@ -925,7 +924,7 @@ class TestOneSetup(unittest.TestCase):
         """
         with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
                 mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=True, mode='local')
+            one_obj = ONE(silent=True, mode='local', password=TEST_DB_2['password'])
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
         # Check param files were saved
@@ -967,13 +966,14 @@ class TestOneSetup(unittest.TestCase):
         # Save some old-style params
         old_pars = (one.params.default()
                     .set('CACHE_DIR', self.tempdir.name)
-                    .set('HTTP_DATA_SERVER_PWD', '123'))
+                    .set('HTTP_DATA_SERVER_PWD', '123')
+                    .set('ALYX_LOGIN', 'intbrainlab'))
         with open(Path(self.tempdir.name, '.one_params'), 'w') as f:
             json.dump(old_pars.as_dict(), f)
 
         with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
                 mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=False, mode='local')
+            one_obj = ONE(silent=False, mode='local', password='international')
         self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER_PWD, '123')
 
     def test_one_factory(self):
@@ -994,7 +994,7 @@ class TestOneSetup(unittest.TestCase):
                 if OFFLINE_ONLY:
                     self.skipTest('Requires remote db connection')
                 # No cache dir provided; use OneAlyx (silent setup mode)
-                one_obj = ONE(silent=True, mode='local')
+                one_obj = ONE(silent=True, mode='local', password=TEST_DB_2['password'])
                 self.assertIsInstance(one_obj, OneAlyx)
 
                 # The cache dir is in client cache map; use OneAlyx
