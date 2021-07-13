@@ -1302,7 +1302,7 @@ class OneAlyx(One):
             raise alferr.ALFObjectNotFound(f'File record for {filepath} not found on Alyx')
 
     @util.parse_id
-    def datasets_from_type(self, eid, dataset_type, full=False):
+    def type2datasets(self, eid, dataset_type, details=False):
         """
         Get list of datasets belonging to a given dataset type for a given session
         :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
@@ -1310,14 +1310,30 @@ class OneAlyx(One):
         :param dataset_type: str, list : A dataset type, e.g. camera.times or a list of dtypes
         :param full: If True, a dictionary of details is returned for each dataset
         :return: A list of datasets belonging to that session's dataset type
+
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        dataset_type : str, list
+            An Alyx dataset type, e.g. camera.times or a list of dtypes
+        details : bool
+            If True, a datasets DataFrame is returned
+
+        Returns
+        -------
+        A numpy array of data
         """
         if isinstance(dataset_type, str):
             restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'
         elif isinstance(dataset_type, collections.abc.Sequence):
             restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
-        datasets = self.alyx.rest('datasets', 'list', django=restriction)
-        return (datasets if full else
-                [(f"{d['collection']}/" if d['collection'] else '') + d['name'] for d in datasets])
+        else:
+            raise ValueError('dataset_type must be a str or str list')
+        datasets = util.datasets2records(self.alyx.rest('datasets', 'list', django=restriction))
+        return datasets if details else datasets['rel_path'].sort_values().values
 
     def dataset2type(self, dset):
         """Return dataset type from dataset"""

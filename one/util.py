@@ -52,8 +52,49 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
         return rec
 
     records = map(_to_record, ses['data_dataset_session_related'])
-    datasets = pd.DataFrame(records).set_index(['id_0', 'id_1'])
+    datasets = pd.DataFrame(records).set_index(['id_0', 'id_1']).sort_index()
     return session, datasets
+
+
+def datasets2records(datasets) -> pd.DataFrame:
+    """Extract datasets DataFrame from one or more Alyx dataset records
+
+    Parameters
+    ----------
+    datasets : dict, list
+        One or more records from the Alyx 'datasets' endpoint
+
+    Returns
+    -------
+    Datasets frame
+
+    Examples
+    --------
+    datasets = one.alyx.rest('datasets', 'list', subject='foobar')
+    df = datasets2records(datasets)
+    """
+    records = []
+
+    for d in ensure_list(datasets):
+        file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
+        if not file_record:
+            continue  # Ignore files that are not accessible
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
+        rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
+        rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
+        data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
+        file_path = data_url.path.strip('/')
+        file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
+        rec['session_path'] = alfio.get_session_path(file_path).as_posix()
+        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        rec['default_revision'] = d['default_dataset']
+        records.append(rec)
+
+    if not records:
+        keys = ('id_0', 'id_1', 'eid_0', 'eid_1', 'file_size', 'hash', 'session_path',
+                'rel_path', 'default_revision')
+        return pd.DataFrame(columns=keys).set_index(['id_0', 'id_1'])
+    return pd.DataFrame(records).set_index(['id_0', 'id_1']).sort_index()
 
 
 def parse_id(method):
@@ -288,7 +329,7 @@ def autocomplete(term, search_terms):
 
 def ensure_list(value):
     """Ensure input is a list"""
-    return [value] if isinstance(value, str) or not isinstance(value, Iterable) else value
+    return [value] if isinstance(value, (str, dict)) or not isinstance(value, Iterable) else value
 
 
 class LazyId(Mapping):
