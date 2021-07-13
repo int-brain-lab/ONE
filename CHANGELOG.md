@@ -1,6 +1,18 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.2.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.3.0]
+
+### Added
+
+- function to convert datasets list endpoint to DataFrame
+
+### Modified
+
+- fully adopted Numpy docstrings
+- revisions now filtered using <= instead of <
+- datasets_from_type now type2datasets; returns similar output to list_ methods
+
+## [0.2.3]
 
 ### Modified
 
