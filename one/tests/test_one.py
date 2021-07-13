@@ -903,7 +903,7 @@ class TestOneRemote(unittest.TestCase):
                                      download_only=True)
         self.assertIsInstance(files[0], Path)
         self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.position.npy')
         )
 
 
