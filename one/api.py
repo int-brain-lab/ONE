@@ -1305,12 +1305,6 @@ class OneAlyx(One):
     def type2datasets(self, eid, dataset_type, details=False):
         """
         Get list of datasets belonging to a given dataset type for a given session
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path
-        :param dataset_type: str, list : A dataset type, e.g. camera.times or a list of dtypes
-        :param full: If True, a dictionary of details is returned for each dataset
-        :return: A list of datasets belonging to that session's dataset type
-
 
         Parameters
         ----------

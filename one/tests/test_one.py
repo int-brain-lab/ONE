@@ -716,6 +716,9 @@ class TestOneAlyx(unittest.TestCase):
         # this returns a DataFrame
         dsets = self.one.type2datasets(eid, dtypes, details=True)
         self.assertIsInstance(dsets, pd.DataFrame)
+        # check validation
+        with self.assertRaises(ValueError):
+            self.one.type2datasets(eid, 14)
 
     def test_ses2records(self):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
