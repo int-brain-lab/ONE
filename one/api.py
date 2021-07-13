@@ -190,9 +190,17 @@ class One(ConversionMixin):
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
         """
         Download a dataset from an alyx REST dictionary
-        :param dset: single dataset dictionary from an Alyx REST query OR URL string
-        :param cache_dir (optional): root directory to save the data in (home/downloads by default)
-        :return: local file path
+
+        Parameters
+        ----------
+        dset : pandas.Series, dict, str
+            A single dataset dictionary from an Alyx REST query OR URL string
+        cache_dir : str, pathlib.Path
+            The root directory to save the data in (home/downloads by default)
+
+        Returns
+        -------
+        The local file path
         """
         pass  # pragma: no cover
 
@@ -303,14 +311,23 @@ class One(ConversionMixin):
          check_filesystem?
          This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
          update and save tables.  Download_datasets can also call this function.
+        TODO Remove clobber
 
-        :param datasets: A list or DataFrame of dataset records
-        :param offline: If false and Web client present, downloads the missing datasets from a
-        remote repository
-        :param update_exists: If true, the cache is updated to reflect the filesystem
-        :param clobber: If true and not offline, datasets are re-downloaded regardless of local
-        filesystem
-        :return: A list of file paths for the datasets (None elements for non-existent datasets)
+        Parameters
+        ----------
+        datasets : pandas.Series, pandas.DataFrame, list of dicts
+            A list or DataFrame of dataset records
+        offline : bool, None
+            If false and Web client present, downloads the missing datasets from a remote
+            repository
+        update_exists : bool
+            If true, the cache is updated to reflect the filesystem
+        clobber : bool
+            If true and not offline, datasets are re-downloaded regardless of local filesystem
+
+        Returns
+        -------
+        A list of file paths for the datasets (None elements for non-existent datasets)
         """
         if offline or self.offline:
             files = []
@@ -380,7 +397,10 @@ class One(ConversionMixin):
     def list_subjects(self) -> List[str]:
         """
         List all subjects in database
-        :return: Sorted list of subject names
+
+        Returns
+        -------
+        Sorted list of subject names
         """
         return self._cache['sessions']['subject'].sort_values().unique()
 
@@ -393,12 +413,24 @@ class One(ConversionMixin):
         a list of all datasets is returned.  When details is false, a sorted array of unique
         datasets is returned (their relative paths).
 
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path
-        :param details: When true, a pandas DataFrame is returned, otherwise a numpy array of
-        relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
-        :param collection: Filter by a given collection string
-        :return: Slice of datasets table or numpy array if details is False
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        collection : str
+            The collection to which the object belongs, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        details : bool
+            When true, a pandas DataFrame is returned, otherwise a numpy array of
+            relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+
+        Returns
+        -------
+        Slice of datasets table or numpy array if details is False
         """
         datasets = self._cache['datasets']
         if not eid:
@@ -516,24 +548,41 @@ class One(ConversionMixin):
         Load all attributes of an ALF object from a Session ID and an object name.  Any datasets
         with matching object name will be loaded.
 
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path
-        :param obj: The ALF object to load.  Supports asterisks as wildcards.
-        :param collection:  The collection to which the object belongs, e.g. 'alf/probe01'.
-        Supports asterisks as wildcards.
-        :param revision: The last revision before a given string (typically an ISO date).  If
-        None, the default dataset is returned (usually the most recent revision).
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-        :param download_only: When true the data are downloaded and the file paths are returned
-        :param kwargs: Additional filters for datasets, including namespace and timescale
-        :return: An ALF bunch or if download_only is True, a list of Paths objects
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        obj : str
+            The ALF object to load.  Supports asterisks as wildcards.
+        collection : str
+            The collection to which the object belongs, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        revision : str
+            The dataset revision (typically an ISO date).  If no exact match, the previous
+            revision (ordered lexicographically) is returned.  If None, the default revision is
+            returned (usually the most recent revision).  Regular expressions/wildcards not
+            permitted.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+        kwargs : str
+            Additional filters for datasets, including namespace and timescale. For full list
+            see the one.alf.spec.describe function.
 
-        Examples:
-            load_object(eid, 'moves')
-            load_object(eid, 'trials')
-            load_object(eid, 'spikes', collection='.*probe01')
-            load_object(eid, 'spikes', namespace='ibl')
-            load_object(eid, 'spikes', timescale='ephysClock')
+        Returns
+        -------
+        An ALF bunch or if download_only is True, a list of Paths objects
+
+        Examples
+        --------
+        load_object(eid, 'moves')
+        load_object(eid, 'trials')
+        load_object(eid, 'spikes', collection='.*probe01')
+        load_object(eid, 'spikes', namespace='ibl')
+        load_object(eid, 'spikes', timescale='ephysClock')
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(eid, details=True, query_type=query_type)
@@ -584,20 +633,42 @@ class One(ConversionMixin):
                      download_only: bool = False,
                      **kwargs) -> Any:
         """
-        Load a dataset for a given session id and dataset name
+        Load a single dataset for a given session id and dataset name
 
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path.
-        :param dataset: The ALF dataset to load.  Supports asterisks as wildcards.
-        :param collection:  The collection to which the object belongs, e.g. 'alf/probe01'.
-        For IBL this is the relative path of the file from the session root.
-        Supports asterisks as wildcards.
-        :param revision: The last revision before a given string (typically an ISO date).  If
-        None, the default dataset is returned (usually the most recent revision).
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-        :param download_only: When true the data are downloaded and the file paths are returned
-        :param kwargs:
-        :return:
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        dataset : str, dict
+            The ALF dataset to load.  May be a string or dict of ALF parts.  Supports asterisks as
+            wildcards.
+        collection : str
+            The collection to which the object belongs, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        revision : str
+            The dataset revision (typically an ISO date).  If no exact match, the previous
+            revision (ordered lexicographically) is returned.  If None, the default revision is
+            returned (usually the most recent revision).  Regular expressions/wildcards not
+            permitted.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+
+        Returns
+        -------
+        Dataset or a Path object if download_only is true.
+
+        Examples
+        --------
+        intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
+        intervals = one.load_dataset(eid, '*trials.intervals*')
+        filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
+        spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
+        old_spikes = one.load_dataset(eid, ''spikes.times.npy',
+                                      collection='alf/probe01', revision='2020-08-31')
         """
         datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
 
@@ -630,21 +701,34 @@ class One(ConversionMixin):
         first is the data (or file paths if download_data is false), the second is a list of
         meta data Bunches.  If assert_present is false, missing data will be returned as None.
 
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path.
-        :param datasets: The ALF datasets to load.  Supports asterisks as wildcards.
-        :param collections:  The collection(s) to which the object(s) belong, e.g. 'alf/probe01'.
-        For IBL this is the relative path of the file from the session root.
-        Supports asterisks as wildcards.
-        :param revisions: The last revision before a given string (typically an ISO date).  If
-        None, the default dataset is returned (usually the most recent revision).
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-        :param assert_present: If true, missing datasets raises and error, otherwise None is
-        returned
-        :param download_only: When true the data are downloaded and the file paths are returned
-        :param kwargs:
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        datasets : list of strings
+            The ALF datasets to load.  May be a string or dict of ALF parts.  Supports asterisks
+            as
+            wildcards.
+        collections : str, list
+            The collection(s) to which the object(s) belong, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        revisions : str, list
+            The dataset revision (typically an ISO date).  If no exact match, the previous
+            revision (ordered lexicographically) is returned.  If None, the default revision is
+            returned (usually the most recent revision).  Regular expressions/wildcards not
+            permitted.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+        assert_present : bool
+            If true, missing datasets raises and error, otherwise None is returned
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
 
-        :return: Returns a list of data (or file paths) the length of datasets, and a list of
+        Returns
+        -------
+        Returns a list of data (or file paths) the length of datasets, and a list of
         meta data Bunches. If assert_present is False, missing data will be None
         """
 
@@ -953,29 +1037,42 @@ class OneAlyx(One):
                      query_type: str = None,
                      download_only: bool = False) -> Any:
         """
-        Load a single dataset from a Session ID and a dataset type.
-
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path.
-        :param dataset: The ALF dataset to load.  Supports asterisks as wildcards.
-        :param collection:  The collection to which the object belongs, e.g. 'alf/probe01'.
-        For IBL this is the relative path of the file from the session root.
-        Supports asterisks as wildcards.
-        :param revision: The last revision before a given string (typically an ISO date).  If
-        None, the default dataset is returned (usually the most recent revision).
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-        :param download_only: When true the data are downloaded and the file path is returned.
-        :return: dataset or a Path object if download_only is true.
-
+        Load a single dataset from a Session ID and a dataset name.
         TODO This method may be removed once default dataset is added to Alyx serializer
 
-        Examples:
-            intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
-            intervals = one.load_dataset(eid, '*trials.intervals*')
-            filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
-            spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
-            old_spikes = one.load_dataset(eid, ''spikes.times.npy',
-                                          collection='alf/probe01', revision='2020-08-31')
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        dataset : str
+            The ALF dataset to load.  Supports asterisks as wildcards.
+        collection : str
+            The collection to which the object belongs, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        revision : str
+            The dataset revision (typically an ISO date).  If no exact match, the previous
+            revision (ordered lexicographically) is returned.  If None, the default revision is
+            returned (usually the most recent revision).  Regular expressions/wildcards not
+            permitted.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+
+        Returns
+        -------
+        Dataset or a Path object if download_only is true.
+
+        Examples
+        --------
+        intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
+        intervals = one.load_dataset(eid, '*trials.intervals*')
+        filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
+        spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
+        old_spikes = one.load_dataset(eid, ''spikes.times.npy',
+                                      collection='alf/probe01', revision='2020-08-31')
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
