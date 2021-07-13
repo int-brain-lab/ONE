@@ -40,7 +40,7 @@ from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id, autocomplete, LazyId
+    filter_revision_last_before, parse_id, autocomplete, LazyId, datasets2records
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -701,6 +701,25 @@ class TestOneAlyx(unittest.TestCase):
                 mode='local'
             )
 
+    def test_type2datasets(self):
+        eid = 'cf264653-2deb-44cb-aa84-89b82507028a'
+        # when the dataset is at the root, there shouldn't be the separator
+        dsets = self.one.type2datasets(eid, 'eye.blink')
+        self.assertCountEqual(dsets, ['eye.blink.npy'])
+        # test multiples datasets with collections
+        eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
+        dtypes = ['trials.feedback_times', '_iblrig_codeFiles.raw']
+        dsets = self.one.type2datasets(eid, dtypes)
+        expected = ['alf/_ibl_trials.feedback_times.npy',
+                    'raw_behavior_data/_iblrig_codeFiles.raw.zip']
+        self.assertCountEqual(dsets, expected)
+        # this returns a DataFrame
+        dsets = self.one.type2datasets(eid, dtypes, details=True)
+        self.assertIsInstance(dsets, pd.DataFrame)
+        # check validation
+        with self.assertRaises(ValueError):
+            self.one.type2datasets(eid, 14)
+
     def test_ses2records(self):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
         ses = self.one.alyx.rest('sessions', 'read', id=eid)
@@ -720,6 +739,26 @@ class TestOneAlyx(unittest.TestCase):
             r['default_revision'] = True
         session, datasets = ses2records(ses)
         self.assertTrue(datasets.default_revision.all())
+
+    def test_datasets2records(self):
+        eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
+        dsets = self.one.alyx.rest('datasets', 'list', session=eid)
+        datasets = datasets2records(dsets)
+
+        # Verify returned tables are compatible with cache tables
+        self.assertIsInstance(datasets, pd.DataFrame)
+        self.assertTrue(len(datasets) >= len(dsets))
+        expected = self.one._cache['datasets'].columns
+        self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
+        self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
+
+        # Test single input
+        dataset = datasets2records(dsets[0])
+        self.assertTrue(len(dataset) == 1)
+        # Test records when data missing
+        dsets[0]['file_records'][0]['exists'] = False
+        empty = datasets2records(dsets[0])
+        self.assertTrue(isinstance(empty, pd.DataFrame) and len(empty) == 0)
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
@@ -867,7 +906,7 @@ class TestOneRemote(unittest.TestCase):
                                      download_only=True)
         self.assertIsInstance(files[0], Path)
         self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.position.npy')
         )
 
 
