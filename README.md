@@ -20,7 +20,7 @@ one = One(cache_dir='/home/user/downlaods/ONE/behavior_paper')
 For setting up ONE for a given database e.g. internal IBL Alyx:
 ```python
 from one.api import ONE
-one = ONE(base_url='http://alyx.internationalbrainlab.org')
+one = ONE(base_url='https://alyx.internationalbrainlab.org')
 ```
 
 To use the default setup settings that connect you to the [IBL public database](https://openalyx.internationalbrainlab.org):
@@ -38,8 +38,8 @@ one = ONE()
 To set up ONE for another database and make it the default:
 ```python
 from one.api import OneAlyx, ONE
-OneAlyx.setup(client='http://test.alyx.internationalbrainlab.org', make_default=True)
-one = ONE()  # Connected to http://test.alyx.internationalbrainlab.org
+OneAlyx.setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
+one = ONE()  # Connected to https://test.alyx.internationalbrainlab.org
 ```
 
 ## Using ONE

@@ -102,7 +102,7 @@ Advanced loading:
 
 The load methods require an exact match, therefore `one.load_dataset(eid, 'spikes.times')` will
 raise an exception because 'spikes.times' does not exactly match 'spikes.times.npy'.
-Likeswise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
+Likewise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
 
 Loading can be done using regular expressions, allowing you to load objects and datasets that
 match a particular pattern.
