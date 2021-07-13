@@ -60,7 +60,7 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()
         ac.silent = False
         with mock.patch('builtins.input', return_value=TEST_DB_2['username']),\
-            mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']):
+             mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']):
             ac.authenticate(cache_token=True)
         self.assertTrue(ac.is_logged_in())
         # Check token saved in cache
@@ -74,7 +74,6 @@ class TestAuthentication(unittest.TestCase):
         # Check non-silent double logout
         ac.logout()
         ac.logout()  # Shouldn't complain
-
 
 
 class TestJsonFieldMethods(unittest.TestCase):
