@@ -152,6 +152,27 @@ class TestAlfParse(unittest.TestCase):
         verifiable = files.filename_parts('bad/badfile', assert_valid=False)
         self.assertFalse(any(verifiable))
 
+    def test_session_path_parts(self):
+        session_path = '/home/user/Data/labname/Subjects/subject/2020-01-01/001/alf'
+        parsed = files.session_path_parts(session_path, as_dict=True)
+        expected = {
+            'lab': 'labname',
+            'subject': 'subject',
+            'date': '2020-01-01',
+            'number': '001'}
+        self.assertEqual(expected, parsed)
+        parsed = files.session_path_parts(session_path, as_dict=False)
+        self.assertEqual(tuple(expected.values()), parsed)
+        # Check parse fails
+        session_path = '/home/user/Data/labname/2020-01-01/alf/001/'
+        with self.assertRaises(ValueError):
+            files.session_path_parts(session_path, assert_valid=True)
+        parsed = files.session_path_parts(session_path, assert_valid=False, as_dict=True)
+        expected = dict.fromkeys(expected.keys())
+        self.assertEqual(expected, parsed)
+        parsed = files.session_path_parts(session_path, assert_valid=False, as_dict=False)
+        self.assertEqual(tuple([None] * 4), parsed)
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)
