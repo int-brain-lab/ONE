@@ -88,7 +88,8 @@ collections = one.list_collections('subject/2021-06-01/001')
 # To load the 'spikes' object from the 'alf/probe00' collection
 spikes = one.load_object('subject/2021-06-01/001', 'spikes', collection='alf/probe00')
 
-# To load the 'spikes' object from the 'alf/probe01' collection, and the last revision before July
+# To load the 'spikes' object from the 'alf/probe01' collection, and the last revision before or
+# on July 1st
 spikes = one.load_object('subject/2021-06-01/001', 'spikes',
                          collection='alf/probe01', revision='2021-07-01')
 

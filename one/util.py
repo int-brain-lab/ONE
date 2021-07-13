@@ -137,9 +137,16 @@ def _collection_spec(collection=None, revision=None):
     optional in the ALF spec, None will match any (including absent), while an empty string will
     match absent.
 
-    :param collection:
-    :param revision:
-    :return: a string format for matching the collection/revision
+    Parameters
+    ----------
+    collection : None, str
+        An optional collection regular expression
+    revision : None, str
+        An optional revision regular expression
+
+    Returns
+    -------
+    A string format for matching the collection/revision
     """
     spec = ''
     for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
@@ -156,26 +163,39 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     When None is passed, all values will match.  To match on empty parts, use an empty string.
     When revision_last_before is true, None means return latest revision.
 
-    Examples:
-        # Filter by dataset name and collection
-        datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
-        # Filter datasets not in a collection
-        datasets = filter_datasets(all_datasets, collection='')
-        # Filter by matching revision
-        datasets = filter_datasets(all_datasets, 'spikes.times.npy',
-                                   revision='2020-01-12', revision_last_before=False)
-        # Filter by filename parts
-        datasets = filter_datasets(all_datasets, {object='spikes', attribute='times'})
+    Parameters
+    ----------
+    all_datasets : pandas.DataFrame
+        A datasets cache table
+    filename : str, dict
+        A filename str or a dict of alf parts.  Regular expressions permitted.
+    collection : str
+        A collection string.  Regular expressions permitted.
+    revision : str
+        A revision string to match.  If revision_last_before is true, regular expressions are
+        not permitted.
+    revision_last_before : bool
+        When true and no exact match exists, the (lexicographically) previous revision is used
+        instead.  When false the revision string is matched like collection and filename,
+        with regular expressions permitted.
+    assert_unique : bool
+        When true an error is raised if multiple collections or datasets are found
 
-    :param all_datasets: a datasets cache table
-    :param filename: a regex string or a dict of alf parts
-    :param collection: a regex string
-    :param revision: a regex string
-    :param revision_last_before: if true, the datasets are filtered by the last revision before
-    the given revision string when ordered lexicographically, otherwise the revision is matched
-    like the other strings
-    :param assert_unique: raise an error with more than one dataset matches the filters
-    :return: a slice of all_datasets that match the filters
+    Returns
+    -------
+    A slice of all_datasets that match the filters
+
+    Examples
+    --------
+    # Filter by dataset name and collection
+    datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
+    # Filter datasets not in a collection
+    datasets = filter_datasets(all_datasets, collection='')
+    # Filter by matching revision
+    datasets = filter_datasets(all_datasets, 'spikes.times.npy',
+                               revision='2020-01-12', revision_last_before=False)
+    # Filter by filename parts
+    datasets = filter_datasets(all_datasets, {object='spikes', attribute='times'})
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}
@@ -218,7 +238,26 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
 
 
 def filter_revision_last_before(datasets, revision=None, assert_unique=True):
+    """
+        Filter datasets by revision, returning previous revision in ordered list if revision
+        doesn't exactly match.
+
+        Parameters
+        ----------
+        datasets : pandas.DataFrame
+            A datasets cache table
+        revision : str
+            A revision string to match (regular expressions not permitted)
+        assert_unique : bool
+            When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
+            default revisions are found; an alferr.ALFError when no default revision is found
+
+        Returns
+        -------
+        A datasets DataFrame with 0 or 1 row per unique dataset
+    """
     def _last_before(df):
+        """Takes a DataFrame with only one dataset and multiple revisions, returns matching row"""
         if revision is None and 'default_revision' in df.columns:
             if assert_unique and sum(df.default_revision) > 1:
                 revisions = df['revision'][df.default_revision.values]
@@ -253,12 +292,20 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     Returns the index of string that occurs directly before the provided revision string when
     lexicographic sorted.  If revision is None, the index of the most recent revision is returned.
 
-    Example:
-        idx = _index_last_before([], '2020-08-01')
+    Parameters
+    ----------
+    revisions : list of strings
+        A list of revision strings
+    revision : None, str
+        The revision string to match on
 
-    :param revisions: a list of revision strings
-    :param revision: revision string to match on
-    :return: index of revision before matching string in sorted list or None
+    Returns
+    -------
+    Index of revision before matching string in sorted list or None
+
+    Examples
+    --------
+    idx = _index_last_before([], '2020-08-01')
     """
     if len(revisions) == 0:
         return  # No revisions, just return

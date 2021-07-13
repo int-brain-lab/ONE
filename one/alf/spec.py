@@ -19,7 +19,9 @@ SPEC_DESCRIPTION = {
                   'spike times from multiple probes.  Label examples include "probe00", '
                   '"raw_video_data".',
     'revision': 'An optional folder to organize data by version.  The version label is arbitrary, '
-                'however the folder must start and end with pound signs, e.g. "#v1.0.0#".',
+                'however the folder must start and end with pound signs, e.g. "#v1.0.0#". '
+                'Unlike collections, if a specified revision is not found, the previous revision '
+                'will be returned.  The revisions are ordered lexicographically.',
     'namespace': 'An option filename prefix for data that are not not expected to be a community '
                  'standard, for example task specific events.  The namespace may also be used to '
                  'indicate data unique to a given piece of hardware or software, and is '
