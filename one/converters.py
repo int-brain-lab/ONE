@@ -75,7 +75,9 @@ class ConversionMixin:
         # TODO Could add np2str here
         # if isinstance(id, (list, tuple)):  # Recurse
         #     return [self.to_eid(i, cache_dir) for i in id]
-        if isinstance(id, UUID):
+        if id is None:
+            return
+        elif isinstance(id, UUID):
             return str(id)
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
@@ -87,6 +89,7 @@ class ConversionMixin:
                 'Subjects', id['subject'],
                 id['start_time'][:10],
                 ('%03d' % id['number']))
+
         if isinstance(id, Path):
             return self.path2eid(id)
         elif isinstance(id, str):
@@ -454,6 +457,91 @@ class ConversionMixin:
                       if parsed
                       else '{date:s}_{sequence:s}_{subject:s}')
         return format_str.format(**ref_dict)
+
+
+def one_path_from_dataset(dset, one_cache):
+    """
+    Returns local one file path from a dset record or a list of dsets records from REST.
+    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
+
+    Parameters
+    ----------
+    dset : dict, list
+        Dataset dictionary or list of dictionaries from Alyx rest endpoint
+    one_cache : str, pathlib.Path, pathlib.PurePath
+        The local ONE data cache directory
+
+    Returns
+    -------
+    The local path for a given dataset
+    """
+    return path_from_dataset(dset, root_path=one_cache, uuid=False)
+
+
+def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=False):
+    """
+    Returns the local file path from a dset record from a REST query
+    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
+
+    Parameters
+    ----------
+    dset : dict, list
+        Dataset dictionary or list of dictionaries from Alyx rest endpoint
+    root_path : str, pathlib.Path, pathlib.PurePath
+        The prefix path such as the ONE download directory or remote http server root
+    repository : str, None
+        Which data repository to use from the file_records list, defaults to first online
+        repository
+    uuid : bool
+        If True, the file path will contain the dataset UUID
+
+    Returns
+    -------
+    File path or list of paths
+    """
+    if isinstance(dset, list):
+        return [path_from_dataset(d) for d in dset]
+    if repository:
+        fr = next((fr for fr in dset['file_records'] if fr['data_repository'] == repository))
+    else:
+        fr = next((fr for fr in dset['file_records'] if fr['data_url']))
+    uuid = dset['url'][-36:] if uuid else None
+    return path_from_filerecord(fr, root_path=root_path, uuid=uuid)
+
+
+def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
+    """
+    Returns a data file Path constructed from an Alyx file record.  The Path type returned
+    depends on the type of root_path: If root_path is a string a Path object is returned,
+    otherwise if the root_path is a PurePath, the same path type is returned.
+
+    Parameters
+    ----------
+    fr : dict
+        An Alyx file record dict
+    root_path : str, pathlib.Path
+        An optional root path
+    uuid : str, uuid.UUID
+        An optional dataset UUID to add to the file name
+
+    Returns
+    -------
+    A filepath as a pathlib object
+    """
+    if isinstance(fr, list):
+        return [path_from_filerecord(f) for f in fr]
+    repo_path = fr['data_repository_path']
+    repo_path = repo_path[repo_path.startswith('/'):]  # remove starting / if any
+    # repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # py3.8 Remove slash at start
+    file_path = PurePosixPath(repo_path, fr['relative_path'])
+    if root_path:
+        # NB: By checking for string we won't cast any PurePaths
+        if isinstance(root_path, str):
+            root_path = Path(root_path)
+        file_path = root_path / file_path
+    if uuid:
+        file_path = alfio.add_uuid_string(file_path, uuid)
+    return file_path
 
 
 def deprecate(func):

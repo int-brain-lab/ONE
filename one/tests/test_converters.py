@@ -1,12 +1,13 @@
 """Tests for the one.converters module"""
 import unittest
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from uuid import UUID
 import datetime
 
 import pandas as pd
 
 from one.api import ONE
+from one import converters
 from . import util, OFFLINE_ONLY, TEST_DB_2
 
 
@@ -199,6 +200,57 @@ class TestOnlineConverters(unittest.TestCase):
         # As pd.DataFrame
         path = self.one.record2path(rec.iloc[[0]])
         self.assertEqual(expected, path)
+
+
+class TestAlyx2Path(unittest.TestCase):
+    dset = {
+        'url': 'https://alyx.internationalbrainlab.org/'
+               'datasets/00059298-1b33-429c-a802-fa51bb662d72',
+        'name': 'channels.localCoordinates.npy', 'created_by': 'nate',
+        'created_datetime': '2020-02-07T22:08:08.053982',
+        'dataset_type': 'channels.localCoordinates', 'data_format': 'npy',
+        'collection': 'alf/probe00',
+        'session': ('https://alyx.internationalbrainlab.org/'
+                    'sessions/7cffad38-0f22-4546-92b5-fd6d2e8b2be9'),
+        'file_size': 6064, 'hash': 'bc74f49f33ec0f7545ebc03f0490bdf6', 'version': '1.5.36',
+        'experiment_number': 1,
+        'file_records': [
+            {'id': 'c9ae1b6e-03a6-41c9-9e1b-4a7f9b5cfdbf', 'data_repository': 'ibl_floferlab_SR',
+             'data_repository_path': '/mnt/s0/Data/Subjects/',
+             'relative_path': 'SWC_014/2019-12-11/001/alf/probe00/channels.localCoordinates.npy',
+             'data_url': None, 'exists': True},
+            {'id': 'f434a638-bc61-4695-884e-70fd1e521d60', 'data_repository': 'flatiron_hoferlab',
+             'data_repository_path': '/hoferlab/Subjects/',
+             'relative_path': 'SWC_014/2019-12-11/001/alf/probe00/channels.localCoordinates.npy',
+             'data_url': (
+                 'https://ibl.flatironinstitute.org/hoferlab/Subjects/SWC_014/2019-12-11/001/'
+                 'alf/probe00/channels.localCoordinates.00059298-1b33-429c-a802-fa51bb662d72.npy'),
+             'exists': True}],
+        'auto_datetime': '2021-02-10T20:24:31.484939'}
+
+    def test_dsets_2_path(self):
+        one_path = ('/one_root/hoferlab/Subjects/SWC_014/2019-12-11/001/alf/probe00/'
+                    'channels.localCoordinates.npy')
+
+        # Test one_path_from_dataset
+        root = PurePosixPath('/one_root')
+        testable = converters.one_path_from_dataset(self.dset, one_cache=root)
+        self.assertEqual(str(testable), one_path)
+        # Check handles string inputs
+        testable = converters.one_path_from_dataset(self.dset, one_cache='/one_root')
+        self.assertTrue(hasattr(testable, 'is_absolute'), 'Failed to return Path object')
+        self.assertEqual(str(testable).replace('\\', '/'), one_path)
+
+        # Test one_path_from_dataset using Windows path
+        one_path = PureWindowsPath(r'C:/Users/User/')
+        testable = converters.one_path_from_dataset(self.dset, one_cache=one_path)
+        self.assertIsInstance(testable, PureWindowsPath)
+        self.assertTrue(str(testable).startswith(str(one_path)))
+
+        # Tests path_from_filerecord: when given a string, a system path object should be returned
+        fr = self.dset['file_records'][0]
+        testable = converters.path_from_filerecord(fr, root_path='C:\\')
+        self.assertIsInstance(testable, Path)
 
 
 if __name__ == '__main__':

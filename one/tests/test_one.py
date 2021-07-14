@@ -23,7 +23,7 @@ Note ONE and AlyxClient use caching:
 """
 import datetime
 import logging
-from pathlib import Path, PurePosixPath, PureWindowsPath
+from pathlib import Path
 from itertools import permutations, combinations_with_replacement
 from functools import partial
 import unittest
@@ -36,7 +36,6 @@ import io
 import numpy as np
 import pandas as pd
 
-from one import webclient as wc
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
@@ -47,87 +46,6 @@ import one.alf.exceptions as alferr
 from iblutil.io import parquet
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
-
-dset = {
-    'url': 'https://alyx.internationalbrainlab.org/datasets/00059298-1b33-429c-a802-fa51bb662d72',
-    'name': 'channels.localCoordinates.npy',
-    'created_by': 'nate',
-    'created_datetime': '2020-02-07T22:08:08.053982',
-    'dataset_type': 'channels.localCoordinates',
-    'data_format': 'npy',
-    'collection': 'alf/probe00',
-    'session': ('https://alyx.internationalbrainlab.org/sessions/'
-                '7cffad38-0f22-4546-92b5-fd6d2e8b2be9'),
-    'file_size': 6064,
-    'hash': 'bc74f49f33ec0f7545ebc03f0490bdf6',
-    'version': '1.5.36',
-    'experiment_number': 1,
-    'file_records': [
-        {'id': 'c9ae1b6e-03a6-41c9-9e1b-4a7f9b5cfdbf',
-         'data_repository': 'ibl_floferlab_SR',
-         'data_repository_path': '/mnt/s0/Data/Subjects/',
-         'relative_path': 'SWC_014/2019-12-11/001/alf/probe00/channels.localCoordinates.npy',
-         'data_url': None,
-         'exists': True},
-        {'id': 'f434a638-bc61-4695-884e-70fd1e521d60',
-         'data_repository': 'flatiron_hoferlab',
-         'data_repository_path': '/hoferlab/Subjects/',
-         'relative_path': 'SWC_014/2019-12-11/001/alf/probe00/channels.localCoordinates.npy',
-         'data_url': ('https://ibl.flatironinstitute.org/hoferlab/Subjects/SWC_014/2019-12-11/001/'
-                      'alf/probe00/channels.localCoordinates.00059298-1b33-429c-a802'
-                      '-fa51bb662d72.npy'),
-         'exists': True}
-    ],
-    'auto_datetime': '2021-02-10T20:24:31.484939'
-}
-
-
-class TestAlyx2Path(unittest.TestCase):
-
-    def test_dsets_2_path(self):
-        self.assertEqual(len(wc.globus_path_from_dataset([dset] * 3)), 3)
-        sdsc_path = ('/mnt/ibl/hoferlab/Subjects/SWC_014/2019-12-11/001/alf/probe00/'
-                     'channels.localCoordinates.00059298-1b33-429c-a802-fa51bb662d72.npy')
-        one_path = ('/one_root/hoferlab/Subjects/SWC_014/2019-12-11/001/alf/probe00/'
-                    'channels.localCoordinates.npy')
-        globus_path_sdsc = ('/hoferlab/Subjects/SWC_014/2019-12-11/001/alf/probe00/'
-                            'channels.localCoordinates.00059298-1b33-429c-a802-fa51bb662d72.npy')
-        globus_path_sr = ('/mnt/s0/Data/Subjects/SWC_014/2019-12-11/001/alf/probe00/'
-                          'channels.localCoordinates.npy')
-
-        # Test sdsc_path_from_dataset
-        testable = wc.sdsc_path_from_dataset(dset)
-        self.assertEqual(str(testable), sdsc_path)
-        self.assertIsInstance(testable, PurePosixPath)
-
-        # Test one_path_from_dataset
-        testable = wc.one_path_from_dataset(dset, one_cache=PurePosixPath('/one_root'))
-        self.assertEqual(str(testable), one_path)
-        # Check handles string inputs
-        testable = wc.one_path_from_dataset(dset, one_cache='/one_root')
-        self.assertTrue(hasattr(testable, 'is_absolute'), 'Failed to return Path object')
-        self.assertEqual(str(testable).replace('\\', '/'), one_path)
-
-        # Test one_path_from_dataset using Windows path
-        one_path = PureWindowsPath(r'C:/Users/User/')
-        testable = wc.one_path_from_dataset(dset, one_cache=one_path)
-        self.assertIsInstance(testable, PureWindowsPath)
-        self.assertTrue(str(testable).startswith(str(one_path)))
-
-        # Test sdsc_globus_path_from_dataset
-        testable = wc.sdsc_globus_path_from_dataset(dset)
-        self.assertEqual(str(testable), globus_path_sdsc)
-        self.assertIsInstance(testable, PurePosixPath)
-
-        # Test globus_path_from_dataset
-        testable = wc.globus_path_from_dataset(dset, repository='ibl_floferlab_SR')
-        self.assertEqual(str(testable), globus_path_sr)
-        self.assertIsInstance(testable, PurePosixPath)
-
-        # Tests _path_from_filerecord: when given a string, a system path object should be returned
-        fr = dset['file_records'][0]
-        testable = wc._path_from_filerecord(fr, root_path='C:\\')
-        self.assertIsInstance(testable, Path)
 
 
 class TestONECache(unittest.TestCase):
@@ -717,7 +635,7 @@ class TestOneAlyx(unittest.TestCase):
         dsets = self.one.type2datasets(eid, dtypes, details=True)
         self.assertIsInstance(dsets, pd.DataFrame)
         # check validation
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             self.one.type2datasets(eid, 14)
 
     def test_ses2records(self):

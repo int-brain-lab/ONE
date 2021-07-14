@@ -9,7 +9,10 @@ class ALFError(Exception):
 
     def __init__(self, *args, terse=False):
         if args:
-            self.message = args[0]
+            if len(args) == 1 and isinstance(args[0], str):
+                self.message = args[0]
+            else:
+                self.message = '"' + '", "'.join(map(str, args)) + '"'
         else:
             self.message = None
         self.terse = terse

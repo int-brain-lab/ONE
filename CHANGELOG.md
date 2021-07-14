@@ -11,6 +11,7 @@
 - fully adopted Numpy docstrings
 - revisions now filtered using <= instead of <
 - datasets_from_type now type2datasets; returns similar output to list_ methods
+- webclient functions sdsc_globus_path_from_dataset, sdsc_path_from_dataset and globus_path_from_dataset moved to ibllib
 
 ## [0.2.3]
 

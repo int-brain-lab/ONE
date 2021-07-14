@@ -629,9 +629,9 @@ class One(ConversionMixin):
         unique_objects = set(x[3] or '' for x in parts)
         unique_collections = set(x[0] or '' for x in parts)
         if len(unique_objects) > 1:
-            raise alferr.ALFMultipleObjectsFound('"' + '", "'.join(unique_objects) + '"')
+            raise alferr.ALFMultipleObjectsFound(*unique_objects)
         if len(unique_collections) > 1:
-            raise alferr.ALFMultipleCollectionsFound('"' + '", "'.join(unique_collections) + '"')
+            raise alferr.ALFMultipleCollectionsFound(*unique_collections)
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
@@ -1498,7 +1498,7 @@ class OneAlyx(One):
         elif isinstance(dataset_type, collections.abc.Sequence):
             restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
         else:
-            raise ValueError('dataset_type must be a str or str list')
+            raise TypeError('dataset_type must be a str or str list')
         datasets = util.datasets2records(self.alyx.rest('datasets', 'list', django=restriction))
         return datasets if details else datasets['rel_path'].sort_values().values
 
@@ -1529,8 +1529,9 @@ class OneAlyx(One):
         datasets = self.list_datasets(eid) if eid else self._cache['datasets']
         # Get ID of fist matching dset
         for idx, rel_path in datasets['rel_path'].items():
-            if dset_name in rel_path:
+            if rel_path.endswith(dset_name):
                 return idx
+        raise ValueError(f'Dataset {dset_name} not found in cache')
 
     @util.refresh
     @util.parse_id

@@ -100,8 +100,15 @@ def datasets2records(datasets) -> pd.DataFrame:
 def parse_id(method):
     """
     Ensures the input experiment identifier is an experiment UUID string
-    :param method: An ONE method whose second arg is an experiment id
-    :return: A wrapper function that parses the id to the expected string
+
+    Parameters
+    ----------
+    method : function
+        An ONE method whose second arg is an experiment ID
+
+    Returns
+    -------
+    A wrapper function that parses the ID to the expected string
     """
 
     @wraps(method)
