@@ -93,7 +93,9 @@ COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
 # COLLECTION_SPEC = r'(/{collection})?(/#{revision}#)?'
 FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
 # FULL_SPEC = f'{SESSION_SPEC}/({COLLECTION_SPEC}/)?{FILE_SPEC}'
-FULL_SPEC = f'{SESSION_SPEC}/{COLLECTION_SPEC}{FILE_SPEC}'
+REL_PATH_SPEC = f'{COLLECTION_SPEC}{FILE_SPEC}'
+FULL_SPEC = f'{SESSION_SPEC}/{REL_PATH_SPEC}'
+
 # FULL_SPEC = f'{SESSION_SPEC}{COLLECTION_SPEC}/{FILE_SPEC}'
 
 _DEFAULT = (
@@ -103,8 +105,10 @@ _DEFAULT = (
     ('number', r'\d{1,3}'),
     ('collection', r'[\w/]+'),
     ('revision', r'[\w-]+'),  # brackets
+    # to include underscores: r'(?P<namespace>(?:^_)\w+(?:_))?'
     ('namespace', '(?<=_)[a-zA-Z0-9]+'),  # brackets
     ('object', r'\w+'),
+    # to treat _times and _intervals as timescale: (?P<attribute>[a-zA-Z]+)_?
     ('attribute', r'[a-zA-Z0-9]+(?:_times(?=[_\b.])|_intervals(?=[_\b.]))?'),  # brackets
     ('timescale', r'(?:_?)\w+'),  # brackets
     ('extra', r'[.\w-]+'),  # brackets

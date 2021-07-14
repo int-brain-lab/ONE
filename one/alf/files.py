@@ -22,61 +22,7 @@ import os
 from fnmatch import fnmatch
 from collections import OrderedDict
 
-from .spec import is_valid, COLLECTION_SPEC, FILE_SPEC, regex, SESSION_SPEC
-
-# FIXME Replace ALF_EXP with FILE_SPEC
-# to include underscores: r'(?P<namespace>(?:^_)\w+(?:_))?'
-# to treat _times and _intervals as timescale: (?P<attribute>[a-zA-Z]+)_?
-ALF_EXP = re.compile(
-    r'^_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?'
-    r'(?P<object>\w+)\.'
-    r'(?P<attribute>[a-zA-Z0-9]+(?:_times(?=[_\b.])|_intervals(?=[_\b.]))?)_?'
-    r'(?P<timescale>(?:_?)\w+)*\.?'
-    r'(?P<extra>[.\w-]+)*\.'
-    r'(?P<extension>\w+$)')
-
-
-def alf_parts(filename, as_dict=False):
-    """
-    Return the parsed elements of a given ALF filename.
-
-    Examples:
-        >>> alf_parts('_namespace_obj.times_timescale.extra.foo.ext')
-        ('namespace', 'obj', 'times', 'timescale', 'extra.foo', 'ext')
-        >>> alf_parts('spikes.clusters.npy', as_dict=True)
-        {'namespace': None,
-         'object': 'spikes',
-         'attribute': 'clusters',
-         'timescale': None,
-         'extra': None,
-         'extension': 'npy'}
-        >>> alf_parts('spikes.times_ephysClock.npy')
-        (None, 'spikes', 'times', 'ephysClock', None, 'npy')
-        >>> alf_parts('_iblmic_audioSpectrogram.frequencies.npy')
-        ('iblmic', 'audioSpectrogram', 'frequencies', None, None, 'npy')
-        >>> alf_parts('_spikeglx_ephysData_g0_t0.imec.wiring.json')
-        ('spikeglx', 'ephysData_g0_t0', 'imec', None, 'wiring', 'json')
-        >>> alf_parts('_spikeglx_ephysData_g0_t0.imec0.lf.bin')
-        ('spikeglx', 'ephysData_g0_t0', 'imec0', None, 'lf', 'bin')
-        >>> alf_parts('_ibl_trials.goCue_times_bpod.csv')
-        ('ibl', 'trials', 'goCue_times', 'bpod', None, 'csv')
-
-    Args:
-        filename (str): The name of the file
-        as_dict (bool): when True a dict of matches is returned
-
-    Returns:
-        namespace (str): The _namespace_ or None if not present
-        object (str): ALF object
-        attribute (str): The ALF attribute
-        timescale (str): The ALF _timescale or None if not present
-        extra (str): Any extra parts to the filename, or None if not present
-        extension (str): The file extension
-    """
-    m = ALF_EXP.match(filename)
-    if not m:
-        raise ValueError('Invalid ALF filename')
-    return m.groupdict() if as_dict else m.groups()
+from .spec import is_valid, FILE_SPEC, regex, SESSION_SPEC, REL_PATH_SPEC
 
 
 def filter_by(alf_path, **kwargs):
@@ -84,39 +30,51 @@ def filter_by(alf_path, **kwargs):
     Given a path and optional filters, returns all ALF files and their associated parts. The
     filters constitute a logical AND.
 
-    Args:
-        alf_path (str): A Path to a directory containing ALF files
-        object (str): filter by a given object (e.g. 'spikes')
-        attribute (str): filter by a given attribute (e.g. 'intervals')
-        extension (str): filter by extension (e.g. 'npy')
-        namespace (str): filter by a given namespace (e.g. 'ibl') or None for files without one
-        timescale (str): filter by a given timescale (e.g. 'bpod') or None for files without one
-        extra (str, list): filter by extra parameters (e.g. 'raw') or None for files without extra
-                           parts. NB: Wild cards not permitted here.
+    Parameters
+    ----------
+    alf_path : str, pathlib.Path
+        A path to a folder containing ALF datasets
+    object : str
+        Filter by a given object (e.g. 'spikes')
+    attribute : str
+        Filter by a given attribute (e.g. 'intervals')
+    extension : str
+        Filter by extension (e.g. 'npy')
+    namespace : str
+        Filter by a given namespace (e.g. 'ibl') or None for files without one
+    timescale : str
+        Filter by a given timescale (e.g. 'bpod') or None for files without one
+    extra : str, list
+        Filter by extra parameters (e.g. 'raw') or None for files without extra parts
+        NB: Wild cards not permitted here.
 
-    Returns:
-        alf_files (list): list of ALF files and tuples of their parts
-        attributes (list of dicts): list of parsed file parts
+    Returns
+    -------
+    alf_files : str
+        A Path to a directory containing ALF files
+    attributes : list of dicts
+        A list of parsed file parts
 
-    Examples:
-        # Filter files with universal timescale
-        filter_by(alf_path, timescale=None)
+    Examples
+    --------
+    # Filter files with universal timescale
+    filter_by(alf_path, timescale=None)
 
-        # Filter files by a given ALF object
-        filter_by(alf_path, object='wheel')
+    # Filter files by a given ALF object
+    filter_by(alf_path, object='wheel')
 
-        # Filter using wildcard, e.g. 'wheel' and 'wheelMoves' ALF objects
-        filter_by(alf_path, object='wh*')
+    # Filter using wildcard, e.g. 'wheel' and 'wheelMoves' ALF objects
+    filter_by(alf_path, object='wh*')
 
-        # Filter all intervals that are in bpod time
-        filter_by(alf_path, attribute='intervals', timescale='bpod')
+    # Filter all intervals that are in bpod time
+    filter_by(alf_path, attribute='intervals', timescale='bpod')
     """
     alf_files = [f for f in os.listdir(alf_path) if is_valid(f)]
-    attributes = [alf_parts(f, as_dict=True) for f in alf_files]
+    attributes = [filename_parts(f, as_dict=True) for f in alf_files]
 
     if kwargs:
         # Validate keyword arguments against regex group names
-        invalid = kwargs.keys() - ALF_EXP.groupindex.keys()
+        invalid = kwargs.keys() - re.compile(regex(FILE_SPEC)).groupindex.keys()
         if invalid:
             raise TypeError("%s() got an unexpected keyword argument '%s'"
                             % (__name__, set(invalid).pop()))
@@ -147,29 +105,35 @@ def filter_by(alf_path, **kwargs):
 
 
 def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
-    # TODO Can be simplified if we make collections optional in spec regex
-    empty_collection = OrderedDict.fromkeys(('collection', 'revision'))
+    """Parse a relative path into the relevant parts.  A relative path follows the pattern
+    (collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension
+
+    Parameters
+    ----------
+    rel_path : str
+        A relative path string
+    as_dict : bool
+        If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
+        'number'), otherwise a tuple of values are returned
+    assert_valid : bool
+        If true a ValueError is raised when the session cannot be parsed, otherwise an empty
+        dict of tuple of Nones is returned
+
+    Returns
+    -------
+        An OrderedDict if as_dict is true, or a tuple of parsed values
+    """
+    spec = re.compile(regex(REL_PATH_SPEC))
     if hasattr(rel_path, 'as_posix'):
         rel_path = rel_path.as_posix()
-    par_path = rel_path.rsplit('/', 1)
-    if len(par_path) == 1:
-        m = filename_parts(par_path[0], as_dict=as_dict, assert_valid=assert_valid)
-        if any(m.values() if as_dict else m):
-            return OrderedDict(**empty_collection, **m) if as_dict else (None, None, *m)
-        else:
-            empty = re.compile(regex(f'{COLLECTION_SPEC}{FILE_SPEC}')).groupindex.keys()
-            return OrderedDict.fromkeys(empty) if as_dict else tuple([None] * len(empty))
+    match = spec.match(rel_path)  # py 3.8
+    if match:
+        return OrderedDict(**match.groupdict()) if as_dict else tuple(match.groupdict().values())
+    elif assert_valid:
+        raise ValueError('Invalid relative path')
     else:
-        folders, filname = par_path
-        rel_parts = re.match(regex(f'^{COLLECTION_SPEC}$'), folders + '/')
-        file_parts = filename_parts(filname, as_dict=as_dict, assert_valid=assert_valid)
-        if rel_parts:
-            return OrderedDict(**rel_parts.groupdict(), **file_parts)\
-                if as_dict else (*rel_parts.groupdict().values(), *file_parts)
-        elif assert_valid:
-            raise ValueError('Invalid collection/revision')
-        return OrderedDict({**empty_collection, **file_parts})\
-            if as_dict else (None, None, *file_parts)
+        parts = spec.groupindex.keys()
+        return OrderedDict.fromkeys(parts) if as_dict else tuple([None] * len(parts))
 
 
 def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
@@ -200,6 +164,55 @@ def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
 
 
 def filename_parts(filename, as_dict=False, assert_valid=True):
+    """
+    Return the parsed elements of a given ALF filename.
+
+    Parameters
+    ----------
+    filename : str
+        The name of the file
+    as_dict : bool
+        When true a dict of matches is returned
+    assert_valid : bool
+        When true an exception is raised when the filename cannot be parsed
+
+    Returns
+    -------
+    namespace : str
+        The _namespace_ or None if not present
+    object : str
+        ALF object
+    attribute : str
+        The ALF attribute
+    timescale : str
+        The ALF _timescale or None if not present
+    extra : str
+        Any extra parts to the filename, or None if not present
+    extension : str
+        The file extension
+
+    Examples
+    --------
+    >>> alf_parts('_namespace_obj.times_timescale.extra.foo.ext')
+    ('namespace', 'obj', 'times', 'timescale', 'extra.foo', 'ext')
+    >>> alf_parts('spikes.clusters.npy', as_dict=True)
+    {'namespace': None,
+     'object': 'spikes',
+     'attribute': 'clusters',
+     'timescale': None,
+     'extra': None,
+     'extension': 'npy'}
+    >>> alf_parts('spikes.times_ephysClock.npy')
+    (None, 'spikes', 'times', 'ephysClock', None, 'npy')
+    >>> alf_parts('_iblmic_audioSpectrogram.frequencies.npy')
+    ('iblmic', 'audioSpectrogram', 'frequencies', None, None, 'npy')
+    >>> alf_parts('_spikeglx_ephysData_g0_t0.imec.wiring.json')
+    ('spikeglx', 'ephysData_g0_t0', 'imec', None, 'wiring', 'json')
+    >>> alf_parts('_spikeglx_ephysData_g0_t0.imec0.lf.bin')
+    ('spikeglx', 'ephysData_g0_t0', 'imec0', None, 'lf', 'bin')
+    >>> alf_parts('_ibl_trials.goCue_times_bpod.csv')
+    ('ibl', 'trials', 'goCue_times', 'bpod', None, 'csv')
+    """
     pattern = re.compile(regex(FILE_SPEC))
     empty = OrderedDict.fromkeys(pattern.groupindex.keys())
     m = pattern.match(str(filename))

@@ -2,8 +2,10 @@ import unittest
 import tempfile
 from pathlib import Path
 import shutil
+import re
 
 import one.alf.files as files
+from one.alf.spec import FILE_SPEC
 
 
 class TestsAlfPartsFilters(unittest.TestCase):
@@ -13,6 +15,7 @@ class TestsAlfPartsFilters(unittest.TestCase):
         self.tmpdir.mkdir(exist_ok=True)
 
     def test_filter_by(self):
+        spec_idx_map = re.compile(files.regex(FILE_SPEC)).groupindex
         file_names = [
             'noalf.file',
             '_ibl_trials.intervals.npy',
@@ -51,8 +54,8 @@ class TestsAlfPartsFilters(unittest.TestCase):
         self.assertEqual(alf_files, expected, 'failed to filter by timescale')
         expected = ('ibl', 'trials', 'intervals', 'bpod', None, 'csv')
         self.assertTupleEqual(parts[0], expected)
-        self.assertEqual(len(parts[0]), len(files.ALF_EXP.groupindex))
-        self.assertEqual(parts[0][files.ALF_EXP.groupindex['timescale'] - 1], 'bpod')
+        self.assertEqual(len(parts[0]), len(spec_idx_map))
+        self.assertEqual(parts[0][spec_idx_map['timescale'] - 1], 'bpod')
 
         # Test filtering multiple attributes; should return only trials intervals
         alf_files, _ = files.filter_by(self.tmpdir, attribute='intervals', object='trials')
