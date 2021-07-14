@@ -153,10 +153,17 @@ class One(ConversionMixin):
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
 
-        :param mode:
-        :return: Loaded time
+        Parameters
+        ----------
+        mode : str
+            Options are 'local' (don't reload); 'refresh' (reload); 'auto' (reload if expired);
+            'remote' (don't reload)
+
+        Returns
+        -------
+        Loaded timestamp
         """
-        if mode in ('local', 'remote'):  # TODO maybe rename mode
+        if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
             if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
@@ -172,8 +179,15 @@ class One(ConversionMixin):
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
         Download several datasets given a set of datasets
-        :param dsets: list of dataset dictionaries from an Alyx REST query OR list of URL strings
-        :return: local file path list
+
+        Parameters
+        ----------
+        dsets : list
+            List of dataset dictionaries from an Alyx REST query OR URL strings
+
+        Returns
+        -------
+        A local file path list
         """
         out_files = []
         if hasattr(dsets, 'iterrows'):
@@ -518,9 +532,17 @@ class One(ConversionMixin):
     def _filter_by_collection(datasets: pd.DataFrame, collection: str) -> pd.DataFrame:
         """
         Return a pandas datasets table containing records that match a given collection
-        :param datasets: A datasets cache table
-        :param collection: The collection name to match
-        :return: A slice of the input table, where all datasets match a given collection
+
+        Parameters
+        ----------
+        datasets : pandas.DataFrame
+            A datasets cache table
+        collection : str
+            The collection name to match.  Regular expressions permitted.
+
+        Returns
+        -------
+        A slice of the input table, where all datasets match a given collection
         """
         if collection is None:
             return datasets
@@ -607,9 +629,9 @@ class One(ConversionMixin):
         unique_objects = set(x[3] or '' for x in parts)
         unique_collections = set(x[0] or '' for x in parts)
         if len(unique_objects) > 1:
-            raise alferr.ALFMultipleObjectsFound('"' + '", "'.join(unique_objects) + '"')
+            raise alferr.ALFMultipleObjectsFound(*unique_objects)
         if len(unique_collections) > 1:
-            raise alferr.ALFMultipleCollectionsFound('"' + '", "'.join(unique_collections) + '"')
+            raise alferr.ALFMultipleCollectionsFound(*unique_collections)
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
@@ -1123,16 +1145,23 @@ class OneAlyx(One):
         Given an Alyx probe UUID string, returns the session id string and the probe label
         (i.e. the ALF collection)
 
-        :param pid: A probe UUID
-        :param query_type: Query mode, options include 'remote', and 'refresh'
-        :return: (experiment ID, probe label)
+        Parameters
+        ----------
+        pid : str, uuid.UUID
+            A probe UUID
+        query_type : str
+            Query mode - options include 'remote', and 'refresh'
+
+        Returns
+        -------
+        experiment ID, probe label
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
             self.refresh_cache(query_type)
         if query_type == 'local' and 'insertions' not in self._cache.keys():
             raise NotImplementedError('Converting probe IDs required remote connection')
-        rec = self.alyx.rest('insertions', 'read', id=pid)
+        rec = self.alyx.rest('insertions', 'read', id=str(pid))
         return rec['session'], rec['name']
 
     def search(self, details=False, query_type=None, **kwargs):
@@ -1202,12 +1231,20 @@ class OneAlyx(One):
 
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """
-        Download a dataset from an alyx REST dictionary
-        :param dset: single dataset dictionary from an Alyx REST query OR URL string
-        :param cache_dir: root directory to save the data in (home/downloads by default)
-        :param update_cache: if true, the cache is updated when filesystem discrepancies are
-        encountered
-        :return: local file path
+        Download a dataset from an Alyx REST dictionary
+
+        Parameters
+        ----------
+        dset : dict, str
+            A single dataset dictionary from an Alyx REST query OR URL string
+        cache_dir : str, pathlib.Path
+            The root directory to save the data to (default taken from ONE parameters)
+        update_cache : bool
+            If true, the cache is updated when filesystem discrepancies are encountered
+
+        Returns
+        -------
+        A local file path
         """
         if isinstance(dset, str) and dset.startswith('http'):
             url = dset
@@ -1259,13 +1296,28 @@ class OneAlyx(One):
         """
         Downloads a single file from an HTTP webserver.  The webserver in question is set by the
         AlyxClient object.
-        :param url: an absolute or relative URL for a remote dataset
-        :param clobber: (bool: False) overwrites local dataset if any
-        :param offline:
-        :param keep_uuid:
-        :param file_size:
-        :param hash:
-        :return:
+
+        Parameters
+        ----------
+        url : str
+            An absolute or relative URL for a remote dataset
+        target_dir : str, pathlib.Path
+            The root directory to download file to
+        clobber : bool
+            If true, overwrites local dataset if any
+        offline : bool, None
+            If true, the file path is returned only if the file exists.  No download will take
+            place
+        keep_uuid : bool
+            If true, the UUID is not removed from the file name (default is False)
+        file_size : int
+            The expected file size to compare with downloaded file
+        hash : str
+            The expected file hash to compare with downloaded file
+
+        Returns
+        -------
+        The file path of the downloaded file
         """
         if offline is None:
             offline = self.mode == 'local'
@@ -1316,11 +1368,19 @@ class OneAlyx(One):
     @util.parse_id
     def eid2path(self, eid: str, query_type=None) -> util.Listable(Path):
         """
-        From an experiment id gets the local cache path
-        :param eid: Experiment session identifier; may be a UUID, URL, experiment reference string
-        details dict or Path
-        :param query_type: if set to 'remote', will force database connection
-        :return: eid or list of eids
+        From an experiment ID gets the local session path
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        query_type : str
+            If set to 'remote', will force database connection
+
+        Returns
+        -------
+        A session path or list of session paths
         """
         # first try avoid hitting the database
         mode = query_type or self.mode
@@ -1341,10 +1401,18 @@ class OneAlyx(One):
     @util.refresh
     def path2eid(self, path_obj: Union[str, Path], query_type=None) -> util.Listable(Path):
         """
-        From a local path, gets the experiment id
-        :param path_obj: local path or list of local paths
-        :param query_type: if set to 'remote', will force database connection
-        :return: eid or list of eids
+        From a local path, gets the experiment ID
+
+        Parameters
+        ----------
+        path_obj : str, pathlib.Path, list
+            Local path or list of local paths
+        query_type : str
+            If set to 'remote', will force database connection
+
+        Returns
+        -------
+        An eid or list of eids
         """
         # If path_obj is a list recurse through it and return a list
         if isinstance(path_obj, list):
@@ -1383,9 +1451,17 @@ class OneAlyx(One):
     def path2url(self, filepath, query_type=None):
         """
         Given a local file path, returns the URL of the remote file.
-        :param filepath: A local file path
-        :param query_type: if set to 'remote', will force database connection
-        :return: A URL string
+
+        Parameters
+        ----------
+        filepath : str, pathlib.Path
+            A local file path
+        query_type : str
+            If set to 'remote', will force database connection
+
+        Returns
+        -------
+        A URL string
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -1422,7 +1498,7 @@ class OneAlyx(One):
         elif isinstance(dataset_type, collections.abc.Sequence):
             restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
         else:
-            raise ValueError('dataset_type must be a str or str list')
+            raise TypeError('dataset_type must be a str or str list')
         datasets = util.datasets2records(self.alyx.rest('datasets', 'list', django=restriction))
         return datasets if details else datasets['rel_path'].sort_values().values
 
@@ -1453,8 +1529,9 @@ class OneAlyx(One):
         datasets = self.list_datasets(eid) if eid else self._cache['datasets']
         # Get ID of fist matching dset
         for idx, rel_path in datasets['rel_path'].items():
-            if dset_name in rel_path:
+            if rel_path.endswith(dset_name):
                 return idx
+        raise ValueError(f'Dataset {dset_name} not found in cache')
 
     @util.refresh
     @util.parse_id

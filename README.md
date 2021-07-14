@@ -26,7 +26,7 @@ one = ONE(base_url='https://alyx.internationalbrainlab.org')
 To use the default setup settings that connect you to the [IBL public database](https://openalyx.internationalbrainlab.org):
 ```python
 from one.api import ONE
-one = ONE(silent=True)  # Will use default information
+one = ONE(silent=True, password='international')  # Will use default information
 ```
 
 Once you've setup the server, subsequent calls will use the same parameters:

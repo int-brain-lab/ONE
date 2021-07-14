@@ -63,7 +63,7 @@ def setup_test_params(token=False):
 
         # Add to cache map
         if (map_file := params_dir / '.caches').exists():
-            with open(map_file, 'rw') as f:
+            with open(map_file, 'r+') as f:
                 data = json.load(f)
                 data['CLIENT_MAP'][test_pars[1:]] = None
                 json.dump(data, f)

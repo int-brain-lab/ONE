@@ -22,7 +22,7 @@ import os
 from fnmatch import fnmatch
 from collections import OrderedDict
 
-from .spec import is_valid, COLLECTION_SPEC, FILE_SPEC, regex
+from .spec import is_valid, COLLECTION_SPEC, FILE_SPEC, regex, SESSION_SPEC
 
 # FIXME Replace ALF_EXP with FILE_SPEC
 # to include underscores: r'(?P<namespace>(?:^_)\w+(?:_))?'
@@ -172,8 +172,31 @@ def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
             if as_dict else (None, None, *file_parts)
 
 
-def session_path_parts(session_path: str) -> dict:
-    pass
+def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
+    """Parse a session path into the relevant parts
+
+    Parameters
+    ----------
+    session_path : str
+        A session path string
+    as_dict : bool
+        If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
+        'number'), otherwise a tuple of values are returned
+    assert_valid : bool
+        If true a ValueError is raised when the session cannot be parsed, otherwise an empty
+        dict of tuple of Nones is returned
+
+    Returns
+    -------
+        An OrderedDict if as_dict is true, or a tuple of parsed values
+    """
+    parsed = re.search(regex(SESSION_SPEC), session_path)
+    if parsed:
+        return OrderedDict(**parsed.groupdict()) if as_dict else (*parsed.groupdict().values(),)
+    elif assert_valid:
+        raise ValueError('Invalid session path')
+    empty = re.compile(regex(SESSION_SPEC)).groupindex.keys()
+    return OrderedDict.fromkeys(empty) if as_dict else tuple([None] * len(empty))
 
 
 def filename_parts(filename, as_dict=False, assert_valid=True):

@@ -23,9 +23,6 @@ Examples:
     # Download a remote file, given a local path
     url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
     local_path = self.alyx.download_file(url)
-
-TODO Move converters to another module
-TODO Add logout method to delete the active token
 """
 import json
 import logging
@@ -39,11 +36,12 @@ import urllib.parse
 from collections.abc import Mapping
 from typing import Optional
 from datetime import datetime, timedelta
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import warnings
 import hashlib
 import zipfile
 import tempfile
+from getpass import getpass
 
 import requests
 from tqdm import tqdm
@@ -51,10 +49,8 @@ from tqdm import tqdm
 from pprint import pprint
 import one.params
 from iblutil.io import hashfile
-import one.alf.io as alfio
 from one.util import ensure_list
 
-SDSC_ROOT_PATH = PurePosixPath('/mnt/ibl')  # FIXME Move to ibllib, or get from Alyx
 _logger = logging.getLogger(__name__)
 
 
@@ -193,87 +189,6 @@ def update_url_params(url: str, params: dict) -> str:
     encoded_get_args = urllib.parse.urlencode(parsed_get_args, doseq=True)
     # Update parser and convert to full URL str
     return parsed_url._replace(query=encoded_get_args).geturl()
-
-
-def sdsc_globus_path_from_dataset(dset):
-    """
-    :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
-    Returns SDSC globus file path from a dset record or a list of dsets records from REST
-    """
-    return _path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=True)
-
-
-def globus_path_from_dataset(dset, repository=None, uuid=False):
-    """
-    Returns local one file path from a dset record or a list of dsets records from REST
-    :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
-    :param repository: (optional) repository name of the file record (if None, will take
-     the first filerecord with an URL)
-    """
-    return _path_from_dataset(dset, root_path=PurePosixPath('/'), repository=repository, uuid=uuid)
-
-
-def one_path_from_dataset(dset, one_cache):
-    """
-    Returns local one file path from a dset record or a list of dsets records from REST
-    :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
-    :param one_cache: the one cache directory
-    """
-    return _path_from_dataset(dset, root_path=one_cache, uuid=False)
-
-
-def sdsc_path_from_dataset(dset, root_path=SDSC_ROOT_PATH):
-    """
-    Returns sdsc file path from a dset record or a list of dsets records from REST
-    :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
-    :param root_path: (optional) the prefix path such as one download directory or sdsc root
-    """
-    return _path_from_dataset(dset, root_path=root_path, uuid=True)
-
-
-def _path_from_dataset(dset, root_path=None, repository=None, uuid=False):
-    """
-    returns the local file path from a dset record from a REST query
-    :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
-    :param root_path: (optional) the prefix path such as one download directory or sdsc root
-    :param repository:
-    :param uuid: (optional bool) if True, will add UUID before the file extension
-    :return: Path or list of Path
-    """
-    if isinstance(dset, list):
-        return [_path_from_dataset(d) for d in dset]
-    if repository:
-        fr = next((fr for fr in dset['file_records'] if fr['data_repository'] == repository))
-    else:
-        fr = next((fr for fr in dset['file_records'] if fr['data_url']))
-    uuid = dset['url'][-36:] if uuid else None
-    return _path_from_filerecord(fr, root_path=root_path, uuid=uuid)
-
-
-def _path_from_filerecord(fr, root_path=SDSC_ROOT_PATH, uuid=None):  # FIXME change default to '/'
-    """
-    Returns a data file Path constructed from an Alyx file record.  The Path type returned
-    depends on the type of root_path: If root_path is a string a Path object is returned,
-    otherwise if the root_path is a PurePath, the same path type is returned.
-    :param fr: An Alyx file record dict
-    :param root_path: An optional root path
-    :param uuid: An optional UUID to add to the file name
-    :return: A filepath as a pathlib object
-    """
-    if isinstance(fr, list):
-        return [_path_from_filerecord(f) for f in fr]
-    repo_path = fr['data_repository_path']
-    repo_path = repo_path[repo_path.startswith('/'):]  # remove starting / if any
-    # repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # py3.8 Remove slash at start
-    file_path = PurePosixPath(repo_path, fr['relative_path'])
-    if root_path:
-        # NB: By checking for string we won't cast any PurePaths
-        if isinstance(root_path, str):
-            root_path = Path(root_path)
-        file_path = root_path / file_path
-    if uuid:
-        file_path = alfio.add_uuid_string(file_path, uuid)
-    return file_path
 
 
 def http_download_file_list(links_to_file_list, **kwargs):
@@ -424,26 +339,7 @@ def dataset_record_to_url(dataset_record):
     return urls
 
 
-class UniqueSingletons(type):
-    _instances: list = []
-
-    def __call__(cls, *args, **kwargs):
-        for inst in UniqueSingletons._instances:
-            if cls in inst and inst.get(cls, None).get('args') == (args, kwargs):
-                return inst[cls].get('instance')
-
-        new_instance = super(UniqueSingletons, cls).__call__(*args, **kwargs)
-        # Optional rerun of constructor
-        # new_instance.__init__(*args, **kwargs)
-        new_instance_record = {
-            cls: {'args': (args, kwargs), 'instance': new_instance}
-        }
-        UniqueSingletons._instances.append(new_instance_record)
-
-        return new_instance
-
-
-class AlyxClient(metaclass=UniqueSingletons):
+class AlyxClient():
     """
     Class that implements simple GET/POST wrappers for the Alyx REST API
     http://alyx.readthedocs.io/en/latest/api.html  # FIXME old link
@@ -454,7 +350,7 @@ class AlyxClient(metaclass=UniqueSingletons):
     base_url = None
 
     def __init__(self, base_url=None, username=None, password=None,
-                 cache_dir=None, silent=False, cache_rest='GET'):
+                 cache_dir=None, silent=False, cache_rest='GET', stay_logged_in=True):
         """
         Create a client instance that allows to GET and POST to the Alyx server
         For oneibl, constructor attempts to authenticate with credentials in params.py
@@ -469,11 +365,9 @@ class AlyxClient(metaclass=UniqueSingletons):
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
         # TODO Pass these to `params.get` and have it deal with setup defaults
-        self._par = self._par.set('ALYX_LOGIN', username or self._par.ALYX_LOGIN)
-        self._par = self._par.set('ALYX_PWD', password or self._par.ALYX_PWD)
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
-        self.authenticate()
+        self.authenticate(username, password, cache_token=stay_logged_in)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
         self._headers['Accept'] = 'application/json'
@@ -497,18 +391,29 @@ class AlyxClient(metaclass=UniqueSingletons):
         return Path(self._par.CACHE_DIR)
 
     def is_logged_in(self):
-        return self._token and self.user
+        """Check if user logged into Alyx database
+
+        Returns
+        -------
+            True if user is authenticated
+        """
+        return self._token and self.user and self._headers and 'Authorization' in self._headers
 
     def list_endpoints(self):
         """
         Return a list of available REST endpoints
-        :return: List of REST endpoint strings
+
+        Returns
+        -------
+            List of REST endpoint strings
         """
         EXCLUDE = ('_type', '_meta', '', 'auth-token')
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
+        if not self._token and (not self._headers or 'Authorization' not in self._headers):
+            self.authenticate(username=self.user)
         # makes sure the base url is the one from the instance
         rest_query = rest_query.replace(self.base_url, '')
         if not rest_query.startswith('/'):
@@ -533,26 +438,49 @@ class AlyxClient(metaclass=UniqueSingletons):
                 _logger.error(r.text)
             raise (requests.HTTPError(r))
 
-    def authenticate(self, cache_token=True, force=False):
+    def authenticate(self, username=None, password=None, cache_token=True, force=False):
         """
         Gets a security token from the Alyx REST API to create requests headers.
-        Credentials are loaded via oneibl.params
+        Credentials are loaded via one.params
+
+        Parameters
+        ----------
+        username : str
+            Alyx username.  If None, token not cached and not silent, user is prompted.
+        password : str
+            Alyx password.  If None, token not cached and not silent, user is prompted.
+        cache_token : bool
+            If true, the token is cached for subsequent auto-logins
+        force : bool
+            If true, any cached token is ignored
         """
-        if getattr(self._par, 'TOKEN', False) and not force:
-            self._token = self._par.TOKEN
+        # Get username
+        if username is None:
+            username = getattr(self._par, 'ALYX_LOGIN', self.user)
+        if username is None and not self.silent:
+            username = input('Enter Alyx username:')
+
+        # Check if token cached
+        if not force and getattr(self._par, 'TOKEN', False) and username in self._par.TOKEN:
+            self._token = self._par.TOKEN[username]
             self._headers = {
                 'Authorization': f'Token {list(self._token.values())[0]}',
                 'Accept': 'application/json'}
-            self.user = self._par.ALYX_LOGIN
+            self.user = username
             return
+
+        # Get password
+        if password is None:
+            password = getattr(self._par, 'ALYX_PWD', None)
+        if password is None and not self.silent:
+            password = getpass('Enter Alyx password:')
         try:
-            credentials = {'username': self._par.ALYX_LOGIN, 'password': self._par.ALYX_PWD}
+            credentials = {'username': username, 'password': password}
             rep = requests.post(self.base_url + '/auth-token', data=credentials)
         except requests.exceptions.ConnectionError:
             raise ConnectionError(
                 f"Can't connect to {self.base_url}.\n" +
-                "IP addresses are filtered on IBL database servers. \n" +
-                "Are you connecting from an IBL participating institution ?"
+                "Check your internet connections and Alyx database firewall"
             )
         # Assign token or raise exception on internal server error
         self._token = rep.json() if rep.ok else rep.raise_for_status()
@@ -563,11 +491,40 @@ class AlyxClient(metaclass=UniqueSingletons):
             'Authorization': 'Token {}'.format(list(self._token.values())[0]),
             'Accept': 'application/json'}
         if cache_token:
-            par = one.params.get(client=self.base_url, silent=True).set('TOKEN', self._token)
-            one.params.save(par, self.base_url)
-        self.user = self._par.ALYX_LOGIN
+            # Update saved pars
+            par = one.params.get(client=self.base_url, silent=True)
+            tokens = getattr(par, 'TOKEN', {})
+            tokens[username] = self._token
+            one.params.save(par.set('TOKEN', tokens), self.base_url)
+            # Update current pars
+            self._par = self._par.set('TOKEN', tokens)
+        self.user = username
         if not self.silent:
             print(f"Connected to {self.base_url} as {self.user}")
+
+    def logout(self):
+        """Log out from Alyx
+        Deletes the cached authentication token for the currently logged-in user
+        """
+        if not self.is_logged_in():
+            return
+        par = one.params.get(client=self.base_url, silent=True)
+        username = self.user
+        # Remove token from cache
+        if getattr(par, 'TOKEN', False) and username in par.TOKEN:
+            del par.TOKEN[username]
+            one.params.save(par, self.base_url)
+        # Remove token from local pars
+        if getattr(self._par, 'TOKEN', False) and username in self._par.TOKEN:
+            del self._par.TOKEN[username]
+        # Remove token from object
+        self.user = None
+        self._token = None
+        if self._headers and 'Authorization' in self._headers:
+            del self._headers['Authorization']
+        self.clear_rest_cache()
+        if not self.silent:
+            print(f'{username} logged out from {self.base_url}')
 
     def delete(self, rest_query):
         """
@@ -606,16 +563,18 @@ class AlyxClient(metaclass=UniqueSingletons):
         return download_fcn(url, **pars)
 
     def download_cache_tables(self):
-        """
-        TODO Document
-        :return: List of parquet table file paths
+        """Downloads the Alyx cache tables to the local data cache directory
+
+        Returns
+        -------
+            List of parquet table file paths
         """
         # query the database for the latest cache; expires=None overrides cached response
         self.cache_dir.mkdir(exist_ok=True)
+        if not self.is_logged_in():
+            self.authenticate()
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(f'{self.base_url}/cache.zip',
-                                      username=self._par.ALYX_LOGIN,
-                                      password=self._par.ALYX_PWD,
                                       headers=self._headers,
                                       silent=self.silent,
                                       cache_dir=tmp,
@@ -626,12 +585,27 @@ class AlyxClient(metaclass=UniqueSingletons):
         return [Path(self.cache_dir, table) for table in files]
 
     def _validate_file_url(self, url):
+        """Asserts that URL matches HTTP_DATA_SERVER parameter.
+        Currently only one remote HTTP server is supported for a given AlyxClient instance.  If
+        the URL contains only the relative path part, the full URL is returned.
+
+        Parameters
+        ----------
+        url : str
+            The full or partial URL to validate
+
+        Returns
+        -------
+            The complete URL
+
+        Examples
+        --------
+            url = self._validate_file_url('https://webserver.net/path/to/file')
+            'https://webserver.net/path/to/file'
+            url = self._validate_file_url('path/to/file')
+            'https://webserver.net/path/to/file'
         """
-        TODO Document
-        :param url:
-        :return:
-        """
-        if url.startswith('http'):
+        if url.startswith('http'):  # A full URL
             assert url.startswith(self._par.HTTP_DATA_SERVER), \
                 ('remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:\n' +
                  f'"{url[:40]}..." should start with "{self._par.HTTP_DATA_SERVER}"')
@@ -640,10 +614,17 @@ class AlyxClient(metaclass=UniqueSingletons):
         return url
 
     def rel_path2url(self, path):
-        """
-        TODO Document
-        :param path:
-        :return:
+        """Given a relative file path, return the remote HTTP server URL.
+        It is expected that the remote HTTP server has the same file tree as the local system.
+
+        Parameters
+        ----------
+        path : str, pathlib.Path
+            A relative ALF path (subject/date/number/etc.)
+
+        Returns
+        -------
+            A URL string
         """
         path = str(path).strip('/')
         assert not path.startswith('http')

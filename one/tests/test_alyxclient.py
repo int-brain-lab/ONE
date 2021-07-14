@@ -13,6 +13,8 @@ import logging
 from datetime import datetime, timedelta
 
 from iblutil.io import hashfile
+import iblutil.io.params as iopar
+
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 from . import util
 
@@ -22,17 +24,56 @@ par = one.params.get(silent=True)
 ac = wc.AlyxClient(**TEST_DB_1)
 
 
-class TestSingletonPattern(unittest.TestCase):
-    def setUp(self):
-        self.ac = ac
-        self.sameac = wc.AlyxClient(**TEST_DB_1)
-        self.sameac2 = wc.AlyxClient(**TEST_DB_1)
-        self.diffac = wc.AlyxClient(**TEST_DB_2)
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestAuthentication(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
 
-    def test_multiple_singletons(self):
-        self.assertTrue(id(self.ac) == id(self.sameac))
-        self.assertTrue(id(self.ac) == id(self.sameac2))
-        self.assertFalse(id(self.ac) == id(self.diffac))
+    def test_authentication(self):
+        ac = wc.AlyxClient(**TEST_DB_2)
+        self.assertTrue(ac.is_logged_in())
+        ac.logout()
+        self.assertFalse(ac.is_logged_in())
+        # Check token removed from cache
+        cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertFalse(TEST_DB_2['username'] in cached_token)
+        # Test with pars set
+        login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
+        if not set(ac._par.as_dict().keys()) >= login_keys:
+            for k, v in zip(sorted(login_keys), (TEST_DB_2['username'], TEST_DB_2['password'])):
+                ac._par = ac._par.set(k, v)
+        with mock.patch('builtins.input') as mock_input:
+            ac.authenticate()
+            mock_input.assert_not_called()
+        self.assertTrue(ac.is_logged_in())
+        # Test using input args
+        ac._par = iopar.from_dict({k: v for k, v in ac._par.as_dict().items()
+                                   if k not in login_keys})
+        ac.logout()
+        with mock.patch('builtins.input') as mock_input:
+            ac.authenticate(TEST_DB_2['username'], TEST_DB_2['password'], cache_token=False)
+            mock_input.assert_not_called()
+        # Check token not saved in cache
+        cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertFalse(TEST_DB_2['username'] in cached_token)
+        # Test user prompts
+        ac.logout()
+        ac.silent = False
+        with mock.patch('builtins.input', return_value=TEST_DB_2['username']),\
+             mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']):
+            ac.authenticate(cache_token=True)
+        self.assertTrue(ac.is_logged_in())
+        # Check token saved in cache
+        ac.authenticate(cache_token=True)
+        cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertTrue(TEST_DB_2['username'] in cached_token)
+        # Check force flag
+        with mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']) as mock_pwd:
+            ac.authenticate(cache_token=True, force=True)
+            mock_pwd.assert_called()
+        # Check non-silent double logout
+        ac.logout()
+        ac.logout()  # Shouldn't complain
 
 
 class TestJsonFieldMethods(unittest.TestCase):
