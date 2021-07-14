@@ -5,12 +5,14 @@
 ### Added
 
 - function to convert datasets list endpoint to DataFrame
+- added logout method; 'authenticate' now prompts for Alyx password if none provided and no token
 
 ### Modified
 
 - fully adopted Numpy docstrings
 - revisions now filtered using <= instead of <
 - datasets_from_type now type2datasets; returns similar output to list_ methods
+- removed ALYX_PWD from setup
 - webclient functions sdsc_globus_path_from_dataset, sdsc_path_from_dataset and globus_path_from_dataset moved to ibllib
 
 ## [0.2.3]
