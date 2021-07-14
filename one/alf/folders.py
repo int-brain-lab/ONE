@@ -7,30 +7,6 @@ from pathlib import Path
 from typing import Union
 
 
-def subjects_data_folder(folder: Path, rglob: bool = False) -> Path:
-    """Given a root_data_folder will try to find a 'Subjects' data folder.
-    If Subjects folder is passed will return it directly."""
-    if not isinstance(folder, Path):
-        folder = Path(folder)
-    if rglob:
-        func = folder.rglob
-    else:
-        func = folder.glob
-
-    # Try to find Subjects folder one level
-    if folder.name.lower() != 'subjects':
-        # Try to find Subjects folder if folder.glob
-        spath = [x for x in func('*') if x.name.lower() == 'subjects']
-        if not spath:
-            raise ValueError('No "Subjects" folder in children folders')
-        elif len(spath) > 1:
-            raise ValueError(f'Multiple "Subjects" folder in children folders: {spath}')
-        else:
-            folder = folder / spath[0]
-
-    return folder
-
-
 def remove_empty_folders(folder: Union[str, Path]) -> None:
     """Will iteratively remove any children empty folders"""
     all_folders = sorted(x for x in Path(folder).rglob('*') if x.is_dir())
