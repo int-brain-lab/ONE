@@ -163,7 +163,7 @@ class One(ConversionMixin):
         -------
         Loaded timestamp
         """
-        if mode in ('local', 'remote'):  # TODO maybe rename mode
+        if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
             if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:

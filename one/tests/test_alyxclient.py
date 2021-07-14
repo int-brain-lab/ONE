@@ -40,7 +40,7 @@ class TestAuthentication(unittest.TestCase):
         # Test with pars set
         login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
         if not set(ac._par.as_dict().keys()) >= login_keys:
-            for k, v in zip(login_keys, (TEST_DB_2['username'], TEST_DB_2['password'])):
+            for k, v in zip(sorted(login_keys), (TEST_DB_2['username'], TEST_DB_2['password'])):
                 ac._par = ac._par.set(k, v)
         with mock.patch('builtins.input') as mock_input:
             ac.authenticate()
