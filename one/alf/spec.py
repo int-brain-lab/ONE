@@ -1,8 +1,12 @@
 """The complete AlF specification descriptors and validators
 TODO Currently extensions are not optional
+TODO Make Subjects an optional requirement with lab, i.e. lab/Subjects/subject/date/num OR
+ subject/date/num but NOT lab/subject/date/num
 """
 import re
 import textwrap
+from uuid import UUID
+from typing import Union
 
 from iblutil.util import flatten
 
@@ -196,61 +200,108 @@ def _named(pattern, name):
     return f'(?P<{name}>{pattern})'
 
 
-def regex(spec: str = FULL_SPEC, **kwargs) -> str:
+def regex(spec: str = FULL_SPEC, **kwargs) -> re.Pattern:
     """
     Construct a regular expression pattern for parsing or validating an ALF
 
-    Examples:
-        # Regex for a filename
-        pattern = regex(spec=FILE_SPEC)
+    Parameters
+    ----------
+    spec : str
+        The spec string to construct the regular expression from
+    kwargs : dict[str]
+        Optional patterns to replace the defaults
 
-        # Regex for a complete path (including root)
-        pattern = '.*' + regex(spec=FULL_SPEC)
+    Returns
+    -------
+    A regular expression Pattern object
 
-        # Regex pattern for specific object name
-        pattern = regex(object='trials)
+    Examples
+    --------
+    # Regex for a filename
+    pattern = regex(spec=FILE_SPEC)
 
-    :param spec: The spec string to construct the regular expression from
-    :param kwargs: Optional patterns to replace the defaults
-    :return: A regular expression pattern string
+    # Regex for a complete path (including root)
+    pattern = '.*' + regex(spec=FULL_SPEC)
+
+    # Regex pattern for specific object name
+    pattern = regex(object='trials)
     """
     fields = dict(_DEFAULT)
     if not fields.keys() >= kwargs.keys():
         unknown = next(k for k in kwargs.keys() if k not in fields.keys())
         raise KeyError(f'Unknown field "{unknown}"')
     fields.update({k: v for k, v in kwargs.items() if v is not None})
-    return spec.format(**{k: _named(fields[k], k) for k in re.findall(r'(?<={)\w+', spec)})
+    spec_str = spec.format(**{k: _named(fields[k], k) for k in re.findall(r'(?<={)\w+', spec)})
+    return re.compile(spec_str)
 
 
 def is_valid(filename):
     """
     Returns a True for a given file name if it is an ALF file, otherwise returns False
 
-    Examples:
-        >>> is_valid('trials.feedbackType.npy')
-        True
-        >>> is_valid('_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.metadata.json')
-        True
-        >>> is_valid('spike_train.npy')
-        False
-        >>> is_valid('channels._phy_ids.csv')
-        False
+    Parameters
+    ----------
+    filename : str
+        The name of the file to evaluate
 
-    Args:
-        filename (str): The name of the file
+    Returns
+    -------
+    True if filename is valid ALF
 
-    Returns:
-        bool
+    Examples
+    --------
+    >>> is_valid('trials.feedbackType.npy')
+    True
+    >>> is_valid('_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.metadata.json')
+    True
+    >>> is_valid('spike_train.npy')
+    False
+    >>> is_valid('channels._phy_ids.csv')
+    False
     """
-    # FIXME Use FULL_SPEC
-    ALF_EXP = re.compile(
-        r'^_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?'
-        r'(?P<object>\w+)\.'
-        r'(?P<attribute>[a-zA-Z0-9]+(?:_times(?=[_\b.])|_intervals(?=[_\b.]))?)_?'
-        r'(?P<timescale>(?:_?)\w+)*\.?'
-        r'(?P<extra>[.\w-]+)*\.'
-        r'(?P<extension>\w+$)')
-    return ALF_EXP.match(filename) is not None
+    return regex(FILE_SPEC).match(filename) is not None
+
+
+def is_session_path(path_object):
+    """
+    Checks if the syntax corresponds to a session path. Note that there is no physical check
+    about existence nor contents
+
+    Parameters
+    ----------
+    path_object : str, pathlib.Path
+
+    Returns
+    -------
+    True if session path a valid ALF session path
+    """
+    session_spec = re.compile(regex(SESSION_SPEC).pattern + '$')
+    if hasattr(path_object, 'as_posix'):
+        path_object = path_object.as_posix()
+    path_object = path_object.strip('/')
+    return session_spec.search(path_object) is not None
+
+
+def is_uuid_string(string: str) -> bool:
+    """
+    Bool test for randomly generated hexadecimal uuid validity
+    NB: unlike is_uuid, is_uuid_string checks that uuid is correctly hyphen separated
+    """
+    return isinstance(string, str) and is_uuid(string, (3, 4, 5)) and str(UUID(string)) == string
+
+
+def is_uuid(uuid: Union[str, int, bytes, UUID], versions=(4,)) -> bool:
+    """Bool test for randomly generated hexadecimal uuid validity
+    Unlike `is_uuid_string`, this function accepts UUID objects
+    """
+    if not isinstance(uuid, (UUID, str, bytes, int)):
+        return False
+    elif not isinstance(uuid, UUID):
+        try:
+            uuid = UUID(uuid) if isinstance(uuid, str) else UUID(**{type(uuid).__name__: uuid})
+        except ValueError:
+            return False
+    return isinstance(uuid, UUID) and uuid.version in versions
 
 
 def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=None):
@@ -258,18 +309,27 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
     Given a set of ALF file parts, return a valid ALF file name.  Essential periods and
     underscores are added by the function.
 
-    Args:
-        object (str): The ALF object name
-        attribute (str): The ALF object attribute name
-        extension (str): The file extension
-        namespace (str): An optional namespace
-        timescale (str): An optional timescale
-        extra (str, tuple): One or more optional extra ALF attributes
+    Parameters
+    ----------
+    object : str
+        The ALF object name
+    attribute : str
+        The ALF object attribute name
+    extension : str
+        The file extension
+    namespace : str
+        An optional namespace
+    timescale : str
+        An optional timescale
+    extra : str, tuple
+        One or more optional extra ALF attributes
 
-    Returns:
-        filename (str): a file name string built from the ALF parts
+    Returns
+    -------
+    A file name string built from the ALF parts
 
-    Examples:
+    Examples
+    --------
     >>> to_alf('spikes', 'times', 'ssv')
     'spikes.times.ssv'
     >>> to_alf('spikes', 'times', 'ssv', namespace='ibl')

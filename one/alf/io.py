@@ -7,11 +7,8 @@ https://ibllib.readthedocs.io/en/develop/04_reference.html#alf  # FIXME Old link
 import json
 import copy
 import logging
-import re
-from uuid import UUID
-from datetime import datetime
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -21,7 +18,7 @@ from iblutil.io import parquet
 from iblutil.io import jsonable
 from .exceptions import ALFObjectNotFound
 from . import files
-from .spec import SESSION_SPEC, FILE_SPEC, COLLECTION_SPEC, to_alf, is_valid, regex as alf_regex
+from . import spec
 
 _logger = logging.getLogger('ONE')
 
@@ -118,14 +115,14 @@ def read_ts(filename):
         filename = Path(filename)
 
     # alf format is object.attribute.extension, for example '_ibl_wheel.position.npy'
-    _, obj, attr, *_, ext = files.alf_parts(filename.parts[-1])
+    _, obj, attr, *_, ext = files.filename_parts(filename.parts[-1])
 
     # looking for matching object with attribute timestamps: '_ibl_wheel.timestamps.npy'
     (time_file,), _ = files.filter_by(filename.parent, object=obj,
                                       attribute='times*', extension=ext)
 
     if not time_file:
-        name = to_alf(obj, attr, ext)
+        name = spec.to_alf(obj, attr, ext)
         _logger.error(name + ' not found! no time-scale for' + str(filename))
         raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
 
@@ -242,7 +239,7 @@ def _ls(alfpath, object=None, **kwargs):
         else:
             files_alf, attributes = files.filter_by(alfpath, object=object, **kwargs)
     else:
-        object = files.alf_parts(alfpath.name)[1]
+        object = files.filename_parts(alfpath.name)[1]
         alfpath = alfpath.parent
         files_alf, attributes = files.filter_by(alfpath, object=object, **kwargs)
 
@@ -311,7 +308,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         files_alf, parts = _ls(alfpath, object, **kwargs)
     else:  # A list of paths allows us to load an object from different revisions
         files_alf = alfpath
-        parts = [files.alf_parts(x.name) for x in files_alf]
+        parts = [files.filename_parts(x.name) for x in files_alf]
         assert len(set(p[1] for p in parts)) == 1
     # Take attribute and timescale from parts list
     attributes = [p[2] if not p[3] else '_'.join(p[2:4]) for p in parts]
@@ -377,8 +374,8 @@ def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale
                          str([(k, v.shape) for k, v in dico.items()]))
     out_files = []
     for k, v in dico.items():
-        out_file = alfpath / to_alf(object, k, 'npy',
-                                    extra=parts, namespace=namespace, timescale=timescale)
+        out_file = alfpath / spec.to_alf(object, k, 'npy',
+                                         extra=parts, namespace=namespace, timescale=timescale)
         np.save(out_file, v)
         out_files.append(out_file)
     return out_files
@@ -399,7 +396,7 @@ def save_metadata(file_alf, dico):
     :param dico: dictionary containing meta-data.
     :return: None
     """
-    assert is_valid(file_alf.parts[-1]), 'ALF filename not valid'
+    assert spec.is_valid(file_alf.parts[-1]), 'ALF filename not valid'
     file_meta_data = file_alf.parent / (file_alf.stem + '.metadata.json')
     with open(file_meta_data, 'w+') as fid:
         fid.write(json.dumps(dico, indent=1))
@@ -412,7 +409,7 @@ def remove_uuid_file(file_path, dry=False):
     if isinstance(file_path, str):
         file_path = Path(file_path)
     name_parts = file_path.name.split('.')
-    if not is_uuid_string(name_parts[-2]):
+    if not spec.is_uuid_string(name_parts[-2]):
         return file_path
     name_parts.pop(-2)
     new_path = file_path.parent.joinpath('.'.join(name_parts))
@@ -429,126 +426,25 @@ def remove_uuid_recursive(folder, dry=False):
         print(remove_uuid_file(fn, dry=dry))
 
 
-def add_uuid_string(file_path, uuid):
-    if isinstance(uuid, str) and not is_uuid_string(uuid):
-        raise ValueError('Should provide a valid UUID v4')
-    uuid = str(uuid)
-    # NB: Only instantiate as Path if not already a Path, otherwise we risk changing the class
-    if isinstance(file_path, str):
-        file_path = Path(file_path)
-    name_parts = file_path.stem.split('.')
-    if uuid == name_parts[-1]:
-        _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
-        return file_path
-    return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
-
-
-def is_uuid_string(string: str) -> bool:
-    """
-    Bool test for randomly generated hexadecimal uuid validity
-    NB: uuid must be hyphen separated
-    """
-    if string is None:
-        return False
-    if len(string) != 36:
-        return False
-    UUID_PATTERN = re.compile(r'^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}$', re.IGNORECASE)
-    if UUID_PATTERN.match(string):
-        return True
-    else:
-        return False
-
-
-def is_uuid(uuid: Union[str, int, bytes, UUID]) -> bool:
-    """Bool test for randomly generated hexadecimal uuid validity
-    Unlike `is_uuid_string`, this function accepts UUID objects
-    """
-    if not isinstance(uuid, (UUID, str, bytes, int)):
-        return False
-    elif not isinstance(uuid, UUID):
-        try:
-            uuid = UUID(uuid) if isinstance(uuid, str) else UUID(**{type(uuid).__name__: uuid})
-        except ValueError:
-            return False
-    return isinstance(uuid, UUID) and uuid.version == 4
-
-
-def _isdatetime(s: str) -> bool:
-    try:
-        datetime.strptime(s, '%Y-%m-%d')
-        return True
-    except ValueError:
-        return False
-
-
-def get_session_path(path: Union[str, Path]) -> Optional[Path]:
-    """Returns the session path from any filepath if the date/number
-    pattern is found"""
-    if path is None:
-        _logger.warning('Input path is None, exiting...')
-        return
-    if isinstance(path, str):
-        path = Path(path)
-    sess = None
-    for i, p in enumerate(path.parts):
-        if p.isdigit() and _isdatetime(path.parts[i - 1]):
-            sess = Path().joinpath(*path.parts[:i + 1])
-
-    return sess
-
-
-def get_alf_path(path: Union[str, Path]) -> str:
-    """Returns the ALF part of a path or filename
-    TODO Add tests, docstring, etc.
-    """
-    if not isinstance(path, str):
-        path = Path(path).as_posix()
-    path = path.strip('/')
-
-    # Check if session path
-    match_session = re.search(alf_regex(SESSION_SPEC), path)
-    if match_session:
-        return path[match_session.start():]
-
-    # Check if filename / relative path (i.e. collection + filename)
-    parts = path.rsplit('/', 1)
-    match_filename = re.match(alf_regex(FILE_SPEC), parts[-1])
-    if match_filename:
-        if re.match(alf_regex(f'{COLLECTION_SPEC}{FILE_SPEC}'), path):
-            return path
-        else:
-            return parts[-1]
-
-
-def is_session_path(path_object):
-    """
-    Checks if the syntax corresponds to a session path. Note that there is no physical check
-     about existence nor contents
-    :param path_object:
-    :return:
-    """
-    return Path(path_object) == get_session_path(Path(path_object))
-
-
-def _regexp_session_path(path_object, separator):
-    """
-    Subfunction to be able to test cross-platform
-    """
-    return re.search(r'/\d\d\d\d-\d\d-\d\d/\d\d\d',
-                     str(path_object).replace(separator, '/'), flags=0)
-
-
-def is_details_dict(dict_obj):
-    if dict_obj is None:
-        return False
-    keys = [
-        'subject',
-        'start_time',
-        'number',
-        'lab',
-        'project',
-        'url',
-        'task_protocol',
-        'local_path'
+def next_num_folder(session_date_folder: Union[str, Path]) -> str:
+    """Return the next number for a session given a session_date_folder"""
+    session_date_folder = Path(session_date_folder)
+    if not session_date_folder.exists():
+        return '001'
+    session_nums = [
+        int(x.name) for x in session_date_folder.iterdir()
+        if x.is_dir() and not x.name.startswith('.') and x.name.isdigit()
     ]
-    return set(dict_obj.keys()) == set(keys)
+    out = f'{max(session_nums or [0]) + 1:03d}'
+    assert len(out) == 3, 'ALF spec does not support session numbers > 999'
+    return out
+
+
+def remove_empty_folders(folder: Union[str, Path]) -> None:
+    """Will iteratively remove any children empty folders"""
+    all_folders = sorted(x for x in Path(folder).rglob('*') if x.is_dir())
+    for f in reversed(all_folders):  # Reversed sorted ensures we remove deepest first
+        try:
+            f.rmdir()
+        except Exception:
+            continue

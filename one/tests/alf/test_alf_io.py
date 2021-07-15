@@ -3,7 +3,6 @@ import tempfile
 from pathlib import Path
 import shutil
 import json
-import uuid
 
 import numpy as np
 
@@ -171,7 +170,6 @@ class TestsAlf(unittest.TestCase):
         data = np.random.rand(500, 4)
         # test with UUID extra field
         file_alf = self.tmpdir / '_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.npy'
-        file_meta = self.tmpdir / '_ns_obj.attr1.metadata.bd66f60e-fefc-4d92-b2c3-daaeee6c83af.npy'
         np.save(file_alf, data)
         cols = ['titi', 'tutu', 'toto', 'tata']
         file_meta = file_alf.parent / (file_alf.stem + '.metadata.json')
@@ -285,89 +283,6 @@ class TestsAlf(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
 
-class TestSessionFolder(unittest.TestCase):
-
-    def test_isdatetime(self):
-        inp = ['açsldfkça', '12312', '2020-01-01', '01-01-2020']
-        out = [False, False, True, False]
-        for i, o in zip(inp, out):
-            self.assertEqual(o, alfio._isdatetime(i))
-
-    def test_get_session_folder(self):
-        inp = (Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data/'
-                    '_iblrig_micData.raw.wav'),
-               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
-               '/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data'
-               '/_iblrig_micData.raw.wav',
-               '/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001',)
-        out = (Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
-               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
-               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
-               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),)
-        for i, o in zip(inp, out):
-            self.assertEqual(o, alfio.get_session_path(i))
-        # Test if None is passed
-        no_out = alfio.get_session_path(None)
-        self.assertTrue(no_out is None)
-
-    def test_get_session_folder_regex(self):
-        o = alfio._regexp_session_path(r'C:\titi\toto\ZM_1368/2019-04-19/001', '\\')
-        self.assertIsNotNone(o)
-        o = alfio._regexp_session_path(Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'), '\\')
-        self.assertIsNotNone(o)
-        o = alfio._regexp_session_path(Path('/mnt/s0/Data/Subjects/ZM_1368/2019/1'), '\\')
-        self.assertIsNone(o)
-
-    def test_is_session_folder(self):
-        inp = [(Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04'), False),
-               ('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04', False),
-               (Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001'), True),
-               (Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001/tutu'), False),
-               ('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001/', True)]
-        for i in inp:
-            self.assertEqual(alfio.is_session_path(i[0]), i[1])
-
-    def test_is_uuid_string(self):
-        testins = [
-            None,
-            'some_string',
-            'f6ffe25827-06-425aaa-f5-919f70025835',
-            'f6ffe258-2706-425a-aaf5-919f70025835']
-        expected = [False, False, False, True]
-        for i, e in zip(testins, expected):
-            self.assertTrue(alfio.is_uuid_string(i) == e)
-
-    def test_is_uuid(self):
-        hex_uuid = 'f6ffe25827-06-425aaa-f5-919f70025835'
-        uuid_obj = uuid.UUID(hex_uuid)
-        # Check valid inputs
-        for valid in (hex_uuid, hex_uuid.replace('-', ''), uuid_obj.bytes, uuid_obj.int, uuid_obj):
-            self.assertTrue(alfio.is_uuid(valid), f'{valid} is a valid uuid')
-        # Check bad inputs
-        for fake in (None, 54323, 'dddd-aaa-eeee'):
-            self.assertFalse(alfio.is_uuid(fake), f'{fake} is not a valid uuid')
-
-    def test_is_details_dict(self):
-        keys = [
-            'subject',
-            'start_time',
-            'number',
-            'lab',
-            'project',
-            'url',
-            'task_protocol',
-            'local_path'
-        ]
-        testins = [
-            None,
-            dict.fromkeys(keys[1:]),
-            dict.fromkeys(keys),
-        ]
-        expected = [False, False, True]
-        for i, e in zip(testins, expected):
-            self.assertTrue(alfio.is_details_dict(i) == e)
-
-
 class TestUUID_Files(unittest.TestCase):
 
     def test_remove_uuid(self):
@@ -387,21 +302,55 @@ class TestUUID_Files(unittest.TestCase):
             self.assertTrue(alfio.remove_uuid_file(str(f3)) ==
                             Path(dir).joinpath('toto.json'))
 
-    def test_add_uuid(self):
-        _uuid = uuid.uuid4()
 
-        file_with_uuid = f'/titi/tutu.part1.part1.{_uuid}.json'
-        inout = [
-            (file_with_uuid, Path(file_with_uuid)),
-            ('/tutu/tata.json', Path(f'/tutu/tata.{_uuid}.json')),
-            ('/tutu/tata.part1.json', Path(f'/tutu/tata.part1.{_uuid}.json')),
-        ]
-        for tup in inout:
-            self.assertEqual(tup[1], alfio.add_uuid_string(tup[0], _uuid))
-            self.assertEqual(tup[1], alfio.add_uuid_string(tup[0], str(_uuid)))
+class TestALFFolders(unittest.TestCase):
+    tempdir = None
 
-        with self.assertRaises(ValueError):
-            alfio.add_uuid_string('/foo/bar.npy', 'fake')
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.tempdir = tempfile.TemporaryDirectory()
+        cls.session_path = (Path(cls.tempdir.name)
+                            .joinpath('fakelab', 'Subjects', 'fakemouse', '1900-01-01', '001'))
+        cls.session_path.mkdir(parents=True)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.tempdir.cleanup()
+
+    def test_next_num_folder(self):
+        self.session_path.rmdir()  # Remove '001' folder
+        next_num = alfio.next_num_folder(self.session_path.parent)
+        self.assertEqual('001', next_num)
+
+        self.session_path.parent.rmdir()  # Remove date folder
+        next_num = alfio.next_num_folder(self.session_path.parent)
+        self.assertEqual('001', next_num)
+
+        self.session_path.parent.joinpath(next_num).mkdir(parents=True)  # Add '001' folder
+        next_num = alfio.next_num_folder(self.session_path.parent)
+        self.assertEqual('002', next_num)
+
+        self.session_path.parent.joinpath('053').mkdir()  # Add '053' folder
+        next_num = alfio.next_num_folder(self.session_path.parent)
+        self.assertEqual('054', next_num)
+
+        self.session_path.parent.joinpath('099').mkdir()  # Add '099' folder
+        next_num = alfio.next_num_folder(self.session_path.parent)
+        self.assertEqual('100', next_num)
+
+        self.session_path.parent.joinpath('999').mkdir()  # Add '999' folder
+        with self.assertRaises(AssertionError):
+            alfio.next_num_folder(self.session_path.parent)
+
+    def test_remove_empty_folders(self):
+        root = Path(self.tempdir.name) / 'glob_dir'
+        root.mkdir()
+        root.joinpath('empty0').mkdir(exist_ok=True)
+        root.joinpath('full0').mkdir(exist_ok=True)
+        root.joinpath('full0', 'file.txt').touch()
+        self.assertTrue(len(list(root.glob('*'))) == 2)
+        alfio.remove_empty_folders(root)
+        self.assertTrue(len(list(root.glob('*'))) == 1)
 
 
 if __name__ == "__main__":

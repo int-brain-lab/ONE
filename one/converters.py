@@ -22,6 +22,8 @@ from iblutil.io import parquet
 from iblutil.util import Bunch
 
 import one.alf.io as alfio
+from one.alf.spec import is_session_path, is_uuid_string
+from one.alf.files import get_session_path, add_uuid_string
 from .util import Listable
 
 
@@ -93,11 +95,11 @@ class ConversionMixin:
         if isinstance(id, Path):
             return self.path2eid(id)
         elif isinstance(id, str):
-            if alfio.is_session_path(id) or alfio.get_session_path(id):
+            if is_session_path(id) or get_session_path(id):
                 return self.path2eid(id)
             if len(id) > 36:
                 id = id[-36:]
-            if not alfio.is_uuid_string(id):
+            if not is_uuid_string(id):
                 raise ValueError('Invalid experiment ID')
             else:
                 return id
@@ -118,7 +120,7 @@ class ConversionMixin:
                 path_list.append(self.eid2path(p))
             return path_list
         # If not valid return None
-        if not alfio.is_uuid_string(eid):
+        if not is_uuid_string(eid):
             raise ValueError(eid + " is not a valid eID/UUID string")
         if self._cache['sessions'].size == 0:
             return
@@ -144,7 +146,7 @@ class ConversionMixin:
         :return: eid or list of eids
         """
         # else ensure the path ends with mouse,date, number
-        session_path = alfio.get_session_path(path_obj)
+        session_path = get_session_path(path_obj)
         sessions = self._cache['sessions']
 
         # if path does not have a date and a number, or cache is empty return None
@@ -178,7 +180,7 @@ class ConversionMixin:
             # Remove the UUID from path
             filepath = urlsplit(filepath).path.strip('/')
             filepath = alfio.remove_uuid_file(PurePosixPath(filepath), dry=True)
-            session_path = alfio.get_session_path(filepath).as_posix()
+            session_path = get_session_path(filepath).as_posix()
         else:
             # No way of knowing root session path parts without cache tables
             eid = self.path2eid(filepath)
@@ -217,7 +219,7 @@ class ConversionMixin:
             uuid, = parquet.np2str(dataset.reset_index()[['id_0', 'id_1']])
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
-        return self._web_client.rel_path2url(alfio.add_uuid_string(url, uuid).as_posix())
+        return self._web_client.rel_path2url(add_uuid_string(url, uuid).as_posix())
 
     def record2path(self, dataset) -> Optional[Path]:
         """
@@ -540,7 +542,7 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
             root_path = Path(root_path)
         file_path = root_path / file_path
     if uuid:
-        file_path = alfio.add_uuid_string(file_path, uuid)
+        file_path = add_uuid_string(file_path, uuid)
     return file_path
 
 

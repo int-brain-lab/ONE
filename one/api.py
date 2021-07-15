@@ -53,8 +53,8 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import rel_path_parts
-from .alf.spec import COLLECTION_SPEC, regex as alf_regex
+from .alf.files import rel_path_parts, get_session_path, get_alf_path
+from .alf.spec import COLLECTION_SPEC, is_uuid_string, regex as alf_regex
 from one.converters import ConversionMixin
 import one.util as util
 
@@ -1022,7 +1022,7 @@ class OneAlyx(One):
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
         try:
-            assert isinstance(dataset_type, str) and not alfio.is_uuid_string(dataset_type)
+            assert isinstance(dataset_type, str) and not is_uuid_string(dataset_type)
             _logger.disabled = True
             out = self.alyx.rest('dataset-types', 'read', dataset_type)
         except (AssertionError, requests.exceptions.HTTPError):
@@ -1274,7 +1274,7 @@ class OneAlyx(One):
                     did = parquet.np2str(did)
                 self._cache['datasets'].at[did, 'exists'] = False
             return
-        target_dir = Path(cache_dir or self._cache_dir, alfio.get_alf_path(url)).parent
+        target_dir = Path(cache_dir or self._cache_dir, get_alf_path(url)).parent
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
 
     def _tag_mismatched_file_record(self, url):
@@ -1432,7 +1432,7 @@ class OneAlyx(One):
             if cache_eid or mode == 'local':
                 return cache_eid
 
-        session_path = alfio.get_session_path(path_obj)
+        session_path = get_session_path(path_obj)
         # if path does not have a date and a number return None
         if session_path is None:
             return None
@@ -1505,13 +1505,13 @@ class OneAlyx(One):
     def dataset2type(self, dset):
         """Return dataset type from dataset"""
         # Ensure dset is a str uuid
-        if isinstance(dset, str) and not alfio.is_uuid_string(dset):
+        if isinstance(dset, str) and not is_uuid_string(dset):
             dset = self._dataset_name2id(dset)
         if isinstance(dset, np.ndarray):
             dset = parquet.np2str(dset)[0]
         if isinstance(dset, tuple) and all(isinstance(x, int) for x in dset):
             dset = parquet.np2str(np.array(dset))
-        if not alfio.is_uuid_string(dset):
+        if not is_uuid_string(dset):
             raise ValueError('Unrecognized name or UUID')
         return self.alyx.rest('datasets', 'read', id=dset)['dataset_type']
 
@@ -1548,7 +1548,7 @@ class OneAlyx(One):
                 details_list.append(self.get_details(p, full=full))
             return details_list
         # If not valid return None
-        if not alfio.is_uuid_string(eid):
+        if not is_uuid_string(eid):
             print(eid, " is not a valid eID/UUID string")
             return
         # load all details

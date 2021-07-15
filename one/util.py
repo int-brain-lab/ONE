@@ -10,7 +10,7 @@ from iblutil.io import parquet
 import numpy as np
 
 import one.alf.exceptions as alferr
-from one.alf.files import rel_path_parts
+from one.alf.files import rel_path_parts, get_session_path
 from one.alf.spec import FILE_SPEC, regex as alf_regex
 import one.alf.io as alfio
 
@@ -45,7 +45,7 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
         rec['eid_0'], rec['eid_1'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
-        rec['session_path'] = alfio.get_session_path(file_path).as_posix()
+        rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         if 'default_revision' in d:
             rec['default_revision'] = d['default_revision']
@@ -85,7 +85,7 @@ def datasets2records(datasets) -> pd.DataFrame:
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = data_url.path.strip('/')
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
-        rec['session_path'] = alfio.get_session_path(file_path).as_posix()
+        rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_dataset']
         records.append(rec)

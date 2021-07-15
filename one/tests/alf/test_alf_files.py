@@ -3,9 +3,10 @@ import tempfile
 from pathlib import Path
 import shutil
 import re
+import uuid
 
 import one.alf.files as files
-from one.alf.spec import FILE_SPEC
+from one.alf.spec import FILE_SPEC, regex
 
 
 class TestsAlfPartsFilters(unittest.TestCase):
@@ -15,7 +16,7 @@ class TestsAlfPartsFilters(unittest.TestCase):
         self.tmpdir.mkdir(exist_ok=True)
 
     def test_filter_by(self):
-        spec_idx_map = re.compile(files.regex(FILE_SPEC)).groupindex
+        spec_idx_map = regex(FILE_SPEC).groupindex
         file_names = [
             'noalf.file',
             '_ibl_trials.intervals.npy',
@@ -175,6 +176,55 @@ class TestAlfParse(unittest.TestCase):
         self.assertEqual(expected, parsed)
         parsed = files.session_path_parts(session_path, assert_valid=False, as_dict=False)
         self.assertEqual(tuple([None] * 4), parsed)
+
+
+class TestALFGet(unittest.TestCase):
+    def test_get_session_folder(self):
+        inp = (Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data/'
+                    '_iblrig_micData.raw.wav'),
+               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
+               '/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data'
+               '/_iblrig_micData.raw.wav',
+               '/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001',)
+        out = (Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
+               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
+               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
+               Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),)
+        for i, o in zip(inp, out):
+            self.assertEqual(o, files.get_session_path(i))
+        # Test if None is passed
+        no_out = files.get_session_path(None)
+        self.assertTrue(no_out is None)
+
+    def test_get_alf_path(self):
+        path = Path('/mnt/s0/Data/Subjects/'
+                    'ZM_1368/2019-04-19/001/raw_behavior_data/_iblrig_micData.raw.wav')
+        out = files.get_alf_path(path)
+        self.assertEqual(out, '/'.join(path.parts[-7:]))
+        path = 'collection/trials.intervals_bpod.npy'
+        self.assertEqual(files.get_alf_path(path), path)
+        path = '/trials.intervals_bpod.npy'
+        self.assertEqual(files.get_alf_path(path), 'trials.intervals_bpod.npy')
+
+    def test_isdatetime(self):
+        inp = ['açsldfkça', '12312', '2020-01-01', '01-01-2020', '2020-12-32']
+        out = [False, False, True, False, False]
+        for i, o in zip(inp, out):
+            self.assertEqual(o, files._isdatetime(i))
+
+    def test_add_uuid(self):
+        _uuid = uuid.uuid4()
+
+        file_with_uuid = f'/titi/tutu.part1.part1.{_uuid}.json'
+        inout = [(file_with_uuid, Path(file_with_uuid)),
+            ('/tutu/tata.json', Path(f'/tutu/tata.{_uuid}.json')),
+            ('/tutu/tata.part1.json', Path(f'/tutu/tata.part1.{_uuid}.json')), ]
+        for tup in inout:
+            self.assertEqual(tup[1], files.add_uuid_string(tup[0], _uuid))
+            self.assertEqual(tup[1], files.add_uuid_string(tup[0], str(_uuid)))
+
+        with self.assertRaises(ValueError):
+            files.add_uuid_string('/foo/bar.npy', 'fake')
 
 
 if __name__ == "__main__":
