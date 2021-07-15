@@ -2,7 +2,6 @@ import unittest
 import tempfile
 from pathlib import Path
 import shutil
-import re
 import uuid
 
 import one.alf.files as files
@@ -217,8 +216,8 @@ class TestALFGet(unittest.TestCase):
 
         file_with_uuid = f'/titi/tutu.part1.part1.{_uuid}.json'
         inout = [(file_with_uuid, Path(file_with_uuid)),
-            ('/tutu/tata.json', Path(f'/tutu/tata.{_uuid}.json')),
-            ('/tutu/tata.part1.json', Path(f'/tutu/tata.part1.{_uuid}.json')), ]
+                 ('/tutu/tata.json', Path(f'/tutu/tata.{_uuid}.json')),
+                 ('/tutu/tata.part1.json', Path(f'/tutu/tata.part1.{_uuid}.json'))]
         for tup in inout:
             self.assertEqual(tup[1], files.add_uuid_string(tup[0], _uuid))
             self.assertEqual(tup[1], files.add_uuid_string(tup[0], str(_uuid)))

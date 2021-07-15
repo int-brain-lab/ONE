@@ -17,7 +17,6 @@ Created on Tue Sep 11 18:06:21 2018
 
 @author: Miles
 """
-import re
 import os
 from fnmatch import fnmatch
 from collections import OrderedDict
