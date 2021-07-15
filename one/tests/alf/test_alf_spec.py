@@ -1,5 +1,7 @@
 import unittest
 import re
+from pathlib import Path
+import uuid
 
 import one.alf.spec as alf_spec
 
@@ -14,16 +16,17 @@ class TestALFSpec(unittest.TestCase):
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
                     '(?P<attribute>[a-zA-Z0-9]+(?:_times(?=[_\\b.])|_intervals(?=[_\\b.]))?)_?'
                     '(?P<timescale>(?:_?)\\w+)*\\.?(?P<extra>[.\\w-]+)*\\.(?P<extension>\\w+)$')
-        self.assertEqual(expected, verifiable)
+        self.assertEqual(expected, verifiable.pattern)
 
         # Should return only the filename regex pattern
         verifiable = alf_spec.regex(spec=alf_spec.FILE_SPEC)
         expected = expected[expected.index('_?(?P<namespace>'):]
-        self.assertEqual(expected, verifiable)
+        self.assertEqual(expected, verifiable.pattern)
 
         # Should replace the collection pattern
         verifiable = alf_spec.regex(spec=alf_spec.COLLECTION_SPEC, collection=r'probe\d{2}')
-        self.assertEqual('((?P<collection>probe\\d{2})/)?(#(?P<revision>[\\w-]+)#/)?', verifiable)
+        expected = '((?P<collection>probe\\d{2})/)?(#(?P<revision>[\\w-]+)#/)?'
+        self.assertEqual(expected, verifiable.pattern)
 
         # Should raise a key error
         with self.assertRaises(KeyError):
@@ -116,6 +119,35 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(alf_spec._dromedary('FooBarBaz'), 'fooBarBaz')
         self.assertEqual(alf_spec._dromedary('passive_RFM'), 'passiveRFM')
         self.assertEqual(alf_spec._dromedary('ROI Motion Energy'), 'ROIMotionEnergy')
+
+    def test_is_session_folder(self):
+        inp = [(Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04'), False),
+               ('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04', False),
+               (Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001'), True),
+               (Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001/tutu'), False),
+               ('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001/', True)]
+        for i in inp:
+            self.assertEqual(alf_spec.is_session_path(i[0]), i[1], str(i[0]))
+
+    def test_is_uuid_string(self):
+        testins = [
+            None,
+            'some_string',
+            'f6ffe25827-06-425aaa-f5-919f70025835',
+            'f6ffe258-2706-425a-aaf5-919f70025835']
+        expected = [False, False, False, True]
+        for i, e in zip(testins, expected):
+            self.assertTrue(alf_spec.is_uuid_string(i) == e, i)
+
+    def test_is_uuid(self):
+        hex_uuid = 'f6ffe25827-06-425aaa-f5-919f70025835'
+        uuid_obj = uuid.UUID(hex_uuid)
+        # Check valid inputs
+        for valid in (hex_uuid, hex_uuid.replace('-', ''), uuid_obj.bytes, uuid_obj.int, uuid_obj):
+            self.assertTrue(alf_spec.is_uuid(valid), f'{valid} is a valid uuid')
+        # Check bad inputs
+        for fake in (None, 54323, 'dddd-aaa-eeee'):
+            self.assertFalse(alf_spec.is_uuid(fake), f'{fake} is not a valid uuid')
 
 
 if __name__ == "__main__":

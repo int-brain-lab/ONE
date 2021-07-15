@@ -15,21 +15,21 @@ because these are faster to search over.  Session paths, URLs and ref strings ar
 from uuid import UUID
 
 from one.api import ONE
-import one.alf.io as alfio
+from one.alf.spec import is_session_path, is_uuid_string, is_uuid
 
 one = ONE(base_url='https://openalyx.internationalbrainlab.org')
 
 # One.search returns experiment uuid strings
 eids = one.search(data='channels.brainLocation')
-assert alfio.is_uuid_string(eids[0])
+assert is_uuid_string(eids[0])
 
 # eID strings can be easily converted to other forms
 session_path = one.eid2path(eids[0])  # returns a pathlib.Path object
-assert alfio.is_session_path(session_path)
+assert is_session_path(session_path)
 print(f'Session {"exists" if session_path.exists() else "does not exist"} on disk')
 
 uuid = UUID(eids[0])
-assert alfio.is_uuid(uuid)
+assert is_uuid(uuid)
 
 # These conversion functions can except lists of experiment ids
 ref_dict = one.eid2ref(eids)

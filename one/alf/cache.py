@@ -20,7 +20,6 @@ import pandas as pd
 
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
-from .folders import session_path
 
 
 # -------------------------------------------------------------------------------------------------
@@ -120,10 +119,6 @@ def _get_file_rel_path(file_path):
         return file_path
     i = file_path[:i].rindex('/') + 1
     return file_path[i:]
-
-
-def _get_full_ses_path(file_path):
-    return session_path(file_path)
 
 
 # -------------------------------------------------------------------------------------------------
