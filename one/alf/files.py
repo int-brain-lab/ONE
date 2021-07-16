@@ -332,8 +332,3 @@ def add_uuid_string(file_path, uuid):
         _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
         return file_path
     return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)

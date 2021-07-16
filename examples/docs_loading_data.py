@@ -59,6 +59,17 @@ In this case you must specify the collection when multiple matching datasets are
 probe1_spikes = one.load_dataset(eid, 'spikes.times.npy', collection='alf/probe01')
 
 """
+Revisions
+
+Revisions provide an optional way to organize data by version.  The version label is
+arbitrary, however the folder must start and end with pound signs and is typically an ISO date,
+e.g. "#2021-01-01#". Unlike collections, if a specified revision is not found, the previous
+revision will be returned.  The revisions are ordered lexicographically.
+
+probe1_spikes = one.load_dataset(eid, 'trials.intervals.npy', revision='2021-03-15a')
+"""
+
+"""
 Download only
 
 By default the load methods will download any missing data, then load and return the data.

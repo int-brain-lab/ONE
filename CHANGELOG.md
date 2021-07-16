@@ -1,6 +1,13 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.4.0]
+
+### Modified
+
+- alf package refactored for module consistency; removed alf.folders
+- consistent regex file pattern between functions
+
+## [0.3.0]
 
 ### Added
 

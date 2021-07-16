@@ -68,7 +68,7 @@ class One(ConversionMixin):
         'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
     )
 
-    def __init__(self, cache_dir=None, mode='auto'):
+    def __init__(self, cache_dir=None, mode='auto', wildcards=True):
         """An API for searching and loading data on a local filesystem
 
         Parameters
@@ -88,7 +88,7 @@ class One(ConversionMixin):
             self._cache_dir = cache_dir or one.params.get_cache_dir()
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
-        self.regex = True  # Flag indicating whether to use regex or wildcards
+        self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
         # init the cache file
         self._cache = Bunch({'_meta': {
             'expired': False,
@@ -613,11 +613,6 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(obj)
 
-        REGEX = True
-        if not REGEX:
-            import fnmatch
-            obj = re.compile(fnmatch.translate(obj))
-
         dataset = {'object': obj, **kwargs}
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
                                         assert_unique=False)
@@ -1051,91 +1046,6 @@ class OneAlyx(One):
         return datasets if details else datasets['rel_path'].sort_values().values
 
     @util.refresh
-    @util.parse_id
-    def load_dataset(self,
-                     eid: Union[str, Path, UUID],
-                     dataset: str,
-                     collection: str = None,
-                     revision: str = None,
-                     query_type: str = None,
-                     download_only: bool = False) -> Any:
-        """
-        Load a single dataset from a Session ID and a dataset name.
-        TODO This method may be removed once default dataset is added to Alyx serializer
-
-        Parameters
-        ----------
-        eid : str, UUID, pathlib.Path, dict
-            Experiment session identifier; may be a UUID, URL, experiment reference string
-            details dict or Path.
-        dataset : str
-            The ALF dataset to load.  Supports asterisks as wildcards.
-        collection : str
-            The collection to which the object belongs, e.g. 'alf/probe01'.
-            This is the relative path of the file from the session root.
-            Supports asterisks as wildcards.
-        revision : str
-            The dataset revision (typically an ISO date).  If no exact match, the previous
-            revision (ordered lexicographically) is returned.  If None, the default revision is
-            returned (usually the most recent revision).  Regular expressions/wildcards not
-            permitted.
-        query_type : str
-            Query cache ('local') or Alyx database ('remote')
-        download_only : bool
-            When true the data are downloaded and the file path is returned.
-
-        Returns
-        -------
-        Dataset or a Path object if download_only is true.
-
-        Examples
-        --------
-        intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
-        intervals = one.load_dataset(eid, '*trials.intervals*')
-        filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
-        spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
-        old_spikes = one.load_dataset(eid, ''spikes.times.npy',
-                                      collection='alf/probe01', revision='2020-08-31')
-        """
-        query_type = query_type or self.mode
-        if query_type != 'remote':
-            load_dataset_offline = unwrap(super().load_dataset)  # Skip parse_id decorator
-            return load_dataset_offline(self, eid, dataset,
-                                        collection=collection,
-                                        revision=revision,
-                                        download_only=download_only,
-                                        query_type=query_type)
-        search_str = 'name__regex,' + dataset.replace('.', r'\.').replace('*', '.*')
-        if collection:
-            search_str += ',collection__regex,' + collection.replace('*', '.*')
-        results = self.alyx.rest('datasets', 'list', session=eid, django=search_str, exists=True)
-
-        # Get filenames of returned ALF files
-        collection_set = {x['collection'] for x in results}
-        if len(collection_set) > 1:
-            raise alferr.ALFMultipleCollectionsFound(
-                'Matching dataset belongs to multiple collections:' + ', '.join(collection_set))
-        dataset_set = {x['name'] for x in results}
-        if len(dataset_set) > 1:
-            raise alferr.ALFMultipleObjectsFound('The following matching datasets were found: ' +
-                                                 ', '.join(x['name'] for x in results))
-        # Deal with revisions
-        if len(results) > 1:
-            if revision is None:
-                # Take default dataset
-                results = [x for x in results if x['default_dataset']]
-                assert len(results) == 1, 'Number of default revisions != 1'
-            else:
-                idx = util.index_last_before([x['revision'] or '' for x in results], revision)
-                results = [] if idx is None else [results[idx]]
-        if len(results) == 0:
-            raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found on Alyx')
-
-        filename = self._download_dataset(results[0])
-        assert filename is not None, 'failed to download dataset'
-        return filename if download_only else alfio.load_file_content(filename)
-
-    @util.refresh
     def load_collection(self, eid, collection):
         raise NotImplementedError()
 
@@ -1491,7 +1401,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        A numpy array of data
+        A numpy array of data, or DataFrame if details is true
         """
         if isinstance(dataset_type, str):
             restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'

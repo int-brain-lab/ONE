@@ -102,14 +102,6 @@ def _parse_rel_ses_path(rel_ses_path):
     return out
 
 
-# def _parse_file_path(file_path):
-#     """Parse a file path."""
-#     m = FILE_REGEX.match(str(file_path))
-#     if not m:
-#         raise ValueError("The file path `%s` is invalid." % file_path)
-#     return {n: m.group(n) for n in ('lab', 'subject', 'date', 'number', 'filename')}
-
-
 def _get_file_rel_path(file_path):
     """Get the lab/Subjects/subject/... part of a file path."""
     file_path = str(file_path).replace('\\', '/')

@@ -3,6 +3,7 @@ from unittest import mock
 from pathlib import Path
 import random
 import os
+import io
 import one.webclient as wc
 import one.params
 import tempfile
@@ -27,10 +28,10 @@ ac = wc.AlyxClient(**TEST_DB_1)
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAuthentication(unittest.TestCase):
     def setUp(self) -> None:
-        pass
+        self.ac = wc.AlyxClient(**TEST_DB_2)
 
     def test_authentication(self):
-        ac = wc.AlyxClient(**TEST_DB_2)
+        ac = self.ac
         self.assertTrue(ac.is_logged_in())
         ac.logout()
         self.assertFalse(ac.is_logged_in())
@@ -75,10 +76,30 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()
         ac.logout()  # Shouldn't complain
 
+    def test_auth_methods(self):
+        # Check that authentication happens when making a logged out request
+        self.ac.logout()
+        assert not self.ac.is_logged_in()
+        # Set pars for auto login
+        login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
+        if not set(self.ac._par.as_dict().keys()) >= login_keys:
+            for k, v in zip(sorted(login_keys), (TEST_DB_2['username'], TEST_DB_2['password'])):
+                self.ac._par = self.ac._par.set(k, v)
+
+        # Test generic request
+        self.ac._generic_request(requests.get, '/sessions?user=Hamish')
+        self.assertTrue(ac.is_logged_in())
+
+        # Test download cache tables
+        self.ac.logout()
+        assert not self.ac.is_logged_in()
+        self.ac.download_cache_tables()
+        self.assertTrue(ac.is_logged_in())
+
 
 class TestJsonFieldMethods(unittest.TestCase):
     def setUp(self):
-        self.ac = ac
+        self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
         self.eid1 = '242f2929-faaf-4e7c-ae3f-4a935c6d8da5'
         self.eid2 = 'dfe99506-b873-45db-bc93-731f9362e304'
         self.endpoint = 'sessions'
@@ -88,7 +109,6 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac.json_field_delete(self.endpoint, self.eid2, self.field_name)
         self.eid1_eqc = None
         self.eid2_eqc = None
-        self.ac.clear_rest_cache()
 
     def _json_field_write(self):
         written1 = self.ac.json_field_write(
@@ -132,6 +152,31 @@ class TestJsonFieldMethods(unittest.TestCase):
         self._json_field_update()
         self._json_field_remove_key()
         self._json_field_delete()
+
+    def test_empty(self):
+        # Check behaviour when fields are empty
+        self.ac.rest(self.endpoint, 'partial_update', id=self.eid1, data={self.field_name: None})
+        # Should return None as no keys exist
+        modified = self.ac.json_field_remove_key(self.endpoint, self.eid1, self.field_name, 'foo')
+        self.assertIsNone(modified)
+        # Should return data
+        data = {'some': 0.6}
+        modified = self.ac.json_field_update(self.endpoint, self.eid1, self.field_name, data)
+        self.assertTrue(modified == data)
+        # Should warn if key not in dict
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
+            self.ac.json_field_remove_key(self.endpoint, self.eid1, self.field_name, 'foo')
+        # Check behaviour when fields not a dict
+        data = {self.field_name: json.dumps(data)}
+        self.ac.rest(self.endpoint, 'partial_update', id=self.eid1, data=data)
+        # Update field
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
+            modified = self.ac.json_field_update(self.endpoint, self.eid1, self.field_name, data)
+        self.assertEqual(data[self.field_name], modified)
+        # Remove key
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
+            modified = self.ac.json_field_remove_key(self.endpoint, self.eid1, self.field_name)
+        self.assertIsNone(modified)
 
     def tearDown(self):
         # Delete any dict created by this test
@@ -415,6 +460,19 @@ class TestDownloadHTTP(unittest.TestCase):
         self.ac.clear_rest_cache()  # Make sure we hit db
         sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
         self.assertFalse(sub)
+
+    def test_endpoints_docs(self):
+        # Test endpoint documentation and validation
+        endpoints = self.ac.list_endpoints()
+        self.assertTrue('auth-token' not in endpoints)
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            self.ac.rest()
+            self.assertTrue(k in stdout.getvalue() for k in endpoints)
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
+            self.assertIsNone(self.ac.rest('sessions', 'read'))
+        with self.assertRaises(ValueError) as e:
+            self.ac.json_field_write('foobar')
+        self.assertTrue(k in str(e.exception) for k in endpoints)
 
 
 class TestMisc(unittest.TestCase):
