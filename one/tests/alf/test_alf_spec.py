@@ -1,5 +1,6 @@
-import unittest
+import unittest.mock
 import re
+import io
 from pathlib import Path
 import uuid
 
@@ -149,6 +150,55 @@ class TestALFSpec(unittest.TestCase):
         # Check bad inputs
         for fake in (None, 54323, 'dddd-aaa-eeee'):
             self.assertFalse(alf_spec.is_uuid(fake), f'{fake} is not a valid uuid')
+
+    def test_is_valid(self):
+        self.assertTrue(alf_spec.is_valid('trials.feedbackType.npy'))
+        self.assertTrue(alf_spec.is_valid(
+            '_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.metadata.json'))
+        self.assertTrue(alf_spec.is_valid('spike_train.npy'))
+        self.assertFalse(alf_spec.is_valid('channels._phy_ids.csv'))
+
+    def test_to_alf(self):
+        filename = alf_spec.to_alf('spikes', 'times', 'ssv')
+        self.assertEqual(filename, 'spikes.times.ssv')
+        filename = alf_spec.to_alf('spikes', 'times', 'ssv', namespace='ibl')
+        self.assertEqual(filename, '_ibl_spikes.times.ssv')
+        filename = alf_spec.to_alf('spikes', 'times', 'ssv',
+                                   namespace='ibl', timescale='ephysClock')
+        self.assertEqual(filename, '_ibl_spikes.times_ephysClock.ssv')
+        filename = alf_spec.to_alf('spikes', 'times', 'npy',
+                                   namespace='ibl', timescale='ephysClock', extra='raw')
+        self.assertEqual(filename, '_ibl_spikes.times_ephysClock.raw.npy')
+        filename = alf_spec.to_alf('wheel', 'timestamps', '.npy', 'ibl', 'bpod', ('raw', 'v12'))
+        self.assertEqual(filename, '_ibl_wheel.timestamps_bpod.raw.v12.npy')
+
+        with self.assertRaises(TypeError):
+            alf_spec.to_alf('spikes', 'times', '')
+        with self.assertRaises(ValueError):
+            alf_spec.to_alf('spikes', 'foo_bar', 'npy')
+        with self.assertRaises(ValueError):
+            alf_spec.to_alf('spikes.times', 'fooBar', 'npy')
+        with self.assertRaises(ValueError):
+            alf_spec.to_alf('spikes', 'times', 'npy', namespace='_usr_')
+        with self.assertRaises(ValueError):
+            alf_spec.to_alf('_usr_spikes', 'times', 'npy')
+
+    def test_path_pattern(self):
+        pattern = alf_spec.path_pattern()
+        parts = alf_spec.regex(alf_spec.FULL_SPEC).groupindex.keys()
+        self.assertTrue(all(x in pattern for x in parts))
+        self.assertTrue('{' not in pattern)
+
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_describe(self, sysout):
+        alf_spec.describe('object', width=5)
+        self.assertTrue('Every\nfile \ndescr' in sysout.getvalue())
+        self.assertTrue(' ' + '^' * len('object') + ' ' in sysout.getvalue())
+        self.assertTrue('EXTENSION' not in sysout.getvalue())
+        alf_spec.describe()
+        self.assertTrue(x.upper() in sysout.getvalue() for x in alf_spec.SPEC_DESCRIPTION.keys())
+        with self.assertRaises(ValueError):
+            alf_spec.describe('dimensions', width=5)
 
 
 if __name__ == "__main__":

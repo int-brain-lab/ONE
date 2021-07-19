@@ -1,3 +1,4 @@
+import logging
 import unittest
 import tempfile
 from pathlib import Path
@@ -19,6 +20,12 @@ class TestAlfBunch(unittest.TestCase):
         self.assertTrue(np.all(df['titi'].values == simple.titi))
         self.assertTrue(np.all(df['toto'].values == simple.toto))
         self.assertTrue(len(df.columns) == 2)
+        simple['titi'] = np.random.rand(50)
+        with self.assertRaises(ValueError):
+            simple.to_df()
+        simple['toto'] = np.random.rand(50, 10, 5)
+        with self.assertLogs(logging.getLogger('one.alf.io'), logging.WARNING):
+            self.assertTrue('toto' not in simple.to_df().columns)
 
     def test_to_dataframe_vectors(self):
         vectors = alfio.AlfBunch({'titi': np.random.rand(500, 1),
@@ -64,6 +71,18 @@ class TestAlfBunch(unittest.TestCase):
         c.append(b, inplace=True)
         self.assertTrue(len(c['toto']) == 12)
         self.assertTrue(len(a['toto']) == 3)
+        with self.assertRaises(NotImplementedError):
+            a.append(alfio.AlfBunch({'foobar': [8, 9, 10]}))
+        a['foobar'] = '123'
+        with self.assertLogs(logging.getLogger('one.alf.io'), logging.WARNING) as log:
+            a.append({'titi': [5], 'toto': [8], 'foobar': 'd'})
+            self.assertTrue('str' in log.output[0])
+
+    def test_check_dimensions(self):
+        a = alfio.AlfBunch({'titi': np.array([0, 1, 3]), 'toto': np.array(['a', 'b', 'c'])})
+        self.assertFalse(a.check_dimensions)
+        a['titi'] = np.append(a['titi'], 4)
+        self.assertTrue(a.check_dimensions)
 
 
 class TestsAlfPartsFilters(unittest.TestCase):
@@ -279,6 +298,10 @@ class TestsAlf(unittest.TestCase):
         expected = np.around(np.arange(t[0, 1], t[1, 1], .01)[:-1], 2)
         np.testing.assert_array_equal(t_, expected)
 
+        self.tfile.unlink()
+        with self.assertRaises(FileNotFoundError):
+            alfio.read_ts(self.vfile)
+
     def test_load_object(self):
         # first usage of load object is to provide one of the files belonging to the object
         expected_keys = {'riri', 'fifi', 'loulou', 'foobar_matlab', 'timestamps'}
@@ -371,6 +394,46 @@ class TestsAlf(unittest.TestCase):
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
+
+
+class TestsLoadFile(unittest.TestCase):
+    def setUp(self) -> None:
+        # riri, fifi and loulou are huey, duey and louie in French (Donald nephews for ignorants)
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.empty = Path(self.tmpdir.name) / 'foo.bar.npy'
+        self.empty.touch()
+        self.npy = Path(self.tmpdir.name) / 'foo.baz.npy'
+        np.save(file=self.npy, arr=np.random.rand(5))
+        self.csv = Path(self.tmpdir.name) / 'foo.baz.csv'
+        with open(self.csv, 'w') as f:
+            f.write('a,b,c\n1,2,3')
+        self.ssv = Path(self.tmpdir.name) / 'foo.baz.ssv'
+        with open(self.ssv, 'w') as f:
+            f.write('a b c\n1 2 3')
+        self.tsv = Path(self.tmpdir.name) / 'foo.baz.tsv'
+        with open(self.tsv, 'w') as f:
+            f.write('a\tb\tc\n1\t2\t3')
+        self.json1 = Path(self.tmpdir.name) / 'foo.baz.json'
+        with open(self.json1, 'w') as f:
+            json.dump({'a': [1, 2, 3], 'b': [4, 5, 6]}, f)
+        self.json2 = Path(self.tmpdir.name) / '_broken_foo.baz.json'
+        with open(self.json2, 'w') as f:
+            f.write('{"a": [1, 2, 3],"b": [4, 5 6]}')
+
+    def test_load_file_content(self):
+        self.assertIsNone(alfio.load_file_content(self.empty))
+        self.assertIsInstance(alfio.load_file_content(self.npy), np.ndarray)
+        for file in (self.csv, self.ssv, self.tsv):
+            with self.subTest('Loading text files', delim=file.suffix):
+                loaded = alfio.load_file_content(file)
+                self.assertEqual(3, loaded.size)
+                self.assertCountEqual(loaded.columns, ['a', 'b', 'c'])
+        loaded = alfio.load_file_content(self.json1)
+        self.assertCountEqual(loaded.keys(), ['a', 'b'])
+        self.assertIsNone(alfio.load_file_content(self.json2))
+
+    def tearDown(self) -> None:
+        self.tmpdir.cleanup()
 
 
 class TestUUID_Files(unittest.TestCase):

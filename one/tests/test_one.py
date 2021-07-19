@@ -577,7 +577,7 @@ class TestONECache(unittest.TestCase):
         self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
         prev_loaded = self.one._cache['_meta']['loaded_time']
         for mode in ('auto', 'local', 'remote'):
-            with self.subTest("Message for this subtest", mode=mode):
+            with self.subTest("Refresh modes", mode=mode):
                 loaded = self.one.refresh_cache(mode)
                 self.assertFalse(len(self.one._cache.datasets))
                 self.assertEqual(prev_loaded, loaded)
@@ -676,6 +676,8 @@ class TestOneAlyx(unittest.TestCase):
             eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
         self.assertEqual('probe00', collection)
+        with self.assertRaises(NotImplementedError):
+            self.one.pid2eid(pid, query_type='local')
 
     @unittest.skip('Requires changes to Alyx')
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)

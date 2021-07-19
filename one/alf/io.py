@@ -157,11 +157,11 @@ def read_ts(filename):
     # alf format is object.attribute.extension, for example '_ibl_wheel.position.npy'
     _, obj, attr, *_, ext = files.filename_parts(filename.parts[-1])
 
-    # looking for matching object with attribute timestamps: '_ibl_wheel.timestamps.npy'
-    (time_file,), _ = filter_by(filename.parent, object=obj,
-                                attribute='times*', extension=ext)
-
-    if not time_file:
+    try:
+        # looking for matching object with attribute timestamps: '_ibl_wheel.timestamps.npy'
+        (time_file,), _ = filter_by(filename.parent, object=obj, attribute='times*', extension=ext)
+        assert time_file
+    except (ValueError, AssertionError):
         name = spec.to_alf(obj, attr, ext)
         _logger.error(name + ' not found! no time-scale for' + str(filename))
         raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
