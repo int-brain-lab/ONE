@@ -110,8 +110,15 @@ class ConversionMixin:
     def eid2path(self, eid: str) -> Optional[Listable(Path)]:
         """
         From an experiment id or a list of experiment ids, gets the local cache path
-        :param eid: eid (UUID) or list of UUIDs
-        :return: eid or list of eids
+
+        Parameters
+        ----------
+        eid : str, uuid.UUID
+            Experiment ID (UUID) or list of UUIDs
+
+        Returns
+        -------
+        A pathlib.Path of the session
         """
         # If eid is a list of eIDs recurse through list and return the results
         if isinstance(eid, list):
@@ -142,8 +149,15 @@ class ConversionMixin:
     def path2eid(self, path_obj):
         """
         From a local path, gets the experiment id
-        :param path_obj: local path or list of local paths
-        :return: eid or list of eids
+
+        Parameters
+        ----------
+        path_obj : pathlib.Path, str
+            Local path or list of local paths
+
+        Returns
+        -------
+        Experiment ID (eid) string or list of eids
         """
         # else ensure the path ends with mouse,date, number
         session_path = get_session_path(path_obj)
@@ -173,8 +187,15 @@ class ConversionMixin:
         """
         TODO Return Series instead of DataFrame
         NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
-        :param filepath: File path or http URL
-        :return:
+
+        Parameters
+        ----------
+        filepath : str, pathlib.Path
+            File path or HTTP URL
+
+        Returns
+        -------
+        pandas.Series corresponding to the file
         """
         if isinstance(filepath, str) and filepath.startswith('http'):
             # Remove the UUID from path
@@ -199,8 +220,15 @@ class ConversionMixin:
     def path2url(self, filepath):
         """
         Given a local file path, constructs the URL of the remote file.
-        :param filepath: A local file path
-        :return: A URL string
+
+        Parameters
+        ----------
+        filepath : str, pathlib.Path
+            A local file path
+
+        Returns
+        -------
+        A remote URL string
         """
         record = self.path2record(filepath)
         if record is None:
@@ -225,8 +253,15 @@ class ConversionMixin:
         """
         Given a set of dataset records, checks the corresponding exists flag in the cache
         correctly reflects the files system
-        :param dataset: A datasets dataframe slice
-        :return: File path for the record
+
+        Parameters
+        ----------
+        dataset : pd.DataFrame, pd.Series
+            A datasets dataframe slice
+
+        Returns
+        -------
+        File path for the record
         """
         assert isinstance(dataset, pd.Series) or len(dataset) == 1
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
@@ -238,17 +273,24 @@ class ConversionMixin:
             -> Union[str, Mapping, List]:
         """
         Get human-readable session ref from path
-        :param eid: The experiment uuid to find reference for
-        :param as_dict: If false a string is returned in the form 'subject_sequence_yyyy-mm-dd'
-        :param parse: If true, the reference date and sequence are parsed from strings to their
-        respective data types
-        :return: one or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+
+        Parameters
+        ----------
+        eid : str, uuid.UUID
+            The experiment uuid to find reference for
+        as_dict : bool
+            If false a string is returned in the form 'subject_sequence_yyyy-mm-dd'
+        parse : bool
+            If true, the reference date and sequence are parsed from strings to their respective
+            data types
+
+        Returns
+        -------
+        One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
         form yyyy-mm-dd_n_subject
 
-        Examples:
-        >>> base = 'https://test.alyx.internationalbrainlab.org'
-        >>> one = ONE(username='test_user', password='TapetesBloc18', base_url=base)
-        Connected to...
+        Examples
+        --------
         >>> eid = '4e0b3320-47b7-416e-b842-c34dc9004cf8'
         >>> one.eid2ref(eid)
         {'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}
@@ -277,12 +319,19 @@ class ConversionMixin:
     def ref2eid(self, ref: Union[Mapping, str, Iter]) -> Union[str, List]:
         """
         Returns experiment uuid, given one or more experiment references
-        :param ref: One or more objects with keys ('subject', 'date', 'sequence'), or strings with
-        the form yyyy-mm-dd_n_subject
-        :param one: An instance of ONE
-        :return: an experiment uuid string
 
-        Examples:
+        Parameters
+        ----------
+        ref : str, dict, list
+            One or more objects with keys ('subject', 'date', 'sequence'), or strings with
+            the form yyyy-mm-dd_n_subject
+
+        Returns
+        -------
+        One or more experiment uuid strings
+
+        Examples
+        --------
         >>> base = 'https://test.alyx.internationalbrainlab.org'
         >>> one = ONE(username='test_user', password='TapetesBloc18', base_url=base)
         Connected to...
@@ -305,11 +354,19 @@ class ConversionMixin:
     def ref2path(self, ref):
         """
         Convert one or more experiment references to session path(s)
-        :param ref: One or more objects with keys ('subject', 'date', 'sequence'), or strings with
-        the form yyyy-mm-dd_n_subject
-        :return: a Path object for the experiment session
 
-        Examples:
+        Parameters
+        ----------
+        ref : str, dict, list
+            One or more objects with keys ('subject', 'date', 'sequence'), or strings with
+            the form yyyy-mm-dd_n_subject
+
+        Returns
+        -------
+        Path object(s) for the experiment session(s)
+
+        Examples
+        --------
         >>> base = 'https://test.alyx.internationalbrainlab.org'
         >>> one = ONE(username='test_user', password='TapetesBloc18', base_url=base)
         Connected to...
@@ -330,11 +387,20 @@ class ConversionMixin:
         """
         Returns a human readable experiment reference, given a session path.
         The path need not exist.
-        :param path_str: A path to a given session
-        :param as_dict: If True a Bunch is returned, otherwise a string
-        :return: one or more objects with keys ('subject', 'date', 'sequence')
 
-        Examples:
+        Parameters
+        ----------
+        path_str : str
+            A path to a given session
+        as_dict : bool
+            If True a Bunch is returned, otherwise a string
+
+        Returns
+        -------
+        One or more objects with keys ('subject', 'date', 'sequence')
+
+        Examples
+        --------
         >>> path_str = Path('E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001')
         >>> path2ref(path_str)
         {'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}
@@ -356,11 +422,19 @@ class ConversionMixin:
     def ref2dj(self, ref: Union[str, Mapping, Iter]):
         """
         Return an ibl-pipeline sessions table, restricted by experiment reference(s)
-        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with
-        the form yyyy-mm-dd_n_subject
-        :return: an acquisition.Session table
 
-        Examples:
+        Parameters
+        ----------
+        ref : str, list, dict
+            One or more objects with keys ('subject', 'date', 'sequence'), or strings with
+            the form yyyy-mm-dd_n_subject
+
+        Returns
+        -------
+        An acquisition.Session table
+
+        Examples
+        --------
         >>> ref2dj('2020-06-20_2_CSHL046').fetch1()
         Connecting...
         {'subject_uuid': UUID('dffc24bc-bd97-4c2a-bef3-3e9320dc3dd7'),
@@ -395,11 +469,19 @@ class ConversionMixin:
     def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
         """
         Returns True is ref is a valid experiment reference
-        :param ref: one or more objects with keys ('subject', 'date', 'sequence'), or strings with
-        the form yyyy-mm-dd_n_subject
-        :return: True if ref is valid
 
-        Examples:
+        Parameters
+        ----------
+        ref : str, dict, list
+            One or more objects with keys ('subject', 'date', 'sequence'), or strings with
+            the form yyyy-mm-dd_n_subject
+
+        Returns
+        -------
+        True if ref is valid
+
+        Examples
+        --------
         >>> ref = {'date': datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}
         >>> is_exp_ref(ref)
         True
@@ -429,10 +511,18 @@ class ConversionMixin:
     def ref2dict(ref: Union[str, Mapping, Iter]) -> Union[Bunch, List]:
         """
         Returns a Bunch (dict-like) from a reference string (or list thereof)
-        :param ref: One or more objects with keys ('subject', 'date', 'sequence')
-        :return: A Bunch in with keys ('subject', 'sequence', 'date')
 
-        Examples:
+        Parameters
+        ----------
+        ref : str, list
+            One or more experiment reference strings
+
+        Returns
+        -------
+        A Bunch in with keys ('subject', 'sequence', 'date')
+
+        Examples
+        --------
         >>> ref2dict('2018-07-13_1_flowers')
         {'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'}
         >>> ref2dict('2018-07-13_001_flowers', parse=False)
