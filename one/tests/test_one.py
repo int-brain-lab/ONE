@@ -130,7 +130,7 @@ class TestONECache(unittest.TestCase):
         i = one._cache['datasets'][mask].index[0]
         one._cache['datasets'].loc[i, 'exists'] = False
 
-        self.assertTrue(len(eids) == len(one.search(data=query, exists_only=True)) + 1)
+        self.assertTrue(len(eids) == len(one.search(data=query)) + 1)
 
         # Search task_protocol
         eids = one.search(task='habituation')
@@ -184,32 +184,6 @@ class TestONECache(unittest.TestCase):
     def test_check_exists(self):
         pass
 
-    def test_filter_by_collection(self):
-        datasets = self.one._cache.datasets.iloc[:5]
-        # If None is passed, should be identity
-        self.assertTrue(datasets is One._filter_by_collection(datasets, None))
-
-        verifiable = One._filter_by_collection(datasets, 'alf')
-        self.assertEqual(len(verifiable), 3)
-        self.assertTrue(verifiable['rel_path'].str.startswith('alf').all())
-
-        # Check regex input
-        verifiable = One._filter_by_collection(datasets, r'alf/probe0\d{1}')['rel_path'].values
-        self.assertEqual(len(verifiable), 1)
-        self.assertTrue(verifiable[0].startswith('alf/probe00'))
-
-        # No match behaviour
-        verifiable = One._filter_by_collection(datasets, '')
-        self.assertEqual(len(verifiable), 0)
-
-        # Compatibility with no collections
-        datasets = datasets.copy()
-        datasets['rel_path'] = datasets['rel_path'].apply(lambda x: x.split('/')[-1])
-        verifiable = One._filter_by_collection(datasets, '')
-        self.assertEqual(len(verifiable), 5)
-        verifiable = One._filter_by_collection(datasets, 'alf')
-        self.assertEqual(len(verifiable), 0)
-
     def test_filter(self):
         datasets = self.one._cache.datasets.iloc[:5].copy()
         # Test identity
@@ -233,8 +207,13 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(2, len(verifiable))
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             filter_datasets(datasets, '_ibl_trials.*', None, None, revision_last_before=False)
-        # Test as dict  # TODO can't filter by empty parts
+        # Test as dict
         dataset = dict(namespace='ibl', object='trials')
+        verifiable = filter_datasets(datasets, dataset, None, None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(2, len(verifiable))
+        # As dict with list (should act as logical OR)
+        dataset = dict(attribute=['amp.?', 'rawRow'])
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
         self.assertEqual(2, len(verifiable))
@@ -288,6 +267,19 @@ class TestONECache(unittest.TestCase):
         datasets['default_revision'] = [True] + [False] * 4
         verifiable = filter_datasets(datasets, None, None, None, assert_unique=False)
         self.assertEqual(revisions[0], verifiable.rel_path.values[0])
+
+    def test_filter_wildcards(self):
+        datasets = self.one._cache.datasets.iloc[:5].copy()
+        # Test identity
+        verifiable = filter_datasets(datasets, '_ibl_*', '*lf', None,
+                                     assert_unique=False, wildcards=True)
+        self.assertTrue(len(verifiable) == 2)
+        # As dict with list (should act as logical OR)
+        dataset = dict(attribute=['amp?', 'rawRow'])
+        verifiable = filter_datasets(datasets, dataset, None, None,
+                                     assert_unique=False, revision_last_before=False,
+                                     wildcards=True)
+        self.assertEqual(2, len(verifiable))
 
     def test_list_datasets(self):
         # Test no eid
@@ -548,7 +540,7 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
             self.one.load_object(eid, 'ephysData_g0_t0')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
-            self.one.load_object(eid, '.*Camera')
+            self.one.load_object(eid, '*Camera')
 
     def test_load_cache(self):
         # Test loading unsorted table with no id index set

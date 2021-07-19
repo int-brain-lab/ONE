@@ -8,6 +8,7 @@ import numpy as np
 
 import one.alf.io as alfio
 from one.alf.exceptions import ALFObjectNotFound
+from one.alf.spec import FILE_SPEC, regex
 
 
 class TestAlfBunch(unittest.TestCase):
@@ -107,6 +108,86 @@ class TestsAlfPartsFilters(unittest.TestCase):
         # Restricting by extra parts and using long keys should succeed
         alfio.load_object(self.tmpdir, 'neuveux', extra=['tutu', 'titi'])
         alfio.load_object(self.tmpdir, 'neuveux', short_keys=False)
+
+    def test_filter_by(self):
+        spec_idx_map = regex(FILE_SPEC).groupindex
+        file_names = [
+            'noalf.file',
+            '_ibl_trials.intervals.npy',
+            '_ibl_trials.intervals_bpod.csv',
+            'wheel.position.npy',
+            'wheel.timestamps.npy',
+            'wheelMoves.intervals.npy',
+            '_namespace_obj.attr_timescale.raw.v12.ext']
+
+        for f in file_names:
+            (self.tmpdir / f).touch()
+
+        # Test filter with None; should return files with no non-standard timescale
+        alf_files, _ = alfio.filter_by(self.tmpdir, timescale=None)
+        expected = [
+            'wheel.position.npy',
+            'wheel.timestamps.npy',
+            'wheelMoves.intervals.npy',
+            '_ibl_trials.intervals.npy']
+        self.assertCountEqual(alf_files, expected, 'failed to filter with None attribute')
+
+        # Test filtering by object; should return only 'wheel' ALF objects
+        alf_files, parts = alfio.filter_by(self.tmpdir, object='wheel')
+        expected = ['wheel.position.npy', 'wheel.timestamps.npy']
+        self.assertCountEqual(alf_files, expected, 'failed to filter by object')
+        self.assertEqual(len(alf_files), len(parts))
+
+        # Test wildcards; should return 'wheel' and 'wheelMoves' ALF objects
+        alf_files, _ = alfio.filter_by(self.tmpdir, object='wh*')
+        expected = ['wheel.position.npy', 'wheel.timestamps.npy', 'wheelMoves.intervals.npy']
+        self.assertCountEqual(alf_files, expected, 'failed to filter with wildcard')
+
+        # Test filtering by specific timescale; test parts returned
+        alf_files, parts = alfio.filter_by(self.tmpdir, timescale='bpod')
+        expected = ['_ibl_trials.intervals_bpod.csv']
+        self.assertEqual(alf_files, expected, 'failed to filter by timescale')
+        expected = ('ibl', 'trials', 'intervals', 'bpod', None, 'csv')
+        self.assertTupleEqual(parts[0], expected)
+        self.assertEqual(len(parts[0]), len(spec_idx_map))
+        self.assertEqual(parts[0][spec_idx_map['timescale'] - 1], 'bpod')
+
+        # Test filtering multiple attributes; should return only trials intervals
+        alf_files, _ = alfio.filter_by(self.tmpdir, attribute='intervals', object='trials')
+        expected = ['_ibl_trials.intervals.npy', '_ibl_trials.intervals_bpod.csv']
+        self.assertCountEqual(alf_files, expected, 'failed to filter by multiple attribute')
+
+        # Test returning only ALF files
+        alf_files, _ = alfio.filter_by(self.tmpdir)
+        self.assertCountEqual(alf_files, file_names[1:], 'failed to return ALF files')
+
+        # Test return empty
+        out = alfio.filter_by(self.tmpdir, object=None)
+        self.assertEqual(out, ([], []))
+
+        # Test extras
+        alf_files, _ = alfio.filter_by(self.tmpdir, extra='v12')
+        expected = ['_namespace_obj.attr_timescale.raw.v12.ext']
+        self.assertEqual(alf_files, expected, 'failed to filter extra attributes')
+
+        alf_files, _ = alfio.filter_by(self.tmpdir, extra=['v12', 'raw'])
+        expected = ['_namespace_obj.attr_timescale.raw.v12.ext']
+        self.assertEqual(alf_files, expected, 'failed to filter extra attributes as list')
+
+        alf_files, _ = alfio.filter_by(self.tmpdir, extra=['foo', 'v12'])
+        self.assertEqual(alf_files, [], 'failed to filter extra attributes')
+
+        # Assert kwarg validation; should raise TypeError
+        with self.assertRaises(TypeError):
+            alfio.filter_by(self.tmpdir, unknown=None)
+
+        # Check regular expression search
+        alf_files, _ = alfio.filter_by(self.tmpdir, object='^wheel.*', wildcards=False)
+        expected = ['wheel.position.npy', 'wheel.timestamps.npy', 'wheelMoves.intervals.npy']
+        self.assertEqual(alf_files, expected, 'failed to filter by regex')
+        # Should work with lists
+        alf_files, _ = alfio.filter_by(self.tmpdir, object=['^wheel$', '.*Moves'], wildcards=False)
+        self.assertEqual(alf_files, expected, 'failed to filter by regex')
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
@@ -213,6 +294,15 @@ class TestsAlf(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             alfio.load_object(self.tmpdir)
         self.assertTrue('object name should be provided too' in str(context.exception))
+        # Check key conflicts
+        np.save(file=str(self.tmpdir / 'neuveu.loulou.extra.npy'), arr=np.random.rand(5,))
+        obj = alfio.load_object(self.tmpdir, 'neuveu', short_keys=False)
+        self.assertTrue('loulou.extra' in obj)
+        with self.assertRaises(AssertionError):
+            alfio.load_object(self.tmpdir, 'neuveu', short_keys=True)
+        # the third usage is to provide file list
+        obj = alfio.load_object(self.object_files[:3], short_keys=False)
+        self.assertEqual(3, len(obj))
 
     def test_save_npy(self):
         # test with straight vectors
@@ -301,6 +391,22 @@ class TestUUID_Files(unittest.TestCase):
                             Path(dir).joinpath('toto.json'))
             self.assertTrue(alfio.remove_uuid_file(str(f3)) ==
                             Path(dir).joinpath('toto.json'))
+
+    def test_remove_uuid_recusive(self):
+        uuid = '30c09473-4d3d-4f51-9910-c89a6840096e'
+        with tempfile.TemporaryDirectory() as dir:
+            f1 = Path(dir).joinpath(f'tutu.part1.part1.{uuid}.json')
+            f2 = Path(dir).joinpath('tata.part1.part1.json')
+            f3 = Path(dir).joinpath('toto.json')
+            f4 = Path(dir).joinpath('collection', f'tutu.part1.part1.{uuid}.json')
+            f1.touch()
+            f2.touch()
+            f2.touch()
+            f3.touch()
+            f4.parent.mkdir()
+            f4.touch()
+            alfio.remove_uuid_recursive(Path(dir))
+            self.assertFalse(len(list(Path(dir).rglob(f'*{uuid}*'))))
 
 
 class TestALFFolders(unittest.TestCase):

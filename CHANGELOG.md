@@ -6,6 +6,8 @@
 
 - alf package refactored for module consistency; removed alf.folders
 - consistent regex file pattern between functions
+- unix shell style wildcards used by default
+- limited support for attribute namespace for backward compatibility
 
 ## [0.3.0]
 

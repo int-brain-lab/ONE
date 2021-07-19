@@ -59,6 +59,15 @@ In this case you must specify the collection when multiple matching datasets are
 probe1_spikes = one.load_dataset(eid, 'spikes.times.npy', collection='alf/probe01')
 
 """
+Loading with file name parts
+
+You may also specify specific parts of the filename for even more specific filtering.  Here a
+list of options will be treated as a logical OR
+"""
+dataset = dict(object='spikes', attribute='times', extension=['npy', 'bin'])
+probe1_spikes = one.load_dataset(eid, dataset, collection='alf/probe01')
+
+"""
 Revisions
 
 Revisions provide an optional way to organize data by version.  The version label is
@@ -95,6 +104,15 @@ files = one.load_object(eid, 'spikes', collection='alf/probe01', download_only=T
 ts, clusters = alfio.read_ts(files[1])
 
 """
+Filtering attributes
+
+To download and load only a subset of attributes, you can provide a list to the attribute kwarg.
+"""
+spikes = one.load_object(eid, 'spikes', collection='alf/probe01', attribute=['time*', 'clusters'])
+assert 'amps' not in spikes
+
+
+"""
 For any given object the first dimension of every attribute should match in length.  For
 analysis you can assert that the dimensions match using the check_dimensions property:
 """
@@ -115,10 +133,13 @@ The load methods require an exact match, therefore `one.load_dataset(eid, 'spike
 raise an exception because 'spikes.times' does not exactly match 'spikes.times.npy'.
 Likewise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
 
-Loading can be done using regular expressions, allowing you to load objects and datasets that
-match a particular pattern.
+Loading can be done using unix shell style wildcards, allowing you to load objects and datasets
+that match a particular pattern.
 
-Soon unix-style wildcards will be supported by default, however for now regex syntax must be used.
+If you set the wildcards property of One to False, loading will be done using regular expressions,
+allowing more powerful pattern matching.
+
+Below is table showing how to express unix style wildcards as a regular expression:
 
  Regex   |    Wildcard    |         Description        |    Example
 -----------------------------------------------------------------------
@@ -145,6 +166,7 @@ Examples:
 """
 
 # More regex examples
+one.wildcards = False
 
 # Load specific attributes from an object ('|' represents a logical OR in regex)
 spikes = one.load_object(eid, 'spikes', collection='alf/probe01', attribute='times|clusters')

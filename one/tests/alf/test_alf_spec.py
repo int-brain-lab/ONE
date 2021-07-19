@@ -14,7 +14,8 @@ class TestALFSpec(unittest.TestCase):
                     '(?P<subject>[\\w-]+)/(?P<date>\\d{4}-\\d{2}-\\d{2})/(?P<number>\\d{1,3})/'
                     '((?P<collection>[\\w/]+)/)?(#(?P<revision>[\\w-]+)#/)?'
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
-                    '(?P<attribute>[a-zA-Z0-9]+(?:_times(?=[_\\b.])|_intervals(?=[_\\b.]))?)_?'
+                    '(?P<attribute>(?:_[a-z]+_)?[a-zA-Z0-9]+'
+                    '(?:_times(?=[_.])|_intervals(?=[_.]))?)_?'
                     '(?P<timescale>(?:_?)\\w+)*\\.?(?P<extra>[.\\w-]+)*\\.(?P<extension>\\w+)$')
         self.assertEqual(expected, verifiable.pattern)
 
@@ -47,7 +48,7 @@ class TestALFSpec(unittest.TestCase):
             'extra': None,
             'extension': 'csv'
         }
-        verifiable = re.match(alf_spec.regex(alf_spec.FILE_SPEC), filename).groupdict()
+        verifiable = alf_spec.regex(alf_spec.FILE_SPEC).match(filename).groupdict()
         self.assertCountEqual(verifiable, expected)
 
         # Match collection with filename
@@ -101,7 +102,7 @@ class TestALFSpec(unittest.TestCase):
             'extra': 'e8c9d765764778b7ee5bda08c982037f8f07e690',
             'extension': 'tar'
         }
-        verifiable = re.match(alf_spec.regex(), full).groupdict()
+        verifiable = alf_spec.regex().match(full).groupdict()
         self.assertCountEqual(verifiable, expected)
 
         # Test a full path with no collection, no Subjects and no number padding

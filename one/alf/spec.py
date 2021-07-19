@@ -91,16 +91,10 @@ SPEC_DESCRIPTION = {
 
 """The following are the specifications and patterns for ALFs"""
 SESSION_SPEC = '{lab}/(Subjects/)?{subject}/{date}/{number}'
-# COLLECTION_SPEC = r'{collection}(/#{revision}#)?'
-# COLLECTION_SPEC = r'({collection}(/#{revision}#)?/)?'
 COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
-# COLLECTION_SPEC = r'(/{collection})?(/#{revision}#)?'
 FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
-# FULL_SPEC = f'{SESSION_SPEC}/({COLLECTION_SPEC}/)?{FILE_SPEC}'
 REL_PATH_SPEC = f'{COLLECTION_SPEC}{FILE_SPEC}'
 FULL_SPEC = f'{SESSION_SPEC}/{REL_PATH_SPEC}'
-
-# FULL_SPEC = f'{SESSION_SPEC}{COLLECTION_SPEC}/{FILE_SPEC}'
 
 _DEFAULT = (
     ('lab', r'\w+'),
@@ -113,7 +107,8 @@ _DEFAULT = (
     ('namespace', '(?<=_)[a-zA-Z0-9]+'),  # brackets
     ('object', r'\w+'),
     # to treat _times and _intervals as timescale: (?P<attribute>[a-zA-Z]+)_?
-    ('attribute', r'[a-zA-Z0-9]+(?:_times(?=[_\b.])|_intervals(?=[_\b.]))?'),  # brackets
+    # (?:_[a-z]+_)? allows attribute level namespaces (deprecated)
+    ('attribute', r'(?:_[a-z]+_)?[a-zA-Z0-9]+(?:_times(?=[_.])|_intervals(?=[_.]))?'),  # brackets
     ('timescale', r'(?:_?)\w+'),  # brackets
     ('extra', r'[.\w-]+'),  # brackets
     ('extension', r'\w+')

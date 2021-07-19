@@ -4,36 +4,22 @@ TODO Add sig to ONE Light uuids
 TODO Save changes to cache
 TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
-TODO edit alf exceptions constructor with default message template?
 
 Points of discussion:
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
     different name
     - Download datasets timeout
-    - NB: Wildcards will behave differently between REST and pandas - should regex or unix be
-    default?
-    - What should the collection default be? 'alf'? None? An ONE param?
-    - Load has been removed altogether
-    - Remove clobber method from load functions?
-    - Remove exists_only from search method?
     - Support for pids?
-    - Dealing with lists must be consistent.  Three options:
-        - two methods each, e.g. load_dataset and load_datasets (con: a lot of overhead)
-        - allow list inputs, recursive calls (con: function logic slightly more complex)
-        - no list inputs; rely on list comprehensions (con: makes accessing meta data complex)
     - Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array
     - NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
     Datasets table has sorted index.
     - Conceivably you could have a subclass for Figshare, etc., not just Alyx
-    - We have mode and query_type, stick to just one?
 """
 import collections.abc
 import concurrent.futures
 import warnings
 import logging
 import os
-# import fnmatch
-import re
 from datetime import datetime, timedelta
 from functools import lru_cache, reduce
 from inspect import unwrap
@@ -54,7 +40,7 @@ import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
 from .alf.files import rel_path_parts, get_session_path, get_alf_path
-from .alf.spec import COLLECTION_SPEC, is_uuid_string, regex as alf_regex
+from .alf.spec import is_uuid_string
 from one.converters import ConversionMixin
 import one.util as util
 
@@ -219,7 +205,7 @@ class One(ConversionMixin):
         """
         pass  # pragma: no cover
 
-    def search(self, details=False, exists_only=False, query_type=None, **kwargs):
+    def search(self, details=False, query_type=None, **kwargs):
         """
         Searches sessions matching the given criteria and returns a list of matching eids
 
@@ -229,30 +215,45 @@ class One(ConversionMixin):
 
         For all of the search parameters, a single value or list may be provided.  For dataset,
         the sessions returned will contain all listed datasets.  For the other parameters,
-        the session must contain at least one of the entries
+        the session must contain at least one of the entries. NB: Wildcards are not permitted,
+        however if wildcards property is False, regular expressions may be used for all but
+        number and date_range.
 
-        :param dataset: list of dataset names. Returns sessions containing all these datasets.
-        A dataset matches if it contains the search string e.g. 'wheel.position' matches
-        '_ibl_wheel.position.npy'
-        :param date_range: list of 2 strings or list of 2 dates that define the range (inclusive)
-        :param lab: a str or list of lab names, returns sessions from any of these labs
-        :param number: number of session to be returned, i.e. number in sequence for a given date
-        :param subjects: a list of subjects nickname, returns sessions for any of these subjects
-        :param task_protocol: task protocol name (can be partial, i.e. any task protocol
-                              containing that str will be found)
-        :param project: project name (can be partial, i.e. any task protocol containing
-                        that str will be found)
+        Parameters
+        ----------
+        dataset : str, list
+            list of dataset names. Returns sessions containing all these datasets.
+            A dataset matches if it contains the search string e.g. 'wheel.position' matches
+            '_ibl_wheel.position.npy'
+        date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
+            A single date to search or a list of 2 dates that define the range (inclusive).  To
+            define only the upper or lower date bound, set the other element to None.
+        lab : str
+            A str or list of lab names, returns sessions from any of these labs
+        number : str, int
+            Number of session to be returned, i.e. number in sequence for a given date
+        subject : str, list
+            A list of subject nicknames, returns sessions for any of these subjects
+        task_protocol : str
+            The task protocol name (can be partial, i.e. any task protocol containing that str
+            will be found)
+        project : str
+            The project name (can be partial, i.e. any task protocol containing that str
+            will be found)
+        details : bool
+            If true also returns a dict of dataset details
+        query_type : str, None
+            Query cache ('local') or Alyx database ('remote')
 
-        :param details: if true also returns a dict of dataset details
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-
-        :return: list of eids, if details is True, also returns a list of dictionaries,
-         each entry corresponding to a matching session
+        Returns
+        -------
+        list of eids, if details is True, also returns a list of dictionaries, each entry
+        corresponding to a matching session
         """
 
         def all_present(x, dsets, exists=True):
             """Returns true if all datasets present in Series"""
-            return all(any(x.str.contains(y) & exists) for y in dsets)
+            return all(any(x.str.contains(y, regex=self.wildcards) & exists) for y in dsets)
 
         # Iterate over search filters, reducing the sessions table
         sessions = self._cache['sessions']
@@ -274,7 +275,8 @@ class One(ConversionMixin):
             # String fields
             elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
                 query = '|'.join(util.ensure_list(value))
-                mask = sessions['lab' if key == 'laboratory' else key].str.contains(query)
+                key = 'lab' if key == 'laboratory' else key
+                mask = sessions[key].str.contains(query, regex=self.wildcards)
                 sessions = sessions[mask.astype(bool, copy=False)]
             elif key == 'date_range':
                 start, end = util.validate_date_range(value)
@@ -448,8 +450,10 @@ class One(ConversionMixin):
         Slice of datasets table or numpy array if details is False
         """
         datasets = self._cache['datasets']
+        filter_args = dict(collection=collection, wildcards=self.wildcards,
+                           revision_last_before=False, assert_unique=False)
         if not eid:
-            datasets = self._filter_by_collection(datasets, collection)
+            datasets = util.filter_datasets(datasets, **filter_args)
             return datasets.copy() if details else datasets['rel_path'].unique()
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
@@ -463,7 +467,7 @@ class One(ConversionMixin):
             session_match = datasets['eid'] == eid
             datasets = datasets[session_match]
 
-        datasets = self._filter_by_collection(datasets, collection)
+        datasets = util.filter_datasets(datasets, **filter_args)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values
 
@@ -528,34 +532,6 @@ class One(ConversionMixin):
         else:
             return np.sort(datasets['revision'].unique())
 
-    @staticmethod
-    def _filter_by_collection(datasets: pd.DataFrame, collection: str) -> pd.DataFrame:
-        """
-        Return a pandas datasets table containing records that match a given collection
-
-        Parameters
-        ----------
-        datasets : pandas.DataFrame
-            A datasets cache table
-        collection : str
-            The collection name to match.  Regular expressions permitted.
-
-        Returns
-        -------
-        A slice of the input table, where all datasets match a given collection
-        """
-        if collection is None:
-            return datasets
-        expression = alf_regex(f'^{COLLECTION_SPEC}$', collection=collection)
-        table = datasets['rel_path'].str.rsplit('/', 1, expand=True)
-        if table.columns.stop == 1:
-            match = np.ones(len(datasets)) == (collection == '')
-        else:
-            # Check collection matches
-            table = (table[0] + '/').str.extract(expression)
-            match = ~table['collection'].isna()
-        return datasets[match]
-
     @util.refresh
     @util.parse_id
     def load_object(self,
@@ -567,7 +543,6 @@ class One(ConversionMixin):
                     download_only: bool = False,
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
-        TODO Add more examples;
         Load all attributes of an ALF object from a Session ID and an object name.  Any datasets
         with matching object name will be loaded.
 
@@ -591,7 +566,7 @@ class One(ConversionMixin):
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
             When true the data are downloaded and the file path is returned.
-        kwargs : str
+        kwargs : dict
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -603,9 +578,12 @@ class One(ConversionMixin):
         --------
         load_object(eid, 'moves')
         load_object(eid, 'trials')
-        load_object(eid, 'spikes', collection='.*probe01')
+        load_object(eid, 'spikes', collection='*probe01')  # wildcards is True
+        load_object(eid, 'spikes', collection='.*probe01')  # wildcards is False
         load_object(eid, 'spikes', namespace='ibl')
         load_object(eid, 'spikes', timescale='ephysClock')
+        # Load specific attributes
+        load_object(eid, 'spikes', attribute=['times*', 'clusters'])
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(eid, details=True, query_type=query_type)
@@ -615,7 +593,7 @@ class One(ConversionMixin):
 
         dataset = {'object': obj, **kwargs}
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
-                                        assert_unique=False)
+                                        assert_unique=False, wildcards=self.wildcards)
 
         # Validate result before loading
         if len(datasets) == 0:
@@ -638,7 +616,7 @@ class One(ConversionMixin):
         if download_only:
             return files
 
-        return alfio.load_object(files, **kwargs)
+        return alfio.load_object(files, wildcards=self.wildcards, **kwargs)
 
     @util.refresh
     @util.parse_id
@@ -690,7 +668,8 @@ class One(ConversionMixin):
         """
         datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
 
-        datasets = util.filter_datasets(datasets, dataset, collection, revision)
+        datasets = util.filter_datasets(datasets, dataset, collection, revision,
+                                        wildcards=self.wildcards)
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
@@ -781,7 +760,7 @@ class One(ConversionMixin):
             return None, all_datasets.iloc[0:0]  # Return empty
 
         # Filter and load missing
-        slices = [util.filter_datasets(all_datasets, x, y, z)
+        slices = [util.filter_datasets(all_datasets, x, y, z, wildcards=self.wildcards)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
         present_datasets = pd.concat(slices)
@@ -858,7 +837,7 @@ class One(ConversionMixin):
 
 
 @lru_cache(maxsize=1)
-def ONE(*, mode='auto', **kwargs):
+def ONE(*, mode='auto', wildcards=True, **kwargs):
     """ONE API factory
     Determine which class to instantiate depending on parameters passed.
 
@@ -867,6 +846,9 @@ def ONE(*, mode='auto', **kwargs):
     mode : str
         Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
         methods have a `query_type` parameter that can override the class mode.
+    wildcards : bool
+        If true all mathods use unix shell style pattern matching, otherwise regular expressions
+        are used.
     cache_dir : str, Path
         Path to the data files.  If Alyx parameters have been set up for this location,
         an OneAlyx instance is returned.  If data_dir and base_url are None, the default
@@ -893,21 +875,20 @@ def ONE(*, mode='auto', **kwargs):
 
     if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
             not kwargs.get('cache_dir', False)):
-        return OneAlyx(mode=mode, **kwargs)
+        return OneAlyx(mode=mode, wildcards=wildcards, **kwargs)
 
-    # TODO This feels hacky
     # If cache dir was provided and corresponds to one configured with an Alyx client, use OneAlyx
     try:
         one.params._check_cache_conflict(kwargs.get('cache_dir'))
-        return One(mode=mode, **kwargs)
+        return One(mode=mode, wildcards=wildcards, **kwargs)
     except AssertionError:
         # Cache dir corresponds to a Alyx repo, call OneAlyx
-        return OneAlyx(mode=mode, **kwargs)
+        return OneAlyx(mode=mode, wildcards=wildcards, **kwargs)
 
 
 class OneAlyx(One):
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
-                 mode='auto', **kwargs):
+                 mode='auto', wildcards=True, **kwargs):
         """An API for searching and loading data through the Alyx database
 
         Parameters
@@ -915,6 +896,9 @@ class OneAlyx(One):
         mode : str
             Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
             methods have a `query_type` parameter that can override the class mode.
+        wildcards : bool
+            If true, methods allow unix shell style pattern matching, otherwise regular
+            expressions are supported
         cache_dir : str, Path
             Path to the data files.  If Alyx parameters have been set up for this location,
             an OneAlyx instance is returned.  If data_dir and base_url are None, the default
@@ -1078,39 +1062,58 @@ class OneAlyx(One):
         """
         Searches sessions matching the given criteria and returns a list of matching eids
 
-        For a list of remote database search terms, use the method
+        For a list of search terms, use the method
 
          one.search_terms(query_type='remote')
 
         For all of the search parameters, a single value or list may be provided.  For dataset,
         the sessions returned will contain all listed datasets.  For the other parameters,
-        the session must contain at least one of the entries
+        the session must contain at least one of the entries. NB: Wildcards are not permitted,
+        however if wildcards property is False, regular expressions may be used for all but
+        number and date_range.
 
-        :param dataset: list of dataset names. Returns sessions containing all these datasets.
-        A dataset matches if it contains the search string e.g. 'wheel.position' matches
-        '_ibl_wheel.position.npy'
-        :param date_range: list of 2 strings or list of 2 dates that define the range (inclusive)
-        :param lab: a str or list of lab names, returns sessions from any of these labs
-        :param number: number of session to be returned, i.e. number in sequence for a given date
-        :param subjects: a list of subjects nickname, returns sessions for any of these subjects
-        :param task_protocol: task protocol name (can be partial, i.e. any task protocol
-                              containing that str will be found)
-        :param project: project name (can be partial, i.e. any task protocol containing
-                        that str will be found)
-        :param performance_lte / performance_gte: search only for sessions whose performance is
-                less equal or greater equal than a pre-defined threshold as a percentage (0-100)
-        :param users: a list of users
-        :param location: a str or list of lab location (as per Alyx definition) name
-                         Note: this corresponds to the specific rig, not the lab geographical
-                         location per se
-        :param dataset_types: list of dataset_types
-        :param limit: the number of results to fetch in one go (if pagination enabled on server)
+        Parameters
+        ----------
+        dataset : str, list
+            list of dataset names. Returns sessions containing all these datasets.
+            A dataset matches if it contains the search string e.g. 'wheel.position' matches
+            '_ibl_wheel.position.npy'
+        date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
+            A single date to search or a list of 2 dates that define the range (inclusive).  To
+            define only the upper or lower date bound, set the other element to None.
+        lab : str, list
+            A str or list of lab names, returns sessions from any of these labs
+        number : str, int
+            Number of session to be returned, i.e. number in sequence for a given date
+        subject : str, list
+            A list of subject nicknames, returns sessions for any of these subjects
+        task_protocol : str, list
+            The task protocol name (can be partial, i.e. any task protocol containing that str
+            will be found)
+        project : str, list
+            The project name (can be partial, i.e. any task protocol containing that str
+            will be found)
+        performance_lte / performance_gte : float
+            search only for sessions whose performance is less equal or greater equal than a
+            pre-defined threshold as a percentage (0-100)
+        users : str, list
+            A list of users
+        location : str, list
+            a str or list of lab location (as per Alyx definition) name
+            Note: this corresponds to the specific rig, not the lab geographical location per se
+        dataset_types : str, list
+            One or more of dataset_types
+        details : bool
+            If true also returns a dict of dataset details
+        query_type : str, None
+            Query cache ('local') or Alyx database ('remote')
+        limit : int
+            The number of results to fetch in one go (if pagination enabled on server)
 
-        :param details: if true also returns a dict of dataset details
-        :param query_type: Query cache ('local') or Alyx database ('remote')
-
-        :return: list of eids and, if details is True, also returns a list of dictionaries,
-         each entry corresponding to a matching session
+        Returns
+        -------
+        List of eids and, if details is True, also returns a list of dictionaries, each entry
+        corresponding to a matching session
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
