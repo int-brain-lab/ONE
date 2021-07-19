@@ -17,8 +17,6 @@ Created on Tue Sep 11 18:06:21 2018
 
 @author: Miles
 """
-import os
-from fnmatch import fnmatch
 from collections import OrderedDict
 from datetime import datetime
 from typing import Union, Optional
@@ -29,85 +27,6 @@ from . import spec
 from .spec import SESSION_SPEC, COLLECTION_SPEC, FILE_SPEC, REL_PATH_SPEC
 
 _logger = logging.getLogger(__name__)
-
-
-def filter_by(alf_path, **kwargs):
-    """
-    Given a path and optional filters, returns all ALF files and their associated parts. The
-    filters constitute a logical AND.
-
-    Parameters
-    ----------
-    alf_path : str, pathlib.Path
-        A path to a folder containing ALF datasets
-    object : str
-        Filter by a given object (e.g. 'spikes')
-    attribute : str
-        Filter by a given attribute (e.g. 'intervals')
-    extension : str
-        Filter by extension (e.g. 'npy')
-    namespace : str
-        Filter by a given namespace (e.g. 'ibl') or None for files without one
-    timescale : str
-        Filter by a given timescale (e.g. 'bpod') or None for files without one
-    extra : str, list
-        Filter by extra parameters (e.g. 'raw') or None for files without extra parts
-        NB: Wild cards not permitted here.
-
-    Returns
-    -------
-    alf_files : str
-        A Path to a directory containing ALF files
-    attributes : list of dicts
-        A list of parsed file parts
-
-    Examples
-    --------
-    # Filter files with universal timescale
-    filter_by(alf_path, timescale=None)
-
-    # Filter files by a given ALF object
-    filter_by(alf_path, object='wheel')
-
-    # Filter using wildcard, e.g. 'wheel' and 'wheelMoves' ALF objects
-    filter_by(alf_path, object='wh*')
-
-    # Filter all intervals that are in bpod time
-    filter_by(alf_path, attribute='intervals', timescale='bpod')
-    """
-    alf_files = [f for f in os.listdir(alf_path) if spec.is_valid(f)]
-    attributes = [filename_parts(f, as_dict=True) for f in alf_files]
-
-    if kwargs:
-        # Validate keyword arguments against regex group names
-        invalid = kwargs.keys() - spec.regex(FILE_SPEC).groupindex.keys()
-        if invalid:
-            raise TypeError("%s() got an unexpected keyword argument '%s'"
-                            % (__name__, set(invalid).pop()))
-
-        # Ensure 'extra' input is a list; if str split on dot
-        if 'extra' in kwargs and isinstance(kwargs['extra'], str):
-            kwargs['extra'] = kwargs['extra'].split('.')
-
-        # Iterate over ALF files
-        for file, attr in zip(alf_files.copy(), attributes.copy()):
-            for k, v in kwargs.items():  # Iterate over attributes
-                if v is None or attr[k] is None:
-                    # If either is None, both should be None to match
-                    match = v is attr[k]
-                elif k == 'extra':
-                    # Check all provided extra fields match those in ALF
-                    match = all(elem in attr[k].split('.') for elem in v if elem)
-                else:
-                    # Check given attribute matches, allowing wildcards
-                    match = fnmatch(attr[k], v)
-
-                if not match:  # Remove file from list and move on to next file
-                    alf_files.remove(file)
-                    attributes.remove(attr)
-                    break
-
-    return alf_files, [tuple(attr.values()) for attr in attributes]
 
 
 def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
@@ -332,8 +251,3 @@ def add_uuid_string(file_path, uuid):
         _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
         return file_path
     return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)

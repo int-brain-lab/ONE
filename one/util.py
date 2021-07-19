@@ -4,6 +4,7 @@ import urllib.parse
 from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
 from collections.abc import Mapping
+import fnmatch
 
 import pandas as pd
 from iblutil.io import parquet
@@ -205,7 +206,7 @@ def _collection_spec(collection=None, revision=None):
 
 
 def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
-                    revision_last_before=True, assert_unique=True):
+                    revision_last_before=True, assert_unique=True, wildcards=False):
     """
     Filter the datasets cache table by the relative path (dataset name, collection and revision).
     When None is passed, all values will match.  To match on empty parts, use an empty string.
@@ -215,11 +216,11 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     ----------
     all_datasets : pandas.DataFrame
         A datasets cache table
-    filename : str, dict
+    filename : str, dict, None
         A filename str or a dict of alf parts.  Regular expressions permitted.
-    collection : str
+    collection : str, None
         A collection string.  Regular expressions permitted.
-    revision : str
+    revision : str, None
         A revision string to match.  If revision_last_before is true, regular expressions are
         not permitted.
     revision_last_before : bool
@@ -228,6 +229,8 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         with regular expressions permitted.
     assert_unique : bool
         When true an error is raised if multiple collections or datasets are found
+    wildcards : bool
+        If true, use unix shell style matching instead of regular expressions
 
     Returns
     -------
@@ -254,11 +257,21 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         spec_str += FILE_SPEC
         regex_args.update(**filename)
     else:
-        spec_str += filename + '$'  # Assert end of string
+        # Convert to regex is necessary and assert end of string
+        spec_str += fnmatch.translate(filename) if wildcards else filename + '$'
 
     # If matching revision name, add to regex string
     if not revision_last_before:
         regex_args.update(revision=revision)
+
+    for k, v in regex_args.items():
+        if v is None:
+            continue
+        if wildcards:
+            # Convert to regex, remove \\Z which asserts end of string
+            v = (fnmatch.translate(x).replace('\\Z', '') for x in ensure_list(v))
+        if not isinstance(v, str):
+            regex_args[k] = '|'.join(v)  # logical OR
 
     # Build regex string
     pattern = alf_regex('^' + spec_str, **regex_args)

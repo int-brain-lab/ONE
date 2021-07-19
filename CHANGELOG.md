@@ -1,6 +1,16 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.4.0]
+
+### Modified
+
+- alf package refactored for module consistency; removed alf.folders
+- consistent regex file pattern between functions
+- unix shell style wildcards used by default
+- limited support for attribute namespace for backward compatibility
+- can filter with lists of parts, e.g. `extension=['npy', '?sv']`
+
+## [0.3.0]
 
 ### Added
 

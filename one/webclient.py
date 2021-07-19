@@ -786,6 +786,8 @@ class AlyxClient():
                 query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
                 url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)
+        if not isinstance(id, str) and id is not None:
+            id = str(id)  # e.g. may be uuid.UUID
         if action == 'read':
             assert (endpoint_scheme[action]['action'] == 'get')
             return self.get('/' + endpoint + '/' + id.split('/')[-1], **cache_args)
@@ -804,7 +806,7 @@ class AlyxClient():
 
     # JSON field interface convenience methods
     def _check_inputs(self, endpoint: str) -> None:
-        # make sure the queryied endpoint exists, if not throw an informative error
+        # make sure the queried endpoint exists, if not throw an informative error
         if endpoint not in self.rest_schemes.keys():
             av = [k for k in self.rest_schemes.keys() if not k.startswith('_') and k]
             raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +
@@ -822,16 +824,20 @@ class AlyxClient():
         Write data to WILL NOT CHECK IF DATA EXISTS
         NOTE: Destructive write!
 
-        :param endpoint: Valid alyx endpoint, defaults to None
-        :type endpoint: str, optional
-        :param uuid: uuid or lookup name for endpoint
-        :type uuid: str, optional
-        :param field_name: Valid json field name, defaults to None
-        :type field_name: str, optional
-        :param data: data to write to json field, defaults to None
-        :type data: dict, optional
-        :return: Written data dict
-        :rtype: dict
+        Parameters
+        ----------
+        endpoint : str, None
+            Valid alyx endpoint, defaults to None
+        uuid : str, uuid.UUID, None
+            UUID or lookup name for endpoint
+        field_name : str, None
+            Valid json field name, defaults to None
+        data : dict, None
+            Data to write to json field, defaults to None
+
+        Returns
+        -------
+        Written data dict
         """
         self._check_inputs(endpoint)
         # Prepare data to patch
@@ -853,19 +859,24 @@ class AlyxClient():
         If data has keys with the same name of existing keys it will squash the old
         values (uses the dict.update() method)
 
-        Example:
-        one.alyx.json_field_update("sessions", "eid_str", "extended_qc", {"key": value})
+        Parameters
+        ----------
+        endpoint : str
+            Alyx REST endpoint to hit
+        uuid : str, uuid.UUID
+            UUID or lookup name of object
+        field_name : str
+            Name of the json field
+        data : dict
+            A dictionary with fields to be updated
 
-        :param endpoint: endpoint to hit
-        :type endpoint: str
-        :param uuid: uuid or lookup name of object
-        :type uuid: str
-        :param field_name: name of the json field
-        :type field_name: str
-        :param data: dictionary with fields to be updated
-        :type data: dict
-        :return: new patched json field contents
-        :rtype: dict
+        Returns
+        -------
+        New patched json field contents as dict
+
+        Examples
+        --------
+        one.alyx.json_field_update("sessions", "eid_str", "extended_qc", {"key": value})
         """
         self._check_inputs(endpoint)
         # Load current json field contents
