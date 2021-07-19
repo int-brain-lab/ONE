@@ -799,8 +799,23 @@ class One(ConversionMixin):
     def load_dataset_from_id(self,
                              dset_id: Union[str, UUID],
                              download_only: bool = False,
-                             details: bool = False,
-                             **kwargs) -> Any:
+                             details: bool = False) -> Any:
+        """
+        Load a dataset given a dataset UUID
+
+        Parameters
+        ----------
+        dset_id : uuid.UUID, str
+            A dataset UUID to load
+        download_only : bool
+            If true the dataset is downloaded (if necessary) and the filepath returned
+        details : bool
+            If true a pandas Series is returned in addition to the data
+
+        Returns
+        -------
+        Dataset data (or filepath if download_only) and dataset record if details is True
+        """
         int_idx = self._index_type('datasets') is int
         if isinstance(dset_id, str) and int_idx:
             dset_id = parquet.str2np(dset_id)
@@ -922,7 +937,7 @@ class OneAlyx(One):
                                          **kwargs)
         self._search_endpoint = 'sessions'
         # get parameters override if inputs provided
-        super(OneAlyx, self).__init__(mode=mode, cache_dir=cache_dir)
+        super(OneAlyx, self).__init__(mode=mode, wildcards=wildcards, cache_dir=cache_dir)
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'

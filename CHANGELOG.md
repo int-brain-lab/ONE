@@ -8,6 +8,7 @@
 - consistent regex file pattern between functions
 - unix shell style wildcards used by default
 - limited support for attribute namespace for backward compatibility
+- can filter with lists of parts, e.g. `extension=['npy', '?sv']`
 
 ## [0.3.0]
 

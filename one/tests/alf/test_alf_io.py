@@ -184,10 +184,10 @@ class TestsAlfPartsFilters(unittest.TestCase):
         # Check regular expression search
         alf_files, _ = alfio.filter_by(self.tmpdir, object='^wheel.*', wildcards=False)
         expected = ['wheel.position.npy', 'wheel.timestamps.npy', 'wheelMoves.intervals.npy']
-        self.assertEqual(alf_files, expected, 'failed to filter by regex')
+        self.assertCountEqual(alf_files, expected, 'failed to filter by regex')
         # Should work with lists
         alf_files, _ = alfio.filter_by(self.tmpdir, object=['^wheel$', '.*Moves'], wildcards=False)
-        self.assertEqual(alf_files, expected, 'failed to filter by regex')
+        self.assertCountEqual(alf_files, expected, 'failed to filter by regex')
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
