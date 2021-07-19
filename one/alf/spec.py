@@ -251,8 +251,8 @@ def is_valid(filename):
     True
     >>> is_valid('spike_train.npy')
     False
-    >>> is_valid('channels._phy_ids.csv')
-    False
+    >>> is_valid('channels._phy_ids.csv')  # WARNING: attribute level namespaces are deprecated
+    True
     """
     return regex(FILE_SPEC).match(filename) is not None
 

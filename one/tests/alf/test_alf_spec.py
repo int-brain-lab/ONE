@@ -155,8 +155,8 @@ class TestALFSpec(unittest.TestCase):
         self.assertTrue(alf_spec.is_valid('trials.feedbackType.npy'))
         self.assertTrue(alf_spec.is_valid(
             '_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.metadata.json'))
-        self.assertTrue(alf_spec.is_valid('spike_train.npy'))
-        self.assertFalse(alf_spec.is_valid('channels._phy_ids.csv'))
+        self.assertFalse(alf_spec.is_valid('spike_train.npy'))
+        self.assertTrue(alf_spec.is_valid('channels._phy_ids.csv'))
 
     def test_to_alf(self):
         filename = alf_spec.to_alf('spikes', 'times', 'ssv')
