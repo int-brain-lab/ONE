@@ -280,6 +280,8 @@ def load_file_content(fil):
         return jsonable.read(fil)
     if fil.suffix == '.npy':
         return _ensure_flat(np.load(file=fil, allow_pickle=True))
+    if fil.suffix == '.npz':
+        return _ensure_flat(np.load(file=fil, allow_pickle=True)['arr_0'])
     if fil.suffix == '.pqt':
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
