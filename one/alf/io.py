@@ -450,8 +450,8 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # Expand timeseries if necessary
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
-        _logger.warning('Inconsistent dimensions for object:' + object + '\n' +
-                        '\n'.join([f'{v.shape},    {k}' for k, v in out.items()]))
+        print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
+        _logger.warning(f"Inconsistent dimensions for object: {object} \n {print_sizes}")
     return out
 
 
