@@ -1,13 +1,15 @@
 import logging
 import globus_sdk
-from pathlib import Path, PurePosixPath
+from globus_sdk.exc import TransferAPIError
+from functools import wraps
+from pathlib import Path
 from iblutil.io import params as iopar
 from one.alf.spec import is_uuid, is_uuid_string
 from one.api import ONE
 
 _logger = logging.getLogger(__name__)
 _PAR_ID_STR = 'globus'
-DEFAULT_PAR = {'CLIENT_ID': None, 'LOCAL_ID': None}
+DEFAULT_PAR = {'GLOBUS_CLIENT_ID': None, 'local_endpoint': None, 'local_path': None}
 
 
 def setup():
@@ -21,44 +23,53 @@ def setup():
     3. Register your local device as an Enpoint in your Globus Client (https://app.globus.org/)
     """
 
-    print("Setting up Globus. See docstring for help.")
+    print("Setting up Globus parameter file. See docstring for help.")
     par_id = input("Enter name for this client or press Enter to keep value 'default': ")
     par_id = _PAR_ID_STR + '/default' if par_id == '' else _PAR_ID_STR + f'/{par_id.strip(".")}'
 
     # Read existing globus params if present
     pars = iopar.read(par_id, DEFAULT_PAR)
 
-    # Set CLIENT_ID
-    current_id = getattr(pars, 'CLIENT_ID')
+    # Set GLOBUS_CLIENT_ID
+    current_id = getattr(pars, 'GLOBUS_CLIENT_ID')
     if current_id:
-        new_id = input(f'Please enter Client ID or press Enter to use the current '
-                       f'value ({current_id}): ').strip()
+        new_id = input(f'Found Globus client ID in parameter file ({current_id}). Press Enter to '
+                       f'keep it, or enter a new ID here: ').strip()
         new_id = current_id if not new_id else new_id
     else:
-        new_id = input(f'Please enter the Client ID: ').strip()
-    pars = pars.set('CLIENT_ID', new_id)
+        new_id = input(f'Please enter the Globus client ID: ').strip()
+    pars = pars.set('GLOBUS_CLIENT_ID', new_id)
 
-    # Find and set local path and ID
-    local_id = get_local_endpoint_id()
-    local_path = get_local_endpoint_path()
+    # Find and set local ID
+    try:
+        local_endpoint = get_local_endpoint_id()
+    except AssertionError:
+        try:
+            local_endpoint = getattr(pars, 'local_endpoint')
+            print(f"Found local endpoint ID in parameter file ({local_endpoint}).")
+        except AttributeError:
+            local_endpoint = input(
+                "Cannot find local endpoint ID. Beware that this might mean that Globus Connect "
+                "is not set up properly. You can enter the local endpoint ID manually here: ")
+    pars = pars.set('local_endpoint', local_endpoint)
 
-    for found, attr, descr in [(local_id, 'LOCAL_ID', 'Local endpoint ID'),
-                               (local_path, 'LOCAL_PATH', 'Local path to be accessed by Globus')]:
-        # Since the local path is not required, we skip if it wasn't found
-        if attr == 'LOCAL_PATH' and found is None:
-            return
-        current = getattr(pars, attr)
-        if not current or current == found:
-            new = input(f'{descr} set to {found}. Press Enter to keep this value, or enter new '
-                        f'value here: ')
-            new = new if new else found
-        else:
-            new = input(f'{descr} set to {current}, but found {found} in Globus settings. '
-                        f'Please enter the value you want to use: ').strip()
-        pars = pars.set(attr, new)
+    # Check for local path
+    try:
+        local_path = get_local_endpoint_path()
+    except AssertionError:
+        try:
+            local_path = getattr(pars, 'local_path')
+            print(f"Found local endpoint path in parameter file ({local_path}).")
+        except AttributeError:
+            local_path = input(
+                "Cannot find local endpoint path accessible by Globys. Beware that this might mean"
+                "that Globus Connect is not set up properly. Press Enter to leave this field "
+                "empty, or enter path here: ")
+
+    pars = pars.set('local_path', local_path)
 
     # Log in manually and get refresh token to avoid having to login repeatedly
-    client = globus_sdk.NativeAppAuthClient(pars.CLIENT_ID)
+    client = globus_sdk.NativeAppAuthClient(pars.GLOBUS_CLIENT_ID)
     client.oauth2_start_flow(refresh_tokens=True)
     authorize_url = client.oauth2_get_authorize_url()
     print('To get a new token, go to this URL and login: {0}'.format(authorize_url))
@@ -89,10 +100,10 @@ def create_globus_client(client_name='default'):
         _logger.error(f"{str(err)}. Choose a different client name or run one.globus.setup() "
                       f"first\n")
         return
-    required_fields = {'refresh_token', 'CLIENT_ID'}
+    required_fields = {'refresh_token', 'GLOBUS_CLIENT_ID'}
     if not (globus_pars and required_fields.issubset(globus_pars.as_dict())):
         raise ValueError("No token in client parameter file. Run one.globus.setup first")
-    client = globus_sdk.NativeAppAuthClient(globus_pars.CLIENT_ID)
+    client = globus_sdk.NativeAppAuthClient(globus_pars.GLOBUS_CLIENT_ID)
     client.oauth2_start_flow(refresh_tokens=True)
     authorizer = globus_sdk.RefreshTokenAuthorizer(globus_pars.refresh_token, client)
     return globus_sdk.TransferClient(authorizer=authorizer)
@@ -108,8 +119,8 @@ def get_local_endpoint_id():
     id_file = Path.home().joinpath(".globusonline", "lta", "client-id.txt")
     assert (id_file.exists()), msg.format(id_file)
     local_id = id_file.read_text().strip()
-    assert (is_uuid_string(local_id)), msg.format(id_file)
-    print(f"Found local endpoint ID {local_id}")
+    assert (isinstance(local_id, str)), msg.format(id_file)
+    print(f"Found local endpoint ID in Globus Connect settings {local_id}")
     return local_id
 
 
@@ -124,7 +135,7 @@ def get_local_endpoint_path():
     if path_file.exists():
         local_path = Path(path_file.read_text().strip().split(',')[0])
         if local_path.exists():
-            print(f"Found local endpoint path {local_path}")
+            print(f"Found local endpoint path in Globus Connect settings {local_path}")
             return str(local_path)
     _logger.warning(msg.format(path_file))
     return None
@@ -160,6 +171,22 @@ def _remove_uuid_from_filename(file_path):
     return str(file_path.parent.joinpath('.'.join(name_parts)))
 
 
+def blocking(method):
+    """
+    Decorator for Globus methods that return a task_id and have a block and timeout argument.
+    If block is True, blocks the thread until task is finished or until timeout (sec) is reached.
+    """
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        block = kwargs.pop('block', None)
+        timeout = kwargs.pop('timeout', None)
+        task_id = method(self, *args, **kwargs)
+        if block is True:
+            return self.wait_task(task_id, timeout=timeout)
+        else:
+            return task_id
+    return wrapped
+
 class Globus:
     """
     Wrapper for managing files on Globus endpoints.
@@ -170,11 +197,11 @@ class Globus:
         self.client = create_globus_client(client_name=client_name)
         self.pars = iopar.read(_PAR_ID_STR + f'/{client_name}')
         # Try adding local endpoint
-        if hasattr(self.pars, 'LOCAL_ID'):
-            self.endpoints = {'local': {'id': self.pars.LOCAL_ID}}
+        if hasattr(self.pars, 'local_endpoint'):
+            self.endpoints = {'local': {'id': self.pars.local_endpoint}}
             _logger.info("Adding local endpoint.")
-            if hasattr(self.pars.LOCAL_PATH, 'LOCAL_PATH'):
-                self.endpoints['local']['root_path'] = self.pars.LOCAL_PATH
+            if hasattr(self.pars, 'local_path'):
+                self.endpoints['local']['root_path'] = self.pars.local_path
         else:
             _logger.warning("Not adding local endpoint as information is missing from parameter "
                             "file. Add endpoints manually or run one.globus.setup() first.")
@@ -193,7 +220,7 @@ class Globus:
         UUID this has no effect.
         :return:
         """
-        if is_uuid(endpoint):
+        if is_uuid(endpoint, range(5)):
             if label is None:
                 _logger.error("If 'endpoint' is a UUID, 'label' cannot be None.")
             endpoint_id = str(endpoint)
@@ -208,152 +235,109 @@ class Globus:
             self.endpoints[label] = {'id': endpoint_id}
             if root_path:
                 self.endpoints[label]['root_path'] = root_path
-        return self.endpoints[label]
 
-    def ls(self, endpoint, path, root_path=None, remove_uuid=False):
+    @staticmethod
+    def _endpoint_path(path, root_path=None):
+        path = Path(path)
+        if root_path and not str(path).startswith(root_path):
+            path = Path(root_path).joinpath(path)
+        if not path.is_absolute():
+            _logger.error("If there is no root_path for this endpoint in .endpoints, 'path' must "
+                          "be an absolute path.")
+        return path
+
+    def _endpoint_id_root(self, endpoint):
+        root_path = None
+        if endpoint in self.endpoints.keys():
+            endpoint_id = self.endpoints[endpoint]['id']
+            if 'root_path' in self.endpoints[endpoint].keys():
+                root_path = str(self.endpoints[endpoint]['root_path'])
+            return endpoint_id, root_path
+        elif is_uuid(endpoint, range(1,5)):
+            endpoint_id = endpoint
+            return endpoint_id, None
+        else:
+            _logger.error(f"'endpoint' must be a UUID or the label of an endpoint registered in "
+                          f"this Globus instance. You can add endpoints via the add_endpoints "
+                          f"method")
+            return
+
+    def ls(self, endpoint, path, remove_uuid=False, return_size=False):
         """
         Return the list of (filename, filesize) in a given endpoint directory.
         """
-        if endpoint in self.endpoints.keys():
-            endpoint_id = self.endpoints[endpoint]['id']
-            if not root_path and 'root_path' in self.endpoints[endpoint].keys():
-                root_path = self.endpoints[endpoint]['rooth_path']
-        elif is_uuid(endpoint):
-            endpoint_id = endpoint
-        else:
-            _logger.error(f"'endpoint' must be a UUID or the label of an endpoint in {}.endpoints."
-                          f" You can add endpoints via {}.add_endpoints")
-        path = str(path)
+        # Check if endpoint is a UUID, if not try to get UUID from registered endpoints
+        endpoint_id, root_path = self._endpoint_id_root(endpoint)
+        # Check if root_path should be added and if path is absolute
+        path = str(self._endpoint_path(path, root_path))
+        # Do the actual listing
         out = []
         try:
-            for entry in self.client.operation_ls(endpoint, path=path):
+            for entry in self.client.operation_ls(endpoint_id, path=path):
                 fn = _remove_uuid_from_filename(entry['name']) if remove_uuid else entry['name']
-                size = entry['size'] if entry['type'] == 'file' else None
-                out.append((fn, size))
+                if return_size:
+                    size = entry['size'] if entry['type'] == 'file' else None
+                    out.append((fn, size))
+                else:
+                    out.append(fn)
         except Exception as e:
             _logger.error(str(e))
         return out
-    #
-    # def file_exists(self, endpoint, path, size=None, remove_uuid=False):
-    #     """Return whether a given file exists on a given endpoint, optionally with a specified
-    #     file size."""
-    #     path = Path(path)
-    #     existing = self.ls(endpoint, path.parent, remove_uuid=remove_uuid)
-    #     return _filename_size_matches((path.name, size), existing)
-    #
-    # def dir_contains_files(self, endpoint, dir_path, filenames, remove_uuid=False):
-    #     """Return whether a directory contains a list of filenames. Returns a list of boolean,
-    #     one for each input file."""
-    #     files = self.ls(endpoint, dir_path, remove_uuid=remove_uuid)
-    #     existing = [fn for fn, size in files]
-    #     out = []
-    #     for filename in filenames:
-    #         out.append(filename in existing)
-    #     return out
-    #
-    # def files_exist(self, endpoint, paths, sizes=None, remove_uuid=False):
-    #     """Return whether a list of files exist on an endpoint, optionally with specified
-    #     file sizes."""
-    #     if not paths:
-    #         return []
-    #     parents = sorted(set(_split_file_path(path)[0] for path in paths))
-    #     existing = []
-    #     for parent in parents:
-    #         filenames_sizes = self.ls(endpoint, parent, remove_uuid=remove_uuid)
-    #         existing.extend([(parent + '/' + fn, size) for fn, size in filenames_sizes])
-    #     if sizes is None:
-    #         sizes = [None] * len(paths)
-    #     return [_filename_size_matches((path, size), existing) for (path, size) in zip(paths, sizes)]
-    #
-    # def blocking(f):
-    #     """Add two keyword arguments to a method, blocking (boolean) and timeout."""
-    #     @wraps(f)
-    #     def wrapped(self, *args, **kwargs):
-    #         blocking = kwargs.pop('blocking', None)
-    #         timeout = kwargs.pop('timeout', None)
-    #         task_id = f(self, *args, **kwargs)
-    #         if blocking:
-    #             return self.wait_task(task_id, timeout=timeout)
-    #         else:
-    #             return task_id
-    #     return wrapped
-    #
-    # @blocking
-    # def rm(self, endpoint, path, blocking=False):
-    #     """Delete a single file on an endpoint."""
-    #     endpoint, root = ENDPOINTS.get(endpoint, (endpoint, ''))
-    #     assert root
-    #     path = _remote_path(root, path)
-    #
-    #     ddata = globus.DeleteData(self._tc, endpoint, recursive=False)
-    #     ddata.add_item(path)
-    #     delete_result = self._tc.submit_delete(ddata)
-    #     task_id = delete_result["task_id"]
-    #     message = delete_result["message"]
-    #     return task_id
-    #
-    # @blocking
-    # def move_files(
-    #     self, source_endpoint, target_endpoint,
-    #     source_paths, target_paths):
-    #     """Move files from one endpoint to another."""
-    #     source_endpoint, source_root = ENDPOINTS.get(source_endpoint, (source_endpoint, ''))
-    #     target_endpoint, target_root = ENDPOINTS.get(target_endpoint, (target_endpoint, ''))
-    #
-    #     source_paths = [_remote_path(source_root, str(_)) for _ in source_paths]
-    #     target_paths = [_remote_path(target_root, str(_)) for _ in target_paths]
-    #
-    #     tdata = globus.TransferData(
-    #         self._tc, source_endpoint, target_endpoint, verify_checksum=True, sync_level='checksum',
-    #     )
-    #     for source_path, target_path in zip(source_paths, target_paths):
-    #         tdata.add_item(source_path, target_path)
-    #     response = self._tc.submit_transfer(tdata)
-    #     task_id = response.get('task_id', None)
-    #     message = response.get('message', None)
-    #     return task_id
-    #
-    # def add_text_file(self, endpoint, path, contents):
-    #     """Create a text file on a remote endpoint."""
-    #     local = ENDPOINTS.get('local', None)
-    #     if not local or not local[0]:
-    #         raise IOError(
-    #         "Can only add a text file on a remote endpoint "
-    #         "if the current computer is a Globus endpoint")
-    #     local_endpoint, local_root = local
-    #     assert local_endpoint
-    #     assert local_root
-    #     local_root = Path(local_root.replace('/~', ''))
-    #     assert local_root.exists()
-    #     fn = '_tmp_text_file.txt'
-    #     local_path = local_root / fn
-    #     local_path.write_text(contents)
-    #     task_id = self.move_files(local_endpoint, endpoint, [local_path], [path], blocking=True)
-    #     os.remove(local_path)
-    #
-    # def wait_task(self, task_id, timeout=None):
-    #     """Block until a Globus task finishes."""
-    #     if timeout is None:
-    #         timeout = 300
-    #     i = 0
-    #     while not self._tc.task_wait(task_id, timeout=1, polling_interval=1):
-    #         print('.', end='')
-    #         i += 1
-    #         if i >= timeout:
-    #             raise IOError(
-    #                 "The task %s has not finished after %d seconds." % (task_id, timeout))
+
+    @blocking
+    def mv(self, source_endpoint, target_endpoint, source_paths, target_paths,
+           block=True, timeout=None):
+        """
+        Move files from one endpoint to another.
+        """
+        source_endpoint, source_root = self._endpoint_id_root(source_endpoint)
+        target_endpoint, target_root = self._endpoint_id_root(target_endpoint)
+        source_paths = [str(self._endpoint_path(path, source_root)) for path in source_paths]
+        target_paths = [str(self._endpoint_path(path, target_root)) for path in target_paths]
+
+        tdata = globus_sdk.TransferData(self.client, source_endpoint, target_endpoint,
+                                        verify_checksum=True, sync_level='checksum',
+                                        label=f'ONE globus')
+        for source_path, target_path in zip(source_paths, target_paths):
+            tdata.add_item(source_path, target_path)
+        response = self.client.submit_transfer(tdata)
+        assert round(response.http_status / 100) == 2, f'HTTP error: {response.http_status}'
+        task_id = response.get('task_id', None)
+        message = response.get('message', None)
+        return task_id
+
+    def wait_task(self, task_id, timeout=None):
+        """Block until a Globus task finishes."""
+        print("Got to wait_task")
+        task = self.client.get_task(task_id)
+        # While the task with task_id is activate, print a dot every second. Timeout after timeout
+        i = 0
+        while not self.client.task_wait(task_id, timeout=1, polling_interval=1):
+            print('.', end='')
+            i += 1
+            if timeout and i >= timeout:
+                raise IOError(f"Globus task {task_id} timed out after {timeout} seconds, with "
+                              f"task status {task['status']}")
+        if task['status'] == 'SUCCEEDED':
+            # Sometime Globus sets the status to SUCCEEDED but doesn't truly finish.
+            # The try/except handles error thrown when querying task_successful_transfers too early
+            try:
+                successful = self.client.task_successful_transfers(task_id, None)
+                skipped = self.client.task_skipped_errors(task_id, None)
+                print(f"\nGlobus task {task_id} completed."
+                      f"\nSkipped transfers: {len(skipped)}"
+                      f"\nSuccessful transfers: {len(successful)}")
+                for info in successful:
+                    _logger.debug(f"{info['source_path']} -> {info['destination_path']}")
+            except TransferAPIError:
+                _logger.warning(f"\nGlobus task {task_id} SUCCEEDED but querying transfers was"
+                                f"unsuccessful")
+        else:
+            raise IOError(f"Globus task finished unsucessfully with status {task['status']}")
 
 
 
-# gt = globus_sdk.TransferData(gtc, FLAT_IRON_ENDPOINT, LOCAL_ENDPOINT, verify_checksum=True,
-#                              sync_level='checksum', label=f'one globus {one._par.ALYX_LOGIN}')
-# for dset in dsets:
-#     sdsc_gpath = wc.sdsc_globus_path_from_dataset(dset)
-#     destination_gpath = wc.one_path_from_dataset(dset, one_cache=one._par.CACHE_DIR)
-#     print(sdsc_gpath, destination_gpath)
-#     gt.add_item(sdsc_gpath, destination_gpath)
-# gt.submit_transfer(data=gt)
-#
+
 #
 # def globus_path_from_dataset(dset, repository=None, uuid=False):
 #     """
