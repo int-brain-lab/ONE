@@ -178,7 +178,8 @@ class One(ConversionMixin):
         out_files = []
         if hasattr(dsets, 'iterrows'):
             dsets = list(map(lambda x: x[1], dsets.iterrows()))
-        timeout = reduce(lambda x, y: x + y.get('file_size', 0), dsets, 0) / 625000  # 5 Mb/s
+        # Timeout based a download speed of 5 Mb/s
+        timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000
         with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
             # TODO Subclass can just call web client method directly, no need to pass hash, etc.
             futures = [executor.submit(self._download_dataset, dset, file_size=dset['file_size'],
