@@ -14,7 +14,10 @@ import one.params
 def set_up_env() -> tempfile.TemporaryDirectory:
     """
     Create a temporary directory and copy cache fixtures over
-    :return: TemporaryDirectory object
+
+    Returns
+    -------
+    TemporaryDirectory object
     """
     fixture = Path(__file__).parent.joinpath('fixtures')
     tempdir = tempfile.TemporaryDirectory()
@@ -112,9 +115,17 @@ def create_schema_cache(param_dir=None):
 def get_file(root: str, str_id: str) -> str:
     """
     A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.
-    :param root: The root directory of the new parameters
-    :param str_id: The parameter string identifier
-    :return: The parameter filename
+
+    Parameters
+    ----------
+    root : str, pathlib.Path
+        The root directory of the new parameters
+    str_id : str
+        The parameter string identifier
+
+    Returns
+    -------
+    The parameter filename
     """
     parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
     pfile = Path(root, *parts).as_posix()
