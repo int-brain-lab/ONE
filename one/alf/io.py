@@ -451,7 +451,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
         print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
-        _logger.warning(f"Inconsistent dimensions for object: {object} \n {print_sizes}")
+        _logger.warning(f"Inconsistent dimensions for object: {object} \n{print_sizes}")
     return out
 
 
