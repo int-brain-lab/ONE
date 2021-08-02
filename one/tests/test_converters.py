@@ -201,6 +201,21 @@ class TestOnlineConverters(unittest.TestCase):
         path = self.one.record2path(rec.iloc[[0]])
         self.assertEqual(expected, path)
 
+    def test_ref2dj(self):
+        try:
+            ref = '2020-09-21_1_SWC_043'
+            restriction = self.one.ref2dj(ref)
+        except ModuleNotFoundError:
+            self.skipTest('requires ibl_pipeline')
+        self.assertTrue(hasattr(restriction, 'fetch'))
+        expected = {
+            'subject_uuid': UUID('70bf8cbd-d312-4654-a4ea-3a21ea2f541b'),
+            'session_start_time': datetime.datetime(2020, 9, 21, 19, 2, 17),
+            'session_number': 1,
+            'session_date': datetime.date(2020, 9, 21),
+            'subject_nickname': 'SWC_043'}
+        self.assertEqual(restriction.fetch1(), expected)
+
 
 class TestAlyx2Path(unittest.TestCase):
     dset = {
@@ -251,6 +266,21 @@ class TestAlyx2Path(unittest.TestCase):
         fr = self.dset['file_records'][0]
         testable = converters.path_from_filerecord(fr, root_path='C:\\')
         self.assertIsInstance(testable, Path)
+
+
+class TestWrappers(unittest.TestCase):
+    def test_recurse(self):
+        # Check accepts different numbers of input args
+        wrapped = converters.recurse(lambda x, y, z: y * 2)
+        self.assertEqual(wrapped(1, 2, 3), 4)
+        wrapped = converters.recurse(lambda x, y: y * 2)
+        self.assertEqual(wrapped(1, 2), 4)
+        wrapped = converters.recurse(lambda: 8)
+        self.assertEqual(wrapped(), 8)
+        # Check recurse of lists/tuples
+        wrapped = converters.recurse(lambda x, y: y * 2)
+        self.assertEqual(wrapped(None, [1, 2, 3, 4]), [2, 4, 6, 8])
+        self.assertEqual(wrapped(None, (1, 2, 3, 4)), [2, 4, 6, 8])
 
 
 if __name__ == '__main__':
