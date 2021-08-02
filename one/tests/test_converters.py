@@ -203,11 +203,10 @@ class TestOnlineConverters(unittest.TestCase):
 
     def test_ref2dj(self):
         try:
-            import ibl_pipeline
+            ref = '2020-09-21_1_SWC_043'
+            restriction = self.one.ref2dj(ref)
         except ModuleNotFoundError:
             self.skipTest('requires ibl_pipeline')
-        ref = '2020-09-21_1_SWC_043'
-        restriction = self.one.ref2dj(ref)
         self.assertTrue(hasattr(restriction, 'fetch'))
         expected = {
             'subject_uuid': UUID('70bf8cbd-d312-4654-a4ea-3a21ea2f541b'),
