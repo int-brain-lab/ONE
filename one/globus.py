@@ -171,22 +171,6 @@ def _remove_uuid_from_filename(file_path):
     return str(file_path.parent.joinpath('.'.join(name_parts)))
 
 
-def blocking(method):
-    """
-    Decorator for Globus methods that return a task_id and have a block and timeout argument.
-    If block is True, blocks the thread until task is finished or until timeout (sec) is reached.
-    """
-    @wraps(method)
-    def wrapped(self, *args, **kwargs):
-        block = kwargs.pop('block', None)
-        timeout = kwargs.pop('timeout', None)
-        task_id = method(self, *args, **kwargs)
-        if block is True:
-            return self.wait_task(task_id, timeout=timeout)
-        else:
-            return task_id
-    return wrapped
-
 class Globus:
     """
     Wrapper for managing files on Globus endpoints.
@@ -284,7 +268,6 @@ class Globus:
             _logger.error(str(e))
         return out
 
-    @blocking
     def mv(self, source_endpoint, target_endpoint, source_paths, target_paths,
            block=True, timeout=None):
         """
@@ -301,23 +284,25 @@ class Globus:
         for source_path, target_path in zip(source_paths, target_paths):
             tdata.add_item(source_path, target_path)
         response = self.client.submit_transfer(tdata)
-        assert round(response.http_status / 100) == 2, f'HTTP error: {response.http_status}'
         task_id = response.get('task_id', None)
-        message = response.get('message', None)
-        return task_id
+        if block is True:
+            return self.wait_task(task_id, timeout=timeout)
+        else:
+            return task_id
 
     def wait_task(self, task_id, timeout=None):
         """Block until a Globus task finishes."""
-        print("Got to wait_task")
-        task = self.client.get_task(task_id)
+        print(f"Waiting for Globus task {task_id} to complete")
         # While the task with task_id is activate, print a dot every second. Timeout after timeout
         i = 0
         while not self.client.task_wait(task_id, timeout=1, polling_interval=1):
             print('.', end='')
             i += 1
             if timeout and i >= timeout:
+                task = self.client.get_task(task_id)
                 raise IOError(f"Globus task {task_id} timed out after {timeout} seconds, with "
                               f"task status {task['status']}")
+        task = self.client.get_task(task_id)
         if task['status'] == 'SUCCEEDED':
             # Sometime Globus sets the status to SUCCEEDED but doesn't truly finish.
             # The try/except handles error thrown when querying task_successful_transfers too early
@@ -325,8 +310,8 @@ class Globus:
                 successful = self.client.task_successful_transfers(task_id, None)
                 skipped = self.client.task_skipped_errors(task_id, None)
                 print(f"\nGlobus task {task_id} completed."
-                      f"\nSkipped transfers: {len(skipped)}"
-                      f"\nSuccessful transfers: {len(successful)}")
+                      f"\nSkipped transfers: {len(list(skipped))}"
+                      f"\nSuccessful transfers: {len(list(successful))}")
                 for info in successful:
                     _logger.debug(f"{info['source_path']} -> {info['destination_path']}")
             except TransferAPIError:
@@ -335,7 +320,7 @@ class Globus:
         else:
             raise IOError(f"Globus task finished unsucessfully with status {task['status']}")
 
-
+        return task_id
 
 
 #
