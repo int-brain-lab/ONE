@@ -1,6 +1,7 @@
 import logging
 import globus_sdk
-from globus_sdk.exc import TransferAPIError
+from globus_sdk.exc import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
+    GlobusConnectionError, GlobusConnectionTimeoutError
 from functools import wraps
 from pathlib import Path
 from iblutil.io import params as iopar
@@ -268,8 +269,7 @@ class Globus:
             _logger.error(str(e))
         return out
 
-    def mv(self, source_endpoint, target_endpoint, source_paths, target_paths,
-           block=True, timeout=None):
+    def mv(self, source_endpoint, target_endpoint, source_paths, target_paths, timeout=None):
         """
         Move files from one endpoint to another.
         """
@@ -283,45 +283,59 @@ class Globus:
                                         label=f'ONE globus')
         for source_path, target_path in zip(source_paths, target_paths):
             tdata.add_item(source_path, target_path)
-        response = self.client.submit_transfer(tdata)
-        task_id = response.get('task_id', None)
-        if block is True:
-            return self.wait_task(task_id, timeout=timeout)
-        else:
+
+        def wrapper():
+            response = self.client.submit_transfer(tdata)
+            task_id = response.get('task_id', None)
             return task_id
 
-    def wait_task(self, task_id, timeout=None):
-        """Block until a Globus task finishes."""
-        print(f"Waiting for Globus task {task_id} to complete")
-        # While the task with task_id is activate, print a dot every second. Timeout after timeout
-        i = 0
-        while not self.client.task_wait(task_id, timeout=1, polling_interval=1):
-            print('.', end='')
-            i += 1
-            if timeout and i >= timeout:
-                task = self.client.get_task(task_id)
-                raise IOError(f"Globus task {task_id} timed out after {timeout} seconds, with "
-                              f"task status {task['status']}")
-        task = self.client.get_task(task_id)
-        if task['status'] == 'SUCCEEDED':
-            # Sometime Globus sets the status to SUCCEEDED but doesn't truly finish.
-            # The try/except handles error thrown when querying task_successful_transfers too early
-            try:
-                successful = self.client.task_successful_transfers(task_id, None)
-                skipped = self.client.task_skipped_errors(task_id, None)
-                print(f"\nGlobus task {task_id} completed."
-                      f"\nSkipped transfers: {len(list(skipped))}"
-                      f"\nSuccessful transfers: {len(list(successful))}")
-                for info in successful:
-                    _logger.debug(f"{info['source_path']} -> {info['destination_path']}")
-            except TransferAPIError:
-                _logger.warning(f"\nGlobus task {task_id} SUCCEEDED but querying transfers was"
-                                f"unsuccessful")
-        else:
-            raise IOError(f"Globus task finished unsucessfully with status {task['status']}")
+        return self.run_task(wrapper, time_out=timeout)
 
-        return task_id
-
+    def run_task(self, globus_func, retries=3, time_out=None):
+        """
+        Block until a Globus task finishes and retry upon Network or REST Errors.
+        globus_func needs to submit a task to the client and return a task_id
+        """
+        try:
+            task_id = globus_func()
+            print(f"Waiting for Globus task {task_id} to complete")
+            # While the task with task is active, print a dot every second. Timeout after timeout
+            i = 0
+            while not self.client.task_wait(task_id, timeout=5, polling_interval=1):
+                print('.', end='')
+                i += 1
+                if time_out and i >= time_out:
+                    task = self.client.get_task(task_id)
+                    raise IOError(f"Globus task {task_id} timed out after {time_out} seconds, "
+                                  f"with task status {task['status']}")
+            task = self.client.get_task(task_id)
+            if task['status'] == 'SUCCEEDED':
+                # Sometime Globus sets the status to SUCCEEDED but doesn't truly finish.
+                # Handle error thrown when querying task_successful_transfers too early
+                try:
+                    successful = self.client.task_successful_transfers(task_id, None)
+                    skipped = self.client.task_skipped_errors(task_id, None)
+                    print(f"\nGlobus task {task_id} completed."
+                          f"\nSkipped transfers: {len(list(skipped))}"
+                          f"\nSuccessful transfers: {len(list(successful))}")
+                    for info in successful:
+                        _logger.debug(f"{info['source_path']} -> {info['destination_path']}")
+                except TransferAPIError:
+                    _logger.warning(f"\nGlobus task {task_id} SUCCEEDED but querying transfers was"
+                                    f"unsuccessful")
+            else:
+                raise IOError(f"Globus task finished unsucessfully with status {task['status']}")
+            return task_id
+        except (GlobusAPIError, NetworkError, GlobusTimeoutError, GlobusConnectionError,
+                GlobusConnectionTimeoutError) as e:
+            if retries < 1:
+                _logger.error(f"\nRetried too many times.")
+                raise e
+            else:
+                _logger.debug("\nGlobus experienced a network error", exc_info=True)
+                # if we reach this point without returning or erroring, retry
+                _logger.warning("\nGlobus experienced a network error, retrying.")
+                self.run_task(globus_func, retries=(retries-1), time_out=time_out)
 
 #
 # def globus_path_from_dataset(dset, repository=None, uuid=False):
