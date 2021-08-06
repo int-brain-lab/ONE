@@ -1,12 +1,16 @@
+import os
+import re
+import sys
 import logging
-import globus_sdk
-from globus_sdk.exc import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
-    GlobusConnectionError, GlobusConnectionTimeoutError
-from functools import wraps
 from pathlib import Path
+
 from iblutil.io import params as iopar
 from one.alf.spec import is_uuid, is_uuid_string
 from one.api import ONE
+
+import globus_sdk
+from globus_sdk.exc import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
+    GlobusConnectionError, GlobusConnectionTimeoutError
 
 _logger = logging.getLogger(__name__)
 _PAR_ID_STR = 'globus'
@@ -135,6 +139,9 @@ def get_local_endpoint_path():
     path_file = Path.home().joinpath(".globusonline", "lta", "config-paths")
     if path_file.exists():
         local_path = Path(path_file.read_text().strip().split(',')[0])
+        # TODO: needs to be tested on windows, got this from alyx transfers_integration.py
+        if os.environ.get('WSL_DISTRO_NAME', None):
+            local_path = Path(str(Path('/mnt/c/').joinpath(*str(local_path).split('/')[2:])) + '/')
         if local_path.exists():
             print(f"Found local endpoint path in Globus Connect settings {local_path}")
             return str(local_path)
@@ -172,10 +179,115 @@ def _remove_uuid_from_filename(file_path):
     return str(file_path.parent.joinpath('.'.join(name_parts)))
 
 
+def as_globus_path(path):
+    """
+    Copied from ibblib.io.globus
+    Convert a path into one suitable for the Globus TransferClient.  NB: If using tilda in path,
+    the home folder of your Globus Connect instance must be the same as the OS home dir.
+
+    :param path: A path str or Path instance
+    :return: A formatted path string
+
+    Examples:
+        # A Windows path
+        >>> as_globus_path('E:\\FlatIron\\integration')
+        >>> '/E/FlatIron/integration'
+
+        # A relative POSIX path
+        >>> as_globus_path('../data/integration')
+        >>> '/mnt/data/integration'
+
+        # A globus path
+        >>> as_globus_path('/E/FlatIron/integration')
+        >>> '/E/FlatIron/integration'
+    """
+    path = str(path)
+    if (
+        re.match(r'/[A-Z]($|/)', path)
+        if sys.platform in ('win32', 'cygwin')
+        else Path(path).is_absolute()
+    ):
+        return path
+    path = Path(path).resolve()
+    if path.drive:
+        path = '/' + str(path.as_posix().replace(':', '', 1))
+    return str(path)
+
+
+# def dataset_record_to_globus_path():
+#     return
+#
+#
+# def filerecord_to_globus_path():
+#     return
+#
+# def globus_path_from_dataset(dset, repository=None, uuid=False):
+#     """
+#     Returns local one file path from a dset record or a list of dsets records from REST
+#     :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
+#     :param repository: (optional) repository name of the file record (if None, will take
+#      the first filerecord with an URL)
+#     """
+#     return _path_from_dataset(dset, root_path=PurePosixPath('/'), repository=repository, uuid=uuid)
+
+
+# def sdsc_globus_path_from_dataset(dset):
+#     """
+#     :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
+#     Returns SDSC globus file path from a dset record or a list of dsets records from REST
+#     """
+#     return _path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=True)
+#
+
+# def _path_from_dataset(dset, root_path=None, repository=None, uuid=False):
+#     """
+#     returns the local file path from a dset record from a REST query
+#     :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
+#     :param root_path: (optional) the prefix path such as one download directory or sdsc root
+#     :param repository:
+#     :param uuid: (optional bool) if True, will add UUID before the file extension
+#     :return: Path or list of Path
+#     """
+#     if isinstance(dset, list):
+#         return [_path_from_dataset(d) for d in dset]
+#     if repository:
+#         fr = next((fr for fr in dset['file_records'] if fr['data_repository'] == repository))
+#     else:
+#         fr = next((fr for fr in dset['file_records'] if fr['data_url']))
+#     uuid = dset['url'][-36:] if uuid else None
+#     return _path_from_filerecord(fr, root_path=root_path, uuid=uuid)
+
+
+# def _path_from_filerecord(fr, root_path=SDSC_ROOT_PATH, uuid=None):
+#     """
+#     Returns a data file Path constructed from an Alyx file record.  The Path type returned
+#     depends on the type of root_path: If root_path is a string a Path object is returned,
+#     otherwise if the root_path is a PurePath, the same path type is returned.
+#     :param fr: An Alyx file record dict
+#     :param root_path: An optional root path
+#     :param uuid: An optional UUID to add to the file name
+#     :return: A filepath as a pathlib object
+#     """
+#     import alf.io
+#     if isinstance(fr, list):
+#         return [_path_from_filerecord(f) for f in fr]
+#     repo_path = fr['data_repository_path']
+#     repo_path = repo_path[repo_path.startswith('/'):]  # remove starting / if any
+#     # repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # py3.8 Remove slash at start
+#     file_path = PurePosixPath(repo_path, fr['relative_path'])
+#     if root_path:
+#         # NB: By checking for string we won't cast any PurePaths
+#         if isinstance(root_path, str):
+#             root_path = Path(root_path)
+#         file_path = root_path / file_path
+#     if uuid:
+#         file_path = alf.io.add_uuid_string(file_path, uuid)
+#     return file_path
+
 class Globus:
     """
     Wrapper for managing files on Globus endpoints.
-    From: https://github.com/int-brain-lab/ibllib/blob/ca8cd93ccac665efda6943f14047ba53503e8bb8/ibllib/io/globus.py
+    Adapted from https://github.com/int-brain-lab/ibllib/blob/ca8cd93ccac665efda6943f14047ba53503e8bb8/ibllib/io/globus.py
     """
     def __init__(self, client_name='default'):
         # Setting up transfer client
@@ -269,6 +381,7 @@ class Globus:
             _logger.error(str(e))
         return out
 
+    # TODO: allow to move all content of a directory with 'recursive' keyword in add_item
     def mv(self, source_endpoint, target_endpoint, source_paths, target_paths, timeout=None):
         """
         Move files from one endpoint to another.
@@ -336,13 +449,3 @@ class Globus:
                 # if we reach this point without returning or erroring, retry
                 _logger.warning("\nGlobus experienced a network error, retrying.")
                 self.run_task(globus_func, retries=(retries-1), time_out=time_out)
-
-#
-# def globus_path_from_dataset(dset, repository=None, uuid=False):
-#     """
-#     Returns local one file path from a dset record or a list of dsets records from REST
-#     :param dset: dset dictionary or list of dictionaries from ALyx rest endpoint
-#     :param repository: (optional) repository name of the file record (if None, will take
-#      the first filerecord with an URL)
-#     """
-#     return _path_from_dataset(dset, root_path=PurePosixPath('/'), repository=repository, uuid=uuid)
