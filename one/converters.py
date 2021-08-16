@@ -30,12 +30,14 @@ from .util import Listable
 def recurse(func):
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
-        obj, first, *args = args
+        if len(args) <= 1:
+            return func(*args, **kwargs)
+        obj, first = args[:2]
         exclude = (str, Mapping, pd.Series, pd.DataFrame)
         if isinstance(first, Iter) and not isinstance(first, exclude):
-            return [func(obj, item, *args, **kwargs) for item in first]
+            return [func(obj, item, *args[2:], **kwargs) for item in first]
         else:
-            return func(obj, first, *args, **kwargs)
+            return func(obj, first, *args[2:], **kwargs)
     return wrapper_decorator
 
 
