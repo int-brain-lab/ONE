@@ -200,11 +200,11 @@ def get_alf_path(path: Union[str, Path]) -> str:
 
     Examples
     --------
-    get_alf_path('etc/etc/lab/subj/2021-01-21/001')
-    'lab/subj/2021-01-21/001/collection/file.attr.ext'
+    get_alf_path('etc/etc/lab/Subjects/subj/2021-01-21/001')
+    'lab/Subjects/subj/2021-01-21/001/collection/file.attr.ext'
 
-    get_alf_path('subj/2021-01-21/001/collection/file.attr.ext')
-    'file.attr.ext'
+    get_alf_path('etc/etc/subj/2021-01-21/001/collection/file.attr.ext')
+    'subj/2021-01-21/001/collection/file.attr.ext'
 
     get_alf_path('collection/file.attr.ext')
     'collection/file.attr.ext'

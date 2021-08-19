@@ -1,0 +1,139 @@
+import unittest
+import string
+import random
+import datetime
+import fnmatch
+
+from one.api import ONE
+from one import registration
+import one.alf.exceptions as alferr
+from . import TEST_DB_1, OFFLINE_ONLY
+from one.tests import util
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestRegistrationClient(unittest.TestCase):
+    one = None
+    subject = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        temp_dir = util.set_up_env()
+        cls.addClassCleanup(temp_dir.cleanup)
+        cls.one = ONE(**TEST_DB_1, cache_dir=temp_dir.name)
+        cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
+        cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
+        # Create some files for this subject
+        session_path = cls.one.alyx.cache_dir / cls.subject / str(datetime.date.today()) / '001'
+        cls.session_path = session_path
+        for rel_path in cls.one.list_datasets(cls.one.search()[0]):
+            filepath = session_path.joinpath(rel_path)
+            filepath.parent.mkdir(exist_ok=True, parents=True)
+            filepath.touch()
+
+    def setUp(self) -> None:
+        self.client = registration.RegistrationClient(one=self.one)
+
+    def test_water_administration(self):
+        record = self.client.register_water_administration(self.subject, 35.10000000235)
+        self.assertEqual(record['subject'], self.subject)
+        self.assertEqual(record['water_administered'], 35.1)
+        self.assertEqual(record['water_type'], 'Water')
+        self.assertEqual(record['user'], self.one.alyx.user)
+        # Create session to associate
+        d = {'subject': self.subject,
+             'procedures': ['Behavior training/tasks'],
+             'type': 'Base',
+             'users': [self.one.alyx.user],
+             }
+        ses = self.one.alyx.rest('sessions', 'create', data=d)
+        volume = random.random()
+        record = self.client.register_water_administration(self.subject, volume,
+                                                           session=ses['url'])
+        self.assertEqual(record['subject'], self.subject)
+        self.assertEqual(record['session'], ses['url'][-36:])
+        # Check validations
+        with self.assertRaises(ValueError):
+            self.client.register_water_administration(self.subject, volume, session='NaN')
+        with self.assertRaises(ValueError):
+            self.client.register_water_administration(self.subject, .0)
+
+    def test_register_weight(self):
+        record = self.client.register_weight(self.subject, 35.10000000235)
+        self.assertEqual(record['subject'], self.subject)
+        self.assertEqual(record['weight'], 35.1)
+        self.assertEqual(record['user'], self.one.alyx.user)
+        # Check validations
+        with self.assertRaises(ValueError):
+            self.client.register_weight(self.subject, 0.0)
+
+    def test_ensure_ISO8601(self):
+        date = datetime.datetime(2021, 7, 14, 15, 53, 15, 525119)
+        self.assertEqual(self.client.ensure_ISO8601(date), '2021-07-14T15:53:15.525119')
+        self.assertEqual(self.client.ensure_ISO8601(date.date()), '2021-07-14T00:00:00')
+        date_str = '2021-07-14T15:53:15.525119'
+        self.assertEqual(self.client.ensure_ISO8601(date_str), date_str)
+        with self.assertRaises(ValueError):
+            self.client.ensure_ISO8601(f'{date:%D}')
+
+    def test_exists(self):
+        # Check user endpoint
+        with self.assertRaises(alferr.AlyxSubjectNotFound):
+            self.client.assert_exists('foobar', 'subjects')
+        self.client.assert_exists(self.subject, 'subjects')
+        # Check user endpoint with list
+        with self.assertRaises(alferr.ALFError) as ex:
+            self.client.assert_exists([self.one.alyx.user, 'foobar'], 'users')
+        self.assertIn('foobar', str(ex.exception))
+
+    def test_find_files(self):
+        # Remove a dataset type from the client to check that the dataset(s) are ignored
+        existing = (any(self.session_path.rglob(x['filename_pattern']))
+                    for x in self.client.dtypes)
+        removed = self.client.dtypes.pop(next(i for i, x in enumerate(existing) if x))
+        files = list(self.client.find_files(self.session_path))
+        self.assertEqual(105, len(files))
+        self.assertTrue(all(x.is_file() for x in files))
+        # Check removed file pattern not in file list
+        self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
+
+    def test_create_new_session(self):
+        # Check register = True
+        session_path, eid = self.client.create_new_session(self.subject, date='2020-01-01')
+        expected = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001').as_posix()
+        self.assertEqual(session_path.as_posix(), expected)
+        self.assertIsNotNone(eid)
+        # Check register = False
+        session_path, eid = self.client.create_new_session(
+            self.subject, date='2020-01-01', register=False)
+        expected = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '002').as_posix()
+        self.assertEqual(session_path.as_posix(), expected)
+        self.assertIsNone(eid)
+
+    def test_register_session(self):
+        datasets = self.one.list_datasets(self.one.search()[0])  # Some datasets to create
+        session_path = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001')
+        # Ensure session exists
+        file_list = [session_path.joinpath(x) for x in datasets]
+        # Create the files before registering
+        for x in file_list:
+            x.parent.mkdir(exist_ok=True, parents=True)
+            x.touch()
+
+        ses = self.client.register_session(session_path)
+        self.assertTrue(len(ses['data_dataset_session_related']))
+        # records = self.client.register_files(file_list)
+        # self.assertIsInstance(records, dict)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        for admin in cls.one.alyx.rest('water-administrations', 'list',
+                                       django='subject__nickname,' + cls.subject, no_cache=True):
+            cls.one.alyx.rest('water-administrations', 'delete', id=admin['url'][-36:])
+        for ses in cls.one.alyx.rest('sessions', 'list', subject=cls.subject, no_cache=True):
+            cls.one.alyx.rest('sessions', 'delete', id=ses['url'][-36:])
+        cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
+
+
+if __name__ == '__main__':
+    unittest.main()

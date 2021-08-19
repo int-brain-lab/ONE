@@ -1,10 +1,23 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [0.5.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.0.0]
+
+### Added
+
+- registration module with functions for posting sessions and file records to Alyx
 
 ### Modified
 
-- HOTFIX: Error no longer raised when logging dimension mismatch in alf.io.load_object
+- bumped minimum pandas version in requirements
+- REST cache supports URL with port
+- describe revision now supported
+- ALF spec now requires 'Subjects' folder in order to parse lab, i.e. .../lab/Subjects/subjects/...
+
+## [0.5.3]
+
+### Modified
+
+- HOTFIX: error no longer raised when logging dimension mismatch in alf.io.load_object
 
 ## [0.5.2]
 

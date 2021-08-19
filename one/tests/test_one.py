@@ -679,15 +679,15 @@ class TestOneAlyx(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             self.one.pid2eid(pid, query_type='local')
 
-    @unittest.skip('Requires changes to Alyx')
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe_revision(self, mock_stdout):
         record = {
-            'name': 'ks2.1',
-            'description': 'Spike data sorted using Kilosort version 2.1\n'
+            'name': '2020-01-01',
+            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
         }
-        self.one.describe_revision(record['name'])
-        self.assertEqual(mock_stdout.getvalue(), record['description'])
+        with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, self.tempdir.name)):
+            self.one.describe_revision(record['name'])
+        self.assertEqual(record['description'], mock_stdout.getvalue().strip())
         self.one.describe_revision('foobar')
         self.assertTrue('not found' in mock_stdout.getvalue())
 
