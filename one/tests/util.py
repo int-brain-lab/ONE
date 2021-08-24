@@ -65,7 +65,8 @@ def setup_test_params(token=False):
         assert Path(filename).exists()
 
         # Add to cache map
-        if (map_file := params_dir / '.caches').exists():
+        map_file = params_dir / '.caches'
+        if map_file.exists():
             with open(map_file, 'r+') as f:
                 data = json.load(f)
                 data['CLIENT_MAP'][test_pars[1:]] = None
