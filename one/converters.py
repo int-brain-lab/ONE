@@ -11,7 +11,7 @@ import re
 import functools
 import datetime
 from uuid import UUID
-from inspect import getmembers, isfunction, unwrap
+from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 from typing import Optional, Union, Mapping, List, Iterable as Iter
