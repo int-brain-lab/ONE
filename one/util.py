@@ -49,7 +49,7 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         if 'default_revision' in d:
-            rec['default_revision'] = d['default_revision']
+            rec['default_revision'] = d['default_revision'] == 'True'
         return rec
 
     records = map(_to_record, ses['data_dataset_session_related'])

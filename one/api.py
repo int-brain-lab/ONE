@@ -1199,7 +1199,7 @@ class OneAlyx(One):
             _logger.warning(f"{dset_str} Dataset not found")
             if update_cache:
                 if isinstance(did, str) and self._index_type('datasets') is int:
-                    did = parquet.str2np(did)[0]
+                    did = parquet.str2np(did)
                 elif self._index_type('datasets') is str and not isinstance(did, str):
                     did = parquet.np2str(did)
                 try:
