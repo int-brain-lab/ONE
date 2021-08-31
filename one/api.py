@@ -1195,13 +1195,17 @@ class OneAlyx(One):
                 did = dset['url'][-36:]
 
         if not url:
-            _logger.warning("Dataset not found")
+            dset_str = f"{dset['session'][-36:]}: {dset['collection']} / {dset['name']}"
+            _logger.warning(f"{dset_str} Dataset not found")
             if update_cache:
                 if isinstance(did, str) and self._index_type('datasets') is int:
                     did = parquet.str2np(did)
                 elif self._index_type('datasets') is str and not isinstance(did, str):
                     did = parquet.np2str(did)
-                self._cache['datasets'].at[did, 'exists'] = False
+                try:
+                    self._cache['datasets'].loc[did, 'exists'] = False
+                except KeyError as e:
+                    _logger.warning(f"{dset_str} couldn't update exist status in cache. {e}")
             return
         target_dir = Path(cache_dir or self._cache_dir, get_alf_path(url)).parent
         return self._download_file(url=url, target_dir=target_dir, **kwargs)

@@ -11,7 +11,7 @@ import re
 import functools
 import datetime
 from uuid import UUID
-from inspect import getmembers, isfunction, unwrap
+from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 from typing import Optional, Union, Mapping, List, Iterable as Iter
@@ -636,22 +636,3 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
     if uuid:
         file_path = add_uuid_string(file_path, uuid)
     return file_path
-
-
-def deprecate(func):
-    """Print deprecation warning about decorated function"""
-    @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
-        import warnings
-        warnings.warn(f'Use "{func.__name__}" instead', DeprecationWarning, stacklevel=2)
-        return func(*args, **kwargs)
-    return wrapper_decorator
-
-
-# Add deprecated legacy methods
-from_funcs = getmembers(ConversionMixin,
-                        lambda x: isfunction(x) and '2' in x.__name__)
-for name, fn in from_funcs:
-    # setattr(ConversionMixin, name, recurse(fn))  # Add recursion decorator
-    attr = '{1}_from_{0}'.format(*name.split('2'))
-    setattr(ConversionMixin, attr, deprecate(recurse(fn)))  # Add from function alias

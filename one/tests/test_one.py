@@ -640,14 +640,9 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        expected = [x for x in self.one._cache['datasets'].columns
-                    if x != 'default_revision']
+        expected = [x for x in self.one._cache['datasets'].columns] + ['default_revision']
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
-        # NB: For now there is no default_revision in the dataset serializer
-        for r in ses['data_dataset_session_related']:
-            r['default_revision'] = True
-        session, datasets = ses2records(ses)
         self.assertTrue(datasets.default_revision.all())
 
     def test_datasets2records(self):
@@ -851,6 +846,14 @@ class TestOneDownload(unittest.TestCase):
         rec = self.one.alyx.get(rec['url'])
         file = self.one._download_dataset(rec)
         self.assertIsNotNone(file)
+
+        # Check behaviour when URL invalid
+        did = parquet.str2np(rec['url'].split('/')[-1]).tolist()
+        self.assertTrue(self.one._cache.datasets.loc[did, 'exists'].all())
+        rec['file_records'][0]['data_url'] = None
+        file = self.one._download_dataset(rec)
+        self.assertIsNone(file)
+        self.assertFalse(self.one._cache.datasets.loc[did, 'exists'].all())
 
         rec = self.one.list_datasets(eid, details=True)
         rec = rec[rec.rel_path.str.contains('channels.brainLocation')]
