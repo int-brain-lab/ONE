@@ -418,6 +418,10 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv')
 
+        # Check loading without extension
+        file = self.one.load_dataset(eid, '_ibl_wheel.position', download_only=True)
+        self.assertTrue(str(file).endswith('wheel.position.npy'))
+
     def test_load_datasets(self):
         eid = 'KS005/2019-04-02/001'
         # Check download only
@@ -463,6 +467,12 @@ class TestONECache(unittest.TestCase):
         self.assertIsNone(self.one.load_datasets(eid, [])[0])
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
+
+        # Check loading without extensions
+        # Check download only
+        dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps']
+        files, meta = self.one.load_datasets(eid, dsets, download_only=True)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
 
     def test_load_dataset_from_id(self):
         id = np.array([[-9204203870374650458, -6411285612086772563]])
