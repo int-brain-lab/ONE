@@ -39,7 +39,7 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import rel_path_parts, get_session_path, get_alf_path, filename_parts
+from .alf.files import rel_path_parts, get_session_path, get_alf_path
 from .alf.spec import is_uuid_string
 from one.converters import ConversionMixin
 import one.util as util

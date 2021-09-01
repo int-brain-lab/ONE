@@ -138,8 +138,8 @@ that match a particular pattern, e.g. `one.load_dataset(eid, '*wheel.position.np
 
 By default wildcard mode is on.  In this mode, the extension may be omitted, e.g.
 `one.load_dataset(eid, 'spikes.times')`. This is equivalent to 'spikes.times.*'. Note that an
-exception will be raised if datasets with more than one extension are found (such as 
-'spikes.times.npy' and 'spikes.times.csv').  When loading a dataset with extra parts, 
+exception will be raised if datasets with more than one extension are found (such as
+'spikes.times.npy' and 'spikes.times.csv').  When loading a dataset with extra parts,
 the extension (or wildcard) is explicitly required: 'spikes.times.part1.*'.
 
 If you set the wildcards property of One to False, loading will be done using regular expressions,
