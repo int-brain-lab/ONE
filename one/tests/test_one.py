@@ -418,6 +418,10 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv')
 
+        # Check loading without extension
+        file = self.one.load_dataset(eid, '_ibl_wheel.position', download_only=True)
+        self.assertTrue(str(file).endswith('wheel.position.npy'))
+
     def test_load_datasets(self):
         eid = 'KS005/2019-04-02/001'
         # Check download only
@@ -463,6 +467,12 @@ class TestONECache(unittest.TestCase):
         self.assertIsNone(self.one.load_datasets(eid, [])[0])
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
+
+        # Check loading without extensions
+        # Check download only
+        dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps']
+        files, meta = self.one.load_datasets(eid, dsets, download_only=True)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
 
     def test_load_dataset_from_id(self):
         id = np.array([[-9204203870374650458, -6411285612086772563]])
@@ -640,14 +650,9 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        expected = [x for x in self.one._cache['datasets'].columns
-                    if x != 'default_revision']
+        expected = [x for x in self.one._cache['datasets'].columns] + ['default_revision']
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
-        # NB: For now there is no default_revision in the dataset serializer
-        for r in ses['data_dataset_session_related']:
-            r['default_revision'] = True
-        session, datasets = ses2records(ses)
         self.assertTrue(datasets.default_revision.all())
 
     def test_datasets2records(self):
@@ -851,6 +856,14 @@ class TestOneDownload(unittest.TestCase):
         rec = self.one.alyx.get(rec['url'])
         file = self.one._download_dataset(rec)
         self.assertIsNotNone(file)
+
+        # Check behaviour when URL invalid
+        did = parquet.str2np(rec['url'].split('/')[-1]).tolist()
+        self.assertTrue(self.one._cache.datasets.loc[did, 'exists'].all())
+        rec['file_records'][0]['data_url'] = None
+        file = self.one._download_dataset(rec)
+        self.assertIsNone(file)
+        self.assertFalse(self.one._cache.datasets.loc[did, 'exists'].all())
 
         rec = self.one.list_datasets(eid, details=True)
         rec = rec[rec.rel_path.str.contains('channels.brainLocation')]

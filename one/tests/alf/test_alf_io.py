@@ -326,6 +326,12 @@ class TestsAlf(unittest.TestCase):
         # the third usage is to provide file list
         obj = alfio.load_object(self.object_files[:3], short_keys=False)
         self.assertEqual(3, len(obj))
+        # Check dimension mismatch
+        data = np.random.rand(list(obj.values())[0].size + 1)
+        np.save(file=str(self.object_files[0]), arr=data)  # Save a new size
+        with self.assertLogs(logging.getLogger('one.alf.io'), logging.WARNING) as log:
+            alfio.load_object(self.tmpdir, 'neuveu', short_keys=False)
+        self.assertIn(str(data.shape), log.output[0])
 
     def test_save_npy(self):
         # test with straight vectors
