@@ -661,13 +661,19 @@ class One(ConversionMixin):
         Examples
         --------
         intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
-        intervals = one.load_dataset(eid, '*trials.intervals*')
+        # Load dataset without specifying extension
+        intervals = one.load_dataset(eid, 'trials.intervals')  # wildcard mode only
+        intervals = one.load_dataset(eid, '*trials.intervals*')  # wildcard mode only
         filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
         spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
-        old_spikes = one.load_dataset(eid, ''spikes.times.npy',
+        old_spikes = one.load_dataset(eid, 'spikes.times.npy',
                                       collection='alf/probe01', revision='2020-08-31')
         """
         datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
+        # If only two parts and wildcards are on, append ext wildcard
+        if self.wildcards and isinstance(dataset, str) and len(dataset.split('.')) == 2:
+            dataset += '.*'
+            _logger.info('Appending extension wildcard: ' + dataset)
 
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
                                         wildcards=self.wildcards)
@@ -761,6 +767,9 @@ class One(ConversionMixin):
             return None, all_datasets.iloc[0:0]  # Return empty
 
         # Filter and load missing
+        if self.wildcards:  # Append extension wildcard if 'object.attribute' string
+            datasets = [x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
+                        for x in datasets]
         slices = [util.filter_datasets(all_datasets, x, y, z, wildcards=self.wildcards)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]

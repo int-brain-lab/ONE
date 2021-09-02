@@ -129,15 +129,21 @@ print([x for x in one.list_collections(session) if 'alf/probe' in x])
 """
 Advanced loading:
 
-The load methods require an exact match, therefore `one.load_dataset(eid, 'spikes.times')` will
-raise an exception because 'spikes.times' does not exactly match 'spikes.times.npy'.
-Likewise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
+The load methods typically require an exact match, therefore when loading '_ibl_wheel.position.npy'
+`one.load_dataset(eid, 'wheel.position.npy')` will raise an exception because the namespace is
+missing. Likewise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.
 
 Loading can be done using unix shell style wildcards, allowing you to load objects and datasets
-that match a particular pattern.
+that match a particular pattern, e.g. `one.load_dataset(eid, '*wheel.position.npy')`.
+
+By default wildcard mode is on.  In this mode, the extension may be omitted, e.g.
+`one.load_dataset(eid, 'spikes.times')`. This is equivalent to 'spikes.times.*'. Note that an
+exception will be raised if datasets with more than one extension are found (such as
+'spikes.times.npy' and 'spikes.times.csv').  When loading a dataset with extra parts,
+the extension (or wildcard) is explicitly required: 'spikes.times.part1.*'.
 
 If you set the wildcards property of One to False, loading will be done using regular expressions,
-allowing more powerful pattern matching.
+allowing for more powerful pattern matching.
 
 Below is table showing how to express unix style wildcards as a regular expression:
 
@@ -146,6 +152,8 @@ Below is table showing how to express unix style wildcards as a regular expressi
    .*            *          Match zero or more chars     spikes.times.*
    .?            ?          Match one char               timestamps.?sv
    []            []         Match a range of chars       obj.attr.part[0-9].npy
+
+NB: In regex '.' means 'any character'; to match '.' exactly, escape it with a backslash
 
 Examples:
     spikes.times.* (regex), spikes.times* (wildcard) matches...
