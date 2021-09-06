@@ -19,11 +19,12 @@ from one.tests import util
 class TestRegistrationClient(unittest.TestCase):
     one = None
     subject = None
+    temp_dir = None
 
     @classmethod
     def setUpClass(cls) -> None:
         temp_dir = util.set_up_env()
-        cls.addClassCleanup(temp_dir.cleanup)
+        # cls.addClassCleanup(temp_dir.cleanup)  # py3.8
         cls.one = ONE(**TEST_DB_1, cache_dir=temp_dir.name)
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
