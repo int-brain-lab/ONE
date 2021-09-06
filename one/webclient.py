@@ -473,7 +473,7 @@ class AlyxClient():
         if password is None:
             password = getattr(self._par, 'ALYX_PWD', None)
         if password is None and not self.silent:
-            password = getpass('Enter Alyx password:')
+            password = getpass(f'Enter Alyx password for "{username}":')
         try:
             credentials = {'username': username, 'password': password}
             rep = requests.post(self.base_url + '/auth-token', data=credentials)

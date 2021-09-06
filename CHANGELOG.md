@@ -1,6 +1,5 @@
 # Changelog
-
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.0.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.0]
 
 ### Added
 
@@ -12,6 +11,19 @@
 - REST cache supports URL with port
 - describe revision now supported
 - ALF spec now requires 'Subjects' folder in order to parse lab, i.e. .../lab/Subjects/subjects/...
+
+## [1.1.0]
+
+### Added
+- extension may be omitted when loading dataset in wildcard mode if dataset doesn't have extra parts
+
+## [1.0.0]
+
+### Modified
+- removed deprecated `_from_` converters
+- removed walrus from test
+- raise warning when fails to set dataset exists to False
+- password prompt now specifies user
 
 ## [0.5.3]
 
