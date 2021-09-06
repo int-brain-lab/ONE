@@ -11,6 +11,7 @@
 - REST cache supports URL with port
 - describe revision now supported
 - ALF spec now requires 'Subjects' folder in order to parse lab, i.e. .../lab/Subjects/subjects/...
+- password prompt now specifies user
 
 ## [1.1.0]
 
@@ -23,7 +24,6 @@
 - removed deprecated `_from_` converters
 - removed walrus from test
 - raise warning when fails to set dataset exists to False
-- password prompt now specifies user
 
 ## [0.5.3]
 
