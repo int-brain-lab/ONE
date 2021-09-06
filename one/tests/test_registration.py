@@ -96,7 +96,7 @@ class TestRegistrationClient(unittest.TestCase):
                     for x in self.client.dtypes)
         removed = self.client.dtypes.pop(next(i for i, x in enumerate(existing) if x))
         files = list(self.client.find_files(self.session_path))
-        self.assertEqual(105, len(files))
+        self.assertEqual(4, len(files))
         self.assertTrue(all(x.is_file() for x in files))
         # Check removed file pattern not in file list
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
@@ -150,7 +150,7 @@ class TestRegistrationClient(unittest.TestCase):
         # Test a few things not checked in register_session
         session_path, eid = self.client.create_new_session(self.subject)
         # Check registering single file, dry run, default False
-        file_name = session_path.joinpath('spikes.times.npy')
+        file_name = session_path.joinpath('wheel.position.npy')
         file_name.touch()
         rec = self.client.register_files(str(file_name), default=False, dry=True)
         self.assertIsInstance(rec, dict)
@@ -161,14 +161,14 @@ class TestRegistrationClient(unittest.TestCase):
         self.client.dtypes[-1]['name'] += '1'
         # Try registering ambiguous / invalid datasets
         ambiguous = self.client.dtypes[-1]['filename_pattern'].replace('*', 'npy')
-        files = [session_path.joinpath('spikes.times.xxx'),  # Unknown ext
+        files = [session_path.joinpath('wheel.position.xxx'),  # Unknown ext
                  session_path.joinpath('foo.bar.npy'),  # Unknown dtype
                  session_path.joinpath(ambiguous)  # Ambiguous dtype
                  ]
         version = ['1.2.9'] * len(files)
         with self.assertLogs('one.registration', logging.DEBUG) as dbg:
             rec = self.client.register_files(files, versions=version)
-            self.assertIn('spikes.times.xxx: No matching extension', dbg.records[0].message)
+            self.assertIn('wheel.position.xxx: No matching extension', dbg.records[0].message)
             self.assertIn('foo.bar.npy: No matching dataset type', dbg.records[1].message)
             self.assertIn(f'{ambiguous}: Multiple matching', dbg.records[2].message)
         self.assertFalse(len(rec))
