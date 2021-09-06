@@ -35,6 +35,7 @@ import io
 
 import numpy as np
 import pandas as pd
+from requests.exceptions import HTTPError
 
 from one.api import ONE, One, OneAlyx
 from one.util import (
@@ -687,11 +688,14 @@ class TestOneAlyx(unittest.TestCase):
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe_revision(self, mock_stdout):
         record = {
-            'name': '2020-01-01',
+            'name': str(datetime.date.today()) + 'a',
             'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
         }
-        with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, self.tempdir.name)):
-            self.one.describe_revision(record['name'])
+        try:
+            self.one.alyx.rest('revisions', 'read', id=record['name'], no_cache=True)
+        except HTTPError:
+            self.one.alyx.rest('revisions', 'create', data=record)
+        self.one.describe_revision(record['name'])
         self.assertEqual(record['description'], mock_stdout.getvalue().strip())
         self.one.describe_revision('foobar')
         self.assertTrue('not found' in mock_stdout.getvalue())

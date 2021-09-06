@@ -1479,6 +1479,7 @@ class OneAlyx(One):
         except requests.exceptions.HTTPError as ex:
             if '404' not in str(ex):
                 raise ex
+            print(f'revision "{revision}" not found')
 
     def _dataset_name2id(self, dset_name, eid=None):
         # TODO finish function
