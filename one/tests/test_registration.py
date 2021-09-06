@@ -1,12 +1,16 @@
+import logging
 import unittest
+import unittest.mock
 import string
 import random
 import datetime
 import fnmatch
+from io import StringIO
 
 from one.api import ONE
 from one import registration
 import one.alf.exceptions as alferr
+from one.alf.io import next_num_folder
 from . import TEST_DB_1, OFFLINE_ONLY
 from one.tests import util
 
@@ -120,10 +124,54 @@ class TestRegistrationClient(unittest.TestCase):
             x.parent.mkdir(exist_ok=True, parents=True)
             x.touch()
 
-        ses = self.client.register_session(session_path)
+        ses, recs = self.client.register_session(str(session_path))
         self.assertTrue(len(ses['data_dataset_session_related']))
-        # records = self.client.register_files(file_list)
-        # self.assertIsInstance(records, dict)
+        self.assertEqual(len(ses['data_dataset_session_related']), len(recs))
+
+    def test_create_sessions(self):
+        session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
+        session_path.mkdir()
+        session_path.joinpath('create_me.flag').touch()
+        # Should print session path in dry mode
+        with unittest.mock.patch('sys.stdout', new_callable=StringIO) as stdout:
+            session_paths, ses = self.client.create_sessions(self.one.alyx.cache_dir, dry=True)
+            self.assertTrue(str(session_path) in stdout.getvalue())
+            self.assertTrue(len(ses) == 1 and ses[0] is None)
+            self.assertTrue(session_path.joinpath('create_me.flag').exists())
+
+        # Should find and register session
+        session_paths, ses = self.client.create_sessions(self.one.alyx.cache_dir)
+        self.assertTrue(len(ses) == 1 and len(session_paths) == 1)
+        self.assertFalse(session_path.joinpath('create_me.flag').exists())
+        self.assertEqual(ses[0]['number'], int(session_path.parts[-1]))
+        self.assertEqual(session_paths[0], session_path)
+
+    def test_register_files(self):
+        # Test a few things not checked in register_session
+        session_path, eid = self.client.create_new_session(self.subject)
+        # Check registering single file, dry run, default False
+        file_name = session_path.joinpath('spikes.times.npy')
+        file_name.touch()
+        rec = self.client.register_files(str(file_name), default=False, dry=True)
+        self.assertIsInstance(rec, dict)
+        self.assertFalse(rec['default'])
+        self.assertNotIn('id', rec)
+        # Add ambiguous dataset type to types list
+        self.client.dtypes.append(self.client.dtypes[-1].copy())
+        self.client.dtypes[-1]['name'] += '1'
+        # Try registering ambiguous / invalid datasets
+        ambiguous = self.client.dtypes[-1]['filename_pattern'].replace('*', 'npy')
+        files = [session_path.joinpath('spikes.times.xxx'),  # Unknown ext
+                 session_path.joinpath('foo.bar.npy'),  # Unknown dtype
+                 session_path.joinpath(ambiguous)  # Ambiguous dtype
+                 ]
+        version = ['1.2.9'] * len(files)
+        with self.assertLogs('one.registration', logging.DEBUG) as dbg:
+            rec = self.client.register_files(files, versions=version)
+            self.assertIn('spikes.times.xxx: No matching extension', dbg.records[0].message)
+            self.assertIn('foo.bar.npy: No matching dataset type', dbg.records[1].message)
+            self.assertIn(f'{ambiguous}: Multiple matching', dbg.records[2].message)
+        self.assertFalse(len(rec))
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -19,6 +19,7 @@ import logging
 from uuid import UUID
 import itertools
 from collections import defaultdict
+from fnmatch import fnmatch
 
 import requests.exceptions
 
@@ -62,18 +63,19 @@ class RegistrationClient:
 
         Returns
         -------
-            Newly created session paths
+            Newly created session paths; Alyx session records
         """
-        flag_files = Path(root_data_folder).glob(glob_pattern)
+        flag_files = list(Path(root_data_folder).glob(glob_pattern))
+        records = []
         for flag_file in flag_files:
             if dry:
-                print(flag_file)
+                records.append(print(flag_file))
                 continue
             _logger.info('creating session for ' + str(flag_file.parent))
             # providing a false flag stops the registration after session creation
-            self.create_session(flag_file.parent)
+            records.append(self.create_session(flag_file.parent))
             flag_file.unlink()
-        return [ff.parent for ff in flag_files]
+        return [ff.parent for ff in flag_files], records
 
     def create_session(self, session_path) -> dict:
         """Create a remote session on Alyx from a local session path, without registering files
@@ -260,7 +262,8 @@ class RegistrationClient:
                 'number': details['number']}
         if kwargs.get('end_time', False):
             ses_['end_time'] = self.ensure_ISO8601(kwargs.pop('end_time'))
-        start_time = kwargs.pop('start_time', None)
+        start_time = self.ensure_ISO8601(kwargs.pop('start_time', details['date']))
+        assert start_time[:10] == details['date'], 'start_time doesn\'t match session path'
         if kwargs.get('procedures', False):
             ses_['procedures'] = ensure_list(kwargs.pop('procedures'))
         assert ('subject', 'number') not in kwargs
@@ -269,7 +272,7 @@ class RegistrationClient:
         ses_.update(kwargs)
 
         if not session:  # Create from scratch
-            ses_['start_time'] = self.ensure_ISO8601(start_time)
+            ses_['start_time'] = start_time
             session = self.one.alyx.rest('sessions', 'create', data=ses_)
         else:  # Update existing
             if start_time:
@@ -281,6 +284,8 @@ class RegistrationClient:
         if not file_list:
             return session, None
         recs = self.register_files(self.find_files(ses_path) if file_list is True else file_list)
+        if recs:  # Update local session data after registering files
+            session['data_dataset_session_related'] = ensure_list(recs)
         return session, recs
 
     def register_files(self, file_list, versions=None, default=True, created_by=None,
@@ -325,10 +330,16 @@ class RegistrationClient:
         for fn, ver in zip(map(pathlib.Path, file_list), versions):
             session_path = get_session_path(fn)
             if fn.suffix not in self.file_extensions:
-                _logger.debug(f'{fn}: No matching extension {fn.suffix} in database')
+                _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
                 continue
-            if fn.suffix not in self.file_extensions:
-                _logger.warning('No matching data format (i.e. file extension) for: ' + str(fn))
+            type_match = [x['name'] for x in self.dtypes
+                          if fnmatch(fn.name, x['filename_pattern'] or '')]
+            if len(type_match) == 0:
+                _logger.debug(f'{fn}: No matching dataset type in database')
+                continue
+            elif len(type_match) != 1:
+                _logger.debug(f'{fn}: Multiple matching dataset types in database\n'
+                              '"' + '", "'.join(type_match) + '"')
                 continue
             F[session_path].append(fn.relative_to(session_path))
             V[session_path].append(ver)
