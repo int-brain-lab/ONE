@@ -6,6 +6,8 @@ import random
 import datetime
 import fnmatch
 from io import StringIO
+from sys import version_info  # For 3.7
+from pkg_resources import parse_version
 
 from one.api import ONE
 from one import registration
@@ -24,8 +26,10 @@ class TestRegistrationClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         temp_dir = util.set_up_env()
-        # cls.addClassCleanup(temp_dir.cleanup)  # py3.8
+        if parse_version('.'.join(map(str, version_info[:2]))) >= parse_version('3.8'):
+            cls.addClassCleanup(temp_dir.cleanup)  # py3.8
         cls.one = ONE(**TEST_DB_1, cache_dir=temp_dir.name)
+        cls.one.alyx.clear_rest_cache()
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
         # Create some files for this subject
@@ -97,7 +101,7 @@ class TestRegistrationClient(unittest.TestCase):
                     for x in self.client.dtypes)
         removed = self.client.dtypes.pop(next(i for i, x in enumerate(existing) if x))
         files = list(self.client.find_files(self.session_path))
-        self.assertEqual(4, len(files))
+        self.assertEqual(105, len(files))
         self.assertTrue(all(x.is_file() for x in files))
         # Check removed file pattern not in file list
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
@@ -131,7 +135,7 @@ class TestRegistrationClient(unittest.TestCase):
 
     def test_create_sessions(self):
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
-        session_path.mkdir()
+        session_path.mkdir(parents=True)
         session_path.joinpath('create_me.flag').touch()
         # Should print session path in dry mode
         with unittest.mock.patch('sys.stdout', new_callable=StringIO) as stdout:
