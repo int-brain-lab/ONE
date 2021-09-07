@@ -187,7 +187,7 @@ def get_rest_dir(client=None) -> Path:
     rest_dir = get_params_dir() / '.rest'
     if client:
         scheme, loc, *_ = urlsplit(client)
-        rest_dir /= Path(loc, scheme)
+        rest_dir /= Path(loc.replace(':', '_'), scheme)
     return rest_dir
 
 

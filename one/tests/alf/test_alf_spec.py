@@ -11,7 +11,7 @@ class TestALFSpec(unittest.TestCase):
     def test_regex(self):
         # Should return the full regex with named capture groups by default
         verifiable = alf_spec.regex()
-        expected = ('(?P<lab>\\w+)/(Subjects/)?'
+        expected = ('((?P<lab>\\w+)/Subjects/)?'
                     '(?P<subject>[\\w-]+)/(?P<date>\\d{4}-\\d{2}-\\d{2})/(?P<number>\\d{1,3})/'
                     '((?P<collection>[\\w/]+)/)?(#(?P<revision>[\\w-]+)#/)?'
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
@@ -108,10 +108,9 @@ class TestALFSpec(unittest.TestCase):
 
         # Test a full path with no collection, no Subjects and no number padding
         full = (
-            'angelakilab/NYU-40/2021-04-12/1/'
-            '_kilosort_raw.output.e8c9d765764778b7ee5bda08c982037f8f07e690.tar'
+            'NYU-40/2021-04-12/1/_kilosort_raw.output.e8c9d765764778b7ee5bda08c982037f8f07e690.tar'
         )
-        expected.update(collection=None, number='1')
+        expected.update(collection=None, number='1', lab=None)
         verifiable = re.match(alf_spec.regex(), full).groupdict()
         self.assertCountEqual(verifiable, expected)
 

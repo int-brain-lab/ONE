@@ -1457,14 +1457,29 @@ class OneAlyx(One):
             raise ValueError('Unrecognized name or UUID')
         return self.alyx.rest('datasets', 'read', id=dset)['dataset_type']
 
-    def describe_revision(self, revision):
-        raise NotImplementedError('Requires changes to revisions endpoint')
-        rec = self.alyx.rest('revisions', 'list', name=revision)  # py 3.8
-        # if rec := self.alyx.rest('revisions', 'list', name=revision):  # py 3.8
-        if rec:
-            print(rec[0]['description'])
-        else:
-            print(f'Revision "{revision}" not found')
+    def describe_revision(self, revision, full=False):
+        """Print description of a revision
+
+        Parameters
+        ----------
+        revision : str
+            The name of the revision (without '#')
+        full : bool
+            If true, returns the matching record
+
+        Returns
+        -------
+        None if full is false or no record found, otherwise returns record as dict
+        """
+        try:
+            rec = self.alyx.rest('revisions', 'read', id=revision)
+            print(rec['description'])
+            if full:
+                return rec
+        except requests.exceptions.HTTPError as ex:
+            if '404' not in str(ex):
+                raise ex
+            print(f'revision "{revision}" not found')
 
     def _dataset_name2id(self, dset_name, eid=None):
         # TODO finish function

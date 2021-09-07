@@ -11,9 +11,15 @@ from iblutil.io.parquet import uuid2np, np2str
 import one.params
 
 
-def set_up_env() -> tempfile.TemporaryDirectory:
+def set_up_env(use_temp_cache=True) -> tempfile.TemporaryDirectory:
     """
     Create a temporary directory and copy cache fixtures over
+
+    Parameters
+    ----------
+    use_temp_cache : bool
+        If True, copies REST cache fixtures to the temporary directory, otherwise they are copied
+        to the directory returned by one.params.get_params_dir
 
     Returns
     -------
@@ -27,7 +33,8 @@ def set_up_env() -> tempfile.TemporaryDirectory:
         assert Path(filename).exists()
 
     # Copy cached rest responses
-    setup_rest_cache(Path(tempdir.name) / '.one')
+    rest_cache_location = Path(tempdir.name) / '.one' if use_temp_cache else None
+    setup_rest_cache(rest_cache_location)
 
     return tempdir
 

@@ -1,8 +1,4 @@
-"""The complete AlF specification descriptors and validators
-TODO Currently extensions are not optional
-TODO Make Subjects an optional requirement with lab, i.e. lab/Subjects/subject/date/num OR
- subject/date/num but NOT lab/subject/date/num
-"""
+"""The complete AlF specification descriptors and validators"""
 import re
 import textwrap
 from uuid import UUID
@@ -11,9 +7,9 @@ from typing import Union
 from iblutil.util import flatten
 
 SPEC_DESCRIPTION = {
-    'lab': 'The name of the lab where the data were collected',
+    'lab': 'The name of the lab where the data were collected (optional).',
     'Subjects': 'An optional directory to indicate that the experiment data are divided by '
-                'subject',
+                'subject.  If organizing by lab, this directory is required.',
     'subject': 'The subject name, typically an arbitrary label',
     'date': 'The date on which the experiment session took place, in ISO format, i.e. yyyy-mm-dd',
     'number': 'The sequential session number of the day, optionally zero-padded to be three '
@@ -90,7 +86,7 @@ SPEC_DESCRIPTION = {
 
 
 """The following are the specifications and patterns for ALFs"""
-SESSION_SPEC = '{lab}/(Subjects/)?{subject}/{date}/{number}'
+SESSION_SPEC = '({lab}/Subjects/)?{subject}/{date}/{number}'
 COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
 FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
 REL_PATH_SPEC = f'{COLLECTION_SPEC}{FILE_SPEC}'
