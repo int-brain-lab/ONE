@@ -25,10 +25,8 @@ class TestRegistrationClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        temp_dir = util.set_up_env(use_temp_cache=False)
-        if parse_version('.'.join(map(str, version_info[:2]))) >= parse_version('3.8'):
-            cls.addClassCleanup(temp_dir.cleanup)  # py3.8
-        cls.one = ONE(**TEST_DB_1, cache_dir=temp_dir.name)
+        cls.temp_dir = util.set_up_env(use_temp_cache=False)
+        cls.one = ONE(**TEST_DB_1, cache_dir=cls.temp_dir.name)
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
         # Create some files for this subject
@@ -185,6 +183,7 @@ class TestRegistrationClient(unittest.TestCase):
         for ses in cls.one.alyx.rest('sessions', 'list', subject=cls.subject, no_cache=True):
             cls.one.alyx.rest('sessions', 'delete', id=ses['url'][-36:])
         cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
+        cls.temp_dir.cleanup()
 
 
 if __name__ == '__main__':
