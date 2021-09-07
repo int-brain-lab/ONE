@@ -25,17 +25,16 @@ class TestRegistrationClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        temp_dir = util.set_up_env()
+        temp_dir = util.set_up_env(use_temp_cache=False)
         if parse_version('.'.join(map(str, version_info[:2]))) >= parse_version('3.8'):
             cls.addClassCleanup(temp_dir.cleanup)  # py3.8
         cls.one = ONE(**TEST_DB_1, cache_dir=temp_dir.name)
-        cls.one.alyx.clear_rest_cache()
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
         # Create some files for this subject
         session_path = cls.one.alyx.cache_dir / cls.subject / str(datetime.date.today()) / '001'
         cls.session_path = session_path
-        for rel_path in cls.one.list_datasets(cls.one.search()[0]):
+        for rel_path in cls.one.list_datasets():
             filepath = session_path.joinpath(rel_path)
             filepath.parent.mkdir(exist_ok=True, parents=True)
             filepath.touch()
@@ -97,11 +96,11 @@ class TestRegistrationClient(unittest.TestCase):
 
     def test_find_files(self):
         # Remove a dataset type from the client to check that the dataset(s) are ignored
-        existing = (any(self.session_path.rglob(x['filename_pattern']))
+        existing = (x['filename_pattern'] and any(self.session_path.rglob(x['filename_pattern']))
                     for x in self.client.dtypes)
         removed = self.client.dtypes.pop(next(i for i, x in enumerate(existing) if x))
         files = list(self.client.find_files(self.session_path))
-        self.assertEqual(105, len(files))
+        self.assertEqual(6, len(files))
         self.assertTrue(all(x.is_file() for x in files))
         # Check removed file pattern not in file list
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
