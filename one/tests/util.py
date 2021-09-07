@@ -17,7 +17,7 @@ def set_up_env(use_temp_cache=True) -> tempfile.TemporaryDirectory:
 
     Parameters
     ----------
-    use_temp_cache : str
+    use_temp_cache : bool
         If True, copies REST cache fixtures to the temporary directory, otherwise they are copied
         to the directory returned by one.params.get_params_dir
 

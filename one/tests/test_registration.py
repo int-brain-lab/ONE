@@ -6,8 +6,6 @@ import random
 import datetime
 import fnmatch
 from io import StringIO
-from sys import version_info  # For 3.7
-from pkg_resources import parse_version
 
 from one.api import ONE
 from one import registration
