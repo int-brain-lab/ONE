@@ -433,10 +433,11 @@ class AlyxClient():
         elif r and r.status_code == 204:
             return
         else:
-            if not self.silent:
-                _logger.error(self.base_url + rest_query)
-                _logger.error(r.text)
-            raise (requests.HTTPError(r))
+            try:
+                message = json.loads(r.text).get('detail')
+            except json.decoder.JSONDecodeError:
+                message = r.text
+            raise requests.HTTPError(r.status_code, rest_query, message, response=r)
 
     def authenticate(self, username=None, password=None, cache_token=True, force=False):
         """

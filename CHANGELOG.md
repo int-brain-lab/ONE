@@ -12,6 +12,7 @@
 - describe revision now supported
 - ALF spec now requires 'Subjects' folder in order to parse lab, i.e. .../lab/Subjects/subjects/...
 - password prompt now specifies user
+- clearer REST HTTP response error messages
 
 ## [1.1.0]
 
