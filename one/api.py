@@ -1477,7 +1477,7 @@ class OneAlyx(One):
             if full:
                 return rec
         except requests.exceptions.HTTPError as ex:
-            if '404' not in str(ex):
+            if ex.response.status_code != 404:
                 raise ex
             print(f'revision "{revision}" not found')
 
