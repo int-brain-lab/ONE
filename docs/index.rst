@@ -10,7 +10,22 @@ Welcome to ONE's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+Using ONE to access data
+------------------------------------
 
+.. toctree::
+   :maxdepth: 2
+
+   one.rst
+   alf.rst
+
+API
+------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   api_reference.rst
 
 Indices and tables
 ==================
