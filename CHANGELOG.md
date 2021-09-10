@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.1]
+
+### Modified
+
+- HOTFIX: correct exception raise when files missing in load_datasets
+
+## [1.2.0]
 
 ### Added
 

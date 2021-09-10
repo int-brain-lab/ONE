@@ -790,7 +790,10 @@ class One(ConversionMixin):
         if any(x is None for x in files):
             missing_list = ', '.join(x for x, y in zip(present_datasets.rel_path, files) if not y)
             message = f'The following datasets were not downloaded: {missing_list}'
-            raise alferr.ALFObjectNotFound(message) if assert_present else _logger.warning(message)
+            if assert_present:
+                raise alferr.ALFObjectNotFound(message)
+            else:
+                _logger.warning(message)
 
         # Make list of metadata Bunches out of the table
         records = (present_datasets

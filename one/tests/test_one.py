@@ -469,6 +469,14 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
 
+        # Check behaviour when data are not downloaded for any reason
+        with mock.patch.object(self.one, '_update_filesystem',
+                               side_effect=lambda x, **kwargs: [None] * len(x)):
+            with self.assertLogs(logging.getLogger('one.api'), 'WARNING'):
+                self.one.load_datasets(eid, dsets, collections='none', assert_present=False)
+            with self.assertRaises(alferr.ALFObjectNotFound):
+                self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
+
         # Check loading without extensions
         # Check download only
         dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps']
