@@ -35,6 +35,7 @@ jobs:
       run: |
         git clone https://github.com/int-brain-lab/ONE.git --branch gh-pages --single-branch gh-pages
         cp -r docs/_build/html/* gh-pages/
+        cp -r docs/_autosummary gh-pages/
         cd gh-pages
         touch .nojekyll
         git config --local user.email "action@github.com"
