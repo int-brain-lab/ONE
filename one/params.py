@@ -1,5 +1,6 @@
-"""Funtions for modifying, loading and saving ONE and Alyx database parameters
+"""Functions for modifying, loading and saving ONE and Alyx database parameters
 Scenarios:
+
     - Load ONE with a cache dir: tries to load the Web client params from the dir
     - Load ONE with http address - gets cache dir from the URL map
 

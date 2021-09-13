@@ -21,6 +21,7 @@ from pathlib import Path
 print(Path.cwd().parent)
 # sys.path.insert(0, Path.cwd().parent)
 sys.path.extend([str(Path.cwd().parent)])
+assert Path.cwd().parent.joinpath('one').exists()
 
 print('Python %s on %s' % (sys.version, sys.platform))
 print(sys.path)
@@ -59,9 +60,6 @@ extensions = ['sphinx.ext.autodoc',
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
-
-#autoapi_add_toctree_entry = False
-# autoapi_dirs = ['../*', '../one']
 # The master toctree document.
 master_doc = 'index'
 

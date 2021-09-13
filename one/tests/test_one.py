@@ -14,6 +14,7 @@ For testing REST POST requests use TEST_DB_1 (test.alyx.internationalbrainlab.or
 For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org)
 
 Note ONE and AlyxClient use caching:
+
     - When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
     databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
     or mock iblutil.io.params.getfile to return a temporary cache directory

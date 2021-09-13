@@ -6,6 +6,7 @@ TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
 
 Points of discussion:
+
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
     different name
     - Download datasets timeout
@@ -14,6 +15,7 @@ Points of discussion:
     - NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
     Datasets table has sorted index.
     - Conceivably you could have a subclass for Figshare, etc., not just Alyx
+
 """
 import collections.abc
 import concurrent.futures
