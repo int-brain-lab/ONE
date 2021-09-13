@@ -18,10 +18,11 @@ from pathlib import Path
 # import matplotlib
 # matplotlib.use('agg')
 
-print(Path.cwd().parent)
+path_root = Path(__file__).parents[1]
+print(path_root)
 # sys.path.insert(0, Path.cwd().parent)
-sys.path.extend([str(Path.cwd().parent)])
-assert Path.cwd().parent.joinpath('one').exists()
+sys.path.extend([str(path_root)])
+assert path_root.joinpath('one').exists()
 
 print('Python %s on %s' % (sys.version, sys.platform))
 print(sys.path)
