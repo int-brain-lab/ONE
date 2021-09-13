@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>one.alf.exceptions &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>one.alf.exceptions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for one.alf.exceptions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;ALyx file related errors</span>
+<span class="sd">A set of Alyx and ALF related error classes which provide a more verbose description of the raised</span>
+<span class="sd">issues.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="ALFError"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFError">[docs]</a><span class="k">class</span> <span class="nc">ALFError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">terse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terse</span> <span class="o">=</span> <span class="n">terse</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terse</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">explanation</span><span class="si">}</span><span class="s2"> &quot;</span></div>
+
+
+<div class="viewcode-block" id="AlyxSubjectNotFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.AlyxSubjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">AlyxSubjectNotFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="s1">&#39;The subject was not found in Alyx database&#39;</span></div>
+
+
+<div class="viewcode-block" id="ALFMultipleObjectsFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleObjectsFound">[docs]</a><span class="k">class</span> <span class="nc">ALFMultipleObjectsFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The search object was not found.  ALF names have the pattern &#39;</span>
+                   <span class="s1">&#39;(_namespace_)object.attribute(_timescale).extension, e.g. for the file &#39;</span>
+                   <span class="s1">&#39;&quot;_ibl_trials.intervals.npy&quot; the object is &quot;trials&quot;&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ALFMultipleCollectionsFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound">[docs]</a><span class="k">class</span> <span class="nc">ALFMultipleCollectionsFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The matching object/file(s) belong to more than one collection.  &#39;</span>
+                   <span class="s1">&#39;ALF names have the pattern &#39;</span>
+                   <span class="s1">&#39;collection/(_namespace_)object.attribute(_timescale).extension, e.g. for the &#39;</span>
+                   <span class="s1">&#39;file &quot;alf/probe01/spikes.times.npy&quot; the collection is &quot;alf/probe01&quot;&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ALFMultipleRevisionsFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleRevisionsFound">[docs]</a><span class="k">class</span> <span class="nc">ALFMultipleRevisionsFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The matching object/file(s) belong to more than one revision.  &#39;</span>
+                   <span class="s1">&#39;Multiple datasets in different revision folders were found with no default&#39;</span>
+                   <span class="s1">&#39;specified.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ALFObjectNotFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFObjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">ALFObjectNotFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The ALF object was not found.  This may occur if the object or namespace or &#39;</span>
+                   <span class="s1">&#39;incorrectly formatted e.g. the object &quot;_ibl_trials.intervals.npy&quot; would be &#39;</span>
+                   <span class="s1">&#39;found with the filters `object=&quot;trials&quot;, namespace=&quot;ibl&quot;`&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
