@@ -23,10 +23,11 @@ jobs:
       run: |
         sudo apt install pandoc
         pip install -r requirements-docs.txt
-        cd docs/
         jupyter nbextension enable --py --sys-prefix ipyevents
     - name: build docs
-      run: python make_script.py -d
+      run: |
+        cd docs/
+        python ./make_script.py -d
     # Publish built docs to gh-pages branch.
     # ===============================
     - name: Commit documentation changes
