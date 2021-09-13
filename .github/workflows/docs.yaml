@@ -13,7 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: docker://pandoc/core:2.9
     # Standard drop-in approach that should work for most people.
 #    - uses: ammaraskar/sphinx-action@master
     - name: Set up Python
@@ -22,6 +21,7 @@ jobs:
         python-version: 3.8
     - name: setup
       run: |
+        sudo apt install pandoc
         cd docs/
         jupyter nbextension enable --py --sys-prefix ipyevents
     - name: build docs
