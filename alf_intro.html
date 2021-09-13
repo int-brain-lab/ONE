@@ -218,23 +218,23 @@
 <h1>ALyx Files (ALF)<a class="headerlink" href="#alyx-files-alf" title="Permalink to this headline">¶</a></h1>
 <p>This package is concerned with parsing and loading files that follow the Alyx file name specification.
 Files should be organized in folders by subject name, date and session number, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001
 </pre></div>
 </div>
 <p>Optionally the lab may also be present in the folder structure, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lab_name</span><span class="o">/</span><span class="n">Subjects</span><span class="o">/</span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lab_name/Subjects/mouse_001/2021-05-27/001
 </pre></div>
 </div>
 <p>The file names themselves should have at least two components; an object and attribute, separated by a period.
 For example a file called <code class="docutils literal notranslate"><span class="pre">trials.intervals</span></code> represents the trials object with an intervals attribute.
 The full file path would be:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lab_name</span><span class="o">/</span><span class="n">Subjects</span><span class="o">/</span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="n">trials</span><span class="o">.</span><span class="n">intervals</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lab_name/Subjects/mouse_001/2021-05-27/001/trials.intervals
 </pre></div>
 </div>
 <p>Objects and attributes should be in Haskell case for example <code class="docutils literal notranslate"><span class="pre">sparseNoise.xyPos</span></code> but supports
 acronyms, e.g. <code class="docutils literal notranslate"><span class="pre">RFMapStim.intervals</span></code>, <code class="docutils literal notranslate"><span class="pre">ROIMotionEnergy.position</span></code>.  Underscores, hyphens and spaces are
 not supported, except with ‘times’, ‘timestamps’ and ‘intervals’, which have a special meaning:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trials</span><span class="o">.</span><span class="n">goCue_times</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>trials.goCue_times
 </pre></div>
 </div>
 <div class="section" id="optional-components">
@@ -245,14 +245,14 @@ not supported, except with ‘times’, ‘timestamps’ and ‘intervals’, wh
 <p>Within a session folder the data may be placed in any number of sub-folders, each one is referred to as a
 collection and these may be used to sort identical datasets by device or preprocessing software.  For
 example spikes collected on two different probes maybe in different numbered probe collections:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="n">probe00</span><span class="o">/</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="n">probe01</span><span class="o">/</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001/probe00/spikes.times.npy
+mouse_001/2021-05-27/001/probe01/spikes.times.npy
 </pre></div>
 </div>
 <p>Perhaps for analysis the spikes were sorted using two different spike sorters, one with Kilosort, the
 other with Yass:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="n">probe00</span><span class="o">/</span><span class="n">ks2</span><span class="mf">.1</span><span class="o">/</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="n">probe01</span><span class="o">/</span><span class="n">yass</span><span class="o">/</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001/probe00/ks2.1/spikes.times.npy
+mouse_001/2021-05-27/001/probe01/yass/spikes.times.npy
 </pre></div>
 </div>
 </div>
@@ -261,15 +261,15 @@ other with Yass:</p>
 <p>If the data require pre-processing in a different manner, a revision folder may be used so that the
 original data is not overwritten.  This can be used as a form of versioning and should be a dated
 folder surrounded by pound signs, e.g.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="c1">#2021-06-01#/spikes.times.npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001/#2021-06-01#/spikes.times.npy
 </pre></div>
 </div>
 <p>Unlike collections these can be searched in lexicographical order such that a users can load a revision
 before or after a certain date.  If multiple revisions exist for a given date, letters may be appended
 to preserve ordering:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="c1">#2021-06-01#/spikes.times.npy</span>
-<span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="c1">#2021-06-01a#/spikes.times.npy</span>
-<span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span><span class="o">/</span><span class="c1">#2021-06-01b#/spikes.times.npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001/#2021-06-01#/spikes.times.npy
+mouse_001/2021-05-27/001/#2021-06-01a#/spikes.times.npy
+mouse_001/2021-05-27/001/#2021-06-01b#/spikes.times.npy
 </pre></div>
 </div>
 </div>
@@ -277,8 +277,8 @@ to preserve ordering:</p>
 <h3>Namespace<a class="headerlink" href="#namespace" title="Permalink to this headline">¶</a></h3>
 <p>For datasets that are not intended to be standard in the community, a namespace may be added to the
 start of the filename.  This must be surrounded by underscores:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_ibl_wheel</span><span class="o">.</span><span class="n">position</span>
-<span class="n">_ss_gratingID</span><span class="o">.</span><span class="n">laserOn</span><span class="o">.</span><span class="n">npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>_ibl_wheel.position
+_ss_gratingID.laserOn.npy
 </pre></div>
 </div>
 </div>
@@ -287,8 +287,8 @@ start of the filename.  This must be surrounded by underscores:</p>
 <p>Datasets containing timestamp data are expected to be in the same common timescale (usually seconds from
 experiment start).  For datasets in a different timescale, the clock name should be appended to the
 attribute part with an underscore:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span><span class="o">.</span><span class="n">times_ephysClock</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">trials</span><span class="o">.</span><span class="n">intervals_bpod</span><span class="o">.</span><span class="n">ssv</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>spikes.times_ephysClock.npy
+trials.intervals_bpod.ssv
 </pre></div>
 </div>
 </div>
@@ -296,9 +296,9 @@ attribute part with an underscore:</p>
 <h3>Extension<a class="headerlink" href="#extension" title="Permalink to this headline">¶</a></h3>
 <p>The extension should be self-explanatory.  Although they are optional in the ALF spec, it’s preferable
 to include the format in the filename, and to use formats that are well supported in MATLAB and Python:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">csv</span>
-<span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">mat</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>spikes.times.npy
+spikes.times.csv
+spikes.times.mat
 </pre></div>
 </div>
 </div>
@@ -307,9 +307,9 @@ to include the format in the filename, and to use formats that are well supporte
 <p>Any number of extra parts, separated by periods, can be added after the attribute.  Examples include UUIDs
 for ensuring the filename is unique or parts for splitting datasets into parts.  NB: The text after the final
 period is expected to be the file extension.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trials</span><span class="o">.</span><span class="n">intervals</span><span class="mf">.9198</span><span class="n">edcd</span><span class="o">-</span><span class="n">e8a4</span><span class="o">-</span><span class="mf">4e8</span><span class="n">a</span><span class="o">-</span><span class="mi">994</span><span class="n">f</span><span class="o">-</span><span class="n">d68a2e300380</span><span class="o">.</span><span class="n">npy</span>
-<span class="mi">2</span><span class="n">p</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">part01</span><span class="o">.</span><span class="n">tiff</span>
-<span class="mi">2</span><span class="n">p</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">part02</span><span class="o">.</span><span class="n">tiff</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>trials.intervals.9198edcd-e8a4-4e8a-994f-d68a2e300380.npy
+2p.raw.part01.tiff
+2p.raw.part02.tiff
 </pre></div>
 </div>
 </div>
@@ -326,9 +326,9 @@ clusters.probes.npy; and clusters.probes.npy would contain integer references to
 <div class="section" id="dataset-name">
 <h3>Dataset name<a class="headerlink" href="#dataset-name" title="Permalink to this headline">¶</a></h3>
 <p>A filename with at least an object and attribute.  Some examples of valid ALF datasets:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span>
-<span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">_ibl_trials</span><span class="o">.</span><span class="n">goCue_times_bpodClock</span><span class="o">.</span><span class="n">csv</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>spikes.times
+spikes.times.npy
+_ibl_trials.goCue_times_bpodClock.csv
 </pre></div>
 </div>
 </div>
@@ -338,10 +338,10 @@ clusters.probes.npy; and clusters.probes.npy would contain integer references to
 group is determined by a filename pattern.  Dataset types group datasets with the same content but
 different formats, etc. and include a description of the dataset.  For example, the following datasets
 belong to the ‘<em>spikes.times</em>’ dataset type:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span>
-<span class="n">_spikeglx_spikes</span><span class="o">.</span><span class="n">times_ephysClock</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="mf">.9198</span><span class="n">edcd</span><span class="o">-</span><span class="n">e8a4</span><span class="o">-</span><span class="mf">4e8</span><span class="n">a</span><span class="o">-</span><span class="mi">994</span><span class="n">f</span><span class="o">-</span><span class="n">d68a2e300380</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">cbin</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>spikes.times
+_spikeglx_spikes.times_ephysClock.npy
+spikes.times.9198edcd-e8a4-4e8a-994f-d68a2e300380.npy
+spikes.times.cbin
 </pre></div>
 </div>
 </div>
@@ -349,8 +349,8 @@ belong to the ‘<em>spikes.times</em>’ dataset type:</p>
 <h3>Session path<a class="headerlink" href="#session-path" title="Permalink to this headline">¶</a></h3>
 <p>The part of the path that includes the subject name, date and number.  Optionally a lab name may also
 be part of the session path:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">001</span>
-<span class="n">cortexlab</span><span class="o">/</span><span class="n">Subjects</span><span class="o">/</span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">1</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001
+cortexlab/Subjects/mouse_001/2021-05-27/1
 </pre></div>
 </div>
 </div>
@@ -358,16 +358,16 @@ be part of the session path:</p>
 <h3>Relative path<a class="headerlink" href="#relative-path" title="Permalink to this headline">¶</a></h3>
 <p>Everything that comes after the session path.  In other words the filename and optional collections
 and revision folders:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alf</span><span class="o">/</span><span class="n">probe00</span><span class="o">/</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
-<span class="n">trials</span><span class="o">.</span><span class="n">intervals</span><span class="o">.</span><span class="n">npy</span>
-<span class="c1">#2021-06-01#/trials.intervals.npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>alf/probe00/spikes.times.npy
+trials.intervals.npy
+#2021-06-01#/trials.intervals.npy
 </pre></div>
 </div>
 </div>
 <div class="section" id="alf-path">
 <h3>ALF path<a class="headerlink" href="#alf-path" title="Permalink to this headline">¶</a></h3>
 <p>The full file path, including the session path and relative path, e.g.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cortexlab</span><span class="o">/</span><span class="n">Subjects</span><span class="o">/</span><span class="n">mouse_001</span><span class="o">/</span><span class="mi">2021</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">alf</span><span class="o">/</span><span class="n">probe00</span><span class="o">/</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">npy</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cortexlab/Subjects/mouse_001/2021-05-27/1/alf/probe00/spikes.times.npy
 </pre></div>
 </div>
 </div>
