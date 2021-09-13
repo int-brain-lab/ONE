@@ -20,7 +20,7 @@ from pathlib import Path
 
 print(Path.cwd().parent)
 # sys.path.insert(0, Path.cwd().parent)
-sys.path.extend(['C:\\Users\\User\\Documents\\Github\\ONE', 'C:\\Users\\User\\Documents\\Github\\iblrplate', 'C:/Users/User/Documents/Github/ONE'])
+sys.path.extend([str(Path.cwd().parent)])
 
 print('Python %s on %s' % (sys.version, sys.platform))
 print(sys.path)
