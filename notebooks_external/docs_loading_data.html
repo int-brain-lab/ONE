@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction to using ONE &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction to using ONE</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/notebooks_external/docs_loading_data.nblink.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<a href="docs_loading_data.ipynb"><button id="download">Download tutorial notebook</button></a>
+<a href="https://github.com/int-brain-lab/ONE/tree/main/docs_gh_pages/../examples/
+docs_loading_data.ipynb"><button id="github">Github link</button></a><p>#</p>
+<div class="section" id="Introduction-to-using-ONE">
+<h1>Introduction to using ONE<a class="headerlink" href="#Introduction-to-using-ONE" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
+
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The datasets are organized into directory trees by subject, date and session number.  For a</span>
+<span class="sd">given session there are data files grouped by object (e.g. &#39;trials&#39;), each with a specific</span>
+<span class="sd">attribute (e.g. &#39;rewardVolume&#39;).  The dataset name follows the pattern &#39;object.attribute&#39;,</span>
+<span class="sd">for example &#39;trials.rewardVolume&#39;.</span>
+
+<span class="sd">An experiment ID (eid) is a string that uniquely identifies a session, for example a combination</span>
+<span class="sd">of subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g.</span>
+<span class="sd">&#39;C:\\Users\\Subjects\\KS023\\2019-12-10\\001&#39;), or a UUID (aad23144-0e52-4eac-80c5-c4ee2decb198).</span>
+
+<span class="sd">If the data don&#39;t exist locally, they will be downloaded, then loaded.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># To load all the data for a given object, use the load_object method:</span>
+<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>  <span class="c1"># subject/date/number</span>
+<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>  <span class="c1"># Returns a dict-like object of numpy arrays</span>
+<span class="c1"># The attributes of the returned object mirror the datasets:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">rewardVolume</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+<span class="c1"># These can also be accessed with dictionary syntax:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="p">[</span><span class="s1">&#39;rewardVolume&#39;</span><span class="p">][:</span><span class="mi">5</span><span class="p">])</span>
+<span class="c1"># All arrays in the object have the same length (the size of the first dimension) and can</span>
+<span class="c1"># therefore be converted to a DataFrame:</span>
+<span class="n">trials</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Datasets can be individually downloaded using the load_dataset method.  This</span>
+<span class="sd">function takes an experiment ID and a dataset name as positional args.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">reward_volume</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">)</span>  <span class="c1"># c.f. load_object, above</span>
+
+<span class="c1"># To list the datasets available for a given session:</span>
+<span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># If connected to a remote database you can get documentation on a dataset</span>
+<span class="n">one</span><span class="o">.</span><span class="n">describe_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># alf/_ibl_trials.choice.npy</span>
+<span class="c1"># e.g. prints &#39;which choice was made in choiceworld: -1 (turn CCW), +1 (turn CW), or 0 (nogo)&#39;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Collections</span>
+
+<span class="sd">For any given session there may be multiple datasets with the same name that are organized into</span>
+<span class="sd">separate subfolders called collections.  For example there may be spike times for two probes, one</span>
+<span class="sd">in &#39;alf/probe00/spikes.times.npy&#39;, the other in &#39;alf/probe01/spikes.times.npy&#39;.  In IBL, the &#39;alf&#39;</span>
+<span class="sd">directory (for ALyx Files) contains the main datasets that people use.  Raw data is in other</span>
+<span class="sd">directories.</span>
+
+<span class="sd">In this case you must specify the collection when multiple matching datasets are found:</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Loading with file name parts</span>
+
+<span class="sd">You may also specify specific parts of the filename for even more specific filtering.  Here a</span>
+<span class="sd">list of options will be treated as a logical OR</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;npy&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">])</span>
+<span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Revisions</span>
+
+<span class="sd">Revisions provide an optional way to organize data by version.  The version label is</span>
+<span class="sd">arbitrary, however the folder must start and end with pound signs and is typically an ISO date,</span>
+<span class="sd">e.g. &quot;#2021-01-01#&quot;. Unlike collections, if a specified revision is not found, the previous</span>
+<span class="sd">revision will be returned.  The revisions are ordered lexicographically.</span>
+
+<span class="sd">probe1_spikes = one.load_dataset(eid, &#39;trials.intervals.npy&#39;, revision=&#39;2021-03-15a&#39;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Download only</span>
+
+<span class="sd">By default the load methods will download any missing data, then load and return the data.</span>
+<span class="sd">When the &#39;download_only&#39; kwarg is true, the data are not loaded.  Instead a list of file paths</span>
+<span class="sd">are returned, and any missing datasets are represented by None.</span>
+<span class="sd">TODO Revisions should always be dated</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">You can load objects and datasets from a file path</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
+<span class="n">contrast_left</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Loading with timeseries</span>
+
+<span class="sd">For loading a dataset along with its timestamps, alf.io.read_ts can be used. It requires a</span>
+<span class="sd">filepath as input.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ts</span><span class="p">,</span> <span class="n">clusters</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">read_ts</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Filtering attributes</span>
+
+<span class="sd">To download and load only a subset of attributes, you can provide a list to the attribute kwarg.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time*&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
+<span class="k">assert</span> <span class="s1">&#39;amps&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spikes</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">For any given object the first dimension of every attribute should match in length.  For</span>
+<span class="sd">analysis you can assert that the dimensions match using the check_dimensions property:</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">assert</span> <span class="n">trials</span><span class="o">.</span><span class="n">check_dimensions</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="c1"># Load spike times from a probe UUID</span>
+<span class="n">pid</span> <span class="o">=</span> <span class="s1">&#39;b749446c-18e3-4987-820a-50649ab0f826&#39;</span>
+<span class="n">session</span><span class="p">,</span> <span class="n">probe</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+<span class="n">spikes_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;alf/</span><span class="si">{</span><span class="n">probe</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># List all probes for a session</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">session</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;alf/probe&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Advanced loading:</span>
+
+<span class="sd">The load methods typically require an exact match, therefore when loading &#39;_ibl_wheel.position.npy&#39;</span>
+<span class="sd">`one.load_dataset(eid, &#39;wheel.position.npy&#39;)` will raise an exception because the namespace is</span>
+<span class="sd">missing. Likewise `one.load_object(eid, &#39;trial&#39;)` will fail because &#39;trial&#39; != &#39;trials&#39;.</span>
+
+<span class="sd">Loading can be done using unix shell style wildcards, allowing you to load objects and datasets</span>
+<span class="sd">that match a particular pattern, e.g. `one.load_dataset(eid, &#39;*wheel.position.npy&#39;)`.</span>
+
+<span class="sd">By default wildcard mode is on.  In this mode, the extension may be omitted, e.g.</span>
+<span class="sd">`one.load_dataset(eid, &#39;spikes.times&#39;)`. This is equivalent to &#39;spikes.times.*&#39;. Note that an</span>
+<span class="sd">exception will be raised if datasets with more than one extension are found (such as</span>
+<span class="sd">&#39;spikes.times.npy&#39; and &#39;spikes.times.csv&#39;).  When loading a dataset with extra parts,</span>
+<span class="sd">the extension (or wildcard) is explicitly required: &#39;spikes.times.part1.*&#39;.</span>
+
+<span class="sd">If you set the wildcards property of One to False, loading will be done using regular expressions,</span>
+<span class="sd">allowing for more powerful pattern matching.</span>
+
+<span class="sd">Below is table showing how to express unix style wildcards as a regular expression:</span>
+
+<span class="sd"> Regex   |    Wildcard    |         Description        |    Example</span>
+<span class="sd">-----------------------------------------------------------------------</span>
+<span class="sd">   .*            *          Match zero or more chars     spikes.times.*</span>
+<span class="sd">   .?            ?          Match one char               timestamps.?sv</span>
+<span class="sd">   []            []         Match a range of chars       obj.attr.part[0-9].npy</span>
+
+<span class="sd">NB: In regex &#39;.&#39; means &#39;any character&#39;; to match &#39;.&#39; exactly, escape it with a backslash</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">    spikes.times.* (regex), spikes.times* (wildcard) matches...</span>
+<span class="sd">        spikes.times.npy</span>
+<span class="sd">        spikes.times</span>
+<span class="sd">        spikes.times_ephysClock.npy</span>
+<span class="sd">        spikes.times.bin</span>
+
+<span class="sd">    clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...</span>
+<span class="sd">        clusters.uuids.ssv</span>
+<span class="sd">        clusters.uuids.csv</span>
+
+<span class="sd">    alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...</span>
+<span class="sd">        alf/probe00</span>
+<span class="sd">        alf/probe01</span>
+<span class="sd">        [...]</span>
+<span class="sd">        alf/probe05</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># More regex examples</span>
+<span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Load specific attributes from an object (&#39;|&#39; represents a logical OR in regex)</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times|clusters&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="s1">&#39;amps&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spikes</span>
+
+<span class="c1"># Load a dataset ignoring any namespace or extension:</span>
+<span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;.*spikes.times.*&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+
+<span class="c1"># List all datasets in any probe collection (matches 0 or more of any number)</span>
+<span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe[0-9]*&#39;</span><span class="p">)</span>
+
+<span class="c1"># Load object attributes that are not delimited text files (i.e. tsv, ssv, csv, etc.)</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;[^sv]*&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">ModuleNotFoundError</span>                       Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">~\AppData\Local\Temp/ipykernel_9660/2923387672.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span><span class="ansi-green-intense-fg ansi-bold">from</span> one<span class="ansi-yellow-intense-fg ansi-bold">.</span>api <span class="ansi-green-intense-fg ansi-bold">import</span> ONE
+<span class="ansi-green-fg">      2</span> <span class="ansi-green-intense-fg ansi-bold">import</span> one<span class="ansi-yellow-intense-fg ansi-bold">.</span>alf<span class="ansi-yellow-intense-fg ansi-bold">.</span>io <span class="ansi-green-intense-fg ansi-bold">as</span> alfio
+<span class="ansi-green-fg">      3</span>
+<span class="ansi-green-fg">      4</span> one <span class="ansi-yellow-intense-fg ansi-bold">=</span> ONE<span class="ansi-yellow-intense-fg ansi-bold">(</span>base_url<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> silent<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-green-fg">      5</span>
+
+<span class="ansi-red-intense-fg ansi-bold">ModuleNotFoundError</span>: No module named &#39;one&#39;
+</pre></div></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

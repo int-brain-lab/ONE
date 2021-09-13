@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ONE advanced queries &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Alyx Files (ALF)" href="../../alf.html" />
+    <link rel="prev" title="Loading with ONE" href="../one_load/one_load.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../one.html">ONE</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ONE advanced queries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#one.search-vs-one.alyx.rest"><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Accessing-other-Alyx-tables">Accessing other Alyx tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Searching-with-one.alyx.rest">Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../one.html">ONE</a> &raquo;</li>
+        
+      <li>ONE advanced queries</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/notebooks/one_advanced/one_advanced.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<a href="one_advanced.ipynb"><button id="download">Download tutorial notebook</button></a>
+<a href="https://github.com/int-brain-lab/ONE/tree/main/docs_gh_pages/notebooks/one_advanced/
+one_advanced.ipynb"><button id="github">Github link</button></a><p>#</p>
+<div class="section" id="ONE-advanced-queries">
+<h1>ONE advanced queries<a class="headerlink" href="#ONE-advanced-queries" title="Permalink to this headline">¶</a></h1>
+<p>While the basic <code class="docutils literal notranslate"><span class="pre">one.search</span></code> command allows us to filter experimental sessions by date, lab, subject etc, you may quickly find that you want to apply more complex queries to restrict your search output. This can be achieved using the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command. This has access to a range of tables stored in the database and gives us more flexibilty when forming our queries.</p>
+<div class="section" id="one.search-vs-one.alyx.rest">
+<h2><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#one.search-vs-one.alyx.rest" title="Permalink to this headline">¶</a></h2>
+<p>We will get started by importing ONE</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can list the possible tables that we have access to, by typing the following command</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;brain-regions&#39;,
+ &#39;cache&#39;,
+ &#39;cache.zip&#39;,
+ &#39;channels&#39;,
+ &#39;data-formats&#39;,
+ &#39;data-repository&#39;,
+ &#39;data-repository-type&#39;,
+ &#39;dataset-types&#39;,
+ &#39;datasets&#39;,
+ &#39;downloads&#39;,
+ &#39;files&#39;,
+ &#39;insertions&#39;,
+ &#39;labs&#39;,
+ &#39;locations&#39;,
+ &#39;new-download&#39;,
+ &#39;notes&#39;,
+ &#39;projects&#39;,
+ &#39;register-file&#39;,
+ &#39;revisions&#39;,
+ &#39;sessions&#39;,
+ &#39;subjects&#39;,
+ &#39;surgeries&#39;,
+ &#39;sync-file-status&#39;,
+ &#39;tags&#39;,
+ &#39;tasks&#39;,
+ &#39;trajectories&#39;,
+ &#39;uploaded&#39;,
+ &#39;users&#39;,
+ &#39;water-administrations&#39;,
+ &#39;water-requirement&#39;,
+ &#39;water-restricted-subjects&#39;,
+ &#39;water-restriction&#39;,
+ &#39;water-type&#39;,
+ &#39;weighings&#39;]
+</pre></div></div>
+</div>
+<p>Let’s first look at <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table. The information about what filters can be applied to this table are available under <strong>Query Parameters</strong> <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/#sessions-list">here</a>. Let’s apply a filter based on <code class="docutils literal notranslate"><span class="pre">subject</span></code> and <code class="docutils literal notranslate"><span class="pre">task_protocol</span></code>. We can do this using the following expression,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sess_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_015&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">)</span>
+<span class="n">sess_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;subject&#39;: &#39;SWC_015&#39;,
+ &#39;start_time&#39;: &#39;2020-01-25T18:53:42.203528&#39;,
+ &#39;number&#39;: 1,
+ &#39;lab&#39;: &#39;hoferlab&#39;,
+ &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+ &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/f3ff65f1-7d59-4abe-b94e-b0478ab5e921&#39;,
+ &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;}
+</pre></div></div>
+</div>
+<p>Notice how this command doesn’t just return the session eID but a dictionary containing information about each session. We can extract the set of eIDs from the <code class="docutils literal notranslate"><span class="pre">url</span></code> key</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">eids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sess_info</span><span class="p">]</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eids</span><span class="p">]</span>
+<span class="n">eids</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;f3ff65f1-7d59-4abe-b94e-b0478ab5e921&#39;,
+ &#39;994df46a-6e5f-472d-96dd-0d86e76a8107&#39;,
+ &#39;629f25be-1b05-44d0-bcac-e8c40701d5f4&#39;,
+ &#39;a9272cce-6914-4b45-a05f-9e925b4c472a&#39;,
+ &#39;c9fec76e-7a20-4da4-93ad-04510a89473b&#39;,
+ &#39;34d20aff-10e5-4a07-8b08-64051a1dc6ac&#39;]
+</pre></div></div>
+</div>
+<p>You might have noticed that this same query could be have been achieved using the <code class="docutils literal notranslate"><span class="pre">one.search</span></code> method,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_015&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">)</span>
+<span class="n">eids</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;f3ff65f1-7d59-4abe-b94e-b0478ab5e921&#39;,
+ &#39;994df46a-6e5f-472d-96dd-0d86e76a8107&#39;,
+ &#39;629f25be-1b05-44d0-bcac-e8c40701d5f4&#39;,
+ &#39;a9272cce-6914-4b45-a05f-9e925b4c472a&#39;,
+ &#39;c9fec76e-7a20-4da4-93ad-04510a89473b&#39;,
+ &#39;34d20aff-10e5-4a07-8b08-64051a1dc6ac&#39;]
+</pre></div></div>
+</div>
+<p>Let’s add in another filter to see the benefits of the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> approach. We will add an <code class="docutils literal notranslate"><span class="pre">atlas_acronym</span></code> filter to see if any of the ephys sessions from SWC_015 were recorded from the somatomotor areas (acronym MO). This query would not be possible with the <code class="docutils literal notranslate"><span class="pre">one.search</span></code> command!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sess_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_015&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">,</span>
+                          <span class="n">atlas_acronym</span><span class="o">=</span><span class="s1">&#39;MO&#39;</span><span class="p">)</span>
+<span class="n">sess_info</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[{&#39;subject&#39;: &#39;SWC_015&#39;,
+  &#39;start_time&#39;: &#39;2020-01-24T14:56:07.183680&#39;,
+  &#39;number&#39;: 1,
+  &#39;lab&#39;: &#39;hoferlab&#39;,
+  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/994df46a-6e5f-472d-96dd-0d86e76a8107&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;},
+ {&#39;subject&#39;: &#39;SWC_015&#39;,
+  &#39;start_time&#39;: &#39;2020-01-23T16:22:24.861589&#39;,
+  &#39;number&#39;: 1,
+  &#39;lab&#39;: &#39;hoferlab&#39;,
+  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/629f25be-1b05-44d0-bcac-e8c40701d5f4&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;},
+ {&#39;subject&#39;: &#39;SWC_015&#39;,
+  &#39;start_time&#39;: &#39;2020-01-22T17:04:18.126507&#39;,
+  &#39;number&#39;: 1,
+  &#39;lab&#39;: &#39;hoferlab&#39;,
+  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/a9272cce-6914-4b45-a05f-9e925b4c472a&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;}]
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Accessing-other-Alyx-tables">
+<h2>Accessing other Alyx tables<a class="headerlink" href="#Accessing-other-Alyx-tables" title="Permalink to this headline">¶</a></h2>
+<p>With the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command we are not only limited to the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table, but can formulate queries based on other tables to find session eIDs of interest. Consider the case where we want to find all sessions that have probe insertions that target a specific ML and AP coordinate. For this we can formulate our query based on the <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/#trajectories-list">trajectories table</a>. Let’s see if there are any probe insertions at the coordinates ML(x)
+= -2000, and AP(y) = -2000 from bregma.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">trajs</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;trajectories&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=-</span><span class="mi">2000</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">trajs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;id&#39;: &#39;8741d377-a3de-4d94-9ba0-1eb28787da49&#39;,
+ &#39;probe_insertion&#39;: &#39;dc50c3de-5d84-4408-9725-22ae55b93522&#39;,
+ &#39;x&#39;: -2000.0,
+ &#39;y&#39;: -2000.0,
+ &#39;z&#39;: -169.0,
+ &#39;depth&#39;: 4000.0,
+ &#39;theta&#39;: 15.0,
+ &#39;phi&#39;: 180.0,
+ &#39;roll&#39;: 0.0,
+ &#39;provenance&#39;: &#39;Micro-manipulator&#39;,
+ &#39;session&#39;: {&#39;subject&#39;: &#39;SWC_023&#39;,
+  &#39;start_time&#39;: &#39;2020-02-13T15:36:50.234590&#39;,
+  &#39;number&#39;: 1,
+  &#39;lab&#39;: &#39;mrsicflogellab&#39;,
+  &#39;id&#39;: &#39;38d95489-2e82-412a-8c1a-c5377b5f1555&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;},
+ &#39;probe_name&#39;: &#39;probe01&#39;,
+ &#39;coordinate_system&#39;: &#39;Needles-Allen&#39;,
+ &#39;datetime&#39;: &#39;2020-06-09T07:59:14.315700&#39;,
+ &#39;json&#39;: None}
+</pre></div></div>
+</div>
+<p>We can find the session eID associated with this trajectory by looking at the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the <code class="docutils literal notranslate"><span class="pre">session</span></code> field in the returned dictionary</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">eid</span> <span class="o">=</span> <span class="n">trajs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;session&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+<span class="n">eid</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;38d95489-2e82-412a-8c1a-c5377b5f1555&#39;
+</pre></div></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>It is not just sessions that have unique IDs associated with them! Every object stored in Alyx has a unique UUID, whether it is a trajectory, a subject, a user or a dataset. For example in the above example we can access the unique ID of the trajectory by typing <code class="docutils literal notranslate"><span class="pre">traj_id</span> <span class="pre">=</span> <span class="pre">trajs[0]['id']</span></code></p>
+</div>
+</div>
+<div class="section" id="Searching-with-one.alyx.rest">
+<h2>Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#Searching-with-one.alyx.rest" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command is also provides an alternative method to <code class="docutils literal notranslate"><span class="pre">one.list</span></code> for searching the database for possible keywords that you can use to restrict your queries. For example, if we want to find the names of female subjects in the Witten lab that are alive, we can use the <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/#subjects-list">subjects table</a> to write,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">subj_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;wittenlab&#39;</span><span class="p">,</span> <span class="n">sex</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">alive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">subj_nickname</span> <span class="o">=</span> <span class="p">[</span><span class="n">subj</span><span class="p">[</span><span class="s1">&#39;nickname&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">subj_info</span><span class="p">]</span>
+<span class="n">subj_nickname</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;dop_21&#39;, &#39;dop_22&#39;, &#39;dop_30&#39;, &#39;dop_31&#39;, &#39;dop_39&#39;, &#39;fip_10&#39;, &#39;fip_8&#39;, &#39;fip_9&#39;]
+</pre></div></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../../alf.html" class="btn btn-neutral float-right" title="Alyx Files (ALF)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../one_load/one_load.html" class="btn btn-neutral float-left" title="Loading with ONE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
