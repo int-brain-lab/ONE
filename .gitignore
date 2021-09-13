@@ -1,4 +1,5 @@
 docs/_build
+docs/_autosummary
 __pycache__
 *.*~
 *.pyc
@@ -11,4 +12,5 @@ venv/
 dist/
 .DS_Store
 scratch/
-_autosummary/
+.coverage
+*.egg-info/
