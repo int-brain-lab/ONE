@@ -28,23 +28,12 @@ It is up to the data provider to specify the format of their eIDs.
 The data files **have to follow the Alyx file name specification** ([ALF](../alf)).
 The ONE package is concerned with parsing and loading files that follow this specification.
 
-### Data browsing and loading
+### Accessing the API
 When a user wants to analyze data released by a provider, they 
 first import that provider's loader functions. In python, to analyze IBL data, they would type
 ```
 from one.api import ONE
 ```
-Because it is up to data providers to maintain the loader functions, 
-all a user needs to do to work with data from a specific provider is import their loader module. 
-To analyze Allen data, they could instead type `import one_allen`. After that, all other analysis code will be the same,
-regardless of which provider's data they are analyzing.
-
-Once ONE is installed, the user can follow these tutorials to get acquainted with:
-- [searching for experimental session through the database](../../notebooks/one_search/one_search)
-- [listing available datasets for an experimental session](../../notebooks/one_list/one_list)
-- [loading datasets of a specific session (e.g. given an eID)](../../notebooks/one_load/one_load)
-
-Further tutorials can be found in the following sections: [advanced](../../notebooks/one_advanced/one_advanced).
 
 ### Loading data
 
