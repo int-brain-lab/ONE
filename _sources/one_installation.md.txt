@@ -1,7 +1,7 @@
 # ONE installation and setup
 
 ## 1. Installation
-ONE can be installed as a standalone package with python 3.8 or later by running,
+ONE can be installed as a standalone package with python 3.7 or later by running,
 ```python
 pip install ONE-api
 ```
