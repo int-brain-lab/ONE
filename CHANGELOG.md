@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.1]
+
+### Modified
+
+- HOTFIX: correct exception raise when files missing in load_datasets
+
+## [1.2.0]
 
 ### Added
 
@@ -12,6 +18,7 @@
 - describe revision now supported
 - ALF spec now requires 'Subjects' folder in order to parse lab, i.e. .../lab/Subjects/subjects/...
 - password prompt now specifies user
+- clearer REST HTTP response error messages
 
 ## [1.1.0]
 

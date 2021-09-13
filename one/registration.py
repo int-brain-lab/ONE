@@ -177,7 +177,7 @@ class RegistrationClient:
             try:
                 self.one.alyx.rest(endpoint, 'read', id=str(member), no_cache=True)
             except requests.exceptions.HTTPError as ex:
-                if '404' not in str(ex):
+                if ex.response.status_code != 404:
                     raise ex
                 elif endpoint == 'subjects':
                     raise alferr.AlyxSubjectNotFound(member)

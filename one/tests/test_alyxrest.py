@@ -1,5 +1,7 @@
 from pathlib import Path
 import unittest
+import random
+import string
 
 import numpy as np
 
@@ -59,12 +61,14 @@ class Tests_REST(unittest.TestCase):
     def test_channels(self):
         # need to build insertion + trajectory + channels to test the serialization of a
         # record array in the channel endpoint
+        name = ''.join(random.choices(string.ascii_letters, k=5))
         probe_insertions = one.alyx.rest('insertions', 'list',
-                                         session=EID_EPHYS, name='tutu', no_cache=True)
+                                         session=EID_EPHYS, name=name, no_cache=True)
         for pi in probe_insertions:
             one.alyx.rest('insertions', 'delete', pi['id'])
         probe_insertion = one.alyx.rest(
             'insertions', 'create', data={'session': EID_EPHYS, 'name': 'tutu'})
+        self.addCleanup(one.alyx.rest, 'insertions', 'delete', id=probe_insertion['id'])
         trajectory = one.alyx.rest('trajectories', 'create', data={
             'probe_insertion': probe_insertion['id'],
             'x': 1500,
@@ -88,4 +92,3 @@ class Tests_REST(unittest.TestCase):
             })
         channels = one.alyx.rest('channels', 'create', data=channel_records)
         self.assertTrue(len(channels) == 3)
-        one.alyx.rest('insertions', 'delete', id=probe_insertion['id'])
