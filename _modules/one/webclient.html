@@ -1,0 +1,1166 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>one.webclient &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>one.webclient</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for one.webclient</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;API for interacting with a remote Alyx instance through REST</span>
+<span class="sd">The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote</span>
+<span class="sd">files through Alyx.</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">    alyx = AlyxClient(</span>
+<span class="sd">        username=&#39;test_user&#39;, password=&#39;TapetesBloc18&#39;,</span>
+<span class="sd">        base_url=&#39;https://test.alyx.internationalbrainlab.org&#39;)</span>
+
+<span class="sd">    # List subjects</span>
+<span class="sd">    subjects = alyx.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
+
+<span class="sd">    # Create a subject</span>
+<span class="sd">    record = {</span>
+<span class="sd">        &#39;nickname&#39;: nickname,</span>
+<span class="sd">        &#39;responsible_user&#39;: &#39;olivier&#39;,</span>
+<span class="sd">        &#39;birth_date&#39;: &#39;2019-06-15&#39;,</span>
+<span class="sd">        &#39;death_date&#39;: None,</span>
+<span class="sd">        &#39;lab&#39;: &#39;cortexlab&#39;,</span>
+<span class="sd">    }</span>
+<span class="sd">    new_subj = alyx.rest(&#39;subjects&#39;, &#39;create&#39;, data=record)</span>
+
+<span class="sd">    # Download a remote file, given a local path</span>
+<span class="sd">    url = &#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
+<span class="sd">    local_path = self.alyx.download_file(url)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">one.params</span>
+<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
+<span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_cache_response</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator for the generic request method; caches the result of the query and on subsequent</span>
+<span class="sd">    calls, returns cache instead of hitting the database</span>
+<span class="sd">    :param method: function to wrap (i.e. AlyxClient._generic_request)</span>
+<span class="sd">    :return: handle to wrapped method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper_decorator</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        REST caching wrapper</span>
+<span class="sd">        :param alyx_client: an instance of the AlyxClient class</span>
+<span class="sd">        :param args: positional arguments for applying to wrapped function</span>
+<span class="sd">        :param expires: an optional timedelta for how long cached response is valid.  If True,</span>
+<span class="sd">        the cached response will not be used on subsequent calls.  If None, the default expiry</span>
+<span class="sd">        is applied.</span>
+<span class="sd">        :param clobber: If True any existing cached response is overwritten</span>
+<span class="sd">        :param kwargs: keyword arguments for applying to wrapped function</span>
+<span class="sd">        :return: the REST response JSON either from cached file or directly from remote</span>
+<span class="sd">        endpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">expires</span> <span class="o">=</span> <span class="n">expires</span> <span class="ow">or</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">default_expiry</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">alyx_client</span><span class="o">.</span><span class="n">cache_mode</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="n">mode</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Check cache</span>
+        <span class="n">rest_cache</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_rest_dir</span><span class="p">(</span><span class="n">alyx_client</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">()</span>
+        <span class="n">sha1</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">sha1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="c1"># Reversible but length may exceed 255 chars</span>
+        <span class="c1"># name = base64.urlsafe_b64encode(args[2].encode(&#39;UTF-8&#39;)).decode(&#39;UTF-8&#39;)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rest_cache</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">cached</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;loading REST response from cache&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">cached</span><span class="p">,</span> <span class="n">when</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">when</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">cached</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cached</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Failed to connect, returning cached response&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">cached</span>
+            <span class="k">raise</span> <span class="n">ex</span>  <span class="c1"># No cache and can&#39;t connect to database; re-raise</span>
+
+        <span class="c1"># Save response into cache</span>
+        <span class="n">rest_cache</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;caching REST response&#39;</span><span class="p">)</span>
+        <span class="n">expiry_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="n">timedelta</span><span class="p">()</span> <span class="k">if</span> <span class="n">expires</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">expires</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rest_cache</span> <span class="o">/</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="n">response</span><span class="p">,</span> <span class="n">expiry_datetime</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()),</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">return</span> <span class="n">wrapper_decorator</span>
+
+
+<span class="k">class</span> <span class="nc">_PaginatedResponse</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class allows to emulate a list from a paginated response.</span>
+<span class="sd">    Provides cache functionality</span>
+<span class="sd">    PaginatedResponse(alyx, response)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="p">,</span> <span class="n">rep</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span>
+        <span class="c1"># store URL without pagination query params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;next&#39;</span><span class="p">]</span>
+        <span class="c1"># init the cache, list with None with count size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span>
+        <span class="c1"># fill the cache with results of the query</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="k">while</span> <span class="kc">None</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">idx</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">update_url_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="n">offset</span><span class="p">})</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="update_url_params"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.update_url_params">[docs]</a><span class="k">def</span> <span class="nf">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add/update the query parameters of a URL and make url safe</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        A URL string with which to update the query parameters</span>
+<span class="sd">    params : dict</span>
+<span class="sd">        A dict of new parameters.  For multiple values for the same query, use a list (see example)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        A new URL with said parameters updated</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+<span class="sd">        update_url_params(&#39;website.com/?q=&#39;, {&#39;pg&#39;: 5})</span>
+<span class="sd">        &#39;website.com/?pg=5&#39;</span>
+
+<span class="sd">        update_url_params(&#39;website.com?q=xxx&#39;, {&#39;pg&#39;: 5, &#39;foo&#39;: [&#39;bar&#39;, &#39;baz&#39;]})</span>
+<span class="sd">        &#39;website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Remove percent-encoding</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="c1"># Extract URL query arguments and convert to dict</span>
+    <span class="n">parsed_get_args</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">keep_blank_values</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Merge URL arguments dict with new params</span>
+    <span class="n">parsed_get_args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="c1"># Convert back to query string</span>
+    <span class="n">encoded_get_args</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">parsed_get_args</span><span class="p">,</span> <span class="n">doseq</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Update parser and convert to full URL str</span>
+    <span class="k">return</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">encoded_get_args</span><span class="p">)</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="http_download_file_list"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.http_download_file_list">[docs]</a><span class="k">def</span> <span class="nf">http_download_file_list</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downloads a list of files from the flat Iron from a list of links.</span>
+<span class="sd">    Same options behaviour as http_download_file</span>
+
+<span class="sd">    :param links_to_file_list: list of http links to files.</span>
+<span class="sd">    :type links_to_file_list: list</span>
+
+<span class="sd">    :return: (list) a list of the local full path of the downloaded files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_names_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">link_str</span> <span class="ow">in</span> <span class="n">links_to_file_list</span><span class="p">:</span>
+        <span class="n">file_names_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">http_download_file</span><span class="p">(</span><span class="n">link_str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">file_names_list</span></div>
+
+
+<div class="viewcode-block" id="http_download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.http_download_file">[docs]</a><span class="k">def</span> <span class="nf">http_download_file</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">username</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">return_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param full_link_to_file: http link to the file.</span>
+<span class="sd">    :type full_link_to_file: str</span>
+<span class="sd">    :param chunks: chunks to download</span>
+<span class="sd">    :type chunks: tuple of ints</span>
+<span class="sd">    :param clobber: [False] If True, force overwrite the existing file.</span>
+<span class="sd">    :type clobber: bool</span>
+<span class="sd">    :param username: [&#39;&#39;] authentication for password protected file server.</span>
+<span class="sd">    :type username: str</span>
+<span class="sd">    :param password: [&#39;&#39;] authentication for password protected file server.</span>
+<span class="sd">    :type password: str</span>
+<span class="sd">    :param cache_dir: [&#39;&#39;] directory in which files are cached; defaults to user&#39;s</span>
+<span class="sd">     Download directory.</span>
+<span class="sd">    :type cache_dir: str</span>
+<span class="sd">    :param return_md5: if true an MD5 hash of the file is additionally returned</span>
+<span class="sd">    :type return_md5: bool</span>
+<span class="sd">    :param: headers: [{}] additional headers to add to the request (auth tokens etc..)</span>
+<span class="sd">    :type headers: dict</span>
+<span class="sd">    :param: silent: [False] suppress download progress bar</span>
+<span class="sd">    :type silent: bool</span>
+
+<span class="sd">    :return: (str) a list of the local full path of the downloaded files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">full_link_to_file</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="c1"># makes sure special characters get encoded (&#39;#&#39; in file names for example)</span>
+    <span class="n">surl</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">full_link_to_file</span> <span class="o">=</span> <span class="n">surl</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">surl</span><span class="o">.</span><span class="n">path</span><span class="p">))</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
+
+    <span class="c1"># default cache directory is the home dir</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="p">:</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;Downloads&#39;</span><span class="p">))</span>
+
+    <span class="c1"># This is the local file name</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">)</span>
+
+    <span class="c1"># do not overwrite an existing file unless specified</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">clobber</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span> <span class="k">if</span> <span class="n">return_md5</span> <span class="k">else</span> <span class="n">file_name</span>
+
+    <span class="c1"># This should be the base url you wanted to access.</span>
+    <span class="n">baseurl</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Create a password manager</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">HTTPPasswordMgrWithDefaultRealm</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">username</span> <span class="ow">and</span> <span class="n">password</span><span class="p">:</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">add_password</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">baseurl</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+
+    <span class="c1"># Create an authentication handler using the password manager</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">HTTPBasicAuthHandler</span><span class="p">(</span><span class="n">manager</span><span class="p">)</span>
+
+    <span class="c1"># Create an opener that will replace the default urlopen method on further calls</span>
+    <span class="n">opener</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">build_opener</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span>
+    <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">install_opener</span><span class="p">(</span><span class="n">opener</span><span class="p">)</span>
+
+    <span class="c1"># Support for partial download.</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">first_byte</span><span class="p">,</span> <span class="n">n_bytes</span> <span class="o">=</span> <span class="n">chunks</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s1">&#39;Range&#39;</span><span class="p">,</span> <span class="s1">&#39;bytes=</span><span class="si">%d</span><span class="s1">-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">first_byte</span><span class="p">,</span> <span class="n">first_byte</span> <span class="o">+</span> <span class="n">n_bytes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># add additional headers</span>
+    <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="n">req</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">headers</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+    <span class="c1"># Open the url and get the length</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">full_link_to_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="n">file_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">getheader</span><span class="p">(</span><span class="s1">&#39;Content-length&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> Bytes: </span><span class="si">{</span><span class="n">file_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">file_size_dl</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">block_sz</span> <span class="o">=</span> <span class="mi">8192</span> <span class="o">*</span> <span class="mi">64</span> <span class="o">*</span> <span class="mi">8</span>
+
+    <span class="n">md5</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">file_size</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">buffer</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">block_sz</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">buffer</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">file_size_dl</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">return_md5</span><span class="p">:</span>
+                <span class="n">md5</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+            <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">file_size_dl</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">md5</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span> <span class="k">if</span> <span class="n">return_md5</span> <span class="k">else</span> <span class="n">file_name</span></div>
+
+
+<div class="viewcode-block" id="file_record_to_url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.file_record_to_url">[docs]</a><span class="k">def</span> <span class="nf">file_record_to_url</span><span class="p">(</span><span class="n">file_records</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Translate a Json dictionary to an usable http url for downloading files.</span>
+
+<span class="sd">    :param file_records: json containing a &#39;data_url&#39; field</span>
+<span class="sd">    :type file_records: dict</span>
+
+<span class="sd">    :return: urls: (list) a list of strings representing full data urls</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">file_records</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">urls</span></div>
+
+
+<div class="viewcode-block" id="dataset_record_to_url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.dataset_record_to_url">[docs]</a><span class="k">def</span> <span class="nf">dataset_record_to_url</span><span class="p">(</span><span class="n">dataset_record</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts a list of files urls from a list of dataset queries.</span>
+
+<span class="sd">    :param dataset_record: dataset Json from a rest request.</span>
+<span class="sd">    :type dataset_record: list</span>
+
+<span class="sd">    :return: (list) a list of strings representing files urls corresponding to the datasets records</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_record</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">dataset_record</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset_record</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">dataset_record</span><span class="p">:</span>
+        <span class="n">urls</span> <span class="o">+=</span> <span class="n">file_record_to_url</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">urls</span></div>
+
+
+<div class="viewcode-block" id="AlyxClient"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient">[docs]</a><span class="k">class</span> <span class="nc">AlyxClient</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that implements simple GET/POST wrappers for the Alyx REST API</span>
+<span class="sd">    http://alyx.readthedocs.io/en/latest/api.html  # FIXME old link</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_token</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_headers</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Headers for REST requests only</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a client instance that allows to GET and POST to the Alyx server</span>
+<span class="sd">        For oneibl, constructor attempts to authenticate with credentials in params.py</span>
+<span class="sd">        For standalone cases, AlyxClient(username=&#39;&#39;, password=&#39;&#39;, base_url=&#39;&#39;)</span>
+
+<span class="sd">        :param username: Alyx database user</span>
+<span class="sd">        :param password: Alyx database password</span>
+<span class="sd">        :param base_url: Alyx server address, including port and protocol</span>
+<span class="sd">        :param cache_rest: which type of http method to apply cache to; if &#39;*&#39;, all requests are</span>
+<span class="sd">        cached.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="n">silent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">)</span>
+        <span class="c1"># TODO Pass these to `params.get` and have it deal with setup defaults</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">ALYX_URL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="n">stay_logged_in</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># the mixed accept application may cause errors sometimes, only necessary for the docs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s1">&#39;Accept&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
+        <span class="c1"># REST cache parameters</span>
+        <span class="c1"># The default length of time that cache file is valid for,</span>
+        <span class="c1"># The default expiry is overridden by the `expires` kwarg.  If False, the caching is</span>
+        <span class="c1"># turned off.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="n">cache_rest</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rest_schemes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delayed fetch of rest schemes speeds up instantiation&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AlyxClient.is_logged_in"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.is_logged_in">[docs]</a>    <span class="k">def</span> <span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if user logged into Alyx database</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            True if user is authenticated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="ow">and</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span></div>
+
+<div class="viewcode-block" id="AlyxClient.list_endpoints"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.list_endpoints">[docs]</a>    <span class="k">def</span> <span class="nf">list_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of available REST endpoints</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            List of REST endpoint strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">EXCLUDE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_type&#39;</span><span class="p">,</span> <span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EXCLUDE</span><span class="p">)</span></div>
+
+    <span class="nd">@_cache_response</span>
+    <span class="k">def</span> <span class="nf">_generic_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="ow">or</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="c1"># makes sure the base url is the one from the instance</span>
+        <span class="n">rest_query</span> <span class="o">=</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">rest_query</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">rest_query</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">rest_query</span><span class="si">}</span><span class="s2">, headers: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
+        <span class="k">if</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">):</span>
+            <span class="c1"># the mixed accept application may cause errors sometimes, only necessary for the docs</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Accept&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/coreapi+json&#39;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">reqfunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;detail&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AlyxClient.authenticate"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a security token from the Alyx REST API to create requests headers.</span>
+<span class="sd">        Credentials are loaded via one.params</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            Alyx username.  If None, token not cached and not silent, user is prompted.</span>
+<span class="sd">        password : str</span>
+<span class="sd">            Alyx password.  If None, token not cached and not silent, user is prompted.</span>
+<span class="sd">        cache_token : bool</span>
+<span class="sd">            If true, the token is cached for subsequent auto-logins</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            If true, any cached token is ignored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get username</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="p">,</span> <span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter Alyx username:&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check if token cached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="p">,</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">username</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">[</span><span class="n">username</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Token </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">username</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get password</span>
+        <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="p">,</span> <span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Enter Alyx password for &quot;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s1">&quot;:&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">credentials</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span>
+            <span class="n">rep</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s1">&#39;/auth-token&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Can&#39;t connect to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
+                <span class="s2">&quot;Check your internet connections and Alyx database firewall&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Assign token or raise exception on internal server error</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">rep</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="k">if</span> <span class="n">rep</span><span class="o">.</span><span class="n">ok</span> <span class="k">else</span> <span class="n">rep</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]):</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Alyx authentication error. Check your credentials&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;Token </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">cache_token</span><span class="p">:</span>
+            <span class="c1"># Update saved pars</span>
+            <span class="n">par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">tokens</span><span class="p">[</span><span class="n">username</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span>
+            <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="n">tokens</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
+            <span class="c1"># Update current pars</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">username</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2"> as </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.logout"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.logout">[docs]</a>    <span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Log out from Alyx</span>
+<span class="sd">        Deletes the cached authentication token for the currently logged-in user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+        <span class="c1"># Remove token from cache</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">username</span> <span class="ow">in</span> <span class="n">par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">[</span><span class="n">username</span><span class="p">]</span>
+            <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="c1"># Remove token from local pars</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="p">,</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">username</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">[</span><span class="n">username</span><span class="p">]</span>
+        <span class="c1"># Remove token from object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="ow">and</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_rest_cache</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s1"> logged out from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.delete"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a DELETE request to the Alyx server. Will raise an exception on any status_code</span>
+<span class="sd">        other than 200, 201.</span>
+
+<span class="sd">        :param rest_query: examples:</span>
+<span class="sd">         &#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;</span>
+<span class="sd">         &#39;https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;.</span>
+<span class="sd">        :type rest_query: str</span>
+
+<span class="sd">        :return: (dict/list) json interpreted dictionary from response</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Downloads a file on the Alyx server from a file record REST field URL</span>
+<span class="sd">        :param url: full url(s) of the file(s)</span>
+<span class="sd">        :param kwargs: webclient.http_download_file parameters</span>
+<span class="sd">        :return: local path(s) of downloaded file(s)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_file_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">download_fcn</span> <span class="o">=</span> <span class="n">http_download_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate_file_url</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">url</span><span class="p">)</span>
+            <span class="n">download_fcn</span> <span class="o">=</span> <span class="n">http_download_file_list</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">silent</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;silent&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">),</span>
+            <span class="n">cache_dir</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;cache_dir&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">),</span>
+            <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_LOGIN</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_PWD</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">download_fcn</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.download_cache_tables"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.download_cache_tables">[docs]</a>    <span class="k">def</span> <span class="nf">download_cache_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Downloads the Alyx cache tables to the local data cache directory</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            List of parquet table file paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># query the database for the latest cache; expires=None overrides cached response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="n">http_download_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/cache.zip&#39;</span><span class="p">,</span>
+                                      <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span>
+                                      <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">,</span>
+                                      <span class="n">cache_dir</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span>
+                                      <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zipped</span><span class="p">:</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="n">zipped</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+                <span class="n">zipped</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span> <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_file_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Asserts that URL matches HTTP_DATA_SERVER parameter.</span>
+<span class="sd">        Currently only one remote HTTP server is supported for a given AlyxClient instance.  If</span>
+<span class="sd">        the URL contains only the relative path part, the full URL is returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : str</span>
+<span class="sd">            The full or partial URL to validate</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            The complete URL</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">            url = self._validate_file_url(&#39;https://webserver.net/path/to/file&#39;)</span>
+<span class="sd">            &#39;https://webserver.net/path/to/file&#39;</span>
+<span class="sd">            url = self._validate_file_url(&#39;path/to/file&#39;)</span>
+<span class="sd">            &#39;https://webserver.net/path/to/file&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>  <span class="c1"># A full URL</span>
+            <span class="k">assert</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">),</span> \
+                <span class="p">(</span><span class="s1">&#39;remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                 <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">url</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span><span class="si">}</span><span class="s1">...&quot; should start with &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">url</span>
+
+<div class="viewcode-block" id="AlyxClient.rel_path2url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.rel_path2url">[docs]</a>    <span class="k">def</span> <span class="nf">rel_path2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a relative file path, return the remote HTTP server URL.</span>
+<span class="sd">        It is expected that the remote HTTP server has the same file tree as the local system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, pathlib.Path</span>
+<span class="sd">            A relative ALF path (subject/date/number/etc.)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            A URL string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+<div class="viewcode-block" id="AlyxClient.get"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a GET request to the Alyx server. Will raise an exception on any status_code</span>
+<span class="sd">        other than 200, 201.</span>
+<span class="sd">        For the dictionary contents and list of endpoints, refer to:</span>
+<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+
+<span class="sd">        :param rest_query: example: &#39;/sessions?user=Hamish&#39;.</span>
+<span class="sd">        :type rest_query: str</span>
+
+<span class="sd">        :return: (dict/list) json interpreted dictionary from response</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">rest_query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;next&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]:</span>
+                <span class="n">rep</span> <span class="o">=</span> <span class="n">_PaginatedResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rep</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">rep</span></div>
+
+<div class="viewcode-block" id="AlyxClient.patch"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.patch">[docs]</a>    <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a PATCH request to the Alyx server.</span>
+<span class="sd">        For the dictionary contents, refer to:</span>
+<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+
+<span class="sd">        :param rest_query: (required)the endpoint as full or relative URL</span>
+<span class="sd">        :type rest_query: str</span>
+<span class="sd">        :param data: json encoded string or dictionary (cf.requests)</span>
+<span class="sd">        :type data: None, dict or str</span>
+<span class="sd">        :param files: dictionary / tuple (cf.requests)</span>
+
+<span class="sd">        :return: response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">patch</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.post"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a POST request to the Alyx server.</span>
+<span class="sd">        For the dictionary contents, refer to:</span>
+<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+
+<span class="sd">        :param rest_query: (required)the endpoint as full or relative URL</span>
+<span class="sd">        :type rest_query: str</span>
+<span class="sd">        :param data: dictionary or json encoded string</span>
+<span class="sd">        :type data: None, dict or str</span>
+<span class="sd">        :param files: dictionary / tuple (cf.requests)</span>
+
+<span class="sd">        :return: response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.put"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a PUT request to the Alyx server.</span>
+<span class="sd">        For the dictionary contents, refer to:</span>
+<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+
+<span class="sd">        :param rest_query: (required)the endpoint as full or relative URL</span>
+<span class="sd">        :type rest_query: str</span>
+<span class="sd">        :param data: dictionary or json encoded string</span>
+<span class="sd">        :type data: None, dict or str</span>
+<span class="sd">        :param files: dictionary / tuple (cf.requests)</span>
+
+<span class="sd">        :return: response object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.rest"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.rest">[docs]</a>    <span class="k">def</span> <span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">no_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        alyx_client.rest(): lists endpoints</span>
+<span class="sd">        alyx_client.rest(endpoint): lists actions for endpoint</span>
+<span class="sd">        alyx_client.rest(endpoint, action): lists fields and URL</span>
+
+<span class="sd">        Example REST endpoint with all actions:</span>
+
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;list&#39;, field_filter1=&#39;filterval&#39;)</span>
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;create&#39;, data=sub_dict)</span>
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;read&#39;, id=&#39;nickname&#39;)</span>
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;update&#39;, id=&#39;nickname&#39;, data=sub_dict)</span>
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;partial_update&#39;, id=&#39;nickname&#39;, data=sub_dict)</span>
+<span class="sd">            client.rest(&#39;subjects&#39;, &#39;delete&#39;, id=&#39;nickname&#39;)</span>
+<span class="sd">            client.rest(&#39;notes&#39;, &#39;create&#39;, data=nd, files={&#39;image&#39;: open(image_file, &#39;rb&#39;)})</span>
+
+<span class="sd">        :param url: endpoint name</span>
+<span class="sd">        :param action: &#39;list&#39;, &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, &#39;delete&#39;</span>
+<span class="sd">        :param id: lookup string for actions &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, and &#39;delete&#39;</span>
+<span class="sd">        :param data: data dictionary for actions &#39;update&#39;, &#39;partial_update&#39; and &#39;create&#39;</span>
+<span class="sd">        :param files: if file upload</span>
+<span class="sd">        :param no_cache: if true the `list` and `read` actions are performed without caching</span>
+<span class="sd">        :param ``**kwargs``: filter as per the Alyx REST documentation</span>
+<span class="sd">            cf. https://alyx.internationalbrainlab.org/docs/</span>
+<span class="sd">        :return: list of queried dicts (&#39;list&#39;) or dict (other actions)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if endpoint is None, list available endpoints</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">())</span>
+            <span class="k">return</span>
+        <span class="c1"># remove beginning slash if any</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">url</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="c1"># and split to the next slash or question mark</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;^/*[^?/]*&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="c1"># make sure the queried endpoint exists, if not throw an informative error</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">av</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;REST endpoint &quot;&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;&quot; does not exist. Available &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;endpoints are </span><span class="se">\n</span><span class="s1">       &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">av</span><span class="p">))</span>
+        <span class="n">endpoint_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span>
+        <span class="c1"># on a filter request, override the default action parameter</span>
+        <span class="k">if</span> <span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;list&#39;</span>
+        <span class="c1"># if action is None, list available actions for the required endpoint</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="p">:</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="k">return</span>
+        <span class="c1"># make sure the the desired action exists, if not throw an informative error</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Action &quot;&#39;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;&quot; for REST endpoint &quot;&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;&quot; does &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;not exist. Available actions are: &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="c1"># the actions below require an id in the URL, warn and help the user</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;REST action &quot;&#39;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;&quot; requires an ID in the URL: &#39;</span> <span class="o">+</span>
+                            <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
+            <span class="k">return</span>
+        <span class="c1"># the actions below require a data dictionary, warn and help the user with fields list</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;: ...,&quot;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;REST action &quot;&#39;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;&quot; requires a data dict with above keys&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># clobber=True means remote request always made, expires=True means response is not cached</span>
+        <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;clobber&#39;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">,</span> <span class="s1">&#39;expires&#39;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
+            <span class="c1"># list doesn&#39;t require id nor</span>
+            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span>
+            <span class="c1"># add to url data if it is a string</span>
+            <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+                <span class="c1"># this is a special case of the list where we query a uuid. Usually read is better</span>
+                <span class="k">if</span> <span class="s1">&#39;django&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">pk,</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># otherwise, look for a dictionary of filter terms</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="c1"># Convert all lists in query params to comma separated list</span>
+                <span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query_params</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">cache_args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>  <span class="c1"># e.g. may be uuid.UUID</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;read&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">cache_args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;create&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;post&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;patch&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;update&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;put&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
+
+    <span class="c1"># JSON field interface convenience methods</span>
+    <span class="k">def</span> <span class="nf">_check_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># make sure the queried endpoint exists, if not throw an informative error</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">av</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;REST endpoint &quot;&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;&quot; does not exist. Available &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;endpoints are </span><span class="se">\n</span><span class="s1">       &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">av</span><span class="p">))</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="AlyxClient.json_field_write"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_write">[docs]</a>    <span class="k">def</span> <span class="nf">json_field_write</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;json_field_write [summary]</span>
+<span class="sd">        Write data to WILL NOT CHECK IF DATA EXISTS</span>
+<span class="sd">        NOTE: Destructive write!</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str, None</span>
+<span class="sd">            Valid alyx endpoint, defaults to None</span>
+<span class="sd">        uuid : str, uuid.UUID, None</span>
+<span class="sd">            UUID or lookup name for endpoint</span>
+<span class="sd">        field_name : str, None</span>
+<span class="sd">            Valid json field name, defaults to None</span>
+<span class="sd">        data : dict, None</span>
+<span class="sd">            Data to write to json field, defaults to None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Written data dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="c1"># Prepare data to patch</span>
+        <span class="n">patch_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+        <span class="c1"># Upload new extended_qc to session</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">patch_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AlyxClient.json_field_update"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_update">[docs]</a>    <span class="k">def</span> <span class="nf">json_field_update</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;json_field_update</span>
+<span class="sd">        Non destructive update of json field of endpoint for object</span>
+<span class="sd">        Will update the field_name of the object with pk = uuid of given endpoint</span>
+<span class="sd">        If data has keys with the same name of existing keys it will squash the old</span>
+<span class="sd">        values (uses the dict.update() method)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            Alyx REST endpoint to hit</span>
+<span class="sd">        uuid : str, uuid.UUID</span>
+<span class="sd">            UUID or lookup name of object</span>
+<span class="sd">        field_name : str</span>
+<span class="sd">            Name of the json field</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            A dictionary with fields to be updated</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        New patched json field contents as dict</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        one.alyx.json_field_update(&quot;sessions&quot;, &quot;eid_str&quot;, &quot;extended_qc&quot;, {&quot;key&quot;: value})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="c1"># Load current json field contents</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Current json field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> does not contains a dict, aborting update&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">current</span>
+
+        <span class="c1"># Patch current dict with new data</span>
+        <span class="n">current</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Prepare data to patch</span>
+        <span class="n">patch_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="n">current</span><span class="p">}</span>
+        <span class="c1"># Upload new extended_qc to session</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">patch_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AlyxClient.json_field_remove_key"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_remove_key">[docs]</a>    <span class="k">def</span> <span class="nf">json_field_remove_key</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+            <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;json_field_remove_key</span>
+<span class="sd">        Will remove inputted key from json field dict and reupload it to Alyx.</span>
+<span class="sd">        Needs endpoint, uuid and json field name</span>
+
+<span class="sd">        :param endpoint: endpoint to hit, defaults to None</span>
+<span class="sd">        :type endpoint: str, optional</span>
+<span class="sd">        :param uuid: uuid or lookup name for endpoint</span>
+<span class="sd">        :type uuid: str, optional</span>
+<span class="sd">        :param field_name: json field name of object, defaults to None</span>
+<span class="sd">        :type field_name: str, optional</span>
+<span class="sd">        :param key: key name of dictionary inside object, defaults to None</span>
+<span class="sd">        :type key: str, optional</span>
+<span class="sd">        :return: returns new content of json field</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
+        <span class="c1"># If no contents, cannot remove key, return</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">current</span>
+        <span class="c1"># if contents are not dict, cannot remove key, return contents</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot remove key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> content of json field is of type str&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># If key not present in contents of json field cannot remove key, return contents</span>
+        <span class="k">if</span> <span class="n">current</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: Key not found in endpoint </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2"> field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">current</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing key from dict: &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="c1"># Re-write contents without removed key</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">current</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">written</span></div>
+
+<div class="viewcode-block" id="AlyxClient.json_field_delete"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_delete">[docs]</a>    <span class="k">def</span> <span class="nf">json_field_delete</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AlyxClient.clear_rest_cache"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_rest_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_rest_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>one.params &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>one.params</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for one.params</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for modifying, loading and saving ONE and Alyx database parameters</span>
+<span class="sd">Scenarios:</span>
+
+<span class="sd">    - Load ONE with a cache dir: tries to load the Web client params from the dir</span>
+<span class="sd">    - Load ONE with http address - gets cache dir from the URL map</span>
+
+<span class="sd">The ONE params comprise two files: a caches file that contains a map of Alyx db URLs to cache</span>
+<span class="sd">directories, and a separate parameter file for each url containing the client parameters.  The</span>
+<span class="sd">caches file also sets the default client for when no url is provided.</span>
+
+<span class="sd">TODO Rename &#39;client&#39; kwarg</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
+<span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlsplit</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+
+<span class="n">_PAR_ID_STR</span> <span class="o">=</span> <span class="s1">&#39;one&#39;</span>
+<span class="n">_CLIENT_ID_STR</span> <span class="o">=</span> <span class="s1">&#39;caches&#39;</span>
+<span class="n">CACHE_DIR_DEFAULT</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;Downloads&quot;</span> <span class="o">/</span> <span class="s2">&quot;ONE&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="default"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.default">[docs]</a><span class="k">def</span> <span class="nf">default</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Default WebClient parameters&quot;&quot;&quot;</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ALYX_URL&quot;</span><span class="p">:</span> <span class="s2">&quot;https://openalyx.internationalbrainlab.org&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">:</span> <span class="s2">&quot;intbrainlab&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;HTTP_DATA_SERVER&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ibl.flatironinstitute.org&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;HTTP_DATA_SERVER_LOGIN&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="s2">&quot;HTTP_DATA_SERVER_PWD&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_current_par</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">par_current</span><span class="p">):</span>
+    <span class="n">cpar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">par_current</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cpar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cpar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">default</span><span class="p">(),</span> <span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cpar</span>
+
+
+<span class="k">def</span> <span class="nf">_key_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a URL str to one valid for use as a file name or dict key.  URL Protocols are</span>
+<span class="sd">    removed entirely.  The returned string will have characters in the set [a-zA-Z.-_].</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        url = _key_from_url(&#39;http://test.alyx.internationalbrainlab.org/&#39;)</span>
+<span class="sd">        assert url == &#39;test.alyx.internationalbrainlab.org&#39;</span>
+
+<span class="sd">    :param url: A URL string</span>
+<span class="sd">    :return: A file-name-safe string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFKC&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>  <span class="c1"># Ensure ASCII</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;^https?://&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>  <span class="c1"># Remove protocol and trialing slashes</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^.\w\s-]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>  <span class="c1"># Convert non word chars to underscore</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-\s]+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>  <span class="c1"># Convert spaces to hyphens</span>
+
+
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># first get default parameters</span>
+    <span class="n">par_default</span> <span class="o">=</span> <span class="n">default</span><span class="p">()</span>
+    <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span> <span class="ow">or</span> <span class="n">par_default</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
+
+    <span class="c1"># If a client URL has been provided, set it as the default URL</span>
+    <span class="n">par_default</span> <span class="o">=</span> <span class="n">par_default</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_URL&#39;</span><span class="p">,</span> <span class="n">client</span> <span class="ow">or</span> <span class="n">par_default</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
+    <span class="n">par_current</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">par_default</span><span class="p">)</span>
+
+    <span class="c1"># Load the db URL map</span>
+    <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()})</span>
+    <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_key</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">par_default</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">par</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">cpar</span> <span class="o">=</span> <span class="n">_get_current_par</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">par_current</span><span class="p">)</span>
+            <span class="c1"># Iterate through non-password pars; skip url if client url already provided</span>
+            <span class="k">if</span> <span class="s1">&#39;PWD&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">client</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;ALYX_URL&#39;</span><span class="p">):</span>
+                <span class="n">par</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Param </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">, current value is [&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">cpar</span><span class="p">)</span><span class="si">}</span><span class="s1">&quot;]:&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
+
+        <span class="n">cpar</span> <span class="o">=</span> <span class="n">_get_current_par</span><span class="p">(</span><span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">,</span> <span class="n">par_current</span><span class="p">)</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the Alyx password for </span><span class="si">{</span><span class="n">par</span><span class="p">[</span><span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> (leave empty to keep current):&#39;</span>
+        <span class="n">par</span><span class="p">[</span><span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
+
+        <span class="n">cpar</span> <span class="o">=</span> <span class="n">_get_current_par</span><span class="p">(</span><span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">,</span> <span class="n">par_current</span><span class="p">)</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the FlatIron HTTP password for </span><span class="si">{</span><span class="n">par</span><span class="p">[</span><span class="s2">&quot;HTTP_DATA_SERVER_LOGIN&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>\
+                 <span class="s1">&#39;(leave empty to keep current): &#39;</span>
+        <span class="n">par</span><span class="p">[</span><span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
+
+        <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+
+        <span class="c1"># Prompt for cache directory</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the location of the download cache, current value is [&quot;</span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">&quot;]:&#39;</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cache_dir</span>
+
+        <span class="c1"># Check if directory already used by another instance</span>
+        <span class="n">in_use</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">client_key</span><span class="p">]</span>
+        <span class="k">while</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="ow">in</span> <span class="n">in_use</span><span class="p">:</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                <span class="s1">&#39;Warning: the directory provided is already a cache for another URL.  &#39;</span>
+                <span class="s1">&#39;This may cause conflicts.  Would you like to change the cache location? [Y/n]&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">answer</span> <span class="ow">and</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cache_dir</span>  <span class="c1"># Prompt for another directory</span>
+
+        <span class="k">if</span> <span class="n">make_default</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;DEFAULT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">as_dict</span><span class="p">():</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Would you like to set this URL as the default one? [y/N]&#39;</span><span class="p">)</span>
+            <span class="n">make_default</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">answer</span> <span class="ow">and</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">par_current</span>
+
+    <span class="c1"># Update and save parameters</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">client_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">make_default</span> <span class="ow">or</span> <span class="s1">&#39;DEFAULT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">as_dict</span><span class="p">():</span>
+        <span class="n">cache_map</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
+
+    <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">par</span><span class="p">)</span>  <span class="c1"># Client params</span>
+    <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cache_map</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ONE Parameter files location: &#39;</span> <span class="o">+</span> <span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">_PAR_ID_STR</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">cache_map</span></div>
+
+
+<div class="viewcode-block" id="get"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the AlyxClient parameters</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    silent : bool</span>
+<span class="sd">        If true, defaults are chosen if no parameters found</span>
+<span class="sd">    client : str</span>
+<span class="sd">        The database URL to retrieve parameters for.  If None, the default is loaded</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A Params object for the AlyxClient</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_map</span><span class="p">:</span>  <span class="c1"># This can be removed in the future</span>
+        <span class="n">cache_map</span> <span class="o">=</span> <span class="n">_patch_params</span><span class="p">()</span>
+    <span class="c1"># If there are no params for this client, run setup routine</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_map</span> <span class="ow">or</span> <span class="p">(</span><span class="n">client_key</span> <span class="ow">and</span> <span class="n">client_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">):</span>
+        <span class="n">cache_map</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_default_client"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_default_client">[docs]</a><span class="k">def</span> <span class="nf">get_default_client</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns the default AlyxClient URL, or None if no default is set.&quot;&quot;&quot;</span>
+    <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{}))</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.save">[docs]</a><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
+    <span class="c1"># Remove cache dir variable before saving</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;CACHE_DIR&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span><span class="p">}</span>
+    <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">par</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_cache_dir"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_cache_dir">[docs]</a><span class="k">def</span> <span class="nf">get_cache_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="c1"># TODO Add client param</span>
+    <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span> <span class="k">if</span> <span class="n">cache_map</span> <span class="k">else</span> <span class="n">CACHE_DIR_DEFAULT</span><span class="p">)</span>
+    <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cache_dir</span></div>
+
+
+<div class="viewcode-block" id="get_params_dir"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_params_dir">[docs]</a><span class="k">def</span> <span class="nf">get_params_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">_PAR_ID_STR</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_rest_dir"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_rest_dir">[docs]</a><span class="k">def</span> <span class="nf">get_rest_dir</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return path to REST cache directory</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    client : str</span>
+<span class="sd">        Location of rest cache for a given database URL.  If None, the root REST cache directory is</span>
+<span class="sd">        returned</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        The REST cache directory path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rest_dir</span> <span class="o">=</span> <span class="n">get_params_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;.rest&#39;</span>
+    <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">scheme</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">urlsplit</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="n">rest_dir</span> <span class="o">/=</span> <span class="n">Path</span><span class="p">(</span><span class="n">loc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">),</span> <span class="n">scheme</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rest_dir</span></div>
+
+
+<span class="k">def</span> <span class="nf">_check_cache_conflict</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
+    <span class="n">cache_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{}),</span> <span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cache_map</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">_patch_params</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copy over old parameters to the new cache dir based format</span>
+<span class="sd">    :return: new parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">OLD_PAR_STR</span> <span class="o">=</span> <span class="s1">&#39;one_params&#39;</span>
+    <span class="n">old_par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">OLD_PAR_STR</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">old_par</span><span class="p">,</span> <span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Copy pars to new location</span>
+        <span class="k">assert</span> <span class="n">old_par</span><span class="o">.</span><span class="n">CACHE_DIR</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">old_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
+        <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Save web client parameters</span>
+        <span class="n">new_web_client_pars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">old_par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                               <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">}</span>
+        <span class="n">cache_name</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">old_par</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
+        <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">cache_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">new_web_client_pars</span><span class="p">)</span>
+
+        <span class="c1"># Add to cache map</span>
+        <span class="n">cache_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">cache_name</span><span class="p">:</span> <span class="n">old_par</span><span class="o">.</span><span class="n">CACHE_DIR</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;DEFAULT&#39;</span><span class="p">:</span> <span class="n">cache_name</span>
+        <span class="p">}</span>
+        <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cache_map</span><span class="p">)</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cache_map</span><span class="p">)</span>
+
+    <span class="c1"># Remove the old parameters file</span>
+    <span class="c1"># TODO Restore when fully deprecated</span>
+    <span class="c1"># old_path = Path(iopar.getfile(OLD_PAR_STR))</span>
+    <span class="c1"># old_path.unlink(missing_ok=True)</span>
+
+    <span class="k">return</span> <span class="n">par</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

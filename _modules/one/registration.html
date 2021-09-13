@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>one.registration &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>one.registration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for one.registration</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Session creation and datasets registration</span>
+
+<span class="sd">The RegistrationClient provides an high-level API for creating experimentation sessions on Alyx</span>
+<span class="sd">and registering associated datasets.</span>
+
+<span class="sd">Summary of methods</span>
+<span class="sd">------------------</span>
+<span class="sd">create_new_session - Create a new local session folder and optionally create session record on Alyx</span>
+<span class="sd">create_session - Create session record on Alyx from local path, without registering files</span>
+<span class="sd">create_sessions - Create sessions and register files for folder containing a given flag file</span>
+<span class="sd">register_session - Create a session on Alyx from local path and register any ALF datasets present</span>
+<span class="sd">register_files - Register a list of files to their respective sessions on Alyx</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
+
+<span class="kn">import</span> <span class="nn">requests.exceptions</span>
+
+<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
+
+<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
+<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">session_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span>
+<span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RegistrationClient"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient">[docs]</a><span class="k">class</span> <span class="nc">RegistrationClient</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object that keeps the ONE instance and provides method to create sessions and register data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">one</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">one</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">one</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;dataset-types&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registration_patterns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dt</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="k">if</span> <span class="n">dt</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;file_extension&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-formats&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="RegistrationClient.create_sessions"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_data_folder</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;**/create_me.flag&#39;</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create sessions looking recursively for flag files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        root_data_folder : str, pathlib.Path</span>
+<span class="sd">            Folder to look for sessions</span>
+<span class="sd">        glob_pattern : str</span>
+<span class="sd">            Register valid sessions that contain this pattern</span>
+<span class="sd">        dry : bool</span>
+<span class="sd">            If true returns list of sessions without creating them on Alyx</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            Newly created session paths; Alyx session records</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_data_folder</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_pattern</span><span class="p">))</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">flag_file</span> <span class="ow">in</span> <span class="n">flag_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dry</span><span class="p">:</span>
+                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="n">flag_file</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;creating session for &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">flag_file</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+            <span class="c1"># providing a false flag stops the registration after session creation</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_session</span><span class="p">(</span><span class="n">flag_file</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+            <span class="n">flag_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ff</span><span class="o">.</span><span class="n">parent</span> <span class="k">for</span> <span class="n">ff</span> <span class="ow">in</span> <span class="n">flag_files</span><span class="p">],</span> <span class="n">records</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.create_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a remote session on Alyx from a local session path, without registering files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        session_path : str, pathlib.Path</span>
+<span class="sd">            The path ending with subject/date/number</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Newly created session record</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.create_new_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_new_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">session_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new local session folder and optionally create session record on Alyx</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject : str</span>
+<span class="sd">            The subject name.  Must exist on Alyx.</span>
+<span class="sd">        session_root : str, pathlib.Path</span>
+<span class="sd">            The root folder in which to create the subject/date/number folder.  Defaults to ONE</span>
+<span class="sd">            cache directory.</span>
+<span class="sd">        date : datetime.datetime, datetime.date, str</span>
+<span class="sd">            An optional date for the session.  If None the current time is used.</span>
+<span class="sd">        register : bool</span>
+<span class="sd">            If true, create session record on Alyx database</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        New local session path; the experiment UUID if register is true</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        # Create a local session only</span>
+<span class="sd">        session_path, _ = RegistrationClient.create_new_session(&#39;Ian&#39;, register=False)</span>
+<span class="sd">        # Register a session on Alyx in a specific location</span>
+<span class="sd">        session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, &#39;/data/mylab/Subjects&#39;)</span>
+<span class="sd">        # Create a session for a given date</span>
+<span class="sd">        session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, date=&#39;2020-01-01&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;ONE must be in online mode&#39;</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>  <span class="c1"># Format, validate</span>
+        <span class="c1"># Ensure subject exists on Alyx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="n">session_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">session_root</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">subject</span> <span class="o">/</span> <span class="n">date</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_root</span> <span class="o">/</span> <span class="n">alfio</span><span class="o">.</span><span class="n">next_num_folder</span><span class="p">(</span><span class="n">session_root</span><span class="p">)</span>
+        <span class="n">session_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Ensure folder exists on disk</span>
+        <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">)[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span> <span class="k">if</span> <span class="n">register</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.find_files"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.find_files">[docs]</a>    <span class="k">def</span> <span class="nf">find_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an generator of file names that match one of the dataset type patterns in Alyx</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        session_path : str, pathlib.Path</span>
+<span class="sd">            The session path to search</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Iterable of file paths that match the dataset type patterns in Alyx</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">])</span>
+        <span class="n">dsets</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">types</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dsets</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span>
+                <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.assert_exists"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.assert_exists">[docs]</a>    <span class="k">def</span> <span class="nf">assert_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raise an error if a given member doesn&#39;t exist on Alyx database</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        member : str, uuid.UUID, list</span>
+<span class="sd">            The member ID(s) to verify</span>
+<span class="sd">        endpoint: str</span>
+<span class="sd">            The endpoint at which to look it up</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        client.assert_exists(&#39;ALK_036&#39;, &#39;subjects&#39;)</span>
+<span class="sd">        client.assert_exists(&#39;user_45&#39;, &#39;users&#39;)</span>
+<span class="sd">        client.assert_exists(&#39;local_server&#39;, &#39;repositories&#39;)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        -------</span>
+<span class="sd">        one.alf.exceptions.AlyxSubjectNotFound</span>
+<span class="sd">            Subject does not exist on Alyx</span>
+<span class="sd">        one.alf.exceptions.ALFError</span>
+<span class="sd">            Member does not exist on Alyx</span>
+<span class="sd">        requests.exceptions.HTTPError</span>
+<span class="sd">            Failed to connect to Alyx database or endpoint not found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">member</span><span class="p">),</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">404</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ex</span>
+                <span class="k">elif</span> <span class="n">endpoint</span> <span class="o">==</span> <span class="s1">&#39;subjects&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">AlyxSubjectNotFound</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Member &quot;</span><span class="si">{</span><span class="n">member</span><span class="si">}</span><span class="s1">&quot; doesn</span><span class="se">\&#39;</span><span class="s1">t exist in Alyx&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">member</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.ensure_ISO8601"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.ensure_ISO8601">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Ensure provided date is ISO 8601 compliant</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        date : str, None, datetime.date, datetime.datetime</span>
+<span class="sd">            An optional date to convert to ISO string.  If None, the current datetime is used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The datetime as an ISO 8601 str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>  <span class="c1"># If None get current time</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>  <span class="c1"># Validate by parsing</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="ow">is</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromordinal</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">toordinal</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">date</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.register_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_session">[docs]</a>    <span class="k">def</span> <span class="nf">register_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ses_path</span><span class="p">,</span> <span class="n">users</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register session in Alyx</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ses_path : str, pathlib.Path</span>
+<span class="sd">            The local session path</span>
+<span class="sd">        users : str, list</span>
+<span class="sd">            The user(s) to attribute to the session</span>
+<span class="sd">        file_list : bool, list</span>
+<span class="sd">            An optional list of file paths to register.  If True, all valid files within the</span>
+<span class="sd">            session folder are registered.  If False, no files are registered</span>
+<span class="sd">        location : str</span>
+<span class="sd">            The optional location within the lab where the experiment takes place</span>
+<span class="sd">        procedures : str, list</span>
+<span class="sd">            An optional list of procedures, e.g. &#39;Behavior training/tasks&#39;</span>
+<span class="sd">        n_correct_trials : int</span>
+<span class="sd">            The number of correct trials (optional)</span>
+<span class="sd">        n_trials : int</span>
+<span class="sd">            The total number of completed trials (optional)</span>
+<span class="sd">        json : dict, str</span>
+<span class="sd">            Optional JSON data</span>
+<span class="sd">        project: str, list</span>
+<span class="sd">            The project(s) to which the experiment belongs (optional)</span>
+<span class="sd">        type : str</span>
+<span class="sd">            The experiment type, e.g. &#39;Experiment&#39;, &#39;Base&#39;</span>
+<span class="sd">        task_protocol : str</span>
+<span class="sd">            The task protocol (optional)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        An Alyx session record and list of file records (or None if file_list is False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ses_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ses_path</span><span class="p">)</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">ses_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># query alyx endpoints for subject, error if not found</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+
+        <span class="c1"># look for a session from the same subject, same number on the same day</span>
+        <span class="n">session_id</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
+                                              <span class="n">date_range</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
+                                              <span class="n">number</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">],</span>
+                                              <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">users</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if nothing found create a new session in Alyx</span>
+        <span class="n">ses_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;users&#39;</span><span class="p">:</span> <span class="n">users</span><span class="p">,</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;Experiment&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;end_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">))</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">start_time</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="s1">&#39;start_time doesn</span><span class="se">\&#39;</span><span class="s1">t match session path&#39;</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;procedures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span>
+        <span class="k">if</span> <span class="s1">&#39;lab&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]})</span>
+        <span class="n">ses_</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="p">:</span>  <span class="c1"># Create from scratch</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ses_</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Update existing</span>
+            <span class="k">if</span> <span class="n">start_time</span><span class="p">:</span>
+                <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">session_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">ses_</span><span class="p">)</span>
+
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="c1"># at this point the session has been created. If create only, exit</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">recs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_files</span><span class="p">(</span><span class="n">ses_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">file_list</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">file_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">recs</span><span class="p">:</span>  <span class="c1"># Update local session data after registering files</span>
+            <span class="n">session</span><span class="p">[</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">recs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">recs</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.register_files"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_files">[docs]</a>    <span class="k">def</span> <span class="nf">register_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">created_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">server_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_md5_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers a set of files belonging to a session only on the server</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_list : list, str, pathlib.Path</span>
+<span class="sd">            A filepath (or list thereof) of ALF datasets to register to Alyx</span>
+<span class="sd">        created_by : str</span>
+<span class="sd">            Name of Alyx user (defaults to whoever is logged in to ONE instance)</span>
+<span class="sd">        repository : str</span>
+<span class="sd">            Name of the repository in Alyx to register to</span>
+<span class="sd">        server_only : bool</span>
+<span class="sd">            Will only create file records in the &#39;online&#39; repositories and skips local repositories</span>
+<span class="sd">        versions : list of str</span>
+<span class="sd">            Optional version tags</span>
+<span class="sd">        default : bool</span>
+<span class="sd">            Whether to set as default revision (defaults to True)</span>
+<span class="sd">        dry : bool</span>
+<span class="sd">            When true returns POST data for registration endpoint without submitting the data</span>
+<span class="sd">        max_md5_size : int</span>
+<span class="sd">            Maximum file in bytes to compute md5 sum (always compute if None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            A list of newly created Alyx dataset records or the registration data if dry == true</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map whose keys will be session paths</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map for versions</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)):</span>
+            <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_list</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">versions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">versions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">versions</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">versions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">versions</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">versions</span><span class="p">)</span>
+
+        <span class="c1"># Filter valid files and sort by session</span>
+        <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">ver</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">file_list</span><span class="p">),</span> <span class="n">versions</span><span class="p">):</span>
+            <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: No matching extension &quot;</span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&quot; in database&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">type_match</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span>
+                          <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: No matching dataset type in database&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_match</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: Multiple matching dataset types in database</span><span class="se">\n</span><span class="s1">&#39;</span>
+                              <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">type_match</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">F</span><span class="p">[</span><span class="n">session_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
+            <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span>
+
+        <span class="c1"># For each unique session, make a separate POST request</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># this is the generic relative path: subject/yyyy-mm-dd/NNN</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
+            <span class="n">file_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+            <span class="c1"># computing the md5 can be very long, so this is an option to skip if the file is</span>
+            <span class="c1"># bigger than a certain threshold</span>
+            <span class="n">md5s</span> <span class="o">=</span> <span class="p">[</span><span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">max_md5_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sz</span> <span class="o">&lt;</span> <span class="n">max_md5_size</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">file_sizes</span><span class="p">)]</span>
+
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Registering &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
+
+            <span class="n">r_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;created_by&#39;</span><span class="p">:</span> <span class="n">created_by</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                  <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
+                  <span class="s1">&#39;filenames&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span>
+                  <span class="s1">&#39;hashes&#39;</span><span class="p">:</span> <span class="n">md5s</span><span class="p">,</span>
+                  <span class="s1">&#39;filesizes&#39;</span><span class="p">:</span> <span class="n">file_sizes</span><span class="p">,</span>
+                  <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">repository</span><span class="p">,</span>
+                  <span class="s1">&#39;server_only&#39;</span><span class="p">:</span> <span class="n">server_only</span><span class="p">,</span>
+                  <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span>
+                  <span class="s1">&#39;versions&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">]}</span>
+
+            <span class="c1"># Add optional field</span>
+            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;labs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span>
+            <span class="c1"># If dry, store POST data, otherwise store resulting file records</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_</span> <span class="k">if</span> <span class="n">dry</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/register-file&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">))</span>
+            <span class="c1"># Log file names</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALYX REGISTERED DATA </span><span class="si">{</span><span class="s2">&quot;!DRY!&quot;</span> <span class="k">if</span> <span class="n">dry</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">rel_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALYX REGISTERED DATA: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">records</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.register_water_administration"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_water_administration">[docs]</a>    <span class="k">def</span> <span class="nf">register_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a water administration to Alyx for a given subject</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject : str</span>
+<span class="sd">            A subject nickname that exists on Alyx</span>
+<span class="sd">        volume : float</span>
+<span class="sd">            The total volume administrated in ml</span>
+<span class="sd">        date_time : str, datetime.datetime, datetime.date</span>
+<span class="sd">            The time of administration.  If None, the current time is used.</span>
+<span class="sd">        water_type : str</span>
+<span class="sd">            A water type that exists in Alyx; default is &#39;Water&#39;</span>
+<span class="sd">        user : str</span>
+<span class="sd">            The user who administrated the water.  Currently logged-in user is the default.</span>
+<span class="sd">        session : str, UUID, pathlib.Path, dict</span>
+<span class="sd">            An optional experiment ID to associate</span>
+<span class="sd">        adlib : bool</span>
+<span class="sd">            If true, indicates that the subject was given water ad libitum</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A water administration record</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        one.alf.exceptions.AlyxSubjectNotFound</span>
+<span class="sd">            Subject does not exist on Alyx</span>
+<span class="sd">        one.alf.exceptions.ALFError</span>
+<span class="sd">            User does not exist on Alyx</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            date_time is not a valid ISO date time or session ID is not valid</span>
+<span class="sd">        requests.exceptions.HTTPError</span>
+<span class="sd">            Failed to connect to database, or submitted data not valid (500)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Ensure subject exists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="c1"># Ensure user(s) exist</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="p">[]))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+        <span class="c1"># Ensure volume not zero</span>
+        <span class="k">if</span> <span class="n">volume</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Water volume must be greater than zero&#39;</span><span class="p">)</span>
+        <span class="c1"># Post water admin</span>
+        <span class="n">wa_</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+            <span class="s1">&#39;date_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;date_time&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+            <span class="s1">&#39;water_administered&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">volume</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>  <span class="c1"># Round to 4 s.f.</span>
+            <span class="s1">&#39;water_type&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;water_type&#39;</span><span class="p">,</span> <span class="s1">&#39;Water&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
+            <span class="s1">&#39;adlib&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;adlib&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="c1"># Ensure session is valid; convert to eid</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">wa_</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;session&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">wa_</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to parse session ID&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;water-administrations&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wa_</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RegistrationClient.register_weight"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_weight">[docs]</a>    <span class="k">def</span> <span class="nf">register_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">date_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a subject weight to Alyx</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject : str</span>
+<span class="sd">            A subject nickname that exists on Alyx</span>
+<span class="sd">        weight : float</span>
+<span class="sd">            The subject weight in grams</span>
+<span class="sd">        date_time : str, datetime.datetime, datetime.date</span>
+<span class="sd">            The time of weighing.  If None, the current time is used.</span>
+<span class="sd">        user : str</span>
+<span class="sd">            The user who performed the weighing.  Currently logged-in user is the default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        An Alyx weight record</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        one.alf.exceptions.AlyxSubjectNotFound</span>
+<span class="sd">            Subject does not exist on Alyx</span>
+<span class="sd">        one.alf.exceptions.ALFError</span>
+<span class="sd">            User does not exist on Alyx</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            date_time is not a valid ISO date time or weight &lt; 1e-4</span>
+<span class="sd">        requests.exceptions.HTTPError</span>
+<span class="sd">            Failed to connect to database, or submitted data not valid (500)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Ensure subject exists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="c1"># Ensure user(s) exist</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+        <span class="c1"># Ensure weight not zero</span>
+        <span class="k">if</span> <span class="n">weight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Water volume must be greater than 0&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Post water admin</span>
+        <span class="n">wei_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+                <span class="s1">&#39;date_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date_time</span><span class="p">),</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">weight</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>  <span class="c1"># Round to 4 s.f.</span>
+                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wei_</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

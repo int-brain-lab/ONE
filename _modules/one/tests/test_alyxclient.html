@@ -1,0 +1,705 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>one.tests.test_alyxclient &mdash; ONE  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ONE
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ONE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>one.tests.test_alyxclient</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for one.tests.test_alyxclient</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">one.webclient</span> <span class="k">as</span> <span class="nn">wc</span>
+<span class="kn">import</span> <span class="nn">one.params</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
+<span class="kn">import</span> <span class="nn">iblutil.io.params</span> <span class="k">as</span> <span class="nn">iopar</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="n">TEST_DB_1</span><span class="p">,</span> <span class="n">TEST_DB_2</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+
+<span class="n">par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Init connection to the database</span>
+<span class="n">ac</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestAuthentication"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestAuthentication">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TestAuthentication</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestAuthentication.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestAuthentication.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestAuthentication.test_authentication"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestAuthentication.test_authentication">[docs]</a>    <span class="k">def</span> <span class="nf">test_authentication</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">())</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">())</span>
+        <span class="c1"># Check token removed from cache</span>
+        <span class="n">cached_token</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]),</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cached_token</span><span class="p">)</span>
+        <span class="c1"># Test with pars set</span>
+        <span class="n">login_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">login_keys</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">login_keys</span><span class="p">),</span> <span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">],</span> <span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])):</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_input</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
+            <span class="n">mock_input</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">())</span>
+        <span class="c1"># Test using input args</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                   <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">login_keys</span><span class="p">})</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_input</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">],</span> <span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">mock_input</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+        <span class="c1"># Check token not saved in cache</span>
+        <span class="n">cached_token</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]),</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cached_token</span><span class="p">)</span>
+        <span class="c1"># Test user prompts</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]),</span>\
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.webclient.getpass&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]):</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">cache_token</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">())</span>
+        <span class="c1"># Check token saved in cache</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">cache_token</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cached_token</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]),</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cached_token</span><span class="p">)</span>
+        <span class="c1"># Check force flag</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.webclient.getpass&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">mock_pwd</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">cache_token</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">mock_pwd</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+        <span class="c1"># Check non-silent double logout</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>  <span class="c1"># Shouldn&#39;t complain</span></div>
+
+<div class="viewcode-block" id="TestAuthentication.test_auth_methods"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestAuthentication.test_auth_methods">[docs]</a>    <span class="k">def</span> <span class="nf">test_auth_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check that authentication happens when making a logged out request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">()</span>
+        <span class="c1"># Set pars for auto login</span>
+        <span class="n">login_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">login_keys</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">login_keys</span><span class="p">),</span> <span class="p">(</span><span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">],</span> <span class="n">TEST_DB_2</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="c1"># Test generic request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="s1">&#39;/sessions?user=Hamish&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">())</span>
+
+        <span class="c1"># Test download cache tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="TestJsonFieldMethods"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods">[docs]</a><span class="k">class</span> <span class="nc">TestJsonFieldMethods</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestJsonFieldMethods.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span> <span class="o">=</span> <span class="s1">&#39;242f2929-faaf-4e7c-ae3f-4a935c6d8da5&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eid2</span> <span class="o">=</span> <span class="s1">&#39;dfe99506-b873-45db-bc93-731f9362e304&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;sessions&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span> <span class="o">=</span> <span class="s1">&#39;extended_qc&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;some&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eid1_eqc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eid2_eqc</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_json_field_write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">written1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span>
+        <span class="p">)</span>
+        <span class="n">written2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">written1</span> <span class="o">==</span> <span class="n">written2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">written1</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">?&amp;extended_qc=some__lt,0.5&#39;</span>
+        <span class="n">sess_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sess_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_json_field_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">modified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;some&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;data&#39;</span> <span class="ow">in</span> <span class="n">modified</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;some&#39;</span> <span class="ow">in</span> <span class="n">modified</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">?&amp;extended_qc=some__lt,0.5&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_json_field_remove_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">?&amp;extended_qc=data__gte,0.5&#39;</span>
+        <span class="n">pre_delete</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pre_delete</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_remove_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;data&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">deleted</span><span class="p">)</span>
+        <span class="n">post_delete</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">post_delete</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_json_field_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">deleted</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">ses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">?&amp;extended_qc=data__gte,0.5&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestJsonFieldMethods.test_json_methods"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.test_json_methods">[docs]</a>    <span class="k">def</span> <span class="nf">test_json_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_json_field_write</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_json_field_update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_json_field_remove_key</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_json_field_delete</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TestJsonFieldMethods.test_empty"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.test_empty">[docs]</a>    <span class="k">def</span> <span class="nf">test_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check behaviour when fields are empty</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+        <span class="c1"># Should return None as no keys exist</span>
+        <span class="n">modified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_remove_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">modified</span><span class="p">)</span>
+        <span class="c1"># Should return data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;some&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">}</span>
+        <span class="n">modified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">modified</span> <span class="o">==</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Should warn if key not in dict</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.webclient&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_remove_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+        <span class="c1"># Check behaviour when fields not a dict</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Update field</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.webclient&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">],</span> <span class="n">modified</span><span class="p">)</span>
+        <span class="c1"># Remove key</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.webclient&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_remove_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">modified</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestJsonFieldMethods.tearDown"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Delete any dict created by this test</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">?&amp;extended_qc=some__lt,0.5&#39;</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="c1"># Restore whatever was there in the first place</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid1_eqc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2_eqc</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TestRestCache"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache">[docs]</a><span class="k">class</span> <span class="nc">TestRestCache</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestRestCache.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">setup_test_params</span><span class="p">()</span>  <span class="c1"># Ensure test alyx set up</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">setup_rest_cache</span><span class="p">()</span>  <span class="c1"># Copy rest cache fixtures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;/insertions/b529f2d8-cdae-4d59-aba2-cbd1b5572e36&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">set_up_env</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="n">one</span><span class="o">.</span><span class="n">webclient</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">_FakeDateTime</span>
+        <span class="n">_FakeDateTime</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">path_parts</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">,</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">_key_from_url</span><span class="p">(</span><span class="n">TEST_DB_1</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]),</span> <span class="s1">&#39;https&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">path_parts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">default_expiry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">cache_mode</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_loads_cached"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_loads_cached">[docs]</a>    <span class="k">def</span> <span class="nf">test_loads_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check returns cache</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">ac</span>  <span class="c1"># Bunch({&#39;base_url&#39;: &#39;https://test.alyx.internationalbrainlab.org&#39;})</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_expired_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_expired_cache">[docs]</a>    <span class="k">def</span> <span class="nf">test_expired_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Checks expired</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s1">&#39;called&#39;</span><span class="p">)</span>
+        <span class="n">_FakeDateTime</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;3001-01-01&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;called&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_caches_response"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_caches_response">[docs]</a>    <span class="k">def</span> <span class="nf">test_caches_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Default expiry time</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s1">&#39;called&#39;</span><span class="p">)</span>
+        <span class="n">_FakeDateTime</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>  <span class="c1"># Freeze time</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="s1">&#39;/endpoint?id=5&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;called&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check cache file created</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;64b5b3476c015e04ee7c4753606b5e967325d34a&#39;</span>
+        <span class="n">cache_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cache_file</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">q</span><span class="p">,</span> <span class="n">when</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;called&#39;</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">when</span><span class="p">,</span> <span class="s1">&#39;2021-05-13T00:01:00&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_cache_mode"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_cache_mode">[docs]</a>    <span class="k">def</span> <span class="nf">test_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># With cache mode off, wrapped method should be called even in presence of valid cache</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># cache nothing</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s1">&#39;called&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;called&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_expiry_param"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_expiry_param">[docs]</a>    <span class="k">def</span> <span class="nf">test_expiry_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check expiry param</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s1">&#39;123&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="s1">&#39;/endpoint?id=5&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;123&#39;</span><span class="p">)</span>
+
+        <span class="c1"># A second call should yield a new response as cache immediately expired</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s1">&#39;456&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="s1">&#39;/endpoint?id=5&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;456&#39;</span><span class="p">)</span>
+
+        <span class="c1"># With clobber=True the cache should be overwritten</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s1">&#39;789&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="s1">&#39;/endpoint?id=5&#39;</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;789&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_cache_returned_on_error"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_cache_returned_on_error">[docs]</a>    <span class="k">def</span> <span class="nf">test_cache_returned_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">Mock</span><span class="p">(</span><span class="n">side_effect</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">())</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="n">_FakeDateTime</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;3001-01-01&#39;</span><span class="p">)</span>  <span class="c1"># Expired</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># With clobber=True exception should be raised</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">):</span>
+            <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestRestCache.test_clear_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_clear_cache">[docs]</a>    <span class="k">def</span> <span class="nf">test_clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">))</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">clear_rest_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="TestRestCache.tearDown"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_mode</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_expiry</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">_FakeDateTime</span><span class="p">(</span><span class="n">datetime</span><span class="p">):</span>
+    <span class="n">_now</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">now</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_FakeDateTime</span><span class="o">.</span><span class="n">_now</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestDownloadHTTP"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TestDownloadHTTP</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestDownloadHTTP.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span> <span class="o">=</span> <span class="n">ac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_data_uuid</span> <span class="o">=</span> <span class="s1">&#39;84116a5c-131e-40a2-92d4-62c4aaae5c52&#39;</span>  <span class="c1"># OpenAlyx dataset</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_paginated_request"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_paginated_request">[docs]</a>    <span class="k">def</span> <span class="nf">test_paginated_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="n">one</span><span class="o">.</span><span class="n">webclient</span><span class="o">.</span><span class="n">_PaginatedResponse</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">250</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">rep</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_update_url_params"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_update_url_params">[docs]</a>    <span class="k">def</span> <span class="nf">test_update_url_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/sessions?param1=foo&amp;param2=&amp;limit=5&amp;param3=bar&#39;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/sessions?param1=foo&amp;limit=10&amp;param3=bar&amp;param4=baz&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;param4&#39;</span><span class="p">:</span> <span class="s1">&#39;baz&#39;</span><span class="p">}))</span>
+        <span class="c1"># Without pars</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="c1"># With lists</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">?foo=bar&amp;foo=baz&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">]}))</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_generic_request"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_generic_request">[docs]</a>    <span class="k">def</span> <span class="nf">test_generic_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/labs&#39;</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_rest_endpoint_write"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_rest_endpoint_write">[docs]</a>    <span class="k">def</span> <span class="nf">test_rest_endpoint_write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># test object creation and deletion with weighings</span>
+        <span class="n">wa</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;flowers&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;date_time&#39;</span><span class="p">:</span> <span class="s1">&#39;2018-06-30T12:34:57&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mf">22.2</span><span class="p">,</span>
+              <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;olivier&#39;</span>
+              <span class="p">}</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wa</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
+        <span class="c1"># test patch object with subjects</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;birth_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2018-04-01&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;death_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2018-09-10&#39;</span><span class="p">}</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;flowers&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;birth_date&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;birth_date&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;death_date&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;death_date&#39;</span><span class="p">])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;birth_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2018-04-02&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;death_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2018-09-09&#39;</span><span class="p">}</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;flowers&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;birth_date&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;birth_date&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;death_date&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;death_date&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_rest_endpoint_read_only"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_rest_endpoint_read_only">[docs]</a>    <span class="k">def</span> <span class="nf">test_rest_endpoint_read_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># tests that non-existing endpoints /actions are caught properly</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;turlu&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;create&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;turlu&#39;</span><span class="p">)</span>
+        <span class="c1"># test with labs : get</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;/labs&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span>
+        <span class="c1"># test with labs: read</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;mainenlab&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">([</span><span class="n">lab</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">if</span>
+                         <span class="n">lab</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mainenlab&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span>
+        <span class="c1"># Test with full URL</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span>
+            <span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">TEST_DB_1</span><span class="p">[</span><span class="s2">&quot;base_url&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">/labs/mainenlab&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="c1"># test a more complex endpoint with a filter and a selection</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects/flowers&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="n">sub1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects?nickname=flowers&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;nickname&#39;</span><span class="p">],</span> <span class="n">sub1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nickname&#39;</span><span class="p">])</span>
+        <span class="c1"># also make sure the action is overriden on a filter query</span>
+        <span class="n">sub2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;/subjects?nickname=flowers&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub1</span><span class="p">,</span> <span class="n">sub2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_download_datasets_with_api"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_download_datasets_with_api">[docs]</a>    <span class="k">def</span> <span class="nf">test_download_datasets_with_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ac_open</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_2</span><span class="p">)</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
+
+        <span class="c1"># Test 1: empty dir, dict mode</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="n">ac_open</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/datasets/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data_uuid</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">dataset_record_to_url</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="o">=</span> <span class="n">ac_open</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+        <span class="c1"># Test 2: empty dir, list mode</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="n">ac_open</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/datasets?id=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data_uuid</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">dataset_record_to_url</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="o">=</span> <span class="n">ac_open</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+        <span class="c1"># Test 3: Log unauthorized error with url (using test alyx)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/datasets?exists=True&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;file_records&#39;</span><span class="p">])</span>
+        <span class="n">old_par</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">_par</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.webclient&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">url</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">log</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">old_par</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_download_datasets"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_download_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">test_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># test downloading a single file</span>
+        <span class="n">full_link_to_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/&#39;</span>
+            <span class="s1">&#39;2020-09-21/001/alf/probes.trajectory.84116a5c-131e-40a2-92d4-62c4aaae5c52.json&#39;</span>
+        <span class="p">)</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">http_download_file</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span>
+                                               <span class="n">return_md5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">md5</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">wc</span><span class="o">.</span><span class="n">http_download_file</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># test downloading a list of files</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="p">[</span><span class="n">full_link_to_file</span><span class="p">,</span>
+                 <span class="sa">r</span><span class="s1">&#39;https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/&#39;</span>
+                 <span class="sa">r</span><span class="s1">&#39;2020-09-21/001/alf/probes.description.c4df1eea-c92c-479f-a907-41fa6e770094.json&#39;</span>
+                 <span class="p">]</span>
+        <span class="n">file_list</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">http_download_file_list</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_LOGIN</span><span class="p">,</span>
+                                               <span class="n">password</span><span class="o">=</span><span class="n">par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_PWD</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_rest_all_actions"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_rest_all_actions">[docs]</a>    <span class="k">def</span> <span class="nf">test_rest_all_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># randint reduces conflicts with parallel tests</span>
+        <span class="n">nickname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;foobar_</span><span class="si">{</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">newsub</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;nickname&#39;</span><span class="p">:</span> <span class="n">nickname</span><span class="p">,</span>
+            <span class="s1">&#39;responsible_user&#39;</span><span class="p">:</span> <span class="s1">&#39;olivier&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;birth_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2019-06-15&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;death_date&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># look for the subject, create it if necessary</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/subjects?&amp;nickname=</span><span class="si">{</span><span class="n">nickname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">newsub</span><span class="p">)</span>
+        <span class="c1"># partial update and full update</span>
+        <span class="n">newsub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span>
+                              <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;hey&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">newsub</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">],</span> <span class="s1">&#39;hey&#39;</span><span class="p">)</span>
+        <span class="n">newsub</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;hoy&#39;</span>
+        <span class="n">newsub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">newsub</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">newsub</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">],</span> <span class="s1">&#39;hoy&#39;</span><span class="p">)</span>
+        <span class="c1"># read</span>
+        <span class="n">newsub_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">newsub</span><span class="p">,</span> <span class="n">newsub_</span><span class="p">)</span>
+        <span class="c1"># list with filter</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">nickname</span><span class="o">=</span><span class="n">nickname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nickname&#39;</span><span class="p">],</span> <span class="n">newsub</span><span class="p">[</span><span class="s1">&#39;nickname&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># delete</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">clear_rest_cache</span><span class="p">()</span>  <span class="c1"># Make sure we hit db</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/subjects?&amp;nickname=</span><span class="si">{</span><span class="n">nickname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_endpoints_docs"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_endpoints_docs">[docs]</a>    <span class="k">def</span> <span class="nf">test_endpoints_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Test endpoint documentation and validation</span>
+        <span class="n">endpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">endpoints</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">endpoints</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.webclient&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">endpoints</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TestMisc"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestMisc">[docs]</a><span class="k">class</span> <span class="nc">TestMisc</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestMisc.test_update_url_params"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestMisc.test_update_url_params">[docs]</a>    <span class="k">def</span> <span class="nf">test_update_url_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">&#39;website.com/?q=&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pg&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;website.com/?pg=5&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="c1"># Check handles lists</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">&#39;website.com?q=xxx&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pg&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">]})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="c1"># Check encodes special chars; handles partial URL</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;/path?param1=foo bar&#39;</span>
+        <span class="n">new_url</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;param2&#39;</span><span class="p">:</span> <span class="s1">&#39;#2020-01-03#,#2021-02-01#&#39;</span><span class="p">})</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;/path?param1=foo+bar&amp;param2=%232020-01-03</span><span class="si">%23%</span><span class="s1">2C%232021-02-01%23&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">new_url</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">exit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, International Brain Lab.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
