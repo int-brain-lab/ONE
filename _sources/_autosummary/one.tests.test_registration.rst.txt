@@ -1,0 +1,30 @@
+one.tests.test\_registration
+============================
+
+.. automodule:: one.tests.test_registration
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      TestRegistrationClient
+   
+   
+
+   
+   
+   
+
+
+

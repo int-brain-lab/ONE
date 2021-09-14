@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.tests.alf.test_alf_io &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.tests.alf.test_alf_spec" href="one.tests.alf.test_alf_spec.html" />
+    <link rel="prev" title="one.tests.alf.test_alf_files" href="one.tests.alf.test_alf_files.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.tests.html">one.tests</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="one.tests.alf.html">one.tests.alf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxclient.html">one.tests.test_alyxclient</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxrest.html">one.tests.test_alyxrest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_converters.html">one.tests.test_converters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_one.html">one.tests.test_one</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_params.html">one.tests.test_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_registration.html">one.tests.test_registration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.util.html">one.tests.util</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+          <li><a href="one.tests.html">one.tests</a> &raquo;</li>
+          <li><a href="one.tests.alf.html">one.tests.alf</a> &raquo;</li>
+      <li>one.tests.alf.test_alf_io</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.tests.alf.test_alf_io.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.tests.alf.test_alf_io">
+<span id="one-tests-alf-test-alf-io"></span><h1>one.tests.alf.test_alf_io<a class="headerlink" href="#module-one.tests.alf.test_alf_io" title="Permalink to this headline"></a></h1>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestALFFolders" title="one.tests.alf.test_alf_io.TestALFFolders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestALFFolders</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestAlfBunch" title="one.tests.alf.test_alf_io.TestAlfBunch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestAlfBunch</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestUUID_Files" title="one.tests.alf.test_alf_io.TestUUID_Files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestUUID_Files</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestsAlf" title="one.tests.alf.test_alf_io.TestsAlf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestsAlf</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestsAlfPartsFilters" title="one.tests.alf.test_alf_io.TestsAlfPartsFilters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestsAlfPartsFilters</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestsLoadFile" title="one.tests.alf.test_alf_io.TestsLoadFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestsLoadFile</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestAlfBunch">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestAlfBunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestAlfBunch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestAlfBunch" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestAlfBunch.test_to_dataframe_scalars">
+<span class="sig-name descname"><span class="pre">test_to_dataframe_scalars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestAlfBunch.test_to_dataframe_scalars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestAlfBunch.test_to_dataframe_scalars" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestAlfBunch.test_to_dataframe_vectors">
+<span class="sig-name descname"><span class="pre">test_to_dataframe_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestAlfBunch.test_to_dataframe_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestAlfBunch.test_to_dataframe_vectors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestAlfBunch.test_append_numpy">
+<span class="sig-name descname"><span class="pre">test_append_numpy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestAlfBunch.test_append_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestAlfBunch.test_append_numpy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestAlfBunch.test_append_list">
+<span class="sig-name descname"><span class="pre">test_append_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestAlfBunch.test_append_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestAlfBunch.test_append_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestAlfBunch.test_check_dimensions">
+<span class="sig-name descname"><span class="pre">test_check_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestAlfBunch.test_check_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestAlfBunch.test_check_dimensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlfPartsFilters">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestsAlfPartsFilters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlfPartsFilters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlfPartsFilters" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlfPartsFilters.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlfPartsFilters.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlfPartsFilters.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlfPartsFilters.test_npy_parts_and_file_filters">
+<span class="sig-name descname"><span class="pre">test_npy_parts_and_file_filters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlfPartsFilters.test_npy_parts_and_file_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlfPartsFilters.test_npy_parts_and_file_filters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlfPartsFilters.test_filter_by">
+<span class="sig-name descname"><span class="pre">test_filter_by</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlfPartsFilters.test_filter_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlfPartsFilters.test_filter_by" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlfPartsFilters.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlfPartsFilters.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlfPartsFilters.tearDown" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestsAlf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_exists">
+<span class="sig-name descname"><span class="pre">test_exists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_exists" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns">
+<span class="sig-name descname"><span class="pre">test_metadata_columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_metadata_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID">
+<span class="sig-name descname"><span class="pre">test_metadata_columns_UUID</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_metadata_columns_UUID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_read_ts">
+<span class="sig-name descname"><span class="pre">test_read_ts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_read_ts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_read_ts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_load_object">
+<span class="sig-name descname"><span class="pre">test_load_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_load_object" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_save_npy">
+<span class="sig-name descname"><span class="pre">test_save_npy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_save_npy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_save_npy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_check_dimensions">
+<span class="sig-name descname"><span class="pre">test_check_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_check_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_check_dimensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.test_ts2vec">
+<span class="sig-name descname"><span class="pre">test_ts2vec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.test_ts2vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.test_ts2vec" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsAlf.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsAlf.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsAlf.tearDown" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFile">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestsLoadFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFile.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFile.test_load_file_content">
+<span class="sig-name descname"><span class="pre">test_load_file_content</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile.test_load_file_content"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile.test_load_file_content" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFile.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile.tearDown" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestUUID_Files">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestUUID_Files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestUUID_Files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestUUID_Files" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid">
+<span class="sig-name descname"><span class="pre">test_remove_uuid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestUUID_Files.test_remove_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid_recusive">
+<span class="sig-name descname"><span class="pre">test_remove_uuid_recusive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestUUID_Files.test_remove_uuid_recusive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid_recusive" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestALFFolders">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestALFFolders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestALFFolders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestALFFolders" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestALFFolders.tempdir">
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.tests.alf.test_alf_io.TestALFFolders.tempdir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestALFFolders.setUpClass">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestALFFolders.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestALFFolders.setUpClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestALFFolders.tearDownClass">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestALFFolders.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestALFFolders.tearDownClass" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestALFFolders.test_next_num_folder">
+<span class="sig-name descname"><span class="pre">test_next_num_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestALFFolders.test_next_num_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestALFFolders.test_next_num_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestALFFolders.test_remove_empty_folders">
+<span class="sig-name descname"><span class="pre">test_remove_empty_folders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestALFFolders.test_remove_empty_folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestALFFolders.test_remove_empty_folders" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.tests.alf.test_alf_files.html" class="btn btn-neutral float-left" title="one.tests.alf.test_alf_files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.tests.alf.test_alf_spec.html" class="btn btn-neutral float-right" title="one.tests.alf.test_alf_spec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

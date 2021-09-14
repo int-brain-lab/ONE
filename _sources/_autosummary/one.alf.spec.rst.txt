@@ -1,0 +1,44 @@
+one.alf.spec
+============
+
+.. automodule:: one.alf.spec
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SPEC_DESCRIPTION
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+   
+      describe
+      is_session_path
+      is_uuid
+      is_uuid_string
+      is_valid
+      path_pattern
+      regex
+      to_alf
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

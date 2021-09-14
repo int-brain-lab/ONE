@@ -1,0 +1,50 @@
+one.alf.io
+==========
+
+.. automodule:: one.alf.io
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+   
+      check_dimensions
+      dataframe
+      exists
+      filter_by
+      load_file_content
+      load_object
+      next_num_folder
+      read_ts
+      remove_empty_folders
+      remove_uuid_file
+      remove_uuid_recursive
+      save_metadata
+      save_object_npy
+      ts2vec
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      AlfBunch
+   
+   
+
+   
+   
+   
+
+
+

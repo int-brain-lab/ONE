@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.api &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.converters" href="one.converters.html" />
+    <link rel="prev" title="one.alf.spec.SPEC_DESCRIPTION" href="one.alf.spec.SPEC_DESCRIPTION.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+      <li>one.api</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.api">
+<span id="one-api"></span><h1>one.api<a class="headerlink" href="#module-one.api" title="Permalink to this headline"></a></h1>
+<p>Classes for searching, listing and (down)loading ALyx Files
+TODO Document
+TODO Add sig to ONE Light uuids
+TODO Save changes to cache
+TODO Fix update cache in AlyxONE - save parquet table
+TODO save parquet in update_filesystem</p>
+<p>Points of discussion:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Module structure: oneibl is too restrictive, naming module <cite>one</cite> means obj should have</p></li>
+</ul>
+<p>different name
+- Download datasets timeout
+- Support for pids?
+- Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array
+- NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
+Datasets table has sorted index.
+- Conceivably you could have a subclass for Figshare, etc., not just Alyx</p>
+</div></blockquote>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.api.ONE" title="one.api.ONE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ONE</span></code></a></p></td>
+<td><p>ONE API factory Determine which class to instantiate depending on parameters passed.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.api.One" title="one.api.One"><code class="xref py py-obj docutils literal notranslate"><span class="pre">One</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.api.OneAlyx" title="one.api.OneAlyx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneAlyx</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="one.api.One">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">One</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wildcards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="one.converters.html#one.converters.ConversionMixin" title="one.converters.ConversionMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.converters.ConversionMixin</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="one.api.One.offline">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">offline</span></span><a class="headerlink" href="#one.api.One.offline" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.search_terms">
+<span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.search_terms" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.refresh_cache">
+<span class="sig-name descname"><span class="pre">refresh_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.refresh_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.refresh_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Check and reload cache tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> (<em>str</em>) – Options are ‘local’ (don’t reload); ‘refresh’ (reload); ‘auto’ (reload if expired);
+‘remote’ (don’t reload)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Loaded timestamp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.search" title="Permalink to this definition"></a></dt>
+<dd><p>Searches sessions matching the given criteria and returns a list of matching eids</p>
+<p>For a list of search terms, use the methods</p>
+<blockquote>
+<div><p>one.search_terms()</p>
+</div></blockquote>
+<p>For all of the search parameters, a single value or list may be provided.  For dataset,
+the sessions returned will contain all listed datasets.  For the other parameters,
+the session must contain at least one of the entries. NB: Wildcards are not permitted,
+however if wildcards property is False, regular expressions may be used for all but
+number and date_range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – list of dataset names. Returns sessions containing all these datasets.
+A dataset matches if it contains the search string e.g. ‘wheel.position’ matches
+‘_ibl_wheel.position.npy’</p></li>
+<li><p><strong>date_range</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>pandas.timestamp</em>) – A single date to search or a list of 2 dates that define the range (inclusive).  To
+define only the upper or lower date bound, set the other element to None.</p></li>
+<li><p><strong>lab</strong> (<em>str</em>) – A str or list of lab names, returns sessions from any of these labs</p></li>
+<li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date</p></li>
+<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects</p></li>
+<li><p><strong>task_protocol</strong> (<em>str</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
+will be found)</p></li>
+<li><p><strong>project</strong> (<em>str</em>) – The project name (can be partial, i.e. any task protocol containing that str
+will be found)</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details</p></li>
+<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>list of eids, if details is True, also returns a list of dictionaries, each entry</em></p></li>
+<li><p><em>corresponding to a matching session</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.get_details">
+<span class="sig-name descname"><span class="pre">get_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">uuid.UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.get_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.get_details" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.list_subjects">
+<span class="sig-name descname"><span class="pre">list_subjects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_subjects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_subjects" title="Permalink to this definition"></a></dt>
+<dd><p>List all subjects in database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Sorted list of subject names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.list_datasets">
+<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Given an eid, return the datasets for those sessions.  If no eid is provided,
+a list of all datasets is returned.  When details is false, a sorted array of unique
+datasets is returned (their relative paths).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
+This is the relative path of the file from the session root.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
+relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Slice of datasets table or numpy array if details is False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.list_collections">
+<span class="sig-name descname"><span class="pre">list_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_collections" title="Permalink to this definition"></a></dt>
+<dd><p>List the collections for a given experiment.  If no experiment id is given,
+all collections are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>[</em><em>str</em><em>, </em><em>UUID</em><em>, </em><em>Path</em><em>, </em><em>dict</em><em>]</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true a dict of pandas datasets tables is returned with collections as keys,
+otherwise a numpy array of unique collections</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A numpy array of unique collections or dict of datasets tables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.list_revisions">
+<span class="sig-name descname"><span class="pre">list_revisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.list_revisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_revisions" title="Permalink to this definition"></a></dt>
+<dd><p>List the revisions for a given experiment.  If no experiment id is given,
+all collections are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>[</em><em>str</em><em>, </em><em>UUID</em><em>, </em><em>Path</em><em>, </em><em>dict</em><em>]</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true a dict of pandas datasets tables is returned with collections as keys,
+otherwise a numpy array of unique collections</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A numpy array of unique collections or dict of datasets tables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.load_object">
+<span class="sig-name descname"><span class="pre">load_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">uuid.UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="one.alf.io.html#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch"><span class="pre">one.alf.io.AlfBunch</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_object" title="Permalink to this definition"></a></dt>
+<dd><p>Load all attributes of an ALF object from a Session ID and an object name.  Any datasets
+with matching object name will be loaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>obj</strong> (<em>str</em>) – The ALF object to load.  Supports asterisks as wildcards.</p></li>
+<li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
+This is the relative path of the file from the session root.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
+revision (ordered lexicographically) is returned.  If None, the default revision is
+returned (usually the most recent revision).  Regular expressions/wildcards not
+permitted.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+<li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional filters for datasets, including namespace and timescale. For full list
+see the one.alf.spec.describe function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>An ALF bunch or if download_only is True, a list of Paths objects</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>load_object(eid, ‘moves’)
+load_object(eid, ‘trials’)
+load_object(eid, ‘spikes’, collection=’<em>probe01’)  # wildcards is True
+load_object(eid, ‘spikes’, collection=’.*probe01’)  # wildcards is False
+load_object(eid, ‘spikes’, namespace=’ibl’)
+load_object(eid, ‘spikes’, timescale=’ephysClock’)
+# Load specific attributes
+load_object(eid, ‘spikes’, attribute=[‘times</em>’, ‘clusters’])</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.load_dataset">
+<span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">uuid.UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Load a single dataset for a given session id and dataset name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>dict</em>) – The ALF dataset to load.  May be a string or dict of ALF parts.  Supports asterisks as
+wildcards.</p></li>
+<li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
+This is the relative path of the file from the session root.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
+revision (ordered lexicographically) is returned.  If None, the default revision is
+returned (usually the most recent revision).  Regular expressions/wildcards not
+permitted.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+<li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dataset or a Path object if download_only is true.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>intervals = one.load_dataset(eid, ‘_ibl_trials.intervals.npy’)
+# Load dataset without specifying extension
+intervals = one.load_dataset(eid, ‘trials.intervals’)  # wildcard mode only
+intervals = one.load_dataset(eid, ‘<em>trials.intervals</em>’)  # wildcard mode only
+filepath = one.load_dataset(eid ‘_ibl_trials.intervals.npy’, download_only=True)
+spike_times = one.load_dataset(eid ‘spikes.times.npy’, collection=’alf/probe01’)
+old_spikes = one.load_dataset(eid, ‘spikes.times.npy’,</p>
+<blockquote>
+<div><p>collection=’alf/probe01’, revision=’2020-08-31’)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.load_datasets">
+<span class="sig-name descname"><span class="pre">load_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">uuid.UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collections</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revisions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_present</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.load_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Load datasets for a given session id.  Returns two lists the length of datasets.  The
+first is the data (or file paths if download_data is false), the second is a list of
+meta data Bunches.  If assert_present is false, missing data will be returned as None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>datasets</strong> (<em>list of strings</em>) – The ALF datasets to load.  May be a string or dict of ALF parts.  Supports asterisks
+as
+wildcards.</p></li>
+<li><p><strong>collections</strong> (<em>str</em><em>, </em><em>list</em>) – The collection(s) to which the object(s) belong, e.g. ‘alf/probe01’.
+This is the relative path of the file from the session root.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>revisions</strong> (<em>str</em><em>, </em><em>list</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
+revision (ordered lexicographically) is returned.  If None, the default revision is
+returned (usually the most recent revision).  Regular expressions/wildcards not
+permitted.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+<li><p><strong>assert_present</strong> (<em>bool</em>) – If true, missing datasets raises and error, otherwise None is returned</p></li>
+<li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>Returns a list of data (or file paths) the length of datasets, and a list of</em></p></li>
+<li><p><em>meta data Bunches. If assert_present is False, missing data will be None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.load_dataset_from_id">
+<span class="sig-name descname"><span class="pre">load_dataset_from_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">uuid.UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.load_dataset_from_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_dataset_from_id" title="Permalink to this definition"></a></dt>
+<dd><p>Load a dataset given a dataset UUID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dset_id</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – A dataset UUID to load</p></li>
+<li><p><strong>download_only</strong> (<em>bool</em>) – If true the dataset is downloaded (if necessary) and the filepath returned</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true a pandas Series is returned in addition to the data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dataset data (or filepath if download_only) and dataset record if details is True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.setup">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Interactive command tool that populates parameter file for ONE IBL.
+FIXME See subclass</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.api.ONE">
+<span class="sig-name descname"><span class="pre">ONE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wildcards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#ONE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.ONE" title="Permalink to this definition"></a></dt>
+<dd><p>ONE API factory
+Determine which class to instantiate depending on parameters passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>str</em>) – Query mode, options include ‘auto’, ‘local’ (offline) and ‘remote’ (online only).  Most
+methods have a <cite>query_type</cite> parameter that can override the class mode.</p></li>
+<li><p><strong>wildcards</strong> (<em>bool</em>) – If true all mathods use unix shell style pattern matching, otherwise regular expressions
+are used.</p></li>
+<li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>Path</em>) – Path to the data files.  If Alyx parameters have been set up for this location,
+an OneAlyx instance is returned.  If data_dir and base_url are None, the default
+location is used.</p></li>
+<li><p><strong>base_url</strong> (<em>str</em>) – An Alyx database URL.  The URL must start with ‘http’.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – An Alyx database login username.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – An Alyx database password.</p></li>
+<li><p><strong>cache_rest</strong> (<em>str</em>) – If not in ‘local’ mode, this determines which http request types to cache.  Default is
+‘GET’.  Use None to deactivate cache (not recommended).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>An One instance if mode is ‘local’, otherwise an OneAlyx instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.api.OneAlyx">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OneAlyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wildcards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#one.api.One" title="one.api.One"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.api.One</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="one.api.OneAlyx.alyx">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">alyx</span></span><a class="headerlink" href="#one.api.OneAlyx.alyx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.search_terms">
+<span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search_terms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of search terms to be passed as kwargs to the search method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>query_type</strong> (<em>str</em>) – If ‘remote’, the search terms are largely determined by the REST endpoint used</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple of search strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.describe_dataset">
+<span class="sig-name descname"><span class="pre">describe_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.describe_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.describe_dataset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.list_datasets">
+<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.list_datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Given an eid, return the datasets for those sessions.  If no eid is provided,
+a list of all datasets is returned.  When details is false, a sorted array of unique
+datasets is returned (their relative paths).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
+This is the relative path of the file from the session root.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
+relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Slice of datasets table or numpy array if details is False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.load_collection">
+<span class="sig-name descname"><span class="pre">load_collection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.load_collection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.load_collection" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.pid2eid">
+<span class="sig-name descname"><span class="pre">pid2eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pid:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">query_type=None)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'str'&gt;</span></em>, <em class="sig-param"><span class="pre">&lt;class</span> <span class="pre">'str'&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.pid2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.pid2eid" title="Permalink to this definition"></a></dt>
+<dd><p>Given an Alyx probe UUID string, returns the session id string and the probe label
+(i.e. the ALF collection)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – A probe UUID</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query mode - options include ‘remote’, and ‘refresh’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>experiment ID, probe label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search" title="Permalink to this definition"></a></dt>
+<dd><p>Searches sessions matching the given criteria and returns a list of matching eids</p>
+<p>For a list of search terms, use the method</p>
+<blockquote>
+<div><p>one.search_terms(query_type=’remote’)</p>
+</div></blockquote>
+<p>For all of the search parameters, a single value or list may be provided.  For dataset,
+the sessions returned will contain all listed datasets.  For the other parameters,
+the session must contain at least one of the entries. NB: Wildcards are not permitted,
+however if wildcards property is False, regular expressions may be used for all but
+number and date_range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – list of dataset names. Returns sessions containing all these datasets.
+A dataset matches if it contains the search string e.g. ‘wheel.position’ matches
+‘_ibl_wheel.position.npy’</p></li>
+<li><p><strong>date_range</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>pandas.timestamp</em>) – A single date to search or a list of 2 dates that define the range (inclusive).  To
+define only the upper or lower date bound, set the other element to None.</p></li>
+<li><p><strong>lab</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab names, returns sessions from any of these labs</p></li>
+<li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date</p></li>
+<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects</p></li>
+<li><p><strong>task_protocol</strong> (<em>str</em><em>, </em><em>list</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
+will be found)</p></li>
+<li><p><strong>project</strong> (<em>str</em><em>, </em><em>list</em>) – The project name (can be partial, i.e. any task protocol containing that str
+will be found)</p></li>
+<li><p><strong>performance_gte</strong> (<em>performance_lte /</em>) – search only for sessions whose performance is less equal or greater equal than a
+pre-defined threshold as a percentage (0-100)</p></li>
+<li><p><strong>users</strong> (<em>str</em><em>, </em><em>list</em>) – A list of users</p></li>
+<li><p><strong>location</strong> (<em>str</em><em>, </em><em>list</em>) – a str or list of lab location (as per Alyx definition) name
+Note: this corresponds to the specific rig, not the lab geographical location per se</p></li>
+<li><p><strong>dataset_types</strong> (<em>str</em><em>, </em><em>list</em>) – One or more of dataset_types</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details</p></li>
+<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – The number of results to fetch in one go (if pagination enabled on server)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>List of eids and, if details is True, also returns a list of dictionaries, each entry</em></p></li>
+<li><p><em>corresponding to a matching session</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.setup">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.setup" title="Permalink to this definition"></a></dt>
+<dd><p>TODO Interactive command tool that sets up cache for ONE.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.eid2path">
+<span class="sig-name descname"><span class="pre">eid2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.eid2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.eid2path" title="Permalink to this definition"></a></dt>
+<dd><p>From an experiment ID gets the local session path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – If set to ‘remote’, will force database connection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A session path or list of session paths</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.path2eid">
+<span class="sig-name descname"><span class="pre">path2eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_obj</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.path2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.path2eid" title="Permalink to this definition"></a></dt>
+<dd><p>From a local path, gets the experiment ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_obj</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>list</em>) – Local path or list of local paths</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – If set to ‘remote’, will force database connection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>An eid or list of eids</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.path2url">
+<span class="sig-name descname"><span class="pre">path2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.path2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.path2url" title="Permalink to this definition"></a></dt>
+<dd><p>Given a local file path, returns the URL of the remote file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A local file path</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – If set to ‘remote’, will force database connection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A URL string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.type2datasets">
+<span class="sig-name descname"><span class="pre">type2datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.type2datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.type2datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Get list of datasets belonging to a given dataset type for a given session</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+details dict or Path.</p></li>
+<li><p><strong>dataset_type</strong> (<em>str</em><em>, </em><em>list</em>) – An Alyx dataset type, e.g. camera.times or a list of dtypes</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If True, a datasets DataFrame is returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A numpy array of data, or DataFrame if details is true</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.dataset2type">
+<span class="sig-name descname"><span class="pre">dataset2type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.dataset2type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.dataset2type" title="Permalink to this definition"></a></dt>
+<dd><p>Return dataset type from dataset</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.describe_revision">
+<span class="sig-name descname"><span class="pre">describe_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">revision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.describe_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.describe_revision" title="Permalink to this definition"></a></dt>
+<dd><p>Print description of a revision</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>revision</strong> (<em>str</em>) – The name of the revision (without ‘#’)</p></li>
+<li><p><strong>full</strong> (<em>bool</em>) – If true, returns the matching record</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None if full is false or no record found, otherwise returns record as dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.get_details">
+<span class="sig-name descname"><span class="pre">get_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.get_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.get_details" title="Permalink to this definition"></a></dt>
+<dd><p>Returns details of eid like from one.search, optional return full
+session details.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.alf.spec.SPEC_DESCRIPTION.html" class="btn btn-neutral float-left" title="one.alf.spec.SPEC_DESCRIPTION" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.converters.html" class="btn btn-neutral float-right" title="one.converters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

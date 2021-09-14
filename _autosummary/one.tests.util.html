@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.tests.util &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.util" href="one.util.html" />
+    <link rel="prev" title="one.tests.test_registration" href="one.tests.test_registration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.tests.html">one.tests</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="one.tests.alf.html">one.tests.alf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxclient.html">one.tests.test_alyxclient</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxrest.html">one.tests.test_alyxrest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_converters.html">one.tests.test_converters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_one.html">one.tests.test_one</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_params.html">one.tests.test_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_registration.html">one.tests.test_registration</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">one.tests.util</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+          <li><a href="one.tests.html">one.tests</a> &raquo;</li>
+      <li>one.tests.util</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.tests.util.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.tests.util">
+<span id="one-tests-util"></span><h1>one.tests.util<a class="headerlink" href="#module-one.tests.util" title="Permalink to this headline"></a></h1>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.caches_int2str" title="one.tests.util.caches_int2str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">caches_int2str</span></code></a></p></td>
+<td><p>Convert int ids to str ids for cache tables</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.create_file_tree" title="one.tests.util.create_file_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_file_tree</span></code></a></p></td>
+<td><p>Touch all the files in the datasets table</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.create_schema_cache" title="one.tests.util.create_schema_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_schema_cache</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.get_file" title="one.tests.util.get_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_file</span></code></a></p></td>
+<td><p>A stub function for iblutil.io.params.getfile.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.revisions_datasets_table" title="one.tests.util.revisions_datasets_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">revisions_datasets_table</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.set_up_env" title="one.tests.util.set_up_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_up_env</span></code></a></p></td>
+<td><p>Create a temporary directory and copy cache fixtures over</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.setup_rest_cache" title="one.tests.util.setup_rest_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rest_cache</span></code></a></p></td>
+<td><p>Copy REST cache fixtures to the .one parameter directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.setup_test_params" title="one.tests.util.setup_test_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_test_params</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.set_up_env">
+<span class="sig-name descname"><span class="pre">set_up_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_temp_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tempfile.TemporaryDirectory</span></span></span><a class="reference internal" href="../_modules/one/tests/util.html#set_up_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.set_up_env" title="Permalink to this definition"></a></dt>
+<dd><p>Create a temporary directory and copy cache fixtures over</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>use_temp_cache</strong> (<em>bool</em>) – If True, copies REST cache fixtures to the temporary directory, otherwise they are copied
+to the directory returned by one.params.get_params_dir</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>TemporaryDirectory object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.setup_rest_cache">
+<span class="sig-name descname"><span class="pre">setup_rest_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_rest_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_rest_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Copy REST cache fixtures to the .one parameter directory</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.create_file_tree">
+<span class="sig-name descname"><span class="pre">create_file_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#create_file_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.create_file_tree" title="Permalink to this definition"></a></dt>
+<dd><p>Touch all the files in the datasets table</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.setup_test_params">
+<span class="sig-name descname"><span class="pre">setup_test_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_test_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_test_params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.revisions_datasets_table">
+<span class="sig-name descname"><span class="pre">revisions_datasets_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('',</span> <span class="pre">'alf/probe00',</span> <span class="pre">'alf/probe01')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('',</span> <span class="pre">'2020-01-08',</span> <span class="pre">'2021-07-06')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spikes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('times',</span> <span class="pre">'waveforems')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#revisions_datasets_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.revisions_datasets_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.create_schema_cache">
+<span class="sig-name descname"><span class="pre">create_schema_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#create_schema_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.create_schema_cache" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.get_file">
+<span class="sig-name descname"><span class="pre">get_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/tests/util.html#get_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.get_file" title="Permalink to this definition"></a></dt>
+<dd><p>A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The root directory of the new parameters</p></li>
+<li><p><strong>str_id</strong> (<em>str</em>) – The parameter string identifier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>The parameter filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.caches_int2str">
+<span class="sig-name descname"><span class="pre">caches_int2str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#caches_int2str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.caches_int2str" title="Permalink to this definition"></a></dt>
+<dd><p>Convert int ids to str ids for cache tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>caches</strong> (<em>Bunch</em>) – A bunch of cache tables (from One._cache)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.tests.test_registration.html" class="btn btn-neutral float-left" title="one.tests.test_registration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.util.html" class="btn btn-neutral float-right" title="one.util" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

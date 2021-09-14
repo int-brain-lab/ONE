@@ -1,0 +1,30 @@
+one.registration
+================
+
+.. automodule:: one.registration
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      RegistrationClient
+   
+   
+
+   
+   
+   
+
+
+

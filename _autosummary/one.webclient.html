@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.webclient &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="one.util" href="one.util.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+      <li>one.webclient</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.webclient.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.webclient">
+<span id="one-webclient"></span><h1>one.webclient<a class="headerlink" href="#module-one.webclient" title="Permalink to this headline"></a></h1>
+<p>API for interacting with a remote Alyx instance through REST
+The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
+files through Alyx.</p>
+<p class="rubric">Examples</p>
+<dl class="simple">
+<dt>alyx = AlyxClient(</dt><dd><p>username=’test_user’, password=’TapetesBloc18’,
+base_url=’<a class="reference external" href="https://test.alyx.internationalbrainlab.org">https://test.alyx.internationalbrainlab.org</a>’)</p>
+</dd>
+</dl>
+<p># List subjects
+subjects = alyx.rest(‘subjects’, ‘list’)</p>
+<p># Create a subject
+record = {</p>
+<blockquote>
+<div><p>‘nickname’: nickname,
+‘responsible_user’: ‘olivier’,
+‘birth_date’: ‘2019-06-15’,
+‘death_date’: None,
+‘lab’: ‘cortexlab’,</p>
+</div></blockquote>
+<p>}
+new_subj = alyx.rest(‘subjects’, ‘create’, data=record)</p>
+<p># Download a remote file, given a local path
+url = ‘zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy’
+local_path = self.alyx.download_file(url)</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.dataset_record_to_url" title="one.webclient.dataset_record_to_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset_record_to_url</span></code></a></p></td>
+<td><p>Extracts a list of files urls from a list of dataset queries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.webclient.file_record_to_url" title="one.webclient.file_record_to_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_record_to_url</span></code></a></p></td>
+<td><p>Translate a Json dictionary to an usable http url for downloading files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.http_download_file" title="one.webclient.http_download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">http_download_file</span></code></a></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param full_link_to_file</dt>
+<dd class="field-odd"><p>http link to the file.</p>
+</dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.webclient.http_download_file_list" title="one.webclient.http_download_file_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">http_download_file_list</span></code></a></p></td>
+<td><p>Downloads a list of files from the flat Iron from a list of links.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.update_url_params" title="one.webclient.update_url_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_url_params</span></code></a></p></td>
+<td><p>Add/update the query parameters of a URL and make url safe</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlyxClient</span></code></a></p></td>
+<td><p>Class that implements simple GET/POST wrappers for the Alyx REST API <a class="reference external" href="http://alyx.readthedocs.io/en/latest/api.html">http://alyx.readthedocs.io/en/latest/api.html</a>  # FIXME old link</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="one.webclient.update_url_params">
+<span class="sig-name descname"><span class="pre">update_url_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#update_url_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.update_url_params" title="Permalink to this definition"></a></dt>
+<dd><p>Add/update the query parameters of a URL and make url safe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – A URL string with which to update the query parameters</p></li>
+<li><p><strong>params</strong> (<em>dict</em>) – A dict of new parameters.  For multiple values for the same query, use a list (see example)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A new URL with said parameters updated</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>update_url_params(‘website.com/?q=’, {‘pg’: 5})
+‘website.com/?pg=5’</p>
+<p>update_url_params(‘website.com?q=xxx’, {‘pg’: 5, ‘foo’: [‘bar’, ‘baz’]})
+‘website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.webclient.http_download_file_list">
+<span class="sig-name descname"><span class="pre">http_download_file_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links_to_file_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#http_download_file_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.http_download_file_list" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads a list of files from the flat Iron from a list of links.
+Same options behaviour as http_download_file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>links_to_file_list</strong> (<em>list</em>) – list of http links to files.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(list) a list of the local full path of the downloaded files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.webclient.http_download_file">
+<span class="sig-name descname"><span class="pre">http_download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_link_to_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#http_download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.http_download_file" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>full_link_to_file</strong> (<em>str</em>) – http link to the file.</p></li>
+<li><p><strong>chunks</strong> (<em>tuple of ints</em>) – chunks to download</p></li>
+<li><p><strong>clobber</strong> (<em>bool</em>) – [False] If True, force overwrite the existing file.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – [‘’] authentication for password protected file server.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – [‘’] authentication for password protected file server.</p></li>
+<li><p><strong>cache_dir</strong> (<em>str</em>) – [‘’] directory in which files are cached; defaults to user’s
+Download directory.</p></li>
+<li><p><strong>return_md5</strong> (<em>bool</em>) – if true an MD5 hash of the file is additionally returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Param</dt>
+<dd class="field-even"><p>headers: [{}] additional headers to add to the request (auth tokens etc..)</p>
+</dd>
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>silent: [False] suppress download progress bar</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(str) a list of the local full path of the downloaded files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.webclient.file_record_to_url">
+<span class="sig-name descname"><span class="pre">file_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_records</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#file_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.file_record_to_url" title="Permalink to this definition"></a></dt>
+<dd><p>Translate a Json dictionary to an usable http url for downloading files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_records</strong> (<em>dict</em>) – json containing a ‘data_url’ field</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>urls: (list) a list of strings representing full data urls</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.webclient.dataset_record_to_url">
+<span class="sig-name descname"><span class="pre">dataset_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#dataset_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.dataset_record_to_url" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts a list of files urls from a list of dataset queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_record</strong> (<em>list</em>) – dataset Json from a rest request.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(list) a list of strings representing files urls corresponding to the datasets records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">AlyxClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_rest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stay_logged_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that implements simple GET/POST wrappers for the Alyx REST API
+<a class="reference external" href="http://alyx.readthedocs.io/en/latest/api.html">http://alyx.readthedocs.io/en/latest/api.html</a>  # FIXME old link</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.user">
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.webclient.AlyxClient.user" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.base_url">
+<span class="sig-name descname"><span class="pre">base_url</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.webclient.AlyxClient.base_url" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.rest_schemes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rest_schemes</span></span><a class="headerlink" href="#one.webclient.AlyxClient.rest_schemes" title="Permalink to this definition"></a></dt>
+<dd><p>Delayed fetch of rest schemes speeds up instantiation</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.cache_dir">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">cache_dir</span></span><a class="headerlink" href="#one.webclient.AlyxClient.cache_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.is_logged_in">
+<span class="sig-name descname"><span class="pre">is_logged_in</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.is_logged_in"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.is_logged_in" title="Permalink to this definition"></a></dt>
+<dd><p>Check if user logged into Alyx database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>True if user is authenticated</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.list_endpoints">
+<span class="sig-name descname"><span class="pre">list_endpoints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.list_endpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.list_endpoints" title="Permalink to this definition"></a></dt>
+<dd><p>Return a list of available REST endpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List of REST endpoint strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.authenticate">
+<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.authenticate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.authenticate" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a security token from the Alyx REST API to create requests headers.
+Credentials are loaded via one.params</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – Alyx username.  If None, token not cached and not silent, user is prompted.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Alyx password.  If None, token not cached and not silent, user is prompted.</p></li>
+<li><p><strong>cache_token</strong> (<em>bool</em>) – If true, the token is cached for subsequent auto-logins</p></li>
+<li><p><strong>force</strong> (<em>bool</em>) – If true, any cached token is ignored</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.logout">
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.logout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.logout" title="Permalink to this definition"></a></dt>
+<dd><p>Log out from Alyx
+Deletes the cached authentication token for the currently logged-in user</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.delete" title="Permalink to this definition"></a></dt>
+<dd><p>Sends a DELETE request to the Alyx server. Will raise an exception on any status_code
+other than 200, 201.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – examples:
+‘/weighings/c617562d-c107-432e-a8ee-682c17f9e698’
+‘<a class="reference external" href="https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698">https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698</a>’.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(dict/list) json interpreted dictionary from response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.download_file">
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_file" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads a file on the Alyx server from a file record REST field URL</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – full url(s) of the file(s)</p></li>
+<li><p><strong>kwargs</strong> – webclient.http_download_file parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>local path(s) of downloaded file(s)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.download_cache_tables">
+<span class="sig-name descname"><span class="pre">download_cache_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_cache_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_cache_tables" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads the Alyx cache tables to the local data cache directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List of parquet table file paths</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.rel_path2url">
+<span class="sig-name descname"><span class="pre">rel_path2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.rel_path2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.rel_path2url" title="Permalink to this definition"></a></dt>
+<dd><p>Given a relative file path, return the remote HTTP server URL.
+It is expected that the remote HTTP server has the same file tree as the local system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative ALF path (subject/date/number/etc.)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A URL string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.get" title="Permalink to this definition"></a></dt>
+<dd><p>Sends a GET request to the Alyx server. Will raise an exception on any status_code
+other than 200, 201.
+For the dictionary contents and list of endpoints, refer to:
+<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – example: ‘/sessions?user=Hamish’.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(dict/list) json interpreted dictionary from response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.patch">
+<span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.patch" title="Permalink to this definition"></a></dt>
+<dd><p>Sends a PATCH request to the Alyx server.
+For the dictionary contents, refer to:
+<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rest_query</strong> (<em>str</em>) – (required)the endpoint as full or relative URL</p></li>
+<li><p><strong>data</strong> (<em>None</em><em>, </em><em>dict</em><em> or </em><em>str</em>) – json encoded string or dictionary (cf.requests)</p></li>
+<li><p><strong>files</strong> – dictionary / tuple (cf.requests)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>response object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.post">
+<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.post" title="Permalink to this definition"></a></dt>
+<dd><p>Sends a POST request to the Alyx server.
+For the dictionary contents, refer to:
+<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rest_query</strong> (<em>str</em>) – (required)the endpoint as full or relative URL</p></li>
+<li><p><strong>data</strong> (<em>None</em><em>, </em><em>dict</em><em> or </em><em>str</em>) – dictionary or json encoded string</p></li>
+<li><p><strong>files</strong> – dictionary / tuple (cf.requests)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>response object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.put" title="Permalink to this definition"></a></dt>
+<dd><p>Sends a PUT request to the Alyx server.
+For the dictionary contents, refer to:
+<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rest_query</strong> (<em>str</em>) – (required)the endpoint as full or relative URL</p></li>
+<li><p><strong>data</strong> (<em>None</em><em>, </em><em>dict</em><em> or </em><em>str</em>) – dictionary or json encoded string</p></li>
+<li><p><strong>files</strong> – dictionary / tuple (cf.requests)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>response object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.rest">
+<span class="sig-name descname"><span class="pre">rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.rest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.rest" title="Permalink to this definition"></a></dt>
+<dd><p>alyx_client.rest(): lists endpoints
+alyx_client.rest(endpoint): lists actions for endpoint
+alyx_client.rest(endpoint, action): lists fields and URL</p>
+<p>Example REST endpoint with all actions:</p>
+<blockquote>
+<div><p>client.rest(‘subjects’, ‘list’)
+client.rest(‘subjects’, ‘list’, field_filter1=’filterval’)
+client.rest(‘subjects’, ‘create’, data=sub_dict)
+client.rest(‘subjects’, ‘read’, id=’nickname’)
+client.rest(‘subjects’, ‘update’, id=’nickname’, data=sub_dict)
+client.rest(‘subjects’, ‘partial_update’, id=’nickname’, data=sub_dict)
+client.rest(‘subjects’, ‘delete’, id=’nickname’)
+client.rest(‘notes’, ‘create’, data=nd, files={‘image’: open(image_file, ‘rb’)})</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – endpoint name</p></li>
+<li><p><strong>action</strong> – ‘list’, ‘create’, ‘read’, ‘update’, ‘partial_update’, ‘delete’</p></li>
+<li><p><strong>id</strong> – lookup string for actions ‘read’, ‘update’, ‘partial_update’, and ‘delete’</p></li>
+<li><p><strong>data</strong> – data dictionary for actions ‘update’, ‘partial_update’ and ‘create’</p></li>
+<li><p><strong>files</strong> – if file upload</p></li>
+<li><p><strong>no_cache</strong> – if true the <cite>list</cite> and <cite>read</cite> actions are performed without caching</p></li>
+<li><p><strong>**kwargs</strong> – filter as per the Alyx REST documentation
+cf. <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/">https://alyx.internationalbrainlab.org/docs/</a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of queried dicts (‘list’) or dict (other actions)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_write">
+<span class="sig-name descname"><span class="pre">json_field_write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_write" title="Permalink to this definition"></a></dt>
+<dd><p>json_field_write [summary]
+Write data to WILL NOT CHECK IF DATA EXISTS
+NOTE: Destructive write!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>None</em>) – Valid alyx endpoint, defaults to None</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em><em>, </em><em>None</em>) – UUID or lookup name for endpoint</p></li>
+<li><p><strong>field_name</strong> (<em>str</em><em>, </em><em>None</em>) – Valid json field name, defaults to None</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>None</em>) – Data to write to json field, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Written data dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_update">
+<span class="sig-name descname"><span class="pre">json_field_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_update" title="Permalink to this definition"></a></dt>
+<dd><p>Non destructive update of json field of endpoint for object
+Will update the field_name of the object with pk = uuid of given endpoint
+If data has keys with the same name of existing keys it will squash the old
+values (uses the dict.update() method)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>str</em>) – Alyx REST endpoint to hit</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – UUID or lookup name of object</p></li>
+<li><p><strong>field_name</strong> (<em>str</em>) – Name of the json field</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – A dictionary with fields to be updated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>New patched json field contents as dict</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>one.alyx.json_field_update(“sessions”, “eid_str”, “extended_qc”, {“key”: value})</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_remove_key">
+<span class="sig-name descname"><span class="pre">json_field_remove_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_remove_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_remove_key" title="Permalink to this definition"></a></dt>
+<dd><p>Will remove inputted key from json field dict and reupload it to Alyx.
+Needs endpoint, uuid and json field name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>optional</em>) – endpoint to hit, defaults to None</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – uuid or lookup name for endpoint</p></li>
+<li><p><strong>field_name</strong> (<em>str</em><em>, </em><em>optional</em>) – json field name of object, defaults to None</p></li>
+<li><p><strong>key</strong> (<em>str</em><em>, </em><em>optional</em>) – key name of dictionary inside object, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>returns new content of json field</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_delete">
+<span class="sig-name descname"><span class="pre">json_field_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_delete" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.clear_rest_cache">
+<span class="sig-name descname"><span class="pre">clear_rest_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.clear_rest_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.clear_rest_cache" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.util.html" class="btn btn-neutral float-left" title="one.util" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

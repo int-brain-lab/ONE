@@ -1,0 +1,47 @@
+one.util
+========
+
+.. automodule:: one.util
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+   
+      Listable
+      autocomplete
+      datasets2records
+      ensure_list
+      filter_datasets
+      filter_revision_last_before
+      index_last_before
+      parse_id
+      refresh
+      ses2records
+      validate_date_range
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      LazyId
+   
+   
+
+   
+   
+   
+
+
+
