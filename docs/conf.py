@@ -226,7 +226,7 @@ nbsphinx_prolog = r"""
 .. raw:: html
 
       <a href="{{ nb_name }}"><button id="download">Download tutorial notebook</button></a>
-      <a href="https://github.com/int-brain-lab/ONE/tree/main/docs_gh_pages/{{ nb_path }}/
+      <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/{{ nb_path }}/
       {{ nb_name }}"><button id="github">Github link</button></a>
 
-# """
+"""

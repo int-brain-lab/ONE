@@ -14,7 +14,7 @@ nb_path = root.joinpath('notebooks')
 nb_path_external = [Path(root.parent).joinpath('examples')]
 
 
-def make_documentation(execute, force, documentation, clean, specific, github, message):
+def make_documentation(execute, force, documentation, clean, specific):
 
     # Clean up any nblink files
     nb_external_files = root.joinpath('notebooks_external').glob('*')
@@ -79,26 +79,6 @@ def make_documentation(execute, force, documentation, clean, specific, github, m
         os.system("make html")
         sys.exit(0)
 
-    # if github:
-    #     # clean up for github. In the examples only notebooks with an execute flag=True are kept,
-    #     # the rest are deleted.
-    #     # Clean up the build path regardless
-    #     build_nb_path = root.joinpath('_build', 'html', 'notebooks')
-    #     build_nb_external_path = root.joinpath('_build', 'html', 'notebooks_external')
-    #     process_notebooks(build_nb_path, execute=False, cleanup=True, remove_gh=True)
-    #     process_notebooks(build_nb_external_path, execute=False, cleanup=True, remove_gh=True)
-    #
-    #     # remove the _sources folder as we don't need this
-    #     build_nb_source_path = root.joinpath('_build', 'html', '_sources')
-    #     if build_nb_source_path.exists():
-    #         shutil.rmtree(build_nb_source_path)
-    #
-    #     # Need to figure out how to do this
-    #     if not message:
-    #         message = "commit latest documentation"
-    #
-    #     subprocess.call(['scripts\gh_push.sh', message], shell=True)  # noqa: E605
-
     # Clean up notebooks in directory if also specified
     if clean:
         _logger.info("Cleaning up notebooks")
@@ -138,11 +118,6 @@ if __name__ == "__main__":
                         help='List of specific files to execute')
     parser.add_argument('-c', '--cleanup', default=False, action='store_true',
                         help='Cleanup notebooks once documentation made')
-    parser.add_argument('-gh', '--github', default=False, action='store_true',
-                        help='Push documentation to gh-pages')
-    parser.add_argument('-m', '--message', default=None, required=False, type=str,
-                        help='Commit message')
     args = parser.parse_args()
     make_documentation(execute=args.execute, force=args.force, documentation=args.documentation,
-                       clean=args.cleanup, specific=args.specific, github=args.github,
-                       message=args.message)
+                       clean=args.cleanup, specific=args.specific)
