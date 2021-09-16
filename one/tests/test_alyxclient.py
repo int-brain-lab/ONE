@@ -297,7 +297,7 @@ class TestDownloadHTTP(unittest.TestCase):
         rep = self.ac.rest('datasets', 'list')
         self.assertTrue(isinstance(rep, one.webclient._PaginatedResponse))
         self.assertTrue(len(rep) > 250)
-        self.assertTrue(len([d['hash'] for d in rep]) == len(rep))
+        self.assertTrue(len([_ for _ in rep]) == len(rep))
 
     def test_update_url_params(self):
         url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
