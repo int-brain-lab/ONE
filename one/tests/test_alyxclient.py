@@ -294,10 +294,12 @@ class TestDownloadHTTP(unittest.TestCase):
         self.test_data_uuid = '84116a5c-131e-40a2-92d4-62c4aaae5c52'  # OpenAlyx dataset
 
     def test_paginated_request(self):
+        """Check that paginated response object is returned upon making large queries"""
         rep = self.ac.rest('datasets', 'list')
         self.assertTrue(isinstance(rep, one.webclient._PaginatedResponse))
         self.assertTrue(len(rep) > 250)
-        self.assertTrue(len([_ for _ in rep]) == len(rep))
+        # This fails when new records are added/removed from the remote db while iterating
+        # self.assertTrue(len([_ for _ in rep]) == len(rep))
 
     def test_update_url_params(self):
         url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
