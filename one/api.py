@@ -479,7 +479,9 @@ class One(ConversionMixin):
         return datasets if details else datasets['rel_path'].sort_values().values
 
     @util.refresh
-    def list_collections(self, eid=None, details=False) -> Union[np.ndarray, dict]:
+    def list_collections(self, eid=None, details=False, collection=None,
+                         filename=None, revision=None,
+                         query_type=None) -> Union[np.ndarray, dict]:
         """
         List the collections for a given experiment.  If no experiment id is given,
         all collections are returned.
@@ -497,7 +499,10 @@ class One(ConversionMixin):
         -------
             A numpy array of unique collections or dict of datasets tables
         """
-        datasets = self.list_datasets(eid, details=True).copy()
+        filter_kwargs = dict(eid=eid, collection=collection, filename=filename,
+                             revision=revision, query_type=query_type)
+        datasets = self.list_datasets(details=True, **filter_kwargs).copy()
+
         datasets['collection'] = datasets.rel_path.apply(
             lambda x: rel_path_parts(x, assert_valid=False)[0] or ''
         )
