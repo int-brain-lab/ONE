@@ -9,6 +9,7 @@
 - cache str ids now exclude 'Subjects' part
 - session_path_parts now accepts pathlib objects
 - one.params.check_cache_conflict now public function
+- One.cache_dir now public property
 
 ### Added
 - alf.io function to return valid session paths within a directory 

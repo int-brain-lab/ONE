@@ -70,8 +70,8 @@ class One(ConversionMixin):
         """
         # get parameters override if inputs provided
         super().__init__()
-        if not getattr(self, '_cache_dir', None):  # May already be set by subclass
-            self._cache_dir = cache_dir or one.params.get_cache_dir()
+        if not getattr(self, 'cache_dir', None):  # May already be set by subclass
+            self.cache_dir = cache_dir or one.params.get_cache_dir()
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
@@ -85,7 +85,7 @@ class One(ConversionMixin):
         self._load_cache()
 
     def __repr__(self):
-        return f'One ({"off" if self.offline else "on"}line, {self._cache_dir})'
+        return f'One ({"off" if self.offline else "on"}line, {self.cache_dir})'
 
     @property
     def offline(self):
@@ -98,7 +98,7 @@ class One(ConversionMixin):
     def _load_cache(self, cache_dir=None, **kwargs):
         meta = self._cache['_meta']
         INDEX_KEY = 'id'
-        for cache_file in Path(cache_dir or self._cache_dir).glob('*.pqt'):
+        for cache_file in Path(cache_dir or self.cache_dir).glob('*.pqt'):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
             cache, meta['raw'][table] = parquet.load(cache_file)
@@ -355,7 +355,7 @@ class One(ConversionMixin):
                 # Cast set of dicts (i.e. from REST datasets endpoint)
                 datasets = pd.DataFrame(list(datasets))
             for i, rec in datasets.iterrows():
-                file = Path(self._cache_dir, *rec[['session_path', 'rel_path']])
+                file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
                 if file.exists():
                     # TODO Factor out; hash & file size also checked in _download_file;
                     #  see _update_cache - we need to save changed cache
@@ -968,7 +968,7 @@ class OneAlyx(One):
     def _load_cache(self, cache_dir=None, clobber=False):
         cache_meta = self._cache['_meta']
         if not clobber:
-            super(OneAlyx, self)._load_cache(self._cache_dir)  # Load any present cache
+            super(OneAlyx, self)._load_cache(self.cache_dir)  # Load any present cache
             if (self._cache and not cache_meta['expired']) or self.mode == 'local':
                 return
 
@@ -997,7 +997,7 @@ class OneAlyx(One):
             _logger.info('Downloading remote caches...')
             files = self.alyx.download_cache_tables()
             assert any(files)
-            super(OneAlyx, self)._load_cache(self._cache_dir)  # Reload cache after download
+            super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
         except requests.exceptions.HTTPError:
             _logger.error('Failed to load the remote cache file')
             self.mode = 'remote'
@@ -1010,7 +1010,7 @@ class OneAlyx(One):
         return self._web_client
 
     @property
-    def _cache_dir(self):
+    def cache_dir(self):
         return self._web_client.cache_dir
 
     @util.refresh
@@ -1229,7 +1229,7 @@ class OneAlyx(One):
                 except KeyError as e:
                     _logger.warning(f"{dset_str} couldn't update exist status in cache. {e}")
             return
-        target_dir = Path(cache_dir or self._cache_dir, get_alf_path(url)).parent
+        target_dir = Path(cache_dir or self.cache_dir, get_alf_path(url)).parent
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
 
     def _tag_mismatched_file_record(self, url):
@@ -1349,7 +1349,7 @@ class OneAlyx(One):
         if len(ses) == 0:
             return None
         else:
-            return Path(self._cache_dir).joinpath(
+            return Path(self.cache_dir).joinpath(
                 ses[0]['lab'], 'Subjects', ses[0]['subject'], ses[0]['start_time'][:10],
                 str(ses[0]['number']).zfill(3))
 
