@@ -177,7 +177,7 @@ def get_session_path(path: Union[str, Path]) -> Optional[Path]:
         get_relative_session_path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
         Path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
 
-        get_relative_session_path(r'C:\Data\subject\2020-01-01\1\trials.intervals.npy')
+        get_relative_session_path('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy')
         Path('C:/Data/subject/2020-01-01/1')
     """
     if path is None:
