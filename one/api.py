@@ -7,12 +7,12 @@ TODO save parquet in update_filesystem
 
 Points of discussion:
     - Module structure: oneibl is too restrictive, naming module `one` means obj should have
-    different name
+      different name
     - Download datasets timeout
     - Support for pids?
     - Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array
     - NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
-    Datasets table has sorted index.
+      Datasets table has sorted index.
     - Conceivably you could have a subclass for Figshare, etc., not just Alyx
 """
 import collections.abc
@@ -909,8 +909,8 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 
     # If cache dir was provided and corresponds to one configured with an Alyx client, use OneAlyx
     try:
-        one.params._check_cache_conflict(kwargs.get('cache_dir'))
-        return One(mode=mode, wildcards=wildcards, **kwargs)
+        one.params.check_cache_conflict(kwargs.get('cache_dir'))
+        return One(mode='local', wildcards=wildcards, **kwargs)
     except AssertionError:
         # Cache dir corresponds to a Alyx repo, call OneAlyx
         return OneAlyx(mode=mode, wildcards=wildcards, **kwargs)
@@ -1105,7 +1105,7 @@ class OneAlyx(One):
         Parameters
         ----------
         dataset : str, list
-            list of dataset names. Returns sessions containing all these datasets.
+            List of dataset names. Returns sessions containing all these datasets.
             A dataset matches if it contains the search string e.g. 'wheel.position' matches
             '_ibl_wheel.position.npy'
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
@@ -1124,12 +1124,12 @@ class OneAlyx(One):
             The project name (can be partial, i.e. any task protocol containing that str
             will be found)
         performance_lte / performance_gte : float
-            search only for sessions whose performance is less equal or greater equal than a
+            Aearch only for sessions whose performance is less equal or greater equal than a
             pre-defined threshold as a percentage (0-100)
         users : str, list
             A list of users
         location : str, list
-            a str or list of lab location (as per Alyx definition) name
+            A str or list of lab location (as per Alyx definition) name
             Note: this corresponds to the specific rig, not the lab geographical location per se
         dataset_types : str, list
             One or more of dataset_types

@@ -9,6 +9,7 @@ from pandas.testing import assert_frame_equal
 
 from iblutil.io import parquet
 import one.alf.cache as apt
+from one.tests.util import revisions_datasets_table
 
 
 class TestsONEParquet(unittest.TestCase):
@@ -20,12 +21,12 @@ class TestsONEParquet(unittest.TestCase):
         'number': int('001'),
         'project': '',
         'task_protocol': '',
-        'id': 'mylab/Subjects/mysub/2021-02-28/001',
+        'id': 'mylab/mysub/2021-02-28/001',
     }
     rel_ses_files = [Path('alf/spikes.clusters.npy'), Path('alf/spikes.times.npy')]
 
     def setUp(self) -> None:
-        pd.set_option("display.max_columns", 12)
+        pd.set_option('display.max_columns', 12)
 
         # root path:
         self.tmpdir = Path(tempfile.gettempdir()) / 'pqttest'
@@ -40,21 +41,19 @@ class TestsONEParquet(unittest.TestCase):
         sc = self.full_ses_path / 'alf/spikes.clusters.npy'
         sc.write_text('mock2')
 
+        # Create a second session containing an invalid dataset
+        second_session = self.tmpdir.joinpath(self.rel_ses_path).parent.joinpath('002')
+        second_session.mkdir()
+        second_session.joinpath('trials.intervals.npy').touch()
+        second_session.joinpath('.invalid').touch()
+
     def test_parse(self):
-        self.assertEqual(apt._parse_rel_ses_path(self.rel_ses_path), self.ses_info)
+        self.assertEqual(apt._get_session_info(self.rel_ses_path), self.ses_info)
         self.assertTrue(
             self.full_ses_path.as_posix().endswith(self.rel_ses_path[:-1]))
 
-    def test_walk(self):
-        full_ses_paths = list(apt._find_sessions(self.tmpdir))
-        self.assertTrue(len(full_ses_paths) >= 1)
-        full_path = full_ses_paths[0].as_posix()
-        self.assertTrue(full_path.endswith(self.rel_ses_path[:-1]))
-        rel_path = apt._get_file_rel_path(full_path)
-        self.assertEqual(apt._parse_rel_ses_path(rel_path), self.ses_info)
-
     def test_walk_session(self):
-        ses_files = list(apt._find_session_files(self.full_ses_path))
+        ses_files = list(apt._iter_datasets(self.full_ses_path))
         self.assertEqual(ses_files, self.rel_ses_files)
 
     def test_parquet(self):
@@ -87,6 +86,7 @@ class TestsONEParquet(unittest.TestCase):
         self.assertEqual(dset_info['session_path'], self.rel_ses_path[:-1])
         self.assertEqual(dset_info['rel_path'], self.rel_ses_files[0].as_posix())
         self.assertTrue(dset_info['file_size'] > 0)
+        self.assertFalse(df.rel_path.str.contains('invalid').any())
 
     def tests_db(self):
         fn_ses, fn_dsets = apt.make_parquet_db(self.tmpdir, hash_ids=False)
@@ -104,6 +104,28 @@ class TestsONEParquet(unittest.TestCase):
         dset_info = df_dsets.loc[0].to_dict()
         self.assertEqual(dset_info['session_path'], self.rel_ses_path[:-1])
         self.assertEqual(dset_info['rel_path'], self.rel_ses_files[0].as_posix())
+
+        # Check behaviour when no files found
+        with tempfile.TemporaryDirectory() as tdir:
+            with self.assertWarns(RuntimeWarning):
+                fn_ses, fn_dsets = apt.make_parquet_db(tdir, hash_ids=False)
+            self.assertTrue(parquet.load(fn_ses)[0].empty)
+            self.assertTrue(parquet.load(fn_dsets)[0].empty)
+
+        # Check labname arg
+        with self.assertRaises(AssertionError):
+            apt.make_parquet_db(self.tmpdir, hash_ids=False, lab='another')
+
+        # Create some more datasets in a session folder outside of a lab directory
+        dsets = revisions_datasets_table()
+        with tempfile.TemporaryDirectory() as tdir:
+            for session_path, rel_path in dsets[['session_path', 'rel_path']].values:
+                filepath = Path(tdir).joinpath(session_path, rel_path)
+                filepath.parent.mkdir(exist_ok=True, parents=True)
+                filepath.touch()
+            fn_ses, _ = apt.make_parquet_db(tdir, hash_ids=False, lab='another')
+            df_ses, _ = parquet.load(fn_ses)
+            self.assertTrue((df_ses['lab'] == 'another').all())
 
     def test_hash_ids(self):
         # Build and load caches with int UUIDs

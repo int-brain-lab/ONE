@@ -527,6 +527,14 @@ class TestALFFolders(unittest.TestCase):
         alfio.remove_empty_folders(root)
         self.assertTrue(len(list(root.glob('*'))) == 1)
 
+    def test_iter_sessions(self):
+        # Create invalid session folder
+        self.session_path.parent.parent.joinpath('bad_session').mkdir()
+
+        valid_sessions = alfio.iter_sessions(self.tempdir.name)
+        self.assertEqual(next(valid_sessions), self.session_path)
+        self.assertFalse(next(valid_sessions, False))
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)

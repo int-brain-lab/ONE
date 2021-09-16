@@ -1,8 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.2.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.3.0]
 ### Modified
 
-- HOTFIX: propagate down filter datasets filters
+- propagate down filter datasets filters
+- list_* methods return list instead of np arrays
+- cache module gracefully deals with empty repos
+- cache module refactored to reuse ALF functions
 
 ## [1.2.1]
 
