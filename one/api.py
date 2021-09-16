@@ -423,8 +423,8 @@ class One(ConversionMixin):
         return self._cache['sessions']['subject'].sort_values().unique()
 
     @util.refresh
-    def list_datasets(self, eid=None, collection=None,
-                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
+    def list_datasets(self, eid=None, collection=None, revision=None, filename=None,
+                      details=False, query_type=None, ) -> Union[np.ndarray, pd.DataFrame]:
 
         """
         Given an eid, return the datasets for those sessions.  If no eid is provided,
@@ -440,6 +440,9 @@ class One(ConversionMixin):
             The collection to which the object belongs, e.g. 'alf/probe01'.
             This is the relative path of the file from the session root.
             Supports asterisks as wildcards.
+        filename : str
+            Filters datasets and returns only the ones matching the filename
+            Supports asterisks as wildcards
         details : bool
             When true, a pandas DataFrame is returned, otherwise a numpy array of
             relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
@@ -451,8 +454,8 @@ class One(ConversionMixin):
         Slice of datasets table or numpy array if details is False
         """
         datasets = self._cache['datasets']
-        filter_args = dict(collection=collection, wildcards=self.wildcards,
-                           revision_last_before=False, assert_unique=False)
+        filter_args = dict(collection=collection, filename=filename, wildcards=self.wildcards,
+                           revision=revision, revision_last_before=False, assert_unique=False)
         if not eid:
             datasets = util.filter_datasets(datasets, **filter_args)
             return datasets.copy() if details else datasets['rel_path'].unique()
@@ -1041,21 +1044,21 @@ class OneAlyx(One):
         return out
 
     @util.refresh
-    def list_datasets(self, eid=None, collection=None,
+    def list_datasets(self, eid=None, collection=None, filename=None, revision=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
+        filter_kwargs = dict(eid=eid, collection=collection, filename=filename, revision=revision,
+                             details=details, query_type=query_type)
         if (query_type or self.mode) != 'remote':
-            return super().list_datasets(eid=eid, collection=collection, details=details,
-                                         query_type=query_type)
+            return super().list_datasets(**filter_kwargs)
         elif not eid:
             warnings.warn('Unable to list all remote datasets')
-            return super().list_datasets(collection=collection, details=details,
-                                         query_type=query_type)
+            return super().list_datasets(**filter_kwargs)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return self._cache['datasets'].iloc[0:0]  # Return empty
         _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
         # Return only the relative path
-        return datasets if details else datasets['rel_path'].sort_values().values
+        return datasets if details else list(datasets['rel_path'].sort_values().values)
 
     @util.refresh
     def load_collection(self, eid, collection):

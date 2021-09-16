@@ -283,6 +283,12 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(2, len(verifiable))
 
     def test_list_datasets(self):
+        # test filename
+        dsets = self.one.list_datasets(filename='_ibl_trials*')
+        self.assertEqual(len(dsets), 18)
+        dsets = self.one.list_datasets(filename='gnagnag')
+        self.assertEqual(len(dsets), 0)
+
         # Test no eid
         dsets = self.one.list_datasets(details=True)
         self.assertEqual(len(dsets), len(self.one._cache.datasets))
@@ -779,7 +785,7 @@ class TestOneRemote(unittest.TestCase):
 
         # Test details=False, with eid
         dsets = self.one.list_datasets(eid, details=False, query_type='remote')
-        self.assertIsInstance(dsets, np.ndarray)
+        self.assertIsInstance(dsets, list)
         self.assertEqual(110, len(dsets))
 
         with self.assertWarns(Warning):
