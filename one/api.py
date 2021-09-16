@@ -715,8 +715,7 @@ class One(ConversionMixin):
             details dict or Path.
         datasets : list of strings
             The ALF datasets to load.  May be a string or dict of ALF parts.  Supports asterisks
-            as
-            wildcards.
+            as wildcards.
         collections : str, list
             The collection(s) to which the object(s) belong, e.g. 'alf/probe01'.
             This is the relative path of the file from the session root.

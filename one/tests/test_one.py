@@ -627,7 +627,7 @@ class TestOneAlyx(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.tempdir = util.set_up_env()
+        cls.tempdir = util.set_up_env(use_temp_cache=False)
         with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, cls.tempdir.name)):
             # util.setup_test_params(token=True)
             cls.one = OneAlyx(
@@ -692,8 +692,7 @@ class TestOneAlyx(unittest.TestCase):
 
     def test_pid2eid(self):
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
-        with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, self.tempdir.name)):
-            eid, collection = self.one.pid2eid(pid, query_type='remote')
+        eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual('fc737f3c-2a57-4165-9763-905413e7e341', eid)
         self.assertEqual('probe00', collection)
         with self.assertRaises(NotImplementedError):
