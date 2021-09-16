@@ -1,5 +1,10 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.2.2]
+### Modified
+
+- HOTFIX: propagate down filter datasets filters
+
+## [1.2.1]
 
 ### Modified
 
