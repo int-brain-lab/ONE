@@ -6,7 +6,7 @@ Introduction to using ONE
 from one.api import ONE
 import one.alf.io as alfio
 
-one = ONE(base_url='https://openalyx.internationalbrainlab.org', silent=True)
+one = ONE(base_url='https://openalyx.internationalbrainlab.org')
 
 """
 The datasets are organized into directory trees by subject, date and session number.  For a

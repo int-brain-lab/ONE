@@ -18,6 +18,7 @@ Using ONE to access data
 
    one.rst
    alf.rst
+   FAQ
 
 API
 ------------------------------------

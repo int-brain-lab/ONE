@@ -5,3 +5,4 @@ Alyx Files (ALF)
    :maxdepth: 2
 
    alf_intro
+   notebooks/alyx_files
