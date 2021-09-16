@@ -6,6 +6,12 @@
 - list_* methods return list instead of np arrays
 - cache module gracefully deals with empty repos
 - cache module refactored to reuse ALF functions
+- cache str ids now exclude 'Subjects' part
+- session_path_parts now accepts pathlib objects
+- one.params.check_cache_conflict now public function
+
+### Added
+- alf.io function to return valid session paths within a directory 
 
 ## [1.2.1]
 

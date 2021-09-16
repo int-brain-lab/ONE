@@ -424,7 +424,7 @@ class One(ConversionMixin):
 
     @util.refresh
     def list_datasets(self, eid=None, collection=None, revision=None, filename=None,
-                      details=False, query_type=None, ) -> Union[np.ndarray, pd.DataFrame]:
+                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
 
         """
         Given an eid, return the datasets for those sessions.  If no eid is provided,
@@ -442,6 +442,9 @@ class One(ConversionMixin):
             Supports asterisks as wildcards.
         filename : str
             Filters datasets and returns only the ones matching the filename
+            Supports asterisks as wildcards
+        revision : str
+            Filters datasets and returns only the ones matching the revision
             Supports asterisks as wildcards
         details : bool
             When true, a pandas DataFrame is returned, otherwise a numpy array of
@@ -1027,7 +1030,7 @@ class OneAlyx(One):
         return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
 
     def describe_dataset(self, dataset_type=None):
-        # TODO Move to AlyxClient?; add to rest examples; rename to describe?
+        # TODO Move to AlyxClient?; add to rest examples
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
         try:
@@ -1124,7 +1127,7 @@ class OneAlyx(One):
             The project name (can be partial, i.e. any task protocol containing that str
             will be found)
         performance_lte / performance_gte : float
-            Aearch only for sessions whose performance is less equal or greater equal than a
+            Search only for sessions whose performance is less equal or greater equal than a
             pre-defined threshold as a percentage (0-100)
         users : str, list
             A list of users

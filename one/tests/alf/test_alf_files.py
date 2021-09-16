@@ -1,5 +1,5 @@
 import unittest
-from pathlib import Path, PurePath
+from pathlib import Path
 import uuid
 
 import one.alf.files as files
