@@ -87,7 +87,7 @@ class ConversionMixin:
             return self.ref2eid(id)
         elif isinstance(id, dict):
             assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
-            root = Path(cache_dir or self._cache_dir)
+            root = Path(cache_dir or self.cache_dir)
             id = root.joinpath(
                 id['lab'],
                 'Subjects', id['subject'],
@@ -141,7 +141,7 @@ class ConversionMixin:
             ses = self._cache['sessions'].loc[eid]
             assert len(ses) == 1, 'Duplicate eids in sessions table'
             ses, = ses.to_dict('records')
-            return Path(self._cache_dir).joinpath(
+            return Path(self.cache_dir).joinpath(
                 ses['lab'], 'Subjects', ses['subject'],
                 str(ses['date']), str(ses['number']).zfill(3))
         except KeyError:
@@ -267,7 +267,7 @@ class ConversionMixin:
         """
         assert isinstance(dataset, pd.Series) or len(dataset) == 1
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
-        file = Path(self._cache_dir, session_path, rel_path)
+        file = Path(self.cache_dir, session_path, rel_path)
         return file  # files[0] if len(datasets) == 1 else files
 
     @recurse

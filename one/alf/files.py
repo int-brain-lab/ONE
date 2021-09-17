@@ -61,12 +61,12 @@ def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
         return OrderedDict.fromkeys(parts) if as_dict else tuple([None] * len(parts))
 
 
-def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
+def session_path_parts(session_path, as_dict=False, assert_valid=True):
     """Parse a session path into the relevant parts
 
     Parameters
     ----------
-    session_path : str
+    session_path : str, pathlib.Path
         A session path string
     as_dict : bool
         If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
@@ -79,11 +79,13 @@ def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
     -------
         An OrderedDict if as_dict is true, or a tuple of parsed values
     """
+    if hasattr(session_path, 'as_posix'):
+        session_path = session_path.as_posix()
     parsed = spec.regex(SESSION_SPEC).search(session_path)
     if parsed:
         return OrderedDict(**parsed.groupdict()) if as_dict else (*parsed.groupdict().values(),)
     elif assert_valid:
-        raise ValueError('Invalid session path')
+        raise ValueError(f'Invalid session path "{session_path}"')
     empty = spec.regex(SESSION_SPEC).groupindex.keys()
     return OrderedDict.fromkeys(empty) if as_dict else tuple([None] * len(empty))
 
@@ -166,8 +168,18 @@ def _isdatetime(s: str) -> bool:
 
 
 def get_session_path(path: Union[str, Path]) -> Optional[Path]:
-    """Returns the session path from any filepath if the date/number
-    pattern is found"""
+    """
+    Returns the session path from any filepath if the date/number pattern is found,
+    including the root directory
+
+    Examples
+    --------
+        get_relative_session_path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
+        Path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
+
+        get_relative_session_path('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy')
+        Path('C:/Data/subject/2020-01-01/1')
+    """
     if path is None:
         return
     if isinstance(path, str):
@@ -185,9 +197,6 @@ def get_alf_path(path: Union[str, Path]) -> str:
     Attempts to return the first valid part of the path, first searching for a session path,
     then relative path (collection/revision/filename), then just the filename.  If all invalid,
     None is returned.
-
-    NB: There is no way to discern between lab/Subjects/subject/date/number and
-    irrelevant/subject/date/number
 
     Parameters
     ----------

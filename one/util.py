@@ -25,8 +25,15 @@ def Listable(t):
 def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
     """Extract session cache record and datasets cache from a remote session data record
     TODO Fix for new tables; use to update caches from remote queries
-    :param ses: session dictionary from rest endpoint
-    :return: session record, datasets frame
+
+    Parameters
+    ----------
+    ses : dict
+        Session dictionary from Alyx REST endpoint
+
+    Returns
+    -------
+    Session record, datasets frame
     """
     # Extract session record
     eid = parquet.str2np(ses['url'][-36:])

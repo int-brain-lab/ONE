@@ -1,5 +1,22 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.2.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.3.0]
+### Modified
+
+- propagate down filter datasets filters
+- list_* methods return list instead of np arrays
+- cache module gracefully deals with empty repos
+- cache module refactored to reuse ALF functions
+- cache str ids now exclude 'Subjects' part
+- session_path_parts now accepts pathlib objects
+- one.params.check_cache_conflict now public function
+- One.cache_dir now public property
+- cache args preserved between calls to paginated response object
+- runtime warning when remote list count changes
+
+### Added
+- alf.io function to return valid session paths within a directory 
+
+## [1.2.1]
 
 ### Modified
 

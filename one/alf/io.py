@@ -330,6 +330,24 @@ def _ls(alfpath, object=None, **kwargs):
     return [alfpath.joinpath(f) for f in files_alf], attributes
 
 
+def iter_sessions(root_dir):
+    """
+    Recursively iterate over session paths in a given directory
+
+    Parameters
+    ----------
+    root_dir : str, pathlib.Path
+        The folder to look for sessions
+
+    Returns
+    -------
+    A generator of session paths
+    """
+    for path in sorted(Path(root_dir).rglob('*')):
+        if path.is_dir() and spec.is_session_path(path):
+            yield path
+
+
 def exists(alfpath, object, attributes=None, **kwargs):
     """
     Test if ALF object and optionally specific attributes exist in the given path

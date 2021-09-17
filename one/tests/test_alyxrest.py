@@ -28,8 +28,8 @@ class Tests_REST(unittest.TestCase):
         # 2 different ways to  get water restrictions for one subject
         wr_sub2 = one.alyx.rest('water-restriction', 'list', subject='algernon')  # recommended
         # enforce test logic
-        self.assertTrue(set({'end_time', 'reference_weight', 'start_time', 'subject',
-                             'water_type'}) >= set(all_wr[0].keys()))
+        expected = {'end_time', 'reference_weight', 'start_time', 'subject', 'water_type'}
+        self.assertTrue(expected >= set(all_wr[0].keys()))
         self.assertTrue(len(all_wr) > len(wr_sub2))
 
     def test_list_pk_query(self):
@@ -39,8 +39,10 @@ class Tests_REST(unittest.TestCase):
         is used as a pk identifier. This special case is tested here
         :return:
         """
-        ses = one.alyx.rest('sessions', 'list')[0]
-        ses_ = one.alyx.rest('sessions', 'list', id=ses['url'][-36:])[0]
+        # Sessions returned sorted: take last session as new sessions constantly added and
+        # removed by parallel test runs
+        ses = one.alyx.rest('sessions', 'list')[-1]
+        ses_ = one.alyx.rest('sessions', 'list', id=ses['url'][-36:])[-1]
         self.assertEqual(ses, ses_)
 
     def test_note_with_picture_upload(self):
