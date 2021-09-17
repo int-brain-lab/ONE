@@ -1,5 +1,16 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.4.0]
+
+### Modified
+
+- get_details returns dict with 'date' key in remote mode
+- eid2ref works in offline mode
+
+### Added
+
+- tests for eid2ref; improved coverage of converters module
+## [1.3.0]
+
 ### Modified
 
 - propagate down filter datasets filters

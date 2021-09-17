@@ -979,7 +979,7 @@ class OneAlyx(One):
             not self.alyx.silent
         ):
             age = datetime.now() - cache_meta['created_time']
-            t_str = (f'{age.days} days(s)'
+            t_str = (f'{age.days} day(s)'
                      if age.days >= 1
                      else f'{np.floor(age.seconds / (60 * 2))} hour(s)')
             _logger.info(f'cache over {t_str} old')
@@ -1519,17 +1519,18 @@ class OneAlyx(One):
             return details_list
         # If not valid return None
         if not is_uuid_string(eid):
-            print(eid, " is not a valid eID/UUID string")
+            print(eid, ' is not a valid eID/UUID string')
             return
         # load all details
-        dets = self.alyx.rest("sessions", "read", eid)
+        dets = self.alyx.rest('sessions', 'read', eid)
         if full:
             return dets
         # If it's not full return the normal output like from a one.search
-        det_fields = ["subject", "start_time", "number", "lab", "project",
-                      "url", "task_protocol", "local_path"]
+        det_fields = ['subject', 'start_time', 'number', 'lab', 'project',
+                      'url', 'task_protocol', 'local_path']
         out = {k: v for k, v in dets.items() if k in det_fields}
-        out.update({'local_path': self.eid2path(eid)})
+        out.update({'local_path': self.eid2path(eid),
+                    'date': datetime.fromisoformat(out['start_time']).date()})
         return out
 
     # def _update_cache(self, ses, dataset_types):

@@ -158,6 +158,10 @@ class TestONECache(unittest.TestCase):
         eids, det = one.search(num=100, subject='KS000', details=True)
         self.assertTrue(len(eids) == 0)
         self.assertIsNone(det)
+        # Check works with just one search term
+        eids, det = one.search(num=500, details=True)
+        self.assertTrue(len(eids) == 0)
+        self.assertIsNone(det)
 
         # Test multiple fields, with short params
         eids = one.search(subj='KS005', date='2019-04-10', num='003', lab='cortexlab')
@@ -751,6 +755,26 @@ class TestOneAlyx(unittest.TestCase):
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
                     '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
         self.assertEqual(expected, url)
+
+    def test_load_cache(self):
+        """Test loading the remote cache"""
+        self.one.alyx.silent = False  # For checking log
+        self.one._cache._meta['expired'] = True
+        try:
+            with self.assertLogs(logging.getLogger('one.api'), logging.INFO) as lg:
+                with mock.patch.object(self.one.alyx, 'get', side_effect=HTTPError()):
+                    self.one._load_cache(clobber=True)
+                self.assertEqual('remote', self.one.mode)
+                self.assertRegex(lg.output[0], 'cache over .+ old')
+                self.assertTrue('Failed to load' in lg.output[1])
+
+                with mock.patch.object(self.one.alyx, 'get', side_effect=ConnectionError()):
+                    self.one._load_cache(clobber=True)
+                    self.assertEqual('local', self.one.mode)
+                self.assertTrue('Failed to connect' in lg.output[-1])
+        finally:  # Restore properties
+            self.one.mode = 'auto'
+            self.one.alyx.silent = True
 
     @classmethod
     def tearDownClass(cls) -> None:
