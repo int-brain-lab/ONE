@@ -301,6 +301,15 @@ class TestDownloadHTTP(unittest.TestCase):
         # This fails when new records are added/removed from the remote db while iterating
         # self.assertTrue(len([_ for _ in rep]) == len(rep))
 
+        # Test what happens when list changes between paginated requests
+        name = '0A' + str(random.randint(0, 10000))
+        # Add subject between calls
+        rep = self.ac.rest('subjects', 'list', limit=10, no_cache=True)
+        s = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
+        self.addCleanup(self.ac.rest, 'subjects', 'delete', id=s['nickname'])
+        with self.assertWarns(RuntimeWarning):
+            _ = rep[10]
+
     def test_update_url_params(self):
         url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
         expected = f'{self.ac.base_url}/sessions?param1=foo&limit=10&param3=bar&param4=baz'
