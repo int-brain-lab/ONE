@@ -11,7 +11,7 @@ root = Path.cwd()
 scripts_path = root.joinpath('scripts')
 
 nb_path = root.joinpath('notebooks')
-nb_path_external = [Path(root.parent).joinpath('examples')]
+nb_path_external = []
 
 
 def make_documentation(execute, force, documentation, clean, specific):

@@ -22,10 +22,10 @@ By a *data provider* we mean an organization that hosts a set of neurophysiology
 
 
 ### Data structure
-Every experiment a data provider releases is identified by an *experiment ID* (eID) -- a small token that uniquely identifies a particular experiment. 
+Every experiment a data provider releases is identified by an [*experiment ID*](./notebooks/experiment_ids) (eID) -- a small token that uniquely identifies a particular experiment. 
 It is up to the data provider to specify the format of their eIDs. 
 
-The data files **have to follow the Alyx file name specification** ([ALF](../alf)).
+The data files **have to follow the Alyx file name specification** ([ALF](./alf_intro)).
 The ONE package is concerned with parsing and loading files that follow this specification.
 
 ### Accessing the API
@@ -41,7 +41,8 @@ If a user already knows the eID of an experiment they are interested in, they ca
 ```
 st, sc, cbl = ONE().load_datasets(eID, ['spikes.times', 'spikes.clusters', 'clusters.brain_location'])
 ```
-This command will (down)load three datasets containing the times and cluster assignments of all spikes recorded in that experiment, together with an estimate of the brain location of each cluster.
+This command will (down)load three datasets containing the times and cluster assignments of all spikes recorded in that experiment, together with an estimate of the brain location of each cluster.  
+For more information, see the [loading data](./notebooks/one_load/one_load) guide.
 
 ### Searching for experiments
 Finally, a user needs to be able to search the data released by a provider, to obtain the eIDs of experiments they want to analyze. To do so they would run a command like:
@@ -49,7 +50,15 @@ Finally, a user needs to be able to search the data released by a provider, to o
 eIDs = ONE().search(lab='CortexLabUCL', subject='hercules', dataset=['spikes.times', 'spikes.clusters','headTracking.xyPos'])
 eIDs, eInfo = ONE().search(details=True, lab='CortexLabUCL', subject='hercules', dataset=['spikes.times', 'spikes.clusters','headTracking.xyPos'])
 ```
-This would find the eIDs for all experiments collected in the specified lab for the specified experimental subject, for which all the required data is present. There are more metadata options to refine the search in online mode (e.g. dates, genotypes, experimenter), and additional metadata on each matching experiment is returned in `eInfo`. However, the existence of datasets is normally enough to find the data you want. For example, if you want to analyze electrophysiology in a particular behavior task, the experiments you want are exactly those with datasets describing the ephys recordings and that task's parameters.
+This would find the eIDs for all experiments collected in the specified lab for the specified
+experimental subject, for which all the required data is present. There are more metadata options
+to refine the search in online mode (e.g. dates, genotypes, experimenter), and additional metadata
+on each matching experiment is returned in `eInfo`. However, the existence of datasets is normally 
+enough to find the data you want. For example, if you want to analyze electrophysiology in a 
+particular behavior task, the experiments you want are exactly those with datasets describing th
+ephys recordings and that task's parameters.
+
+For more information, see the [searching data](./notebooks/one_search/one_search) guide.
 
 ## Standardization
 
@@ -70,4 +79,5 @@ Sometimes the data will contain multiple measurements of the same type, for exam
 
 Data standards are only adopted when they are easy to use, for both providers and users of data. For users, the three ONE functions will be simple to learn, and will cover most common use cases.
 
-For providers, a key advantage of this framework is its low barrier to entry. To share data with ONE, providers do not need to run and maintain a backend server, just to upload their data to a website. We provide a "ONE light" implementation of the ONE loader functions that searches, downloads and caches files from a web server. This will allow producers who do not have in-house computational staff two simple paths to achieve ONE compatibility. The first is to place the data in a directory, using a standard file-naming convention described below, in standard formats including `npy`, `csv`, `json`, and `tiff`. Next, the user runs a program in this directory, which uploads the files to a website or to figshare. Users can then access this data using ONE light. And example of ONE light data is [here](https://figshare.com/articles/Test1/9917741). The ONE light code is [here](https://github.com/int-brain-lab/ibllib/tree/onelight/oneibl#one-light).
+For providers, a key advantage of this framework is its low barrier to entry. To share data with ONE, providers do not need to run and maintain a backend server, just to upload their data to a website.
+For more information, see the [data sharing](./notebooks/data_sharing) guide.
