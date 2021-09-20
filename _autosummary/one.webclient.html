@@ -23,6 +23,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing to documentation" href="../contributing.html" />
     <link rel="prev" title="one.util" href="one.util.html" /> 
 </head>
 
@@ -84,6 +85,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
 </ul>
 
         </div>
@@ -142,27 +144,25 @@
 The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
 files through Alyx.</p>
 <p class="rubric">Examples</p>
-<dl class="simple">
-<dt>alyx = AlyxClient(</dt><dd><p>username=’test_user’, password=’TapetesBloc18’,
-base_url=’<a class="reference external" href="https://test.alyx.internationalbrainlab.org">https://test.alyx.internationalbrainlab.org</a>’)</p>
-</dd>
-</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alyx</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">username</span><span class="o">=</span><span class="s1">&#39;test_user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;TapetesBloc18&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p># List subjects
-subjects = alyx.rest(‘subjects’, ‘list’)</p>
+&gt;&gt;&gt; subjects = alyx.rest(‘subjects’, ‘list’)</p>
 <p># Create a subject
-record = {</p>
-<blockquote>
-<div><p>‘nickname’: nickname,
-‘responsible_user’: ‘olivier’,
-‘birth_date’: ‘2019-06-15’,
-‘death_date’: None,
-‘lab’: ‘cortexlab’,</p>
-</div></blockquote>
-<p>}
-new_subj = alyx.rest(‘subjects’, ‘create’, data=record)</p>
+&gt;&gt;&gt; record = {
+…     ‘nickname’: nickname,
+…     ‘responsible_user’: ‘olivier’,
+…     ‘birth_date’: ‘2019-06-15’,
+…     ‘death_date’: None,
+…     ‘lab’: ‘cortexlab’,
+… }
+… new_subj = alyx.rest(‘subjects’, ‘create’, data=record)</p>
 <p># Download a remote file, given a local path
-url = ‘zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy’
-local_path = self.alyx.download_file(url)</p>
+&gt;&gt;&gt; url = ‘zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy’
+&gt;&gt;&gt; local_path = self.alyx.download_file(url)</p>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -218,10 +218,14 @@ local_path = self.alyx.download_file(url)</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>update_url_params(‘website.com/?q=’, {‘pg’: 5})
-‘website.com/?pg=5’</p>
-<p>update_url_params(‘website.com?q=xxx’, {‘pg’: 5, ‘foo’: [‘bar’, ‘baz’]})
-‘website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz’</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">&#39;website.com/?q=&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pg&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+<span class="go">&#39;website.com/?pg=5&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">&#39;website.com?q=xxx&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pg&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">]})</span>
+<span class="go">&#39;website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -402,11 +406,11 @@ other than 200, 201.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>AlyxClient.delete(‘/weighings/c617562d-c107-432e-a8ee-682c17f9e698’)
-AlyxClient.delete(</p>
-<blockquote>
-<div><p>‘<a class="reference external" href="https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698">https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698</a>’)</p>
-</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">AlyxClient</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">&#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">AlyxClient</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -545,10 +549,10 @@ For the dictionary contents, refer to:
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Response object</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Response object</p>
+<dd class="field-odd"><p>requests.Response</p>
 </dd>
 </dl>
 </dd></dl>
@@ -560,16 +564,17 @@ For the dictionary contents, refer to:
 alyx_client.rest(endpoint): lists actions for endpoint
 alyx_client.rest(endpoint, action): lists fields and URL</p>
 <p>Example REST endpoint with all actions:</p>
-<blockquote>
-<div><p>client.rest(‘subjects’, ‘list’)
-client.rest(‘subjects’, ‘list’, field_filter1=’filterval’)
-client.rest(‘subjects’, ‘create’, data=sub_dict)
-client.rest(‘subjects’, ‘read’, id=’nickname’)
-client.rest(‘subjects’, ‘update’, id=’nickname’, data=sub_dict)
-client.rest(‘subjects’, ‘partial_update’, id=’nickname’, data=sub_dict)
-client.rest(‘subjects’, ‘delete’, id=’nickname’)
-client.rest(‘notes’, ‘create’, data=nd, files={‘image’: open(image_file, ‘rb’)})</p>
-</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">field_filter1</span><span class="o">=</span><span class="s1">&#39;filterval&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">nd</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)})</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -584,10 +589,10 @@ cf. <a class="reference external" href="https://openalyx.internationalbrainlab.o
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>List of queried dicts (‘list’) or dict (other actions)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List of queried dicts (‘list’) or dict (other actions)</p>
+<dd class="field-odd"><p>list, dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -608,10 +613,10 @@ NOTE: Destructive write!</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Written data dict</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Written data dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -633,14 +638,17 @@ values (uses the dict.update() method)</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>New patched json field contents as dict</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>New patched json field contents as dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>one.alyx.json_field_update(“sessions”, “eid_str”, “extended_qc”, {“key”: value})</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="s2">&quot;sessions&quot;</span><span class="p">,</span> <span class="s2">&quot;eid_str&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_qc&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -658,10 +666,10 @@ Needs endpoint, uuid and json field name</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>New content of json field</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>New content of json field</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -686,6 +694,7 @@ Needs endpoint, uuid and json field name</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="one.util.html" class="btn btn-neutral float-left" title="one.util" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing to documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; ONE  documentation</title>
+  <title>Contributing to documentation &mdash; ONE  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
@@ -23,8 +23,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="one" href="_autosummary/one.html" />
-    <link rel="prev" title="FAQ" href="FAQ.html" /> 
+    <link rel="prev" title="one.webclient" href="_autosummary/one.webclient.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -71,11 +70,13 @@
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/one.html">one</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing to documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#committing-code-to-github-repo">Committing code to GitHub repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-locally">Running locally</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to documentation</a></li>
 </ul>
 
         </div>
@@ -92,9 +93,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>API Reference</li>
+      <li>Contributing to documentation</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/contributing.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -126,29 +127,40 @@
     text-align: unset;
 }
 </style>
-<section id="api-reference">
-<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h1>
-<div class="toctree-wrapper compound">
+<section class="tex2jax_ignore mathjax_ignore" id="contributing-to-documentation">
+<h1>Contributing to documentation<a class="headerlink" href="#contributing-to-documentation" title="Permalink to this headline"></a></h1>
+<section id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline"></a></h2>
+<p>The main contents file is found in <code class="docutils literal notranslate"><span class="pre">docs/index.rst</span></code>.  Some pages are written in markdown (.md), and
+are in the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> folder.  The rest are Jupyter notebooks (.ipynb), placed in the <code class="docutils literal notranslate"><span class="pre">docs/notebooks/</span></code> folder.
+The API reference is automatically generated from the docstrings in the code.  Docstrings should follow
+the NumPy style.  Examples of the NumPy docstring format can be found <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html">here</a>.</p>
+</section>
+<section id="committing-code-to-github-repo">
+<h2>Committing code to GitHub repo<a class="headerlink" href="#committing-code-to-github-repo" title="Permalink to this headline"></a></h2>
+<p>Commits to the ‘docs’ branch will trigger the documentation to compile and build automatically.<br />
+External users should open a pull request to this branch.</p>
+</section>
+<section id="running-locally">
+<h2>Running locally<a class="headerlink" href="#running-locally" title="Permalink to this headline"></a></h2>
+<p>To build the docs locally, first ensure all the requirements are installed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">-</span><span class="n">docs</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
 </div>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/one.html#module-one" title="one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one</span></code></a></p></td>
-<td><p>The Open Neurophysiology Environment (ONE) API</p></td>
-</tr>
-</tbody>
-</table>
+<p>Then run the make-script.py file from within the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> folder with the -d flag:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span><span class="o">/</span>
+<span class="n">python</span> <span class="o">./</span><span class="n">make</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">d</span>
+</pre></div>
+</div>
+<p>The HTML files are placed in <code class="docutils literal notranslate"><span class="pre">docs/_build/html/</span></code>.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="FAQ.html" class="btn btn-neutral float-left" title="FAQ" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="_autosummary/one.html" class="btn btn-neutral float-right" title="one" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="_autosummary/one.webclient.html" class="btn btn-neutral float-left" title="one.webclient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

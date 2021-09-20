@@ -69,6 +69,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
 </ul>
 
         </div>
@@ -100,27 +101,28 @@
 <span class="sd">The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote</span>
 <span class="sd">files through Alyx.</span>
 
-<span class="sd">Examples:</span>
-<span class="sd">    alyx = AlyxClient(</span>
-<span class="sd">        username=&#39;test_user&#39;, password=&#39;TapetesBloc18&#39;,</span>
-<span class="sd">        base_url=&#39;https://test.alyx.internationalbrainlab.org&#39;)</span>
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">&gt;&gt;&gt; alyx = AlyxClient(</span>
+<span class="sd">...     username=&#39;test_user&#39;, password=&#39;TapetesBloc18&#39;,</span>
+<span class="sd">...     base_url=&#39;https://test.alyx.internationalbrainlab.org&#39;)</span>
 
-<span class="sd">    # List subjects</span>
-<span class="sd">    subjects = alyx.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
+<span class="sd"># List subjects</span>
+<span class="sd">&gt;&gt;&gt; subjects = alyx.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
 
-<span class="sd">    # Create a subject</span>
-<span class="sd">    record = {</span>
-<span class="sd">        &#39;nickname&#39;: nickname,</span>
-<span class="sd">        &#39;responsible_user&#39;: &#39;olivier&#39;,</span>
-<span class="sd">        &#39;birth_date&#39;: &#39;2019-06-15&#39;,</span>
-<span class="sd">        &#39;death_date&#39;: None,</span>
-<span class="sd">        &#39;lab&#39;: &#39;cortexlab&#39;,</span>
-<span class="sd">    }</span>
-<span class="sd">    new_subj = alyx.rest(&#39;subjects&#39;, &#39;create&#39;, data=record)</span>
+<span class="sd"># Create a subject</span>
+<span class="sd">&gt;&gt;&gt; record = {</span>
+<span class="sd">...     &#39;nickname&#39;: nickname,</span>
+<span class="sd">...     &#39;responsible_user&#39;: &#39;olivier&#39;,</span>
+<span class="sd">...     &#39;birth_date&#39;: &#39;2019-06-15&#39;,</span>
+<span class="sd">...     &#39;death_date&#39;: None,</span>
+<span class="sd">...     &#39;lab&#39;: &#39;cortexlab&#39;,</span>
+<span class="sd">... }</span>
+<span class="sd">... new_subj = alyx.rest(&#39;subjects&#39;, &#39;create&#39;, data=record)</span>
 
-<span class="sd">    # Download a remote file, given a local path</span>
-<span class="sd">    url = &#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
-<span class="sd">    local_path = self.alyx.download_file(url)</span>
+<span class="sd"># Download a remote file, given a local path</span>
+<span class="sd">&gt;&gt;&gt; url = &#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
+<span class="sd">&gt;&gt;&gt; local_path = self.alyx.download_file(url)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -164,7 +166,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Handle to wrapped method</span>
+<span class="sd">    function</span>
+<span class="sd">        Handle to wrapped method</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
@@ -188,7 +191,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        The REST response JSON either from cached file or directly from remote</span>
+<span class="sd">        dict</span>
+<span class="sd">            The REST response JSON either from cached file or directly from remote</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">expires</span> <span class="o">=</span> <span class="n">expires</span> <span class="ow">or</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">default_expiry</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">alyx_client</span><span class="o">.</span><span class="n">cache_mode</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -303,11 +307,11 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    -------</span>
-<span class="sd">        update_url_params(&#39;website.com/?q=&#39;, {&#39;pg&#39;: 5})</span>
-<span class="sd">        &#39;website.com/?pg=5&#39;</span>
+<span class="sd">    &gt;&gt;&gt; update_url_params(&#39;website.com/?q=&#39;, {&#39;pg&#39;: 5})</span>
+<span class="sd">    &#39;website.com/?pg=5&#39;</span>
 
-<span class="sd">        update_url_params(&#39;website.com?q=xxx&#39;, {&#39;pg&#39;: 5, &#39;foo&#39;: [&#39;bar&#39;, &#39;baz&#39;]})</span>
-<span class="sd">        &#39;website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz&#39;</span>
+<span class="sd">    &gt;&gt;&gt; update_url_params(&#39;website.com?q=xxx&#39;, {&#39;pg&#39;: 5, &#39;foo&#39;: [&#39;bar&#39;, &#39;baz&#39;]})</span>
+<span class="sd">    &#39;website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Remove percent-encoding</span>
     <span class="n">url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -704,9 +708,9 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">            AlyxClient.delete(&#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;)</span>
-<span class="sd">            AlyxClient.delete(</span>
-<span class="sd">                &#39;https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; AlyxClient.delete(&#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; AlyxClient.delete(</span>
+<span class="sd">        ...     &#39;https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">)</span></div>
 
@@ -778,10 +782,10 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">            url = self._validate_file_url(&#39;https://webserver.net/path/to/file&#39;)</span>
-<span class="sd">            &#39;https://webserver.net/path/to/file&#39;</span>
-<span class="sd">            url = self._validate_file_url(&#39;path/to/file&#39;)</span>
-<span class="sd">            &#39;https://webserver.net/path/to/file&#39;</span>
+<span class="sd">        &gt;&gt;&gt; url = self._validate_file_url(&#39;https://webserver.net/path/to/file&#39;)</span>
+<span class="sd">        &#39;https://webserver.net/path/to/file&#39;</span>
+<span class="sd">        &gt;&gt;&gt; url = self._validate_file_url(&#39;path/to/file&#39;)</span>
+<span class="sd">        &#39;https://webserver.net/path/to/file&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>  <span class="c1"># A full URL</span>
             <span class="k">assert</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">),</span> \
@@ -895,7 +899,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Response object</span>
+<span class="sd">        requests.Response</span>
+<span class="sd">            Response object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -908,14 +913,15 @@
 
 <span class="sd">        Example REST endpoint with all actions:</span>
 
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;list&#39;, field_filter1=&#39;filterval&#39;)</span>
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;create&#39;, data=sub_dict)</span>
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;read&#39;, id=&#39;nickname&#39;)</span>
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;update&#39;, id=&#39;nickname&#39;, data=sub_dict)</span>
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;partial_update&#39;, id=&#39;nickname&#39;, data=sub_dict)</span>
-<span class="sd">            client.rest(&#39;subjects&#39;, &#39;delete&#39;, id=&#39;nickname&#39;)</span>
-<span class="sd">            client.rest(&#39;notes&#39;, &#39;create&#39;, data=nd, files={&#39;image&#39;: open(image_file, &#39;rb&#39;)})</span>
+<span class="sd">        &gt;&gt;&gt; client = AlyxClient()</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;list&#39;, field_filter1=&#39;filterval&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;create&#39;, data=sub_dict)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;read&#39;, id=&#39;nickname&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;update&#39;, id=&#39;nickname&#39;, data=sub_dict)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;partial_update&#39;, id=&#39;nickname&#39;, data=sub_dict)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;subjects&#39;, &#39;delete&#39;, id=&#39;nickname&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.rest(&#39;notes&#39;, &#39;create&#39;, data=nd, files={&#39;image&#39;: open(image_file, &#39;rb&#39;)})</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -937,7 +943,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        List of queried dicts (&#39;list&#39;) or dict (other actions)</span>
+<span class="sd">        list, dict</span>
+<span class="sd">            List of queried dicts (&#39;list&#39;) or dict (other actions)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if endpoint is None, list available endpoints</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
@@ -1049,7 +1056,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Written data dict</span>
+<span class="sd">        dict</span>
+<span class="sd">            Written data dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="c1"># Prepare data to patch</span>
@@ -1084,11 +1092,13 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        New patched json field contents as dict</span>
+<span class="sd">        dict</span>
+<span class="sd">            New patched json field contents as dict</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        one.alyx.json_field_update(&quot;sessions&quot;, &quot;eid_str&quot;, &quot;extended_qc&quot;, {&quot;key&quot;: value})</span>
+<span class="sd">        &gt;&gt;&gt; client = AlyxClient()</span>
+<span class="sd">        &gt;&gt;&gt; client.json_field_update(&quot;sessions&quot;, &quot;eid_str&quot;, &quot;extended_qc&quot;, {&quot;key&quot;: &quot;value&quot;})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="c1"># Load current json field contents</span>
@@ -1134,7 +1144,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        New content of json field</span>
+<span class="sd">        dict</span>
+<span class="sd">            New content of json field</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
