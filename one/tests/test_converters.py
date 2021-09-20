@@ -29,7 +29,7 @@ class TestConverters(unittest.TestCase):
         eid = self.one.to_eid(eid)
         self.assertEqual(eid, expected)
         # Path
-        session_path = Path(self.one._cache_dir).joinpath(
+        session_path = Path(self.one.cache_dir).joinpath(
             'mainenlab', 'Subjects', 'ZFM-01935', '2021-02-05', '001', 'alf'
         )
         eid = self.one.to_eid(session_path)

@@ -58,23 +58,39 @@ def _cache_response(method):
     """
     Decorator for the generic request method; caches the result of the query and on subsequent
     calls, returns cache instead of hitting the database
-    :param method: function to wrap (i.e. AlyxClient._generic_request)
-    :return: handle to wrapped method
+
+    Parameters
+    ----------
+    method : function
+        Function to wrap (i.e. AlyxClient._generic_request)
+
+    Returns
+    -------
+    Handle to wrapped method
     """
 
     @functools.wraps(method)
     def wrapper_decorator(alyx_client, *args, expires=None, clobber=False, **kwargs):
         """
         REST caching wrapper
-        :param alyx_client: an instance of the AlyxClient class
-        :param args: positional arguments for applying to wrapped function
-        :param expires: an optional timedelta for how long cached response is valid.  If True,
-        the cached response will not be used on subsequent calls.  If None, the default expiry
-        is applied.
-        :param clobber: If True any existing cached response is overwritten
-        :param kwargs: keyword arguments for applying to wrapped function
-        :return: the REST response JSON either from cached file or directly from remote
-        endpoint
+
+        Parameters
+        ----------
+        alyx_client : AlyxClient
+            An instance of the AlyxClient class
+        args : any
+            Positional arguments for applying to wrapped function
+        expires : bool
+            An optional timedelta for how long cached response is valid.  If True, the cached
+            response will not be used on subsequent calls.  If None, the default expiry is applied.
+        clobber : bool
+            If True any existing cached response is overwritten
+        kwargs : any
+            Keyword arguments for applying to wrapped function
+
+        Returns
+        -------
+        The REST response JSON either from cached file or directly from remote
         """
         expires = expires or alyx_client.default_expiry
         mode = (alyx_client.cache_mode or '').lower()
@@ -121,10 +137,23 @@ class _PaginatedResponse(Mapping):
     PaginatedResponse(alyx, response)
     """
 
-    def __init__(self, alyx, rep):
+    def __init__(self, alyx, rep, cache_args=None):
+        """
+        A paginated response cache object
+
+        Parameters
+        ----------
+        alyx : AlyxClient
+            An instance of an AlyxClient associated with the REST response
+        rep : dict
+            A paginated REST response JSON dictionary
+        cache_args : dict
+            A dict of kwargs to pass to _cache_response decorator upon subsequent requests
+        """
         self.alyx = alyx
         self.count = rep['count']
         self.limit = len(rep['results'])
+        self._cache_args = cache_args or {}
         # store URL without pagination query params
         self.query = rep['next']
         # init the cache, list with None with count size
@@ -147,8 +176,12 @@ class _PaginatedResponse(Mapping):
     def populate(self, idx):
         offset = self.limit * math.floor(idx / self.limit)
         query = update_url_params(self.query, {'limit': self.limit, 'offset': offset})
-        res = self.alyx._generic_request(requests.get, query)
-        for i, r in enumerate(res['results']):
+        res = self.alyx._generic_request(requests.get, query, **self._cache_args)
+        if self.count != res['count']:
+            warnings.warn(
+                f'remote results for {urllib.parse.urlsplit(query).path} endpoint changed; '
+                f'results may be inconsistent', RuntimeWarning)
+        for i, r in enumerate(res['results'][:self.count - offset]):
             self._cache[i + offset] = res['results'][i]
 
     def __iter__(self):
@@ -193,13 +226,19 @@ def update_url_params(url: str, params: dict) -> str:
 
 def http_download_file_list(links_to_file_list, **kwargs):
     """
-    Downloads a list of files from the flat Iron from a list of links.
-    Same options behaviour as http_download_file
+    Downloads a list of files from a remote HTTP server from a list of links.
+    Same options behaviour as http_download_file.
 
-    :param links_to_file_list: list of http links to files.
-    :type links_to_file_list: list
+    Parameters
+    ----------
+    links_to_file_list : list
+        List of http links to files
+    kwargs : any
+        Optional arguments to pass to http_download_file
 
-    :return: (list) a list of the local full path of the downloaded files.
+    Returns
+    -------
+    (list) a list of the local full path of the downloaded files.
     """
     file_names_list = []
     for link_str in links_to_file_list:
@@ -210,27 +249,32 @@ def http_download_file_list(links_to_file_list, **kwargs):
 def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=False,
                        username='', password='', cache_dir='', return_md5=False, headers=None):
     """
-    :param full_link_to_file: http link to the file.
-    :type full_link_to_file: str
-    :param chunks: chunks to download
-    :type chunks: tuple of ints
-    :param clobber: [False] If True, force overwrite the existing file.
-    :type clobber: bool
-    :param username: [''] authentication for password protected file server.
-    :type username: str
-    :param password: [''] authentication for password protected file server.
-    :type password: str
-    :param cache_dir: [''] directory in which files are cached; defaults to user's
-     Download directory.
-    :type cache_dir: str
-    :param return_md5: if true an MD5 hash of the file is additionally returned
-    :type return_md5: bool
-    :param: headers: [{}] additional headers to add to the request (auth tokens etc..)
-    :type headers: dict
-    :param: silent: [False] suppress download progress bar
-    :type silent: bool
+    Download a file from a remote HTTP server.
 
-    :return: (str) a list of the local full path of the downloaded files.
+    Parameters
+    ----------
+    full_link_to_file : str
+        HTTP link to the file
+    chunks : tuple of ints
+        Chunks to download
+    clobber : bool
+        If True, force overwrite the existing file
+    silent : bool
+        If True, suppress download progress bar
+    username : str
+        User authentication for password protected file server
+    password : str
+        Password authentication for password protected file server
+    cache_dir : str, pathlib.Path
+        Directory in which files are cached; defaults to user's Download directory
+    return_md5 : bool
+        If True an MD5 hash of the file is additionally returned
+    headers : list of dicts
+        Additional headers to add to the request (auth tokens etc.)
+
+    Returns
+    -------
+    A list of the local full path of the downloaded files
     """
     if not full_link_to_file:
         return ''
@@ -306,14 +350,18 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     return (file_name, md5.hexdigest()) if return_md5 else file_name
 
 
-def file_record_to_url(file_records):
+def file_record_to_url(file_records) -> list:
     """
     Translate a Json dictionary to an usable http url for downloading files.
 
-    :param file_records: json containing a 'data_url' field
-    :type file_records: dict
+    Parameters
+    ----------
+    file_records : dict
+        JSON containing a 'data_url' field
 
-    :return: urls: (list) a list of strings representing full data urls
+    Returns
+    -------
+    A list of strings representing full data urls
     """
     urls = []
     for fr in file_records:
@@ -322,14 +370,18 @@ def file_record_to_url(file_records):
     return urls
 
 
-def dataset_record_to_url(dataset_record):
+def dataset_record_to_url(dataset_record) -> list:
     """
     Extracts a list of files urls from a list of dataset queries.
 
-    :param dataset_record: dataset Json from a rest request.
-    :type dataset_record: list
+    Parameters
+    ----------
+    dataset_record : list, dict
+        Dataset JSON from a REST request
 
-    :return: (list) a list of strings representing files urls corresponding to the datasets records
+    Returns
+    -------
+    A list of strings representing files urls corresponding to the datasets records
     """
     urls = []
     if isinstance(dataset_record, dict):
@@ -356,11 +408,22 @@ class AlyxClient():
         For oneibl, constructor attempts to authenticate with credentials in params.py
         For standalone cases, AlyxClient(username='', password='', base_url='')
 
-        :param username: Alyx database user
-        :param password: Alyx database password
-        :param base_url: Alyx server address, including port and protocol
-        :param cache_rest: which type of http method to apply cache to; if '*', all requests are
-        cached.
+        Parameters
+        ----------
+        base_url : str
+            Alyx server address, including port and protocol
+        username : str
+            Alyx database user
+        password : str
+            Alyx database password
+        cache_dir : str, pathlib.Path
+            The default download location
+        silent : bool
+            If true, user prompts and progress bars are suppressed
+        cache_rest : str
+            Which type of http method to apply cache to; if '*', all requests are cached
+        stay_logged_in : bool
+            If true, auth token is cached
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
@@ -532,21 +595,37 @@ class AlyxClient():
         Sends a DELETE request to the Alyx server. Will raise an exception on any status_code
         other than 200, 201.
 
-        :param rest_query: examples:
-         '/weighings/c617562d-c107-432e-a8ee-682c17f9e698'
-         'https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698'.
-        :type rest_query: str
+        Parameters
+        ----------
+        rest_query : str
+            A REST query string either as a relative URL path complete URL
 
-        :return: (dict/list) json interpreted dictionary from response
+        Returns
+        -------
+        JSON interpreted dictionary from response
+
+        Examples
+        --------
+            AlyxClient.delete('/weighings/c617562d-c107-432e-a8ee-682c17f9e698')
+            AlyxClient.delete(
+                'https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698')
         """
         return self._generic_request(requests.delete, rest_query)
 
     def download_file(self, url, **kwargs):
         """
         Downloads a file on the Alyx server from a file record REST field URL
-        :param url: full url(s) of the file(s)
-        :param kwargs: webclient.http_download_file parameters
-        :return: local path(s) of downloaded file(s)
+
+        Parameters
+        ----------
+        url : str, list
+            Full url(s) of the file(s)
+        kwargs : Any
+            WebClient.http_download_file parameters
+
+        Returns
+        -------
+        Local path(s) of downloaded file(s)
         """
         if isinstance(url, str):
             url = self._validate_file_url(url)
@@ -636,18 +715,25 @@ class AlyxClient():
         Sends a GET request to the Alyx server. Will raise an exception on any status_code
         other than 200, 201.
         For the dictionary contents and list of endpoints, refer to:
-        https://alyx.internationalbrainlab.org/docs
+        https://openalyx.internationalbrainlab.org/docs
 
-        :param rest_query: example: '/sessions?user=Hamish'.
-        :type rest_query: str
+        Parameters
+        ----------
+        rest_query : str
+            A REST URL path, e.g. '/sessions?user=Hamish'
+        kwargs : any
+            Optional arguments to pass to _generic_request and _cache_response decorator
 
-        :return: (dict/list) json interpreted dictionary from response
+        Returns
+        -------
+        JSON interpreted dictionary from response
         """
         rep = self._generic_request(requests.get, rest_query, **kwargs)
         _logger.debug(rest_query)
         if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
             if len(rep['results']) < rep['count']:
-                rep = _PaginatedResponse(self, rep)
+                cache_args = {k: v for k, v in kwargs.items() if k in ('clobber', 'expires')}
+                rep = _PaginatedResponse(self, rep, cache_args)
             else:
                 rep = rep['results']
         return rep
@@ -656,15 +742,20 @@ class AlyxClient():
         """
         Sends a PATCH request to the Alyx server.
         For the dictionary contents, refer to:
-        https://alyx.internationalbrainlab.org/docs
+        https://openalyx.internationalbrainlab.org/docs
 
-        :param rest_query: (required)the endpoint as full or relative URL
-        :type rest_query: str
-        :param data: json encoded string or dictionary (cf.requests)
-        :type data: None, dict or str
-        :param files: dictionary / tuple (cf.requests)
+        Parameters
+        ----------
+        rest_query : str
+            The endpoint as full or relative URL
+        data : dict, str
+            JSON encoded string or dictionary (c.f. requests)
+        files : dict, tuple
+            Files to attach (c.f. requests)
 
-        :return: response object
+        Returns
+        -------
+        Response object
         """
         return self._generic_request(requests.patch, rest_query, data=data, files=files)
 
@@ -672,15 +763,20 @@ class AlyxClient():
         """
         Sends a POST request to the Alyx server.
         For the dictionary contents, refer to:
-        https://alyx.internationalbrainlab.org/docs
+        https://openalyx.internationalbrainlab.org/docs
 
-        :param rest_query: (required)the endpoint as full or relative URL
-        :type rest_query: str
-        :param data: dictionary or json encoded string
-        :type data: None, dict or str
-        :param files: dictionary / tuple (cf.requests)
+        Parameters
+        ----------
+        rest_query : str
+            The endpoint as full or relative URL
+        data : dict, str
+            JSON encoded string or dictionary (c.f. requests)
+        files : dict, tuple
+            Files to attach (c.f. requests)
 
-        :return: response object
+        Returns
+        -------
+        Response object
         """
         return self._generic_request(requests.post, rest_query, data=data, files=files)
 
@@ -688,15 +784,20 @@ class AlyxClient():
         """
         Sends a PUT request to the Alyx server.
         For the dictionary contents, refer to:
-        https://alyx.internationalbrainlab.org/docs
+        https://openalyx.internationalbrainlab.org/docs
 
-        :param rest_query: (required)the endpoint as full or relative URL
-        :type rest_query: str
-        :param data: dictionary or json encoded string
-        :type data: None, dict or str
-        :param files: dictionary / tuple (cf.requests)
+        Parameters
+        ----------
+        rest_query : str
+            The endpoint as full or relative URL
+        data : dict, str
+            JSON encoded string or dictionary (c.f. requests)
+        files : dict, tuple
+            Files to attach (c.f. requests)
 
-        :return: response object
+        Returns
+        -------
+        Response object
         """
         return self._generic_request(requests.put, rest_query, data=data, files=files)
 
@@ -718,15 +819,27 @@ class AlyxClient():
             client.rest('subjects', 'delete', id='nickname')
             client.rest('notes', 'create', data=nd, files={'image': open(image_file, 'rb')})
 
-        :param url: endpoint name
-        :param action: 'list', 'create', 'read', 'update', 'partial_update', 'delete'
-        :param id: lookup string for actions 'read', 'update', 'partial_update', and 'delete'
-        :param data: data dictionary for actions 'update', 'partial_update' and 'create'
-        :param files: if file upload
-        :param no_cache: if true the `list` and `read` actions are performed without caching
-        :param ``**kwargs``: filter as per the Alyx REST documentation
-            cf. https://alyx.internationalbrainlab.org/docs/
-        :return: list of queried dicts ('list') or dict (other actions)
+        Parameters
+        ----------
+        url : str
+            Endpoint name
+        action : str
+            One of 'list', 'create', 'read', 'update', 'partial_update', 'delete'
+        id : str
+            Lookup string for actions 'read', 'update', 'partial_update', and 'delete'
+        data : dict
+            Data dictionary for actions 'update', 'partial_update' and 'create'
+        files : dict, tuple
+            Option file(s) to upload
+        no_cache : bool
+            If true the `list` and `read` actions are performed without caching
+        kwargs : any
+            Filters as per the Alyx REST documentation
+            cf. https://openalyx.internationalbrainlab.org/docs/
+
+        Returns
+        -------
+        List of queried dicts ('list') or dict (other actions)
         """
         # if endpoint is None, list available endpoints
         if not url:
@@ -907,19 +1020,23 @@ class AlyxClient():
             key: str = None
     ) -> Optional[dict]:
         """json_field_remove_key
-        Will remove inputted key from json field dict and reupload it to Alyx.
+        Will remove inputted key from json field dict and re-upload it to Alyx.
         Needs endpoint, uuid and json field name
 
-        :param endpoint: endpoint to hit, defaults to None
-        :type endpoint: str, optional
-        :param uuid: uuid or lookup name for endpoint
-        :type uuid: str, optional
-        :param field_name: json field name of object, defaults to None
-        :type field_name: str, optional
-        :param key: key name of dictionary inside object, defaults to None
-        :type key: str, optional
-        :return: returns new content of json field
-        :rtype: dict
+        Parameters
+        ----------
+        endpoint : str
+            Endpoint to hit, defaults to None
+        uuid : str
+            UUID or lookup name for endpoint
+        field_name : str
+            JSON field name of object, defaults to None
+        key : str
+            Key name of dictionary inside object, defaults to None
+
+        Returns
+        -------
+        New content of json field
         """
         self._check_inputs(endpoint)
         current = self.rest(endpoint, "read", id=uuid)[field_name]
@@ -952,5 +1069,6 @@ class AlyxClient():
         return _[field_name]
 
     def clear_rest_cache(self):
+        """Clear all REST response cache files for the base url"""
         for file in one.params.get_rest_dir(self.base_url).glob('*'):
             file.unlink()

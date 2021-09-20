@@ -58,7 +58,7 @@ def create_file_tree(one):
     """Touch all the files in the datasets table"""
     # Create dset files from cache
     for session_path, rel_path in one._cache.datasets[['session_path', 'rel_path']].values:
-        filepath = Path(one._cache_dir).joinpath(session_path, rel_path)
+        filepath = Path(one.cache_dir).joinpath(session_path, rel_path)
         filepath.parent.mkdir(exist_ok=True, parents=True)
         filepath.touch()
 

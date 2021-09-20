@@ -81,6 +81,8 @@ class TestAlfParse(unittest.TestCase):
         self.assertEqual(expected, parsed)
         parsed = files.session_path_parts(session_path, as_dict=False)
         self.assertEqual(tuple(expected.values()), parsed)
+        # Check Path as input
+        self.assertTrue(any(files.session_path_parts(Path(session_path))))
         # Check parse fails
         session_path = '/home/user/Data/labname/2020-01-01/alf/001/'
         with self.assertRaises(ValueError):

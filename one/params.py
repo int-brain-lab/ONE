@@ -192,7 +192,7 @@ def get_rest_dir(client=None) -> Path:
     return rest_dir
 
 
-def _check_cache_conflict(cache_dir):
+def check_cache_conflict(cache_dir):
     cache_map = getattr(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}), 'CLIENT_MAP', None)
     if cache_map:
         assert not any(x == str(cache_dir) for x in cache_map.values())
