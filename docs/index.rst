@@ -47,6 +47,7 @@ Welcome to ONE's documentation!
 
    FAQ
    api_reference.rst
+   contributing
 
 Indices and tables
 ==================

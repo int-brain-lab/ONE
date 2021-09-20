@@ -2,27 +2,28 @@
 The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
 files through Alyx.
 
-Examples:
-    alyx = AlyxClient(
-        username='test_user', password='TapetesBloc18',
-        base_url='https://test.alyx.internationalbrainlab.org')
+Examples
+--------
+>>> alyx = AlyxClient(
+...     username='test_user', password='TapetesBloc18',
+...     base_url='https://test.alyx.internationalbrainlab.org')
 
-    # List subjects
-    subjects = alyx.rest('subjects', 'list')
+# List subjects
+>>> subjects = alyx.rest('subjects', 'list')
 
-    # Create a subject
-    record = {
-        'nickname': nickname,
-        'responsible_user': 'olivier',
-        'birth_date': '2019-06-15',
-        'death_date': None,
-        'lab': 'cortexlab',
-    }
-    new_subj = alyx.rest('subjects', 'create', data=record)
+# Create a subject
+>>> record = {
+...     'nickname': nickname,
+...     'responsible_user': 'olivier',
+...     'birth_date': '2019-06-15',
+...     'death_date': None,
+...     'lab': 'cortexlab',
+... }
+... new_subj = alyx.rest('subjects', 'create', data=record)
 
-    # Download a remote file, given a local path
-    url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
-    local_path = self.alyx.download_file(url)
+# Download a remote file, given a local path
+>>> url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
+>>> local_path = self.alyx.download_file(url)
 """
 import json
 import logging
@@ -66,7 +67,8 @@ def _cache_response(method):
 
     Returns
     -------
-    Handle to wrapped method
+    function
+        Handle to wrapped method
     """
 
     @functools.wraps(method)
@@ -90,7 +92,8 @@ def _cache_response(method):
 
         Returns
         -------
-        The REST response JSON either from cached file or directly from remote
+        dict
+            The REST response JSON either from cached file or directly from remote
         """
         expires = expires or alyx_client.default_expiry
         mode = (alyx_client.cache_mode or '').lower()
@@ -205,11 +208,11 @@ def update_url_params(url: str, params: dict) -> str:
 
     Examples
     -------
-        update_url_params('website.com/?q=', {'pg': 5})
-        'website.com/?pg=5'
+    >>> update_url_params('website.com/?q=', {'pg': 5})
+    'website.com/?pg=5'
 
-        update_url_params('website.com?q=xxx', {'pg': 5, 'foo': ['bar', 'baz']})
-        'website.com?q=xxx&pg=5&foo=bar&foo=baz'
+    >>> update_url_params('website.com?q=xxx', {'pg': 5, 'foo': ['bar', 'baz']})
+    'website.com?q=xxx&pg=5&foo=bar&foo=baz'
     """
     # Remove percent-encoding
     url = urllib.parse.unquote(url)
@@ -606,9 +609,9 @@ class AlyxClient():
 
         Examples
         --------
-            AlyxClient.delete('/weighings/c617562d-c107-432e-a8ee-682c17f9e698')
-            AlyxClient.delete(
-                'https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698')
+        >>> AlyxClient.delete('/weighings/c617562d-c107-432e-a8ee-682c17f9e698')
+        >>> AlyxClient.delete(
+        ...     'https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698')
         """
         return self._generic_request(requests.delete, rest_query)
 
@@ -680,10 +683,10 @@ class AlyxClient():
 
         Examples
         --------
-            url = self._validate_file_url('https://webserver.net/path/to/file')
-            'https://webserver.net/path/to/file'
-            url = self._validate_file_url('path/to/file')
-            'https://webserver.net/path/to/file'
+        >>> url = self._validate_file_url('https://webserver.net/path/to/file')
+        'https://webserver.net/path/to/file'
+        >>> url = self._validate_file_url('path/to/file')
+        'https://webserver.net/path/to/file'
         """
         if url.startswith('http'):  # A full URL
             assert url.startswith(self._par.HTTP_DATA_SERVER), \
@@ -797,7 +800,8 @@ class AlyxClient():
 
         Returns
         -------
-        Response object
+        requests.Response
+            Response object
         """
         return self._generic_request(requests.put, rest_query, data=data, files=files)
 
@@ -810,14 +814,15 @@ class AlyxClient():
 
         Example REST endpoint with all actions:
 
-            client.rest('subjects', 'list')
-            client.rest('subjects', 'list', field_filter1='filterval')
-            client.rest('subjects', 'create', data=sub_dict)
-            client.rest('subjects', 'read', id='nickname')
-            client.rest('subjects', 'update', id='nickname', data=sub_dict)
-            client.rest('subjects', 'partial_update', id='nickname', data=sub_dict)
-            client.rest('subjects', 'delete', id='nickname')
-            client.rest('notes', 'create', data=nd, files={'image': open(image_file, 'rb')})
+        >>> client = AlyxClient()
+        >>> client.rest('subjects', 'list')
+        >>> client.rest('subjects', 'list', field_filter1='filterval')
+        >>> client.rest('subjects', 'create', data=sub_dict)
+        >>> client.rest('subjects', 'read', id='nickname')
+        >>> client.rest('subjects', 'update', id='nickname', data=sub_dict)
+        >>> client.rest('subjects', 'partial_update', id='nickname', data=sub_dict)
+        >>> client.rest('subjects', 'delete', id='nickname')
+        >>> client.rest('notes', 'create', data=nd, files={'image': open(image_file, 'rb')})
 
         Parameters
         ----------
@@ -839,7 +844,8 @@ class AlyxClient():
 
         Returns
         -------
-        List of queried dicts ('list') or dict (other actions)
+        list, dict
+            List of queried dicts ('list') or dict (other actions)
         """
         # if endpoint is None, list available endpoints
         if not url:
@@ -951,7 +957,8 @@ class AlyxClient():
 
         Returns
         -------
-        Written data dict
+        dict
+            Written data dict
         """
         self._check_inputs(endpoint)
         # Prepare data to patch
@@ -986,11 +993,13 @@ class AlyxClient():
 
         Returns
         -------
-        New patched json field contents as dict
+        dict
+            New patched json field contents as dict
 
         Examples
         --------
-        one.alyx.json_field_update("sessions", "eid_str", "extended_qc", {"key": value})
+        >>> client = AlyxClient()
+        >>> client.json_field_update("sessions", "eid_str", "extended_qc", {"key": "value"})
         """
         self._check_inputs(endpoint)
         # Load current json field contents
@@ -1036,7 +1045,8 @@ class AlyxClient():
 
         Returns
         -------
-        New content of json field
+        dict
+            New content of json field
         """
         self._check_inputs(endpoint)
         current = self.rest(endpoint, "read", id=uuid)[field_name]
