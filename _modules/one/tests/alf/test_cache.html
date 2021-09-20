@@ -39,11 +39,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -83,6 +107,7 @@
 
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">parquet</span>
 <span class="kn">import</span> <span class="nn">one.alf.cache</span> <span class="k">as</span> <span class="nn">apt</span>
+<span class="kn">from</span> <span class="nn">one.tests.util</span> <span class="kn">import</span> <span class="n">revisions_datasets_table</span>
 
 
 <div class="viewcode-block" id="TestsONEParquet"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet">[docs]</a><span class="k">class</span> <span class="nc">TestsONEParquet</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
@@ -94,12 +119,12 @@
         <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;001&#39;</span><span class="p">),</span>
         <span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;task_protocol&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab/Subjects/mysub/2021-02-28/001&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab/mysub/2021-02-28/001&#39;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">rel_ses_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;alf/spikes.clusters.npy&#39;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;alf/spikes.times.npy&#39;</span><span class="p">)]</span>
 
 <div class="viewcode-block" id="TestsONEParquet.setUp"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_columns&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
 
         <span class="c1"># root path:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s1">&#39;pqttest&#39;</span>
@@ -112,23 +137,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;mock&#39;</span><span class="p">)</span>
 
         <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_ses_path</span> <span class="o">/</span> <span class="s1">&#39;alf/spikes.clusters.npy&#39;</span>
-        <span class="n">sc</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;mock2&#39;</span><span class="p">)</span></div>
+        <span class="n">sc</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;mock2&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create a second session containing an invalid dataset</span>
+        <span class="n">second_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;002&#39;</span><span class="p">)</span>
+        <span class="n">second_session</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">second_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;trials.intervals.npy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+        <span class="n">second_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.invalid&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TestsONEParquet.test_parse"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parse">[docs]</a>    <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_parse_rel_ses_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_get_session_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">full_ses_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="TestsONEParquet.test_walk"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_walk">[docs]</a>    <span class="k">def</span> <span class="nf">test_walk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">full_ses_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_find_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full_ses_paths</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">full_path</span> <span class="o">=</span> <span class="n">full_ses_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">full_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">rel_path</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">_get_file_rel_path</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_parse_rel_ses_path</span><span class="p">(</span><span class="n">rel_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="TestsONEParquet.test_walk_session"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_walk_session">[docs]</a>    <span class="k">def</span> <span class="nf">test_walk_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ses_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_find_session_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_ses_path</span><span class="p">))</span>
+        <span class="n">ses_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_ses_path</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ses_files</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_files</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestsONEParquet.test_parquet"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parquet">[docs]</a>    <span class="k">def</span> <span class="nf">test_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -160,7 +183,8 @@
         <span class="n">dset_info</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rel_path</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;invalid&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="TestsONEParquet.tests_db"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.tests_db">[docs]</a>    <span class="k">def</span> <span class="nf">tests_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">fn_ses</span><span class="p">,</span> <span class="n">fn_dsets</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -177,7 +201,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">metadata2</span><span class="p">,</span> <span class="n">metadata_exp</span><span class="p">)</span>
         <span class="n">dset_info</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+        <span class="c1"># Check behaviour when no files found</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
+                <span class="n">fn_ses</span><span class="p">,</span> <span class="n">fn_dsets</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn_ses</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn_dsets</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">)</span>
+
+        <span class="c1"># Check labname arg</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">):</span>
+            <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;another&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create some more datasets in a session folder outside of a lab directory</span>
+        <span class="n">dsets</span> <span class="o">=</span> <span class="n">revisions_datasets_table</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tdir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
+                <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">filepath</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+            <span class="n">fn_ses</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;another&#39;</span><span class="p">)</span>
+            <span class="n">df_ses</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn_ses</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="n">df_ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;another&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="TestsONEParquet.test_hash_ids"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_hash_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_hash_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Build and load caches with int UUIDs</span>

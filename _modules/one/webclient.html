@@ -39,11 +39,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -132,23 +156,39 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator for the generic request method; caches the result of the query and on subsequent</span>
 <span class="sd">    calls, returns cache instead of hitting the database</span>
-<span class="sd">    :param method: function to wrap (i.e. AlyxClient._generic_request)</span>
-<span class="sd">    :return: handle to wrapped method</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    method : function</span>
+<span class="sd">        Function to wrap (i.e. AlyxClient._generic_request)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Handle to wrapped method</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapper_decorator</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        REST caching wrapper</span>
-<span class="sd">        :param alyx_client: an instance of the AlyxClient class</span>
-<span class="sd">        :param args: positional arguments for applying to wrapped function</span>
-<span class="sd">        :param expires: an optional timedelta for how long cached response is valid.  If True,</span>
-<span class="sd">        the cached response will not be used on subsequent calls.  If None, the default expiry</span>
-<span class="sd">        is applied.</span>
-<span class="sd">        :param clobber: If True any existing cached response is overwritten</span>
-<span class="sd">        :param kwargs: keyword arguments for applying to wrapped function</span>
-<span class="sd">        :return: the REST response JSON either from cached file or directly from remote</span>
-<span class="sd">        endpoint</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alyx_client : AlyxClient</span>
+<span class="sd">            An instance of the AlyxClient class</span>
+<span class="sd">        args : any</span>
+<span class="sd">            Positional arguments for applying to wrapped function</span>
+<span class="sd">        expires : bool</span>
+<span class="sd">            An optional timedelta for how long cached response is valid.  If True, the cached</span>
+<span class="sd">            response will not be used on subsequent calls.  If None, the default expiry is applied.</span>
+<span class="sd">        clobber : bool</span>
+<span class="sd">            If True any existing cached response is overwritten</span>
+<span class="sd">        kwargs : any</span>
+<span class="sd">            Keyword arguments for applying to wrapped function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The REST response JSON either from cached file or directly from remote</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">expires</span> <span class="o">=</span> <span class="n">expires</span> <span class="ow">or</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">default_expiry</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">alyx_client</span><span class="o">.</span><span class="n">cache_mode</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -195,10 +235,23 @@
 <span class="sd">    PaginatedResponse(alyx, response)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="p">,</span> <span class="n">rep</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="p">,</span> <span class="n">rep</span><span class="p">,</span> <span class="n">cache_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A paginated response cache object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alyx : AlyxClient</span>
+<span class="sd">            An instance of an AlyxClient associated with the REST response</span>
+<span class="sd">        rep : dict</span>
+<span class="sd">            A paginated REST response JSON dictionary</span>
+<span class="sd">        cache_args : dict</span>
+<span class="sd">            A dict of kwargs to pass to _cache_response decorator upon subsequent requests</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_args</span> <span class="o">=</span> <span class="n">cache_args</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="c1"># store URL without pagination query params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;next&#39;</span><span class="p">]</span>
         <span class="c1"># init the cache, list with None with count size</span>
@@ -221,8 +274,12 @@
     <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">idx</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">update_url_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="n">offset</span><span class="p">})</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">]):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">!=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;remote results for </span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> endpoint changed; &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;results may be inconsistent&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][:</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="n">offset</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -267,13 +324,19 @@
 
 <div class="viewcode-block" id="http_download_file_list"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.http_download_file_list">[docs]</a><span class="k">def</span> <span class="nf">http_download_file_list</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Downloads a list of files from the flat Iron from a list of links.</span>
-<span class="sd">    Same options behaviour as http_download_file</span>
+<span class="sd">    Downloads a list of files from a remote HTTP server from a list of links.</span>
+<span class="sd">    Same options behaviour as http_download_file.</span>
 
-<span class="sd">    :param links_to_file_list: list of http links to files.</span>
-<span class="sd">    :type links_to_file_list: list</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    links_to_file_list : list</span>
+<span class="sd">        List of http links to files</span>
+<span class="sd">    kwargs : any</span>
+<span class="sd">        Optional arguments to pass to http_download_file</span>
 
-<span class="sd">    :return: (list) a list of the local full path of the downloaded files.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    (list) a list of the local full path of the downloaded files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_names_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">link_str</span> <span class="ow">in</span> <span class="n">links_to_file_list</span><span class="p">:</span>
@@ -284,27 +347,32 @@
 <div class="viewcode-block" id="http_download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.http_download_file">[docs]</a><span class="k">def</span> <span class="nf">http_download_file</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">username</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">return_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param full_link_to_file: http link to the file.</span>
-<span class="sd">    :type full_link_to_file: str</span>
-<span class="sd">    :param chunks: chunks to download</span>
-<span class="sd">    :type chunks: tuple of ints</span>
-<span class="sd">    :param clobber: [False] If True, force overwrite the existing file.</span>
-<span class="sd">    :type clobber: bool</span>
-<span class="sd">    :param username: [&#39;&#39;] authentication for password protected file server.</span>
-<span class="sd">    :type username: str</span>
-<span class="sd">    :param password: [&#39;&#39;] authentication for password protected file server.</span>
-<span class="sd">    :type password: str</span>
-<span class="sd">    :param cache_dir: [&#39;&#39;] directory in which files are cached; defaults to user&#39;s</span>
-<span class="sd">     Download directory.</span>
-<span class="sd">    :type cache_dir: str</span>
-<span class="sd">    :param return_md5: if true an MD5 hash of the file is additionally returned</span>
-<span class="sd">    :type return_md5: bool</span>
-<span class="sd">    :param: headers: [{}] additional headers to add to the request (auth tokens etc..)</span>
-<span class="sd">    :type headers: dict</span>
-<span class="sd">    :param: silent: [False] suppress download progress bar</span>
-<span class="sd">    :type silent: bool</span>
+<span class="sd">    Download a file from a remote HTTP server.</span>
 
-<span class="sd">    :return: (str) a list of the local full path of the downloaded files.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    full_link_to_file : str</span>
+<span class="sd">        HTTP link to the file</span>
+<span class="sd">    chunks : tuple of ints</span>
+<span class="sd">        Chunks to download</span>
+<span class="sd">    clobber : bool</span>
+<span class="sd">        If True, force overwrite the existing file</span>
+<span class="sd">    silent : bool</span>
+<span class="sd">        If True, suppress download progress bar</span>
+<span class="sd">    username : str</span>
+<span class="sd">        User authentication for password protected file server</span>
+<span class="sd">    password : str</span>
+<span class="sd">        Password authentication for password protected file server</span>
+<span class="sd">    cache_dir : str, pathlib.Path</span>
+<span class="sd">        Directory in which files are cached; defaults to user&#39;s Download directory</span>
+<span class="sd">    return_md5 : bool</span>
+<span class="sd">        If True an MD5 hash of the file is additionally returned</span>
+<span class="sd">    headers : list of dicts</span>
+<span class="sd">        Additional headers to add to the request (auth tokens etc.)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A list of the local full path of the downloaded files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">full_link_to_file</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span>
@@ -380,14 +448,18 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">md5</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span> <span class="k">if</span> <span class="n">return_md5</span> <span class="k">else</span> <span class="n">file_name</span></div>
 
 
-<div class="viewcode-block" id="file_record_to_url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.file_record_to_url">[docs]</a><span class="k">def</span> <span class="nf">file_record_to_url</span><span class="p">(</span><span class="n">file_records</span><span class="p">):</span>
+<div class="viewcode-block" id="file_record_to_url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.file_record_to_url">[docs]</a><span class="k">def</span> <span class="nf">file_record_to_url</span><span class="p">(</span><span class="n">file_records</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Translate a Json dictionary to an usable http url for downloading files.</span>
 
-<span class="sd">    :param file_records: json containing a &#39;data_url&#39; field</span>
-<span class="sd">    :type file_records: dict</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_records : dict</span>
+<span class="sd">        JSON containing a &#39;data_url&#39; field</span>
 
-<span class="sd">    :return: urls: (list) a list of strings representing full data urls</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A list of strings representing full data urls</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">file_records</span><span class="p">:</span>
@@ -396,14 +468,18 @@
     <span class="k">return</span> <span class="n">urls</span></div>
 
 
-<div class="viewcode-block" id="dataset_record_to_url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.dataset_record_to_url">[docs]</a><span class="k">def</span> <span class="nf">dataset_record_to_url</span><span class="p">(</span><span class="n">dataset_record</span><span class="p">):</span>
+<div class="viewcode-block" id="dataset_record_to_url"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.dataset_record_to_url">[docs]</a><span class="k">def</span> <span class="nf">dataset_record_to_url</span><span class="p">(</span><span class="n">dataset_record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts a list of files urls from a list of dataset queries.</span>
 
-<span class="sd">    :param dataset_record: dataset Json from a rest request.</span>
-<span class="sd">    :type dataset_record: list</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset_record : list, dict</span>
+<span class="sd">        Dataset JSON from a REST request</span>
 
-<span class="sd">    :return: (list) a list of strings representing files urls corresponding to the datasets records</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A list of strings representing files urls corresponding to the datasets records</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_record</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -430,11 +506,22 @@
 <span class="sd">        For oneibl, constructor attempts to authenticate with credentials in params.py</span>
 <span class="sd">        For standalone cases, AlyxClient(username=&#39;&#39;, password=&#39;&#39;, base_url=&#39;&#39;)</span>
 
-<span class="sd">        :param username: Alyx database user</span>
-<span class="sd">        :param password: Alyx database password</span>
-<span class="sd">        :param base_url: Alyx server address, including port and protocol</span>
-<span class="sd">        :param cache_rest: which type of http method to apply cache to; if &#39;*&#39;, all requests are</span>
-<span class="sd">        cached.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        base_url : str</span>
+<span class="sd">            Alyx server address, including port and protocol</span>
+<span class="sd">        username : str</span>
+<span class="sd">            Alyx database user</span>
+<span class="sd">        password : str</span>
+<span class="sd">            Alyx database password</span>
+<span class="sd">        cache_dir : str, pathlib.Path</span>
+<span class="sd">            The default download location</span>
+<span class="sd">        silent : bool</span>
+<span class="sd">            If true, user prompts and progress bars are suppressed</span>
+<span class="sd">        cache_rest : str</span>
+<span class="sd">            Which type of http method to apply cache to; if &#39;*&#39;, all requests are cached</span>
+<span class="sd">        stay_logged_in : bool</span>
+<span class="sd">            If true, auth token is cached</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="n">silent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">)</span>
@@ -606,21 +693,37 @@
 <span class="sd">        Sends a DELETE request to the Alyx server. Will raise an exception on any status_code</span>
 <span class="sd">        other than 200, 201.</span>
 
-<span class="sd">        :param rest_query: examples:</span>
-<span class="sd">         &#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;</span>
-<span class="sd">         &#39;https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;.</span>
-<span class="sd">        :type rest_query: str</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest_query : str</span>
+<span class="sd">            A REST query string either as a relative URL path complete URL</span>
 
-<span class="sd">        :return: (dict/list) json interpreted dictionary from response</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        JSON interpreted dictionary from response</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">            AlyxClient.delete(&#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;)</span>
+<span class="sd">            AlyxClient.delete(</span>
+<span class="sd">                &#39;https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AlyxClient.download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downloads a file on the Alyx server from a file record REST field URL</span>
-<span class="sd">        :param url: full url(s) of the file(s)</span>
-<span class="sd">        :param kwargs: webclient.http_download_file parameters</span>
-<span class="sd">        :return: local path(s) of downloaded file(s)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : str, list</span>
+<span class="sd">            Full url(s) of the file(s)</span>
+<span class="sd">        kwargs : Any</span>
+<span class="sd">            WebClient.http_download_file parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Local path(s) of downloaded file(s)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_file_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -710,18 +813,25 @@
 <span class="sd">        Sends a GET request to the Alyx server. Will raise an exception on any status_code</span>
 <span class="sd">        other than 200, 201.</span>
 <span class="sd">        For the dictionary contents and list of endpoints, refer to:</span>
-<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+<span class="sd">        https://openalyx.internationalbrainlab.org/docs</span>
 
-<span class="sd">        :param rest_query: example: &#39;/sessions?user=Hamish&#39;.</span>
-<span class="sd">        :type rest_query: str</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest_query : str</span>
+<span class="sd">            A REST URL path, e.g. &#39;/sessions?user=Hamish&#39;</span>
+<span class="sd">        kwargs : any</span>
+<span class="sd">            Optional arguments to pass to _generic_request and _cache_response decorator</span>
 
-<span class="sd">        :return: (dict/list) json interpreted dictionary from response</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        JSON interpreted dictionary from response</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">rest_query</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;next&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]:</span>
-                <span class="n">rep</span> <span class="o">=</span> <span class="n">_PaginatedResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
+                <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;clobber&#39;</span><span class="p">,</span> <span class="s1">&#39;expires&#39;</span><span class="p">)}</span>
+                <span class="n">rep</span> <span class="o">=</span> <span class="n">_PaginatedResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rep</span><span class="p">,</span> <span class="n">cache_args</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rep</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">rep</span></div>
@@ -730,15 +840,20 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sends a PATCH request to the Alyx server.</span>
 <span class="sd">        For the dictionary contents, refer to:</span>
-<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+<span class="sd">        https://openalyx.internationalbrainlab.org/docs</span>
 
-<span class="sd">        :param rest_query: (required)the endpoint as full or relative URL</span>
-<span class="sd">        :type rest_query: str</span>
-<span class="sd">        :param data: json encoded string or dictionary (cf.requests)</span>
-<span class="sd">        :type data: None, dict or str</span>
-<span class="sd">        :param files: dictionary / tuple (cf.requests)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest_query : str</span>
+<span class="sd">            The endpoint as full or relative URL</span>
+<span class="sd">        data : dict, str</span>
+<span class="sd">            JSON encoded string or dictionary (c.f. requests)</span>
+<span class="sd">        files : dict, tuple</span>
+<span class="sd">            Files to attach (c.f. requests)</span>
 
-<span class="sd">        :return: response object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Response object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">patch</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -746,15 +861,20 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sends a POST request to the Alyx server.</span>
 <span class="sd">        For the dictionary contents, refer to:</span>
-<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+<span class="sd">        https://openalyx.internationalbrainlab.org/docs</span>
 
-<span class="sd">        :param rest_query: (required)the endpoint as full or relative URL</span>
-<span class="sd">        :type rest_query: str</span>
-<span class="sd">        :param data: dictionary or json encoded string</span>
-<span class="sd">        :type data: None, dict or str</span>
-<span class="sd">        :param files: dictionary / tuple (cf.requests)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest_query : str</span>
+<span class="sd">            The endpoint as full or relative URL</span>
+<span class="sd">        data : dict, str</span>
+<span class="sd">            JSON encoded string or dictionary (c.f. requests)</span>
+<span class="sd">        files : dict, tuple</span>
+<span class="sd">            Files to attach (c.f. requests)</span>
 
-<span class="sd">        :return: response object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Response object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -762,15 +882,20 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sends a PUT request to the Alyx server.</span>
 <span class="sd">        For the dictionary contents, refer to:</span>
-<span class="sd">        https://alyx.internationalbrainlab.org/docs</span>
+<span class="sd">        https://openalyx.internationalbrainlab.org/docs</span>
 
-<span class="sd">        :param rest_query: (required)the endpoint as full or relative URL</span>
-<span class="sd">        :type rest_query: str</span>
-<span class="sd">        :param data: dictionary or json encoded string</span>
-<span class="sd">        :type data: None, dict or str</span>
-<span class="sd">        :param files: dictionary / tuple (cf.requests)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest_query : str</span>
+<span class="sd">            The endpoint as full or relative URL</span>
+<span class="sd">        data : dict, str</span>
+<span class="sd">            JSON encoded string or dictionary (c.f. requests)</span>
+<span class="sd">        files : dict, tuple</span>
+<span class="sd">            Files to attach (c.f. requests)</span>
 
-<span class="sd">        :return: response object</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Response object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -792,15 +917,27 @@
 <span class="sd">            client.rest(&#39;subjects&#39;, &#39;delete&#39;, id=&#39;nickname&#39;)</span>
 <span class="sd">            client.rest(&#39;notes&#39;, &#39;create&#39;, data=nd, files={&#39;image&#39;: open(image_file, &#39;rb&#39;)})</span>
 
-<span class="sd">        :param url: endpoint name</span>
-<span class="sd">        :param action: &#39;list&#39;, &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, &#39;delete&#39;</span>
-<span class="sd">        :param id: lookup string for actions &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, and &#39;delete&#39;</span>
-<span class="sd">        :param data: data dictionary for actions &#39;update&#39;, &#39;partial_update&#39; and &#39;create&#39;</span>
-<span class="sd">        :param files: if file upload</span>
-<span class="sd">        :param no_cache: if true the `list` and `read` actions are performed without caching</span>
-<span class="sd">        :param ``**kwargs``: filter as per the Alyx REST documentation</span>
-<span class="sd">            cf. https://alyx.internationalbrainlab.org/docs/</span>
-<span class="sd">        :return: list of queried dicts (&#39;list&#39;) or dict (other actions)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : str</span>
+<span class="sd">            Endpoint name</span>
+<span class="sd">        action : str</span>
+<span class="sd">            One of &#39;list&#39;, &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, &#39;delete&#39;</span>
+<span class="sd">        id : str</span>
+<span class="sd">            Lookup string for actions &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, and &#39;delete&#39;</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Data dictionary for actions &#39;update&#39;, &#39;partial_update&#39; and &#39;create&#39;</span>
+<span class="sd">        files : dict, tuple</span>
+<span class="sd">            Option file(s) to upload</span>
+<span class="sd">        no_cache : bool</span>
+<span class="sd">            If true the `list` and `read` actions are performed without caching</span>
+<span class="sd">        kwargs : any</span>
+<span class="sd">            Filters as per the Alyx REST documentation</span>
+<span class="sd">            cf. https://openalyx.internationalbrainlab.org/docs/</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List of queried dicts (&#39;list&#39;) or dict (other actions)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if endpoint is None, list available endpoints</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
@@ -981,19 +1118,23 @@
             <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;json_field_remove_key</span>
-<span class="sd">        Will remove inputted key from json field dict and reupload it to Alyx.</span>
+<span class="sd">        Will remove inputted key from json field dict and re-upload it to Alyx.</span>
 <span class="sd">        Needs endpoint, uuid and json field name</span>
 
-<span class="sd">        :param endpoint: endpoint to hit, defaults to None</span>
-<span class="sd">        :type endpoint: str, optional</span>
-<span class="sd">        :param uuid: uuid or lookup name for endpoint</span>
-<span class="sd">        :type uuid: str, optional</span>
-<span class="sd">        :param field_name: json field name of object, defaults to None</span>
-<span class="sd">        :type field_name: str, optional</span>
-<span class="sd">        :param key: key name of dictionary inside object, defaults to None</span>
-<span class="sd">        :type key: str, optional</span>
-<span class="sd">        :return: returns new content of json field</span>
-<span class="sd">        :rtype: dict</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            Endpoint to hit, defaults to None</span>
+<span class="sd">        uuid : str</span>
+<span class="sd">            UUID or lookup name for endpoint</span>
+<span class="sd">        field_name : str</span>
+<span class="sd">            JSON field name of object, defaults to None</span>
+<span class="sd">        key : str</span>
+<span class="sd">            Key name of dictionary inside object, defaults to None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        New content of json field</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
@@ -1026,6 +1167,7 @@
         <span class="k">return</span> <span class="n">_</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="AlyxClient.clear_rest_cache"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_rest_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear all REST response cache files for the base url&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_rest_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
             <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span></div></div>
 </pre></div>

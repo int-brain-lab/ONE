@@ -39,11 +39,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -102,8 +126,8 @@
         <span class="c1"># 2 different ways to  get water restrictions for one subject</span>
         <span class="n">wr_sub2</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;water-restriction&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;algernon&#39;</span><span class="p">)</span>  <span class="c1"># recommended</span>
         <span class="c1"># enforce test logic</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">({</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span> <span class="s1">&#39;reference_weight&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;water_type&#39;</span><span class="p">})</span> <span class="o">&gt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_wr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span> <span class="s1">&#39;reference_weight&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;water_type&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected</span> <span class="o">&gt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_wr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_wr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">wr_sub2</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Tests_REST.test_list_pk_query"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST.test_list_pk_query">[docs]</a>    <span class="k">def</span> <span class="nf">test_list_pk_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -113,8 +137,10 @@
 <span class="sd">        is used as a pk identifier. This special case is tested here</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">ses_</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Sessions returned sorted: take last session as new sessions constantly added and</span>
+        <span class="c1"># removed by parallel test runs</span>
+        <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ses_</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">ses_</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Tests_REST.test_note_with_picture_upload"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload">[docs]</a>    <span class="k">def</span> <span class="nf">test_note_with_picture_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

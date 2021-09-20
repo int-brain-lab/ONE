@@ -42,11 +42,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment Ids</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
@@ -124,15 +148,15 @@ TODO save parquet in update_filesystem</p>
 <p>Points of discussion:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Module structure: oneibl is too restrictive, naming module <cite>one</cite> means obj should have</p></li>
+<li><p>Module structure: oneibl is too restrictive, naming module <cite>one</cite> means obj should have
+different name</p></li>
+<li><p>Download datasets timeout</p></li>
+<li><p>Support for pids?</p></li>
+<li><p>Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array</p></li>
+<li><p>NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
+Datasets table has sorted index.</p></li>
+<li><p>Conceivably you could have a subclass for Figshare, etc., not just Alyx</p></li>
 </ul>
-<p>different name
-- Download datasets timeout
-- Support for pids?
-- Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array
-- NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
-Datasets table has sorted index.
-- Conceivably you could have a subclass for Figshare, etc., not just Alyx</p>
 </div></blockquote>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
@@ -256,7 +280,7 @@ will be found)</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.list_datasets">
-<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_datasets" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_datasets" title="Permalink to this definition"></a></dt>
 <dd><p>Given an eid, return the datasets for those sessions.  If no eid is provided,
 a list of all datasets is returned.  When details is false, a sorted array of unique
 datasets is returned (their relative paths).</p>
@@ -268,6 +292,10 @@ details dict or Path.</p></li>
 <li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the filename
+Supports asterisks as wildcards</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision
+Supports asterisks as wildcards</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
 relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
@@ -284,7 +312,7 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.list_collections">
-<span class="sig-name descname"><span class="pre">list_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_collections" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_collections" title="Permalink to this definition"></a></dt>
 <dd><p>List the collections for a given experiment.  If no experiment id is given,
 all collections are returned.</p>
 <dl class="field-list simple">
@@ -424,8 +452,7 @@ meta data Bunches.  If assert_present is false, missing data will be returned as
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
 <li><p><strong>datasets</strong> (<em>list of strings</em>) – The ALF datasets to load.  May be a string or dict of ALF parts.  Supports asterisks
-as
-wildcards.</p></li>
+as wildcards.</p></li>
 <li><p><strong>collections</strong> (<em>str</em><em>, </em><em>list</em>) – The collection(s) to which the object(s) belong, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
@@ -518,6 +545,11 @@ location is used.</p></li>
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">alyx</span></span><a class="headerlink" href="#one.api.OneAlyx.alyx" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="one.api.OneAlyx.cache_dir">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">cache_dir</span></span><a class="headerlink" href="#one.api.OneAlyx.cache_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.search_terms">
 <span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search_terms" title="Permalink to this definition"></a></dt>
@@ -542,7 +574,7 @@ location is used.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.list_datasets">
-<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.list_datasets" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.list_datasets" title="Permalink to this definition"></a></dt>
 <dd><p>Given an eid, return the datasets for those sessions.  If no eid is provided,
 a list of all datasets is returned.  When details is false, a sorted array of unique
 datasets is returned (their relative paths).</p>
@@ -554,6 +586,10 @@ details dict or Path.</p></li>
 <li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the filename
+Supports asterisks as wildcards</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision
+Supports asterisks as wildcards</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
 relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
@@ -610,7 +646,7 @@ number and date_range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – list of dataset names. Returns sessions containing all these datasets.
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – List of dataset names. Returns sessions containing all these datasets.
 A dataset matches if it contains the search string e.g. ‘wheel.position’ matches
 ‘_ibl_wheel.position.npy’</p></li>
 <li><p><strong>date_range</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>pandas.timestamp</em>) – A single date to search or a list of 2 dates that define the range (inclusive).  To
@@ -622,10 +658,10 @@ define only the upper or lower date bound, set the other element to None.</p></l
 will be found)</p></li>
 <li><p><strong>project</strong> (<em>str</em><em>, </em><em>list</em>) – The project name (can be partial, i.e. any task protocol containing that str
 will be found)</p></li>
-<li><p><strong>performance_gte</strong> (<em>performance_lte /</em>) – search only for sessions whose performance is less equal or greater equal than a
+<li><p><strong>performance_gte</strong> (<em>performance_lte /</em>) – Search only for sessions whose performance is less equal or greater equal than a
 pre-defined threshold as a percentage (0-100)</p></li>
 <li><p><strong>users</strong> (<em>str</em><em>, </em><em>list</em>) – A list of users</p></li>
-<li><p><strong>location</strong> (<em>str</em><em>, </em><em>list</em>) – a str or list of lab location (as per Alyx definition) name
+<li><p><strong>location</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab location (as per Alyx definition) name
 Note: this corresponds to the specific rig, not the lab geographical location per se</p></li>
 <li><p><strong>dataset_types</strong> (<em>str</em><em>, </em><em>list</em>) – One or more of dataset_types</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details</p></li>

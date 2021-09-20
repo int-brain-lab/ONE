@@ -25,7 +25,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ONE advanced queries" href="../one_advanced/one_advanced.html" />
+    <link rel="next" title="Experiment Ids" href="../experiment_ids.html" />
     <link rel="prev" title="Listing with ONE" href="../one_list/one_list.html" /> 
 </head>
 
@@ -44,19 +44,48 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../../one.html">ONE</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_list/one_list.html">Listing with ONE</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Loading with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_advanced/one_advanced.html">ONE advanced queries</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Loading with ONE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Collections">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Revisions">Revisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Download-only">Download only</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Advanced-loading">Advanced loading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Filtering-attributes">Filtering attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Loading-with-file-name-parts">Loading with file name parts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#More-regex-examples">More regex examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Load-spike-times-from-a-probe-UUID">Load spike times from a probe UUID</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Loading-with-timeseries">Loading with timeseries</a></li>
 </ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -74,7 +103,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../one.html">ONE</a> &raquo;</li>
       <li>Loading with ONE</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/notebooks/one_load/one_load.ipynb.txt" rel="nofollow"> View page source</a>
@@ -359,28 +387,37 @@ div.rendered_html tbody tr:hover {
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/one_load/
 one_load.ipynb"><button id="github">Github link</button></a><section id="Loading-with-ONE">
 <h1>Loading with ONE<a class="headerlink" href="#Loading-with-ONE" title="Permalink to this headline"></a></h1>
-<p>Once a session and datasets of interest have been identified, the ONE load methods can be used to load in the relevant data</p>
-<p>To load all datasets for a given object we can use the load_object method</p>
+<p>The datasets are organized into directory trees by subject, date and session number. For a given session there are data files grouped by object (e.g. ‘trials’), each with a specific attribute (e.g. ‘rewardVolume’). The dataset name follows the pattern ‘object.attribute’, for example ‘trials.rewardVolume’. For more information, see the <a class="reference external" href="../alyx_files.html">ALF documentation</a>.</p>
+<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. ‘C:UsersSubjectsKS0232019-12-10001’), or a UUID (aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
+<p>If the data don’t exist locally, they will be downloaded, then loaded.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
+
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;CSH_ZAD_029/2020-09-19/001&#39;</span>
-<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
+<span class="c1"># To load all the data for a given object, use the load_object method:</span>
+<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>  <span class="c1"># subject/date/number</span>
+<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>  <span class="c1"># Returns a dict-like object of numpy arrays</span>
 </pre></div>
 </div>
 </div>
-<p>The attributes of returned object mirror the datasets</p>
+<p>The attributes of returned object mirror the datasets:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="c1"># The data can be accessed with dot syntax</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">rewardVolume</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+<span class="c1"># ... or dictionary syntax</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="p">[</span><span class="s1">&#39;rewardVolume&#39;</span><span class="p">][:</span><span class="mi">5</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -389,12 +426,27 @@ one_load.ipynb"><button id="github">Github link</button></a><section id="Loading
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-dict_keys([&#39;intervals&#39;, &#39;rewardVolume&#39;, &#39;contrastRight&#39;, &#39;response_times&#39;, &#39;choice&#39;, &#39;stimOn_times&#39;, &#39;probabilityLeft&#39;, &#39;goCueTrigger_times&#39;, &#39;intervals_bpod&#39;, &#39;goCue_times&#39;, &#39;firstMovement_times&#39;, &#39;stimOff_times&#39;, &#39;contrastLeft&#39;, &#39;feedbackType&#39;, &#39;feedback_times&#39;])
+dict_keys([&#39;contrastLeft&#39;, &#39;intervals&#39;, &#39;response_times&#39;, &#39;stimOff_times&#39;, &#39;goCueTrigger_times&#39;, &#39;itiDuration&#39;, &#39;goCue_times&#39;, &#39;contrastRight&#39;, &#39;intervals_bpod&#39;, &#39;feedbackType&#39;, &#39;stimOn_times&#39;, &#39;choice&#39;, &#39;firstMovement_times&#39;, &#39;rewardVolume&#39;, &#39;feedback_times&#39;, &#39;probabilityLeft&#39;])
+[1.5 1.5 1.5 0.  1.5]
+[1.5 1.5 1.5 0.  1.5]
 </pre></div></div>
+</div>
+<p>All arrays in the object have the same length (the size of the first dimension) and can therefore be converted to a DataFrame:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">trials</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+
+<span class="c1"># For analysis you can assert that the dimensions match using the check_dimensions property:</span>
+<span class="k">assert</span> <span class="n">trials</span><span class="o">.</span><span class="n">check_dimensions</span> <span class="o">==</span> <span class="mi">0</span>
+</pre></div>
+</div>
 </div>
 <p>If we only want to load in certain attributes of an object we can use the following</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -408,76 +460,244 @@ dict_keys([&#39;intervals&#39;, &#39;rewardVolume&#39;, &#39;contrastRight&#39;,
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-dict_keys([&#39;intervals&#39;, &#39;rewardVolume&#39;, &#39;probabilityLeft&#39;, &#39;intervals_bpod&#39;])
+dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;, &#39;probabilityLeft&#39;])
 </pre></div></div>
 </div>
-<p>If an object belongs to more than one collection, for example the clusters object, the collection must be specified</p>
+<p>Datasets can be individually downloaded using the <code class="docutils literal notranslate"><span class="pre">load_dataset</span></code> method. This function takes an experiment ID and a dataset name as positional args.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">clusters</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>By default, the load_object method downloads and loads the data into memory, if you only want to download the data you can specify a download only flag. In this case the returned object will be a list of paths to the datasets on your local system</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>To load a single dataset we can use the load_dataset method</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">reward_volume</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>Once again if the same dataset exists in more than one collection, the collection must be specified</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">waveforms</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;clusters.waveforms.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+<span></span><span class="n">reward_volume</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">)</span>  <span class="c1"># c.f. load_object, above</span>
 </pre></div>
 </div>
 </div>
 <p>We can use the load_datasets method to load multiple datasets at once. This method returns two lists, the first which contains the data for each dataset and the second which contains meta information about the data.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">assert_present</span></code> flag can be set to false, if a given dataset doesn’t exist a None is returned instead of raising an exception.</p>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">,</span>
                                               <span class="s1">&#39;_ibl_trials.probabilityLeft.npy&#39;</span><span class="p">])</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
-<p>It is also possible to load datasets from different collections. For example if we want to simultaneously load a trials dataset and a clusters dataset we would type,</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;exists&#39;: True,
+ &#39;file_size&#39;: 5256.0,
+ &#39;hash&#39;: &#39;819ae9cc4643cc7ed6cf8453e6cec339&#39;,
+ &#39;id_0&#39;: 8593347991464373244,
+ &#39;id_1&#39;: -3444378546711777370,
+ &#39;rel_path&#39;: &#39;alf/_ibl_trials.rewardVolume.npy&#39;,
+ &#39;revision&#39;: &#39;&#39;,
+ &#39;session_path&#39;: &#39;public/cortexlab/Subjects/KS023/2019-12-10/001&#39;}
+</pre></div></div>
+</div>
+<section id="Collections">
+<h2>Collections<a class="headerlink" href="#Collections" title="Permalink to this headline"></a></h2>
+<p>For any given session there may be multiple datasets with the same name that are organized into separate subfolders called collections. For example there may be spike times for two probes, one in ‘alf/probe00/spikes.times.npy’, the other in ‘alf/probe01/spikes.times.npy’. In IBL, the ‘alf’ directory (for ALyx Files) contains the main datasets that people use. Raw data is in other directories.</p>
+<p>In this case you must specify the collection when multiple matching datasets are found:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>It is also possible to load datasets from different collections at the same time. For example if we want to simultaneously load a trials dataset and a clusters dataset we would type,</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">,</span>
                                               <span class="s1">&#39;clusters.waveforms.npy&#39;</span><span class="p">],</span>
                                <span class="n">collections</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;alf&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe01&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Revisions">
+<h2>Revisions<a class="headerlink" href="#Revisions" title="Permalink to this headline"></a></h2>
+<p>Revisions provide an optional way to organize data by version. The version label is arbitrary, however the folder must start and end with pound signs and is typically an ISO date, e.g. “#2021-01-01#”. Unlike collections, if a specified revision is not found, the previous revision will be returned. The revisions are ordered lexicographically.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2021-03-15a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="Download-only">
+<h2>Download only<a class="headerlink" href="#Download-only" title="Permalink to this headline"></a></h2>
+<p>By default the load methods will download any missing data, then load and return the data. When the ‘download_only’ kwarg is true, the data are not loaded. Instead a list of file paths are returned, and any missing datasets are represented by None.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You can load objects and datasets from a file path</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
+<span class="n">contrast_left</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Advanced-loading">
+<h2>Advanced loading<a class="headerlink" href="#Advanced-loading" title="Permalink to this headline"></a></h2>
+<p>The load methods typically require an exact match, therefore when loading ’_ibl_wheel.position.npy’ <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'wheel.position.npy')</span></code> will raise an exception because the namespace is missing. Likewise <code class="docutils literal notranslate"><span class="pre">one.load_object(eid,</span> <span class="pre">'trial')</span></code> will fail because ‘trial’ != ‘trials’.</p>
+<p>Loading can be done using unix shell style wildcards, allowing you to load objects and datasets that match a particular pattern, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'*wheel.position.npy')</span></code>.</p>
+<p>By default wildcard mode is on. In this mode, the extension may be omitted, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'spikes.times')</span></code>. This is equivalent to ‘spikes.times.<em>’. Note that an exception will be raised if datasets with more than one extension are found (such as ’spikes.times.npy’ and ’spikes.times.csv’). When loading a dataset with extra parts, the extension (or wildcard) is explicitly required: ’spikes.times.part1.</em>’.</p>
+<p>If you set the wildcards property of One to False, loading will be done using regular expressions, allowing for more powerful pattern matching.</p>
+<p>Below is table showing how to express unix style wildcards as a regular expression:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 14%" />
+<col style="width: 41%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Regex</p></th>
+<th class="head"><p>Wildcard</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>.*</p></td>
+<td><p>*</p></td>
+<td><p>Match zero or more chars</p></td>
+<td><p>spikes.times.*</p></td>
+</tr>
+<tr class="row-odd"><td><p>.?</p></td>
+<td><p>?</p></td>
+<td><p>Match one char</p></td>
+<td><p>timestamps.?sv</p></td>
+</tr>
+<tr class="row-even"><td><p>[]</p></td>
+<td><p>[]</p></td>
+<td><p>Match a range of chars</p></td>
+<td><p>obj.attr.part[0-9].npy</p></td>
+</tr>
+</tbody>
+</table>
+<p>NB: In regex ‘.’ means ‘any character’; to match ‘.’ exactly, escape it with a backslash</p>
+<p>Examples: spikes.times.* (regex), spikes.times* (wildcard) matches… spikes.times.npy spikes.times spikes.times_ephysClock.npy spikes.times.bin</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...
+    clusters.uuids.ssv
+    clusters.uuids.csv
 
+alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
+    alf/probe00
+    alf/probe01
+    [...]
+    alf/probe05
+</pre></div>
+</div>
+<section id="Filtering-attributes">
+<h3>Filtering attributes<a class="headerlink" href="#Filtering-attributes" title="Permalink to this headline"></a></h3>
+<p>To download and load only a subset of attributes, you can provide a list to the attribute kwarg.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time*&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
+<span class="k">assert</span> <span class="s1">&#39;amps&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spikes</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loading-with-file-name-parts">
+<h3>Loading with file name parts<a class="headerlink" href="#Loading-with-file-name-parts" title="Permalink to this headline"></a></h3>
+<p>You may also specify specific parts of the filename for even more specific filtering. Here a list of options will be treated as a logical OR</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>All fields accept wildcards.</p>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;npy&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">])</span>
+<span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="More-regex-examples">
+<h3>More regex examples<a class="headerlink" href="#More-regex-examples" title="Permalink to this headline"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>Load specific attributes from an object (‘|’ represents a logical OR in regex)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times|clusters&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="s1">&#39;amps&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spikes</span>
+</pre></div>
+</div>
+<p>Load a dataset ignoring any namespace or extension:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;.*spikes.times.*&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all datasets in any probe collection (matches 0 or more of any number)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe[0-9]*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load object attributes that are not delimited text files (i.e. tsv, ssv, csv, etc.)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;[^sv]*&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="Load-spike-times-from-a-probe-UUID">
+<h3>Load spike times from a probe UUID<a class="headerlink" href="#Load-spike-times-from-a-probe-UUID" title="Permalink to this headline"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pid</span> <span class="o">=</span> <span class="s1">&#39;b749446c-18e3-4987-820a-50649ab0f826&#39;</span>
+<span class="n">session</span><span class="p">,</span> <span class="n">probe</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+<span class="n">spikes_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;alf/</span><span class="si">{</span><span class="n">probe</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all probes for a session</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">session</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;alf/probe&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="Loading-with-timeseries">
+<h2>Loading with timeseries<a class="headerlink" href="#Loading-with-timeseries" title="Permalink to this headline"></a></h2>
+<p>For loading a dataset along with its timestamps, alf.io.read_ts can be used. It requires a filepath as input.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ts</span><span class="p">,</span> <span class="n">clusters</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">read_ts</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 <p>More information about these methods can be found using the help command</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -534,15 +754,7 @@ load_dataset(eid: Union[str, pathlib.Path, uuid.UUID], dataset: str, collection:
 
 </pre></div></div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
-</pre></div>
-</div>
-</div>
+</section>
 </section>
 
 
@@ -550,7 +762,7 @@ load_dataset(eid: Union[str, pathlib.Path, uuid.UUID], dataset: str, collection:
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../one_list/one_list.html" class="btn btn-neutral float-left" title="Listing with ONE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../one_advanced/one_advanced.html" class="btn btn-neutral float-right" title="ONE advanced queries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../experiment_ids.html" class="btn btn-neutral float-right" title="Experiment Ids" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

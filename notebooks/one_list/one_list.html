@@ -44,19 +44,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../../one.html">ONE</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Listing with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_advanced/one_advanced.html">ONE advanced queries</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experiment_ids.html">Experiment Ids</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
-</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -74,7 +90,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../one.html">ONE</a> &raquo;</li>
       <li>Listing with ONE</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/notebooks/one_list/one_list.ipynb.txt" rel="nofollow"> View page source</a>
@@ -367,7 +382,7 @@ one_list.ipynb"><button id="github">Github link</button></a><section id="Listing
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 
 <span class="c1"># All datasets in the database</span>
 <span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>

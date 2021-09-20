@@ -39,11 +39,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 
@@ -144,17 +168,23 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.cache_dir">cache_dir (AlyxClient property)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.api.html#one.api.OneAlyx.cache_dir">(OneAlyx property)</a>
 </li>
+      </ul></li>
       <li><a href="_autosummary/one.tests.util.html#one.tests.util.caches_int2str">caches_int2str() (in module one.tests.util)</a>
+</li>
+      <li><a href="_autosummary/one.params.html#one.params.check_cache_conflict">check_cache_conflict() (in module one.params)</a>
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.AlfBunch.check_dimensions">check_dimensions (AlfBunch property)</a>
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.check_dimensions">check_dimensions() (in module one.alf.io)</a>
 </li>
-      <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">clear_rest_cache() (AlyxClient method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">clear_rest_cache() (AlyxClient method)</a>
+</li>
       <li><a href="_autosummary/one.converters.html#one.converters.ConversionMixin">ConversionMixin (class in one.converters)</a>
 </li>
       <li><a href="_autosummary/one.tests.util.html#one.tests.util.create_file_tree">create_file_tree() (in module one.tests.util)</a>
@@ -317,15 +347,17 @@
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.is_logged_in">is_logged_in() (AlyxClient method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_session_path">is_session_path() (in module one.alf.spec)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_uuid">is_uuid() (in module one.alf.spec)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_uuid_string">is_uuid_string() (in module one.alf.spec)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_valid">is_valid() (in module one.alf.spec)</a>
+</li>
+      <li><a href="_autosummary/one.alf.io.html#one.alf.io.iter_sessions">iter_sessions() (in module one.alf.io)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1036,6 +1068,8 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestALFGet.test_isdatetime">test_isdatetime() (TestALFGet method)</a>
 </li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_sessions">test_iter_sessions() (TestALFFolders method)</a>
+</li>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.test_json_methods">test_json_methods() (TestJsonFieldMethods method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_key_from_url">test_key_from_url() (TestONEParamUtil method)</a>
@@ -1082,10 +1116,10 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns">test_metadata_columns() (TestsAlf method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID">test_metadata_columns_UUID() (TestsAlf method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID">test_metadata_columns_UUID() (TestsAlf method)</a>
+</li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_named_group">test_named_group() (TestALFSpec method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_next_num_folder">test_next_num_folder() (TestALFFolders method)</a>
@@ -1205,8 +1239,6 @@
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_url_from_record">test_url_from_record() (TestOneAlyx method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_validate_date_range">test_validate_date_range() (TestOneMisc method)</a>
-</li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_walk">test_walk() (TestsONEParquet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_walk_session">test_walk_session() (TestsONEParquet method)</a>
 </li>

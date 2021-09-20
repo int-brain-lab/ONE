@@ -39,11 +39,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -135,12 +159,12 @@
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">([</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="session_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.session_path_parts">[docs]</a><span class="k">def</span> <span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="session_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.session_path_parts">[docs]</a><span class="k">def</span> <span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Parse a session path into the relevant parts</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    session_path : str</span>
+<span class="sd">    session_path : str, pathlib.Path</span>
 <span class="sd">        A session path string</span>
 <span class="sd">    as_dict : bool</span>
 <span class="sd">        If true, an OrderedDict of parts are returned with the keys (&#39;lab&#39;, &#39;subject&#39;, &#39;date&#39;,</span>
@@ -153,11 +177,13 @@
 <span class="sd">    -------</span>
 <span class="sd">        An OrderedDict if as_dict is true, or a tuple of parsed values</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="s1">&#39;as_posix&#39;</span><span class="p">):</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">SESSION_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">parsed</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="o">**</span><span class="n">parsed</span><span class="o">.</span><span class="n">groupdict</span><span class="p">())</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="p">(</span><span class="o">*</span><span class="n">parsed</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">(),)</span>
     <span class="k">elif</span> <span class="n">assert_valid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid session path&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid session path &quot;</span><span class="si">{</span><span class="n">session_path</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
     <span class="n">empty</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">SESSION_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">groupindex</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">([</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">empty</span><span class="p">))</span></div>
 
@@ -240,8 +266,18 @@
 
 
 <div class="viewcode-block" id="get_session_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_session_path">[docs]</a><span class="k">def</span> <span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Returns the session path from any filepath if the date/number</span>
-<span class="sd">    pattern is found&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the session path from any filepath if the date/number pattern is found,</span>
+<span class="sd">    including the root directory</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">        get_relative_session_path(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;)</span>
+<span class="sd">        Path(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;)</span>
+
+<span class="sd">        get_relative_session_path(&#39;C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy&#39;)</span>
+<span class="sd">        Path(&#39;C:/Data/subject/2020-01-01/1&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -259,9 +295,6 @@
 <span class="sd">    Attempts to return the first valid part of the path, first searching for a session path,</span>
 <span class="sd">    then relative path (collection/revision/filename), then just the filename.  If all invalid,</span>
 <span class="sd">    None is returned.</span>
-
-<span class="sd">    NB: There is no way to discern between lab/Subjects/subject/date/number and</span>
-<span class="sd">    irrelevant/subject/date/number</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

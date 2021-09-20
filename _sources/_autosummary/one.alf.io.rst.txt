@@ -18,6 +18,7 @@ one.alf.io
       dataframe
       exists
       filter_by
+      iter_sessions
       load_file_content
       load_object
       next_num_folder

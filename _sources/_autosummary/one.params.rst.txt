@@ -14,6 +14,7 @@ one.params
    .. autosummary::
       :nosignatures:
    
+      check_cache_conflict
       default
       get
       get_cache_dir

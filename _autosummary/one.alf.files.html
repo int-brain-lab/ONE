@@ -42,11 +42,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment Ids</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="one.alf.html">one.alf</a><ul class="current">
@@ -157,7 +181,7 @@ ALF files must always have an extension</p>
 <td><p>Returns the ALF part of a path or filename Attempts to return the first valid part of the path, first searching for a session path, then relative path (collection/revision/filename), then just the filename.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.get_session_path" title="one.alf.files.get_session_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session_path</span></code></a></p></td>
-<td><p>Returns the session path from any filepath if the date/number pattern is found</p></td>
+<td><p>Returns the session path from any filepath if the date/number pattern is found, including the root directory</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.path_parts" title="one.alf.files.path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_parts</span></code></a></p></td>
 <td><p></p></td>
@@ -196,12 +220,12 @@ dict of tuple of Nones is returned</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.files.session_path_parts">
-<span class="sig-name descname"><span class="pre">session_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/files.html#session_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.session_path_parts" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">session_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/files.html#session_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.session_path_parts" title="Permalink to this definition"></a></dt>
 <dd><p>Parse a session path into the relevant parts</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>session_path</strong> (<em>str</em>) – A session path string</p></li>
+<li><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A session path string</p></li>
 <li><p><strong>as_dict</strong> (<em>bool</em>) – If true, an OrderedDict of parts are returned with the keys (‘lab’, ‘subject’, ‘date’,
 ‘number’), otherwise a tuple of values are returned</p></li>
 <li><p><strong>assert_valid</strong> (<em>bool</em>) – If true a ValueError is raised when the session cannot be parsed, otherwise an empty
@@ -278,8 +302,13 @@ dict of tuple of Nones is returned</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.files.get_session_path">
 <span class="sig-name descname"><span class="pre">get_session_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/alf/files.html#get_session_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.get_session_path" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the session path from any filepath if the date/number
-pattern is found</p>
+<dd><p>Returns the session path from any filepath if the date/number pattern is found,
+including the root directory</p>
+<p class="rubric">Examples</p>
+<p>get_relative_session_path(‘/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001’)
+Path(‘/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001’)</p>
+<p>get_relative_session_path(‘C:Datasubject2020-01-011trials.intervals.npy’)
+Path(‘C:/Data/subject/2020-01-01/1’)</p>
 </dd></dl>
 
 <dl class="py function">
@@ -289,8 +318,6 @@ pattern is found</p>
 Attempts to return the first valid part of the path, first searching for a session path,
 then relative path (collection/revision/filename), then just the filename.  If all invalid,
 None is returned.</p>
-<p>NB: There is no way to discern between lab/Subjects/subject/date/number and
-irrelevant/subject/date/number</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to parse</p>

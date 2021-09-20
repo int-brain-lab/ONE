@@ -42,29 +42,45 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="one.html">ONE</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ONE installation and setup</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#installation">1. Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#setup">2. Setup</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#connecting-to-specific-database-relevant-for-ibl-users">Connecting to specific database (relevant for IBL users)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#connect-to-ibl-public-database">Connect to IBL Public database</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#using-local-folder-structure">Using local folder structure</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ONE installation and setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">1. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup">2. Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#connect-to-ibl-public-database">Connect to IBL Public database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-local-folder-structure">Using local folder structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connecting-to-specific-database-relevant-for-ibl-users">Connecting to specific database (relevant for IBL users)</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#post-setup">3. Post setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-setup">3. Post setup</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_search/one_search.html">Searching with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_list/one_list.html">Listing with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html">Loading with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html">ONE advanced queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/experiment_ids.html">Experiment Ids</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="alf.html">Alyx Files (ALF)</a></li>
-</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 
@@ -82,7 +98,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="one.html">ONE</a> &raquo;</li>
       <li>ONE installation and setup</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/one_installation.md.txt" rel="nofollow"> View page source</a>
@@ -122,7 +137,7 @@
 <section id="installation">
 <h2>1. Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
 <p>ONE can be installed as a standalone package with python 3.7 or later by running,</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">ONE</span><span class="o">-</span><span class="n">api</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">ONE</span><span class="o">-</span><span class="n">api</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -130,32 +145,11 @@
 <p>If you have installed the unified IBL environment, ONE will already have been automatically
 installed, so you can skip this step!</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you want to access public data via ONE, please follow <span class="xref myst">these simplified steps</span> instead.</p>
-</div>
 </section>
 <section id="setup">
 <h2>2. Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
 <p>To start using ONE, we must first configure some settings that tell ONE whether it should connect to a database or
 use a local file system</p>
-<section id="connecting-to-specific-database-relevant-for-ibl-users">
-<h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Permalink to this headline"></a></h3>
-<p>To connect to a specific database, for example the internal IBL Alyx database, a base-url argument must be given</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>When connecting to the IBL internal database you will be prompted to enter credentials, please follow
-<a class="reference internal" href="one_credentials.html"><span class="doc std std-doc">these instructions</span></a> for help on configuring your credentials</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The internal IBL database is only open to IBL members, please connect to our public database to access our publically
-available datasets</p>
-</div>
-<p>If you are interested in accessing these publicly available datasets,
-please visit this <span class="xref myst">section</span> for instructions.</p>
-</section>
 <section id="connect-to-ibl-public-database">
 <h3>Connect to IBL Public database<a class="headerlink" href="#connect-to-ibl-public-database" title="Permalink to this headline"></a></h3>
 <p>By default ONE is configured to connect to the public IBL database, this can be setup by typing the following</p>
@@ -171,7 +165,26 @@ please visit this <span class="xref myst">section</span> for instructions.</p>
 <span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;/home/user/downlaods/ONE/behavior_paper&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For more information about using ONE with a local cache directory please refer to this <span class="xref myst">section</span>.</p>
+<p>For more information about using ONE with a local cache directory please refer to this <a class="reference internal" href="notebooks/data_sharing.html"><span class="doc std std-doc">section</span></a>.</p>
+</section>
+<section id="connecting-to-specific-database-relevant-for-ibl-users">
+<h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Permalink to this headline"></a></h3>
+<p>To connect to a specific database, for example the internal IBL Alyx database, a base-url argument must be given</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When connecting to the IBL internal database you will be prompted to enter credentials.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The internal IBL database is only open to IBL members, please connect to our public database to access our publically
+available datasets</p>
+</div>
+<p>If you are interested in accessing these publicly available datasets,
+please visit this <a class="reference internal" href="notebooks/public_one.html"><span class="doc std std-doc">section</span></a> for instructions.</p>
 </section>
 </section>
 <section id="post-setup">

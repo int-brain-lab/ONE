@@ -1,0 +1,299 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
+   "source": [
+    "# Datasets and their types\n",
+    "A dataset typically contains a single signal or data source, either values or times.  When\n",
+    "creating a new dataset, first familiarize yourself with the [ALF specification](../alf_intro.html)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "outputs": [],
+   "source": [
+    "from pprint import pprint\n",
+    "from one.alf import spec\n",
+    "from one.alf.files import filename_parts"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "## Datasets\n",
+    "\n",
+    "Print information about ALF objects"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(lab/Subjects/)subject/date/number/(collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension\n",
+      "                                                                        ^^^^^^                                    \n",
+      "\n",
+      "OBJECT\n",
+      "Every file describing a given object has the same number of rows (i.e. the 1st dimension of an npy\n",
+      "file, number of frames in a video file, etc).  You can therefore think of the files for an object\n",
+      "as together defining a table, with column headings given by the attribute in the file names, and\n",
+      "values given by the file contents.  Object names should be in Haskell case and pluralized, e.g.\n",
+      "\"wheelMoves\", \"sparseNoise\", \"trials\".\n",
+      "Encoding of relations between objects can be achieved by a simplified relational model.  If the\n",
+      "attribute name of one file matches the object name of a second, then the first file is guaranteed\n",
+      "to contain integers referring to the rows of the second. For example, \"spikes.clusters.npy\" would\n",
+      "contain integer references to the rows of \"clusters.brain_location.json\" and \"clusters.probes.npy\";\n",
+      "and \"clusters.probes.npy\" would contain integer references to \"probes.insertion.json\".\n",
+      "Be careful of plurals (\"clusters.probe.npy\" would not correspond to \"probes.insertion.json\") and\n",
+      "remember we count arrays starting from 0.\n"
+     ]
+    }
+   ],
+   "source": [
+    "spec.describe('object')"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Check the file name is ALF compliant"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "outputs": [],
+   "source": [
+    "assert spec.is_valid('spikes.times.npy')"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Safely construct an ALF dataset using the 'to_alf' function.  This will ensure the correct\n",
+    "case and format"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "outputs": [],
+   "source": [
+    "filename = spec.to_alf('spikes', 'times', 'npy',\n",
+    "                       namespace='ibl', timescale='ephys clock', extra='raw')"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Parsing a new file into its constituent parts ensures the dataset is correct"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "OrderedDict([('namespace', 'ibl'), ('object', 'spikes'), ('attribute', 'times'), ('timescale', 'ephysClock'), ('extra', 'raw'), ('extension', 'npy')])\n"
+     ]
+    }
+   ],
+   "source": [
+    "parts = filename_parts('_ibl_spikes.times_ephysClock.raw.npy', as_dict=True, assert_valid=True)\n",
+    "pprint(parts)"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "## Dataset types\n",
+    "<div class=\"alert alert-info\">\n",
+    "Note.\n",
+    "\n",
+    "Dataset types are only necessary when using a remote Alyx database\n",
+    "</div>\n",
+    "\n",
+    "A dataset type includes wildcards in the name so that you can search over datasets with the same\n",
+    "content but different formats, etc. For example you could create a new dataset type called\n",
+    "'raw log' with the filename pattern `*log.raw*` When you register a file such as `_rig1_log.raw.txt`\n",
+    "or `log.raw.rtf` it will automatically be part of the 'raw log' dataset type. The main purpose of\n",
+    "this is to use the dataset type description field to document what the files are and how to work\n",
+    "with them.\n",
+    "\n",
+    "<div class=\"alert alert-warning\">\n",
+    "Warning.\n",
+    "\n",
+    "When registering files they must match exactly 1 dataset type.\n",
+    "</div>"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[nspi]. Times of spikes (seconds, relative to experiment onset). Note this includes spikes from all probes, merged together\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": "{'id': '1427b6ba-6535-4f8f-9058-e3df63f0261e',\n 'name': 'spikes.times',\n 'created_by': None,\n 'description': '[nspi]. Times of spikes (seconds, relative to experiment onset). Note this includes spikes from all probes, merged together',\n 'filename_pattern': 'spikes.times*.npy'}"
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from one.api import ONE\n",
+    "one = ONE(base_url='https://openalyx.internationalbrainlab.org')\n",
+    "one.describe_dataset('spikes.times')  # Requires online version (an Alyx database connection)"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Datasets and their types can be interconverted using the following functions (online mode only):"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "outputs": [
+    {
+     "ename": "ValueError",
+     "evalue": "Invalid experiment ID",
+     "output_type": "error",
+     "traceback": [
+      "\u001B[1;31m---------------------------------------------------------------------------\u001B[0m",
+      "\u001B[1;31mValueError\u001B[0m                                Traceback (most recent call last)",
+      "\u001B[1;32m~\\AppData\\Local\\Temp/ipykernel_4060/424116195.py\u001B[0m in \u001B[0;36m<module>\u001B[1;34m\u001B[0m\n\u001B[0;32m      1\u001B[0m \u001B[0mdataset_type\u001B[0m \u001B[1;33m=\u001B[0m \u001B[0mone\u001B[0m\u001B[1;33m.\u001B[0m\u001B[0mdataset2type\u001B[0m\u001B[1;33m(\u001B[0m\u001B[1;34m'_ibl_leftCamera.times.npy'\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[1;32m----> 2\u001B[1;33m \u001B[0mdatasets\u001B[0m \u001B[1;33m=\u001B[0m \u001B[0mone\u001B[0m\u001B[1;33m.\u001B[0m\u001B[0mtype2datasets\u001B[0m\u001B[1;33m(\u001B[0m\u001B[1;34m'camera.times'\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0m\u001B[0;32m      3\u001B[0m \u001B[1;33m\u001B[0m\u001B[0m\n",
+      "\u001B[1;32m~\\Documents\\Github\\ONE\\one\\util.py\u001B[0m in \u001B[0;36mwrapper\u001B[1;34m(self, id, *args, **kwargs)\u001B[0m\n\u001B[0;32m    115\u001B[0m     \u001B[1;33m@\u001B[0m\u001B[0mwraps\u001B[0m\u001B[1;33m(\u001B[0m\u001B[0mmethod\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0;32m    116\u001B[0m     \u001B[1;32mdef\u001B[0m \u001B[0mwrapper\u001B[0m\u001B[1;33m(\u001B[0m\u001B[0mself\u001B[0m\u001B[1;33m,\u001B[0m \u001B[0mid\u001B[0m\u001B[1;33m,\u001B[0m \u001B[1;33m*\u001B[0m\u001B[0margs\u001B[0m\u001B[1;33m,\u001B[0m \u001B[1;33m**\u001B[0m\u001B[0mkwargs\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[1;32m--> 117\u001B[1;33m         \u001B[0meid\u001B[0m \u001B[1;33m=\u001B[0m \u001B[0mself\u001B[0m\u001B[1;33m.\u001B[0m\u001B[0mto_eid\u001B[0m\u001B[1;33m(\u001B[0m\u001B[0mid\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0m\u001B[0;32m    118\u001B[0m         \u001B[1;32mif\u001B[0m \u001B[0meid\u001B[0m \u001B[1;32mis\u001B[0m \u001B[1;32mNone\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0;32m    119\u001B[0m             \u001B[1;32mraise\u001B[0m \u001B[0mValueError\u001B[0m\u001B[1;33m(\u001B[0m\u001B[1;34mf'Cannot parse session ID \"{id}\" (session may not exist)'\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n",
+      "\u001B[1;32m~\\Documents\\Github\\ONE\\one\\converters.py\u001B[0m in \u001B[0;36mwrapper_decorator\u001B[1;34m(*args, **kwargs)\u001B[0m\n\u001B[0;32m     38\u001B[0m             \u001B[1;32mreturn\u001B[0m \u001B[1;33m[\u001B[0m\u001B[0mfunc\u001B[0m\u001B[1;33m(\u001B[0m\u001B[0mobj\u001B[0m\u001B[1;33m,\u001B[0m \u001B[0mitem\u001B[0m\u001B[1;33m,\u001B[0m \u001B[1;33m*\u001B[0m\u001B[0margs\u001B[0m\u001B[1;33m[\u001B[0m\u001B[1;36m2\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m]\u001B[0m\u001B[1;33m,\u001B[0m \u001B[1;33m**\u001B[0m\u001B[0mkwargs\u001B[0m\u001B[1;33m)\u001B[0m \u001B[1;32mfor\u001B[0m \u001B[0mitem\u001B[0m \u001B[1;32min\u001B[0m \u001B[0mfirst\u001B[0m\u001B[1;33m]\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0;32m     39\u001B[0m         \u001B[1;32melse\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[1;32m---> 40\u001B[1;33m             \u001B[1;32mreturn\u001B[0m \u001B[0mfunc\u001B[0m\u001B[1;33m(\u001B[0m\u001B[0mobj\u001B[0m\u001B[1;33m,\u001B[0m \u001B[0mfirst\u001B[0m\u001B[1;33m,\u001B[0m \u001B[1;33m*\u001B[0m\u001B[0margs\u001B[0m\u001B[1;33m[\u001B[0m\u001B[1;36m2\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m]\u001B[0m\u001B[1;33m,\u001B[0m \u001B[1;33m**\u001B[0m\u001B[0mkwargs\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0m\u001B[0;32m     41\u001B[0m     \u001B[1;32mreturn\u001B[0m \u001B[0mwrapper_decorator\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0;32m     42\u001B[0m \u001B[1;33m\u001B[0m\u001B[0m\n",
+      "\u001B[1;32m~\\Documents\\Github\\ONE\\one\\converters.py\u001B[0m in \u001B[0;36mto_eid\u001B[1;34m(self, id, cache_dir)\u001B[0m\n\u001B[0;32m    103\u001B[0m                 \u001B[0mid\u001B[0m \u001B[1;33m=\u001B[0m \u001B[0mid\u001B[0m\u001B[1;33m[\u001B[0m\u001B[1;33m-\u001B[0m\u001B[1;36m36\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m]\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0;32m    104\u001B[0m             \u001B[1;32mif\u001B[0m \u001B[1;32mnot\u001B[0m \u001B[0mis_uuid_string\u001B[0m\u001B[1;33m(\u001B[0m\u001B[0mid\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[1;32m--> 105\u001B[1;33m                 \u001B[1;32mraise\u001B[0m \u001B[0mValueError\u001B[0m\u001B[1;33m(\u001B[0m\u001B[1;34m'Invalid experiment ID'\u001B[0m\u001B[1;33m)\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0m\u001B[0;32m    106\u001B[0m             \u001B[1;32melse\u001B[0m\u001B[1;33m:\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n\u001B[0;32m    107\u001B[0m                 \u001B[1;32mreturn\u001B[0m \u001B[0mid\u001B[0m\u001B[1;33m\u001B[0m\u001B[1;33m\u001B[0m\u001B[0m\n",
+      "\u001B[1;31mValueError\u001B[0m: Invalid experiment ID"
+     ]
+    }
+   ],
+   "source": [
+    "dataset_type = one.dataset2type('_ibl_leftCamera.times.npy')\n",
+    "datasets = one.type2datasets('camera.times')\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}

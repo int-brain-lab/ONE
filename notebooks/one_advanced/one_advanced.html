@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ONE advanced queries &mdash; ONE  documentation</title>
+  <title>ONE REST queries &mdash; ONE  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Alyx Files (ALF)" href="../../alf.html" />
-    <link rel="prev" title="Loading with ONE" href="../one_load/one_load.html" /> 
+    <link rel="next" title="Useful Alyx REST queries" href="../useful_alyx_queries.html" />
+    <link rel="prev" title="ONE API modes" href="../one_modes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,24 +44,40 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../../one.html">ONE</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_list/one_list.html">Listing with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ONE advanced queries</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#one.search-vs-one.alyx.rest"><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Accessing-other-Alyx-tables">Accessing other Alyx tables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Searching-with-one.alyx.rest">Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ONE REST queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#one.search-vs-one.alyx.rest"><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Accessing-other-Alyx-tables">Accessing other Alyx tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Searching-with-one.alyx.rest">Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 </ul>
 
@@ -79,8 +95,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../one.html">ONE</a> &raquo;</li>
-      <li>ONE advanced queries</li>
+      <li>ONE REST queries</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/notebooks/one_advanced/one_advanced.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -362,9 +377,13 @@ div.rendered_html tbody tr:hover {
 </style>
 <a href="one_advanced.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/one_advanced/
-one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE-advanced-queries">
-<h1>ONE advanced queries<a class="headerlink" href="#ONE-advanced-queries" title="Permalink to this headline"></a></h1>
-<p>While the basic <code class="docutils literal notranslate"><span class="pre">one.search</span></code> command allows us to filter experimental sessions by date, lab, subject etc, you may quickly find that you want to apply more complex queries to restrict your search output. This can be achieved using the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command. This has access to a range of tables stored in the database and gives us more flexibilty when forming our queries.</p>
+one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE-REST-queries">
+<h1>ONE REST queries<a class="headerlink" href="#ONE-REST-queries" title="Permalink to this headline"></a></h1>
+<p>While the basic <code class="docutils literal notranslate"><span class="pre">one.search</span></code> command allows us to filter experimental sessions by date, lab, subject etc., you may quickly find that you want to apply more complex queries to restrict your search output. This can be achieved using the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command. This has access to a range of tables stored in the database and gives us more flexibility when forming our queries.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>REST queries can only be made while ONE is in online mode.</p>
+</div>
 <section id="one.search-vs-one.alyx.rest">
 <h2><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#one.search-vs-one.alyx.rest" title="Permalink to this headline"></a></h2>
 <p>We will get started by importing ONE</p>
@@ -374,7 +393,7 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -430,13 +449,13 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
  &#39;weighings&#39;]
 </pre></div></div>
 </div>
-<p>Let’s first look at <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table. The information about what filters can be applied to this table are available under <strong>Query Parameters</strong> <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/#sessions-list">here</a>. Let’s apply a filter based on <code class="docutils literal notranslate"><span class="pre">subject</span></code> and <code class="docutils literal notranslate"><span class="pre">task_protocol</span></code>. We can do this using the following expression,</p>
+<p>Let’s first look at <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table. The information about what filters can be applied to this table are available under FILTERS <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/#sessions-list">here</a>. Let’s apply a filter based on <code class="docutils literal notranslate"><span class="pre">performance_qte</span></code> and <code class="docutils literal notranslate"><span class="pre">task_protocol</span></code>. We can do this using the following expression,</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">sess_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_015&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">)</span>
+<span></span><span class="n">sess_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">performance_gte</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">)</span>
 <span class="n">sess_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -447,24 +466,22 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;subject&#39;: &#39;SWC_015&#39;,
- &#39;start_time&#39;: &#39;2020-01-25T18:53:42.203528&#39;,
+{&#39;subject&#39;: &#39;SWC_043&#39;,
+ &#39;start_time&#39;: &#39;2020-09-21T19:02:16.707541&#39;,
  &#39;number&#39;: 1,
  &#39;lab&#39;: &#39;hoferlab&#39;,
  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
- &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/f3ff65f1-7d59-4abe-b94e-b0478ab5e921&#39;,
- &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;}
+ &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;,
+ &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.2&#39;}
 </pre></div></div>
 </div>
-<p>Notice how this command doesn’t just return the session eID but a dictionary containing information about each session. We can extract the set of eIDs from the <code class="docutils literal notranslate"><span class="pre">url</span></code> key</p>
+<p>Notice how this command doesn’t just return the session eID but a dictionary containing information about each session. We can extract the set of eIDs using the <code class="docutils literal notranslate"><span class="pre">to_eid</span></code> method:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sess_info</span><span class="p">]</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eids</span><span class="p">]</span>
-<span class="n">eids</span>
+<span></span><span class="n">one</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">sess_info</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -474,21 +491,19 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;f3ff65f1-7d59-4abe-b94e-b0478ab5e921&#39;,
- &#39;994df46a-6e5f-472d-96dd-0d86e76a8107&#39;,
- &#39;629f25be-1b05-44d0-bcac-e8c40701d5f4&#39;,
- &#39;a9272cce-6914-4b45-a05f-9e925b4c472a&#39;,
- &#39;c9fec76e-7a20-4da4-93ad-04510a89473b&#39;,
- &#39;34d20aff-10e5-4a07-8b08-64051a1dc6ac&#39;]
+[&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;,
+ &#39;c7bd79c9-c47e-4ea5-aea3-74dda991b48e&#39;,
+ &#39;4b7fbad4-f6de-43b4-9b15-c7c7ef44db4b&#39;,
+ &#39;aad23144-0e52-4eac-80c5-c4ee2decb198&#39;]
 </pre></div></div>
 </div>
-<p>You might have noticed that this same query could be have been achieved using the <code class="docutils literal notranslate"><span class="pre">one.search</span></code> method,</p>
+<p>You might have noticed that this same query could have been achieved using the <code class="docutils literal notranslate"><span class="pre">one.search</span></code> method with the <a class="reference external" href="../one_modes/one_modes.html">remote query flag</a>,</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_015&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">)</span>
+<span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">performance_gte</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
 <span class="n">eids</span>
 </pre></div>
 </div>
@@ -499,23 +514,21 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;f3ff65f1-7d59-4abe-b94e-b0478ab5e921&#39;,
- &#39;994df46a-6e5f-472d-96dd-0d86e76a8107&#39;,
- &#39;629f25be-1b05-44d0-bcac-e8c40701d5f4&#39;,
- &#39;a9272cce-6914-4b45-a05f-9e925b4c472a&#39;,
- &#39;c9fec76e-7a20-4da4-93ad-04510a89473b&#39;,
- &#39;34d20aff-10e5-4a07-8b08-64051a1dc6ac&#39;]
+&lt;one.util.LazyId at 0x1f77a7de070&gt;
 </pre></div></div>
 </div>
-<p>Let’s add in another filter to see the benefits of the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> approach. We will add an <code class="docutils literal notranslate"><span class="pre">atlas_acronym</span></code> filter to see if any of the ephys sessions from SWC_015 were recorded from the somatomotor areas (acronym MO). This query would not be possible with the <code class="docutils literal notranslate"><span class="pre">one.search</span></code> command!</p>
+</section>
+<section id="Accessing-other-Alyx-tables">
+<h2>Accessing other Alyx tables<a class="headerlink" href="#Accessing-other-Alyx-tables" title="Permalink to this headline"></a></h2>
+<p>With the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command we are not only limited to the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table, but can formulate queries based on other tables to find session eIDs of interest. Consider the case where we want to find all sessions that have probe insertions that target a specific ML and AP coordinate. For this we can formulate our query based on the <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/#trajectories-list">trajectories table</a>. Let’s see if there are any probe insertions at the coordinates
+ML(x) = -2225, and AP(y) = -1894 from bregma.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">sess_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_015&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">,</span>
-                          <span class="n">atlas_acronym</span><span class="o">=</span><span class="s1">&#39;MO&#39;</span><span class="p">)</span>
-<span class="n">sess_info</span>
+<span></span><span class="n">trajs</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;trajectories&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=-</span><span class="mf">2224.97344914846</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">1893.87527870804</span><span class="p">)</span>
+<span class="n">trajs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -525,75 +538,94 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{&#39;subject&#39;: &#39;SWC_015&#39;,
-  &#39;start_time&#39;: &#39;2020-01-24T14:56:07.183680&#39;,
-  &#39;number&#39;: 1,
-  &#39;lab&#39;: &#39;hoferlab&#39;,
-  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
-  &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/994df46a-6e5f-472d-96dd-0d86e76a8107&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;},
- {&#39;subject&#39;: &#39;SWC_015&#39;,
-  &#39;start_time&#39;: &#39;2020-01-23T16:22:24.861589&#39;,
-  &#39;number&#39;: 1,
-  &#39;lab&#39;: &#39;hoferlab&#39;,
-  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
-  &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/629f25be-1b05-44d0-bcac-e8c40701d5f4&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;},
- {&#39;subject&#39;: &#39;SWC_015&#39;,
-  &#39;start_time&#39;: &#39;2020-01-22T17:04:18.126507&#39;,
-  &#39;number&#39;: 1,
-  &#39;lab&#39;: &#39;hoferlab&#39;,
-  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
-  &#39;url&#39;: &#39;https://alyx.internationalbrainlab.org/sessions/a9272cce-6914-4b45-a05f-9e925b4c472a&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;}]
-</pre></div></div>
-</div>
-</section>
-<section id="Accessing-other-Alyx-tables">
-<h2>Accessing other Alyx tables<a class="headerlink" href="#Accessing-other-Alyx-tables" title="Permalink to this headline"></a></h2>
-<p>With the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command we are not only limited to the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table, but can formulate queries based on other tables to find session eIDs of interest. Consider the case where we want to find all sessions that have probe insertions that target a specific ML and AP coordinate. For this we can formulate our query based on the <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/#trajectories-list">trajectories table</a>. Let’s see if there are any probe insertions at the coordinates ML(x)
-= -2000, and AP(y) = -2000 from bregma.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">trajs</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;trajectories&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=-</span><span class="mi">2000</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mi">2000</span><span class="p">)</span>
-<span class="n">trajs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[7]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{&#39;id&#39;: &#39;8741d377-a3de-4d94-9ba0-1eb28787da49&#39;,
- &#39;probe_insertion&#39;: &#39;dc50c3de-5d84-4408-9725-22ae55b93522&#39;,
- &#39;x&#39;: -2000.0,
- &#39;y&#39;: -2000.0,
- &#39;z&#39;: -169.0,
- &#39;depth&#39;: 4000.0,
- &#39;theta&#39;: 15.0,
- &#39;phi&#39;: 180.0,
+{&#39;id&#39;: &#39;4c9f8b8c-16c5-45fe-8f5c-3c490ab410c0&#39;,
+ &#39;probe_insertion&#39;: &#39;b749446c-18e3-4987-820a-50649ab0f826&#39;,
+ &#39;x&#39;: -2224.97344914846,
+ &#39;y&#39;: -1893.87527870804,
+ &#39;z&#39;: -118.0,
+ &#39;depth&#39;: 4056.23152523877,
+ &#39;theta&#39;: 10.0389727803095,
+ &#39;phi&#39;: 147.057669457309,
  &#39;roll&#39;: 0.0,
- &#39;provenance&#39;: &#39;Micro-manipulator&#39;,
- &#39;session&#39;: {&#39;subject&#39;: &#39;SWC_023&#39;,
-  &#39;start_time&#39;: &#39;2020-02-13T15:36:50.234590&#39;,
+ &#39;provenance&#39;: &#39;Ephys aligned histology track&#39;,
+ &#39;session&#39;: {&#39;subject&#39;: &#39;KS023&#39;,
+  &#39;start_time&#39;: &#39;2019-12-10T16:44:12.945000&#39;,
   &#39;number&#39;: 1,
-  &#39;lab&#39;: &#39;mrsicflogellab&#39;,
-  &#39;id&#39;: &#39;38d95489-2e82-412a-8c1a-c5377b5f1555&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.2.5&#39;},
+  &#39;lab&#39;: &#39;cortexlab&#39;,
+  &#39;id&#39;: &#39;aad23144-0e52-4eac-80c5-c4ee2decb198&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.1.3&#39;},
  &#39;probe_name&#39;: &#39;probe01&#39;,
- &#39;coordinate_system&#39;: &#39;Needles-Allen&#39;,
- &#39;datetime&#39;: &#39;2020-06-09T07:59:14.315700&#39;,
- &#39;json&#39;: None}
+ &#39;coordinate_system&#39;: &#39;IBL-Allen&#39;,
+ &#39;datetime&#39;: &#39;2020-10-22T17:12:18.051432&#39;,
+ &#39;json&#39;: {&#39;2020-06-12T00:39:15_nate&#39;: [[-1.0019317591838977,
+    0.00034058267716535555,
+    0.0016527874015748033,
+    0.0024480629921259846,
+    0.002829795275590551,
+    0.003028614173228347,
+    0.0034103464566929134,
+    1.0047060407069595],
+   [-1.0406470176854647,
+    0.00048822751056065705,
+    0.0018277480314961014,
+    0.0025676767397318587,
+    0.003116094488188976,
+    0.0033228661417322833,
+    0.003631191804541761,
+    1.043766234935011]],
+  &#39;2020-06-12T13:59:02_guido&#39;: [[-1.0019317591838977,
+    0.0015536774969915758,
+    0.0019066305655836338,
+    0.0024734945848375457,
+    0.002831795427196149,
+    0.0030564019253910947,
+    0.0035163104693140793,
+    0.0036018748495788206,
+    1.0047060407069595],
+   [-1.0292080172001559,
+    0.0018317617328520441,
+    0.0020189338146811057,
+    0.0025751022864019236,
+    0.0031152274368231032,
+    0.003329138387484956,
+    0.003743852207068633,
+    0.0038439555428302105,
+    1.0323437818176728]],
+  &#39;2020-06-19T10:52:36_noam.roth&#39;: [[-1.0019317591838977,
+    6.359947558177599e-05,
+    0.0016512625368731563,
+    0.001826051130776794,
+    0.002867499836119305,
+    0.003049571288102261,
+    0.0034938256309406746,
+    1.0047060407069595],
+   [-1.0564995398078083,
+    0.00013747124460739002,
+    0.0018187682726975574,
+    0.001971708292363159,
+    0.0031151170108161255,
+    0.0033263198951163546,
+    0.003713596584213875,
+    1.0595667342952302]],
+  &#39;2020-06-26T16:40:14_Karolina_Socha&#39;: [[-1.0019317591838977,
+    0.0016060922358435495,
+    0.001800663164039696,
+    0.002870803269118505,
+    0.0030264600116754227,
+    0.0034480303561004078,
+    1.0047060407069595],
+   [-1.001722057342154,
+    0.001839577349678878,
+    0.002021176882661998,
+    0.0031147574223975086,
+    0.003318214266999465,
+    0.00363611558669002,
+    1.0049673959658172]]}}
 </pre></div></div>
 </div>
 <p>We can find the session eID associated with this trajectory by looking at the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the <code class="docutils literal notranslate"><span class="pre">session</span></code> field in the returned dictionary</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -603,12 +635,12 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[7]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;38d95489-2e82-412a-8c1a-c5377b5f1555&#39;
+&#39;aad23144-0e52-4eac-80c5-c4ee2decb198&#39;
 </pre></div></div>
 </div>
 <div class="admonition note">
@@ -618,25 +650,25 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </section>
 <section id="Searching-with-one.alyx.rest">
 <h2>Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#Searching-with-one.alyx.rest" title="Permalink to this headline"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command is also provides an alternative method to <code class="docutils literal notranslate"><span class="pre">one.list</span></code> for searching the database for possible keywords that you can use to restrict your queries. For example, if we want to find the names of female subjects in the Witten lab that are alive, we can use the <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/#subjects-list">subjects table</a> to write,</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command is also provides an alternative method to <code class="docutils literal notranslate"><span class="pre">one.list</span></code> for searching the database for possible keywords that you can use to restrict your queries. For example, if we want to find the names of female subjects in the Witten lab that are alive, we can use the <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/#subjects-list">subjects table</a> to write,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">subj_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;wittenlab&#39;</span><span class="p">,</span> <span class="n">sex</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">alive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span></span><span class="n">subj_info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">sex</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">alive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">subj_nickname</span> <span class="o">=</span> <span class="p">[</span><span class="n">subj</span><span class="p">[</span><span class="s1">&#39;nickname&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">subj_info</span><span class="p">]</span>
 <span class="n">subj_nickname</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;dop_21&#39;, &#39;dop_22&#39;, &#39;dop_30&#39;, &#39;dop_31&#39;, &#39;dop_39&#39;, &#39;fip_10&#39;, &#39;fip_8&#39;, &#39;fip_9&#39;]
+[&#39;KS023&#39;]
 </pre></div></div>
 </div>
 </section>
@@ -646,8 +678,8 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../one_load/one_load.html" class="btn btn-neutral float-left" title="Loading with ONE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../alf.html" class="btn btn-neutral float-right" title="Alyx Files (ALF)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../one_modes.html" class="btn btn-neutral float-left" title="ONE API modes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../useful_alyx_queries.html" class="btn btn-neutral float-right" title="Useful Alyx REST queries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

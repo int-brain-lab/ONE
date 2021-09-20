@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Useful Alyx REST queries &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sharing ONE data" href="data_sharing.html" />
+    <link rel="prev" title="ONE REST queries" href="one_advanced/one_advanced.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Useful Alyx REST queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Exploring-the-REST-endpoints">Exploring the REST endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Example-queries">Example queries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-that-have-histology-available">list sessions that have histology available</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convert-session-dicts-to-eids:">convert session dicts to eids:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-having-specific-channel-locations-(hierarchical,-will-fetch-everything-below)">list sessions having specific channel locations (hierarchical, will fetch everything below)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-that-do-not-have-matlab-in-the-project-name">list sessions that do not have matlab in the project name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-that-do-not-contain-a-given-dataset-type">list sessions that do not contain a given dataset type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-probe-insertions-for-a-given-task-protocol">list probe insertions for a given task protocol</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Field-lookup-reference">Field lookup reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Related-field-lookups">Related field lookups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#JSON-field-lookups">JSON field lookups</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Looking-up-fields">Looking up fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#contains">contains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#contained_by">contained_by</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#has_key">has_key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#has_keys">has_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#has_any_keys">has_any_keys</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#exact">exact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iexact">iexact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contains-1">contains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#icontains">icontains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#in">in</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gt">gt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gte">gte</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lt">lt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lte">lte</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#startswith">startswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#istartswith">istartswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#endswith">endswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iendswith">iendswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#range">range</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#date">date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#year">year</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iso_year">iso_year</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#month">month</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#day">day</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#week">week</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#week_day">week_day</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iso_week_day">iso_week_day</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quarter">quarter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#time">time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hour">hour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minute">minute</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#second">second</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#isnull">isnull</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#regex">regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iregex">iregex</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Useful Alyx REST queries</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/useful_alyx_queries.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<a href="useful_alyx_queries.ipynb"><button id="download">Download tutorial notebook</button></a>
+<a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/
+useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section id="Useful-Alyx-REST-queries">
+<h1>Useful Alyx REST queries<a class="headerlink" href="#Useful-Alyx-REST-queries" title="Permalink to this headline"></a></h1>
+<p>Examples of using ONE to query Alyx via Django REST queries.</p>
+<p>Alyx queries require and internet connection and are slower than the local cache queries using one.search, however it is much more powerful. Searching for datasets or sessions based solely on the fields in <code class="docutils literal notranslate"><span class="pre">one.search_terms</span></code> should be done using one.search. This script demonstrates some of the more complex queries that must be done remotely.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">OneAlyx</span>
+
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">OneAlyx</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>
+</pre></div>
+</div>
+</div>
+<section id="Exploring-the-REST-endpoints">
+<h2>Exploring the REST endpoints<a class="headerlink" href="#Exploring-the-REST-endpoints" title="Permalink to this headline"></a></h2>
+<p>Full documentation of using Alyx REST interface can be found at <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
+<p>This URL is itself a REST endpoint, so you can list the endpoints through ONE:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">())</span>  <span class="c1"># Can also be done with `one.alyx.rest()`</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;brain-regions&#39;, &#39;cache&#39;, &#39;cache.zip&#39;, &#39;channels&#39;, &#39;data-formats&#39;, &#39;data-repository&#39;, &#39;data-repository-type&#39;, &#39;dataset-types&#39;, &#39;datasets&#39;, &#39;downloads&#39;, &#39;files&#39;, &#39;insertions&#39;, &#39;labs&#39;, &#39;locations&#39;, &#39;new-download&#39;, &#39;notes&#39;, &#39;projects&#39;, &#39;register-file&#39;, &#39;revisions&#39;, &#39;sessions&#39;, &#39;subjects&#39;, &#39;surgeries&#39;, &#39;sync-file-status&#39;, &#39;tags&#39;, &#39;tasks&#39;, &#39;trajectories&#39;, &#39;uploaded&#39;, &#39;users&#39;, &#39;water-administrations&#39;, &#39;water-requirement&#39;, &#39;water-restricted-subjects&#39;, &#39;water-restriction&#39;, &#39;water-type&#39;, &#39;weighings&#39;]
+</pre></div></div>
+</div>
+<p>The main GET requests are ‘list’ and ‘read’. The parameters for each are described in the <code class="docutils literal notranslate"><span class="pre">rest_schemas</span></code> property. For example, for the parameters available for listing sessions…</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+**FILTERS**
+
+-   **subject**: subject nickname `/sessions?subject=Algernon`
+-   **dataset_types**: dataset type
+-   **number**: session number
+-   **users**: experimenters (exact)
+-   **date_range**: date `/sessions?date_range=2020-01-12,2020-01-16`
+-   **lab**: lab name (exact)
+-   **task_protocol** (icontains)
+-   **location**: location name (icontains)
+-   **project**: project name (icontains)
+-   **json**: queries on json fields, for example here `tutu`
+    -   exact/equal lookup: `/sessions?extended_qc=tutu,True`,
+    -   gte lookup: `/sessions/?extended_qc=tutu__gte,0.5`,
+-   **extended_qc** queries on json fields, for example here `qc_bool` and `qc_pct`,
+    values and fields come by pairs, using semi-colon as a separator
+    -   exact/equal lookup: `/sessions?extended_qc=qc_bool;True`,
+    -   gte lookup: `/sessions/?extended_qc=qc_pct__gte;0.5`,
+    -   chained lookups: `/sessions/?extended_qc=qc_pct__gte;0.5;qc_bool;True`,
+-   **performance_gte**, **performance_lte**: percentage of successful trials gte/lte
+-   **brain_region**: returns a session if any channel name icontains the value:
+    `/sessions?brain_region=vis`
+-   **atlas_acronym**: returns a session if any of its channels name exactly matches the value
+    `/sessions?atlas_acronym=SSp-m4`, cf Allen CCFv2017
+-   **atlas_id**: returns a session if any of its channels id matches the provided value:
+    `/sessions?atlas_id=950`, cf Allen CCFv2017
+-   **qc**: returns sessions for which the qc statuses matches provided string. Should be
+one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
+    `/sessions?qc=CRITICAL`
+-   **histology**: returns sessions for which the subject has an histology session:
+    `/sessions?histology=True`
+-   **django**: generic filter allowing lookups (same syntax as json filter)
+    `/sessions?django=project__name__icontains,matlab
+    filters sessions that have matlab in the project name
+    `/sessions?django=~project__name__icontains,matlab
+    does the exclusive set: filters sessions that do not have matlab in the project name
+
+[===&gt; session model reference](/admin/doc/models/actions.session)
+</pre></div></div>
+</div>
+</section>
+<section id="Example-queries">
+<h2>Example queries<a class="headerlink" href="#Example-queries" title="Permalink to this headline"></a></h2>
+<section id="list-sessions-that-have-histology-available">
+<h3>list sessions that have histology available<a class="headerlink" href="#list-sessions-that-have-histology-available" title="Permalink to this headline"></a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># The sessions endpoint has a `histology` parameter:
+ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, histology=True)
+
+# The generic way is to use the `django` parameter:
+ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;,
+                    django=&#39;subject__actions_sessions__procedures__name,Histology&#39;)
+</pre></div>
+</div>
+</section>
+<section id="convert-session-dicts-to-eids:">
+<h3>convert session dicts to eids:<a class="headerlink" href="#convert-session-dicts-to-eids:" title="Permalink to this headline"></a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>eids = one.to_eid(ses)
+</pre></div>
+</div>
+</section>
+<section id="list-sessions-having-specific-channel-locations-(hierarchical,-will-fetch-everything-below)">
+<h3>list sessions having specific channel locations (hierarchical, will fetch everything below)<a class="headerlink" href="#list-sessions-having-specific-channel-locations-(hierarchical,-will-fetch-everything-below)" title="Permalink to this headline"></a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, atlas_id=500)
+ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, atlas_acronym=&quot;MO&quot;)
+ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, atlas_name=&quot;Somatomotor areas&quot;)
+</pre></div>
+</div>
+</section>
+<section id="list-sessions-that-do-not-have-matlab-in-the-project-name">
+<h3>list sessions that do not have matlab in the project name<a class="headerlink" href="#list-sessions-that-do-not-have-matlab-in-the-project-name" title="Permalink to this headline"></a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;~project__name__icontains,matlab&#39;)
+</pre></div>
+</div>
+</section>
+<section id="list-sessions-that-do-not-contain-a-given-dataset-type">
+<h3>list sessions that do not contain a given dataset type<a class="headerlink" href="#list-sessions-that-do-not-contain-a-given-dataset-type" title="Permalink to this headline"></a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;,
+                    django=&#39;~data_dataset_session_related__dataset_type__name__icontains,wheel&#39;)
+</pre></div>
+</div>
+</section>
+<section id="list-probe-insertions-for-a-given-task-protocol">
+<h3>list probe insertions for a given task protocol<a class="headerlink" href="#list-probe-insertions-for-a-given-task-protocol" title="Permalink to this headline"></a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ins = one.alyx.rest(&#39;insertions&#39;, &#39;list&#39;, django=&#39;session__task_protocol__icontains,choiceworld&#39;)
+</pre></div>
+</div>
+</section>
+</section>
+<section id="Field-lookup-reference">
+<h2>Field lookup reference<a class="headerlink" href="#Field-lookup-reference" title="Permalink to this headline"></a></h2>
+<p>With the <code class="docutils literal notranslate"><span class="pre">django</span></code> parameter you can write custom filters. The syntax is <code class="docutils literal notranslate"><span class="pre">'field1__lookup,query,</span> <span class="pre">field2__lookup,query'</span></code> (the field and lookup query are separated by two underscores). For example <code class="docutils literal notranslate"><span class="pre">'nickname__icontains,ks,death_date__isnull,True'</span></code>. Multiple lookups are separated by commas, forming a logical AND (it is not possible to construct OR queries, instead make separate queries).</p>
+<p>The lookups translate to a <a class="reference external" href="https://www.w3schools.com/SQl/sql_where.asp">SQL WHERE clause</a>.</p>
+<section id="Related-field-lookups">
+<h3>Related field lookups<a class="headerlink" href="#Related-field-lookups" title="Permalink to this headline"></a></h3>
+<p>Some fields are actually related tables, whose fields can also used in the filter. For example, the <code class="docutils literal notranslate"><span class="pre">subject</span></code> field of the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table contains all the subject table fields. Lookups can be applied to these fields in the same way: <code class="docutils literal notranslate"><span class="pre">field__subfield__lookup,query</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">sessions__subject__nickname__icontains,dop</span></code> (‘find sessions where the subject’s name contains “dop”’).</p>
+<p>See the django <a class="reference external" href="https://docs.djangoproject.com/en/3.2/ref/models/querysets/#field-lookups">QuerySet API documentation</a> and <a class="reference external" href="https://docs.djangoproject.com/en/3.2/ref/contrib/postgres/fields/">PostgreSQL specific documentation</a> for more details.</p>
+</section>
+<section id="JSON-field-lookups">
+<h3>JSON field lookups<a class="headerlink" href="#JSON-field-lookups" title="Permalink to this headline"></a></h3>
+<p>JSON fields can be filtered in the same way as related tables. For example, the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table contains a ‘extended_qc’ JSON field that contains a map of QC checks and their outcomes. The fields and values can be used in lookup queries. For more info, see <a class="reference external" href="https://docs.djangoproject.com/en/3.2/topics/db/queries/#querying-jsonfield">Querying JSONField</a>.</p>
+<p>Here’s how the extended_qc field looks:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;extended_qc&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;_dlcBody_if_mean_in_box&#39;: True,
+ &#39;_dlcBody_if_points_all_nan&#39;: True,
+ &#39;_dlcBody_lick_detection&#39;: True,
+ &#39;_dlcBody_time_trace_length_match&#39;: True,
+ &#39;_dlcBody_whisker_pupil_block&#39;: True,
+ &#39;_dlcLeft_if_mean_in_box&#39;: True,
+ &#39;_dlcLeft_if_points_all_nan&#39;: True,
+ &#39;_dlcLeft_lick_detection&#39;: True,
+ &#39;_dlcLeft_time_trace_length_match&#39;: True,
+ &#39;_dlcLeft_whisker_pupil_block&#39;: True,
+ &#39;_dlcRight_if_mean_in_box&#39;: True,
+ &#39;_dlcRight_if_points_all_nan&#39;: True,
+ &#39;_dlcRight_lick_detection&#39;: True,
+ &#39;_dlcRight_time_trace_length_match&#39;: True,
+ &#39;_dlcRight_whisker_pupil_block&#39;: True,
+ &#39;_task_audio_pre_trial&#39;: 1.0,
+ &#39;_task_correct_trial_event_sequence&#39;: 0.9954853273137697,
+ &#39;_task_detected_wheel_moves&#39;: 0.9847908745247148,
+ &#39;_task_errorCue_delays&#39;: 0.8604651162790697,
+ &#39;_task_error_trial_event_sequence&#39;: 0.9186046511627907,
+ &#39;_task_goCue_delays&#39;: 0.9867674858223062,
+ &#39;_task_iti_delays&#39;: 0.3314393939393939,
+ &#39;_task_n_trial_events&#39;: 0.9792060491493384,
+ &#39;_task_negative_feedback_stimOff_delays&#39;: 0.8953488372093024,
+ &#39;_task_passed_trial_checks&#39;: 0.32325141776937616,
+ &#39;_task_positive_feedback_stimOff_delays&#39;: 0.9954853273137697,
+ &#39;_task_response_feedback_delays&#39;: 0.9829867674858223,
+ &#39;_task_response_stimFreeze_delays&#39;: 0.973384030418251,
+ &#39;_task_reward_volume_set&#39;: 1.0,
+ &#39;_task_reward_volumes&#39;: 1.0,
+ &#39;_task_stimFreeze_delays&#39;: 0.9678638941398866,
+ &#39;_task_stimOff_delays&#39;: 0.9810964083175804,
+ &#39;_task_stimOff_itiIn_delays&#39;: 0.9866920152091255,
+ &#39;_task_stimOn_delays&#39;: 0.9848771266540642,
+ &#39;_task_stimOn_goCue_delays&#39;: 0.9848771266540642,
+ &#39;_task_stimulus_move_before_goCue&#39;: 0.9980988593155894,
+ &#39;_task_trial_length&#39;: 0.9829867674858223,
+ &#39;_task_wheel_freeze_during_quiescence&#39;: 1.0,
+ &#39;_task_wheel_integrity&#39;: 0.999999010009791,
+ &#39;_task_wheel_move_before_feedback&#39;: 0.9847908745247148,
+ &#39;_task_wheel_move_during_closed_loop&#39;: 0.9961977186311787,
+ &#39;_task_wheel_move_during_closed_loop_bpod&#39;: 1.0,
+ &#39;_videoBody_brightness&#39;: True,
+ &#39;_videoBody_camera_times&#39;: 0,
+ &#39;_videoBody_dropped_frames&#39;: [0, 0],
+ &#39;_videoBody_file_headers&#39;: True,
+ &#39;_videoBody_focus&#39;: True,
+ &#39;_videoBody_framerate&#39;: 29.943,
+ &#39;_videoBody_pin_state&#39;: [9, 0],
+ &#39;_videoBody_position&#39;: False,
+ &#39;_videoBody_resolution&#39;: True,
+ &#39;_videoBody_timestamps&#39;: True,
+ &#39;_videoBody_wheel_alignment&#39;: None,
+ &#39;_videoLeft_brightness&#39;: True,
+ &#39;_videoLeft_camera_times&#39;: 0,
+ &#39;_videoLeft_dropped_frames&#39;: [0, 0],
+ &#39;_videoLeft_file_headers&#39;: True,
+ &#39;_videoLeft_focus&#39;: True,
+ &#39;_videoLeft_framerate&#39;: 59.767,
+ &#39;_videoLeft_pin_state&#39;: [9, 0],
+ &#39;_videoLeft_position&#39;: False,
+ &#39;_videoLeft_resolution&#39;: True,
+ &#39;_videoLeft_timestamps&#39;: True,
+ &#39;_videoLeft_wheel_alignment&#39;: 0,
+ &#39;_videoRight_brightness&#39;: True,
+ &#39;_videoRight_camera_times&#39;: 0,
+ &#39;_videoRight_dropped_frames&#39;: [21, 0],
+ &#39;_videoRight_file_headers&#39;: True,
+ &#39;_videoRight_focus&#39;: True,
+ &#39;_videoRight_framerate&#39;: 150.015,
+ &#39;_videoRight_pin_state&#39;: [6, 0],
+ &#39;_videoRight_position&#39;: False,
+ &#39;_videoRight_resolution&#39;: True,
+ &#39;_videoRight_timestamps&#39;: True,
+ &#39;_videoRight_wheel_alignment&#39;: 1,
+ &#39;behavior&#39;: 1,
+ &#39;dlcBody&#39;: &#39;PASS&#39;,
+ &#39;dlcLeft&#39;: &#39;PASS&#39;,
+ &#39;dlcRight&#39;: &#39;PASS&#39;,
+ &#39;task&#39;: &#39;FAIL&#39;,
+ &#39;videoBody&#39;: &#39;FAIL&#39;,
+ &#39;videoLeft&#39;: &#39;FAIL&#39;,
+ &#39;videoRight&#39;: &#39;FAIL&#39;}
+</pre></div></div>
+</div>
+<section id="Looking-up-fields">
+<h4>Looking up fields<a class="headerlink" href="#Looking-up-fields" title="Permalink to this headline"></a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where task QC is marked as &#39;FAIL&#39;
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;extended_qc__task__iexact,fail&#39;)
+</pre></div>
+</div>
+<p>Lists can be accessed using indices:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where first value (zero-index) of &#39;_videoLeft_pin_state&#39; is greater than 5
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;extended_qc___videoLeft_pin_state__0__gt,5&#39;)
+</pre></div>
+</div>
+<p>Any search depth is allowed, and lookups such as <code class="docutils literal notranslate"><span class="pre">isnull</span></code>, <code class="docutils literal notranslate"><span class="pre">startswith</span></code>, <code class="docutils literal notranslate"><span class="pre">gte</span></code>, etc. are permitted.</p>
+</section>
+<section id="contains">
+<h4>contains<a class="headerlink" href="#contains" title="Permalink to this headline"></a></h4>
+<p>The returned objects are those where the given dict of key-value pairs are all contained in the top-level of the field.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; both pass:
+d = {&#39;dlcLeft&#39;: &#39;PASS&#39;, &#39;videoLeft&#39;: &#39;PASS&#39;}
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__contains,{d}&#39;)
+</pre></div>
+</div>
+</section>
+<section id="contained_by">
+<h4>contained_by<a class="headerlink" href="#contained_by" title="Permalink to this headline"></a></h4>
+<p>This is the inverse of the contains lookup - the objects returned will be those where the key-value pairs on the object are a subset of those in the value passed.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; are missing or do not pass:
+d = {&#39;dlcLeft&#39;: &#39;PASS&#39;, &#39;videoLeft&#39;: &#39;PASS&#39;}
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__contained_by,{d}&#39;)
+</pre></div>
+</div>
+</section>
+<section id="has_key">
+<h4>has_key<a class="headerlink" href="#has_key" title="Permalink to this headline"></a></h4>
+<p>JSON field contains a given key.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where extended QC has &#39;dlcLeft&#39; field:
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;extended_qc__has_key,dlcLeft&#39;)
+</pre></div>
+</div>
+</section>
+<section id="has_keys">
+<h4>has_keys<a class="headerlink" href="#has_keys" title="Permalink to this headline"></a></h4>
+<p>JSON contains all of the listed keys. The list should be surrounded by parentheses or square brackets, e.g. <code class="docutils literal notranslate"><span class="pre">'field__has_keys,['field1',</span> <span class="pre">'field2']'</span></code> or <code class="docutils literal notranslate"><span class="pre">'field__has_keys,('field1',</span> <span class="pre">'field2')'</span></code></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where extended QC &#39;behavior&#39; and &#39;ephys&#39; fields:
+keys = [&#39;behavior&#39;, &#39;ephys&#39;]
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__has_keys,{keys}&#39;)
+</pre></div>
+</div>
+</section>
+<section id="has_any_keys">
+<h4>has_any_keys<a class="headerlink" href="#has_any_keys" title="Permalink to this headline"></a></h4>
+<p>JSON contains at least one of the listed keys. The list should be surrounded by parentheses or square brackets, e.g. <code class="docutils literal notranslate"><span class="pre">'field__has_any_keys,['field1',</span> <span class="pre">'field2']'</span></code> or <code class="docutils literal notranslate"><span class="pre">'field__has_any_keys,('field1',</span> <span class="pre">'field2')'</span></code></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Find sessions where extended QC exists for any video
+keys = (&#39;videoLeft&#39;, &#39;videoRight&#39;, &#39;videoBody&#39;)
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__has_any_keys,{keys}&#39;)
+</pre></div>
+</div>
+</section>
+</section>
+<section id="exact">
+<h3>exact<a class="headerlink" href="#exact" title="Permalink to this headline"></a></h3>
+<p>An exact match. When the lookup is omitted it is assumed to be <code class="docutils literal notranslate"><span class="pre">exact</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;subject__nickname__exact,KS022&#39;)
+one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;subject__nickname,KS022&#39;)  # equivalent
+</pre></div>
+</div>
+</section>
+<section id="iexact">
+<h3>iexact<a class="headerlink" href="#iexact" title="Permalink to this headline"></a></h3>
+<p>Case insensitive exact match:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;subject__nickname__exact,ks022&#39;)
+</pre></div>
+</div>
+</section>
+<section id="contains-1">
+<span id="id1"></span><h3>contains<a class="headerlink" href="#contains-1" title="Permalink to this headline"></a></h3>
+</section>
+<section id="icontains">
+<h3>icontains<a class="headerlink" href="#icontains" title="Permalink to this headline"></a></h3>
+</section>
+<section id="in">
+<h3>in<a class="headerlink" href="#in" title="Permalink to this headline"></a></h3>
+<p>In a given iterable; often a list, tuple, or queryset. It’s not a common use case, but strings (being iterables) are accepted.</p>
+</section>
+<section id="gt">
+<h3>gt<a class="headerlink" href="#gt" title="Permalink to this headline"></a></h3>
+</section>
+<section id="gte">
+<h3>gte<a class="headerlink" href="#gte" title="Permalink to this headline"></a></h3>
+</section>
+<section id="lt">
+<h3>lt<a class="headerlink" href="#lt" title="Permalink to this headline"></a></h3>
+<p>Less than. Works for datetime, date and numerical fields:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;session__qc__lt,40&#39;)  # Where QC less than 40
+</pre></div>
+</div>
+</section>
+<section id="lte">
+<h3>lte<a class="headerlink" href="#lte" title="Permalink to this headline"></a></h3>
+</section>
+<section id="startswith">
+<h3>startswith<a class="headerlink" href="#startswith" title="Permalink to this headline"></a></h3>
+</section>
+<section id="istartswith">
+<h3>istartswith<a class="headerlink" href="#istartswith" title="Permalink to this headline"></a></h3>
+</section>
+<section id="endswith">
+<h3>endswith<a class="headerlink" href="#endswith" title="Permalink to this headline"></a></h3>
+</section>
+<section id="iendswith">
+<h3>iendswith<a class="headerlink" href="#iendswith" title="Permalink to this headline"></a></h3>
+</section>
+<section id="range">
+<h3>range<a class="headerlink" href="#range" title="Permalink to this headline"></a></h3>
+</section>
+<section id="date">
+<h3>date<a class="headerlink" href="#date" title="Permalink to this headline"></a></h3>
+<p>Get the date from a datetime field:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>one.alyx.rest(&#39;insertions&#39;, &#39;list&#39;, django=&#39;session__start_time__date__lt,2021-07-22&#39;)
+</pre></div>
+</div>
+</section>
+<section id="year">
+<h3>year<a class="headerlink" href="#year" title="Permalink to this headline"></a></h3>
+</section>
+<section id="iso_year">
+<h3>iso_year<a class="headerlink" href="#iso_year" title="Permalink to this headline"></a></h3>
+</section>
+<section id="month">
+<h3>month<a class="headerlink" href="#month" title="Permalink to this headline"></a></h3>
+</section>
+<section id="day">
+<h3>day<a class="headerlink" href="#day" title="Permalink to this headline"></a></h3>
+</section>
+<section id="week">
+<h3>week<a class="headerlink" href="#week" title="Permalink to this headline"></a></h3>
+</section>
+<section id="week_day">
+<h3>week_day<a class="headerlink" href="#week_day" title="Permalink to this headline"></a></h3>
+</section>
+<section id="iso_week_day">
+<h3>iso_week_day<a class="headerlink" href="#iso_week_day" title="Permalink to this headline"></a></h3>
+</section>
+<section id="quarter">
+<h3>quarter<a class="headerlink" href="#quarter" title="Permalink to this headline"></a></h3>
+</section>
+<section id="time">
+<h3>time<a class="headerlink" href="#time" title="Permalink to this headline"></a></h3>
+</section>
+<section id="hour">
+<h3>hour<a class="headerlink" href="#hour" title="Permalink to this headline"></a></h3>
+</section>
+<section id="minute">
+<h3>minute<a class="headerlink" href="#minute" title="Permalink to this headline"></a></h3>
+</section>
+<section id="second">
+<h3>second<a class="headerlink" href="#second" title="Permalink to this headline"></a></h3>
+</section>
+<section id="isnull">
+<h3>isnull<a class="headerlink" href="#isnull" title="Permalink to this headline"></a></h3>
+</section>
+<section id="regex">
+<h3>regex<a class="headerlink" href="#regex" title="Permalink to this headline"></a></h3>
+<p>Case-sensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># For a given session, find datasets that belong to a probe collection
+eid = &#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;
+one.alyx.rest(&#39;datasets&#39;, &#39;list&#39;, session=eid, django=&#39;collection__regex,.*probe.*&#39;, exists=True)
+</pre></div>
+</div>
+</section>
+<section id="iregex">
+<h3>iregex<a class="headerlink" href="#iregex" title="Permalink to this headline"></a></h3>
+<p>Case-insensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># List datasets for a given session that are related to either the right or left videos
+eid = &#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;
+query = &#39;name__iregex,(right|left)camera&#39;
+one.alyx.rest(&#39;datasets&#39;, &#39;list&#39;, session=eid, django=query, exists=True)
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one_advanced/one_advanced.html" class="btn btn-neutral float-left" title="ONE REST queries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_sharing.html" class="btn btn-neutral float-right" title="Sharing ONE data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

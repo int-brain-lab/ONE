@@ -23,7 +23,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ONE" href="one.html" /> 
+    <link rel="next" title="Introduction to ONE (Open Neurophysiology Environment)" href="one_reference.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,11 +41,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="alf.html">Alyx Files (ALF)</a></li>
-</ul>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 
@@ -99,39 +123,111 @@
 </style>
 <section id="welcome-to-one-s-documentation">
 <h1>Welcome to ONE’s documentation!<a class="headerlink" href="#welcome-to-one-s-documentation" title="Permalink to this headline"></a></h1>
-<div class="toctree-wrapper compound">
-</div>
-<section id="using-one-to-access-data">
-<h2>Using ONE to access data<a class="headerlink" href="#using-one-to-access-data" title="Permalink to this headline"></a></h2>
-<div class="toctree-wrapper compound">
+<div class="toctree-wrapper compound" id="basic-usage">
+<p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="one.html">ONE</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="one_installation.html">ONE installation and setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_search/one_search.html">Searching with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_list/one_list.html">Listing with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html">Loading with ONE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html">ONE advanced queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="one_reference.html#how-the-open-neurophysiology-environment-works">How the open neurophysiology environment works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="one_reference.html#standardization">Standardization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="one_reference.html#versioning-and-subcollections">Versioning and subcollections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="one_reference.html#for-data-sharers">For data sharers</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="alf.html">Alyx Files (ALF)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_installation.html">ONE installation and setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="one_installation.html#installation">1. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="one_installation.html#setup">2. Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="one_installation.html#post-setup">3. Post setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_load/one_load.html">Loading with ONE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html#Collections">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html#Revisions">Revisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html#Download-only">Download only</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html#Advanced-loading">Advanced loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_load/one_load.html#Loading-with-timeseries">Loading with timeseries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/experiment_ids.html">Experiment Ids</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_modes.html">ONE API modes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_modes.html#Online-vs-Offline">Online vs Offline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_modes.html#Query-modes">Query modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_modes.html#Refreshing-the-cache">Refreshing the cache</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html">ONE REST queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html#one.search-vs-one.alyx.rest"><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html#Accessing-other-Alyx-tables">Accessing other Alyx tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/one_advanced/one_advanced.html#Searching-with-one.alyx.rest">Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/useful_alyx_queries.html#Exploring-the-REST-endpoints">Exploring the REST endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/useful_alyx_queries.html#Example-queries">Example queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/useful_alyx_queries.html#Field-lookup-reference">Field lookup reference</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</section>
-<section id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/data_sharing.html">Sharing ONE data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/data_sharing.html#Downloading-example-data">Downloading example data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/data_sharing.html#Validating-your-data">Validating your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/data_sharing.html#Generating-the-cache">Generating the cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/data_sharing.html#Checking-the-cache">Checking the cache</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Files (ALF)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="alf_intro.html#optional-components">Optional components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alf_intro.html#glossary">Glossary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/datasets_and_types.html">Datasets and their types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/datasets_and_types.html#Datasets">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/datasets_and_types.html#Dataset-types">Dataset types</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html#how-do-i-release-my-own-data-with-the-one-api">How do I release my own data with the ONE API?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html#how-do-i-use-one-without-connecting-to-my-database">How do I use ONE without connecting to my database?</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/one.html">one</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/one.html">one</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.tests.html">one.tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
-</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
@@ -146,7 +242,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.html" class="btn btn-neutral float-right" title="ONE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="one_reference.html" class="btn btn-neutral float-right" title="Introduction to ONE (Open Neurophysiology Environment)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

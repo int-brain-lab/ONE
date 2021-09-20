@@ -41,11 +41,35 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../one.html">ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../alf.html">Alyx Files (ALF)</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment Ids</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Sharing ONE data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/public_one.html">Exploring the public IBL data with ONE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
@@ -153,15 +177,10 @@ local_path = self.alyx.download_file(url)</p>
 <td><p>Translate a Json dictionary to an usable http url for downloading files.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.http_download_file" title="one.webclient.http_download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">http_download_file</span></code></a></p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param full_link_to_file</dt>
-<dd class="field-odd"><p>http link to the file.</p>
-</dd>
-</dl>
-</p></td>
+<td><p>Download a file from a remote HTTP server.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.webclient.http_download_file_list" title="one.webclient.http_download_file_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">http_download_file_list</span></code></a></p></td>
-<td><p>Downloads a list of files from the flat Iron from a list of links.</p></td>
+<td><p>Downloads a list of files from a remote HTTP server from a list of links.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.update_url_params" title="one.webclient.update_url_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_url_params</span></code></a></p></td>
 <td><p>Add/update the query parameters of a URL and make url safe</p></td>
@@ -208,14 +227,20 @@ local_path = self.alyx.download_file(url)</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.webclient.http_download_file_list">
 <span class="sig-name descname"><span class="pre">http_download_file_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links_to_file_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#http_download_file_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.http_download_file_list" title="Permalink to this definition"></a></dt>
-<dd><p>Downloads a list of files from the flat Iron from a list of links.
-Same options behaviour as http_download_file</p>
+<dd><p>Downloads a list of files from a remote HTTP server from a list of links.
+Same options behaviour as http_download_file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>links_to_file_list</strong> (<em>list</em>) – list of http links to files.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>links_to_file_list</strong> (<em>list</em>) – List of http links to files</p></li>
+<li><p><strong>kwargs</strong> (<em>any</em>) – Optional arguments to pass to http_download_file</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(list) a list of the local full path of the downloaded files.</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list) a list of the local full path of the downloaded files.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -223,55 +248,60 @@ Same options behaviour as http_download_file</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.webclient.http_download_file">
 <span class="sig-name descname"><span class="pre">http_download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_link_to_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#http_download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.http_download_file" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Download a file from a remote HTTP server.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>full_link_to_file</strong> (<em>str</em>) – http link to the file.</p></li>
-<li><p><strong>chunks</strong> (<em>tuple of ints</em>) – chunks to download</p></li>
-<li><p><strong>clobber</strong> (<em>bool</em>) – [False] If True, force overwrite the existing file.</p></li>
-<li><p><strong>username</strong> (<em>str</em>) – [‘’] authentication for password protected file server.</p></li>
-<li><p><strong>password</strong> (<em>str</em>) – [‘’] authentication for password protected file server.</p></li>
-<li><p><strong>cache_dir</strong> (<em>str</em>) – [‘’] directory in which files are cached; defaults to user’s
-Download directory.</p></li>
-<li><p><strong>return_md5</strong> (<em>bool</em>) – if true an MD5 hash of the file is additionally returned</p></li>
+<li><p><strong>full_link_to_file</strong> (<em>str</em>) – HTTP link to the file</p></li>
+<li><p><strong>chunks</strong> (<em>tuple of ints</em>) – Chunks to download</p></li>
+<li><p><strong>clobber</strong> (<em>bool</em>) – If True, force overwrite the existing file</p></li>
+<li><p><strong>silent</strong> (<em>bool</em>) – If True, suppress download progress bar</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – User authentication for password protected file server</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password authentication for password protected file server</p></li>
+<li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Directory in which files are cached; defaults to user’s Download directory</p></li>
+<li><p><strong>return_md5</strong> (<em>bool</em>) – If True an MD5 hash of the file is additionally returned</p></li>
+<li><p><strong>headers</strong> (<em>list of dicts</em>) – Additional headers to add to the request (auth tokens etc.)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Param</dt>
-<dd class="field-even"><p>headers: [{}] additional headers to add to the request (auth tokens etc..)</p>
-</dd>
-<dt class="field-odd">Param</dt>
-<dd class="field-odd"><p>silent: [False] suppress download progress bar</p>
-</dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(str) a list of the local full path of the downloaded files.</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A list of the local full path of the downloaded files</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.webclient.file_record_to_url">
-<span class="sig-name descname"><span class="pre">file_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_records</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#file_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.file_record_to_url" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">file_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_records</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#file_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.file_record_to_url" title="Permalink to this definition"></a></dt>
 <dd><p>Translate a Json dictionary to an usable http url for downloading files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>file_records</strong> (<em>dict</em>) – json containing a ‘data_url’ field</p>
+<dd class="field-odd"><p><strong>file_records</strong> (<em>dict</em>) – JSON containing a ‘data_url’ field</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>urls: (list) a list of strings representing full data urls</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A list of strings representing full data urls</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.webclient.dataset_record_to_url">
-<span class="sig-name descname"><span class="pre">dataset_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#dataset_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.dataset_record_to_url" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dataset_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#dataset_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.dataset_record_to_url" title="Permalink to this definition"></a></dt>
 <dd><p>Extracts a list of files urls from a list of dataset queries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dataset_record</strong> (<em>list</em>) – dataset Json from a rest request.</p>
+<dd class="field-odd"><p><strong>dataset_record</strong> (<em>list</em><em>, </em><em>dict</em>) – Dataset JSON from a REST request</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(list) a list of strings representing files urls corresponding to the datasets records</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A list of strings representing files urls corresponding to the datasets records</p>
 </dd>
 </dl>
 </dd></dl>
@@ -362,14 +392,21 @@ Deletes the cached authentication token for the currently logged-in user</p>
 other than 200, 201.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – examples:
-‘/weighings/c617562d-c107-432e-a8ee-682c17f9e698’
-‘<a class="reference external" href="https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698">https://test.alyx.internationalbrainlab.org/weighings/c617562d-c107-432e-a8ee-682c17f9e698</a>’.</p>
+<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – A REST query string either as a relative URL path complete URL</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(dict/list) json interpreted dictionary from response</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>JSON interpreted dictionary from response</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>AlyxClient.delete(‘/weighings/c617562d-c107-432e-a8ee-682c17f9e698’)
+AlyxClient.delete(</p>
+<blockquote>
+<div><p>‘<a class="reference external" href="https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698">https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698</a>’)</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -379,12 +416,15 @@ other than 200, 201.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> – full url(s) of the file(s)</p></li>
-<li><p><strong>kwargs</strong> – webclient.http_download_file parameters</p></li>
+<li><p><strong>url</strong> (<em>str</em><em>, </em><em>list</em>) – Full url(s) of the file(s)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – WebClient.http_download_file parameters</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>local path(s) of downloaded file(s)</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Local path(s) of downloaded file(s)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -427,13 +467,19 @@ It is expected that the remote HTTP server has the same file tree as the local s
 <dd><p>Sends a GET request to the Alyx server. Will raise an exception on any status_code
 other than 200, 201.
 For the dictionary contents and list of endpoints, refer to:
-<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – example: ‘/sessions?user=Hamish’.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rest_query</strong> (<em>str</em>) – A REST URL path, e.g. ‘/sessions?user=Hamish’</p></li>
+<li><p><strong>kwargs</strong> (<em>any</em>) – Optional arguments to pass to _generic_request and _cache_response decorator</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(dict/list) json interpreted dictionary from response</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>JSON interpreted dictionary from response</p>
 </dd>
 </dl>
 </dd></dl>
@@ -443,17 +489,20 @@ For the dictionary contents and list of endpoints, refer to:
 <span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.patch" title="Permalink to this definition"></a></dt>
 <dd><p>Sends a PATCH request to the Alyx server.
 For the dictionary contents, refer to:
-<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – (required)the endpoint as full or relative URL</p></li>
-<li><p><strong>data</strong> (<em>None</em><em>, </em><em>dict</em><em> or </em><em>str</em>) – json encoded string or dictionary (cf.requests)</p></li>
-<li><p><strong>files</strong> – dictionary / tuple (cf.requests)</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>response object</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Response object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -463,17 +512,20 @@ For the dictionary contents, refer to:
 <span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.post" title="Permalink to this definition"></a></dt>
 <dd><p>Sends a POST request to the Alyx server.
 For the dictionary contents, refer to:
-<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – (required)the endpoint as full or relative URL</p></li>
-<li><p><strong>data</strong> (<em>None</em><em>, </em><em>dict</em><em> or </em><em>str</em>) – dictionary or json encoded string</p></li>
-<li><p><strong>files</strong> – dictionary / tuple (cf.requests)</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>response object</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Response object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -483,17 +535,20 @@ For the dictionary contents, refer to:
 <span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.put" title="Permalink to this definition"></a></dt>
 <dd><p>Sends a PUT request to the Alyx server.
 For the dictionary contents, refer to:
-<a class="reference external" href="https://alyx.internationalbrainlab.org/docs">https://alyx.internationalbrainlab.org/docs</a></p>
+<a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – (required)the endpoint as full or relative URL</p></li>
-<li><p><strong>data</strong> (<em>None</em><em>, </em><em>dict</em><em> or </em><em>str</em>) – dictionary or json encoded string</p></li>
-<li><p><strong>files</strong> – dictionary / tuple (cf.requests)</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>response object</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Response object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -518,18 +573,21 @@ client.rest(‘notes’, ‘create’, data=nd, files={‘image’: open(image_f
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> – endpoint name</p></li>
-<li><p><strong>action</strong> – ‘list’, ‘create’, ‘read’, ‘update’, ‘partial_update’, ‘delete’</p></li>
-<li><p><strong>id</strong> – lookup string for actions ‘read’, ‘update’, ‘partial_update’, and ‘delete’</p></li>
-<li><p><strong>data</strong> – data dictionary for actions ‘update’, ‘partial_update’ and ‘create’</p></li>
-<li><p><strong>files</strong> – if file upload</p></li>
-<li><p><strong>no_cache</strong> – if true the <cite>list</cite> and <cite>read</cite> actions are performed without caching</p></li>
-<li><p><strong>**kwargs</strong> – filter as per the Alyx REST documentation
-cf. <a class="reference external" href="https://alyx.internationalbrainlab.org/docs/">https://alyx.internationalbrainlab.org/docs/</a></p></li>
+<li><p><strong>url</strong> (<em>str</em>) – Endpoint name</p></li>
+<li><p><strong>action</strong> (<em>str</em>) – One of ‘list’, ‘create’, ‘read’, ‘update’, ‘partial_update’, ‘delete’</p></li>
+<li><p><strong>id</strong> (<em>str</em>) – Lookup string for actions ‘read’, ‘update’, ‘partial_update’, and ‘delete’</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – Data dictionary for actions ‘update’, ‘partial_update’ and ‘create’</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Option file(s) to upload</p></li>
+<li><p><strong>no_cache</strong> (<em>bool</em>) – If true the <cite>list</cite> and <cite>read</cite> actions are performed without caching</p></li>
+<li><p><strong>kwargs</strong> (<em>any</em>) – Filters as per the Alyx REST documentation
+cf. <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/">https://openalyx.internationalbrainlab.org/docs/</a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of queried dicts (‘list’) or dict (other actions)</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of queried dicts (‘list’) or dict (other actions)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -588,22 +646,22 @@ values (uses the dict.update() method)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_remove_key">
 <span class="sig-name descname"><span class="pre">json_field_remove_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_remove_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_remove_key" title="Permalink to this definition"></a></dt>
-<dd><p>Will remove inputted key from json field dict and reupload it to Alyx.
+<dd><p>Will remove inputted key from json field dict and re-upload it to Alyx.
 Needs endpoint, uuid and json field name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>optional</em>) – endpoint to hit, defaults to None</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – uuid or lookup name for endpoint</p></li>
-<li><p><strong>field_name</strong> (<em>str</em><em>, </em><em>optional</em>) – json field name of object, defaults to None</p></li>
-<li><p><strong>key</strong> (<em>str</em><em>, </em><em>optional</em>) – key name of dictionary inside object, defaults to None</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint to hit, defaults to None</p></li>
+<li><p><strong>uuid</strong> (<em>str</em>) – UUID or lookup name for endpoint</p></li>
+<li><p><strong>field_name</strong> (<em>str</em>) – JSON field name of object, defaults to None</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Key name of dictionary inside object, defaults to None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>returns new content of json field</p>
+<dd class="field-even"><p></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>New content of json field</p>
 </dd>
 </dl>
 </dd></dl>
@@ -616,7 +674,8 @@ Needs endpoint, uuid and json field name</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.clear_rest_cache">
 <span class="sig-name descname"><span class="pre">clear_rest_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.clear_rest_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.clear_rest_cache" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Clear all REST response cache files for the base url</p>
+</dd></dl>
 
 </dd></dl>
 
