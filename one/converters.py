@@ -3,9 +3,9 @@
 There are multiple ways to uniquely identify an experiment:
     - eid (str) : An experiment UUID as a string
     - np (int64) : An experiment UUID encoded as 2 int64s
-    - path (Path) : A pathlib ALF path of the form <lab>/Subjects/<subject>/<date>/<number>
-    - ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject
-    - url (str) : An remote http session path of the form <lab>/Subjects/<subject>/<date>/<number>
+    - path (Path) : A pathlib ALF path of the form `<lab>/Subjects/<subject>/<date>/<number>`
+    - ref (str) : An experiment reference string of the form `yyyy-mm-dd_n_subject`
+    - url (str) : A remote http session path of the form `<lab>/Subjects/<subject>/<date>/<number>`
 """
 import re
 import functools
@@ -120,7 +120,8 @@ class ConversionMixin:
 
         Returns
         -------
-        A pathlib.Path of the session
+        pathlib.Path
+            A session path
         """
         # If eid is a list of eIDs recurse through list and return the results
         if isinstance(eid, list):
@@ -159,7 +160,8 @@ class ConversionMixin:
 
         Returns
         -------
-        Experiment ID (eid) string or list of eids
+        eid, list
+            Experiment ID (eid) string or list of eids
         """
         # else ensure the path ends with mouse,date, number
         session_path = get_session_path(path_obj)
@@ -197,7 +199,8 @@ class ConversionMixin:
 
         Returns
         -------
-        pandas.Series corresponding to the file
+        pandas.Series
+            A cache file record
         """
         if isinstance(filepath, str) and filepath.startswith('http'):
             # Remove the UUID from path
@@ -230,7 +233,8 @@ class ConversionMixin:
 
         Returns
         -------
-        A remote URL string
+        str
+            A remote URL string
         """
         record = self.path2record(filepath)
         if record is None:
@@ -263,7 +267,8 @@ class ConversionMixin:
 
         Returns
         -------
-        File path for the record
+        pathlib.Path
+            File path for the record
         """
         assert isinstance(dataset, pd.Series) or len(dataset) == 1
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
@@ -288,8 +293,9 @@ class ConversionMixin:
 
         Returns
         -------
-        One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
-        form yyyy-mm-dd_n_subject
+        dict, str, list
+            One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+            form yyyy-mm-dd_n_subject
 
         Examples
         --------
@@ -330,7 +336,8 @@ class ConversionMixin:
 
         Returns
         -------
-        One or more experiment uuid strings
+        str, list
+            One or more experiment uuid strings
 
         Examples
         --------
@@ -365,7 +372,8 @@ class ConversionMixin:
 
         Returns
         -------
-        Path object(s) for the experiment session(s)
+        pathlib.Path
+            Path object(s) for the experiment session(s)
 
         Examples
         --------
@@ -399,7 +407,8 @@ class ConversionMixin:
 
         Returns
         -------
-        One or more objects with keys ('subject', 'date', 'sequence')
+        dict, str, list
+            One or more objects with keys ('subject', 'date', 'sequence')
 
         Examples
         --------
@@ -433,7 +442,8 @@ class ConversionMixin:
 
         Returns
         -------
-        An acquisition.Session table
+        acquisition.Session
+            An acquisition.Session table corresponding to the ref
 
         Examples
         --------
@@ -480,7 +490,8 @@ class ConversionMixin:
 
         Returns
         -------
-        True if ref is valid
+        bool
+            True if ref is valid
 
         Examples
         --------
@@ -521,7 +532,8 @@ class ConversionMixin:
 
         Returns
         -------
-        A Bunch in with keys ('subject', 'sequence', 'date')
+        iblutil.util.Bunch
+            A Bunch in with keys ('subject', 'sequence', 'date')
 
         Examples
         --------
@@ -541,7 +553,7 @@ class ConversionMixin:
         return Bunch(ref)
 
     @staticmethod
-    def dict2ref(ref_dict):
+    def dict2ref(ref_dict) -> Union[str, List]:
         if isinstance(ref_dict, (list, tuple)):
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
         if not ref_dict:
@@ -567,7 +579,8 @@ def one_path_from_dataset(dset, one_cache):
 
     Returns
     -------
-    The local path for a given dataset
+    pathlib.Path
+        The local path for a given dataset
     """
     return path_from_dataset(dset, root_path=one_cache, uuid=False)
 
@@ -591,7 +604,8 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
 
     Returns
     -------
-    File path or list of paths
+    pathlib.Path, list
+        File path or list of paths
     """
     if isinstance(dset, list):
         return [path_from_dataset(d) for d in dset]
@@ -620,7 +634,8 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
 
     Returns
     -------
-    A filepath as a pathlib object
+    pathlib.Path
+        A filepath as a pathlib object
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]

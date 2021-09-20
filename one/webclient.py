@@ -8,10 +8,12 @@ Examples
 ...     username='test_user', password='TapetesBloc18',
 ...     base_url='https://test.alyx.internationalbrainlab.org')
 
-# List subjects
+List subjects
+
 >>> subjects = alyx.rest('subjects', 'list')
 
-# Create a subject
+Create a subject
+
 >>> record = {
 ...     'nickname': nickname,
 ...     'responsible_user': 'olivier',
@@ -21,9 +23,10 @@ Examples
 ... }
 ... new_subj = alyx.rest('subjects', 'create', data=record)
 
-# Download a remote file, given a local path
+Download a remote file, given a local path
+
 >>> url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
->>> local_path = self.alyx.download_file(url)
+>>> local_path = alyx.download_file(url)
 """
 import json
 import logging
@@ -56,9 +59,10 @@ _logger = logging.getLogger(__name__)
 
 
 def _cache_response(method):
-    """
-    Decorator for the generic request method; caches the result of the query and on subsequent
-    calls, returns cache instead of hitting the database
+    """Decorator for the generic request method
+
+    Caches the result of the query and on subsequent calls, returns cache instead of hitting the
+    database
 
     Parameters
     ----------
@@ -136,8 +140,11 @@ def _cache_response(method):
 class _PaginatedResponse(Mapping):
     """
     This class allows to emulate a list from a paginated response.
-    Provides cache functionality
-    PaginatedResponse(alyx, response)
+    Provides cache functionality.
+
+    Examples
+    --------
+    r = PaginatedResponse(client, response)
     """
 
     def __init__(self, alyx, rep, cache_args=None):

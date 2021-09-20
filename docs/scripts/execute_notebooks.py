@@ -1,11 +1,8 @@
 import os
 import json
 import time
-import numpy as np
 from nbconvert.preprocessors import (ExecutePreprocessor, CellExecutionError,
                                      ClearOutputPreprocessor)
-from nbconvert.exporters import RSTExporter
-from nbconvert.writers import FilesWriter
 import nbformat
 import re
 import sphinx_gallery.notebook as sph_nb

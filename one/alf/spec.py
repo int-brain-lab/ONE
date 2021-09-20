@@ -1,4 +1,4 @@
-"""The complete AlF specification descriptors and validators"""
+"""The complete ALF specification descriptors and validators"""
 import re
 import textwrap
 from uuid import UUID
@@ -6,6 +6,7 @@ from typing import Union
 
 from iblutil.util import flatten
 
+"""dict: The ALF part names and their definitions."""
 SPEC_DESCRIPTION = {
     'lab': 'The name of the lab where the data were collected (optional).',
     'Subjects': 'An optional directory to indicate that the experiment data are divided by '
@@ -84,12 +85,18 @@ SPEC_DESCRIPTION = {
                  'datatype as a top-level key "dtype", using numpy naming conventions.'
 }
 
-
-"""The following are the specifications and patterns for ALFs"""
+# ========================================================== #
+# The following are the specifications and patterns for ALFs #
+# ========================================================== #
+"""str: The session specification pattern"""
 SESSION_SPEC = '({lab}/Subjects/)?{subject}/{date}/{number}'
+"""str: The collection and revision specification pattern"""
 COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
+"""str: The filename specification pattern"""
 FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
+"""str: The collection, revision and filename specification pattern"""
 REL_PATH_SPEC = f'{COLLECTION_SPEC}{FILE_SPEC}'
+"""str: The full ALF path specification pattern"""
 FULL_SPEC = f'{SESSION_SPEC}/{REL_PATH_SPEC}'
 
 _DEFAULT = (
@@ -111,15 +118,15 @@ _DEFAULT = (
 )
 
 
-def path_pattern():
-    """Returns a template string representing the where the ALF parts lie in an ALF path
+def path_pattern() -> str:
+    """Returns a template string representing the where the ALF parts lie in an ALF path.
     Brackets denote optional parts.  This is used for documentation purposes only.
     """
     return ''.join(filter(lambda c: c not in '{}?*\\$', FULL_SPEC))
 
 
 def describe(part=None, width=99):
-    """Print a description of an ALF part
+    """Print a description of an ALF part.
     Prints the path pattern along with a description of the given ALF part (or all parts if None).
 
     Parameters
@@ -132,7 +139,7 @@ def describe(part=None, width=99):
 
     Returns
     -------
-        None
+    None
 
     Examples
     -------
@@ -164,14 +171,22 @@ def _dromedary(string) -> str:
     """
     Convert a string to camel case.  Acronyms/initialisms are preserved.
 
-    Examples:
-        _dromedary('Hello world') == 'helloWorld'
-        _dromedary('motion_energy') == 'motionEnergy'
-        _dromedary('passive_RFM') == 'passive RFM'
-        _dromedary('FooBarBaz') == 'fooBarBaz'
+    Parameters
+    ----------
+    string : str
+        To be converted to camel case
 
-    :param string: To be converted to camel case
-    :return: The string in camel case
+    Returns
+    -------
+    str
+        The string in camel case
+
+    Examples
+    --------
+    >>> _dromedary('Hello world') == 'helloWorld'
+    >>> _dromedary('motion_energy') == 'motionEnergy'
+    >>> _dromedary('passive_RFM') == 'passive RFM'
+    >>> _dromedary('FooBarBaz') == 'fooBarBaz'
     """
     def _capitalize(x):
         return x if x.isupper() else x.capitalize()
@@ -204,18 +219,22 @@ def regex(spec: str = FULL_SPEC, **kwargs) -> re.Pattern:
 
     Returns
     -------
-    A regular expression Pattern object
+    re.Pattern
+        A regular expression Pattern object
 
     Examples
     --------
-    # Regex for a filename
-    pattern = regex(spec=FILE_SPEC)
+    Regex for a filename
 
-    # Regex for a complete path (including root)
-    pattern = '.*' + regex(spec=FULL_SPEC)
+    >>> pattern = regex(spec=FILE_SPEC)
 
-    # Regex pattern for specific object name
-    pattern = regex(object='trials)
+    Regex for a complete path (including root)
+
+    >>> pattern = '.*' + regex(spec=FULL_SPEC).pattern
+
+    Regex pattern for specific object name
+
+    >>> pattern = regex(object='trials')
     """
     fields = dict(_DEFAULT)
     if not fields.keys() >= kwargs.keys():
@@ -237,7 +256,8 @@ def is_valid(filename):
 
     Returns
     -------
-    True if filename is valid ALF
+    bool
+        True if filename is valid ALF
 
     Examples
     --------
@@ -255,16 +275,18 @@ def is_valid(filename):
 
 def is_session_path(path_object):
     """
-    Checks if the syntax corresponds to a session path. Note that there is no physical check
+    Checks if the syntax corresponds to a session path.  Note that there is no physical check
     about existence nor contents
 
     Parameters
     ----------
     path_object : str, pathlib.Path
+        The path object to validate
 
     Returns
     -------
-    True if session path a valid ALF session path
+    bool
+        True if session path a valid ALF session path
     """
     session_spec = re.compile(regex(SESSION_SPEC).pattern + '$')
     if hasattr(path_object, 'as_posix'):
@@ -275,14 +297,14 @@ def is_session_path(path_object):
 
 def is_uuid_string(string: str) -> bool:
     """
-    Bool test for randomly generated hexadecimal uuid validity
+    Bool test for randomly generated hexadecimal uuid validity.
     NB: unlike is_uuid, is_uuid_string checks that uuid is correctly hyphen separated
     """
     return isinstance(string, str) and is_uuid(string, (3, 4, 5)) and str(UUID(string)) == string
 
 
 def is_uuid(uuid: Union[str, int, bytes, UUID], versions=(4,)) -> bool:
-    """Bool test for randomly generated hexadecimal uuid validity
+    """Bool test for randomly generated hexadecimal uuid validity.
     Unlike `is_uuid_string`, this function accepts UUID objects
     """
     if not isinstance(uuid, (UUID, str, bytes, int)):
@@ -317,7 +339,8 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
 
     Returns
     -------
-    A file name string built from the ALF parts
+    str
+        A file name string built from the ALF parts
 
     Examples
     --------

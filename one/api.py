@@ -1,21 +1,9 @@
-"""Classes for searching, listing and (down)loading ALyx Files
-TODO Document
+"""Classes for searching, listing and (down)loading ALyx Files.
+
 TODO Add sig to ONE Light uuids
 TODO Save changes to cache
 TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem
-
-Points of discussion:
-
-    - Module structure: oneibl is too restrictive, naming module `one` means obj should have
-      different name
-    - Download datasets timeout
-    - Support for pids?
-    - Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array
-    - NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
-      Datasets table has sorted index.
-    - Conceivably you could have a subclass for Figshare, etc., not just Alyx
-
 """
 import collections.abc
 import concurrent.futures
@@ -212,7 +200,7 @@ class One(ConversionMixin):
         """
         Searches sessions matching the given criteria and returns a list of matching eids
 
-        For a list of search terms, use the methods
+        For a list of search terms, use the method
 
          one.search_terms()
 
@@ -250,8 +238,11 @@ class One(ConversionMixin):
 
         Returns
         -------
-        list of eids, if details is True, also returns a list of dictionaries, each entry
-        corresponding to a matching session
+        list
+            A list of eids
+        (list)
+            (If details is True) a list of dictionaries, each entry corresponding to a matching
+            session
         """
 
         def all_present(x, dsets, exists=True):
@@ -420,7 +411,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        Sorted list of subject names
+        list
+            Sorted list of subject names
         """
         return self._cache['sessions']['subject'].sort_values().unique()
 
@@ -456,7 +448,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        Slice of datasets table or numpy array if details is False
+        np.ndarray, pd.DataFrame
+            Slice of datasets table or numpy array if details is False
         """
         datasets = self._cache['datasets']
         filter_args = dict(collection=collection, filename=filename, wildcards=self.wildcards,
@@ -499,7 +492,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-            A numpy array of unique collections or dict of datasets tables
+        list, dict
+            A list of unique collections or dict of datasets tables
         """
         filter_kwargs = dict(eid=eid, collection=collection, filename=filename,
                              revision=revision, query_type=query_type)
@@ -512,7 +506,7 @@ class One(ConversionMixin):
             return {k: table.drop('collection', axis=1)
                     for k, table in datasets.groupby('collection')}
         else:
-            return np.sort(datasets['collection'].unique())
+            return datasets['collection'].unique().tolist()
 
     @util.refresh
     def list_revisions(self, eid=None, dataset=None, collection=None, details=False):
@@ -531,7 +525,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-            A numpy array of unique collections or dict of datasets tables
+        list, dict
+            A list of unique collections or dict of datasets tables
         """
         datasets = self.list_datasets(eid, collection, details=True).copy()
         if dataset:
@@ -544,7 +539,7 @@ class One(ConversionMixin):
             return {k: table.drop('revision', axis=1)
                     for k, table in datasets.groupby('revision')}
         else:
-            return np.sort(datasets['revision'].unique())
+            return datasets['revision'].unique().tolist()
 
     @util.refresh
     @util.parse_id
@@ -586,18 +581,21 @@ class One(ConversionMixin):
 
         Returns
         -------
-        An ALF bunch or if download_only is True, a list of Paths objects
+        one.alf.io.AlfBunch, list
+            An ALF bunch or if download_only is True, a list of Paths objects
 
         Examples
         --------
-        load_object(eid, 'moves')
-        load_object(eid, 'trials')
-        load_object(eid, 'spikes', collection='*probe01')  # wildcards is True
-        load_object(eid, 'spikes', collection='.*probe01')  # wildcards is False
-        load_object(eid, 'spikes', namespace='ibl')
-        load_object(eid, 'spikes', timescale='ephysClock')
-        # Load specific attributes
-        load_object(eid, 'spikes', attribute=['times*', 'clusters'])
+        >>> load_object(eid, 'moves')
+        >>> load_object(eid, 'trials')
+        >>> load_object(eid, 'spikes', collection='*probe01')  # wildcards is True
+        >>> load_object(eid, 'spikes', collection='.*probe01')  # wildcards is False
+        >>> load_object(eid, 'spikes', namespace='ibl')
+        >>> load_object(eid, 'spikes', timescale='ephysClock')
+
+        Load specific attributes:
+
+        >>> load_object(eid, 'spikes', attribute=['times*', 'clusters'])
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(eid, details=True, query_type=query_type)
@@ -669,18 +667,21 @@ class One(ConversionMixin):
 
         Returns
         -------
-        Dataset or a Path object if download_only is true.
+        np.ndarray, pathlib.Path
+            Dataset or a Path object if download_only is true.
 
         Examples
         --------
-        intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
-        # Load dataset without specifying extension
-        intervals = one.load_dataset(eid, 'trials.intervals')  # wildcard mode only
-        intervals = one.load_dataset(eid, '*trials.intervals*')  # wildcard mode only
-        filepath = one.load_dataset(eid '_ibl_trials.intervals.npy', download_only=True)
-        spike_times = one.load_dataset(eid 'spikes.times.npy', collection='alf/probe01')
-        old_spikes = one.load_dataset(eid, 'spikes.times.npy',
-                                      collection='alf/probe01', revision='2020-08-31')
+        >>> intervals = one.load_dataset(eid, '_ibl_trials.intervals.npy')
+
+        Load dataset without specifying extension
+
+        >>> intervals = one.load_dataset(eid, 'trials.intervals')  # wildcard mode only
+        >>> intervals = one.load_dataset(eid, '.*trials.intervals.*')  # regex mode only
+        >>> filepath = one.load_dataset(eid, '_ibl_trials.intervals.npy', download_only=True)
+        >>> spike_times = one.load_dataset(eid, 'spikes.times.npy', collection='alf/probe01')
+        >>> old_spikes = one.load_dataset(eid, 'spikes.times.npy',
+        ...                               collection='alf/probe01', revision='2020-08-31')
         """
         datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
         # If only two parts and wildcards are on, append ext wildcard
@@ -744,8 +745,10 @@ class One(ConversionMixin):
 
         Returns
         -------
-        Returns a list of data (or file paths) the length of datasets, and a list of
-        meta data Bunches. If assert_present is False, missing data will be None
+        list
+            A list of data (or file paths) the length of datasets
+        list
+            A list of meta data Bunches. If assert_present is False, missing data will be None
         """
 
         def _verify_specifiers(specifiers):
@@ -839,7 +842,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        Dataset data (or filepath if download_only) and dataset record if details is True
+        np.ndarray, pathlib.Path
+            Dataset data (or filepath if download_only) and dataset record if details is True
         """
         int_idx = self._index_type('datasets') is int
         if isinstance(dset_id, str) and int_idx:
@@ -905,6 +909,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 
     Returns
     -------
+    One, OneAlyx
         An One instance if mode is 'local', otherwise an OneAlyx instance.
     """
     if kwargs.pop('offline', False):
@@ -1027,6 +1032,7 @@ class OneAlyx(One):
 
         Returns
         -------
+        tuple
             Tuple of search strings
         """
         if (query_type or self.mode) != 'remote':
@@ -1088,7 +1094,10 @@ class OneAlyx(One):
 
         Returns
         -------
-        experiment ID, probe label
+        str
+            Experiment ID (eid)
+        str
+            Probe label
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -1104,7 +1113,7 @@ class OneAlyx(One):
 
         For a list of search terms, use the method
 
-         one.search_terms(query_type='remote')
+            one.search_terms(query_type='remote')
 
         For all of the search parameters, a single value or list may be provided.  For dataset,
         the sessions returned will contain all listed datasets.  For the other parameters,
@@ -1152,8 +1161,11 @@ class OneAlyx(One):
 
         Returns
         -------
-        List of eids and, if details is True, also returns a list of dictionaries, each entry
-        corresponding to a matching session
+        list
+            List of eids
+        (list of dicts)
+            If details is True, also returns a list of dictionaries, each entry corresponding to a
+            matching session
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -1197,7 +1209,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        A local file path
+        pathlib.Path
+            A local file path
         """
         if isinstance(dset, str) and dset.startswith('http'):
             url = dset
@@ -1274,7 +1287,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        The file path of the downloaded file
+        pathlib.Path
+            The file path of the downloaded file
         """
         if offline is None:
             offline = self.mode == 'local'
@@ -1337,7 +1351,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        A session path or list of session paths
+        pathlib.Path, list
+            A session path or list of session paths
         """
         # first try avoid hitting the database
         mode = query_type or self.mode
@@ -1369,7 +1384,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        An eid or list of eids
+        str, list
+            An eid or list of eids
         """
         # If path_obj is a list recurse through it and return a list
         if isinstance(path_obj, list):
@@ -1405,7 +1421,7 @@ class OneAlyx(One):
         return uuid[0] if uuid else None
 
     @util.refresh
-    def path2url(self, filepath, query_type=None):
+    def path2url(self, filepath, query_type=None) -> str:
         """
         Given a local file path, returns the URL of the remote file.
 
@@ -1418,7 +1434,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        A URL string
+        str
+            A URL string
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -1448,7 +1465,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        A numpy array of data, or DataFrame if details is true
+        np.ndarray, dict
+            A numpy array of data, or DataFrame if details is true
         """
         if isinstance(dataset_type, str):
             restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'
@@ -1459,7 +1477,7 @@ class OneAlyx(One):
         datasets = util.datasets2records(self.alyx.rest('datasets', 'list', django=restriction))
         return datasets if details else datasets['rel_path'].sort_values().values
 
-    def dataset2type(self, dset):
+    def dataset2type(self, dset) -> str:
         """Return dataset type from dataset"""
         # Ensure dset is a str uuid
         if isinstance(dset, str) and not is_uuid_string(dset):
@@ -1484,7 +1502,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        None if full is false or no record found, otherwise returns record as dict
+        None, dict
+            None if full is false or no record found, otherwise returns record as dict
         """
         try:
             rec = self.alyx.rest('revisions', 'read', id=revision)
