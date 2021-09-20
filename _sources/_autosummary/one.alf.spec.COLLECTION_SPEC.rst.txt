@@ -1,0 +1,6 @@
+one.alf.spec.COLLECTION\_SPEC
+=============================
+
+.. currentmodule:: one.alf.spec
+
+.. autodata:: COLLECTION_SPEC

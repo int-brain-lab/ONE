@@ -1,0 +1,6 @@
+one.alf.spec.REL\_PATH\_SPEC
+============================
+
+.. currentmodule:: one.alf.spec
+
+.. autodata:: REL_PATH_SPEC

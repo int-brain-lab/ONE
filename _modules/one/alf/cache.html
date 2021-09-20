@@ -98,7 +98,13 @@
              
   <h1>Source code for one.alf.cache</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Construct Parquet database from local file system.</span>
-<span class="sd">TODO Deal graciously with empty tables</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">&gt;&gt;&gt; from one.api import One</span>
+<span class="sd">&gt;&gt;&gt; cache_dir = &#39;path/to/data&#39;</span>
+<span class="sd">&gt;&gt;&gt; make_parquet_db(cache_dir)</span>
+<span class="sd">&gt;&gt;&gt; one = One(cache_dir=cache_dir)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -249,7 +255,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A pandas DataFrame of session info</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        A pandas DataFrame of session info</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">full_path</span> <span class="ow">in</span> <span class="n">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
@@ -263,7 +270,22 @@
     <span class="k">return</span> <span class="n">df</span>
 
 
-<span class="k">def</span> <span class="nf">_make_datasets_df</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_make_datasets_df</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a root directory, recursively finds all datasets and returns a datasets DataFrame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root_dir : str, pathlib.Path</span>
+<span class="sd">        The folder to look for sessions</span>
+<span class="sd">    hash_files : bool</span>
+<span class="sd">        If True, an MD5 is computed for each file and stored in the &#39;hash&#39; column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        A pandas DataFrame of dataset info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([],</span> <span class="n">columns</span><span class="o">=</span><span class="n">DATASETS_COLUMNS</span><span class="p">)</span>
     <span class="c1"># Go through sessions and append datasets</span>
     <span class="k">for</span> <span class="n">session_path</span> <span class="ow">in</span> <span class="n">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
@@ -284,6 +306,33 @@
 
 
 <div class="viewcode-block" id="make_parquet_db"><a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.make_parquet_db">[docs]</a><span class="k">def</span> <span class="nf">make_parquet_db</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a data directory, index the ALF datasets and save the generated cache tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root_dir : str, pathlib.Path</span>
+<span class="sd">        The file directory to index.</span>
+<span class="sd">    out_dir : str, pathlib.Path</span>
+<span class="sd">        Optional output directory to save cache tables.  If None, the files are saved into the</span>
+<span class="sd">        root directory.</span>
+<span class="sd">    hash_ids : bool</span>
+<span class="sd">        If True, experiment and dataset IDs will be UUIDs generated from the system and relative</span>
+<span class="sd">        paths.</span>
+<span class="sd">    hash_files : bool</span>
+<span class="sd">        If True, an MD5 hash is computed for each dataset and stored in the datasets table.</span>
+<span class="sd">        This will substantially increase cache generation time.</span>
+<span class="sd">    lab : str</span>
+<span class="sd">        An optional lab name to associate with the data.  If the folder structure</span>
+<span class="sd">        contains &#39;lab/Subjects&#39;, the lab name will be taken from the folder name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The full path of the saved sessions parquet table</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The full path of the saved datasets parquet table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
     <span class="c1"># Make the dataframes.</span>

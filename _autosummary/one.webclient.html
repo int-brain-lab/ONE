@@ -149,20 +149,26 @@ files through Alyx.</p>
 <span class="gp">... </span>    <span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p># List subjects
-&gt;&gt;&gt; subjects = alyx.rest(‘subjects’, ‘list’)</p>
-<p># Create a subject
-&gt;&gt;&gt; record = {
-…     ‘nickname’: nickname,
-…     ‘responsible_user’: ‘olivier’,
-…     ‘birth_date’: ‘2019-06-15’,
-…     ‘death_date’: None,
-…     ‘lab’: ‘cortexlab’,
-… }
-… new_subj = alyx.rest(‘subjects’, ‘create’, data=record)</p>
-<p># Download a remote file, given a local path
-&gt;&gt;&gt; url = ‘zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy’
-&gt;&gt;&gt; local_path = self.alyx.download_file(url)</p>
+<p>List subjects</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subjects</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a subject</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;nickname&#39;</span><span class="p">:</span> <span class="n">nickname</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;responsible_user&#39;</span><span class="p">:</span> <span class="s1">&#39;olivier&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;birth_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2019-06-15&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;death_date&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">... </span><span class="n">new_subj</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">record</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Download a remote file, given a local path</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">local_path</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</pre></div>
+</div>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
 <colgroup>

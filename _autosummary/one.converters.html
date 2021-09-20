@@ -145,9 +145,9 @@
 <dt>There are multiple ways to uniquely identify an experiment:</dt><dd><ul class="simple">
 <li><p>eid (str) : An experiment UUID as a string</p></li>
 <li><p>np (int64) : An experiment UUID encoded as 2 int64s</p></li>
-<li><p>path (Path) : A pathlib ALF path of the form &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;</p></li>
-<li><p>ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject</p></li>
-<li><p>url (str) : An remote http session path of the form &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;</p></li>
+<li><p>path (Path) : A pathlib ALF path of the form <cite>&lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;</cite></p></li>
+<li><p>ref (str) : An experiment reference string of the form <cite>yyyy-mm-dd_n_subject</cite></p></li>
+<li><p>url (str) : A remote http session path of the form <cite>&lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;</cite></p></li>
 </ul>
 </dd>
 </dl>
@@ -216,10 +216,10 @@
 <dd class="field-odd"><p><strong>eid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – Experiment ID (UUID) or list of UUIDs</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A session path</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A pathlib.Path of the session</p>
+<dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -233,10 +233,10 @@
 <dd class="field-odd"><p><strong>path_obj</strong> (<em>pathlib.Path</em><em>, </em><em>str</em>) – Local path or list of local paths</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Experiment ID (eid) string or list of eids</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Experiment ID (eid) string or list of eids</p>
+<dd class="field-odd"><p>eid, list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -251,10 +251,10 @@ NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pat
 <dd class="field-odd"><p><strong>filepath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – File path or HTTP URL</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A cache file record</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pandas.Series corresponding to the file</p>
+<dd class="field-odd"><p>pandas.Series</p>
 </dd>
 </dl>
 </dd></dl>
@@ -268,10 +268,10 @@ NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pat
 <dd class="field-odd"><p><strong>filepath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A local file path</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A remote URL string</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A remote URL string</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,10 +291,10 @@ correctly reflects the files system</p>
 <dd class="field-odd"><p><strong>dataset</strong> (<em>pd.DataFrame</em><em>, </em><em>pd.Series</em>) – A datasets dataframe slice</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>File path for the record</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>File path for the record</p>
+<dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -313,11 +313,11 @@ data types</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with the</em></p></li>
-<li><p><em>form yyyy-mm-dd_n_subject</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p>One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with the
+form yyyy-mm-dd_n_subject</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict, str, list</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -347,10 +347,10 @@ data types</p></li>
 the form yyyy-mm-dd_n_subject</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>One or more experiment uuid strings</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="one.api.html#one.api.One" title="one.api.One">One</a> or more experiment uuid strings</p>
+<dd class="field-odd"><p>str, list</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -377,10 +377,10 @@ the form yyyy-mm-dd_n_subject</p>
 the form yyyy-mm-dd_n_subject</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Path object(s) for the experiment session(s)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Path object(s) for the experiment session(s)</p>
+<dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -410,10 +410,10 @@ The path need not exist.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>One or more objects with keys (‘subject’, ‘date’, ‘sequence’)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="one.api.html#one.api.One" title="one.api.One">One</a> or more objects with keys (‘subject’, ‘date’, ‘sequence’)</p>
+<dd class="field-odd"><p>dict, str, list</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -440,10 +440,10 @@ The path need not exist.</p>
 the form yyyy-mm-dd_n_subject</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>An acquisition.Session table corresponding to the ref</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>An acquisition.Session table</p>
+<dd class="field-odd"><p>acquisition.Session</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -472,10 +472,10 @@ the form yyyy-mm-dd_n_subject</p>
 the form yyyy-mm-dd_n_subject</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>True if ref is valid</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>True if ref is valid</p>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -505,10 +505,10 @@ the form yyyy-mm-dd_n_subject</p>
 <dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>list</em>) – One or more experiment reference strings</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A Bunch in with keys (‘subject’, ‘sequence’, ‘date’)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A Bunch in with keys (‘subject’, ‘sequence’, ‘date’)</p>
+<dd class="field-odd"><p>iblutil.util.Bunch</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -525,7 +525,7 @@ the form yyyy-mm-dd_n_subject</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.dict2ref">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">dict2ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.dict2ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.dict2ref" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">dict2ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.dict2ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.dict2ref" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -543,10 +543,10 @@ Unlike <cite>to_eid</cite>, this function does not require ONE, and the dataset 
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>The local path for a given dataset</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>The local path for a given dataset</p>
+<dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -567,10 +567,10 @@ repository</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>File path or list of paths</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>File path or list of paths</p>
+<dd class="field-odd"><p>pathlib.Path, list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -590,10 +590,10 @@ otherwise if the root_path is a PurePath, the same path type is returned.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A filepath as a pathlib object</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A filepath as a pathlib object</p>
+<dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>

@@ -97,16 +97,42 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.alf.exceptions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;ALyx file related errors</span>
+<span></span><span class="sd">&quot;&quot;&quot;ALyx File related errors</span>
+
 <span class="sd">A set of Alyx and ALF related error classes which provide a more verbose description of the raised</span>
 <span class="sd">issues.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="ALFError"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFError">[docs]</a><span class="k">class</span> <span class="nc">ALFError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A base class for ALF-related errors</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    explanation : str</span>
+<span class="sd">        An optional, verbose but general explanation of the error class.  All errors will display</span>
+<span class="sd">        the same explanation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">explanation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">terse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A base ALF exception</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : str, any</span>
+<span class="sd">            A specific error message to display or items to include in message</span>
+<span class="sd">        terse : bool</span>
+<span class="sd">            If True, the explanation string is not included in exception message</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; raise ALFError(&quot;ALF directory doesn&#39;t exist&quot;)</span>
+<span class="sd">        one.alf.exceptions.ALFError: ALF directory doesn&#39;t exist</span>
+
+<span class="sd">        &gt;&gt;&gt; raise ALFError(&#39;invalid/path/one&#39;, &#39;invalid/path/two&#39;)</span>
+<span class="sd">        one.alf.exceptions.ALFError: &quot;invalid/path/one&quot;, &quot;invalid/path/two&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -121,16 +147,26 @@
 
 
 <div class="viewcode-block" id="AlyxSubjectNotFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.AlyxSubjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">AlyxSubjectNotFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&#39;Subject not found&#39; error&quot;&quot;&quot;</span>
     <span class="n">explanation</span> <span class="o">=</span> <span class="s1">&#39;The subject was not found in Alyx database&#39;</span></div>
 
 
+<div class="viewcode-block" id="ALFObjectNotFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFObjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">ALFObjectNotFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&#39;Object not found&#39; error&quot;&quot;&quot;</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The ALF object was not found.  This may occur if the object or namespace or &#39;</span>
+                   <span class="s1">&#39;incorrectly formatted e.g. the object &quot;_ibl_trials.intervals.npy&quot; would be &#39;</span>
+                   <span class="s1">&#39;found with the filters `object=&quot;trials&quot;, namespace=&quot;ibl&quot;`&#39;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ALFMultipleObjectsFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleObjectsFound">[docs]</a><span class="k">class</span> <span class="nc">ALFMultipleObjectsFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&#39;Multiple objects found&#39; error&quot;&quot;&quot;</span>
     <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The search object was not found.  ALF names have the pattern &#39;</span>
                    <span class="s1">&#39;(_namespace_)object.attribute(_timescale).extension, e.g. for the file &#39;</span>
                    <span class="s1">&#39;&quot;_ibl_trials.intervals.npy&quot; the object is &quot;trials&quot;&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ALFMultipleCollectionsFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound">[docs]</a><span class="k">class</span> <span class="nc">ALFMultipleCollectionsFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&#39;Multiple collections found&#39; error&quot;&quot;&quot;</span>
     <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The matching object/file(s) belong to more than one collection.  &#39;</span>
                    <span class="s1">&#39;ALF names have the pattern &#39;</span>
                    <span class="s1">&#39;collection/(_namespace_)object.attribute(_timescale).extension, e.g. for the &#39;</span>
@@ -138,15 +174,10 @@
 
 
 <div class="viewcode-block" id="ALFMultipleRevisionsFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleRevisionsFound">[docs]</a><span class="k">class</span> <span class="nc">ALFMultipleRevisionsFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&#39;Multiple objects found&#39; error&quot;&quot;&quot;</span>
     <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The matching object/file(s) belong to more than one revision.  &#39;</span>
                    <span class="s1">&#39;Multiple datasets in different revision folders were found with no default&#39;</span>
                    <span class="s1">&#39;specified.&#39;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ALFObjectNotFound"><a class="viewcode-back" href="../../../_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFObjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">ALFObjectNotFound</span><span class="p">(</span><span class="n">ALFError</span><span class="p">):</span>
-    <span class="n">explanation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;The ALF object was not found.  This may occur if the object or namespace or &#39;</span>
-                   <span class="s1">&#39;incorrectly formatted e.g. the object &quot;_ibl_trials.intervals.npy&quot; would be &#39;</span>
-                   <span class="s1">&#39;found with the filters `object=&quot;trials&quot;, namespace=&quot;ibl&quot;`&#39;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

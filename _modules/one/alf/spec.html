@@ -97,7 +97,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.alf.spec</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The complete AlF specification descriptors and validators&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;The complete ALF specification descriptors and validators&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
@@ -105,6 +105,7 @@
 
 <span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">flatten</span>
 
+<span class="sd">&quot;&quot;&quot;dict: The ALF part names and their definitions.&quot;&quot;&quot;</span>
 <span class="n">SPEC_DESCRIPTION</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;The name of the lab where the data were collected (optional).&#39;</span><span class="p">,</span>
     <span class="s1">&#39;Subjects&#39;</span><span class="p">:</span> <span class="s1">&#39;An optional directory to indicate that the experiment data are divided by &#39;</span>
@@ -183,12 +184,18 @@
                  <span class="s1">&#39;datatype as a top-level key &quot;dtype&quot;, using numpy naming conventions.&#39;</span>
 <span class="p">}</span>
 
-
-<span class="sd">&quot;&quot;&quot;The following are the specifications and patterns for ALFs&quot;&quot;&quot;</span>
+<span class="c1"># ========================================================== #</span>
+<span class="c1"># The following are the specifications and patterns for ALFs #</span>
+<span class="c1"># ========================================================== #</span>
+<span class="sd">&quot;&quot;&quot;str: The session specification pattern&quot;&quot;&quot;</span>
 <span class="n">SESSION_SPEC</span> <span class="o">=</span> <span class="s1">&#39;(</span><span class="si">{lab}</span><span class="s1">/Subjects/)?</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number}</span><span class="s1">&#39;</span>
+<span class="sd">&quot;&quot;&quot;str: The collection and revision specification pattern&quot;&quot;&quot;</span>
 <span class="n">COLLECTION_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(</span><span class="si">{collection}</span><span class="s1">/)?(#</span><span class="si">{revision}</span><span class="s1">#/)?&#39;</span>
+<span class="sd">&quot;&quot;&quot;str: The filename specification pattern&quot;&quot;&quot;</span>
 <span class="n">FILE_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_?</span><span class="si">{namespace}</span><span class="s1">?_?</span><span class="si">{object}</span><span class="s1">\.</span><span class="si">{attribute}</span><span class="s1">_?</span><span class="si">{timescale}</span><span class="s1">*\.?</span><span class="si">{extra}</span><span class="s1">*\.</span><span class="si">{extension}</span><span class="s1">$&#39;</span>
+<span class="sd">&quot;&quot;&quot;str: The collection, revision and filename specification pattern&quot;&quot;&quot;</span>
 <span class="n">REL_PATH_SPEC</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}{</span><span class="n">FILE_SPEC</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="sd">&quot;&quot;&quot;str: The full ALF path specification pattern&quot;&quot;&quot;</span>
 <span class="n">FULL_SPEC</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">SESSION_SPEC</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">REL_PATH_SPEC</span><span class="si">}</span><span class="s1">&#39;</span>
 
 <span class="n">_DEFAULT</span> <span class="o">=</span> <span class="p">(</span>
@@ -210,15 +217,15 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="path_pattern"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.path_pattern">[docs]</a><span class="k">def</span> <span class="nf">path_pattern</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Returns a template string representing the where the ALF parts lie in an ALF path</span>
+<div class="viewcode-block" id="path_pattern"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.path_pattern">[docs]</a><span class="k">def</span> <span class="nf">path_pattern</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns a template string representing the where the ALF parts lie in an ALF path.</span>
 <span class="sd">    Brackets denote optional parts.  This is used for documentation purposes only.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">?*</span><span class="se">\\</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">FULL_SPEC</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="describe"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.describe">[docs]</a><span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Print a description of an ALF part</span>
+    <span class="sd">&quot;&quot;&quot;Print a description of an ALF part.</span>
 <span class="sd">    Prints the path pattern along with a description of the given ALF part (or all parts if None).</span>
 
 <span class="sd">    Parameters</span>
@@ -231,7 +238,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">        None</span>
+<span class="sd">    None</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    -------</span>
@@ -263,14 +270,22 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a string to camel case.  Acronyms/initialisms are preserved.</span>
 
-<span class="sd">    Examples:</span>
-<span class="sd">        _dromedary(&#39;Hello world&#39;) == &#39;helloWorld&#39;</span>
-<span class="sd">        _dromedary(&#39;motion_energy&#39;) == &#39;motionEnergy&#39;</span>
-<span class="sd">        _dromedary(&#39;passive_RFM&#39;) == &#39;passive RFM&#39;</span>
-<span class="sd">        _dromedary(&#39;FooBarBaz&#39;) == &#39;fooBarBaz&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    string : str</span>
+<span class="sd">        To be converted to camel case</span>
 
-<span class="sd">    :param string: To be converted to camel case</span>
-<span class="sd">    :return: The string in camel case</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The string in camel case</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; _dromedary(&#39;Hello world&#39;) == &#39;helloWorld&#39;</span>
+<span class="sd">    &gt;&gt;&gt; _dromedary(&#39;motion_energy&#39;) == &#39;motionEnergy&#39;</span>
+<span class="sd">    &gt;&gt;&gt; _dromedary(&#39;passive_RFM&#39;) == &#39;passive RFM&#39;</span>
+<span class="sd">    &gt;&gt;&gt; _dromedary(&#39;FooBarBaz&#39;) == &#39;fooBarBaz&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_capitalize</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
@@ -303,18 +318,22 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A regular expression Pattern object</span>
+<span class="sd">    re.Pattern</span>
+<span class="sd">        A regular expression Pattern object</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    # Regex for a filename</span>
-<span class="sd">    pattern = regex(spec=FILE_SPEC)</span>
+<span class="sd">    Regex for a filename</span>
 
-<span class="sd">    # Regex for a complete path (including root)</span>
-<span class="sd">    pattern = &#39;.*&#39; + regex(spec=FULL_SPEC)</span>
+<span class="sd">    &gt;&gt;&gt; pattern = regex(spec=FILE_SPEC)</span>
 
-<span class="sd">    # Regex pattern for specific object name</span>
-<span class="sd">    pattern = regex(object=&#39;trials)</span>
+<span class="sd">    Regex for a complete path (including root)</span>
+
+<span class="sd">    &gt;&gt;&gt; pattern = &#39;.*&#39; + regex(spec=FULL_SPEC).pattern</span>
+
+<span class="sd">    Regex pattern for specific object name</span>
+
+<span class="sd">    &gt;&gt;&gt; pattern = regex(object=&#39;trials&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_DEFAULT</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -336,7 +355,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    True if filename is valid ALF</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if filename is valid ALF</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -354,16 +374,18 @@
 
 <div class="viewcode-block" id="is_session_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_session_path">[docs]</a><span class="k">def</span> <span class="nf">is_session_path</span><span class="p">(</span><span class="n">path_object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks if the syntax corresponds to a session path. Note that there is no physical check</span>
+<span class="sd">    Checks if the syntax corresponds to a session path.  Note that there is no physical check</span>
 <span class="sd">    about existence nor contents</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    path_object : str, pathlib.Path</span>
+<span class="sd">        The path object to validate</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    True if session path a valid ALF session path</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if session path a valid ALF session path</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session_spec</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex</span><span class="p">(</span><span class="n">SESSION_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">path_object</span><span class="p">,</span> <span class="s1">&#39;as_posix&#39;</span><span class="p">):</span>
@@ -374,14 +396,14 @@
 
 <div class="viewcode-block" id="is_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">is_uuid_string</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Bool test for randomly generated hexadecimal uuid validity</span>
+<span class="sd">    Bool test for randomly generated hexadecimal uuid validity.</span>
 <span class="sd">    NB: unlike is_uuid, is_uuid_string checks that uuid is correctly hyphen separated</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="n">string</span><span class="p">))</span> <span class="o">==</span> <span class="n">string</span></div>
 
 
 <div class="viewcode-block" id="is_uuid"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_uuid">[docs]</a><span class="k">def</span> <span class="nf">is_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Bool test for randomly generated hexadecimal uuid validity</span>
+    <span class="sd">&quot;&quot;&quot;Bool test for randomly generated hexadecimal uuid validity.</span>
 <span class="sd">    Unlike `is_uuid_string`, this function accepts UUID objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="p">(</span><span class="n">UUID</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
@@ -416,7 +438,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A file name string built from the ALF parts</span>
+<span class="sd">    str</span>
+<span class="sd">        A file name string built from the ALF parts</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>

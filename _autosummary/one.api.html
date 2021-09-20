@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="one.converters" href="one.converters.html" />
-    <link rel="prev" title="one.alf.spec.SPEC_DESCRIPTION" href="one.alf.spec.SPEC_DESCRIPTION.html" /> 
+    <link rel="prev" title="one.alf.spec.REL_PATH_SPEC" href="one.alf.spec.REL_PATH_SPEC.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -140,25 +140,11 @@
 </style>
 <section id="module-one.api">
 <span id="one-api"></span><h1>one.api<a class="headerlink" href="#module-one.api" title="Permalink to this headline"></a></h1>
-<p>Classes for searching, listing and (down)loading ALyx Files
-TODO Document
-TODO Add sig to ONE Light uuids
+<p>Classes for searching, listing and (down)loading ALyx Files.</p>
+<p>TODO Add sig to ONE Light uuids
 TODO Save changes to cache
 TODO Fix update cache in AlyxONE - save parquet table
 TODO save parquet in update_filesystem</p>
-<p>Points of discussion:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Module structure: oneibl is too restrictive, naming module <cite>one</cite> means obj should have
-different name</p></li>
-<li><p>Download datasets timeout</p></li>
-<li><p>Support for pids?</p></li>
-<li><p>Need to check performance of 1. (re)setting index, 2. converting object array to 2D int array</p></li>
-<li><p>NB: Sessions table date ordered.  Indexing by eid is therefore O(N) but not done in code.
-Datasets table has sorted index.</p></li>
-<li><p>Conceivably you could have a subclass for Figshare, etc., not just Alyx</p></li>
-</ul>
-</div></blockquote>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -222,7 +208,7 @@ Datasets table has sorted index.</p></li>
 <dt class="sig sig-object py" id="one.api.One.search">
 <span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.search" title="Permalink to this definition"></a></dt>
 <dd><p>Searches sessions matching the given criteria and returns a list of matching eids</p>
-<p>For a list of search terms, use the methods</p>
+<p>For a list of search terms, use the method</p>
 <blockquote>
 <div><p>one.search_terms()</p>
 </div></blockquote>
@@ -252,8 +238,9 @@ will be found)</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>list of eids, if details is True, also returns a list of dictionaries, each entry</em></p></li>
-<li><p><em>corresponding to a matching session</em></p></li>
+<li><p><em>list</em> – A list of eids</p></li>
+<li><p><em>(list)</em> – (If details is True) a list of dictionaries, each entry corresponding to a matching
+session</p></li>
 </ul>
 </p>
 </dd>
@@ -271,10 +258,10 @@ will be found)</p></li>
 <dd><p>List all subjects in database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
+<dd class="field-odd"><p>Sorted list of subject names</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Sorted list of subject names</p>
+<dd class="field-even"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -303,10 +290,10 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Slice of datasets table or numpy array if details is False</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Slice of datasets table or numpy array if details is False</p>
+<dd class="field-odd"><p>np.ndarray, pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,10 +313,10 @@ otherwise a numpy array of unique collections</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A list of unique collections or dict of datasets tables</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A numpy array of unique collections or dict of datasets tables</p>
+<dd class="field-odd"><p>list, dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -349,10 +336,10 @@ otherwise a numpy array of unique collections</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A list of unique collections or dict of datasets tables</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A numpy array of unique collections or dict of datasets tables</p>
+<dd class="field-odd"><p>list, dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -382,21 +369,25 @@ see the one.alf.spec.describe function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>An ALF bunch or if download_only is True, a list of Paths objects</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>An ALF bunch or if download_only is True, a list of Paths objects</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.io.html#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch">one.alf.io.AlfBunch</a>, list</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>load_object(eid, ‘moves’)
-load_object(eid, ‘trials’)
-load_object(eid, ‘spikes’, collection=’<em>probe01’)  # wildcards is True
-load_object(eid, ‘spikes’, collection=’.*probe01’)  # wildcards is False
-load_object(eid, ‘spikes’, namespace=’ibl’)
-load_object(eid, ‘spikes’, timescale=’ephysClock’)
-# Load specific attributes
-load_object(eid, ‘spikes’, attribute=[‘times</em>’, ‘clusters’])</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;moves&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe01&#39;</span><span class="p">)</span>  <span class="c1"># wildcards is True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;.*probe01&#39;</span><span class="p">)</span>  <span class="c1"># wildcards is False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;ibl&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="s1">&#39;ephysClock&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load specific attributes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times*&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -422,23 +413,25 @@ permitted.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Dataset or a Path object if download_only is true.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Dataset or a Path object if download_only is true.</p>
+<dd class="field-odd"><p>np.ndarray, pathlib.Path</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>intervals = one.load_dataset(eid, ‘_ibl_trials.intervals.npy’)
-# Load dataset without specifying extension
-intervals = one.load_dataset(eid, ‘trials.intervals’)  # wildcard mode only
-intervals = one.load_dataset(eid, ‘<em>trials.intervals</em>’)  # wildcard mode only
-filepath = one.load_dataset(eid ‘_ibl_trials.intervals.npy’, download_only=True)
-spike_times = one.load_dataset(eid ‘spikes.times.npy’, collection=’alf/probe01’)
-old_spikes = one.load_dataset(eid, ‘spikes.times.npy’,</p>
-<blockquote>
-<div><p>collection=’alf/probe01’, revision=’2020-08-31’)</p>
-</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load dataset without specifying extension</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals&#39;</span><span class="p">)</span>  <span class="c1"># wildcard mode only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;.*trials.intervals.*&#39;</span><span class="p">)</span>  <span class="c1"># regex mode only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-08-31&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -468,8 +461,8 @@ permitted.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>Returns a list of data (or file paths) the length of datasets, and a list of</em></p></li>
-<li><p><em>meta data Bunches. If assert_present is False, missing data will be None</em></p></li>
+<li><p><em>list</em> – A list of data (or file paths) the length of datasets</p></li>
+<li><p><em>list</em> – A list of meta data Bunches. If assert_present is False, missing data will be None</p></li>
 </ul>
 </p>
 </dd>
@@ -489,10 +482,10 @@ permitted.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Dataset data (or filepath if download_only) and dataset record if details is True</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Dataset data (or filepath if download_only) and dataset record if details is True</p>
+<dd class="field-odd"><p>np.ndarray, pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -529,10 +522,10 @@ location is used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>An One instance if mode is ‘local’, otherwise an OneAlyx instance.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>An One instance if mode is ‘local’, otherwise an OneAlyx instance.</p>
+<dd class="field-odd"><p><a class="reference internal" href="#one.api.One" title="one.api.One">One</a>, <a class="reference internal" href="#one.api.OneAlyx" title="one.api.OneAlyx">OneAlyx</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -560,10 +553,10 @@ location is used.</p></li>
 <dd class="field-odd"><p><strong>query_type</strong> (<em>str</em>) – If ‘remote’, the search terms are largely determined by the REST endpoint used</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Tuple of search strings</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tuple of search strings</p>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 </dd></dl>
@@ -597,10 +590,10 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Slice of datasets table or numpy array if details is False</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Slice of datasets table or numpy array if details is False</p>
+<dd class="field-odd"><p>np.ndarray, pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -623,10 +616,11 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>experiment ID, probe label</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>str</em> – Experiment ID (eid)</p></li>
+<li><p><em>str</em> – Probe label</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -672,8 +666,9 @@ Note: this corresponds to the specific rig, not the lab geographical location pe
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>List of eids and, if details is True, also returns a list of dictionaries, each entry</em></p></li>
-<li><p><em>corresponding to a matching session</em></p></li>
+<li><p><em>list</em> – List of eids</p></li>
+<li><p><em>(list of dicts)</em> – If details is True, also returns a list of dictionaries, each entry corresponding to a
+matching session</p></li>
 </ul>
 </p>
 </dd>
@@ -699,10 +694,10 @@ details dict or Path.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A session path or list of session paths</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A session path or list of session paths</p>
+<dd class="field-odd"><p>pathlib.Path, list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,17 +714,17 @@ details dict or Path.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>An eid or list of eids</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>An eid or list of eids</p>
+<dd class="field-odd"><p>str, list</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.path2url">
-<span class="sig-name descname"><span class="pre">path2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.path2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.path2url" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">path2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.path2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.path2url" title="Permalink to this definition"></a></dt>
 <dd><p>Given a local file path, returns the URL of the remote file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -739,10 +734,10 @@ details dict or Path.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A URL string</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A URL string</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -761,17 +756,17 @@ details dict or Path.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A numpy array of data, or DataFrame if details is true</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A numpy array of data, or DataFrame if details is true</p>
+<dd class="field-odd"><p>np.ndarray, dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.dataset2type">
-<span class="sig-name descname"><span class="pre">dataset2type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.dataset2type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.dataset2type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dataset2type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.dataset2type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.dataset2type" title="Permalink to this definition"></a></dt>
 <dd><p>Return dataset type from dataset</p>
 </dd></dl>
 
@@ -787,10 +782,10 @@ details dict or Path.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>None if full is false or no record found, otherwise returns record as dict</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None if full is false or no record found, otherwise returns record as dict</p>
+<dd class="field-odd"><p>None, dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -810,7 +805,7 @@ session details.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.alf.spec.SPEC_DESCRIPTION.html" class="btn btn-neutral float-left" title="one.alf.spec.SPEC_DESCRIPTION" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.alf.spec.REL_PATH_SPEC.html" class="btn btn-neutral float-left" title="one.alf.spec.REL_PATH_SPEC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="one.converters.html" class="btn btn-neutral float-right" title="one.converters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

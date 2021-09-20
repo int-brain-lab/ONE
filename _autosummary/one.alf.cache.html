@@ -148,8 +148,14 @@
 </style>
 <section id="module-one.alf.cache">
 <span id="one-alf-cache"></span><h1>one.alf.cache<a class="headerlink" href="#module-one.alf.cache" title="Permalink to this headline"></a></h1>
-<p>Construct Parquet database from local file system.
-TODO Deal graciously with empty tables</p>
+<p>Construct Parquet database from local file system.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">One</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cache_dir</span> <span class="o">=</span> <span class="s1">&#39;path/to/data&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_parquet_db</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
+</pre></div>
+</div>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -158,14 +164,37 @@ TODO Deal graciously with empty tables</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.cache.make_parquet_db" title="one.alf.cache.make_parquet_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_parquet_db</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Given a data directory, index the ALF datasets and save the generated cache tables.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.cache.make_parquet_db">
 <span class="sig-name descname"><span class="pre">make_parquet_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/cache.html#make_parquet_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.cache.make_parquet_db" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Given a data directory, index the ALF datasets and save the generated cache tables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The file directory to index.</p></li>
+<li><p><strong>out_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Optional output directory to save cache tables.  If None, the files are saved into the
+root directory.</p></li>
+<li><p><strong>hash_ids</strong> (<em>bool</em>) – If True, experiment and dataset IDs will be UUIDs generated from the system and relative
+paths.</p></li>
+<li><p><strong>hash_files</strong> (<em>bool</em>) – If True, an MD5 hash is computed for each dataset and stored in the datasets table.
+This will substantially increase cache generation time.</p></li>
+<li><p><strong>lab</strong> (<em>str</em>) – An optional lab name to associate with the data.  If the folder structure
+contains ‘lab/Subjects’, the lab name will be taken from the folder name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pathlib.Path</em> – The full path of the saved sessions parquet table</p></li>
+<li><p><em>pathlib.Path</em> – The full path of the saved datasets parquet table</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 

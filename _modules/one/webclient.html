@@ -107,10 +107,12 @@
 <span class="sd">...     username=&#39;test_user&#39;, password=&#39;TapetesBloc18&#39;,</span>
 <span class="sd">...     base_url=&#39;https://test.alyx.internationalbrainlab.org&#39;)</span>
 
-<span class="sd"># List subjects</span>
+<span class="sd">List subjects</span>
+
 <span class="sd">&gt;&gt;&gt; subjects = alyx.rest(&#39;subjects&#39;, &#39;list&#39;)</span>
 
-<span class="sd"># Create a subject</span>
+<span class="sd">Create a subject</span>
+
 <span class="sd">&gt;&gt;&gt; record = {</span>
 <span class="sd">...     &#39;nickname&#39;: nickname,</span>
 <span class="sd">...     &#39;responsible_user&#39;: &#39;olivier&#39;,</span>
@@ -120,9 +122,10 @@
 <span class="sd">... }</span>
 <span class="sd">... new_subj = alyx.rest(&#39;subjects&#39;, &#39;create&#39;, data=record)</span>
 
-<span class="sd"># Download a remote file, given a local path</span>
+<span class="sd">Download a remote file, given a local path</span>
+
 <span class="sd">&gt;&gt;&gt; url = &#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
-<span class="sd">&gt;&gt;&gt; local_path = self.alyx.download_file(url)</span>
+<span class="sd">&gt;&gt;&gt; local_path = alyx.download_file(url)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -155,9 +158,10 @@
 
 
 <span class="k">def</span> <span class="nf">_cache_response</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorator for the generic request method; caches the result of the query and on subsequent</span>
-<span class="sd">    calls, returns cache instead of hitting the database</span>
+    <span class="sd">&quot;&quot;&quot;Decorator for the generic request method</span>
+
+<span class="sd">    Caches the result of the query and on subsequent calls, returns cache instead of hitting the</span>
+<span class="sd">    database</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -235,8 +239,11 @@
 <span class="k">class</span> <span class="nc">_PaginatedResponse</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class allows to emulate a list from a paginated response.</span>
-<span class="sd">    Provides cache functionality</span>
-<span class="sd">    PaginatedResponse(alyx, response)</span>
+<span class="sd">    Provides cache functionality.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    r = PaginatedResponse(client, response)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="p">,</span> <span class="n">rep</span><span class="p">,</span> <span class="n">cache_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

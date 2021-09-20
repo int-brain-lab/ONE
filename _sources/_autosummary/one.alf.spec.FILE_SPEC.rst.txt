@@ -1,0 +1,6 @@
+one.alf.spec.FILE\_SPEC
+=======================
+
+.. currentmodule:: one.alf.spec
+
+.. autodata:: FILE_SPEC

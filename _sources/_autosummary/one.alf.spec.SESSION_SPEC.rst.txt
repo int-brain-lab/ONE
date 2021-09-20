@@ -1,0 +1,6 @@
+one.alf.spec.SESSION\_SPEC
+==========================
+
+.. currentmodule:: one.alf.spec
+
+.. autodata:: SESSION_SPEC

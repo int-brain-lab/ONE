@@ -11,6 +11,10 @@ one.alf.spec
       :toctree:
    
       SPEC_DESCRIPTION
+      SESSION_SPEC
+      COLLECTION_SPEC
+      FILE_SPEC
+      REL_PATH_SPEC
    
    
 
