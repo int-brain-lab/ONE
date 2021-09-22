@@ -178,7 +178,7 @@ For a full overview of the scope of the format, see:</p>
 <td><p>Returns content of files.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.load_object" title="one.alf.io.load_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_object</span></code></a></p></td>
-<td><p>Reads all files (i.e.</p></td>
+<td><p>Reads all files sharing the same object name.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.next_num_folder" title="one.alf.io.next_num_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_num_folder</span></code></a></p></td>
 <td><p>Return the next number for a session given a session_date_folder</p></td>
@@ -226,7 +226,13 @@ For a full overview of the scope of the format, see:</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch.check_dimensions">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">check_dimensions</span></span><a class="headerlink" href="#one.alf.io.AlfBunch.check_dimensions" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>0 for consistent dimensions, 1 for inconsistent dimensions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch.append">
@@ -394,7 +400,7 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.load_object">
 <span class="sig-name descname"><span class="pre">load_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alfpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.load_object" title="Permalink to this definition"></a></dt>
-<dd><p>Reads all files (i.e. attributes) sharing the same object.</p>
+<dd><p>Reads all files sharing the same object name.</p>
 <p>For example, if the file provided to the function is <cite>spikes.times</cite>, the function will
 load <cite>spikes.times</cite>, <cite>spikes.clusters</cite>, <cite>spikes.depths</cite>, <cite>spike.amps</cite> in a dictionary
 whose keys will be <cite>times</cite>, <cite>clusters</cite>, <cite>depths</cite>, <cite>amps</cite></p>
@@ -414,7 +420,7 @@ and timescale</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A ALFBunch (dict-like) of all attributes pertaining to the object</p>
+<dd class="field-even"><p>An ALFBunch (dict-like) of all attributes pertaining to the object</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch">AlfBunch</a></p>

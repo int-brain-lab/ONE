@@ -132,6 +132,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: 0 for consistent dimensions, 1 for inconsistent dimensions&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AlfBunch.append"><a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.AlfBunch.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -511,7 +512,7 @@
 
 
 <div class="viewcode-block" id="load_object"><a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.load_object">[docs]</a><span class="k">def</span> <span class="nf">load_object</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">short_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reads all files (i.e. attributes) sharing the same object.</span>
+    <span class="sd">&quot;&quot;&quot;Reads all files sharing the same object name.</span>
 
 <span class="sd">    For example, if the file provided to the function is `spikes.times`, the function will</span>
 <span class="sd">    load `spikes.times`, `spikes.clusters`, `spikes.depths`, `spike.amps` in a dictionary</span>
@@ -540,7 +541,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    AlfBunch</span>
-<span class="sd">        A ALFBunch (dict-like) of all attributes pertaining to the object</span>
+<span class="sd">        An ALFBunch (dict-like) of all attributes pertaining to the object</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>

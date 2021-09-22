@@ -125,7 +125,7 @@
 <div class="viewcode-block" id="ses2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a><span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record.</span>
 
-<span class="sd">    TODO Fix for new tables; use to update caches from remote queries</span>
+<span class="sd">    TODO Fix for new tables; use to update caches from remote queries.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -375,16 +375,20 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Filter by dataset name and collection</span>
+
 <span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, &#39;*.spikes.times.*&#39;, &#39;alf/probe00&#39;)</span>
 
 <span class="sd">    Filter datasets not in a collection</span>
+
 <span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, collection=&#39;&#39;)</span>
 
 <span class="sd">    Filter by matching revision</span>
+
 <span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, &#39;spikes.times.npy&#39;,</span>
 <span class="sd">    ...                        revision=&#39;2020-01-12&#39;, revision_last_before=False)</span>
 
 <span class="sd">    Filter by filename parts</span>
+
 <span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, dict(object=&#39;spikes&#39;, attribute=&#39;times&#39;))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create a regular expression string to match relative path against</span>

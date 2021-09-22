@@ -205,7 +205,7 @@
 <dt class="sig sig-object py" id="one.util.ses2records">
 <span class="sig-name descname"><span class="pre">ses2records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.ses2records" title="Permalink to this definition"></a></dt>
 <dd><p>Extract session cache record and datasets cache from a remote session data record.</p>
-<p>TODO Fix for new tables; use to update caches from remote queries</p>
+<p>TODO Fix for new tables; use to update caches from remote queries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ses</strong> (<em>dict</em>) – Session dictionary from Alyx REST endpoint</p>
@@ -330,15 +330,23 @@ with regular expressions permitted.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>Filter by dataset name and collection
-&gt;&gt;&gt; datasets = filter_datasets(all_datasets, ‘<em>.spikes.times.</em>’, ‘alf/probe00’)</p>
-<p>Filter datasets not in a collection
-&gt;&gt;&gt; datasets = filter_datasets(all_datasets, collection=’’)</p>
-<p>Filter by matching revision
-&gt;&gt;&gt; datasets = filter_datasets(all_datasets, ‘spikes.times.npy’,
-…                        revision=’2020-01-12’, revision_last_before=False)</p>
-<p>Filter by filename parts
-&gt;&gt;&gt; datasets = filter_datasets(all_datasets, dict(object=’spikes’, attribute=’times’))</p>
+<p>Filter by dataset name and collection</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="s1">&#39;*.spikes.times.*&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe00&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Filter datasets not in a collection</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Filter by matching revision</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-12&#39;</span><span class="p">,</span> <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Filter by filename parts</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
