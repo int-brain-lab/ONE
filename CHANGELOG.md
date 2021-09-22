@@ -9,6 +9,12 @@
 - Improved test coverage
 - Docs formatting
 - One list_* methods return list instead of np arrays
+- get_details returns dict with 'date' key in remote mode
+- eid2ref works in offline mode
+
+### Added
+
+- tests for eid2ref
 
 ## [1.3.0]
 
