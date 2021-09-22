@@ -328,6 +328,7 @@ def _patch_params():
 
     # Remove the old parameters file
     old_path = Path(iopar.getfile(OLD_PAR_STR))
-    old_path.unlink(missing_ok=True)
+    if old_path.exists():
+        old_path.unlink()
 
     return par
