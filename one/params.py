@@ -121,14 +121,17 @@ def setup(client=None, silent=False, make_default=None):
             if 'PWD' not in k and not (client and k == 'ALYX_URL'):
                 par[k] = input(f'Param {k}, current value is ["{str(cpar)}"]:') or cpar
 
-        cpar = _get_current_par('ALYX_PWD', par_current)
-        prompt = f'Enter the Alyx password for {par["ALYX_LOGIN"]} (leave empty to keep current):'
-        par['ALYX_PWD'] = getpass(prompt) or cpar
-
         cpar = _get_current_par('HTTP_DATA_SERVER_PWD', par_current)
         prompt = f'Enter the FlatIron HTTP password for {par["HTTP_DATA_SERVER_LOGIN"]} '\
                  '(leave empty to keep current): '
         par['HTTP_DATA_SERVER_PWD'] = getpass(prompt) or cpar
+
+        if 'ALYX_PWD' in par_current.as_dict():
+            # Only store plain text password if user manually added it to params JSON file
+            cpar = _get_current_par('ALYX_PWD', par_current)
+            prompt = (f'Enter the Alyx password for {par["ALYX_LOGIN"]} '
+                      '(leave empty to keep current):')
+            par['ALYX_PWD'] = getpass(prompt) or cpar
 
         par = iopar.from_dict(par)
 

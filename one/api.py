@@ -455,7 +455,7 @@ class One(ConversionMixin):
         list
             Sorted list of subject names
         """
-        return self._cache['sessions']['subject'].sort_values().unique()
+        return self._cache['sessions']['subject'].sort_values().unique().tolist()
 
     @util.refresh
     def list_datasets(self, eid=None, collection=None, revision=None, filename=None,
@@ -512,7 +512,7 @@ class One(ConversionMixin):
 
         datasets = util.filter_datasets(datasets, **filter_args)
         # Return only the relative path
-        return datasets if details else datasets['rel_path'].sort_values().values
+        return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
     @util.refresh
     def list_collections(self, eid=None, details=False, collection=None,
@@ -932,7 +932,8 @@ class One(ConversionMixin):
         """
         if not cache_dir:
             cache_dir = input(f'Select a directory from which to build cache ({Path.cwd()})')
-            cache_dir = Path(cache_dir) or Path.cwd()
+            cache_dir = cache_dir or Path.cwd()
+        cache_dir = Path(cache_dir)
         assert cache_dir.exists(), f'{cache_dir} does not exist'
 
         # Check if cache already exists
@@ -1156,7 +1157,7 @@ class OneAlyx(One):
             return self._cache['datasets'].iloc[0:0]  # Return empty
         _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
         # Return only the relative path
-        return datasets if details else list(datasets['rel_path'].sort_values().values)
+        return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
     @util.refresh
     def pid2eid(self, pid: str, query_type=None) -> (str, str):
@@ -1421,7 +1422,7 @@ class OneAlyx(One):
         """
         base_url = base_url or one.params.get_default_client()
         cache_map = one.params.setup(client=base_url, **kwargs)
-        return OneAlyx(base_url or cache_map['DEFAULT'], silent=kwargs.get('silent', False))
+        return OneAlyx(base_url=base_url or one.params.get(cache_map.DEFAULT).ALYX_URL)
 
     @util.refresh
     @util.parse_id

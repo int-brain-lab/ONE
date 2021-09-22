@@ -1,5 +1,16 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.4.0]
+
+### Modified
+
+- One and OneAlyx setup methods
+- Old params files now cleaned up
+- Removed ALYX_PWD prompt from setup
+- Improved test coverage
+- Docs formatting
+
+## [1.3.0]
+
 ### Modified
 
 - propagate down filter datasets filters

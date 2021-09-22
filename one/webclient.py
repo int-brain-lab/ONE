@@ -444,7 +444,6 @@ class AlyxClient():
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent)
-        # TODO Pass these to `params.get` and have it deal with setup defaults
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
         self.authenticate(username, password, cache_token=stay_logged_in)
