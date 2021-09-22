@@ -1,3 +1,4 @@
+"""Unit tests for the one.alf.spec module"""
 import unittest.mock
 import re
 import io

@@ -2,10 +2,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
 ![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
 
-**NB: This package is currently in beta**
+[Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.
 
 ## Installing
-For Python 3.8 or later, run
+For Python 3.7 or later, run
 ```
 pip install ONE-api
 ```
@@ -74,4 +74,4 @@ ts = one.load_dataset(eid, 'wheel.timestamps', collection='alf')
 filename = one.load_dataset(eid, 'wheel.timestamps', download_only=True)
 ```
 
-Further examples and tutorials can be found in `examples/`
+Further examples and tutorials can be found in the documentation.

@@ -2,7 +2,8 @@
 import os
 import json
 from pathlib import Path
-# Flag for skipping tests that require an http connection
+
+"""int: Flag for skipping tests that require an http connection"""
 OFFLINE_ONLY = int(os.getenv('OFFLINE_ONLY', '0'))
 
 

@@ -1,3 +1,4 @@
+"""Unit tests for Alyx REST queries using the AlyxClient.rest method"""
 from pathlib import Path
 import unittest
 import random

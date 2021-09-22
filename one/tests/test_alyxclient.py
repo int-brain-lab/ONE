@@ -1,3 +1,4 @@
+"""Unit tests for the one.webclient module"""
 import unittest
 from unittest import mock
 from pathlib import Path
