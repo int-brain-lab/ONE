@@ -162,7 +162,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">            Newly created session paths; Alyx session records</span>
+<span class="sd">        list of pathlib.Paths</span>
+<span class="sd">            Newly created session paths</span>
+<span class="sd">        list of dicts</span>
+<span class="sd">            Alyx session records</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flag_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_data_folder</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_pattern</span><span class="p">))</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
@@ -186,7 +189,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Newly created session record</span>
+<span class="sd">        dict</span>
+<span class="sd">            Newly created session record</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -207,16 +211,24 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        New local session path; the experiment UUID if register is true</span>
+<span class="sd">        pathlib.Path</span>
+<span class="sd">            New local session path</span>
+<span class="sd">        str</span>
+<span class="sd">            The experiment UUID if register is True</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        # Create a local session only</span>
-<span class="sd">        session_path, _ = RegistrationClient.create_new_session(&#39;Ian&#39;, register=False)</span>
-<span class="sd">        # Register a session on Alyx in a specific location</span>
-<span class="sd">        session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, &#39;/data/mylab/Subjects&#39;)</span>
-<span class="sd">        # Create a session for a given date</span>
-<span class="sd">        session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, date=&#39;2020-01-01&#39;)</span>
+<span class="sd">        Create a local session only</span>
+
+<span class="sd">        &gt;&gt;&gt; session_path, _ = RegistrationClient.create_new_session(&#39;Ian&#39;, register=False)</span>
+
+<span class="sd">        Register a session on Alyx in a specific location</span>
+
+<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, &#39;/data/mylab/Subjects&#39;)</span>
+
+<span class="sd">        Create a session for a given date</span>
+
+<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, date=&#39;2020-01-01&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;ONE must be in online mode&#39;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>  <span class="c1"># Format, validate</span>
@@ -239,7 +251,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Iterable of file paths that match the dataset type patterns in Alyx</span>
+<span class="sd">        generator</span>
+<span class="sd">            Iterable of file paths that match the dataset type patterns in Alyx</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
         <span class="n">types</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">])</span>
@@ -259,9 +272,9 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        client.assert_exists(&#39;ALK_036&#39;, &#39;subjects&#39;)</span>
-<span class="sd">        client.assert_exists(&#39;user_45&#39;, &#39;users&#39;)</span>
-<span class="sd">        client.assert_exists(&#39;local_server&#39;, &#39;repositories&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.assert_exists(&#39;ALK_036&#39;, &#39;subjects&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.assert_exists(&#39;user_45&#39;, &#39;users&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.assert_exists(&#39;local_server&#39;, &#39;repositories&#39;)</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        -------</span>
@@ -297,7 +310,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        The datetime as an ISO 8601 str</span>
+<span class="sd">        str</span>
+<span class="sd">            The datetime as an ISO 8601 string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>  <span class="c1"># If None get current time</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -338,7 +352,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        An Alyx session record and list of file records (or None if file_list is False)</span>
+<span class="sd">        dict</span>
+<span class="sd">            An Alyx session record</span>
+<span class="sd">        list, None</span>
+<span class="sd">            Alyx file records (or None if file_list is False)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">ses_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ses_path</span><span class="p">)</span>
@@ -413,7 +430,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">            A list of newly created Alyx dataset records or the registration data if dry == true</span>
+<span class="sd">        list of dicts, dict</span>
+<span class="sd">            A list of newly created Alyx dataset records or the registration data if dry</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">F</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map whose keys will be session paths</span>
         <span class="n">V</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map for versions</span>
@@ -503,7 +521,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        A water administration record</span>
+<span class="sd">        dict</span>
+<span class="sd">            A water administration record</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -558,7 +577,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        An Alyx weight record</span>
+<span class="sd">        dict</span>
+<span class="sd">            An Alyx weight record</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>

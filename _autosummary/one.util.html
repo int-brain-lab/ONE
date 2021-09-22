@@ -149,7 +149,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.Listable" title="one.util.Listable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Listable</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Return a typing.Union if the input and sequence of input</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.autocomplete" title="one.util.autocomplete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">autocomplete</span></code></a></p></td>
 <td><p>Validate search term and return complete name, e.g.</p></td>
@@ -176,7 +176,7 @@
 <td><p>Refresh cache depending of query_type kwarg</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.ses2records" title="one.util.ses2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ses2records</span></code></a></p></td>
-<td><p>Extract session cache record and datasets cache from a remote session data record TODO Fix for new tables; use to update caches from remote queries</p></td>
+<td><p>Extract session cache record and datasets cache from a remote session data record.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.validate_date_range" title="one.util.validate_date_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_date_range</span></code></a></p></td>
 <td><p>Validates and arrange date range in a 2 elements list</p></td>
@@ -198,22 +198,24 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.Listable">
 <span class="sig-name descname"><span class="pre">Listable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#Listable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.Listable" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return a typing.Union if the input and sequence of input</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.ses2records">
 <span class="sig-name descname"><span class="pre">ses2records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.ses2records" title="Permalink to this definition"></a></dt>
-<dd><p>Extract session cache record and datasets cache from a remote session data record
-TODO Fix for new tables; use to update caches from remote queries</p>
+<dd><p>Extract session cache record and datasets cache from a remote session data record.</p>
+<p>TODO Fix for new tables; use to update caches from remote queries</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ses</strong> (<em>dict</em>) – Session dictionary from Alyx REST endpoint</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Session record, datasets frame</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pd.Series</em> – Session record</p></li>
+<li><p><em>pd.DataFrame</em> – Datasets frame</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -227,15 +229,17 @@ TODO Fix for new tables; use to update caches from remote queries</p>
 <dd class="field-odd"><p><strong>datasets</strong> (<em>dict</em><em>, </em><em>list</em>) – One or more records from the Alyx ‘datasets’ endpoint</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Datasets frame</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Datasets frame</p>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>datasets = one.alyx.rest(‘datasets’, ‘list’, subject=’foobar’)
-df = datasets2records(datasets)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -247,10 +251,10 @@ df = datasets2records(datasets)</p>
 <dd class="field-odd"><p><strong>method</strong> (<em>function</em>) – An ONE method whose second arg is an experiment ID</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A wrapper function that parses the ID to the expected string</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A wrapper function that parses the ID to the expected string</p>
+<dd class="field-odd"><p>function</p>
 </dd>
 </dl>
 </dd></dl>

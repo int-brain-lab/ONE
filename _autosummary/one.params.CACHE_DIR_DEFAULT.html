@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>one &mdash; ONE  documentation</title>
+  <title>one.params.CACHE_DIR_DEFAULT &mdash; ONE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -23,8 +23,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="one.alf" href="one.alf.html" />
-    <link rel="prev" title="API Reference" href="../api_reference.html" /> 
+    <link rel="next" title="one.registration" href="one.registration.html" />
+    <link rel="prev" title="one.params" href="one.params.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -72,11 +72,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">one</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.params.html">one.params</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">one.params.CACHE_DIR_DEFAULT</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
@@ -103,9 +106,11 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
-      <li>one</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+          <li><a href="one.params.html">one.params</a> &raquo;</li>
+      <li>one.params.CACHE_DIR_DEFAULT</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/one.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/one.params.CACHE_DIR_DEFAULT.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -137,49 +142,27 @@
     text-align: unset;
 }
 </style>
-<section id="module-one">
-<span id="one"></span><h1>one<a class="headerlink" href="#module-one" title="Permalink to this headline"></a></h1>
-<p>The Open Neurophysiology Environment (ONE) API</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="one.alf.html#module-one.alf" title="one.alf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf</span></code></a></p></td>
-<td><p>Constructing, parsing, validating and loading ALyx Files (ALF)</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="one.api.html#module-one.api" title="one.api"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.api</span></code></a></p></td>
-<td><p>Classes for searching, listing and (down)loading ALyx Files.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="one.converters.html#module-one.converters" title="one.converters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.converters</span></code></a></p></td>
-<td><p>A module for inter-converting experiment identifiers.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="one.params.html#module-one.params" title="one.params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.params</span></code></a></p></td>
-<td><p>Functions for modifying, loading and saving ONE and Alyx database parameters.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="one.registration.html#module-one.registration" title="one.registration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.registration</span></code></a></p></td>
-<td><p>Session creation and datasets registration</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="one.tests.html#module-one.tests" title="one.tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.tests</span></code></a></p></td>
-<td><p>Tests for ONE-api</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="one.util.html#module-one.util" title="one.util"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.util</span></code></a></p></td>
-<td><p>Decorators and small standalone functions for api module</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="one.webclient.html#module-one.webclient" title="one.webclient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.webclient</span></code></a></p></td>
-<td><p>API for interacting with a remote Alyx instance through REST The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote files through Alyx.</p></td>
-</tr>
-</tbody>
-</table>
+<section id="one-params-cache-dir-default">
+<h1>one.params.CACHE_DIR_DEFAULT<a class="headerlink" href="#one-params-cache-dir-default" title="Permalink to this headline"></a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="one.params.CACHE_DIR_DEFAULT">
+<span class="sig-name descname"><span class="pre">CACHE_DIR_DEFAULT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'/home/runner/Downloads/ONE'</span></em><a class="headerlink" href="#one.params.CACHE_DIR_DEFAULT" title="Permalink to this definition"></a></dt>
+<dd><p>The default data download location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../api_reference.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="one.alf.html" class="btn btn-neutral float-right" title="one.alf" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="one.params.html" class="btn btn-neutral float-left" title="one.params" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.registration.html" class="btn btn-neutral float-right" title="one.registration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

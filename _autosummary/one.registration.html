@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="one.tests" href="one.tests.html" />
-    <link rel="prev" title="one.params" href="one.params.html" /> 
+    <link rel="prev" title="one.params.CACHE_DIR_DEFAULT" href="one.params.CACHE_DIR_DEFAULT.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -183,10 +183,11 @@ register_files - Register a list of files to their respective sessions on Alyx</
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Newly created session paths; Alyx session records</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>list of pathlib.Paths</em> – Newly created session paths</p></li>
+<li><p><em>list of dicts</em> – Alyx session records</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -200,10 +201,10 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The path ending with subject/date/number</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Newly created session record</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Newly created session record</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -223,19 +224,26 @@ cache directory.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>New local session path; the experiment UUID if register is true</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pathlib.Path</em> – New local session path</p></li>
+<li><p><em>str</em> – The experiment UUID if register is True</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p># Create a local session only
-session_path, _ = RegistrationClient.create_new_session(‘Ian’, register=False)
-# Register a session on Alyx in a specific location
-session_path, eid = RegistrationClient.create_new_session(‘Ian’, ‘/data/mylab/Subjects’)
-# Create a session for a given date
-session_path, eid = RegistrationClient.create_new_session(‘Ian’, date=’2020-01-01’)</p>
+<p>Create a local session only</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Register a session on Alyx in a specific location</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/mylab/Subjects&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a session for a given date</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -247,10 +255,10 @@ session_path, eid = RegistrationClient.create_new_session(‘Ian’, date=’202
 <dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The session path to search</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Iterable of file paths that match the dataset type patterns in Alyx</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Iterable of file paths that match the dataset type patterns in Alyx</p>
+<dd class="field-odd"><p>generator</p>
 </dd>
 </dl>
 </dd></dl>
@@ -268,9 +276,11 @@ session_path, eid = RegistrationClient.create_new_session(‘Ian’, date=’202
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>client.assert_exists(‘ALK_036’, ‘subjects’)
-client.assert_exists(‘user_45’, ‘users’)
-client.assert_exists(‘local_server’, ‘repositories’)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;ALK_036&#39;</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;user_45&#39;</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;local_server&#39;</span><span class="p">,</span> <span class="s1">&#39;repositories&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
@@ -291,10 +301,10 @@ client.assert_exists(‘local_server’, ‘repositories’)</p>
 <dd class="field-odd"><p><strong>date</strong> (<em>str</em><em>, </em><em>None</em><em>, </em><em>datetime.date</em><em>, </em><em>datetime.datetime</em>) – An optional date to convert to ISO string.  If None, the current datetime is used.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>The datetime as an ISO 8601 string</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>The datetime as an ISO 8601 str</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -321,10 +331,11 @@ session folder are registered.  If False, no files are registered</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>An Alyx session record and list of file records (or None if file_list is False)</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>dict</em> – An Alyx session record</p></li>
+<li><p><em>list, None</em> – Alyx file records (or None if file_list is False)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,10 +358,10 @@ session folder are registered.  If False, no files are registered</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A list of newly created Alyx dataset records or the registration data if dry</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A list of newly created Alyx dataset records or the registration data if dry == true</p>
+<dd class="field-odd"><p>list of dicts, dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -372,10 +383,10 @@ session folder are registered.  If False, no files are registered</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A water administration record</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A water administration record</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
@@ -402,10 +413,10 @@ session folder are registered.  If False, no files are registered</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>An Alyx weight record</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>An Alyx weight record</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
@@ -427,7 +438,7 @@ session folder are registered.  If False, no files are registered</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.params.html" class="btn btn-neutral float-left" title="one.params" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.params.CACHE_DIR_DEFAULT.html" class="btn btn-neutral float-left" title="one.params.CACHE_DIR_DEFAULT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="one.tests.html" class="btn btn-neutral float-right" title="one.tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

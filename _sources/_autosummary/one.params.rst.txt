@@ -5,6 +5,13 @@ one.params
 
    
    
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CACHE_DIR_DEFAULT
+   
    
 
    

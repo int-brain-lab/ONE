@@ -118,11 +118,13 @@
 
 
 <div class="viewcode-block" id="Listable"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.Listable">[docs]</a><span class="k">def</span> <span class="nf">Listable</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a typing.Union if the input and sequence of input&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Union</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">t</span><span class="p">]]</span></div>
 
 
 <div class="viewcode-block" id="ses2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a><span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record</span>
+    <span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record.</span>
+
 <span class="sd">    TODO Fix for new tables; use to update caches from remote queries</span>
 
 <span class="sd">    Parameters</span>
@@ -132,7 +134,10 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Session record, datasets frame</span>
+<span class="sd">    pd.Series</span>
+<span class="sd">        Session record</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Datasets frame</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract session record</span>
     <span class="n">eid</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">str2np</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
@@ -173,12 +178,13 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Datasets frame</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Datasets frame</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    datasets = one.alyx.rest(&#39;datasets&#39;, &#39;list&#39;, subject=&#39;foobar&#39;)</span>
-<span class="sd">    df = datasets2records(datasets)</span>
+<span class="sd">    &gt;&gt;&gt; datasets = ONE().alyx.rest(&#39;datasets&#39;, &#39;list&#39;, subject=&#39;foobar&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; df = datasets2records(datasets)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -215,7 +221,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A wrapper function that parses the ID to the expected string</span>
+<span class="sd">    function</span>
+<span class="sd">        A wrapper function that parses the ID to the expected string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>

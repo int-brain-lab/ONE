@@ -1,0 +1,6 @@
+one.params.CACHE\_DIR\_DEFAULT
+==============================
+
+.. currentmodule:: one.params
+
+.. autodata:: CACHE_DIR_DEFAULT
