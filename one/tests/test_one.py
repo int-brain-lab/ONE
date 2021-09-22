@@ -1,4 +1,4 @@
-"""Tests for the one.api module
+"""Unit tests for the one.api module
 
 Wherever possible the ONE tests should not rely on an internet connection
 

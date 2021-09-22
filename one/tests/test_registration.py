@@ -1,3 +1,4 @@
+"""Unit tests for the one.registration module"""
 import logging
 import unittest
 import unittest.mock

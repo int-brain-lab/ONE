@@ -144,7 +144,7 @@ class _PaginatedResponse(Mapping):
 
     Examples
     --------
-    r = PaginatedResponse(client, response)
+    >>> r = _PaginatedResponse(client, response)
     """
 
     def __init__(self, alyx, rep, cache_args=None):
@@ -211,6 +211,7 @@ def update_url_params(url: str, params: dict) -> str:
 
     Returns
     -------
+    str
         A new URL with said parameters updated
 
     Examples
@@ -248,7 +249,8 @@ def http_download_file_list(links_to_file_list, **kwargs):
 
     Returns
     -------
-    (list) a list of the local full path of the downloaded files.
+    list of pathlib.Path
+        A list of the local full path of the downloaded files.
     """
     file_names_list = []
     for link_str in links_to_file_list:
@@ -284,7 +286,8 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
 
     Returns
     -------
-    A list of the local full path of the downloaded files
+    pathlib.Path
+        The full file path of the downloaded file
     """
     if not full_link_to_file:
         return ''
@@ -371,7 +374,8 @@ def file_record_to_url(file_records) -> list:
 
     Returns
     -------
-    A list of strings representing full data urls
+    list of str
+        A list of full data urls
     """
     urls = []
     for fr in file_records:
@@ -391,7 +395,8 @@ def dataset_record_to_url(dataset_record) -> list:
 
     Returns
     -------
-    A list of strings representing files urls corresponding to the datasets records
+    list of str
+        A list of file urls corresponding to the datasets records
     """
     urls = []
     if isinstance(dataset_record, dict):
@@ -408,15 +413,17 @@ class AlyxClient():
     """
     _token = None
     _headers = None  # Headers for REST requests only
+    """str: The Alyx username"""
     user = None
+    """str: The Alyx database URL"""
     base_url = None
 
     def __init__(self, base_url=None, username=None, password=None,
                  cache_dir=None, silent=False, cache_rest='GET', stay_logged_in=True):
         """
-        Create a client instance that allows to GET and POST to the Alyx server
-        For oneibl, constructor attempts to authenticate with credentials in params.py
-        For standalone cases, AlyxClient(username='', password='', base_url='')
+        Create a client instance that allows to GET and POST to the Alyx server.
+        For One, constructor attempts to authenticate with credentials in params.py.
+        For standalone cases, AlyxClient(username='', password='', base_url='').
 
         Parameters
         ----------
@@ -454,13 +461,15 @@ class AlyxClient():
 
     @property
     def rest_schemes(self):
-        """Delayed fetch of rest schemes speeds up instantiation"""
+        """dict: The REST endpoints and their parameters"""
+        # Delayed fetch of rest schemes speeds up instantiation
         if not self._rest_schemes:
             self._rest_schemes = self.get('/docs', expires=timedelta(weeks=1))
         return self._rest_schemes
 
     @property
     def cache_dir(self):
+        """pathlib.Path: The location of the downloaded file cache"""
         return Path(self._par.CACHE_DIR)
 
     def is_logged_in(self):

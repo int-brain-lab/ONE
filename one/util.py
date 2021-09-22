@@ -124,6 +124,11 @@ def parse_id(method):
     -------
     function
         A wrapper function that parses the ID to the expected string
+
+    Raises
+    ------
+    ValueError
+        Unable to convert input to a valid experiment ID
     """
 
     @wraps(method)
@@ -152,19 +157,35 @@ def refresh(method):
     return wrapper
 
 
-def validate_date_range(date_range):
+def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     """
     Validates and arrange date range in a 2 elements list
 
-    Examples:
-        _validate_date_range('2020-01-01')  # On this day
-        _validate_date_range(datetime.date(2020, 1, 1))
-        _validate_date_range(np.array(['2022-01-30', '2022-01-30'], dtype='datetime64[D]'))
-        _validate_date_range(pd.Timestamp(2020, 1, 1))
-        _validate_date_range(np.datetime64(2021, 3, 11))
-        _validate_date_range(['2020-01-01'])  # from date
-        _validate_date_range(['2020-01-01', None])  # from date
-        _validate_date_range([None, '2020-01-01'])  # up to date
+    Parameters
+    ----------
+    date_range : str, datetime.date, datetime.datetime, pd.Timestamp, np.datetime64, list, None
+        A single date or tuple/list of two dates.  None represents no bound.
+
+    Returns
+    -------
+    tuple of pd.Timestamp
+        The start and end timestamps
+
+    Examples
+    --------
+    >>> validate_date_range('2020-01-01')  # On this day
+    >>> validate_date_range(datetime.date(2020, 1, 1))
+    >>> validate_date_range(np.array(['2022-01-30', '2022-01-30'], dtype='datetime64[D]'))
+    >>> validate_date_range(pd.Timestamp(2020, 1, 1))
+    >>> validate_date_range(np.datetime64(2021, 3, 11))
+    >>> validate_date_range(['2020-01-01'])  # from date
+    >>> validate_date_range(['2020-01-01', None])  # from date
+    >>> validate_date_range([None, '2020-01-01'])  # up to date
+
+    Raises
+    ------
+    ValueError
+        Size of date range tuple must be 1 or 2
     """
     if date_range is None:
         return
@@ -194,7 +215,7 @@ def validate_date_range(date_range):
     return start, end
 
 
-def _collection_spec(collection=None, revision=None):
+def _collection_spec(collection=None, revision=None) -> str:
     """
     Return a template string for a collection/revision regular expression.  Because both are
     optional in the ALF spec, None will match any (including absent), while an empty string will
@@ -209,7 +230,8 @@ def _collection_spec(collection=None, revision=None):
 
     Returns
     -------
-    A string format for matching the collection/revision
+    str
+        A string format for matching the collection/revision
     """
     spec = ''
     for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
@@ -248,19 +270,23 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
 
     Returns
     -------
-    A slice of all_datasets that match the filters
+    pd.DataFrame
+        A slice of all_datasets that match the filters
 
     Examples
     --------
-    # Filter by dataset name and collection
-    datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
-    # Filter datasets not in a collection
-    datasets = filter_datasets(all_datasets, collection='')
-    # Filter by matching revision
-    datasets = filter_datasets(all_datasets, 'spikes.times.npy',
-                               revision='2020-01-12', revision_last_before=False)
-    # Filter by filename parts
-    datasets = filter_datasets(all_datasets, {object='spikes', attribute='times'})
+    Filter by dataset name and collection
+    >>> datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
+
+    Filter datasets not in a collection
+    >>> datasets = filter_datasets(all_datasets, collection='')
+
+    Filter by matching revision
+    >>> datasets = filter_datasets(all_datasets, 'spikes.times.npy',
+    ...                        revision='2020-01-12', revision_last_before=False)
+
+    Filter by filename parts
+    >>> datasets = filter_datasets(all_datasets, dict(object='spikes', attribute='times'))
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}
@@ -314,21 +340,22 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
 
 def filter_revision_last_before(datasets, revision=None, assert_unique=True):
     """
-        Filter datasets by revision, returning previous revision in ordered list if revision
-        doesn't exactly match.
+    Filter datasets by revision, returning previous revision in ordered list if revision
+    doesn't exactly match.
 
-        Parameters
-        ----------
-        datasets : pandas.DataFrame
-            A datasets cache table
-        revision : str
-            A revision string to match (regular expressions not permitted)
-        assert_unique : bool
-            When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
-            default revisions are found; an alferr.ALFError when no default revision is found
+    Parameters
+    ----------
+    datasets : pandas.DataFrame
+        A datasets cache table
+    revision : str
+        A revision string to match (regular expressions not permitted)
+    assert_unique : bool
+        When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
+        default revisions are found; an alferr.ALFError when no default revision is found
 
-        Returns
-        -------
+    Returns
+    -------
+    pd.DataFrame
         A datasets DataFrame with 0 or 1 row per unique dataset
     """
     def _last_before(df):
@@ -376,11 +403,12 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
 
     Returns
     -------
-    Index of revision before matching string in sorted list or None
+    int, None
+        Index of revision before matching string in sorted list or None
 
     Examples
     --------
-    idx = _index_last_before([], '2020-08-01')
+    >>> idx = index_last_before([], '2020-08-01')
     """
     if len(revisions) == 0:
         return  # No revisions, just return
@@ -391,7 +419,7 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     return revisions.index(revisions_sorted[lt.argmax()]) if any(lt) else None
 
 
-def autocomplete(term, search_terms):
+def autocomplete(term, search_terms) -> str:
     """
     Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
     """
@@ -431,6 +459,18 @@ class LazyId(Mapping):
 
     @staticmethod
     def ses2eid(ses):
+        """
+
+        Parameters
+        ----------
+        ses : one.webclient._PaginatedResponse, dict, list
+            A collection of Alyx REST sessions endpoint records
+
+        Returns
+        -------
+        str, list
+            One or more experiment ID strings
+        """
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]
         else:

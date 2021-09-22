@@ -1,9 +1,11 @@
 """Classes for searching, listing and (down)loading ALyx Files.
 
-TODO Add sig to ONE Light uuids
-TODO Save changes to cache
-TODO Fix update cache in AlyxONE - save parquet table
-TODO save parquet in update_filesystem
+Things left to complete:
+
+    - TODO Add sig to ONE Light uuids.
+    - TODO Save changes to cache.
+    - TODO Fix update cache in AlyxONE - save parquet table.
+    - TODO save parquet in update_filesystem.
 """
 import collections.abc
 import concurrent.futures
@@ -36,10 +38,12 @@ import one.util as util
 
 _logger = logging.getLogger(__name__)
 
-N_THREADS = 4  # number of download threads
+"""int: The number of download threads"""
+N_THREADS = 4
 
 
 class One(ConversionMixin):
+    """An API for searching and loading data on a local filesystem"""
     _search_terms = (
         'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
     )
@@ -79,10 +83,12 @@ class One(ConversionMixin):
 
     @property
     def offline(self):
+        """bool: True if mode is local or no Web client set"""
         return self.mode == 'local' or not getattr(self, '_web_client', False)
 
     @util.refresh
-    def search_terms(self, query_type=None):
+    def search_terms(self, query_type=None) -> tuple:
+        """List the search term keyword args for use in the search method"""
         return self._search_terms
 
     def _load_cache(self, cache_dir=None, **kwargs):
@@ -131,13 +137,14 @@ class One(ConversionMixin):
 
         Parameters
         ----------
-        mode : str
+        mode : {'local', 'refresh', 'auto', 'remote'}
             Options are 'local' (don't reload); 'refresh' (reload); 'auto' (reload if expired);
             'remote' (don't reload)
 
         Returns
         -------
-        Loaded timestamp
+        datetime.datetime
+            Loaded timestamp
         """
         if mode in ('local', 'remote'):
             pass
@@ -163,7 +170,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        A local file path list
+        list of pathlib.Path
+            A local file path list
         """
         out_files = []
         if hasattr(dsets, 'iterrows'):
@@ -181,7 +189,7 @@ class One(ConversionMixin):
 
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
         """
-        Download a dataset from an alyx REST dictionary
+        Download a dataset from an Alyx REST dictionary
 
         Parameters
         ----------
@@ -192,7 +200,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        The local file path
+        pathlib.Path
+            The local file path
         """
         pass  # pragma: no cover
 
@@ -202,7 +211,7 @@ class One(ConversionMixin):
 
         For a list of search terms, use the method
 
-         one.search_terms()
+            one.search_terms()
 
         For all of the search parameters, a single value or list may be provided.  For dataset,
         the sessions returned will contain all listed datasets.  For the other parameters,
@@ -376,6 +385,23 @@ class One(ConversionMixin):
         return files
 
     def _index_type(self, table='sessions'):
+        """For a given table return the index type.
+
+        Parameters
+        ----------
+        table : str
+            The cache table to check
+
+        Returns
+        -------
+        type
+            The type of the table index, either str or int
+
+        Raises
+        ------
+        IndexError
+            Unable to determine the index type of the cache table
+        """
         idx_0 = self._cache[table].index.values[0]
         if len(self._cache[table].index.names) == 2 and all(isinstance(x, int) for x in idx_0):
             return int
@@ -387,6 +413,21 @@ class One(ConversionMixin):
     @util.refresh
     @util.parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
+        """Return session details for a given session ID
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        full : bool
+            If True, returns a DataFrame of session and dataset info
+
+        Returns
+        -------
+        pd.Series, pd.DataFrame
+            A session record or full DataFrame with dataset information if full is True
+        """
         # Int ids return DataFrame, making str eid a list ensures Series not returned
         int_ids = self._index_type() is int
         idx = parquet.str2np(eid).tolist() if int_ids else [eid]
@@ -870,12 +911,37 @@ class One(ConversionMixin):
         else:
             return output
 
+    @util.refresh
+    @util.parse_id
+    def load_collection(self, eid, collection):
+        raise NotImplementedError()
+
     @staticmethod
-    def setup(cache_dir, **kwargs):
+    def setup(cache_dir=None, **kwargs):
+        """Set up One cache tables for a given data directory.
+
+        Parameters
+        ----------
+        cache_dir : pathlib.Path, str
+            A path to the ALF data directory
+
+        Returns
+        -------
+        One
+            An instance of One for the provided cache directory
         """
-        Interactive command tool that populates parameter file for ONE IBL.
-        FIXME See subclass
-        """
+        if not cache_dir:
+            cache_dir = input(f'Select a directory from which to build cache ({Path.cwd()})')
+            cache_dir = Path(cache_dir) or Path.cwd()
+        assert cache_dir.exists(), f'{cache_dir} does not exist'
+
+        # Check if cache already exists
+        if next(cache_dir.glob('sessions.pqt'), False):
+            answer = input(f'Cache tables exist for {cache_dir}, overwrite? [y/N]')
+            if (answer or 'n').lower() == 'n':
+                return One(cache_dir, mode='local')
+
+        # Build cache tables
         make_parquet_db(cache_dir, **kwargs)
         return One(cache_dir, mode='local')
 
@@ -932,6 +998,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 
 
 class OneAlyx(One):
+    """An API for searching and loading data through the Alyx database"""
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
                  mode='auto', wildcards=True, **kwargs):
         """An API for searching and loading data through the Alyx database
@@ -1014,10 +1081,12 @@ class OneAlyx(One):
 
     @property
     def alyx(self):
+        """one.webclient.AlyxClient: The Alyx Web client"""
         return self._web_client
 
     @property
     def cache_dir(self):
+        """pathlib.Path: The location of the downloaded file cache"""
         return self._web_client.cache_dir
 
     @util.refresh
@@ -1043,7 +1112,21 @@ class OneAlyx(One):
         return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
 
     def describe_dataset(self, dataset_type=None):
-        # TODO Move to AlyxClient?; add to rest examples
+        """Print a dataset type description.
+
+        NB: This requires an Alyx database connection.
+
+        Parameters
+        ----------
+        dataset_type : str
+            A dataset type or dataset name
+
+        Returns
+        -------
+        dict
+            The Alyx dataset type record
+        """
+        assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         if not dataset_type:
             return self.alyx.rest('dataset-types', 'list')
         try:
@@ -1076,14 +1159,12 @@ class OneAlyx(One):
         return datasets if details else list(datasets['rel_path'].sort_values().values)
 
     @util.refresh
-    def load_collection(self, eid, collection):
-        raise NotImplementedError()
-
-    @util.refresh
     def pid2eid(self, pid: str, query_type=None) -> (str, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
-        (i.e. the ALF collection)
+        (i.e. the ALF collection).
+
+        NB: Requires a connection to the Alyx database.
 
         Parameters
         ----------
@@ -1324,16 +1405,23 @@ class OneAlyx(One):
             return alfio.remove_uuid_file(local_path)
 
     @staticmethod
-    def setup(**kwargs):
+    def setup(base_url=None, **kwargs):
         """
-        TODO Interactive command tool that sets up cache for ONE.
+        Set up OneAlyx for a given database
+
+        Parameters
+        ----------
+        base_url : str
+            An Alyx database URL.  If None, the current default database is used.
+
+        Returns
+        -------
+        OneAlyx
+            An instance of OneAlyx for the newly set up database URL
         """
-        root_dir = input('Select a directory from which to build cache')
-        if root_dir:
-            print('Building ONE cache from filesystem...')
-            from one.alf import onepqt
-            onepqt.make_parquet_db(root_dir, **kwargs)
-            return One(cache_dir=root_dir)
+        base_url = base_url or one.params.get_default_client()
+        cache_map = one.params.setup(client=base_url, **kwargs)
+        return OneAlyx(base_url or cache_map['DEFAULT'], silent=kwargs.get('silent', False))
 
     @util.refresh
     @util.parse_id
@@ -1468,6 +1556,7 @@ class OneAlyx(One):
         np.ndarray, dict
             A numpy array of data, or DataFrame if details is true
         """
+        assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         if isinstance(dataset_type, str):
             restriction = f'session__id,{eid},dataset_type__name,{dataset_type}'
         elif isinstance(dataset_type, collections.abc.Sequence):
@@ -1478,7 +1567,21 @@ class OneAlyx(One):
         return datasets if details else datasets['rel_path'].sort_values().values
 
     def dataset2type(self, dset) -> str:
-        """Return dataset type from dataset"""
+        """Return dataset type from dataset.
+
+        NB: Requires an Alyx database connection
+
+        Parameters
+        ----------
+        dset : str, np.ndarray, tuple
+            A dataset name, dataset uuid or dataset integer id
+
+        Returns
+        -------
+        str
+            The dataset type
+        """
+        assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         # Ensure dset is a str uuid
         if isinstance(dset, str) and not is_uuid_string(dset):
             dset = self._dataset_name2id(dset)
@@ -1505,6 +1608,7 @@ class OneAlyx(One):
         None, dict
             None if full is false or no record found, otherwise returns record as dict
         """
+        assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         try:
             rec = self.alyx.rest('revisions', 'read', id=revision)
             print(rec['description'])
@@ -1527,8 +1631,25 @@ class OneAlyx(One):
     @util.refresh
     @util.parse_id
     def get_details(self, eid: str, full: bool = False, query_type=None):
-        """ Returns details of eid like from one.search, optional return full
-        session details.
+        """Return session details for a given session
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        full : bool
+            If True, returns a DataFrame of session and dataset info
+        query_type : {'local', 'refresh', 'auto', 'remote'}
+            The query mode - if 'local' the details are taken from the cache tables; if 'remote'
+            the details are returned from the sessions REST endpoint; if 'auto' uses whichever
+            mode ONE is in; if 'refresh' reloads the cache before querying.
+
+        Returns
+        -------
+        pd.Series, pd.DataFrame, dict
+            in local mode - a session record or full DataFrame with dataset information if full is
+            True; in remote mode - a full or partial session dict
         """
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)

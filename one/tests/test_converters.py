@@ -1,4 +1,4 @@
-"""Tests for the one.converters module"""
+"""Unit tests for the one.converters module"""
 import unittest
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from uuid import UUID
