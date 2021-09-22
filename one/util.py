@@ -19,11 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 def Listable(t):
+    """Return a typing.Union if the input and sequence of input"""
     return Union[t, Sequence[t]]
 
 
 def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
-    """Extract session cache record and datasets cache from a remote session data record
+    """Extract session cache record and datasets cache from a remote session data record.
+
     TODO Fix for new tables; use to update caches from remote queries
 
     Parameters
@@ -33,7 +35,10 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
 
     Returns
     -------
-    Session record, datasets frame
+    pd.Series
+        Session record
+    pd.DataFrame
+        Datasets frame
     """
     # Extract session record
     eid = parquet.str2np(ses['url'][-36:])
@@ -74,12 +79,13 @@ def datasets2records(datasets) -> pd.DataFrame:
 
     Returns
     -------
-    Datasets frame
+    pd.DataFrame
+        Datasets frame
 
     Examples
     --------
-    datasets = one.alyx.rest('datasets', 'list', subject='foobar')
-    df = datasets2records(datasets)
+    >>> datasets = ONE().alyx.rest('datasets', 'list', subject='foobar')
+    >>> df = datasets2records(datasets)
     """
     records = []
 
@@ -116,7 +122,8 @@ def parse_id(method):
 
     Returns
     -------
-    A wrapper function that parses the ID to the expected string
+    function
+        A wrapper function that parses the ID to the expected string
     """
 
     @wraps(method)

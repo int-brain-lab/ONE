@@ -63,7 +63,10 @@ class RegistrationClient:
 
         Returns
         -------
-            Newly created session paths; Alyx session records
+        list of pathlib.Paths
+            Newly created session paths
+        list of dicts
+            Alyx session records
         """
         flag_files = list(Path(root_data_folder).glob(glob_pattern))
         records = []
@@ -87,7 +90,8 @@ class RegistrationClient:
 
         Returns
         -------
-        Newly created session record
+        dict
+            Newly created session record
         """
         return self.register_session(session_path, file_list=False)[0]
 
@@ -108,16 +112,24 @@ class RegistrationClient:
 
         Returns
         -------
-        New local session path; the experiment UUID if register is true
+        pathlib.Path
+            New local session path
+        str
+            The experiment UUID if register is True
 
         Examples
         --------
-        # Create a local session only
-        session_path, _ = RegistrationClient.create_new_session('Ian', register=False)
-        # Register a session on Alyx in a specific location
-        session_path, eid = RegistrationClient.create_new_session('Ian', '/data/mylab/Subjects')
-        # Create a session for a given date
-        session_path, eid = RegistrationClient.create_new_session('Ian', date='2020-01-01')
+        Create a local session only
+
+        >>> session_path, _ = RegistrationClient.create_new_session('Ian', register=False)
+
+        Register a session on Alyx in a specific location
+
+        >>> session_path, eid = RegistrationClient.create_new_session('Ian', '/data/mylab/Subjects')
+
+        Create a session for a given date
+
+        >>> session_path, eid = RegistrationClient.create_new_session('Ian', date='2020-01-01')
         """
         assert not self.one.offline, 'ONE must be in online mode'
         date = self.ensure_ISO8601(date)  # Format, validate
@@ -140,7 +152,8 @@ class RegistrationClient:
 
         Returns
         -------
-        Iterable of file paths that match the dataset type patterns in Alyx
+        generator
+            Iterable of file paths that match the dataset type patterns in Alyx
         """
         session_path = Path(session_path)
         types = (x['filename_pattern'] for x in self.dtypes if x['filename_pattern'])
@@ -160,9 +173,9 @@ class RegistrationClient:
 
         Examples
         --------
-        client.assert_exists('ALK_036', 'subjects')
-        client.assert_exists('user_45', 'users')
-        client.assert_exists('local_server', 'repositories')
+        >>> client.assert_exists('ALK_036', 'subjects')
+        >>> client.assert_exists('user_45', 'users')
+        >>> client.assert_exists('local_server', 'repositories')
 
         Raises
         -------
@@ -198,7 +211,8 @@ class RegistrationClient:
 
         Returns
         -------
-        The datetime as an ISO 8601 str
+        str
+            The datetime as an ISO 8601 string
         """
         date = date or datetime.datetime.now()  # If None get current time
         if isinstance(date, str):
@@ -239,7 +253,10 @@ class RegistrationClient:
 
         Returns
         -------
-        An Alyx session record and list of file records (or None if file_list is False)
+        dict
+            An Alyx session record
+        list, None
+            Alyx file records (or None if file_list is False)
         """
         if isinstance(ses_path, str):
             ses_path = Path(ses_path)
@@ -314,7 +331,8 @@ class RegistrationClient:
 
         Returns
         -------
-            A list of newly created Alyx dataset records or the registration data if dry == true
+        list of dicts, dict
+            A list of newly created Alyx dataset records or the registration data if dry
         """
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
@@ -404,7 +422,8 @@ class RegistrationClient:
 
         Returns
         -------
-        A water administration record
+        dict
+            A water administration record
 
         Raises
         ------
@@ -459,7 +478,8 @@ class RegistrationClient:
 
         Returns
         -------
-        An Alyx weight record
+        dict
+            An Alyx weight record
 
         Raises
         ------
