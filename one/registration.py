@@ -121,15 +121,15 @@ class RegistrationClient:
         --------
         Create a local session only
 
-        >>> session_path, _ = RegistrationClient.create_new_session('Ian', register=False)
+        >>> session_path, _ = RegistrationClient().create_new_session('Ian', register=False)
 
         Register a session on Alyx in a specific location
 
-        >>> session_path, eid = RegistrationClient.create_new_session('Ian', '/data/mylab/Subjects')
+        >>> session_path, eid = RegistrationClient().create_new_session('Sy', '/data/lab/Subjects')
 
         Create a session for a given date
 
-        >>> session_path, eid = RegistrationClient.create_new_session('Ian', date='2020-01-01')
+        >>> session_path, eid = RegistrationClient().create_new_session('Ian', date='2020-01-01')
         """
         assert not self.one.offline, 'ONE must be in online mode'
         date = self.ensure_ISO8601(date)  # Format, validate

@@ -84,20 +84,26 @@ SPEC_DESCRIPTION = {
                  'the number of columns (as the size of the "columns" array) and the binary '
                  'datatype as a top-level key "dtype", using numpy naming conventions.'
 }
+"""dict: The ALF part names and their definitions."""
 
 # ========================================================== #
 # The following are the specifications and patterns for ALFs #
 # ========================================================== #
-"""str: The session specification pattern"""
+
 SESSION_SPEC = '({lab}/Subjects/)?{subject}/{date}/{number}'
-"""str: The collection and revision specification pattern"""
+"""str: The session specification pattern"""
+
 COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
-"""str: The filename specification pattern"""
+"""str: The collection and revision specification pattern"""
+
 FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
-"""str: The collection, revision and filename specification pattern"""
+"""str: The filename specification pattern"""
+
 REL_PATH_SPEC = f'{COLLECTION_SPEC}{FILE_SPEC}'
-"""str: The full ALF path specification pattern"""
+"""str: The collection, revision and filename specification pattern"""
+
 FULL_SPEC = f'{SESSION_SPEC}/{REL_PATH_SPEC}'
+"""str: The full ALF path specification pattern"""
 
 _DEFAULT = (
     ('lab', r'\w+'),

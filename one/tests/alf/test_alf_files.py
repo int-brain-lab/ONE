@@ -1,3 +1,4 @@
+"""Unit tests for the one.alf.files module"""
 import unittest
 from pathlib import Path
 import uuid

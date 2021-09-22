@@ -123,12 +123,6 @@ class ConversionMixin:
         pathlib.Path
             A session path
         """
-        # If eid is a list of eIDs recurse through list and return the results
-        if isinstance(eid, list):
-            path_list = []
-            for p in eid:
-                path_list.append(self.eid2path(p))
-            return path_list
         # If not valid return None
         if not is_uuid_string(eid):
             raise ValueError(eid + " is not a valid eID/UUID string")
@@ -202,6 +196,11 @@ class ConversionMixin:
         pandas.Series
             A cache file record
         """
+        rec = self._cache['datasets']
+        if rec.empty:
+            return
+        # if (rec := self._cache['datasets']).empty:  # py 3.8
+        #     return
         if isinstance(filepath, str) and filepath.startswith('http'):
             # Remove the UUID from path
             filepath = urlsplit(filepath).path.strip('/')
@@ -210,12 +209,10 @@ class ConversionMixin:
         else:
             # No way of knowing root session path parts without cache tables
             eid = self.path2eid(filepath)
-            session_path, *_ = self.list_datasets(eid, details=True).session_path
-        rec = self._cache['datasets']
-        if rec.empty:
-            return
-        # if (rec := self._cache['datasets']).empty:  # py 3.8
-        #     return
+            session_series = self.list_datasets(eid, details=True).session_path
+            if not eid or session_series.empty:
+                return
+            session_path, *_ = session_series
         rec = rec[rec['session_path'] == session_path]
         rec = rec[rec['rel_path'].apply(lambda x: filepath.as_posix().endswith(x))]
         assert len(rec) < 2, 'Multiple records found'
@@ -314,12 +311,12 @@ class ConversionMixin:
         """
         d = self.get_details(eid)
         if parse:
-            date = datetime.datetime.fromisoformat(d['start_time']).date()
-            ref = {'subject': d['subject'], 'date': date, 'sequence': d['number']}
+            ref = {'subject': d['subject'], 'date': d['date'], 'sequence': d['number']}
             format_str = '{date:%Y-%m-%d}_{sequence:d}_{subject:s}'
         else:
-            date = d['start_time'][:10]
-            ref = {'subject': d['subject'], 'date': date, 'sequence': '%03d' % d['number']}
+            ref = {
+                'subject': d['subject'], 'date': str(d['date']), 'sequence': '%03d' % d['number']
+            }
             format_str = '{date:s}_{sequence:s}_{subject:s}'
         return Bunch(ref) if as_dict else format_str.format(**ref)
 
