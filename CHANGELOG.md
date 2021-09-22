@@ -8,13 +8,14 @@
 - Removed ALYX_PWD prompt from setup
 - Improved test coverage
 - Docs formatting
+- One list_* methods return list instead of np arrays
 
 ## [1.3.0]
 
 ### Modified
 
 - propagate down filter datasets filters
-- list_* methods return list instead of np arrays
+- OneAlyx list_* methods return list instead of np arrays
 - cache module gracefully deals with empty repos
 - cache module refactored to reuse ALF functions
 - cache str ids now exclude 'Subjects' part

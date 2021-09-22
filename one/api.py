@@ -497,7 +497,7 @@ class One(ConversionMixin):
                            revision=revision, revision_last_before=False, assert_unique=False)
         if not eid:
             datasets = util.filter_datasets(datasets, **filter_args)
-            return datasets.copy() if details else datasets['rel_path'].unique()
+            return datasets.copy() if details else datasets['rel_path'].unique().tolist()
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return datasets.iloc[0:0]  # Return empty

@@ -318,7 +318,7 @@ class TestONECache(unittest.TestCase):
         # Test details=False, with and without eid
         for eid in [None, 'KS005/2019-04-02/001']:
             dsets = self.one.list_datasets(eid, details=False)
-            self.assertIsInstance(dsets, np.ndarray)
+            self.assertIsInstance(dsets, list)
             self.assertTrue(len(dsets) == np.unique(dsets).size)
 
     def test_list_collections(self):
