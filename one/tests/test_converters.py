@@ -1,6 +1,5 @@
 """Unit tests for the one.converters module"""
 import unittest
-import uuid
 from unittest import mock
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from uuid import UUID
