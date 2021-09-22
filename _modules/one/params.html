@@ -220,14 +220,17 @@
             <span class="k">if</span> <span class="s1">&#39;PWD&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">client</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;ALYX_URL&#39;</span><span class="p">):</span>
                 <span class="n">par</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Param </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">, current value is [&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">cpar</span><span class="p">)</span><span class="si">}</span><span class="s1">&quot;]:&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
 
-        <span class="n">cpar</span> <span class="o">=</span> <span class="n">_get_current_par</span><span class="p">(</span><span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">,</span> <span class="n">par_current</span><span class="p">)</span>
-        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the Alyx password for </span><span class="si">{</span><span class="n">par</span><span class="p">[</span><span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> (leave empty to keep current):&#39;</span>
-        <span class="n">par</span><span class="p">[</span><span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
-
         <span class="n">cpar</span> <span class="o">=</span> <span class="n">_get_current_par</span><span class="p">(</span><span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">,</span> <span class="n">par_current</span><span class="p">)</span>
         <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the FlatIron HTTP password for </span><span class="si">{</span><span class="n">par</span><span class="p">[</span><span class="s2">&quot;HTTP_DATA_SERVER_LOGIN&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>\
                  <span class="s1">&#39;(leave empty to keep current): &#39;</span>
         <span class="n">par</span><span class="p">[</span><span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
+
+        <span class="k">if</span> <span class="s1">&#39;ALYX_PWD&#39;</span> <span class="ow">in</span> <span class="n">par_current</span><span class="o">.</span><span class="n">as_dict</span><span class="p">():</span>
+            <span class="c1"># Only store plain text password if user manually added it to params JSON file</span>
+            <span class="n">cpar</span> <span class="o">=</span> <span class="n">_get_current_par</span><span class="p">(</span><span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">,</span> <span class="n">par_current</span><span class="p">)</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Enter the Alyx password for </span><span class="si">{</span><span class="n">par</span><span class="p">[</span><span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+                      <span class="s1">&#39;(leave empty to keep current):&#39;</span><span class="p">)</span>
+            <span class="n">par</span><span class="p">[</span><span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cpar</span>
 
         <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
 
@@ -424,7 +427,8 @@
 
     <span class="c1"># Remove the old parameters file</span>
     <span class="n">old_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">OLD_PAR_STR</span><span class="p">))</span>
-    <span class="n">old_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">old_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">old_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">par</span>
 </pre></div>

@@ -220,15 +220,15 @@
 <span class="sd">        --------</span>
 <span class="sd">        Create a local session only</span>
 
-<span class="sd">        &gt;&gt;&gt; session_path, _ = RegistrationClient.create_new_session(&#39;Ian&#39;, register=False)</span>
+<span class="sd">        &gt;&gt;&gt; session_path, _ = RegistrationClient().create_new_session(&#39;Ian&#39;, register=False)</span>
 
 <span class="sd">        Register a session on Alyx in a specific location</span>
 
-<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, &#39;/data/mylab/Subjects&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient().create_new_session(&#39;Sy&#39;, &#39;/data/lab/Subjects&#39;)</span>
 
 <span class="sd">        Create a session for a given date</span>
 
-<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient.create_new_session(&#39;Ian&#39;, date=&#39;2020-01-01&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient().create_new_session(&#39;Ian&#39;, date=&#39;2020-01-01&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;ONE must be in online mode&#39;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>  <span class="c1"># Format, validate</span>

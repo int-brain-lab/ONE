@@ -243,7 +243,7 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    r = PaginatedResponse(client, response)</span>
+<span class="sd">    &gt;&gt;&gt; r = _PaginatedResponse(client, response)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="p">,</span> <span class="n">rep</span><span class="p">,</span> <span class="n">cache_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -310,6 +310,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
+<span class="sd">    str</span>
 <span class="sd">        A new URL with said parameters updated</span>
 
 <span class="sd">    Examples</span>
@@ -347,7 +348,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    (list) a list of the local full path of the downloaded files.</span>
+<span class="sd">    list of pathlib.Path</span>
+<span class="sd">        A list of the local full path of the downloaded files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_names_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">link_str</span> <span class="ow">in</span> <span class="n">links_to_file_list</span><span class="p">:</span>
@@ -383,7 +385,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A list of the local full path of the downloaded files</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The full file path of the downloaded file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">full_link_to_file</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span>
@@ -470,7 +473,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A list of strings representing full data urls</span>
+<span class="sd">    list of str</span>
+<span class="sd">        A list of full data urls</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">file_records</span><span class="p">:</span>
@@ -490,7 +494,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A list of strings representing files urls corresponding to the datasets records</span>
+<span class="sd">    list of str</span>
+<span class="sd">        A list of file urls corresponding to the datasets records</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_record</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -507,15 +512,17 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_token</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_headers</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Headers for REST requests only</span>
+    <span class="sd">&quot;&quot;&quot;str: The Alyx username&quot;&quot;&quot;</span>
     <span class="n">user</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;str: The Alyx database URL&quot;&quot;&quot;</span>
     <span class="n">base_url</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a client instance that allows to GET and POST to the Alyx server</span>
-<span class="sd">        For oneibl, constructor attempts to authenticate with credentials in params.py</span>
-<span class="sd">        For standalone cases, AlyxClient(username=&#39;&#39;, password=&#39;&#39;, base_url=&#39;&#39;)</span>
+<span class="sd">        Create a client instance that allows to GET and POST to the Alyx server.</span>
+<span class="sd">        For One, constructor attempts to authenticate with credentials in params.py.</span>
+<span class="sd">        For standalone cases, AlyxClient(username=&#39;&#39;, password=&#39;&#39;, base_url=&#39;&#39;).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -536,7 +543,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="n">silent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">)</span>
-        <span class="c1"># TODO Pass these to `params.get` and have it deal with setup defaults</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">ALYX_URL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="n">stay_logged_in</span><span class="p">)</span>
@@ -553,13 +559,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rest_schemes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Delayed fetch of rest schemes speeds up instantiation&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;dict: The REST endpoints and their parameters&quot;&quot;&quot;</span>
+        <span class="c1"># Delayed fetch of rest schemes speeds up instantiation</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AlyxClient.is_logged_in"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.is_logged_in">[docs]</a>    <span class="k">def</span> <span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

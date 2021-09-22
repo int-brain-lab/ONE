@@ -105,7 +105,6 @@
 
 <span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">flatten</span>
 
-<span class="sd">&quot;&quot;&quot;dict: The ALF part names and their definitions.&quot;&quot;&quot;</span>
 <span class="n">SPEC_DESCRIPTION</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;The name of the lab where the data were collected (optional).&#39;</span><span class="p">,</span>
     <span class="s1">&#39;Subjects&#39;</span><span class="p">:</span> <span class="s1">&#39;An optional directory to indicate that the experiment data are divided by &#39;</span>
@@ -183,20 +182,26 @@
                  <span class="s1">&#39;the number of columns (as the size of the &quot;columns&quot; array) and the binary &#39;</span>
                  <span class="s1">&#39;datatype as a top-level key &quot;dtype&quot;, using numpy naming conventions.&#39;</span>
 <span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;dict: The ALF part names and their definitions.&quot;&quot;&quot;</span>
 
 <span class="c1"># ========================================================== #</span>
 <span class="c1"># The following are the specifications and patterns for ALFs #</span>
 <span class="c1"># ========================================================== #</span>
-<span class="sd">&quot;&quot;&quot;str: The session specification pattern&quot;&quot;&quot;</span>
+
 <span class="n">SESSION_SPEC</span> <span class="o">=</span> <span class="s1">&#39;(</span><span class="si">{lab}</span><span class="s1">/Subjects/)?</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number}</span><span class="s1">&#39;</span>
-<span class="sd">&quot;&quot;&quot;str: The collection and revision specification pattern&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;str: The session specification pattern&quot;&quot;&quot;</span>
+
 <span class="n">COLLECTION_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(</span><span class="si">{collection}</span><span class="s1">/)?(#</span><span class="si">{revision}</span><span class="s1">#/)?&#39;</span>
-<span class="sd">&quot;&quot;&quot;str: The filename specification pattern&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;str: The collection and revision specification pattern&quot;&quot;&quot;</span>
+
 <span class="n">FILE_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_?</span><span class="si">{namespace}</span><span class="s1">?_?</span><span class="si">{object}</span><span class="s1">\.</span><span class="si">{attribute}</span><span class="s1">_?</span><span class="si">{timescale}</span><span class="s1">*\.?</span><span class="si">{extra}</span><span class="s1">*\.</span><span class="si">{extension}</span><span class="s1">$&#39;</span>
-<span class="sd">&quot;&quot;&quot;str: The collection, revision and filename specification pattern&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;str: The filename specification pattern&quot;&quot;&quot;</span>
+
 <span class="n">REL_PATH_SPEC</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}{</span><span class="n">FILE_SPEC</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="sd">&quot;&quot;&quot;str: The full ALF path specification pattern&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;str: The collection, revision and filename specification pattern&quot;&quot;&quot;</span>
+
 <span class="n">FULL_SPEC</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">SESSION_SPEC</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">REL_PATH_SPEC</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="sd">&quot;&quot;&quot;str: The full ALF path specification pattern&quot;&quot;&quot;</span>
 
 <span class="n">_DEFAULT</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">),</span>

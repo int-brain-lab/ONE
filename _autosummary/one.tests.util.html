@@ -151,6 +151,7 @@
 </style>
 <section id="module-one.tests.util">
 <span id="one-tests-util"></span><h1>one.tests.util<a class="headerlink" href="#module-one.tests.util" title="Permalink to this headline"></a></h1>
+<p>Utilities functions for setting up test fixtures</p>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -162,25 +163,25 @@
 <td><p>Convert int ids to str ids for cache tables</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.create_file_tree" title="one.tests.util.create_file_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_file_tree</span></code></a></p></td>
-<td><p>Touch all the files in the datasets table</p></td>
+<td><p>Touch all the files in the datasets table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.create_schema_cache" title="one.tests.util.create_schema_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_schema_cache</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Save REST cache file for docs/ endpoint.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.get_file" title="one.tests.util.get_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_file</span></code></a></p></td>
 <td><p>A stub function for iblutil.io.params.getfile.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.revisions_datasets_table" title="one.tests.util.revisions_datasets_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">revisions_datasets_table</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Returns a datasets cache DataFrame containing datasets with revision folders.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.set_up_env" title="one.tests.util.set_up_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_up_env</span></code></a></p></td>
 <td><p>Create a temporary directory and copy cache fixtures over</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.setup_rest_cache" title="one.tests.util.setup_rest_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rest_cache</span></code></a></p></td>
-<td><p>Copy REST cache fixtures to the .one parameter directory</p></td>
+<td><p>Copy REST cache fixtures to the .one parameter directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.setup_test_params" title="one.tests.util.setup_test_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_test_params</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Copies cache parameter fixture to .one directory.</p></td>
 </tr>
 </tbody>
 </table>
@@ -194,10 +195,10 @@
 to the directory returned by one.params.get_params_dir</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>The temporary directory containing the test ONE caches</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>TemporaryDirectory object</p>
+<dd class="field-odd"><p>tempfile.TemporaryDirectory</p>
 </dd>
 </dl>
 </dd></dl>
@@ -205,29 +206,71 @@ to the directory returned by one.params.get_params_dir</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.setup_rest_cache">
 <span class="sig-name descname"><span class="pre">setup_rest_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_rest_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_rest_cache" title="Permalink to this definition"></a></dt>
-<dd><p>Copy REST cache fixtures to the .one parameter directory</p>
+<dd><p>Copy REST cache fixtures to the .one parameter directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The location of the ONE params directory (e.g. ~/.one)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.create_file_tree">
 <span class="sig-name descname"><span class="pre">create_file_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#create_file_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.create_file_tree" title="Permalink to this definition"></a></dt>
-<dd><p>Touch all the files in the datasets table</p>
+<dd><p>Touch all the files in the datasets table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>one</strong> (<a class="reference internal" href="one.api.html#one.api.One" title="one.api.One"><em>one.api.One</em></a>) – An instance of One containing cache tables to use.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.setup_test_params">
 <span class="sig-name descname"><span class="pre">setup_test_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_test_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_test_params" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Copies cache parameter fixture to .one directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>token</strong> (<em>bool</em>) – If true, save a token file so that client doesn’t hit auth endpoint</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.revisions_datasets_table">
 <span class="sig-name descname"><span class="pre">revisions_datasets_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('',</span> <span class="pre">'alf/probe00',</span> <span class="pre">'alf/probe01')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('',</span> <span class="pre">'2020-01-08',</span> <span class="pre">'2021-07-06')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spikes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('times',</span> <span class="pre">'waveforems')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#revisions_datasets_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.revisions_datasets_table" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns a datasets cache DataFrame containing datasets with revision folders.</p>
+<p>As there are no revised datasets on the test databases, this function acts as a fixture for
+testing the filtering of datasets by a revision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collections</strong> (<em>tuple</em>) – A list of collections</p></li>
+<li><p><strong>revisions</strong> (<em>tuple</em>) – A list of revisions</p></li>
+<li><p><strong>object</strong> (<em>str</em>) – An ALF object</p></li>
+<li><p><strong>attributes</strong> (<em>tuple</em>) – A list of ALF attributes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A datasets cache table containing datasets made from the input names</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.create_schema_cache">
 <span class="sig-name descname"><span class="pre">create_schema_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#create_schema_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.create_schema_cache" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Save REST cache file for docs/ endpoint.</p>
+<p>Ensures the database isn’t hit when the rest_schemas property is accessed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The location of the parameter directory.  If None, the default one is used.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.get_file">
@@ -241,10 +284,10 @@ to the directory returned by one.params.get_params_dir</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>The parameter file path</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>The parameter filename</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -256,12 +299,6 @@ to the directory returned by one.params.get_params_dir</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>caches</strong> (<em>Bunch</em>) – A bunch of cache tables (from One._cache)</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>

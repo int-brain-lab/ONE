@@ -217,10 +217,10 @@ files through Alyx.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A new URL with said parameters updated</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A new URL with said parameters updated</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -247,10 +247,10 @@ Same options behaviour as http_download_file.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A list of the local full path of the downloaded files.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(list) a list of the local full path of the downloaded files.</p>
+<dd class="field-odd"><p>list of pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -274,10 +274,10 @@ Same options behaviour as http_download_file.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>The full file path of the downloaded file</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A list of the local full path of the downloaded files</p>
+<dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,10 +291,10 @@ Same options behaviour as http_download_file.</p>
 <dd class="field-odd"><p><strong>file_records</strong> (<em>dict</em>) – JSON containing a ‘data_url’ field</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A list of full data urls</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A list of strings representing full data urls</p>
+<dd class="field-odd"><p>list of str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,10 +308,10 @@ Same options behaviour as http_download_file.</p>
 <dd class="field-odd"><p><strong>dataset_record</strong> (<em>list</em><em>, </em><em>dict</em>) – Dataset JSON from a REST request</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A list of file urls corresponding to the datasets records</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A list of strings representing files urls corresponding to the datasets records</p>
+<dd class="field-odd"><p>list of str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -325,7 +325,13 @@ Same options behaviour as http_download_file.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.user">
 <span class="sig-name descname"><span class="pre">user</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.webclient.AlyxClient.user" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>The Alyx database URL</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.base_url">
@@ -335,13 +341,24 @@ Same options behaviour as http_download_file.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.rest_schemes">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rest_schemes</span></span><a class="headerlink" href="#one.webclient.AlyxClient.rest_schemes" title="Permalink to this definition"></a></dt>
-<dd><p>Delayed fetch of rest schemes speeds up instantiation</p>
+<dd><p>The REST endpoints and their parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.cache_dir">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">cache_dir</span></span><a class="headerlink" href="#one.webclient.AlyxClient.cache_dir" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>The location of the downloaded file cache</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>pathlib.Path</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.is_logged_in">

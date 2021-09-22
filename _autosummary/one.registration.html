@@ -233,15 +233,15 @@ cache directory.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Create a local session only</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Register a session on Alyx in a specific location</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/mylab/Subjects&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Sy&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/lab/Subjects&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Create a session for a given date</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -15,6 +15,7 @@ one.alf.spec
       COLLECTION_SPEC
       FILE_SPEC
       REL_PATH_SPEC
+      FULL_SPEC
    
    
 

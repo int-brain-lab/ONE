@@ -256,6 +256,9 @@
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>function</p>
 </dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Unable to convert input to a valid experiment ID</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -267,17 +270,35 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.validate_date_range">
-<span class="sig-name descname"><span class="pre">validate_date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_range</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#validate_date_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.validate_date_range" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">validate_date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">date_range)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'pandas._libs.tslibs.timestamps.Timestamp'&gt;</span></em>, <em class="sig-param"><span class="pre">&lt;class</span> <span class="pre">'pandas._libs.tslibs.timestamps.Timestamp'&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#validate_date_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.validate_date_range" title="Permalink to this definition"></a></dt>
 <dd><p>Validates and arrange date range in a 2 elements list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>date_range</strong> (<em>str</em><em>, </em><em>datetime.date</em><em>, </em><em>datetime.datetime</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>np.datetime64</em><em>, </em><em>list</em><em>, </em><em>None</em>) – A single date or tuple/list of two dates.  None represents no bound.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The start and end timestamps</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of pd.Timestamp</p>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<p>_validate_date_range(‘2020-01-01’)  # On this day
-_validate_date_range(datetime.date(2020, 1, 1))
-_validate_date_range(np.array([‘2022-01-30’, ‘2022-01-30’], dtype=’datetime64[D]’))
-_validate_date_range(pd.Timestamp(2020, 1, 1))
-_validate_date_range(np.datetime64(2021, 3, 11))
-_validate_date_range([‘2020-01-01’])  # from date
-_validate_date_range([‘2020-01-01’, None])  # from date
-_validate_date_range([None, ‘2020-01-01’])  # up to date</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>  <span class="c1"># On this day</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;2022-01-30&#39;</span><span class="p">,</span> <span class="s1">&#39;2022-01-30&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;datetime64[D]&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">([</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">])</span>  <span class="c1"># from date</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">([</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>  <span class="c1"># from date</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validate_date_range</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">])</span>  <span class="c1"># up to date</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Size of date range tuple must be 1 or 2</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -302,24 +323,22 @@ with regular expressions permitted.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A slice of all_datasets that match the filters</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A slice of all_datasets that match the filters</p>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p># Filter by dataset name and collection
-datasets = filter_datasets(all_datasets, ‘<em>.spikes.times.</em>’, ‘alf/probe00’)
-# Filter datasets not in a collection
-datasets = filter_datasets(all_datasets, collection=’’)
-# Filter by matching revision
-datasets = filter_datasets(all_datasets, ‘spikes.times.npy’,</p>
-<blockquote>
-<div><p>revision=’2020-01-12’, revision_last_before=False)</p>
-</div></blockquote>
-<p># Filter by filename parts
-datasets = filter_datasets(all_datasets, {object=’spikes’, attribute=’times’})</p>
+<p>Filter by dataset name and collection
+&gt;&gt;&gt; datasets = filter_datasets(all_datasets, ‘<em>.spikes.times.</em>’, ‘alf/probe00’)</p>
+<p>Filter datasets not in a collection
+&gt;&gt;&gt; datasets = filter_datasets(all_datasets, collection=’’)</p>
+<p>Filter by matching revision
+&gt;&gt;&gt; datasets = filter_datasets(all_datasets, ‘spikes.times.npy’,
+…                        revision=’2020-01-12’, revision_last_before=False)</p>
+<p>Filter by filename parts
+&gt;&gt;&gt; datasets = filter_datasets(all_datasets, dict(object=’spikes’, attribute=’times’))</p>
 </dd></dl>
 
 <dl class="py function">
@@ -337,10 +356,10 @@ default revisions are found; an alferr.ALFError when no default revision is foun
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A datasets DataFrame with 0 or 1 row per unique dataset</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A datasets DataFrame with 0 or 1 row per unique dataset</p>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -358,19 +377,21 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Index of revision before matching string in sorted list or None</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Index of revision before matching string in sorted list or None</p>
+<dd class="field-odd"><p>int, None</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>idx = _index_last_before([], ‘2020-08-01’)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="n">index_last_before</span><span class="p">([],</span> <span class="s1">&#39;2020-08-01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.autocomplete">
-<span class="sig-name descname"><span class="pre">autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_terms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#autocomplete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.autocomplete" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_terms</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/util.html#autocomplete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.autocomplete" title="Permalink to this definition"></a></dt>
 <dd><p>Validate search term and return complete name, e.g. autocomplete(‘subj’) == ‘subject’</p>
 </dd></dl>
 
@@ -388,7 +409,18 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <dl class="py method">
 <dt class="sig sig-object py" id="one.util.LazyId.ses2eid">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">ses2eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#LazyId.ses2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.LazyId.ses2eid" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ses</strong> (<em>one.webclient._PaginatedResponse</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – A collection of Alyx REST sessions endpoint records</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>One or more experiment ID strings</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str, list</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

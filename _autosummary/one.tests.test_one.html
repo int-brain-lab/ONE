@@ -151,7 +151,7 @@
 </style>
 <section id="module-one.tests.test_one">
 <span id="one-tests-test-one"></span><h1>one.tests.test_one<a class="headerlink" href="#module-one.tests.test_one" title="Permalink to this headline"></a></h1>
-<p>Tests for the one.api module</p>
+<p>Unit tests for the one.api module</p>
 <p>Wherever possible the ONE tests should not rely on an internet connection</p>
 <p>The cache tables for the public test instance are in tests/fixtures/
 The test db parameters can be found in tests/fixtures/params/
@@ -229,17 +229,20 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_list_subjects">
 <span class="sig-name descname"><span class="pre">test_list_subjects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_list_subjects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_list_subjects" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.list_subejcts</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_offline_repr">
 <span class="sig-name descname"><span class="pre">test_offline_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_offline_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_offline_repr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test for One.offline property</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_one_search">
 <span class="sig-name descname"><span class="pre">test_one_search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_one_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_one_search" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test for One.search</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_check_exists">
@@ -249,68 +252,80 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_filter">
 <span class="sig-name descname"><span class="pre">test_filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_filter" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test one.util.filter_datasets</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_filter_wildcards">
 <span class="sig-name descname"><span class="pre">test_filter_wildcards</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_filter_wildcards"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_filter_wildcards" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test one.util.filter_datasets with wildcards flag set to True</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_list_datasets">
 <span class="sig-name descname"><span class="pre">test_list_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_list_datasets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.list_datasets</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_list_collections">
 <span class="sig-name descname"><span class="pre">test_list_collections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_list_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_list_collections" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.list_collections</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_list_revisions">
 <span class="sig-name descname"><span class="pre">test_list_revisions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_list_revisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_list_revisions" title="Permalink to this definition"></a></dt>
-<dd><p>No revisions in cache fixture so generate our own</p>
+<dd><p>Test One.list_revisions</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_get_details">
 <span class="sig-name descname"><span class="pre">test_get_details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_get_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_get_details" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.get_details</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_index_type">
 <span class="sig-name descname"><span class="pre">test_index_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_index_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_index_type" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One._index_type</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_load_dataset">
 <span class="sig-name descname"><span class="pre">test_load_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_load_dataset" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.load_dataset</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_load_datasets">
 <span class="sig-name descname"><span class="pre">test_load_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_load_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_load_datasets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.load_datasets</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_load_dataset_from_id">
 <span class="sig-name descname"><span class="pre">test_load_dataset_from_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_load_dataset_from_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_load_dataset_from_id" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.load_dataset_from_id</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_load_object">
 <span class="sig-name descname"><span class="pre">test_load_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_load_object" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.load_object</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_load_cache">
 <span class="sig-name descname"><span class="pre">test_load_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_load_cache" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One._load_cache</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_refresh_cache">
 <span class="sig-name descname"><span class="pre">test_refresh_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_refresh_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_refresh_cache" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test One.refresh_cache</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -335,45 +350,65 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.tearDown" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_type2datasets">
 <span class="sig-name descname"><span class="pre">test_type2datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_type2datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_type2datasets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.type2datasets</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_ses2records">
 <span class="sig-name descname"><span class="pre">test_ses2records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_ses2records" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test one.util.ses2records</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_datasets2records">
 <span class="sig-name descname"><span class="pre">test_datasets2records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_datasets2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_datasets2records" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test one.util.datasets2records</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_pid2eid">
 <span class="sig-name descname"><span class="pre">test_pid2eid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_pid2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_pid2eid" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.pid2eid</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_describe_revision">
 <span class="sig-name descname"><span class="pre">test_describe_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_stdout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_describe_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_describe_revision" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.describe_revision</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_describe_dataset">
 <span class="sig-name descname"><span class="pre">test_describe_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_stdout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_describe_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_describe_dataset" title="Permalink to this definition"></a></dt>
-<dd><p>NB This could be offline: REST responses in fixtures</p>
+<dd><p>Test OneAlyx.describe_dataset.
+NB This could be offline: REST responses in fixtures.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_url_from_path">
 <span class="sig-name descname"><span class="pre">test_url_from_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_url_from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_url_from_path" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.path2url</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_url_from_record">
 <span class="sig-name descname"><span class="pre">test_url_from_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_url_from_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_url_from_record" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test ConversionMixin.record2url</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_load_cache">
+<span class="sig-name descname"><span class="pre">test_load_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_load_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Test loading the remote cache</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tearDownClass">
@@ -396,27 +431,32 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_online_repr">
 <span class="sig-name descname"><span class="pre">test_online_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_online_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_online_repr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Tests OneAlyx.__repr__</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_list_datasets">
 <span class="sig-name descname"><span class="pre">test_list_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_list_datasets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.list_datasets</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_search">
 <span class="sig-name descname"><span class="pre">test_search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_search" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.search</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_load_dataset">
 <span class="sig-name descname"><span class="pre">test_load_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_load_dataset" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.load_dataset</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_load_object">
 <span class="sig-name descname"><span class="pre">test_load_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_load_object" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx.load_object</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -444,7 +484,8 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.test_download_datasets">
 <span class="sig-name descname"><span class="pre">test_download_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload.test_download_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload.test_download_datasets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test OneAlyx._download_dataset</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.tearDown">
@@ -465,17 +506,30 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_local_cache_setup">
+<span class="sig-name descname"><span class="pre">test_local_cache_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_local_cache_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_local_cache_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Test One.setup</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_setup_silent">
 <span class="sig-name descname"><span class="pre">test_setup_silent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_setup_silent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_setup_silent" title="Permalink to this definition"></a></dt>
-<dd><p>Test setting up parameters with silent flag
+<dd><p>Test setting up parameters with silent flag.
 - Mock getfile to return temp dir as param file location
 - Mock input function as fail safe in case function erroneously prompts user for input</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_static_setup">
+<span class="sig-name descname"><span class="pre">test_static_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_static_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_static_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Test OneAlyx.setup</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_setup">
 <span class="sig-name descname"><span class="pre">test_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_setup" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test one.params.setup</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_patch_params">

@@ -97,7 +97,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.tests.util</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">tempfile</span>
+<span></span><span class="sd">&quot;&quot;&quot;Utilities functions for setting up test fixtures&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -122,7 +123,9 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    TemporaryDirectory object</span>
+<span class="sd">    tempfile.TemporaryDirectory</span>
+<span class="sd">        The temporary directory containing the test ONE caches</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
     <span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
@@ -139,7 +142,14 @@
 
 
 <div class="viewcode-block" id="setup_rest_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_rest_cache">[docs]</a><span class="k">def</span> <span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param_dir : str, pathlib.Path</span>
+<span class="sd">        The location of the ONE params directory (e.g. ~/.one)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
     <span class="n">path_parts</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">,</span> <span class="s1">&#39;test.alyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">)</span>
     <span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">param_dir</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">path_parts</span><span class="p">)</span>
@@ -154,7 +164,14 @@
 
 
 <div class="viewcode-block" id="create_file_tree"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_file_tree">[docs]</a><span class="k">def</span> <span class="nf">create_file_tree</span><span class="p">(</span><span class="n">one</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Touch all the files in the datasets table&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Touch all the files in the datasets table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    one : one.api.One</span>
+<span class="sd">        An instance of One containing cache tables to use.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create dset files from cache</span>
     <span class="k">for</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">datasets</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
@@ -163,6 +180,15 @@
 
 
 <div class="viewcode-block" id="setup_test_params"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_test_params">[docs]</a><span class="k">def</span> <span class="nf">setup_test_params</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copies cache parameter fixture to .one directory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    token : bool</span>
+<span class="sd">        If true, save a token file so that client doesn&#39;t hit auth endpoint</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span>
     <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
     <span class="n">test_pars</span> <span class="o">=</span> <span class="s1">&#39;.test.alyx.internationalbrainlab.org&#39;</span>
@@ -192,6 +218,28 @@
                              <span class="n">revisions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-08&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-07-06&#39;</span><span class="p">),</span>
                              <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
                              <span class="n">attributes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;waveforems&#39;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a datasets cache DataFrame containing datasets with revision folders.</span>
+
+<span class="sd">    As there are no revised datasets on the test databases, this function acts as a fixture for</span>
+<span class="sd">    testing the filtering of datasets by a revision.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collections : tuple</span>
+<span class="sd">        A list of collections</span>
+<span class="sd">    revisions : tuple</span>
+<span class="sd">        A list of revisions</span>
+<span class="sd">    object : str</span>
+<span class="sd">        An ALF object</span>
+<span class="sd">    attributes : tuple</span>
+<span class="sd">        A list of ALF attributes</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        A datasets cache table containing datasets made from the input names</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rel_path</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">collec</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">:</span>
@@ -211,6 +259,16 @@
 
 
 <div class="viewcode-block" id="create_schema_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_schema_cache">[docs]</a><span class="k">def</span> <span class="nf">create_schema_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save REST cache file for docs/ endpoint.</span>
+
+<span class="sd">    Ensures the database isn&#39;t hit when the rest_schemas property is accessed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param_dir : str, pathlib.Path</span>
+<span class="sd">        The location of the parameter directory.  If None, the default one is used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">])</span>
     <span class="n">endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset-types&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;downloads&#39;</span><span class="p">,</span> <span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">]</span>
     <span class="n">path_parts</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">,</span> <span class="s1">&#39;test.alyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">)</span>
@@ -232,7 +290,9 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    The parameter filename</span>
+<span class="sd">    str</span>
+<span class="sd">        The parameter file path</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">p</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">str_id</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span><span class="p">]</span>
     <span class="n">pfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
@@ -247,9 +307,6 @@
 <span class="sd">    caches : Bunch</span>
 <span class="sd">        A bunch of cache tables (from One._cache)</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">):</span>
         <span class="c1"># Set integer uuids to NaN</span>

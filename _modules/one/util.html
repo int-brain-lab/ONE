@@ -223,6 +223,11 @@
 <span class="sd">    -------</span>
 <span class="sd">    function</span>
 <span class="sd">        A wrapper function that parses the ID to the expected string</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Unable to convert input to a valid experiment ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
@@ -251,19 +256,35 @@
     <span class="k">return</span> <span class="n">wrapper</span></div>
 
 
-<div class="viewcode-block" id="validate_date_range"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.validate_date_range">[docs]</a><span class="k">def</span> <span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">):</span>
+<div class="viewcode-block" id="validate_date_range"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.validate_date_range">[docs]</a><span class="k">def</span> <span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates and arrange date range in a 2 elements list</span>
 
-<span class="sd">    Examples:</span>
-<span class="sd">        _validate_date_range(&#39;2020-01-01&#39;)  # On this day</span>
-<span class="sd">        _validate_date_range(datetime.date(2020, 1, 1))</span>
-<span class="sd">        _validate_date_range(np.array([&#39;2022-01-30&#39;, &#39;2022-01-30&#39;], dtype=&#39;datetime64[D]&#39;))</span>
-<span class="sd">        _validate_date_range(pd.Timestamp(2020, 1, 1))</span>
-<span class="sd">        _validate_date_range(np.datetime64(2021, 3, 11))</span>
-<span class="sd">        _validate_date_range([&#39;2020-01-01&#39;])  # from date</span>
-<span class="sd">        _validate_date_range([&#39;2020-01-01&#39;, None])  # from date</span>
-<span class="sd">        _validate_date_range([None, &#39;2020-01-01&#39;])  # up to date</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date_range : str, datetime.date, datetime.datetime, pd.Timestamp, np.datetime64, list, None</span>
+<span class="sd">        A single date or tuple/list of two dates.  None represents no bound.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of pd.Timestamp</span>
+<span class="sd">        The start and end timestamps</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range(&#39;2020-01-01&#39;)  # On this day</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range(datetime.date(2020, 1, 1))</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range(np.array([&#39;2022-01-30&#39;, &#39;2022-01-30&#39;], dtype=&#39;datetime64[D]&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range(pd.Timestamp(2020, 1, 1))</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range(np.datetime64(2021, 3, 11))</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range([&#39;2020-01-01&#39;])  # from date</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range([&#39;2020-01-01&#39;, None])  # from date</span>
+<span class="sd">    &gt;&gt;&gt; validate_date_range([None, &#39;2020-01-01&#39;])  # up to date</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Size of date range tuple must be 1 or 2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">date_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
@@ -293,7 +314,7 @@
     <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
 
 
-<span class="k">def</span> <span class="nf">_collection_spec</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_collection_spec</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a template string for a collection/revision regular expression.  Because both are</span>
 <span class="sd">    optional in the ALF spec, None will match any (including absent), while an empty string will</span>
@@ -308,7 +329,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A string format for matching the collection/revision</span>
+<span class="sd">    str</span>
+<span class="sd">        A string format for matching the collection/revision</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">collection</span><span class="p">,</span> <span class="n">revision</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{collection}</span><span class="s1">/&#39;</span><span class="p">,</span> <span class="s1">&#39;#</span><span class="si">{revision}</span><span class="s1">#/&#39;</span><span class="p">)):</span>
@@ -347,19 +369,23 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    A slice of all_datasets that match the filters</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        A slice of all_datasets that match the filters</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    # Filter by dataset name and collection</span>
-<span class="sd">    datasets = filter_datasets(all_datasets, &#39;*.spikes.times.*&#39;, &#39;alf/probe00&#39;)</span>
-<span class="sd">    # Filter datasets not in a collection</span>
-<span class="sd">    datasets = filter_datasets(all_datasets, collection=&#39;&#39;)</span>
-<span class="sd">    # Filter by matching revision</span>
-<span class="sd">    datasets = filter_datasets(all_datasets, &#39;spikes.times.npy&#39;,</span>
-<span class="sd">                               revision=&#39;2020-01-12&#39;, revision_last_before=False)</span>
-<span class="sd">    # Filter by filename parts</span>
-<span class="sd">    datasets = filter_datasets(all_datasets, {object=&#39;spikes&#39;, attribute=&#39;times&#39;})</span>
+<span class="sd">    Filter by dataset name and collection</span>
+<span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, &#39;*.spikes.times.*&#39;, &#39;alf/probe00&#39;)</span>
+
+<span class="sd">    Filter datasets not in a collection</span>
+<span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, collection=&#39;&#39;)</span>
+
+<span class="sd">    Filter by matching revision</span>
+<span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, &#39;spikes.times.npy&#39;,</span>
+<span class="sd">    ...                        revision=&#39;2020-01-12&#39;, revision_last_before=False)</span>
+
+<span class="sd">    Filter by filename parts</span>
+<span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, dict(object=&#39;spikes&#39;, attribute=&#39;times&#39;))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create a regular expression string to match relative path against</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -413,21 +439,22 @@
 
 <div class="viewcode-block" id="filter_revision_last_before"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_revision_last_before">[docs]</a><span class="k">def</span> <span class="nf">filter_revision_last_before</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Filter datasets by revision, returning previous revision in ordered list if revision</span>
-<span class="sd">        doesn&#39;t exactly match.</span>
+<span class="sd">    Filter datasets by revision, returning previous revision in ordered list if revision</span>
+<span class="sd">    doesn&#39;t exactly match.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        datasets : pandas.DataFrame</span>
-<span class="sd">            A datasets cache table</span>
-<span class="sd">        revision : str</span>
-<span class="sd">            A revision string to match (regular expressions not permitted)</span>
-<span class="sd">        assert_unique : bool</span>
-<span class="sd">            When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple</span>
-<span class="sd">            default revisions are found; an alferr.ALFError when no default revision is found</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : pandas.DataFrame</span>
+<span class="sd">        A datasets cache table</span>
+<span class="sd">    revision : str</span>
+<span class="sd">        A revision string to match (regular expressions not permitted)</span>
+<span class="sd">    assert_unique : bool</span>
+<span class="sd">        When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple</span>
+<span class="sd">        default revisions are found; an alferr.ALFError when no default revision is found</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
 <span class="sd">        A datasets DataFrame with 0 or 1 row per unique dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_last_before</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
@@ -475,11 +502,12 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Index of revision before matching string in sorted list or None</span>
+<span class="sd">    int, None</span>
+<span class="sd">        Index of revision before matching string in sorted list or None</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    idx = _index_last_before([], &#39;2020-08-01&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; idx = index_last_before([], &#39;2020-08-01&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">revisions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span>  <span class="c1"># No revisions, just return</span>
@@ -490,7 +518,7 @@
     <span class="k">return</span> <span class="n">revisions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">revisions_sorted</span><span class="p">[</span><span class="n">lt</span><span class="o">.</span><span class="n">argmax</span><span class="p">()])</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">lt</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="autocomplete"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.autocomplete">[docs]</a><span class="k">def</span> <span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">):</span>
+<div class="viewcode-block" id="autocomplete"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.autocomplete">[docs]</a><span class="k">def</span> <span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validate search term and return complete name, e.g. autocomplete(&#39;subj&#39;) == &#39;subject&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -530,6 +558,18 @@
 
 <div class="viewcode-block" id="LazyId.ses2eid"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId.ses2eid">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">ses2eid</span><span class="p">(</span><span class="n">ses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ses : one.webclient._PaginatedResponse, dict, list</span>
+<span class="sd">            A collection of Alyx REST sessions endpoint records</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str, list</span>
+<span class="sd">            One or more experiment ID strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">LazyId</span><span class="o">.</span><span class="n">ses2eid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ses</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
