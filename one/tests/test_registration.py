@@ -1,4 +1,4 @@
-"""Unit tests for the one.registration module"""
+"""Unit tests for the one.registration module."""
 import logging
 import unittest
 import unittest.mock
@@ -18,6 +18,7 @@ from one.tests import util
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestRegistrationClient(unittest.TestCase):
+    """Test class for RegistrationClient class"""
     one = None
     subject = None
     temp_dir = None
@@ -40,6 +41,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.client = registration.RegistrationClient(one=self.one)
 
     def test_water_administration(self):
+        """Test for RegistrationClient.register_water_administration"""
         record = self.client.register_water_administration(self.subject, 35.10000000235)
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['water_administered'], 35.1)
@@ -64,6 +66,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_water_administration(self.subject, .0)
 
     def test_register_weight(self):
+        """Test for RegistrationClient.register_weight"""
         record = self.client.register_weight(self.subject, 35.10000000235)
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['weight'], 35.1)
@@ -73,6 +76,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_weight(self.subject, 0.0)
 
     def test_ensure_ISO8601(self):
+        """Test for RegistrationClient.ensure_ISO8601"""
         date = datetime.datetime(2021, 7, 14, 15, 53, 15, 525119)
         self.assertEqual(self.client.ensure_ISO8601(date), '2021-07-14T15:53:15.525119')
         self.assertEqual(self.client.ensure_ISO8601(date.date()), '2021-07-14T00:00:00')
@@ -82,6 +86,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.ensure_ISO8601(f'{date:%D}')
 
     def test_exists(self):
+        """Test for RegistrationClient.assert_exists"""
         # Check user endpoint
         with self.assertRaises(alferr.AlyxSubjectNotFound):
             self.client.assert_exists('foobar', 'subjects')
@@ -92,6 +97,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertIn('foobar', str(ex.exception))
 
     def test_find_files(self):
+        """Test for RegistrationClient.find_files"""
         # Remove a dataset type from the client to check that the dataset(s) are ignored
         existing = (x['filename_pattern'] and any(self.session_path.rglob(x['filename_pattern']))
                     for x in self.client.dtypes)
@@ -103,6 +109,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
 
     def test_create_new_session(self):
+        """Test for RegistrationClient.create_new_session"""
         # Check register = True
         session_path, eid = self.client.create_new_session(self.subject, date='2020-01-01')
         expected = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001').as_posix()
@@ -116,6 +123,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertIsNone(eid)
 
     def test_register_session(self):
+        """Test for RegistrationClient.register_session"""
         datasets = self.one.list_datasets(self.one.search()[0])  # Some datasets to create
         session_path = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001')
         # Ensure session exists
@@ -130,6 +138,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(len(ses['data_dataset_session_related']), len(recs))
 
     def test_create_sessions(self):
+        """Test for RegistrationClient.create_sessions"""
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
         session_path.mkdir(parents=True)
         session_path.joinpath('create_me.flag').touch()
@@ -148,6 +157,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(session_paths[0], session_path)
 
     def test_register_files(self):
+        """Test for RegistrationClient.register_files"""
         # Test a few things not checked in register_session
         session_path, eid = self.client.create_new_session(self.subject)
         # Check registering single file, dry run, default False

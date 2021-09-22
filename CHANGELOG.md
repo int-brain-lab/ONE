@@ -11,6 +11,8 @@
 - One list_* methods return list instead of np arrays
 - get_details returns dict with 'date' key in remote mode
 - eid2ref works in offline mode
+- record2url now expects a pandas.Series object, iterates over DataFrame and returns list
+- path2record now returns a pandas.Series instead of DataFrame
 
 ### Added
 

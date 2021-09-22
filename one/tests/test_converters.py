@@ -109,17 +109,15 @@ class TestConverters(unittest.TestCase):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
                                                 '001', 'alf', '_ibl_wheel.position.npy')
         rec = self.one.path2record(file)
-        self.assertIsInstance(rec, pd.DataFrame)
-        rel_path, = rec['rel_path'].values
-        self.assertTrue(file.as_posix().endswith(rel_path))
+        self.assertIsInstance(rec, pd.Series)
+        self.assertTrue(file.as_posix().endswith(rec['rel_path']))
 
         # Test URL
         parts = add_uuid_string(file, '94285bfd-7500-4583-83b1-906c420cc667').parts[-7:]
         url = TEST_DB_2['base_url'] + '/'.join(('', *parts))
         rec = self.one.path2record(url)
-        self.assertIsInstance(rec, pd.DataFrame)
-        rel_path, = rec['rel_path'].values
-        self.assertTrue(file.as_posix().endswith(rel_path))
+        self.assertIsInstance(rec, pd.Series)
+        self.assertTrue(file.as_posix().endswith(rec['rel_path']))
 
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.path2record(file))
@@ -228,7 +226,7 @@ class TestOnlineConverters(unittest.TestCase):
         expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
                     'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
                     '_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin')
-        self.assertEqual(expected, url)
+        self.assertEqual([expected], url)
 
     def test_record2path(self):
         rec = self.one.get_details(self.eid, full=True, query_type='local')

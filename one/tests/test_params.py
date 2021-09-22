@@ -1,4 +1,7 @@
-"""Unit tests for the one.params module"""
+"""Unit tests for the one.params module.
+
+NB: `setup` function tested with TestOneSetup class in one.tests.test_one.
+"""
 import unittest
 from unittest import mock
 from pathlib import Path
@@ -9,10 +12,12 @@ from . import util
 
 
 class TestONEParamUtil(unittest.TestCase):
+    """Test class for one.params utility functions"""
     def setUp(self) -> None:
         pass
 
     def test_key_from_url(self):
+        """Test for one.params._key_from_url"""
         key = params._key_from_url('https://sub.domain.org/')
         self.assertEqual(key, 'sub.domain.org')
 
@@ -20,6 +25,7 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertEqual(key, 'www.domain.org_db__rest_true')
 
     def test_get_params_dir(self):
+        """Test for one.params.get_params_dir"""
         par_dir = Path('path', 'to', 'params')
         with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, par_dir)):
             path = params.get_params_dir()
@@ -27,6 +33,7 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertEqual('path/to/params/.one', path.as_posix())
 
     def test_get_rest_dir(self):
+        """Test for one.params.get_rest_dir"""
         par_dir = Path('path', 'to', 'params')
         url = 'https://sub.domain.net/'
         with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, par_dir)):
@@ -40,6 +47,7 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertCountEqual(expected, path2.parts)
 
     def test_get_default_client(self):
+        """Test for one.params.get_default_client"""
         temp_dir = util.set_up_env()
         self.addCleanup(temp_dir.cleanup)
         with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, temp_dir.name)):

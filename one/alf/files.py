@@ -217,7 +217,8 @@ def get_alf_path(path: Union[str, Path]) -> str:
 
     Returns
     -------
-    A string containing the full ALF path, session path, relative path or filename
+    str
+        A string containing the full ALF path, session path, relative path or filename
 
     Examples
     --------

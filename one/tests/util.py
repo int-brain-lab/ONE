@@ -1,4 +1,4 @@
-"""Utilities functions for setting up test fixtures"""
+"""Utilities functions for setting up test fixtures."""
 import tempfile
 from pathlib import Path
 import shutil
@@ -14,7 +14,7 @@ import one.params
 
 def set_up_env(use_temp_cache=True) -> tempfile.TemporaryDirectory:
     """
-    Create a temporary directory and copy cache fixtures over
+    Create a temporary directory and copy cache fixtures over.
 
     Parameters
     ----------
@@ -201,7 +201,7 @@ def get_file(root: str, str_id: str) -> str:
 
 
 def caches_int2str(caches):
-    """Convert int ids to str ids for cache tables
+    """Convert int ids to str ids for cache tables.
 
     Parameters
     ----------

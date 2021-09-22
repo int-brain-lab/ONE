@@ -26,7 +26,7 @@ def Listable(t):
 def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
     """Extract session cache record and datasets cache from a remote session data record.
 
-    TODO Fix for new tables; use to update caches from remote queries
+    TODO Fix for new tables; use to update caches from remote queries.
 
     Parameters
     ----------
@@ -276,16 +276,20 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Examples
     --------
     Filter by dataset name and collection
+
     >>> datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
 
     Filter datasets not in a collection
+
     >>> datasets = filter_datasets(all_datasets, collection='')
 
     Filter by matching revision
+
     >>> datasets = filter_datasets(all_datasets, 'spikes.times.npy',
     ...                        revision='2020-01-12', revision_last_before=False)
 
     Filter by filename parts
+
     >>> datasets = filter_datasets(all_datasets, dict(object='spikes', attribute='times'))
     """
     # Create a regular expression string to match relative path against

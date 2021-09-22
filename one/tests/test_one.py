@@ -2,24 +2,28 @@
 
 Wherever possible the ONE tests should not rely on an internet connection
 
-The cache tables for the public test instance are in tests/fixtures/
-The test db parameters can be found in tests/fixtures/params/
-Some REST GET requests can be found in tests/fixtures/rest_responses/
-These can be copied over to a temporary directory using the functions in tests/util.py,
-then construct ONE with the directory as cache_dir, mode='local' and silent=True
+Fixture locations:
 
-For tests that do require a remote connection use the tests.OFFLINE_ONLY flag in the skipIf
-decorator
-For testing REST POST requests use TEST_DB_1 (test.alyx.internationalbrainlab.org)
-For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org)
+- The cache tables for the public test instance are in tests/fixtures/
+- The test db parameters can be found in tests/fixtures/params/
+- Some REST GET requests can be found in tests/fixtures/rest_responses/
+- These can be copied over to a temporary directory using the functions in tests/util.py,
+  then construct ONE with the directory as cache_dir, mode='local' and silent=True
+
+Imported constants:
+
+- For tests that do require a remote connection use the tests.OFFLINE_ONLY flag in the skipIf
+  decorator.
+- For testing REST POST requests use TEST_DB_1 (test.alyx.internationalbrainlab.org).
+- For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org).
 
 Note ONE and AlyxClient use caching:
 
-    - When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
-    databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
-    or mock iblutil.io.params.getfile to return a temporary cache directory
-    - An One object created through the one.api.ONE function, make sure you restore the
-    properties to their original state on teardown, or call one.api.ONE.cache_clear()
+- When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
+  databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
+  or mock iblutil.io.params.getfile to return a temporary cache directory
+- An One object created through the one.api.ONE function, make sure you restore the
+  properties to their original state on teardown, or call one.api.ONE.cache_clear()
 
 """
 import datetime
@@ -51,7 +55,7 @@ from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 
 
 class TestONECache(unittest.TestCase):
-    """Test methods that use sessions and datasets tables
+    """Test methods that use sessions and datasets tables.
     This class loads the parquet tables from the fixtures and builds a file tree in a temp folder
     """
     tempdir = None
@@ -782,7 +786,7 @@ class TestOneAlyx(unittest.TestCase):
         """Test ConversionMixin.record2url"""
         parquet.str2np('91546fc6-b67c-4a69-badc-5e66088519c4')
         dataset = self.one._cache['datasets'].loc[[[7587013646714098833, -4316272496734184262]]]
-        url = self.one.record2url(dataset)
+        url = self.one.record2url(dataset.squeeze())
         expected = ('https://ibl.flatironinstitute.org/'
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
                     '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
@@ -955,6 +959,7 @@ class TestOneDownload(unittest.TestCase):
 
 
 class TestOneSetup(unittest.TestCase):
+    """Test parameter setup upon ONE instantiation and calling setup methods"""
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
@@ -1092,6 +1097,7 @@ class TestOneSetup(unittest.TestCase):
 
 
 class TestOneMisc(unittest.TestCase):
+    """Test functions in one.util"""
     def test_validate_date_range(self):
         # Single string date
         actual = validate_date_range('2020-01-01')  # On this day

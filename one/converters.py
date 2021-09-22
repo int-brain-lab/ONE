@@ -28,6 +28,23 @@ from .util import Listable
 
 
 def recurse(func):
+    """Decorator to call decorated function recursively if first arg is non-string iterable.
+
+    Allows decorated methods to accept both single values, and lists/tuples of values.  When
+    given the latter, a list is returned.  This decorator is intended to work on class methods,
+    therefore the first arg is assumed to be the object.  Maps and pandas objects are not
+    iterated over.
+
+    Parameters
+    ----------
+    func : function
+        A method to decorate
+
+    Returns
+    -------
+    function
+        The decorated method
+    """
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
         if len(args) <= 1:
@@ -42,7 +59,13 @@ def recurse(func):
 
 
 def parse_values(func):
-    """Convert str values in reference dict to appropriate type"""
+    """Convert str values in reference dict to appropriate type.
+
+    Example
+    -------
+    >>> parse_values(lambda x: x)({'date': '2020-01-01', 'sequence': '001'}, parse=True)
+    {'date': datetime.date(2020, 1, 1), 'sequence': 1}
+    """
     def parse_ref(ref):
         if ref:
             if isinstance(ref['date'], str):
@@ -67,6 +90,7 @@ def parse_values(func):
 
 
 class ConversionMixin:
+    """A mixin providing methods to interconvert experiment identifiers"""
 
     def __init__(self):
         self._cache = None
@@ -76,6 +100,27 @@ class ConversionMixin:
     def to_eid(self,
                id: Listable(Union[str, Path, UUID, dict]) = None,
                cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
+        """Given any kind of experiment identifier, return a corresponding eid string.
+
+        NB: Currently does not support integer IDs.
+
+        Parameters
+        ----------
+        id : str, pathlib.Path, UUID, dict, tuple, list
+            An experiment identifier
+        cache_dir : pathlib.Path, str
+            An optional cache directory path for intermittent conversion to path
+
+        Returns
+        -------
+        str, None
+            An experiment ID string or None if session not in cache
+
+        Raises
+        ------
+        ValueError
+            Input ID invalid
+        """
         # TODO Could add np2str here
         # if isinstance(id, (list, tuple)):  # Recurse
         #     return [self.to_eid(i, cache_dir) for i in id]
@@ -86,12 +131,12 @@ class ConversionMixin:
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
         elif isinstance(id, dict):
-            assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
+            assert {'subject', 'number', 'date', 'lab'}.issubset(id)
             root = Path(cache_dir or self.cache_dir)
             id = root.joinpath(
                 id['lab'],
                 'Subjects', id['subject'],
-                id['start_time'][:10],
+                str(id['date']),
                 ('%03d' % id['number']))
 
         if isinstance(id, Path):
@@ -181,9 +226,9 @@ class ConversionMixin:
         return eid
 
     @recurse
-    def path2record(self, filepath):
-        """
-        TODO Return Series instead of DataFrame
+    def path2record(self, filepath) -> pd.Series:
+        """Convert a file path to a dataset cache record.
+
         NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
 
         Parameters
@@ -216,7 +261,7 @@ class ConversionMixin:
         rec = rec[rec['session_path'] == session_path]
         rec = rec[rec['rel_path'].apply(lambda x: filepath.as_posix().endswith(x))]
         assert len(rec) < 2, 'Multiple records found'
-        return None if rec.empty else rec
+        return None if rec.empty else rec.squeeze()
 
     @recurse
     def path2url(self, filepath):
@@ -239,15 +284,26 @@ class ConversionMixin:
         return unwrap(self.record2url)(record)
 
     def record2url(self, dataset):
+        """Convert a dataset record to a remote file URL
+
+        NB: Requires online instance
+
+        Parameters
+        ----------
+        dataset : pd.Series, pd.DataFrame
+            A datasets cache record.  If DataFrame, iterate over and returns list.
+
+        Returns
+        -------
+        str, list
+            A dataset URL or list if input is DataFrame
+        """
         assert self._web_client
         # FIXME Should be OneAlyx converter only
-        # TODO Document
-        # for i, rec in dataset.iterrows():
+        if isinstance(dataset, pd.DataFrame):
+            return [self.record2url(r) for _, r in dataset.iterrows()]
         if isinstance(dataset, pd.Series):
             uuid, = parquet.np2str(np.array([dataset.name]))
-        else:
-            assert len(dataset) == 1
-            uuid, = parquet.np2str(dataset.reset_index()[['id_0', 'id_1']])
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
         return self._web_client.rel_path2url(add_uuid_string(url, uuid).as_posix())
@@ -551,6 +607,19 @@ class ConversionMixin:
 
     @staticmethod
     def dict2ref(ref_dict) -> Union[str, List]:
+        """
+        Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.
+
+        Parameters
+        ----------
+        ref_dict : dict, Bunch, list, tuple
+            A map with the keys ('subject', 'date', 'sequence')
+
+        Returns
+        -------
+        str, list:
+            An experiment reference string, or list thereof
+        """
         if isinstance(ref_dict, (list, tuple)):
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
         if not ref_dict:
@@ -584,7 +653,7 @@ def one_path_from_dataset(dset, one_cache):
 
 def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=False):
     """
-    Returns the local file path from a dset record from a REST query
+    Returns the local file path from a dset record from a REST query.
     Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
 
     Parameters
