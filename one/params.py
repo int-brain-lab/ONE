@@ -1,13 +1,13 @@
-"""Funtions for modifying, loading and saving ONE and Alyx database parameters
+"""Functions for modifying, loading and saving ONE and Alyx database parameters.
+
 Scenarios:
+
     - Load ONE with a cache dir: tries to load the Web client params from the dir
     - Load ONE with http address - gets cache dir from the URL map
 
 The ONE params comprise two files: a caches file that contains a map of Alyx db URLs to cache
 directories, and a separate parameter file for each url containing the client parameters.  The
 caches file also sets the default client for when no url is provided.
-
-TODO Rename 'client' kwarg
 """
 import re
 from iblutil.io import params as iopar
@@ -19,10 +19,11 @@ import unicodedata
 _PAR_ID_STR = 'one'
 _CLIENT_ID_STR = 'caches'
 CACHE_DIR_DEFAULT = str(Path.home() / "Downloads" / "ONE")
+"""str: The default data download location"""
 
 
 def default():
-    """Default WebClient parameters"""
+    """Default Web client parameters"""
     par = {"ALYX_URL": "https://openalyx.internationalbrainlab.org",
            "ALYX_LOGIN": "intbrainlab",
            "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org",
@@ -32,6 +33,21 @@ def default():
 
 
 def _get_current_par(k, par_current):
+    """
+    Return the current parameter value or the default.
+
+    Parameters
+    ----------
+    k : str
+        The parameter key lookup
+    par_current : IBLParams
+        The current parameter set
+
+    Returns
+    -------
+    any
+        The current parameter value or default if None or not set
+    """
     cpar = getattr(par_current, k, None)
     if cpar is None:
         cpar = getattr(default(), k, None)
@@ -43,12 +59,20 @@ def _key_from_url(url: str) -> str:
     Convert a URL str to one valid for use as a file name or dict key.  URL Protocols are
     removed entirely.  The returned string will have characters in the set [a-zA-Z.-_].
 
-    Example:
-        url = _key_from_url('http://test.alyx.internationalbrainlab.org/')
-        assert url == 'test.alyx.internationalbrainlab.org'
+    Parameters
+    ----------
+    url : str
+        A URL string
 
-    :param url: A URL string
-    :return: A file-name-safe string
+    Returns
+    -------
+    str
+        A filename-safe string
+
+    Example
+    -------
+    >>> url = _key_from_url('http://test.alyx.internationalbrainlab.org/')
+   'test.alyx.internationalbrainlab.org'
     """
     url = unicodedata.normalize('NFKC', url)  # Ensure ASCII
     url = re.sub('^https?://', '', url).strip('/')  # Remove protocol and trialing slashes
@@ -57,6 +81,26 @@ def _key_from_url(url: str) -> str:
 
 
 def setup(client=None, silent=False, make_default=None):
+    """
+    Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
+    that instance will be set.  If silent, the user will be prompted to input each parameter
+    value.  Pressing return will use either current parameter or the default.
+
+    Parameters
+    ----------
+    client : str
+        An Alyx database URL. If None, the user will be prompted to input one.
+    silent : bool
+        If True, user is not prompted for any input.
+    make_default : bool
+        If True, client is set as the default and will be returned when calling `get` with no
+        arguments.
+
+    Returns
+    -------
+    IBLParams
+        An updated cache map.
+    """
     # first get default parameters
     par_default = default()
     client_key = _key_from_url(client or par_default.ALYX_URL)
@@ -77,14 +121,17 @@ def setup(client=None, silent=False, make_default=None):
             if 'PWD' not in k and not (client and k == 'ALYX_URL'):
                 par[k] = input(f'Param {k}, current value is ["{str(cpar)}"]:') or cpar
 
-        cpar = _get_current_par('ALYX_PWD', par_current)
-        prompt = f'Enter the Alyx password for {par["ALYX_LOGIN"]} (leave empty to keep current):'
-        par['ALYX_PWD'] = getpass(prompt) or cpar
-
         cpar = _get_current_par('HTTP_DATA_SERVER_PWD', par_current)
         prompt = f'Enter the FlatIron HTTP password for {par["HTTP_DATA_SERVER_LOGIN"]} '\
                  '(leave empty to keep current): '
         par['HTTP_DATA_SERVER_PWD'] = getpass(prompt) or cpar
+
+        if 'ALYX_PWD' in par_current.as_dict():
+            # Only store plain text password if user manually added it to params JSON file
+            cpar = _get_current_par('ALYX_PWD', par_current)
+            prompt = (f'Enter the Alyx password for {par["ALYX_LOGIN"]} '
+                      '(leave empty to keep current):')
+            par['ALYX_PWD'] = getpass(prompt) or cpar
 
         par = iopar.from_dict(par)
 
@@ -134,7 +181,8 @@ def get(client=None, silent=False):
 
     Returns
     -------
-    A Params object for the AlyxClient
+    IBLParams
+        A Params object for the AlyxClient
     """
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
@@ -154,20 +202,51 @@ def get_default_client():
 
 
 def save(par, client):
+    """
+    Save a set of parameters for a given client.
+
+    Parameters
+    ----------
+    par : dict, IBLParams
+        A set of Web client parameters to save
+    client : str
+        The Alyx URL that corresponds to these parameters
+    """
     # Remove cache dir variable before saving
     par = {k: v for k, v in iopar.as_dict(par).items() if 'CACHE_DIR' not in k}
     iopar.write(f'{_PAR_ID_STR}/{_key_from_url(client)}', par)
 
 
-def get_cache_dir() -> Path:
-    # TODO Add client param
+def get_cache_dir(client=None) -> Path:
+    """Return the download directory for a given client.
+
+    If no client is set up, the default download location is returned.
+
+    Parameters
+    ----------
+    client : str
+        The client to return cache dir from.  If None, the default client is used.
+
+    Returns
+    -------
+    pathlib.Path
+        The download cache path
+    """
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
-    cache_dir = Path(cache_map.CLIENT_MAP[cache_map.DEFAULT] if cache_map else CACHE_DIR_DEFAULT)
+    client = _key_from_url(client) if client else cache_map.DEFAULT
+    cache_dir = Path(cache_map.CLIENT_MAP[client] if cache_map else CACHE_DIR_DEFAULT)
     cache_dir.mkdir(exist_ok=True, parents=True)
     return cache_dir
 
 
 def get_params_dir() -> Path:
+    """Return the path to the root ONE parameters directory
+
+    Returns
+    -------
+    pathlib.Path
+        The root ONE parameters directory
+    """
     return Path(iopar.getfile(_PAR_ID_STR))
 
 
@@ -182,6 +261,7 @@ def get_rest_dir(client=None) -> Path:
 
     Returns
     -------
+    pathlib.Path
         The REST cache directory path
     """
     rest_dir = get_params_dir() / '.rest'
@@ -192,6 +272,21 @@ def get_rest_dir(client=None) -> Path:
 
 
 def check_cache_conflict(cache_dir):
+    """Asserts that a given directory is not currently used as a cache directory.
+    This function checks whether a given directory is used as a cache directory for an Alyx
+    Web client.  This function is called by the ONE factory to determine whether to return an
+    OneAlyx object or not.  It is also used when setting up params for a new client.
+
+    Parameters
+    ----------
+    cache_dir : str, pathlib.Path
+        A directory to check.
+
+    Raises
+    ------
+    AssertionError
+        The directory is set as a cache for a Web client
+    """
     cache_map = getattr(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}), 'CLIENT_MAP', None)
     if cache_map:
         assert not any(x == str(cache_dir) for x in cache_map.values())
@@ -200,7 +295,11 @@ def check_cache_conflict(cache_dir):
 def _patch_params():
     """
     Copy over old parameters to the new cache dir based format
-    :return: new parameters
+
+    Returns
+    -------
+    IBLParams
+        New parameters object containing the previous parameters
     """
     OLD_PAR_STR = 'one_params'
     old_par = iopar.read(OLD_PAR_STR, {})
@@ -228,8 +327,8 @@ def _patch_params():
         par = iopar.from_dict(cache_map)
 
     # Remove the old parameters file
-    # TODO Restore when fully deprecated
-    # old_path = Path(iopar.getfile(OLD_PAR_STR))
-    # old_path.unlink(missing_ok=True)
+    old_path = Path(iopar.getfile(OLD_PAR_STR))
+    if old_path.exists():
+        old_path.unlink()
 
     return par

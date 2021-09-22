@@ -11,7 +11,7 @@ Note the following:
     ALF files must always have an extension
 
 For more information, see the following documentation:
-    https://int-brain-lab.github.io/iblenv/one_docs/one_reference.html#alf  # FIXME Change link
+    https://int-brain-lab.github.io/ONE/alf_intro.html
 
 Created on Tue Sep 11 18:06:21 2018
 
@@ -30,8 +30,10 @@ _logger = logging.getLogger(__name__)
 
 
 def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
-    """Parse a relative path into the relevant parts.  A relative path follows the pattern
-    (collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension
+    """Parse a relative path into the relevant parts.
+
+    A relative path follows the pattern
+        (collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension
 
     Parameters
     ----------
@@ -46,7 +48,8 @@ def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
 
     Returns
     -------
-        An OrderedDict if as_dict is true, or a tuple of parsed values
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
     """
     compiled = spec.regex(REL_PATH_SPEC)
     if hasattr(rel_path, 'as_posix'):
@@ -77,7 +80,8 @@ def session_path_parts(session_path, as_dict=False, assert_valid=True):
 
     Returns
     -------
-        An OrderedDict if as_dict is true, or a tuple of parsed values
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
     """
     if hasattr(session_path, 'as_posix'):
         session_path = session_path.as_posix()
@@ -90,7 +94,7 @@ def session_path_parts(session_path, as_dict=False, assert_valid=True):
     return OrderedDict.fromkeys(empty) if as_dict else tuple([None] * len(empty))
 
 
-def filename_parts(filename, as_dict=False, assert_valid=True):
+def filename_parts(filename, as_dict=False, assert_valid=True) -> Union[dict, tuple]:
     """
     Return the parsed elements of a given ALF filename.
 
@@ -152,14 +156,17 @@ def filename_parts(filename, as_dict=False, assert_valid=True):
 
 
 def path_parts(file_path: str) -> dict:
-    pass
+    """Parse all filename and folder parts"""
+    raise NotImplementedError()
 
 
 def folder_parts(folder_path: str) -> dict:
-    pass
+    """Parse all folder parts, including session, collection and revision"""
+    raise NotImplementedError()
 
 
 def _isdatetime(s: str) -> bool:
+    """Returns True if input is valid ISO date string"""
     try:
         datetime.strptime(s, '%Y-%m-%d')
         return True
@@ -172,13 +179,18 @@ def get_session_path(path: Union[str, Path]) -> Optional[Path]:
     Returns the session path from any filepath if the date/number pattern is found,
     including the root directory
 
+    Returns
+    -------
+    pathlib.Path
+        The session path part of the input path or None if path invalid.
+
     Examples
     --------
-        get_relative_session_path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
-        Path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
+    >>> get_session_path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
+    Path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
 
-        get_relative_session_path('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy')
-        Path('C:/Data/subject/2020-01-01/1')
+    >>> get_session_path('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy')
+    Path('C:/Data/subject/2020-01-01/1')
     """
     if path is None:
         return
@@ -193,7 +205,7 @@ def get_session_path(path: Union[str, Path]) -> Optional[Path]:
 
 
 def get_alf_path(path: Union[str, Path]) -> str:
-    """Returns the ALF part of a path or filename
+    """Returns the ALF part of a path or filename.
     Attempts to return the first valid part of the path, first searching for a session path,
     then relative path (collection/revision/filename), then just the filename.  If all invalid,
     None is returned.
@@ -209,13 +221,13 @@ def get_alf_path(path: Union[str, Path]) -> str:
 
     Examples
     --------
-    get_alf_path('etc/etc/lab/Subjects/subj/2021-01-21/001')
+    >>> get_alf_path('etc/etc/lab/Subjects/subj/2021-01-21/001')
     'lab/Subjects/subj/2021-01-21/001/collection/file.attr.ext'
 
-    get_alf_path('etc/etc/subj/2021-01-21/001/collection/file.attr.ext')
+    >>> get_alf_path('etc/etc/subj/2021-01-21/001/collection/file.attr.ext')
     'subj/2021-01-21/001/collection/file.attr.ext'
 
-    get_alf_path('collection/file.attr.ext')
+    >>> get_alf_path('collection/file.attr.ext')
     'collection/file.attr.ext'
     """
     if not isinstance(path, str):
@@ -247,7 +259,8 @@ def add_uuid_string(file_path, uuid):
 
     Returns
     -------
-    A new Path object with a UUID in the filename
+    pathlib.Path
+        A new Path object with a UUID in the filename
     """
     if isinstance(uuid, str) and not spec.is_uuid_string(uuid):
         raise ValueError('Should provide a valid UUID v4')

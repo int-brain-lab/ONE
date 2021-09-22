@@ -7,10 +7,47 @@ Welcome to ONE's documentation!
 ===============================
 
 .. toctree::
+   :caption: Using ONE to access data
+   :name: basic_usage
    :maxdepth: 2
-   :caption: Contents:
 
+   one_reference
+   one_installation
+   notebooks/one_search/one_search
+   notebooks/one_list/one_list
+   notebooks/one_load/one_load
+   notebooks/experiment_ids
 
+.. toctree::
+   :caption: Remote usage
+   :maxdepth: 2
+
+   notebooks/one_modes
+   notebooks/one_advanced/one_advanced
+   notebooks/useful_alyx_queries
+
+.. toctree::
+   :caption: Data sharing
+   :maxdepth: 2
+
+   notebooks/data_sharing
+   notebooks/public_one
+
+.. toctree::
+   :caption: ALF
+   :maxdepth: 2
+
+   alf_intro
+   notebooks/alyx_files
+   notebooks/datasets_and_types
+
+.. toctree::
+   :caption: Misc
+   :maxdepth: 3
+
+   FAQ
+   api_reference.rst
+   contributing
 
 Indices and tables
 ==================

@@ -1,9 +1,27 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.4.0]
+
+### Modified
+
+- One and OneAlyx setup methods
+- Old params files now cleaned up
+- Removed ALYX_PWD prompt from setup
+- Improved test coverage
+- Docs formatting
+- One list_* methods return list instead of np arrays
+- get_details returns dict with 'date' key in remote mode
+- eid2ref works in offline mode
+
+### Added
+
+- tests for eid2ref
+
+## [1.3.0]
+
 ### Modified
 
 - propagate down filter datasets filters
-- list_* methods return list instead of np arrays
+- OneAlyx list_* methods return list instead of np arrays
 - cache module gracefully deals with empty repos
 - cache module refactored to reuse ALF functions
 - cache str ids now exclude 'Subjects' part

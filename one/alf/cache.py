@@ -1,5 +1,11 @@
 """Construct Parquet database from local file system.
-TODO Deal graciously with empty tables
+
+Examples
+--------
+>>> from one.api import One
+>>> cache_dir = 'path/to/data'
+>>> make_parquet_db(cache_dir)
+>>> one = One(cache_dir=cache_dir)
 """
 
 
@@ -150,7 +156,8 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
 
     Returns
     -------
-    A pandas DataFrame of session info
+    pandas.DataFrame
+        A pandas DataFrame of session info
     """
     rows = []
     for full_path in iter_sessions(root_dir):
@@ -164,7 +171,22 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
     return df
 
 
-def _make_datasets_df(root_dir, hash_files=False):
+def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
+    """
+    Given a root directory, recursively finds all datasets and returns a datasets DataFrame
+
+    Parameters
+    ----------
+    root_dir : str, pathlib.Path
+        The folder to look for sessions
+    hash_files : bool
+        If True, an MD5 is computed for each file and stored in the 'hash' column
+
+    Returns
+    -------
+    pandas.DataFrame
+        A pandas DataFrame of dataset info
+    """
     df = pd.DataFrame([], columns=DATASETS_COLUMNS)
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
@@ -185,6 +207,33 @@ def _iter_datasets(session_path):
 
 
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):
+    """
+    Given a data directory, index the ALF datasets and save the generated cache tables.
+
+    Parameters
+    ----------
+    root_dir : str, pathlib.Path
+        The file directory to index.
+    out_dir : str, pathlib.Path
+        Optional output directory to save cache tables.  If None, the files are saved into the
+        root directory.
+    hash_ids : bool
+        If True, experiment and dataset IDs will be UUIDs generated from the system and relative
+        paths.
+    hash_files : bool
+        If True, an MD5 hash is computed for each dataset and stored in the datasets table.
+        This will substantially increase cache generation time.
+    lab : str
+        An optional lab name to associate with the data.  If the folder structure
+        contains 'lab/Subjects', the lab name will be taken from the folder name.
+
+    Returns
+    -------
+    pathlib.Path
+        The full path of the saved sessions parquet table
+    pathlib.Path
+        The full path of the saved datasets parquet table
+    """
     root_dir = Path(root_dir).resolve()
 
     # Make the dataframes.
