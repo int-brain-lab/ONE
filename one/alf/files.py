@@ -239,7 +239,7 @@ def full_path_parts(path, as_dict=False, assert_valid=True) -> Union[dict, tuple
     if as_dict:
         return OrderedDict(**folders, **dataset)
     else:
-        return *folders, *dataset
+        return folders + dataset
 
 
 def folder_parts(folder_path, as_dict=False, assert_valid=True) -> Union[dict, tuple]:
