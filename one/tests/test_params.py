@@ -56,6 +56,18 @@ class TestONEParamUtil(unittest.TestCase):
             params.setup(silent=True)
             self.assertEqual(params.get_default_client(), 'openalyx.internationalbrainlab.org')
 
+    def test_get_cache_dir(self):
+        """Test for one.params.get_cache_dir"""
+        temp_dir = util.set_up_env()
+        cache_dir = Path(temp_dir.name) / 'download_cache'
+        assert not cache_dir.exists()
+        self.addCleanup(temp_dir.cleanup)
+        with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, temp_dir.name)):
+            util.setup_test_params(cache_dir=cache_dir)
+            out = params.get_cache_dir()
+        self.assertEqual(cache_dir, out)
+        self.assertTrue(cache_dir.exists())
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)

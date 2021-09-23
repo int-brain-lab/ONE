@@ -6,10 +6,13 @@ from pathlib import Path
 import uuid
 
 import one.alf.spec as alf_spec
+from one.alf.exceptions import ALFError
 
 
 class TestALFSpec(unittest.TestCase):
+    """Tests for ALF specification"""
     def test_regex(self):
+        """Test for one.alf.spec.regex"""
         # Should return the full regex with named capture groups by default
         verifiable = alf_spec.regex()
         expected = ('((?P<lab>\\w+)/Subjects/)?'
@@ -36,10 +39,12 @@ class TestALFSpec(unittest.TestCase):
             alf_spec.regex(foo=r'[bar]+')
 
     def test_named_group(self):
+        """Test for one.alf.spec._named"""
         verifiable = alf_spec._named(r'[bar]+', 'foo')
         self.assertEqual(verifiable, '(?P<foo>[bar]+)')
 
     def test_patterns(self):
+        """Tests for various spec strings"""
         # Test matching of some real paths
         filename = '_ibl_passivePeriods.intervalsTable_bpod.csv'
         expected = {
@@ -116,6 +121,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertCountEqual(verifiable, expected)
 
     def test_dromedary(self):
+        """Test for one.alf.spec._dromedary"""
         self.assertEqual(alf_spec._dromedary('Hello world'), 'helloWorld')
         self.assertEqual(alf_spec._dromedary('motion_energy'), 'motionEnergy')
         self.assertEqual(alf_spec._dromedary('FooBarBaz'), 'fooBarBaz')
@@ -123,6 +129,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(alf_spec._dromedary('ROI Motion Energy'), 'ROIMotionEnergy')
 
     def test_is_session_folder(self):
+        """Test for one.alf.spec.is_session_folder"""
         inp = [(Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04'), False),
                ('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04', False),
                (Path('/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001'), True),
@@ -132,6 +139,7 @@ class TestALFSpec(unittest.TestCase):
             self.assertEqual(alf_spec.is_session_path(i[0]), i[1], str(i[0]))
 
     def test_is_uuid_string(self):
+        """Test for one.alf.spec.is_uuid_string"""
         testins = [
             None,
             'some_string',
@@ -142,6 +150,7 @@ class TestALFSpec(unittest.TestCase):
             self.assertTrue(alf_spec.is_uuid_string(i) == e, i)
 
     def test_is_uuid(self):
+        """Test for one.alf.spec.is_uuid"""
         hex_uuid = 'f6ffe25827-06-425aaa-f5-919f70025835'
         uuid_obj = uuid.UUID(hex_uuid)
         # Check valid inputs
@@ -152,6 +161,7 @@ class TestALFSpec(unittest.TestCase):
             self.assertFalse(alf_spec.is_uuid(fake), f'{fake} is not a valid uuid')
 
     def test_is_valid(self):
+        """Test for one.alf.spec.is_valid"""
         self.assertTrue(alf_spec.is_valid('trials.feedbackType.npy'))
         self.assertTrue(alf_spec.is_valid(
             '_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.metadata.json'))
@@ -159,6 +169,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertTrue(alf_spec.is_valid('channels._phy_ids.csv'))
 
     def test_to_alf(self):
+        """Test for one.alf.spec.to_alf"""
         filename = alf_spec.to_alf('spikes', 'times', 'ssv')
         self.assertEqual(filename, 'spikes.times.ssv')
         filename = alf_spec.to_alf('spikes', 'times', 'ssv', namespace='ibl')
@@ -184,6 +195,7 @@ class TestALFSpec(unittest.TestCase):
             alf_spec.to_alf('_usr_spikes', 'times', 'npy')
 
     def test_path_pattern(self):
+        """Test for one.alf.spec.path_pattern"""
         pattern = alf_spec.path_pattern()
         parts = alf_spec.regex(alf_spec.FULL_SPEC).groupindex.keys()
         self.assertTrue(all(x in pattern for x in parts))
@@ -191,6 +203,7 @@ class TestALFSpec(unittest.TestCase):
 
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe(self, sysout):
+        """Test for one.alf.spec.describe"""
         alf_spec.describe('object', width=5)
         self.assertTrue('Every\nfile \ndescr' in sysout.getvalue())
         self.assertTrue(' ' + '^' * len('object') + ' ' in sysout.getvalue())
@@ -199,6 +212,24 @@ class TestALFSpec(unittest.TestCase):
         self.assertTrue(x.upper() in sysout.getvalue() for x in alf_spec.SPEC_DESCRIPTION.keys())
         with self.assertRaises(ValueError):
             alf_spec.describe('dimensions', width=5)
+
+
+class TestALFErr(unittest.TestCase):
+    """Tests for one.alf.exceptions"""
+    def test_ALFError(self):
+        """Test for one.alf.exceptions.ALFError"""
+        # Check message
+        self.assertEqual(str(ALFError()), '')
+        self.assertTrue('foobar' in str(ALFError('foobar')))
+        self.assertTrue(str(ALFError([0, 1, 2])).startswith('"[0, 1, 2]" '))
+        ALFError.explanation = 'bazbazbaz'
+        self.assertTrue(ALFError.explanation in str(ALFError('foobar')))
+        self.assertFalse(ALFError.explanation in str(ALFError('foobar', terse=True)))
+        with self.assertRaises(ALFError):
+            raise ALFError()
+
+    def tearDown(self) -> None:
+        ALFError.explanation = ''
 
 
 if __name__ == "__main__":

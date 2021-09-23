@@ -80,7 +80,7 @@ def create_file_tree(one):
         filepath.touch()
 
 
-def setup_test_params(token=False):
+def setup_test_params(token=False, cache_dir=None):
     """
     Copies cache parameter fixture to .one directory.
 
@@ -88,6 +88,8 @@ def setup_test_params(token=False):
     ----------
     token : bool
         If true, save a token file so that client doesn't hit auth endpoint
+    cache_dir : str, pathlib.Path
+        The cache_dir to save
 
     """
     params_dir = Path(one.params.get_params_dir())
@@ -99,14 +101,15 @@ def setup_test_params(token=False):
 
         # Add to cache map
         map_file = params_dir / '.caches'
-        if map_file.exists():
-            with open(map_file, 'r+') as f:
-                data = json.load(f)
-                data['CLIENT_MAP'][test_pars[1:]] = None
-                json.dump(data, f)
-        else:
+        if not map_file.exists():
             shutil.copy(fixture / 'params' / '.caches', map_file)
             assert Path(filename).exists()
+        with open(map_file, 'r+') as f:
+            data = json.load(f)
+            data['CLIENT_MAP'][test_pars[1:]] = str(cache_dir or '')
+            f.seek(0)
+            json.dump(data, f)
+            f.truncate()
 
     # Add token to file so db not hit
     if token:

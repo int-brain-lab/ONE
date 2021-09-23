@@ -131,12 +131,12 @@ class ConversionMixin:
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
         elif isinstance(id, dict):
-            assert {'subject', 'number', 'date', 'lab'}.issubset(id)
+            assert {'subject', 'number', 'lab'}.issubset(id)
             root = Path(cache_dir or self.cache_dir)
             id = root.joinpath(
                 id['lab'],
                 'Subjects', id['subject'],
-                str(id['date']),
+                str(id.get('date') or id['start_time'][:10]),
                 ('%03d' % id['number']))
 
         if isinstance(id, Path):
