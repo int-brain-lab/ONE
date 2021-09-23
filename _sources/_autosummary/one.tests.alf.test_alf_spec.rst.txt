@@ -18,6 +18,7 @@ one.tests.alf.test\_alf\_spec
    .. autosummary::
       :nosignatures:
    
+      TestALFErr
       TestALFSpec
    
    

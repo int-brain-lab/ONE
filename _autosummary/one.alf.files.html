@@ -176,22 +176,22 @@ ALF files must always have an extension</p>
 <td><p>Return the parsed elements of a given ALF filename.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.folder_parts" title="one.alf.files.folder_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">folder_parts</span></code></a></p></td>
-<td><p>Parse all folder parts, including session, collection and revision</p></td>
+<td><p>Parse all folder parts, including session, collection and revision.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.get_alf_path" title="one.alf.files.get_alf_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_alf_path</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.full_path_parts" title="one.alf.files.full_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">full_path_parts</span></code></a></p></td>
+<td><p>Parse all filename and folder parts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.get_alf_path" title="one.alf.files.get_alf_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_alf_path</span></code></a></p></td>
 <td><p>Returns the ALF part of a path or filename.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.get_session_path" title="one.alf.files.get_session_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session_path</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.get_session_path" title="one.alf.files.get_session_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session_path</span></code></a></p></td>
 <td><p>Returns the session path from any filepath if the date/number pattern is found, including the root directory</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.path_parts" title="one.alf.files.path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_parts</span></code></a></p></td>
-<td><p>Parse all filename and folder parts</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.rel_path_parts" title="one.alf.files.rel_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel_path_parts</span></code></a></p></td>
 <td><p>Parse a relative path into the relevant parts.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.session_path_parts" title="one.alf.files.session_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_path_parts</span></code></a></p></td>
-<td><p>Parse a session path into the relevant parts</p></td>
+<td><p>Parse a session path into the relevant parts.</p></td>
 </tr>
 </tbody>
 </table>
@@ -206,7 +206,7 @@ ALF files must always have an extension</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rel_path</strong> (<em>str</em>) – A relative path string</p></li>
+<li><p><strong>rel_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative path string</p></li>
 <li><p><strong>as_dict</strong> (<em>bool</em>) – If true, an OrderedDict of parts are returned with the keys (‘lab’, ‘subject’, ‘date’,
 ‘number’), otherwise a tuple of values are returned</p></li>
 <li><p><strong>assert_valid</strong> (<em>bool</em>) – If true a ValueError is raised when the session cannot be parsed, otherwise an empty
@@ -225,7 +225,16 @@ dict of tuple of Nones is returned</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.files.session_path_parts">
 <span class="sig-name descname"><span class="pre">session_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/files.html#session_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.session_path_parts" title="Permalink to this definition"></a></dt>
-<dd><p>Parse a session path into the relevant parts</p>
+<dd><p>Parse a session path into the relevant parts.</p>
+<dl class="simple">
+<dt>Return keys:</dt><dd><ul class="simple">
+<li><p>lab</p></li>
+<li><p>subject</p></li>
+<li><p>date</p></li>
+<li><p>number</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -241,6 +250,9 @@ dict of tuple of Nones is returned</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Invalid ALF session path (assert_valid is True)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,18 +303,96 @@ dict of tuple of Nones is returned</p></li>
 <span class="go">(&#39;ibl&#39;, &#39;trials&#39;, &#39;goCue_times&#39;, &#39;bpod&#39;, None, &#39;csv&#39;)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF dataset (assert_valid is True)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="one.alf.files.path_parts">
-<span class="sig-name descname"><span class="pre">path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/alf/files.html#path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.path_parts" title="Permalink to this definition"></a></dt>
-<dd><p>Parse all filename and folder parts</p>
+<dt class="sig sig-object py" id="one.alf.files.full_path_parts">
+<span class="sig-name descname"><span class="pre">full_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/alf/files.html#full_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.full_path_parts" title="Permalink to this definition"></a></dt>
+<dd><p>Parse all filename and folder parts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The ALF path</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_path_parts</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="s1">&#39;lab/Subjects/subject/2020-01-01/001/collection/#revision#/&#39;</span>
+<span class="gp">... </span>   <span class="s1">&#39;_namespace_obj.times_timescale.extra.foo.ext&#39;</span><span class="p">)</span>
+<span class="go">(&#39;lab&#39;, &#39;subject&#39;, &#39;2020-01-01&#39;, &#39;001&#39;, &#39;collection&#39;, &#39;revision&#39;,</span>
+<span class="go">&#39;namespace&#39;, &#39;obj&#39;, &#39;times&#39;,&#39;timescale&#39;, &#39;extra.foo&#39;, &#39;ext&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_path_parts</span><span class="p">(</span><span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">{&#39;lab&#39;: None,</span>
+<span class="go"> &#39;subject&#39;: None,</span>
+<span class="go"> &#39;date&#39;: None,</span>
+<span class="go"> &#39;number&#39;: None,</span>
+<span class="go"> &#39;collection&#39;: None,</span>
+<span class="go"> &#39;revision&#39;: None,</span>
+<span class="go"> &#39;namespace&#39;: None,</span>
+<span class="go"> &#39;object&#39;: &#39;spikes&#39;,</span>
+<span class="go"> &#39;attribute&#39;: &#39;clusters&#39;,</span>
+<span class="go"> &#39;timescale&#39;: None,</span>
+<span class="go"> &#39;extra&#39;: None,</span>
+<span class="go"> &#39;extension&#39;: &#39;npy&#39;}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.files.folder_parts">
-<span class="sig-name descname"><span class="pre">folder_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/alf/files.html#folder_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.folder_parts" title="Permalink to this definition"></a></dt>
-<dd><p>Parse all folder parts, including session, collection and revision</p>
+<span class="sig-name descname"><span class="pre">folder_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/alf/files.html#folder_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.folder_parts" title="Permalink to this definition"></a></dt>
+<dd><p>Parse all folder parts, including session, collection and revision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The ALF folder path</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder_parts</span><span class="p">(</span><span class="s1">&#39;lab/Subjects/subject/2020-01-01/001/collection/#revision#&#39;</span><span class="p">)</span>
+<span class="go">(&#39;lab&#39;, &#39;subject&#39;, &#39;2020-01-01&#39;, &#39;001&#39;, &#39;collection&#39;, &#39;revision&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">folder_parts</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;lab/Subjects/subject/2020-01-01/001&#39;</span><span class="p">),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">{&#39;lab&#39;: &#39;lab&#39;,</span>
+<span class="go"> &#39;subject&#39;: &#39;subject&#39;,</span>
+<span class="go"> &#39;date&#39;: &#39;2020-01-01&#39;,</span>
+<span class="go"> &#39;number&#39;: &#39;001&#39;,</span>
+<span class="go"> &#39;collection&#39;: None,</span>
+<span class="go"> &#39;revision&#39;: None}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

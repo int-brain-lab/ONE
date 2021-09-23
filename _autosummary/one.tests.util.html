@@ -227,11 +227,14 @@ to the directory returned by one.params.get_params_dir</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.tests.util.setup_test_params">
-<span class="sig-name descname"><span class="pre">setup_test_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_test_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_test_params" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_test_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_test_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_test_params" title="Permalink to this definition"></a></dt>
 <dd><p>Copies cache parameter fixture to .one directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>token</strong> (<em>bool</em>) – If true, save a token file so that client doesn’t hit auth endpoint</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>token</strong> (<em>bool</em>) – If true, save a token file so that client doesn’t hit auth endpoint</p></li>
+<li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The cache_dir to save</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

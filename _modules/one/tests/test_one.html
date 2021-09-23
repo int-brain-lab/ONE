@@ -1125,6 +1125,9 @@
 
         <span class="k">def</span> <span class="nf">mock_input</span><span class="p">(</span><span class="n">prompt</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">prompt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;warning&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mock_input</span><span class="p">,</span> <span class="s1">&#39;conflict_warn&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>    <span class="c1"># Checks both responses</span>
+                    <span class="n">mock_input</span><span class="o">.</span><span class="n">conflict_warn</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">return</span> <span class="s1">&#39;y&#39;</span>
                 <span class="k">return</span> <span class="s1">&#39;n&#39;</span>
             <span class="k">elif</span> <span class="s1">&#39;url&#39;</span> <span class="ow">in</span> <span class="n">prompt</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
                 <span class="k">return</span> <span class="n">url</span>

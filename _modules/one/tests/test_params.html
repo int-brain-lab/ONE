@@ -153,7 +153,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">())</span>
             <span class="c1"># Copy over caches fixture</span>
             <span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">(),</span> <span class="s1">&#39;openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">(),</span> <span class="s1">&#39;openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestONEParamUtil.test_get_cache_dir"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_get_cache_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test for one.params.get_cache_dir&quot;&quot;&quot;</span>
+        <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">set_up_env</span><span class="p">()</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;download_cache&#39;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;iblutil.io.params.getfile&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_file</span><span class="p">,</span> <span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)):</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">setup_test_params</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get_cache_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
