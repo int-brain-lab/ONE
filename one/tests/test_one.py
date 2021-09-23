@@ -1026,6 +1026,9 @@ class TestOneSetup(unittest.TestCase):
 
         def mock_input(prompt):
             if prompt.lower().startswith('warning'):
+                if not getattr(mock_input, 'conflict_warn', False):    # Checks both responses
+                    mock_input.conflict_warn = True
+                    return 'y'
                 return 'n'
             elif 'url' in prompt.lower():
                 return url
