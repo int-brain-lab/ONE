@@ -338,7 +338,7 @@
     <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="o">**</span><span class="n">folders</span><span class="p">,</span> <span class="o">**</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">*</span><span class="n">folders</span><span class="p">,</span> <span class="o">*</span><span class="n">dataset</span></div>
+        <span class="k">return</span> <span class="n">folders</span> <span class="o">+</span> <span class="n">dataset</span></div>
 
 
 <div class="viewcode-block" id="folder_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.folder_parts">[docs]</a><span class="k">def</span> <span class="nf">folder_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
