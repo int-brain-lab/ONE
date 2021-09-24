@@ -160,7 +160,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxrest.Tests_REST" title="one.tests.test_alyxrest.Tests_REST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tests_REST</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Specific Alyx REST endpoint tests</p></td>
 </tr>
 </tbody>
 </table>
@@ -168,31 +168,35 @@
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST">
 <em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Tests_REST</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Specific Alyx REST endpoint tests</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_water_restriction">
 <span class="sig-name descname"><span class="pre">test_water_restriction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_water_restriction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_water_restriction" title="Permalink to this definition"></a></dt>
-<dd><p>Examples of how to list all water restrictions and water-restriction for a given
+<dd><p>Test listing water-restriction endpoint.</p>
+<p>Examples of how to list all water restrictions and water-restriction for a given
 subject.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_list_pk_query">
 <span class="sig-name descname"><span class="pre">test_list_pk_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_list_pk_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_list_pk_query" title="Permalink to this definition"></a></dt>
-<dd><p>It’s a bit stupid but the rest endpoint can’t forward a direct query of the uuid via
-the pk keywork. The alyxclient has already an id parameter, which on the list method
-is used as a pk identifier. This special case is tested here
-:return:</p>
+<dd><p>Test REST list with id keyword argument.</p>
+<p>It’s a bit stupid but the REST endpoint can’t forward a direct query of the uuid via
+the pk keyword. The AlyxClient has already an id parameter, which on the list method
+is used as a pk identifier. This special case is tested here.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload">
 <span class="sig-name descname"><span class="pre">test_note_with_picture_upload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_note_with_picture_upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test adding session note with attached picture</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_channels">
 <span class="sig-name descname"><span class="pre">test_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_channels" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Test creation of insertion, trajectory and channels</p>
+</dd></dl>
 
 </dd></dl>
 

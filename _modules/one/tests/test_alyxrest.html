@@ -117,9 +117,11 @@
 
 <div class="viewcode-block" id="Tests_REST"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Tests_REST</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;Specific Alyx REST endpoint tests&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Tests_REST.test_water_restriction"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST.test_water_restriction">[docs]</a>    <span class="k">def</span> <span class="nf">test_water_restriction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test listing water-restriction endpoint.</span>
+
 <span class="sd">        Examples of how to list all water restrictions and water-restriction for a given</span>
 <span class="sd">        subject.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -134,10 +136,11 @@
 
 <div class="viewcode-block" id="Tests_REST.test_list_pk_query"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST.test_list_pk_query">[docs]</a>    <span class="k">def</span> <span class="nf">test_list_pk_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        It&#39;s a bit stupid but the rest endpoint can&#39;t forward a direct query of the uuid via</span>
-<span class="sd">        the pk keywork. The alyxclient has already an id parameter, which on the list method</span>
-<span class="sd">        is used as a pk identifier. This special case is tested here</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Test REST list with id keyword argument.</span>
+
+<span class="sd">        It&#39;s a bit stupid but the REST endpoint can&#39;t forward a direct query of the uuid via</span>
+<span class="sd">        the pk keyword. The AlyxClient has already an id parameter, which on the list method</span>
+<span class="sd">        is used as a pk identifier. This special case is tested here.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Sessions returned sorted: take last session as new sessions constantly added and</span>
         <span class="c1"># removed by parallel test runs</span>
@@ -146,6 +149,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">ses_</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Tests_REST.test_note_with_picture_upload"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload">[docs]</a>    <span class="k">def</span> <span class="nf">test_note_with_picture_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test adding session note with attached picture&quot;&quot;&quot;</span>
         <span class="n">my_note</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;olivier&#39;</span><span class="p">,</span>
                    <span class="s1">&#39;content_type&#39;</span><span class="p">:</span> <span class="s1">&#39;session&#39;</span><span class="p">,</span>
                    <span class="s1">&#39;object_id&#39;</span><span class="p">:</span> <span class="n">EID</span><span class="p">,</span>
@@ -161,15 +165,18 @@
         <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ar_note</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Tests_REST.test_channels"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.Tests_REST.test_channels">[docs]</a>    <span class="k">def</span> <span class="nf">test_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test creation of insertion, trajectory and channels&quot;&quot;&quot;</span>
         <span class="c1"># need to build insertion + trajectory + channels to test the serialization of a</span>
         <span class="c1"># record array in the channel endpoint</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+        <span class="c1"># Find any existing insertions with this name and delete (unlikely to find any)</span>
         <span class="n">probe_insertions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
                                          <span class="n">session</span><span class="o">=</span><span class="n">EID_EPHYS</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">probe_insertions</span><span class="p">:</span>
             <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="n">pi</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+        <span class="c1"># Create new insertion with this name and add teardown hook to delete it</span>
         <span class="n">probe_insertion</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span>
-            <span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;session&#39;</span><span class="p">:</span> <span class="n">EID_EPHYS</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tutu&#39;</span><span class="p">})</span>
+            <span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;session&#39;</span><span class="p">:</span> <span class="n">EID_EPHYS</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">probe_insertion</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
         <span class="n">trajectory</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;trajectories&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span>
             <span class="s1">&#39;probe_insertion&#39;</span><span class="p">:</span> <span class="n">probe_insertion</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
