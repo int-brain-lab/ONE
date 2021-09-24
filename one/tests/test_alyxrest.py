@@ -18,9 +18,11 @@ EID_EPHYS = 'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class Tests_REST(unittest.TestCase):
-
+    """Specific Alyx REST endpoint tests"""
     def test_water_restriction(self):
         """
+        Test listing water-restriction endpoint.
+
         Examples of how to list all water restrictions and water-restriction for a given
         subject.
         """
@@ -35,10 +37,11 @@ class Tests_REST(unittest.TestCase):
 
     def test_list_pk_query(self):
         """
-        It's a bit stupid but the rest endpoint can't forward a direct query of the uuid via
-        the pk keywork. The alyxclient has already an id parameter, which on the list method
-        is used as a pk identifier. This special case is tested here
-        :return:
+        Test REST list with id keyword argument.
+
+        It's a bit stupid but the REST endpoint can't forward a direct query of the uuid via
+        the pk keyword. The AlyxClient has already an id parameter, which on the list method
+        is used as a pk identifier. This special case is tested here.
         """
         # Sessions returned sorted: take last session as new sessions constantly added and
         # removed by parallel test runs
@@ -47,6 +50,7 @@ class Tests_REST(unittest.TestCase):
         self.assertEqual(ses, ses_)
 
     def test_note_with_picture_upload(self):
+        """Test adding session note with attached picture"""
         my_note = {'user': 'olivier',
                    'content_type': 'session',
                    'object_id': EID,
@@ -62,15 +66,18 @@ class Tests_REST(unittest.TestCase):
         one.alyx.rest('notes', 'delete', id=ar_note['id'])
 
     def test_channels(self):
+        """Test creation of insertion, trajectory and channels"""
         # need to build insertion + trajectory + channels to test the serialization of a
         # record array in the channel endpoint
         name = ''.join(random.choices(string.ascii_letters, k=5))
+        # Find any existing insertions with this name and delete (unlikely to find any)
         probe_insertions = one.alyx.rest('insertions', 'list',
                                          session=EID_EPHYS, name=name, no_cache=True)
         for pi in probe_insertions:
             one.alyx.rest('insertions', 'delete', pi['id'])
+        # Create new insertion with this name and add teardown hook to delete it
         probe_insertion = one.alyx.rest(
-            'insertions', 'create', data={'session': EID_EPHYS, 'name': 'tutu'})
+            'insertions', 'create', data={'session': EID_EPHYS, 'name': name})
         self.addCleanup(one.alyx.rest, 'insertions', 'delete', id=probe_insertion['id'])
         trajectory = one.alyx.rest('trajectories', 'create', data={
             'probe_insertion': probe_insertion['id'],
