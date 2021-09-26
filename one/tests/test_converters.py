@@ -56,6 +56,7 @@ class TestConverters(unittest.TestCase):
             self.one.to_eid(util)
 
     def test_path2eid(self):
+        """Test for ConversionMixin.path2eid (offline mode)"""
         verifiable = self.one.path2eid('CSK-im-007/2021-03-21/002')
         self.assertIsNone(verifiable)
 
@@ -73,6 +74,7 @@ class TestConverters(unittest.TestCase):
             self.assertIsNone(self.one.path2eid(session_path))
 
     def test_eid2path(self):
+        """Test for ConversionMixin.eid2path"""
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.eid2path(eid)
         expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
@@ -210,10 +212,12 @@ class TestOnlineConverters(unittest.TestCase):
         cls.session_record = cls.one.get_details(cls.eid)
 
     def test_to_eid(self):
+        """Test for ConversionMixin.to_eid"""
         eid = self.one.to_eid(self.session_record)
         self.assertEqual(eid, self.eid)
 
     def test_record2url(self):
+        """Test for ConversionMixin.record2url"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
         url = self.one.record2url(rec.iloc[0])
@@ -229,6 +233,7 @@ class TestOnlineConverters(unittest.TestCase):
         self.assertEqual([expected], url)
 
     def test_record2path(self):
+        """Test for ConversionMixin.record2path"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
         alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
@@ -242,6 +247,7 @@ class TestOnlineConverters(unittest.TestCase):
         self.assertEqual(expected, path)
 
     def test_ref2dj(self):
+        """Test for ConversionMixin.ref2dj"""
         try:
             ref = '2020-09-21_1_SWC_043'
             restriction = self.one.ref2dj(ref)
@@ -255,6 +261,32 @@ class TestOnlineConverters(unittest.TestCase):
             'session_date': datetime.date(2020, 9, 21),
             'subject_nickname': 'SWC_043'}
         self.assertEqual(restriction.fetch1(), expected)
+
+    def test_eid2path(self):
+        """Test for OneAlyx.eid2path"""
+        verifiable = self.one.eid2path(self.eid, query_type='remote')
+        expected = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
+                                                     '2020-09-21', '001',)
+        self.assertEqual(expected, verifiable)
+
+        with self.assertRaises(ValueError):
+            self.one.eid2path('fakeid', query_type='remote')
+        self.assertIsNone(self.one.eid2path(self.eid.replace('d', 'b')))
+
+        # Test list
+        verifiable = self.one.eid2path([self.eid, self.eid], query_type='remote')
+        self.assertIsInstance(verifiable, list)
+        self.assertTrue(len(verifiable) == 2)
+
+    def test_path2eid(self):
+        """Test for OneAlyx.path2eid"""
+        test_path = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
+                                                      '2020-09-21', '001',)
+        verifiable = self.one.path2eid(test_path, query_type='remote')
+        self.assertEqual(self.eid, verifiable)
+        # Check works with list
+        verifiable = self.one.path2eid([test_path, test_path], query_type='remote')
+        self.assertEqual([self.eid, self.eid], verifiable)
 
 
 class TestAlyx2Path(unittest.TestCase):

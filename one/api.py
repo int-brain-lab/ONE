@@ -1426,13 +1426,13 @@ class OneAlyx(One):
 
     @util.refresh
     @util.parse_id
-    def eid2path(self, eid: str, query_type=None) -> util.Listable(Path):
+    def eid2path(self, eid, query_type=None) -> util.Listable(Path):
         """
         From an experiment ID gets the local session path
 
         Parameters
         ----------
-        eid : str, UUID, pathlib.Path, dict
+        eid : str, UUID, pathlib.Path, dict, list
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         query_type : str
@@ -1449,6 +1449,11 @@ class OneAlyx(One):
             cache_path = super().eid2path(eid)
             if cache_path or mode == 'local':
                 return cache_path
+
+        # If eid is a list recurse through it and return a list
+        if isinstance(eid, list):
+            unwrapped = unwrap(self.path2eid)
+            return [unwrapped(self, e, query_type='remote') for e in eid]
 
         # if it wasn't successful, query Alyx
         ses = self.alyx.rest('sessions', 'list', django=f'pk,{eid}')
@@ -1636,7 +1641,7 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        eid : str, UUID, pathlib.Path, dict
+        eid : str, UUID, pathlib.Path, dict, list
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         full : bool
@@ -1651,6 +1656,13 @@ class OneAlyx(One):
         pd.Series, pd.DataFrame, dict
             in local mode - a session record or full DataFrame with dataset information if full is
             True; in remote mode - a full or partial session dict
+
+        Raises
+        ------
+        ValueError
+            Invalid experiment ID (failed to parse into eid string)
+        requests.exceptions.HTTPError
+            [Errno 404] Remote session not found on Alyx
         """
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)
@@ -1660,10 +1672,6 @@ class OneAlyx(One):
             for p in eid:
                 details_list.append(self.get_details(p, full=full))
             return details_list
-        # If not valid return None
-        if not is_uuid_string(eid):
-            print(eid, ' is not a valid eID/UUID string')
-            return
         # load all details
         dets = self.alyx.rest('sessions', 'read', eid)
         if full:

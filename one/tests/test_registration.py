@@ -8,6 +8,9 @@ import datetime
 import fnmatch
 from io import StringIO
 
+from iblutil.util import Bunch
+from requests.exceptions import HTTPError
+
 from one.api import ONE
 from one import registration
 import one.alf.exceptions as alferr
@@ -95,6 +98,12 @@ class TestRegistrationClient(unittest.TestCase):
         with self.assertRaises(alferr.ALFError) as ex:
             self.client.assert_exists([self.one.alyx.user, 'foobar'], 'users')
         self.assertIn('foobar', str(ex.exception))
+        # Check raises non-404
+        err = HTTPError()
+        err.response = Bunch({'status_code': 500})
+        with unittest.mock.patch.object(self.one.alyx, 'get', side_effect=err),\
+                self.assertRaises(HTTPError):
+            self.client.assert_exists('foobar', 'subjects')
 
     def test_find_files(self):
         """Test for RegistrationClient.find_files"""
@@ -133,9 +142,13 @@ class TestRegistrationClient(unittest.TestCase):
             x.parent.mkdir(exist_ok=True, parents=True)
             x.touch()
 
-        ses, recs = self.client.register_session(str(session_path))
+        ses, recs = self.client.register_session(str(session_path),
+                                                 end_time='2020-01-02',
+                                                 procedures='Behavior training/tasks')
         self.assertTrue(len(ses['data_dataset_session_related']))
         self.assertEqual(len(ses['data_dataset_session_related']), len(recs))
+        self.assertTrue(isinstance(ses['procedures'], list) and len(ses['procedures']) == 1)
+        self.assertEqual(ses['end_time'], '2020-01-02T00:00:00')
 
     def test_create_sessions(self):
         """Test for RegistrationClient.create_sessions"""
@@ -183,6 +196,13 @@ class TestRegistrationClient(unittest.TestCase):
             self.assertIn('foo.bar.npy: No matching dataset type', dbg.records[1].message)
             self.assertIn(f'{ambiguous}: Multiple matching', dbg.records[2].message)
         self.assertFalse(len(rec))
+
+    def test_instantiation(self):
+        """Test RegistrationClient.__init__ with no args"""
+        with unittest.mock.patch('one.registration.ONE') as mk:
+            client = registration.RegistrationClient()
+        self.assertIsInstance(client.one, unittest.mock.MagicMock)
+        mk.assert_called_with(cache_rest=None)
 
     @classmethod
     def tearDownClass(cls) -> None:

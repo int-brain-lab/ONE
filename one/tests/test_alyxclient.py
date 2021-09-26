@@ -13,6 +13,7 @@ import requests
 import json
 import logging
 from datetime import datetime, timedelta
+from uuid import UUID
 
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
@@ -351,6 +352,7 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertEqual(sub['death_date'], data['death_date'])
 
     def test_rest_endpoint_read_only(self):
+        """Test AlyxClient.rest method with 'list' and 'read' actions"""
         # tests that non-existing endpoints /actions are caught properly
         with self.assertRaises(ValueError):
             self.ac.rest(url='turlu', action='create')
@@ -365,6 +367,9 @@ class TestDownloadHTTP(unittest.TestCase):
         c = self.ac.rest('labs', 'read', 'mainenlab')
         self.assertTrue([lab for lab in a if
                          lab['name'] == 'mainenlab'][0] == c)
+        # test read with UUID object
+        dset = self.ac.rest('datasets', 'read', id=UUID('738eca6f-d437-40d6-a9b8-a3f4cbbfbff7'))
+        self.assertEqual(dset['name'], '_iblrig_videoCodeFiles.raw.zip')
         # Test with full URL
         d = self.ac.rest(
             'labs', 'read',
