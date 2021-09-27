@@ -194,10 +194,6 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(all(isinstance(x, str) for x in eids))
         self.assertEqual(3, len(eids))
 
-    @unittest.skip('TODO Move this test?')
-    def test_check_exists(self):
-        pass
-
     def test_filter(self):
         """Test one.util.filter_datasets"""
         datasets = self.one._cache.datasets.iloc[:5].copy()
@@ -880,6 +876,22 @@ class TestOneAlyx(unittest.TestCase):
             self.one.mode = 'auto'
             self.one.alyx.silent = True
 
+    def test_check_filesystem(self):
+        """Test for One._check_filesystem.
+        Most is already covered by other tests, this just checks that it can deal with dataset
+        dicts as input.
+        """
+        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
+        dataset_type = 'probes.description'
+        dsets = self.one.alyx.rest('datasets', 'list', session=eid, dataset_type=dataset_type)
+        # Create file on disk
+        file_ = self.one.eid2path(eid).joinpath('alf', 'probes.description.json')
+        file_.parent.mkdir(parents=True)
+        file_.touch()
+        # Test method
+        file, = self.one._check_filesystem(dsets)
+        self.assertIsNotNone(file)
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
@@ -1002,11 +1014,11 @@ class TestOneDownload(unittest.TestCase):
         self.patch.start()
         self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
         self.fid = '17ab5b57-aaf6-4016-9251-66daadc200c7'  # File record of channels.brainLocation
+        self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
     def test_download_datasets(self):
         """Test OneAlyx._download_dataset, _download_file and _tag_mismatched_file_record"""
-        eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
-        det = self.one.get_details(eid, True)
+        det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
         file = self.one._download_dataset(rec)
@@ -1051,10 +1063,21 @@ class TestOneDownload(unittest.TestCase):
             file = self.one._download_dataset(path)
             self.assertIsNone(file)
 
-        rec = self.one.list_datasets(eid, details=True)
+        rec = self.one.list_datasets(self.eid, details=True)
         rec = rec[rec.rel_path.str.contains('channels.brainLocation')]
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
+
+        # Check works with string index
+        util.caches_int2str(self.one._cache)
+        self.assertIsNotNone(self.one._download_dataset(files[0]))
+        self.assertIsNotNone(self.one._download_datasets(rec))
+        # and when dataset missing
+        with mock.patch.object(self.one, 'record2url', return_value=None):
+            self.assertIsNone(self.one._download_dataset(rec.squeeze()))
+        str_id, = parquet.np2str(np.array(rec.index.tolist()))
+        exists = self.one._cache.datasets.loc[str_id, 'exists']
+        self.assertFalse(exists, 'failed to update dataset cache with str index')
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.

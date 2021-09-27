@@ -322,13 +322,12 @@ class One(ConversionMixin):
         else:
             return eids
 
-    def _update_filesystem(self, datasets, offline=None, update_exists=True, clobber=False):
-        """Update the local filesystem for the given datasets
+    def _check_filesystem(self, datasets, offline=None, update_exists=True, clobber=False):
+        """Update the local filesystem for the given datasets.
+
         Given a set of datasets, check whether records correctly reflect the filesystem.
         Called by load methods, this returns a list of file paths to load and return.
         TODO This needs changing; overlaod for downloading?
-        TODO change name to check_files, check_present, present_datasets, check_local_files?
-         check_filesystem?
          This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
          update and save tables.  Download_datasets can also call this function.
         TODO Remove clobber
@@ -355,7 +354,7 @@ class One(ConversionMixin):
                 datasets = pd.DataFrame([datasets])
             elif not isinstance(datasets, pd.DataFrame):
                 # Cast set of dicts (i.e. from REST datasets endpoint)
-                datasets = pd.DataFrame(list(datasets))
+                datasets = util.datasets2records(list(datasets))
             for i, rec in datasets.iterrows():
                 file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
                 if file.exists():
@@ -389,7 +388,7 @@ class One(ConversionMixin):
 
         Parameters
         ----------
-        table : str
+        table : str, pd.DataFrame
             The cache table to check
 
         Returns
@@ -402,10 +401,11 @@ class One(ConversionMixin):
         IndexError
             Unable to determine the index type of the cache table
         """
-        idx_0 = self._cache[table].index.values[0]
-        if len(self._cache[table].index.names) == 2 and all(isinstance(x, int) for x in idx_0):
+        table = self._cache[table] if isinstance(table, str) else table
+        idx_0 = table.index.values[0]
+        if len(table.index.names) == 2 and all(isinstance(x, int) for x in idx_0):
             return int
-        elif len(self._cache[table].index.names) == 1 and isinstance(idx_0, str):
+        elif len(table.index.names) == 1 and isinstance(idx_0, str):
             return str
         else:
             raise IndexError
@@ -661,7 +661,7 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
-        files = self._update_filesystem(datasets, offline=offline)
+        files = self._check_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
         if not files:
             raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
@@ -736,7 +736,7 @@ class One(ConversionMixin):
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
         # Check files exist / download remote files
-        file, = self._update_filesystem(datasets, **kwargs)
+        file, = self._check_filesystem(datasets, **kwargs)
 
         if not file:
             raise alferr.ALFObjectNotFound('Dataset not found')
@@ -841,7 +841,7 @@ class One(ConversionMixin):
                 _logger.warning(message)
 
         # Check files exist / download remote files
-        files = self._update_filesystem(present_datasets, **kwargs)
+        files = self._check_filesystem(present_datasets, **kwargs)
 
         if any(x is None for x in files):
             missing_list = ', '.join(x for x, y in zip(present_datasets.rel_path, files) if not y)
@@ -902,7 +902,7 @@ class One(ConversionMixin):
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
 
-        filepath, = self._update_filesystem(dataset)
+        filepath, = self._check_filesystem(dataset)
         if not filepath:
             raise alferr.ALFObjectNotFound('Dataset not found')
         output = filepath if download_only else alfio.load_file_content(filepath)
@@ -986,7 +986,7 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
-        files = self._update_filesystem(datasets, offline=offline)
+        files = self._check_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
         if not files:
             raise alferr.ALFObjectNotFound(f'ALF collection "{collection}" not found on disk')
@@ -1367,7 +1367,7 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        dset : dict, str
+        dset : dict, str, pd.Series
             A single dataset dictionary from an Alyx REST query OR URL string
         cache_dir : str, pathlib.Path
             The root directory to save the data to (default taken from ONE parameters)
@@ -1392,24 +1392,25 @@ class OneAlyx(One):
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)
-                did = dset.index
+                did = np.array(dset.name)
             else:  # from datasets endpoint
                 url = next((fr['data_url'] for fr in dset['file_records']
                             if fr['data_url'] and fr['exists']), None)
                 did = dset['url'][-36:]
 
         if not url:
-            dset_str = f"{dset['session'][-36:]}: {dset['collection']} / {dset['name']}"
-            _logger.warning(f"{dset_str} Dataset not found")
+            if 'session' in dset:
+                dset_str = f"{dset['session'][-36:]}: "\
+                           f"{dset.get('collection', '.')}/{dset.get('name', '')}"
+            else:
+                dset_str = f"{dset.get('session_path', '')}/{dset.get('rel_path', '')}"
+            _logger.warning(f"{dset_str} not found")
             if update_cache:
                 if isinstance(did, str) and self._index_type('datasets') is int:
                     did = parquet.str2np(did)
                 elif self._index_type('datasets') is str and not isinstance(did, str):
                     did = parquet.np2str(did)
-                try:
-                    self._cache['datasets'].loc[did, 'exists'] = False
-                except KeyError as e:
-                    _logger.warning(f"{dset_str} couldn't update exist status in cache. {e}")
+                self._cache['datasets'].loc[did, 'exists'] = False
             return
         target_dir = Path(cache_dir or self.cache_dir, get_alf_path(url)).parent
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
