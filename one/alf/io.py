@@ -33,6 +33,7 @@ class AlfBunch(Bunch):
 
     @property
     def check_dimensions(self):
+        """int: 0 for consistent dimensions, 1 for inconsistent dimensions"""
         return check_dimensions(self)
 
     def append(self, b, inplace=False):
@@ -412,7 +413,7 @@ def exists(alfpath, object, attributes=None, **kwargs) -> bool:
 
 
 def load_object(alfpath, object=None, short_keys=False, **kwargs):
-    """Reads all files (i.e. attributes) sharing the same object.
+    """Reads all files sharing the same object name.
 
     For example, if the file provided to the function is `spikes.times`, the function will
     load `spikes.times`, `spikes.clusters`, `spikes.depths`, `spike.amps` in a dictionary
@@ -441,7 +442,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     Returns
     -------
     AlfBunch
-        A ALFBunch (dict-like) of all attributes pertaining to the object
+        An ALFBunch (dict-like) of all attributes pertaining to the object
 
     Examples
     --------
