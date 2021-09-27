@@ -17,6 +17,7 @@
 ### Added
 
 - tests for eid2ref
+- load_collection method for loading a Bunch of ALF objects
 
 ## [1.3.0]
 

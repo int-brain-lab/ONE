@@ -591,6 +591,33 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             self.one.load_object(eid, '*Camera')
 
+    def test_load_collection(self):
+        """Test One.load_collection"""
+        # Check download_only output
+        eid = 'aaf101c3-2581-450a-8abd-ddb8f557a5ad'
+        files = self.one.load_collection(eid, 'alf', download_only=True)
+        self.assertEqual(len(files), 18)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+        # Check load
+        alf = self.one.load_collection(eid, 'alf', attribute='*time*')
+        self.assertCountEqual(alf.keys(), ('trials', 'wheel'))
+        self.assertIsInstance(alf, Bunch)
+        self.assertIn('feedback_times', alf.trials)
+        # Check object filter
+        alf = self.one.load_collection(eid, 'alf', object='trials')
+        self.assertNotIn('wheel', alf)
+        # Check errors
+        with self.assertRaises(alferr.ALFError):
+            self.one.load_collection(eid, '')
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_collection(eid, 'alf', object='foo')
+        # Should raise error when no objects found on disk
+        with mock.patch.object(self.one, '_update_filesystem',
+                               side_effect=lambda x, **kwargs: [None] * len(x)),\
+                self.assertRaises(alferr.ALFObjectNotFound) as ex:
+            self.one.load_collection(eid, 'alf')
+            self.assertIn('not found on disk', str(ex))
+
     def test_load_cache(self):
         """Test One._load_cache"""
         # Test loading unsorted table with no id index set

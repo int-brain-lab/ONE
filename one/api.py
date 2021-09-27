@@ -913,8 +913,93 @@ class One(ConversionMixin):
 
     @util.refresh
     @util.parse_id
-    def load_collection(self, eid, collection):
-        raise NotImplementedError()
+    def load_collection(self,
+                        eid: Union[str, Path, UUID],
+                        collection: str,
+                        object: Optional[str] = None,
+                        revision: Optional[str] = None,
+                        query_type: Optional[str] = None,
+                        download_only: bool = False,
+                        **kwargs) -> Union[Bunch, List[Path]]:
+        """
+        Load all objects in an ALF collection from a Session ID.  Any datasets with matching object
+        name(s) will be loaded.  Returns a bunch of objects.
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        collection : str
+            The collection to which the object belongs, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        object : str
+            The ALF object to load.  Supports asterisks as wildcards.
+        revision : str
+            The dataset revision (typically an ISO date).  If no exact match, the previous
+            revision (ordered lexicographically) is returned.  If None, the default revision is
+            returned (usually the most recent revision).  Regular expressions/wildcards not
+            permitted.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+        kwargs : dict
+            Additional filters for datasets, including namespace and timescale. For full list
+            see the one.alf.spec.describe function.
+
+        Returns
+        -------
+        Bunch of one.alf.io.AlfBunch, list of pathlib.Path
+            A Bunch of objects or if download_only is True, a list of Paths objects
+
+        Examples
+        --------
+        >>> alf_collection = load_collection(eid, 'alf')
+        >>> load_collection(eid, '*probe01', object=['spikes', 'clusters'])  # wildcards is True
+        >>> files = load_collection(eid, '', download_only=True)  # Base session dir
+
+        Raises
+        ------
+        alferr.ALFError
+            No datasets exist for the provided session collection
+        alferr.ALFObjectNotFound
+            No datasets match the object, attribute or revision filters for this collection
+        """
+        query_type = query_type or self.mode
+        datasets = self.list_datasets(eid, details=True, collection=collection,
+                                      query_type=query_type)
+
+        if len(datasets) == 0:
+            raise alferr.ALFError(f'{collection} not found for session {eid}')
+
+        dataset = {'object': object, **kwargs}
+        datasets = util.filter_datasets(datasets, dataset, revision,
+                                        assert_unique=False, wildcards=self.wildcards)
+
+        # Validate result before loading
+        if len(datasets) == 0:
+            raise alferr.ALFObjectNotFound(object or '')
+        parts = [rel_path_parts(x) for x in datasets.rel_path]
+        unique_objects = set(x[3] or '' for x in parts)
+
+        # For those that don't exist, download them
+        offline = None if query_type == 'auto' else self.mode == 'local'
+        files = self._update_filesystem(datasets, offline=offline)
+        files = [x for x in files if x]
+        if not files:
+            raise alferr.ALFObjectNotFound(f'ALF collection "{collection}" not found on disk')
+
+        if download_only:
+            return files
+
+        kwargs.update(wildcards=self.wildcards)
+        collection = {
+            obj: alfio.load_object([x for x, y in zip(files, parts) if y[3] == obj], **kwargs)
+            for obj in unique_objects
+        }
+        return Bunch(collection)
 
     @staticmethod
     def setup(cache_dir=None, **kwargs):
