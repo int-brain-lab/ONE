@@ -408,8 +408,8 @@ def dataset_record_to_url(dataset_record) -> list:
 
 class AlyxClient():
     """
-    Class that implements simple GET/POST wrappers for the Alyx REST API
-    http://alyx.readthedocs.io/en/latest/api.html  # FIXME old link
+    Class that implements simple GET/POST wrappers for the Alyx REST API.
+    See https://openalyx.internationalbrainlab.org/docs
     """
     _token = None
     _headers = None  # Headers for REST requests only
