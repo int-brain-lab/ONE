@@ -494,7 +494,7 @@ class TestONECache(unittest.TestCase):
             self.one.load_datasets(eid, dsets, collections='none', assert_present=True)
 
         # Check behaviour when data are not downloaded for any reason
-        with mock.patch.object(self.one, '_update_filesystem',
+        with mock.patch.object(self.one, '_check_filesystem',
                                side_effect=lambda x, **kwargs: [None] * len(x)):
             with self.assertLogs(logging.getLogger('one.api'), 'WARNING'):
                 self.one.load_datasets(eid, dsets, collections='alf', assert_present=False)
@@ -608,7 +608,7 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_collection(eid, 'alf', object='foo')
         # Should raise error when no objects found on disk
-        with mock.patch.object(self.one, '_update_filesystem',
+        with mock.patch.object(self.one, '_check_filesystem',
                                side_effect=lambda x, **kwargs: [None] * len(x)),\
                 self.assertRaises(alferr.ALFObjectNotFound) as ex:
             self.one.load_collection(eid, 'alf')
