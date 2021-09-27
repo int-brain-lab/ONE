@@ -3,6 +3,7 @@ from pathlib import Path
 import unittest
 import random
 import string
+from uuid import UUID
 
 import numpy as np
 
@@ -46,7 +47,8 @@ class Tests_REST(unittest.TestCase):
         # Sessions returned sorted: take last session as new sessions constantly added and
         # removed by parallel test runs
         ses = one.alyx.rest('sessions', 'list')[-1]
-        ses_ = one.alyx.rest('sessions', 'list', id=ses['url'][-36:])[-1]
+        eid = UUID(ses['url'][-36:])  # Should work with UUID object
+        ses_ = one.alyx.rest('sessions', 'list', id=eid)[-1]
         self.assertEqual(ses, ses_)
 
     def test_note_with_picture_upload(self):
@@ -54,7 +56,7 @@ class Tests_REST(unittest.TestCase):
         my_note = {'user': 'olivier',
                    'content_type': 'session',
                    'object_id': EID,
-                   'text': "gnagnagna"}
+                   'text': 'gnagnagna'}
 
         png = Path(__file__).parent.joinpath('fixtures', 'test_img.png')
         with open(png, 'rb') as img_file:

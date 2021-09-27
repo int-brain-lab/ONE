@@ -34,13 +34,15 @@ class TestAlfBunch(unittest.TestCase):
     def test_to_dataframe_vectors(self):
         vectors = alfio.AlfBunch({'titi': np.random.rand(500, 1),
                                   'toto': np.random.rand(500),
-                                  'tata': np.random.rand(500, 2)})
+                                  'tata': np.random.rand(500, 12)})
         df = vectors.to_df()
         self.assertTrue(np.all(df['titi'].values == vectors.titi[:, 0]))
         self.assertTrue(np.all(df['toto'].values == vectors.toto))
         self.assertTrue(np.all(df['tata_0'].values == vectors.tata[:, 0]))
         self.assertTrue(np.all(df['tata_1'].values == vectors.tata[:, 1]))
-        self.assertTrue(len(df.columns) == 4)
+        self.assertTrue(len(df.columns) == 12)
+        self.assertEqual(10, len(df.filter(regex=r'tata_\d+', axis=1).columns),
+                         'failed to truncate columns')
 
     def test_append_numpy(self):
         a = alfio.AlfBunch({'titi': np.random.rand(500), 'toto': np.random.rand(500)})

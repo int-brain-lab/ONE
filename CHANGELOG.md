@@ -4,19 +4,24 @@
 ### Modified
 
 - One and OneAlyx setup methods
-- Old params files now cleaned up
-- Removed ALYX_PWD prompt from setup
-- Improved test coverage
-- Docs formatting
+- old params files now cleaned up
+- removed ALYX_PWD prompt from setup
+- improved test coverage
+- docs formatting
 - One list_* methods return list instead of np arrays
 - get_details returns dict with 'date' key in remote mode
 - eid2ref works in offline mode
 - record2url now expects a pandas.Series object, iterates over DataFrame and returns list
 - path2record now returns a pandas.Series instead of DataFrame
+- _update_filesystem renamed to _check_filesystem
+- _index_type now accepts DataFrame as table input
+- better support for string indices in path2url and _download_dataset
+- fix for _check_filesystem with datasets dict input
 
 ### Added
 
 - tests for eid2ref
+- load_collection method for loading a Bunch of ALF objects
 
 ## [1.3.0]
 

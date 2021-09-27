@@ -303,7 +303,11 @@ class ConversionMixin:
         if isinstance(dataset, pd.DataFrame):
             return [self.record2url(r) for _, r in dataset.iterrows()]
         if isinstance(dataset, pd.Series):
-            uuid, = parquet.np2str(np.array([dataset.name]))
+            if isinstance(dataset.name, str):
+                uuid = dataset.name
+            else:
+                uuid, = parquet.np2str(np.array([dataset.name]))
+
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
         return self._web_client.rel_path2url(add_uuid_string(url, uuid).as_posix())
