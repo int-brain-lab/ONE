@@ -62,6 +62,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#Loading-with-timeseries">Loading with timeseries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Loading-collections">Loading collections</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../experiment_ids.html">Experiment Ids</a></li>
@@ -564,9 +565,9 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 </section>
 <section id="Advanced-loading">
 <h2>Advanced loading<a class="headerlink" href="#Advanced-loading" title="Permalink to this headline"></a></h2>
-<p>The load methods typically require an exact match, therefore when loading ’_ibl_wheel.position.npy’ <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'wheel.position.npy')</span></code> will raise an exception because the namespace is missing. Likewise <code class="docutils literal notranslate"><span class="pre">one.load_object(eid,</span> <span class="pre">'trial')</span></code> will fail because ‘trial’ != ‘trials’.</p>
+<p>The load methods typically require an exact match, therefore when loading ‘_ibl_wheel.position .npy’ <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'wheel.position.npy')</span></code> will raise an exception because the namespace is missing. Likewise <code class="docutils literal notranslate"><span class="pre">one.load_object(eid,</span> <span class="pre">'trial')</span></code> will fail because ‘trial’ != ‘trials’.</p>
 <p>Loading can be done using unix shell style wildcards, allowing you to load objects and datasets that match a particular pattern, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'*wheel.position.npy')</span></code>.</p>
-<p>By default wildcard mode is on. In this mode, the extension may be omitted, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'spikes.times')</span></code>. This is equivalent to ‘spikes.times.<em>’. Note that an exception will be raised if datasets with more than one extension are found (such as ’spikes.times.npy’ and ’spikes.times.csv’). When loading a dataset with extra parts, the extension (or wildcard) is explicitly required: ’spikes.times.part1.</em>’.</p>
+<p>By default wildcard mode is on. In this mode, the extension may be omitted, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'spikes.times')</span></code>. This is equivalent to ‘spikes.times.*’. Note that an exception will be raised if datasets with more than one extension are found (such as ‘spikes.times.npy’ and ‘spikes.times.csv’). When loading a dataset with extra parts, the extension (or wildcard) is explicitly required: ’spikes.times.part1.*’.</p>
 <p>If you set the wildcards property of One to False, loading will be done using regular expressions, allowing for more powerful pattern matching.</p>
 <p>Below is table showing how to express unix style wildcards as a regular expression:</p>
 <table class="docutils align-default">
@@ -602,12 +603,19 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 </tbody>
 </table>
 <p>NB: In regex ‘.’ means ‘any character’; to match ‘.’ exactly, escape it with a backslash</p>
-<p>Examples: spikes.times.* (regex), spikes.times* (wildcard) matches… spikes.times.npy spikes.times spikes.times_ephysClock.npy spikes.times.bin</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...
+<p>Examples: spikes.times.* (regex), spikes.times* (wildcard) matches…</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    spikes.times.npy
+    spikes.times
+    spikes.times_ephysClock.npy
+    spikes.times.bin
+
+clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...
+
     clusters.uuids.ssv
     clusters.uuids.csv
 
 alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
+
     alf/probe00
     alf/probe01
     [...]
@@ -695,6 +703,24 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <span class="n">ts</span><span class="p">,</span> <span class="n">clusters</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">read_ts</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
+</div>
+</section>
+<section id="Loading-collections">
+<h2>Loading collections<a class="headerlink" href="#Loading-collections" title="Permalink to this headline"></a></h2>
+<p>You can load whole collections with the <code class="docutils literal notranslate"><span class="pre">load_collection</span></code> method. For example to load the spikes and clusters objects for probe01:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">probe01</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;*probe01&#39;</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
+<span class="n">probe01</span><span class="o">.</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The download_only flag here provides a simple way to download all datasets within a collection:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>one.load_collection(eid, &#39;alf/probe01&#39;, download_only=True)
+</pre></div>
 </div>
 <p>More information about these methods can be found using the help command</p>
 <div class="nbinput docutils container">

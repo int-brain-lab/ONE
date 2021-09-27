@@ -112,6 +112,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
 <span class="kn">import</span> <span class="nn">iblutil.io.params</span> <span class="k">as</span> <span class="nn">iopar</span>
@@ -450,6 +451,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;death_date&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;death_date&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="TestDownloadHTTP.test_rest_endpoint_read_only"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_rest_endpoint_read_only">[docs]</a>    <span class="k">def</span> <span class="nf">test_rest_endpoint_read_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test AlyxClient.rest method with &#39;list&#39; and &#39;read&#39; actions&quot;&quot;&quot;</span>
         <span class="c1"># tests that non-existing endpoints /actions are caught properly</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;turlu&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;create&#39;</span><span class="p">)</span>
@@ -464,6 +466,9 @@
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;mainenlab&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">([</span><span class="n">lab</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">if</span>
                          <span class="n">lab</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mainenlab&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span>
+        <span class="c1"># test read with UUID object</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">UUID</span><span class="p">(</span><span class="s1">&#39;738eca6f-d437-40d6-a9b8-a3f4cbbfbff7&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="s1">&#39;_iblrig_videoCodeFiles.raw.zip&#39;</span><span class="p">)</span>
         <span class="c1"># Test with full URL</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span>
             <span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span>

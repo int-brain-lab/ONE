@@ -349,7 +349,8 @@
    "source": [
     "## Advanced loading\n",
     "\n",
-    "The load methods typically require an exact match, therefore when loading '_ibl_wheel.position.npy'\n",
+    "The load methods typically require an exact match, therefore when loading '\\_ibl_wheel.position\n",
+    ".npy'\n",
     "`one.load_dataset(eid, 'wheel.position.npy')` will raise an exception because the namespace is\n",
     "missing. Likewise `one.load_object(eid, 'trial')` will fail because 'trial' != 'trials'.\n",
     "\n",
@@ -357,7 +358,7 @@
     "that match a particular pattern, e.g. `one.load_dataset(eid, '*wheel.position.npy')`.\n",
     "\n",
     "By default wildcard mode is on.  In this mode, the extension may be omitted, e.g.\n",
-    "`one.load_dataset(eid, 'spikes.times')`. This is equivalent to 'spikes.times.*'. Note that an\n",
+    "`one.load_dataset(eid, 'spikes.times')`. This is equivalent to 'spikes.times.\\*'. Note that an\n",
     "exception will be raised if datasets with more than one extension are found (such as\n",
     "'spikes.times.npy' and 'spikes.times.csv').  When loading a dataset with extra parts,\n",
     "the extension (or wildcard) is explicitly required: 'spikes.times.part1.*'.\n",
@@ -377,16 +378,19 @@
     "\n",
     "Examples:\n",
     "    spikes.times.* (regex), spikes.times* (wildcard) matches...\n",
+    "\n",
     "        spikes.times.npy\n",
     "        spikes.times\n",
     "        spikes.times_ephysClock.npy\n",
     "        spikes.times.bin\n",
     "\n",
     "    clusters.uuids..?sv (regex), clusters.uuids.?sv (wildcard) matches...\n",
+    "\n",
     "        clusters.uuids.ssv\n",
     "        clusters.uuids.csv\n",
     "\n",
     "    alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...\n",
+    "\n",
     "        alf/probe00\n",
     "        alf/probe01\n",
     "        [...]\n",
@@ -522,6 +526,50 @@
     "collapsed": false,
     "pycharm": {
      "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "## Loading collections\n",
+    "You can load whole collections with the `load_collection` method.  For example to load the\n",
+    "spikes and clusters objects for probe01:"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [
+    "probe01 = one.load_collection(eid, '*probe01', object=['spikes', 'clusters'])\n",
+    "probe01.spikes.times[:5]"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "The download_only flag here provides a simple way to download all datasets within a collection:\n",
+    "```\n",
+    "one.load_collection(eid, 'alf/probe01', download_only=True)\n",
+    "```"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
     }
    }
   },
