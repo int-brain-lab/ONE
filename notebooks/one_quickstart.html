@@ -63,7 +63,6 @@
 <p class="caption" role="heading"><span class="caption-text">Data sharing</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="data_sharing.html">Sharing ONE data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="public_one.html">Exploring the public IBL data with ONE</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -385,7 +384,7 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <p>IBL internal users may use their Alyx credentials to access all IBL data. <a class="reference external" href="../one_installation.html#connecting-to-specific-database-relevant-for-ibl-users">Click here</a> for details.</p>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -396,7 +395,7 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 </div>
 <p>Now we are going to search for an experiment to analyze. First let’s find out what we can search by:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -412,13 +411,13 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 (&#39;dataset&#39;, &#39;date_range&#39;, &#39;laboratory&#39;, &#39;number&#39;, &#39;project&#39;, &#39;subject&#39;, &#39;task_protocol&#39;)
 </pre></div></div>
 </div>
-<p>Let’s search for sessions recorded in September 2020, which contain a dataset ‘spikes.times’, meaning that electrophysiology was recorded. By adding the argument <code class="docutils literal notranslate"><span class="pre">details=True</span></code>, we get two outputs - the experiment IDs uniquely identifying these sessions, and some information about the experiments.</p>
+<p>Let’s search for sessions recorded in September 2020, which contain a dataset ‘probes.description’, meaning that electrophysiology was recorded. By adding the argument <code class="docutils literal notranslate"><span class="pre">details=True</span></code>, we get two outputs - the experiment IDs uniquely identifying these sessions, and some information about the experiments.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-09-30&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-09-30&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;probes.description&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
@@ -446,52 +445,50 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
   &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.2&#39;}]
 </pre></div></div>
 </div>
-<p>So there were two experiments matching the criteria in the public database. Now let’s see all the datasets associated with the first of these experiments. The command <code class="docutils literal notranslate"><span class="pre">one.list_datasets</span></code> command returns the full path of all datasets, including the collection name and the extension. The ‘alf’ collection contains the preprocessed data we usually want to work with, so let’s show only that and sub-collections of it:</p>
+<p>So there were two experiments matching the criteria in the public database. Now let’s load the probe information for the first experiment. <code class="docutils literal notranslate"><span class="pre">one.load_dataset</span></code> returns a single named dataset</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf*&#39;</span><span class="p">)</span>
+<span></span><span class="n">eid</span> <span class="o">=</span> <span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Select the first experiment</span>
+<span class="n">probe_insertions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;probes.description&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;N probes = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">probe_insertions</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">probe_insertions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[4]:
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+N probes = 2
+{&#39;label&#39;: &#39;probe00&#39;,
+ &#39;model&#39;: &#39;3B2&#39;,
+ &#39;raw_file_name&#39;: &#39;D:/iblrig_data/Subjects/SWC_043/2020-09-21/001/raw_ephys_data/_spikeglx_ephysData_g0/_spikeglx_ephysData_g0_imec0/_spikeglx_ephysData_g0_t0.imec0.ap.bin&#39;,
+ &#39;serial&#39;: 19108320031}
+</pre></div></div>
+</div>
+<p>Now let’s see all the datasets associated with the first of these experiments. The command <code class="docutils literal notranslate"><span class="pre">one.list_datasets</span></code> returns the full path of all datasets, including the collection name and the extension. The ‘alf’ collection contains the preprocessed data we usually want to work with, and the data for each probe are in labeled subdirectories:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">probe_label</span> <span class="o">=</span> <span class="n">probe_insertions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+<span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;alf/</span><span class="si">{</span><span class="n">probe_label</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[14]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;alf/_ibl_bodyCamera.dlc.pqt&#39;,
- &#39;alf/_ibl_bodyCamera.times.npy&#39;,
- &#39;alf/_ibl_leftCamera.dlc.pqt&#39;,
- &#39;alf/_ibl_leftCamera.times.npy&#39;,
- &#39;alf/_ibl_passiveGabor.table.csv&#39;,
- &#39;alf/_ibl_passivePeriods.intervalsTable.csv&#39;,
- &#39;alf/_ibl_passiveRFM.times.npy&#39;,
- &#39;alf/_ibl_passiveStims.table.csv&#39;,
- &#39;alf/_ibl_rightCamera.dlc.pqt&#39;,
- &#39;alf/_ibl_rightCamera.times.npy&#39;,
- &#39;alf/_ibl_trials.choice.npy&#39;,
- &#39;alf/_ibl_trials.contrastLeft.npy&#39;,
- &#39;alf/_ibl_trials.contrastRight.npy&#39;,
- &#39;alf/_ibl_trials.feedbackType.npy&#39;,
- &#39;alf/_ibl_trials.feedback_times.npy&#39;,
- &#39;alf/_ibl_trials.firstMovement_times.npy&#39;,
- &#39;alf/_ibl_trials.goCueTrigger_times.npy&#39;,
- &#39;alf/_ibl_trials.goCue_times.npy&#39;,
- &#39;alf/_ibl_trials.intervals.npy&#39;,
- &#39;alf/_ibl_trials.intervals_bpod.npy&#39;,
- &#39;alf/_ibl_trials.probabilityLeft.npy&#39;,
- &#39;alf/_ibl_trials.response_times.npy&#39;,
- &#39;alf/_ibl_trials.rewardVolume.npy&#39;,
- &#39;alf/_ibl_trials.stimOff_times.npy&#39;,
- &#39;alf/_ibl_trials.stimOn_times.npy&#39;,
- &#39;alf/_ibl_wheel.position.npy&#39;,
- &#39;alf/_ibl_wheel.timestamps.npy&#39;,
- &#39;alf/_ibl_wheelMoves.intervals.npy&#39;,
- &#39;alf/_ibl_wheelMoves.peakAmplitude.npy&#39;,
- &#39;alf/probe00/_kilosort_whitening.matrix.npy&#39;,
+[&#39;alf/probe00/_kilosort_whitening.matrix.npy&#39;,
  &#39;alf/probe00/_phy_spikes_subset.channels.npy&#39;,
  &#39;alf/probe00/_phy_spikes_subset.spikes.npy&#39;,
  &#39;alf/probe00/_phy_spikes_subset.waveforms.npy&#39;,
@@ -513,33 +510,47 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
  &#39;alf/probe00/spikes.times.npy&#39;,
  &#39;alf/probe00/templates.amps.npy&#39;,
  &#39;alf/probe00/templates.waveforms.npy&#39;,
- &#39;alf/probe00/templates.waveformsChannels.npy&#39;,
- &#39;alf/probes.description.json&#39;,
- &#39;alf/probes.trajectory.json&#39;]
+ &#39;alf/probe00/templates.waveformsChannels.npy&#39;]
 </pre></div></div>
 </div>
-<p>Now let’s load the electrophysiology information. There are two ways to do this. <code class="docutils literal notranslate"><span class="pre">one.load_dataset</span></code> returns a single dataset as a numeric array; <code class="docutils literal notranslate"><span class="pre">one.load_object</span></code> returns all the datasets with the same name part, as an object. Let’s use the first method to load the spike times, cluster assignments, and amplitudes for probe00:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<p>Here we’ll load the electrophysiology information. There are two ways to do this. <code class="docutils literal notranslate"><span class="pre">one.load_dataset</span></code> or <code class="docutils literal notranslate"><span class="pre">one.load_object</span></code>, which returns all the datasets with the same name part, as an object. Let’s use the second method to load the spike times, depths, and amplitudes for probe00:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
-                         <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;amps&#39;</span><span class="p">])</span>
+                         <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;depths&#39;</span><span class="p">,</span> <span class="s1">&#39;amps&#39;</span><span class="p">])</span>
+<span class="n">spikes</span>
 </pre></div>
 </div>
 </div>
-<p>And now let’s make a plot of amplitude vs time for one of the spike clusters</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;depths&#39;: array([2370.48211274, 3540.09356959, 3181.26894624, ...,  696.96694218,
+         926.12358345, 1332.7635685 ]),
+ &#39;amps&#39;: array([2.90908158e-04, 6.97262477e-04, 2.76331535e-04, ...,
+        1.11343402e-04, 8.49250479e-05, 6.29040371e-05]),
+ &#39;times&#39;: array([4.28914123e-03, 5.48913109e-03, 5.72246245e-03, ...,
+        4.29596044e+03, 4.29596067e+03, 4.29596094e+03])}
+</pre></div></div>
+</div>
+<p>We can import a module from brainbox that plots the raster across time</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>Requires <a class="reference external" href="https://github.com/int-brain-lab/ibllib#readme">ibllib</a> to be installed.</p>
+</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="o">%</span><span class="k">matplotlib</span> inline
-
-<span class="n">mySpikes</span> <span class="o">=</span> <span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">clusters</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">mySpikes</span><span class="p">],</span> <span class="n">spikes</span><span class="o">.</span><span class="n">amps</span><span class="p">[</span><span class="n">mySpikes</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">);</span>
+<span></span><span class="kn">from</span> <span class="nn">brainbox.plot</span> <span class="kn">import</span> <span class="n">driftmap</span>
+<span class="n">driftmap</span><span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">spikes</span><span class="o">.</span><span class="n">depths</span><span class="p">,</span> <span class="n">t_bin</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">d_bin</span><span class="o">=</span><span class="mi">5</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -547,12 +558,12 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_one_quickstart_11_0.png" src="../_images/notebooks_one_quickstart_11_0.png" />
+<img alt="../_images/notebooks_one_quickstart_13_0.png" src="../_images/notebooks_one_quickstart_13_0.png" />
 </div>
 </div>
 <p>And that’s the end of the quick start tutorial! For more information on any of these commands you can use the standard help function:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -601,15 +612,6 @@ list_datasets(eid=None, collection=None, filename=None, revision=None, details=F
 </pre></div></div>
 </div>
 <p>For detailed tutorials, guides and examples, <a class="reference external" href="https://int-brain-lab.github.io/ONE/">click here for the full ONE API documentation Website</a>.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span>
-</pre></div>
-</div>
-</div>
 </section>
 
 
