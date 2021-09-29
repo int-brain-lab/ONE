@@ -13,6 +13,7 @@ Welcome to ONE's documentation!
 
    one_reference
    one_installation
+   notebooks/one_quickstart
    notebooks/one_search/one_search
    notebooks/one_list/one_list
    notebooks/one_load/one_load
@@ -48,10 +49,4 @@ Welcome to ONE's documentation!
    FAQ
    api_reference.rst
    contributing
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   genindex

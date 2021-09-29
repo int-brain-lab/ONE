@@ -57,9 +57,7 @@ from one.api import ONE
 one = ONE()
 ```
 
-To change your default database, you can use the following
+To change your default database, or re-run the setup for a given database, you can use the following
 ```python
-from one.api import OneAlyx, ONE
-OneAlyx.setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
-one = ONE()  # Connected to https://test.alyx.internationalbrainlab.org
+one = ONE().setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
 ```
