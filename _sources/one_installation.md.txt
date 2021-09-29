@@ -39,7 +39,7 @@ from one.api import ONE
 one = ONE(base_url='https://alyx.internationalbrainlab.org')
 ```
 ```{note}
-When connecting to the IBL internal database you will be prompted to enter credentials.
+When connecting to the IBL internal database you will be prompted to enter credentials. See the IBL Welcome Guide for more information.
 ```
 
 ```{Warning}
