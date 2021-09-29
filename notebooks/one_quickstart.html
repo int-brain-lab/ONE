@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Experiment Ids &mdash; ONE  documentation</title>
+  <title>ONE Quick Start &mdash; ONE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ONE API modes" href="one_modes.html" />
-    <link rel="prev" title="Loading with ONE" href="one_load/one_load.html" /> 
+    <link rel="next" title="Searching with ONE" href="one_search/one_search.html" />
+    <link rel="prev" title="ONE installation and setup" href="../one_installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,11 +48,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ONE Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_search/one_search.html">Searching with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_list/one_list.html">Listing with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_load/one_load.html">Loading with ONE</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Experiment Ids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="experiment_ids.html">Experiment Ids</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Remote usage</span></p>
 <ul>
@@ -93,9 +93,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Experiment Ids</li>
+      <li>ONE Quick Start</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/notebooks/experiment_ids.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/notebooks/one_quickstart.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -373,56 +373,56 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<a href="experiment_ids.ipynb"><button id="download">Download tutorial notebook</button></a>
+<a href="one_quickstart.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/
-experiment_ids.ipynb"><button id="github">Github link</button></a><section id="Experiment-Ids">
-<h1>Experiment Ids<a class="headerlink" href="#Experiment-Ids" title="Permalink to this headline"></a></h1>
-<p>There are multiple ways to uniquely identify an experiment:</p>
-<ul class="simple">
-<li><p>eID (str) : An experiment UUID as a string</p></li>
-<li><p>np (int64) : An experiment UUID encoded as 2 int64s</p></li>
-<li><p>path (Path) : A pathlib ALF path of the form /Subjects///</p></li>
-<li><p>ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject</p></li>
-<li><p>url (str) : An remote http session path of the form /Subjects///</p></li>
-</ul>
-<p>Internally Alyx and ONE uses eID strings to identify sessions. For example One.search returns a list of eID strings. In the ONE cache tables they are represented as a numpy array of 2 int64s because these are faster to search over. Session paths, URLs and ref strings are more readable.</p>
+one_quickstart.ipynb"><button id="github">Github link</button></a><section id="ONE-Quick-Start">
+<h1>ONE Quick Start<a class="headerlink" href="#ONE-Quick-Start" title="Permalink to this headline"></a></h1>
+<p>This tutorial will get you started searching and loading IBL data using Open Neurophysiology Environment (ONE).</p>
+<p>First we need to install ONE. If you don’t already have IBL libraries, the easiest way is to run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">ONE-api</span></code>.</p>
+<p>Now we need to import the ONE library and open a connection to the IBL public data server. To do so, we create an ONE object, and ask it to connect to the IBL public server.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Info.</p>
+<p>IBL internal users may use their Alyx credentials to access all IBL data. <a class="reference external" href="../one_installation.html#connecting-to-specific-database-relevant-for-ibl-users">Click here</a> for details.</p>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
-
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_session_path</span><span class="p">,</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">is_uuid</span>
-
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;international&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>One.search returns experiment uuid strings</p>
-<div class="nbinput nblast docutils container">
+<p>Now we are going to search for an experiment to analyze. First let’s find out what we can search by:</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s1">&#39;channels.brainLocation&#39;</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">is_uuid_string</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
-<p>eID strings can be easily converted to other forms</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;dataset&#39;, &#39;date_range&#39;, &#39;laboratory&#39;, &#39;number&#39;, &#39;project&#39;, &#39;subject&#39;, &#39;task_protocol&#39;)
+</pre></div></div>
+</div>
+<p>Let’s search for sessions recorded in September 2020, which contain a dataset ‘spikes.times’, meaning that electrophysiology was recorded. By adding the argument <code class="docutils literal notranslate"><span class="pre">details=True</span></code>, we get two outputs - the experiment IDs uniquely identifying these sessions, and some information about the experiments.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">session_path</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># returns a pathlib.Path object</span>
-<span class="k">assert</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Session </span><span class="si">{</span><span class="s2">&quot;exists&quot;</span> <span class="k">if</span> <span class="n">session_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;does not exist&quot;</span><span class="si">}</span><span class="s1"> on disk&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-09-30&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">uuid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -431,47 +431,132 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Session exists on disk
+[&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;, &#39;c7bd79c9-c47e-4ea5-aea3-74dda991b48e&#39;]
+[{&#39;date&#39;: datetime.date(2020, 9, 21),
+  &#39;lab&#39;: &#39;hoferlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;subject&#39;: &#39;SWC_043&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.2&#39;},
+ {&#39;date&#39;: datetime.date(2020, 9, 19),
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;project&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_029&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.2&#39;}]
 </pre></div></div>
 </div>
-<p>These conversion functions can except lists of experiment ids</p>
+<p>So there were two experiments matching the criteria in the public database. Now let’s see all the datasets associated with the first of these experiments. The command <code class="docutils literal notranslate"><span class="pre">one.list_datasets</span></code> command returns the full path of all datasets, including the collection name and the extension. The ‘alf’ collection contains the preprocessed data we usually want to work with, so let’s show only that and sub-collections of it:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">ref_dict</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf*&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[4]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;subject&#39;: &#39;KS023&#39;, &#39;date&#39;: datetime.date(2019, 12, 10), &#39;sequence&#39;: 1}
+[&#39;alf/_ibl_bodyCamera.dlc.pqt&#39;,
+ &#39;alf/_ibl_bodyCamera.times.npy&#39;,
+ &#39;alf/_ibl_leftCamera.dlc.pqt&#39;,
+ &#39;alf/_ibl_leftCamera.times.npy&#39;,
+ &#39;alf/_ibl_passiveGabor.table.csv&#39;,
+ &#39;alf/_ibl_passivePeriods.intervalsTable.csv&#39;,
+ &#39;alf/_ibl_passiveRFM.times.npy&#39;,
+ &#39;alf/_ibl_passiveStims.table.csv&#39;,
+ &#39;alf/_ibl_rightCamera.dlc.pqt&#39;,
+ &#39;alf/_ibl_rightCamera.times.npy&#39;,
+ &#39;alf/_ibl_trials.choice.npy&#39;,
+ &#39;alf/_ibl_trials.contrastLeft.npy&#39;,
+ &#39;alf/_ibl_trials.contrastRight.npy&#39;,
+ &#39;alf/_ibl_trials.feedbackType.npy&#39;,
+ &#39;alf/_ibl_trials.feedback_times.npy&#39;,
+ &#39;alf/_ibl_trials.firstMovement_times.npy&#39;,
+ &#39;alf/_ibl_trials.goCueTrigger_times.npy&#39;,
+ &#39;alf/_ibl_trials.goCue_times.npy&#39;,
+ &#39;alf/_ibl_trials.intervals.npy&#39;,
+ &#39;alf/_ibl_trials.intervals_bpod.npy&#39;,
+ &#39;alf/_ibl_trials.probabilityLeft.npy&#39;,
+ &#39;alf/_ibl_trials.response_times.npy&#39;,
+ &#39;alf/_ibl_trials.rewardVolume.npy&#39;,
+ &#39;alf/_ibl_trials.stimOff_times.npy&#39;,
+ &#39;alf/_ibl_trials.stimOn_times.npy&#39;,
+ &#39;alf/_ibl_wheel.position.npy&#39;,
+ &#39;alf/_ibl_wheel.timestamps.npy&#39;,
+ &#39;alf/_ibl_wheelMoves.intervals.npy&#39;,
+ &#39;alf/_ibl_wheelMoves.peakAmplitude.npy&#39;,
+ &#39;alf/probe00/_kilosort_whitening.matrix.npy&#39;,
+ &#39;alf/probe00/_phy_spikes_subset.channels.npy&#39;,
+ &#39;alf/probe00/_phy_spikes_subset.spikes.npy&#39;,
+ &#39;alf/probe00/_phy_spikes_subset.waveforms.npy&#39;,
+ &#39;alf/probe00/channels.localCoordinates.npy&#39;,
+ &#39;alf/probe00/channels.rawInd.npy&#39;,
+ &#39;alf/probe00/clusters.amps.npy&#39;,
+ &#39;alf/probe00/clusters.channels.npy&#39;,
+ &#39;alf/probe00/clusters.depths.npy&#39;,
+ &#39;alf/probe00/clusters.metrics.pqt&#39;,
+ &#39;alf/probe00/clusters.peakToTrough.npy&#39;,
+ &#39;alf/probe00/clusters.uuids.csv&#39;,
+ &#39;alf/probe00/clusters.waveforms.npy&#39;,
+ &#39;alf/probe00/clusters.waveformsChannels.npy&#39;,
+ &#39;alf/probe00/spikes.amps.npy&#39;,
+ &#39;alf/probe00/spikes.clusters.npy&#39;,
+ &#39;alf/probe00/spikes.depths.npy&#39;,
+ &#39;alf/probe00/spikes.samples.npy&#39;,
+ &#39;alf/probe00/spikes.templates.npy&#39;,
+ &#39;alf/probe00/spikes.times.npy&#39;,
+ &#39;alf/probe00/templates.amps.npy&#39;,
+ &#39;alf/probe00/templates.waveforms.npy&#39;,
+ &#39;alf/probe00/templates.waveformsChannels.npy&#39;,
+ &#39;alf/probes.description.json&#39;,
+ &#39;alf/probes.trajectory.json&#39;]
 </pre></div></div>
 </div>
-<p>ref strings can be sorted lexicographically (by date, number and subject in that order)</p>
-<div class="nbinput docutils container">
+<p>Now let’s load the electrophysiology information. There are two ways to do this. <code class="docutils literal notranslate"><span class="pre">one.load_dataset</span></code> returns a single dataset as a numeric array; <code class="docutils literal notranslate"><span class="pre">one.load_object</span></code> returns all the datasets with the same name part, as an object. Let’s use the first method to load the spike times, cluster assignments, and amplitudes for probe00:</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">refs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">dict2ref</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
+                         <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;amps&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>And now let’s make a plot of amplitude vs time for one of the spike clusters</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
 
-<span class="c1"># Most ids can be interconverted also</span>
-<span class="n">eid</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">path2eid</span><span class="p">(</span>
-    <span class="n">one</span><span class="o">.</span><span class="n">ref2path</span><span class="p">(</span>
-        <span class="n">one</span><span class="o">.</span><span class="n">dict2ref</span><span class="p">(</span>
-            <span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-<span class="k">assert</span> <span class="n">eid</span> <span class="o">==</span> <span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">mySpikes</span> <span class="o">=</span> <span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">clusters</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">mySpikes</span><span class="p">],</span> <span class="n">spikes</span><span class="o">.</span><span class="n">amps</span><span class="p">[</span><span class="n">mySpikes</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_one_quickstart_11_0.png" src="../_images/notebooks_one_quickstart_11_0.png" />
+</div>
+</div>
+<p>And that’s the end of the quick start tutorial! For more information on any of these commands you can use the standard help function:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -480,37 +565,48 @@ Session exists on disk
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;2019-12-10_1_KS023&#39;, &#39;2020-01-08_1_CSHL049&#39;, &#39;2020-09-19_1_CSH_ZAD_029&#39;]
+Help on method list_datasets in module one.api:
+
+list_datasets(eid=None, collection=None, filename=None, revision=None, details=False, query_type=None) -&gt; Union[numpy.ndarray, pandas.core.frame.DataFrame] method of one.api.OneAlyx instance
+    Given an eid, return the datasets for those sessions.  If no eid is provided,
+    a list of all datasets is returned.  When details is false, a sorted array of unique
+    datasets is returned (their relative paths).
+
+    Parameters
+    ----------
+    eid : str, UUID, pathlib.Path, dict
+        Experiment session identifier; may be a UUID, URL, experiment reference string
+        details dict or Path.
+    collection : str
+        The collection to which the object belongs, e.g. &#39;alf/probe01&#39;.
+        This is the relative path of the file from the session root.
+        Supports asterisks as wildcards.
+    filename : str
+        Filters datasets and returns only the ones matching the filename
+        Supports asterisks as wildcards
+    revision : str
+        Filters datasets and returns only the ones matching the revision
+        Supports asterisks as wildcards
+    details : bool
+        When true, a pandas DataFrame is returned, otherwise a numpy array of
+        relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
+    query_type : str
+        Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)
+
+    Returns
+    -------
+    np.ndarray, pd.DataFrame
+        Slice of datasets table or numpy array if details is False
+
 </pre></div></div>
 </div>
-<p>One load functions can accept most kinds of experiment identifiers</p>
+<p>For detailed tutorials, guides and examples, <a class="reference external" href="https://int-brain-lab.github.io/ONE/">click here for the full ONE API documentation Website</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">,</span>
-                            <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-
-<span class="n">short_path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>  <span class="c1"># &#39;subject/date/number&#39;</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-
-<span class="n">url</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">path2url</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">refs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>Likewise with other load methods…</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;brainLocationIds&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span>
 </pre></div>
 </div>
 </div>
@@ -520,8 +616,8 @@ Session exists on disk
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one_load/one_load.html" class="btn btn-neutral float-left" title="Loading with ONE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="one_modes.html" class="btn btn-neutral float-right" title="ONE API modes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../one_installation.html" class="btn btn-neutral float-left" title="ONE installation and setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one_search/one_search.html" class="btn btn-neutral float-right" title="Searching with ONE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
