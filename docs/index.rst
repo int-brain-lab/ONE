@@ -13,13 +13,14 @@ Welcome to ONE's documentation!
 
    one_reference
    one_installation
+   notebooks/one_quickstart
    notebooks/one_search/one_search
    notebooks/one_list/one_list
    notebooks/one_load/one_load
    notebooks/experiment_ids
 
 .. toctree::
-   :caption: Remote usage
+   :caption: Using ONE with Alyx
    :maxdepth: 2
 
    notebooks/one_modes
@@ -27,11 +28,10 @@ Welcome to ONE's documentation!
    notebooks/useful_alyx_queries
 
 .. toctree::
-   :caption: Data sharing
+   :caption: Using ONE to share data
    :maxdepth: 2
 
    notebooks/data_sharing
-   notebooks/public_one
 
 .. toctree::
    :caption: ALF
@@ -48,10 +48,4 @@ Welcome to ONE's documentation!
    FAQ
    api_reference.rst
    contributing
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   genindex

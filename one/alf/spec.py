@@ -6,6 +6,7 @@ from typing import Union
 
 from iblutil.util import flatten
 
+"""dict: The ALF part names and their definitions."""
 SPEC_DESCRIPTION = {
     'lab': 'The name of the lab where the data were collected (optional).',
     'Subjects': 'An optional directory to indicate that the experiment data are divided by '
