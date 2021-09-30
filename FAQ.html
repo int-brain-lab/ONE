@@ -153,6 +153,29 @@ in the cache tables next time they are generated.  For the IBL Alyx, the ONE cac
 re-generated every 6 hours, however by default ONE will only download a new cache once per day.  To
 force a download you can run <code class="docutils literal notranslate"><span class="pre">ONE().refresh_cache('remote')</span></code>.  More information, including
 increasing refresh frequency, can be found <a class="reference external" href="https://int-brain-lab.github.io/ONE/notebooks/one_modes.html#Refreshing-the-cache">here</a>.</p>
+<p>Note: There are two different definitions of caches that are used in ONE2:</p>
+<ul class="simple">
+<li><p>The cache table that stores info about all sessions and their associated datasets.
+This is refreshed every night and uploaded to Flatiron and downloaded onto your computer
+every 24hr (this is what the datetime object returned as output of the <code class="docutils literal notranslate"><span class="pre">ONE().refresh_cache('remote')</span></code>
+command is showing, i.e. when this cache was last updated).
+This table is used in all one.search, one.load, one.list functions. When doing
+<code class="docutils literal notranslate"><span class="pre">ONE().refresh_cache('remote')</span></code>, you are basically forcing ONE to re-download this table
+regardless of when it was last downloaded from Flatiron.</p></li>
+<li><p>When running remote queries (anything that uses <code class="docutils literal notranslate"><span class="pre">one.alyx.rest(....)</span></code>),
+ONE stores the results of these queries for 24 hours, so that if you
+repeatedly make the same query over and over you don’t hit the database
+each time but can use the local cached result.
+A problem can arise if something on the Alyx database changes in between the same query.</p></li>
+</ul>
+<p>For example, at time X a given query returns an empty result (e.g. no histology session for a given subject).
+At time X+1, data is registered onto Alyx.
+At time X+2, you run the same query again.
+Because you had already made the query earlier, ONE uses the local result that
+it had previously and displays that there isn’t a histology session.
+To circumvent this, use the <code class="docutils literal notranslate"><span class="pre">no_cache=True</span></code> argument in <code class="docutils literal notranslate"><span class="pre">one.alyx.rest(...,</span> <span class="pre">no_cache=True)</span></code>.
+Use this only if necessary, as ONE will then always query the Alyx database and
+never use any results that may be stored locally.</p>
 </section>
 </section>
 
