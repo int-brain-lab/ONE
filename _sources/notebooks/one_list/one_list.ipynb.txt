@@ -317,6 +317,30 @@
     "# All subjects in the database\n",
     "subjects = one.list_subjects()"
    ]
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "For more examples of file organization, including the use of dataset revisions, see [this guide](../alyx_files)."
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%"
+    }
+   }
   }
  ],
  "metadata": {
