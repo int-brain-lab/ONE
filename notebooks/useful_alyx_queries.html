@@ -71,8 +71,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#list-probe-insertions-for-a-given-task-protocol">list probe insertions for a given task protocol</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-spikesorting-tasks-that-have-errored-in-a-given-lab">list spikesorting tasks that have errored in a given lab</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-ephys-sessions-that-have-errored-tasks">list ephys sessions that have errored tasks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#list-sessions-where-extended-QC-exists-for-any-video">list sessions where extended QC exists for any video</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#set-errored-processing-tasks-to-Waiting">set errored processing tasks to Waiting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rerun-/-set-errored-tasks-to-Waiting">rerun / set errored tasks to Waiting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-where-extended-QC-exists-for-any-video">list sessions where extended QC exists for any video</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Looking-up-fields">Looking up fields</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#contains">contains</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#contained_by">contained_by</a></li>
@@ -601,15 +601,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </pre></div>
 </div>
 </section>
-<section id="list-sessions-where-extended-QC-exists-for-any-video">
-<h3>list sessions where extended QC exists for any video<a class="headerlink" href="#list-sessions-where-extended-QC-exists-for-any-video" title="Permalink to this headline"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;videoLeft&#39;</span><span class="p">,</span> <span class="s1">&#39;videoRight&#39;</span><span class="p">,</span> <span class="s1">&#39;videoBody&#39;</span><span class="p">)</span>
-<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__has_any_keys,</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="set-errored-processing-tasks-to-Waiting">
-<h3>set errored processing tasks to Waiting<a class="headerlink" href="#set-errored-processing-tasks-to-Waiting" title="Permalink to this headline"></a></h3>
+<section id="rerun-/-set-errored-tasks-to-Waiting">
+<h3>rerun / set errored tasks to Waiting<a class="headerlink" href="#rerun-/-set-errored-tasks-to-Waiting" title="Permalink to this headline"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># List tasks with given status</span>
 <span class="n">tasks</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;EphysDLC&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;Errored&#39;</span><span class="p">)</span>
 
@@ -619,6 +612,13 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <span class="c1"># Set tasks to Waiting so they get rerun</span>
 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
     <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;log&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;Waiting&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="list-sessions-where-extended-QC-exists-for-any-video">
+<h3>list sessions where extended QC exists for any video<a class="headerlink" href="#list-sessions-where-extended-QC-exists-for-any-video" title="Permalink to this headline"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;videoLeft&#39;</span><span class="p">,</span> <span class="s1">&#39;videoRight&#39;</span><span class="p">,</span> <span class="s1">&#39;videoBody&#39;</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__has_any_keys,</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="nbinput nblast docutils container">
