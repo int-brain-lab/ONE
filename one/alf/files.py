@@ -227,7 +227,10 @@ def full_path_parts(path, as_dict=False, assert_valid=True) -> Union[dict, tuple
         Invalid ALF path (assert_valid is True)
     """
     path = Path(path)
-    if '.' not in path.name:  # folder only
+    # NB We try to determine whether we have a folder or filename path.  Filenames contain at
+    # least two periods, however it is currently permitted to have any number of periods in a
+    # collection, making the ALF path ambiguous.
+    if sum(x == '.' for x in path.name) < 2:  # folder only
         folders = folder_parts(path, as_dict, assert_valid)
         dataset = filename_parts('', as_dict, assert_valid=False)
     elif '/' not in path.as_posix():  # filename only

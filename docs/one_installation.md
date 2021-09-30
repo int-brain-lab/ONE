@@ -46,8 +46,6 @@ When connecting to the IBL internal database you will be prompted to enter crede
 The internal IBL database is only open to IBL members, please connect to our public database to access our publically
 available datasets
 ```
-If you are interested in accessing these publicly available datasets,
-please visit this [section](notebooks/public_one) for instructions.
 
 ## 3. Post setup
 Once you've setup the server you can initialise ONE in the following way and it will automatically connect to the

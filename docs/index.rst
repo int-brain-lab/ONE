@@ -20,7 +20,7 @@ Welcome to ONE's documentation!
    notebooks/experiment_ids
 
 .. toctree::
-   :caption: Remote usage
+   :caption: Using ONE with Alyx
    :maxdepth: 2
 
    notebooks/one_modes
@@ -28,7 +28,7 @@ Welcome to ONE's documentation!
    notebooks/useful_alyx_queries
 
 .. toctree::
-   :caption: Data sharing
+   :caption: Using ONE to share data
    :maxdepth: 2
 
    notebooks/data_sharing
