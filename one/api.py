@@ -458,7 +458,7 @@ class One(ConversionMixin):
         return self._cache['sessions']['subject'].sort_values().unique().tolist()
 
     @util.refresh
-    def list_datasets(self, eid=None, collection=None, revision=None, filename=None,
+    def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
 
         """
@@ -471,13 +471,13 @@ class One(ConversionMixin):
         eid : str, UUID, pathlib.Path, dict
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
-        collection : str
+        filename : str, dict, list
+            Filters datasets and returns only the ones matching the filename
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        collection : str, list
             The collection to which the object belongs, e.g. 'alf/probe01'.
             This is the relative path of the file from the session root.
             Supports asterisks as wildcards.
-        filename : str
-            Filters datasets and returns only the ones matching the filename
-            Supports asterisks as wildcards
         revision : str
             Filters datasets and returns only the ones matching the revision
             Supports asterisks as wildcards
@@ -491,6 +491,28 @@ class One(ConversionMixin):
         -------
         np.ndarray, pd.DataFrame
             Slice of datasets table or numpy array if details is False
+
+        Examples
+        --------
+        List all unique datasets in ONE cache
+
+        >>> datasets = one.list_datasets()
+
+        List all datasets for a given experiment
+
+        >>> datasets = one.list_datasets(eid)
+
+        List all datasets for an experiment that match a collection name
+
+        >>> probe_datasets = one.list_datasets(eid, collection='*probe*')
+
+        List datasets for an experiment that have 'wheel' in the filename
+
+        >>> datasets = one.list_datasets(eid, filename='*wheel*')
+
+        List datasets for an experiment that are part of a 'wheel' or 'trial(s)' object
+
+        >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
         """
         datasets = self._cache['datasets']
         filter_args = dict(collection=collection, filename=filename, wildcards=self.wildcards,
@@ -515,11 +537,10 @@ class One(ConversionMixin):
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
     @util.refresh
-    def list_collections(self, eid=None, details=False, collection=None,
-                         filename=None, revision=None,
-                         query_type=None) -> Union[np.ndarray, dict]:
+    def list_collections(self, eid=None, filename=None, collection=None, revision=None,
+                         details=False, query_type=None) -> Union[np.ndarray, dict]:
         """
-        List the collections for a given experiment.  If no experiment id is given,
+        List the collections for a given experiment.  If no experiment ID is given,
         all collections are returned.
 
         Parameters
@@ -527,14 +548,50 @@ class One(ConversionMixin):
         eid : [str, UUID, Path, dict]
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path
+        filename : str, dict, list
+            Filters datasets and returns only the collections containing matching datasets.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        collection : str, list
+            Filter by a given pattern. Supports asterisks as wildcards.
+        revision : str
+            Filters collections and returns only the ones with the matching revision.
+            Supports asterisks as wildcards
         details : bool
             If true a dict of pandas datasets tables is returned with collections as keys,
             otherwise a numpy array of unique collections
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
 
         Returns
         -------
         list, dict
             A list of unique collections or dict of datasets tables
+
+        Examples
+        --------
+        List all unique collections in ONE cache
+
+        >>> collections = one.list_collections()
+
+        List all collections for a given experiment
+
+        >>> collections = one.list_collections(eid)
+
+        List all collections for a given experiment and revision
+
+        >>> revised = one.list_collections(eid, revision='2020-01-01')
+
+        List all collections that have 'probe' in the name.
+
+        >>> collections = one.list_collections(eid, collection='*probe*')
+
+        List collections for an experiment that have datasets with 'wheel' in the name
+
+        >>> collections = one.list_collections(eid, filename='*wheel*')
+
+        List collections for an experiment that contain numpy datasets
+
+        >>> collections = one.list_collections(eid, {'extension': 'npy'})
         """
         filter_kwargs = dict(eid=eid, collection=collection, filename=filename,
                              revision=revision, query_type=query_type)
@@ -550,29 +607,60 @@ class One(ConversionMixin):
             return datasets['collection'].unique().tolist()
 
     @util.refresh
-    def list_revisions(self, eid=None, dataset=None, collection=None, details=False):
+    def list_revisions(self, eid=None, dataset=None, collection=None, revision=None,
+                       details=False, query_type=None):
         """
         List the revisions for a given experiment.  If no experiment id is given,
         all collections are returned.
 
         Parameters
         ----------
-        eid : [str, UUID, Path, dict]
+        eid : str, UUID, Path, dict
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path
+        dataset : str, dict, list
+            Filters datasets and returns only the revisions containing matching datasets.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        collection : str, list
+            Filter by a given collection. Supports asterisks as wildcards.
+        revision : str, list
+            Filter by a given pattern. Supports asterisks as wildcards.
         details : bool
             If true a dict of pandas datasets tables is returned with collections as keys,
             otherwise a numpy array of unique collections
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
 
         Returns
         -------
         list, dict
             A list of unique collections or dict of datasets tables
+
+        Examples
+        --------
+        List all revisions in ONE cache
+
+        >>> revisions = one.list_revisions()
+
+        List all revisions for a given experiment
+
+        >>> revisions = one.list_revisions(eid)
+
+        List all revisions for a given experiment that contain the trials object
+
+        >>> revisions = one.list_revisions(eid, dataset={'object': 'trials'})
+
+        List all revisions for a given experiment that start with 2020 or 2021
+
+        >>> revisions = one.list_revisions(eid, revision=['202[01]*'])
+
         """
-        datasets = self.list_datasets(eid, collection, details=True).copy()
-        if dataset:
-            match = datasets.rel_path.apply(lambda x: x.split('/')[-1]).str.match(dataset)
-            datasets = datasets[match]
+        datasets = self.list_datasets(eid=eid, details=True, query_type=query_type).copy()
+
+        # Call filter util ourselves with the revision_last_before set to False
+        kwargs = dict(collection=collection, filename=dataset, revision=revision,
+                      revision_last_before=False, wildcards=self.wildcards, assert_unique=False)
+        datasets = util.filter_datasets(datasets, **kwargs)
         datasets['revision'] = datasets.rel_path.apply(
             lambda x: (rel_path_parts(x, assert_valid=False)[1] or '').strip('#')
         )
@@ -1228,19 +1316,20 @@ class OneAlyx(One):
         return out
 
     @util.refresh
-    def list_datasets(self, eid=None, collection=None, filename=None, revision=None,
+    def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
-        filter_kwargs = dict(eid=eid, collection=collection, filename=filename, revision=revision,
-                             details=details, query_type=query_type)
+        filters = dict(collection=collection, filename=filename, revision=revision)
         if (query_type or self.mode) != 'remote':
-            return super().list_datasets(**filter_kwargs)
+            return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         elif not eid:
             warnings.warn('Unable to list all remote datasets')
-            return super().list_datasets(**filter_kwargs)
+            return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return self._cache['datasets'].iloc[0:0]  # Return empty
         _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        datasets = util.filter_datasets(
+            datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 

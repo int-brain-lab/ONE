@@ -374,6 +374,10 @@ class TestONECache(unittest.TestCase):
         dsets = self.one.list_revisions(eid, collection='alf/probe01', details=True)
         self.assertTrue(dsets['2020-01-08'].rel_path.str.startswith('alf/probe01').all())
 
+        # Test revision filter
+        revisions = self.one.list_revisions(eid, revision=['202[01]*'])
+        self.assertCountEqual(['2020-01-08', '2021-07-06'], revisions)
+
         # Test empty
         self.assertFalse(len(self.one.list_revisions('FMR019/2021-03-18/002', details=True)))
         self.assertFalse(len(self.one.list_revisions('FMR019/2021-03-18/002', details=False)))
@@ -928,6 +932,12 @@ class TestOneRemote(unittest.TestCase):
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
         self.assertEqual(110, len(dsets))
+
+        # Test with other filters
+        dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
+                                       details=False, query_type='remote')
+        self.assertEqual(5, len(dsets))
+        self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
             self.one.list_datasets(query_type='remote')

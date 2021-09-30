@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.4.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.5.0]
+
+### Modified
+- fix bug where filters don't work in remote list_datasets
+- change order of kwargs in list_datasets: filename now the first kwarg
+
+## [1.4.0]
 
 ### Modified
 

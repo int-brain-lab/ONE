@@ -286,7 +286,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Filter by matching revision
 
     >>> datasets = filter_datasets(all_datasets, 'spikes.times.npy',
-    ...                        revision='2020-01-12', revision_last_before=False)
+    ...                            revision='2020-01-12', revision_last_before=False)
 
     Filter by filename parts
 
