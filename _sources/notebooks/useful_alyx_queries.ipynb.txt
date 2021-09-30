@@ -225,7 +225,7 @@
     "# List tasks with given status\n",
     "tasks = one.alyx.rest('tasks', 'list', name='EphysDLC', status='Errored')\n",
     "\n",
-    "# OR tasks with specific log error message \n",
+    "# OR tasks with specific log error message\n",
     "tasks = one.alyx.rest('tasks', 'list', name='EphysDLC',\n",
     "                      django=\"log__icontains,TimeoutError: [Errno 110]\")\n",
     "# Set tasks to Waiting so they get rerun\n",
