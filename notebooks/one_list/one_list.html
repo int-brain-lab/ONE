@@ -531,6 +531,17 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <span class="c1"># All collections for specific session</span>
 <span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">collections</span><span class="p">)</span>
+
+<span class="c1"># Using filename to filer for collection associated to specific dataset(s)</span>
+<span class="c1"># and loading the data using a given collection</span>
+<span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;clusters*&#39;</span><span class="p">)</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">)</span>
+
+<span class="c1"># Getting the downstream collections associated to a particular folder (here alf/probeID/...)</span>
+<span class="c1"># using a wildcard (*) in the collection search term</span>
+<span class="n">pid</span> <span class="o">=</span> <span class="s1">&#39;523f8301-4f56-4faf-ab33-a9ff11331118&#39;</span>
+<span class="n">eid</span><span class="p">,</span> <span class="n">pname</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+<span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;clusters*&#39;</span><span class="p">,</span> <span class="n">collection</span> <span class="o">=</span><span class="sa">f</span><span class="s1">&#39;alf/</span><span class="si">{</span><span class="n">pname</span><span class="si">}</span><span class="s1">*&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
