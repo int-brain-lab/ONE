@@ -111,7 +111,46 @@
 <li class="toctree-l3"><a class="reference internal" href="#second">second</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#isnull">isnull</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#regex">regex</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#iregex">iregex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iregex">iregex</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Looking up fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">contains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">contained_by</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">has_key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">has_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">has_any_keys</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">exact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">iexact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">contains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">icontains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">in</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">gt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">gte</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">lt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">lte</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">startswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">istartswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">endswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id21">iendswith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id22">not</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id23">range</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id24">date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id25">year</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id26">iso_year</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id27">month</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id28">day</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id29">week</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id30">week_day</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id31">iso_week_day</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id32">quarter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id33">time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id34">hour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id35">minute</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id36">second</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id37">isnull</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id38">regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id39">iregex</a></li>
 </ul>
 </li>
 </ul>
@@ -655,269 +694,6 @@ Here&#39;s how the extended_qc field looks:
 </div>
 </div>
 <p>ses = one.alyx.rest(‘sessions’, ‘read’, id=‘4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a’) pprint(ses[‘extended_qc’])</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span>#### Looking up fields
-```python
-# Find sessions where task QC is marked as &#39;FAIL&#39;
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;extended_qc__task__iexact,fail&#39;)
-```
-
-Lists can be accessed using indices:
-```python
-# Find sessions where first value (zero-index) of &#39;_videoLeft_pin_state&#39; is greater than 5
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;extended_qc___videoLeft_pin_state__0__gt,5&#39;)
-```
-
-Any search depth is allowed, and lookups such as `isnull`, `startswith`, `gte`, etc. are permitted.
-
-#### contains
-The returned objects are those where the given dict of key-value pairs are all contained in the
-top-level of the field.
-```python
-# Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; both pass:
-d = {&#39;dlcLeft&#39;: &#39;PASS&#39;, &#39;videoLeft&#39;: &#39;PASS&#39;}
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__contains,{d}&#39;)
-```
-
-#### contained_by
-This is the inverse of the contains lookup - the objects returned will be those where the key-value
-pairs on the object are a subset of those in the value passed.
-```python
-# Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; are missing or do not pass:
-d = {&#39;dlcLeft&#39;: &#39;PASS&#39;, &#39;videoLeft&#39;: &#39;PASS&#39;}
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__contained_by,{d}&#39;)
-```
-
-#### has_key
-JSON field contains a given key.
-```python
-# Find sessions where extended QC has &#39;dlcLeft&#39; field:
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;extended_qc__has_key,dlcLeft&#39;)
-```
-
-#### has_keys
-JSON contains all of the listed keys.  The list should be surrounded by parentheses or
-square brackets, e.g. `&#39;field__has_keys,[&#39;field1&#39;, &#39;field2&#39;]&#39;` or `&#39;field__has_keys,(&#39;field1&#39;, &#39;field2&#39;)&#39;`
-```python
-# Find sessions where extended QC &#39;behavior&#39; and &#39;ephys&#39; fields:
-keys = [&#39;behavior&#39;, &#39;ephys&#39;]
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__has_keys,{keys}&#39;)
-```
-
-#### has_any_keys
-JSON contains at least one of the listed keys.  The list should be surrounded by parentheses or
-square brackets, e.g. `&#39;field__has_any_keys,[&#39;field1&#39;, &#39;field2&#39;]&#39;` or `&#39;field__has_any_keys,(&#39;field1&#39;, &#39;field2&#39;)&#39;`
-```python
-# Find sessions where extended QC exists for any video
-keys = (&#39;videoLeft&#39;, &#39;videoRight&#39;, &#39;videoBody&#39;)
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&#39;extended_qc__has_any_keys,{keys}&#39;)
-```
-
-### exact
-An exact match.  When the lookup is omitted it is assumed to be `exact`:
-```python
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;subject__nickname__exact,KS022&#39;)
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;subject__nickname,KS022&#39;)  # equivalent
-```
-
-### iexact
-Case insensitive exact match:
-```python
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;subject__nickname__exact,ks022&#39;)
-```
-
-### contains
-### icontains
-Search for records where a given field contains a substring, case insensitive.  For examples to
-query insertions with a task protocol containing &#39;choiceworld&#39;:
-```python
-ins = one.alyx.rest(&#39;insertions&#39;, &#39;list&#39;, django=&#39;session__task_protocol__icontains,choiceworld&#39;)
-```
-
-### in
-In a given iterable; often a list, tuple, or queryset. It’s not a common use case, but strings
-(being iterables) are accepted.  For example to query session for several subjects:
-```python
-subjects = [&#39;DY_003&#39;, &#39;DY_006&#39;]
-ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=f&quot;subject__nickname__in,{subjects}&quot;)
-```
-```{note}
-This example query can be done more efficiently with `one.search(subject=[&#39;DY_003&#39;, &#39;DY_006&#39;])`
-```
-
-### gt
-### gte
-### lt
-Less than.  Works for datetime, date and numerical fields:
-```python
-one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;session__qc__lt,40&#39;)  # Where QC less than 40
-```
-### lte
-Less than or equal.  Works for datetime, date and numerical fields.  For example to get
-insertions for sessions on or before a given date:
-```python
-one.alyx.rest(&#39;insertions&#39;, &#39;list&#39;, django=&#39;session__start_time__date__lte,2021-07-22&#39;)
-```
-
-### startswith
-### istartswith
-### endswith
-### iendswith
-
-### not
-A tilda can be used to negate any query filter, for example, to query sessions that **do not**
-have matlab in the project name:
-```python
-ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, django=&#39;~project__name__icontains,matlab&#39;)
-```
-
-### range
-
-### date
-Extract the date part from a date_time field.  For example to search for a given date:
-```python
-date = &#39;2021-02-05&#39;
-weighings = one.alyx.rest(&#39;weighings&#39;, &#39;list&#39;, django=f&#39;date_time__date,{date}&#39;)
-```
-
-### year
-Extract the year from a date_time field.
-
-### iso_year
-### month
-### day
-### week
-### week_day
-### iso_week_day
-### quarter
-### time
-### hour
-### minute
-### second
-
-### isnull
-### regex
-Case-sensitive regular expression match.  The regular expressions should be supported by
-PostgreSQL.  More info on the syntax [here](https://www.postgresql.org/docs/9.3/functions-matching.html).
-```python
-# For a given session, find datasets that belong to a probe collection
-eid = &#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;
-one.alyx.rest(&#39;datasets&#39;, &#39;list&#39;, session=eid, django=&#39;collection__regex,.*probe.*&#39;, exists=True)
-```
-```{note}
-This example query can be done more efficiently with `one.list(eid, collection=&#39;*probe*&#39;)`
-```
-
-### iregex
-Case-insensitive regular expression match.  The regular expressions should be supported by
-PostgreSQL.  More info on the syntax [here](https://www.postgresql.org/docs/9.3/functions-matching.html).
-
-```python
-# List datasets for a given session that are related to either the right or left videos
-eid = &#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;
-query = &#39;name__iregex,(right|left)camera&#39;
-one.alyx.rest(&#39;datasets&#39;, &#39;list&#39;, session=eid, django=query, exists=True)
-```
-```{note}
-This example query can be done more efficiently with `one.list_datasets(eid, filename={&#39;object&#39;: [&#39;leftCamera&#39;, &#39;rightCamera&#39;]})`
-```
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{&#39;_dlcBody_if_mean_in_box&#39;: True,
- &#39;_dlcBody_if_points_all_nan&#39;: True,
- &#39;_dlcBody_lick_detection&#39;: True,
- &#39;_dlcBody_time_trace_length_match&#39;: True,
- &#39;_dlcBody_whisker_pupil_block&#39;: True,
- &#39;_dlcLeft_if_mean_in_box&#39;: True,
- &#39;_dlcLeft_if_points_all_nan&#39;: True,
- &#39;_dlcLeft_lick_detection&#39;: True,
- &#39;_dlcLeft_time_trace_length_match&#39;: True,
- &#39;_dlcLeft_whisker_pupil_block&#39;: True,
- &#39;_dlcRight_if_mean_in_box&#39;: True,
- &#39;_dlcRight_if_points_all_nan&#39;: True,
- &#39;_dlcRight_lick_detection&#39;: True,
- &#39;_dlcRight_time_trace_length_match&#39;: True,
- &#39;_dlcRight_whisker_pupil_block&#39;: True,
- &#39;_task_audio_pre_trial&#39;: 1.0,
- &#39;_task_correct_trial_event_sequence&#39;: 0.9954853273137697,
- &#39;_task_detected_wheel_moves&#39;: 0.9847908745247148,
- &#39;_task_errorCue_delays&#39;: 0.8604651162790697,
- &#39;_task_error_trial_event_sequence&#39;: 0.9186046511627907,
- &#39;_task_goCue_delays&#39;: 0.9867674858223062,
- &#39;_task_iti_delays&#39;: 0.3314393939393939,
- &#39;_task_n_trial_events&#39;: 0.9792060491493384,
- &#39;_task_negative_feedback_stimOff_delays&#39;: 0.8953488372093024,
- &#39;_task_passed_trial_checks&#39;: 0.32325141776937616,
- &#39;_task_positive_feedback_stimOff_delays&#39;: 0.9954853273137697,
- &#39;_task_response_feedback_delays&#39;: 0.9829867674858223,
- &#39;_task_response_stimFreeze_delays&#39;: 0.973384030418251,
- &#39;_task_reward_volume_set&#39;: 1.0,
- &#39;_task_reward_volumes&#39;: 1.0,
- &#39;_task_stimFreeze_delays&#39;: 0.9678638941398866,
- &#39;_task_stimOff_delays&#39;: 0.9810964083175804,
- &#39;_task_stimOff_itiIn_delays&#39;: 0.9866920152091255,
- &#39;_task_stimOn_delays&#39;: 0.9848771266540642,
- &#39;_task_stimOn_goCue_delays&#39;: 0.9848771266540642,
- &#39;_task_stimulus_move_before_goCue&#39;: 0.9980988593155894,
- &#39;_task_trial_length&#39;: 0.9829867674858223,
- &#39;_task_wheel_freeze_during_quiescence&#39;: 1.0,
- &#39;_task_wheel_integrity&#39;: 0.999999010009791,
- &#39;_task_wheel_move_before_feedback&#39;: 0.9847908745247148,
- &#39;_task_wheel_move_during_closed_loop&#39;: 0.9961977186311787,
- &#39;_task_wheel_move_during_closed_loop_bpod&#39;: 1.0,
- &#39;_videoBody_brightness&#39;: True,
- &#39;_videoBody_camera_times&#39;: 0,
- &#39;_videoBody_dropped_frames&#39;: [0, 0],
- &#39;_videoBody_file_headers&#39;: True,
- &#39;_videoBody_focus&#39;: True,
- &#39;_videoBody_framerate&#39;: 29.943,
- &#39;_videoBody_pin_state&#39;: [9, 0],
- &#39;_videoBody_position&#39;: False,
- &#39;_videoBody_resolution&#39;: True,
- &#39;_videoBody_timestamps&#39;: True,
- &#39;_videoBody_wheel_alignment&#39;: None,
- &#39;_videoLeft_brightness&#39;: True,
- &#39;_videoLeft_camera_times&#39;: 0,
- &#39;_videoLeft_dropped_frames&#39;: [0, 0],
- &#39;_videoLeft_file_headers&#39;: True,
- &#39;_videoLeft_focus&#39;: True,
- &#39;_videoLeft_framerate&#39;: 59.767,
- &#39;_videoLeft_pin_state&#39;: [9, 0],
- &#39;_videoLeft_position&#39;: False,
- &#39;_videoLeft_resolution&#39;: True,
- &#39;_videoLeft_timestamps&#39;: True,
- &#39;_videoLeft_wheel_alignment&#39;: 0,
- &#39;_videoRight_brightness&#39;: True,
- &#39;_videoRight_camera_times&#39;: 0,
- &#39;_videoRight_dropped_frames&#39;: [21, 0],
- &#39;_videoRight_file_headers&#39;: True,
- &#39;_videoRight_focus&#39;: True,
- &#39;_videoRight_framerate&#39;: 150.015,
- &#39;_videoRight_pin_state&#39;: [6, 0],
- &#39;_videoRight_position&#39;: False,
- &#39;_videoRight_resolution&#39;: True,
- &#39;_videoRight_timestamps&#39;: True,
- &#39;_videoRight_wheel_alignment&#39;: 1,
- &#39;behavior&#39;: 1,
- &#39;dlcBody&#39;: &#39;PASS&#39;,
- &#39;dlcLeft&#39;: &#39;PASS&#39;,
- &#39;dlcRight&#39;: &#39;PASS&#39;,
- &#39;task&#39;: &#39;FAIL&#39;,
- &#39;videoBody&#39;: &#39;FAIL&#39;,
- &#39;videoLeft&#39;: &#39;FAIL&#39;,
- &#39;videoRight&#39;: &#39;FAIL&#39;}
-</pre></div></div>
-</div>
 <section id="Looking-up-fields">
 <h4>Looking up fields<a class="headerlink" href="#Looking-up-fields" title="Permalink to this headline"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where task QC is marked as &#39;FAIL&#39;</span>
@@ -1027,6 +803,10 @@ This example query can be done more efficiently with `one.list_datasets(eid, fil
 </section>
 <section id="lte">
 <h3>lte<a class="headerlink" href="#lte" title="Permalink to this headline"></a></h3>
+<p>Less than or equal. Works for datetime, date and numerical fields. For example to get insertions for sessions on or before a given date:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__start_time__date__lte,2021-07-22&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="startswith">
 <h3>startswith<a class="headerlink" href="#startswith" title="Permalink to this headline"></a></h3>
@@ -1052,13 +832,15 @@ This example query can be done more efficiently with `one.list_datasets(eid, fil
 </section>
 <section id="date">
 <h3>date<a class="headerlink" href="#date" title="Permalink to this headline"></a></h3>
-<p>Get the date from a datetime field:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__start_time__date__lt,2021-07-22&#39;</span><span class="p">)</span>
+<p>Extract the date part from a date_time field. For example to search for a given date:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;2021-02-05&#39;</span>
+<span class="n">weighings</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;date_time__date,</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="year">
 <h3>year<a class="headerlink" href="#year" title="Permalink to this headline"></a></h3>
+<p>Extract the year from a date_time field.</p>
 </section>
 <section id="iso_year">
 <h3>iso_year<a class="headerlink" href="#iso_year" title="Permalink to this headline"></a></h3>
@@ -1110,6 +892,208 @@ This example query can be done more efficiently with `one.list_datasets(eid, fil
 </section>
 <section id="iregex">
 <h3>iregex<a class="headerlink" href="#iregex" title="Permalink to this headline"></a></h3>
+<p>Case-insensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># List datasets for a given session that are related to either the right or left videos</span>
+<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;name__iregex,(right|left)camera&#39;</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>This example query can be done more efficiently with `one.list_datasets(eid, filename={&#39;object&#39;: [&#39;leftCamera&#39;, &#39;rightCamera&#39;]})`
+</pre></div>
+</div>
+<section id="id2">
+<h4>Looking up fields<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where task QC is marked as &#39;FAIL&#39;</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;extended_qc__task__iexact,fail&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Lists can be accessed using indices:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where first value (zero-index) of &#39;_videoLeft_pin_state&#39; is greater than 5</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;extended_qc___videoLeft_pin_state__0__gt,5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Any search depth is allowed, and lookups such as <code class="docutils literal notranslate"><span class="pre">isnull</span></code>, <code class="docutils literal notranslate"><span class="pre">startswith</span></code>, <code class="docutils literal notranslate"><span class="pre">gte</span></code>, etc. are permitted.</p>
+</section>
+<section id="id3">
+<h4>contains<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h4>
+<p>The returned objects are those where the given dict of key-value pairs are all contained in the top-level of the field.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; both pass:</span>
+<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dlcLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;videoLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">}</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__contains,</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h4>contained_by<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h4>
+<p>This is the inverse of the contains lookup - the objects returned will be those where the key-value pairs on the object are a subset of those in the value passed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; are missing or do not pass:</span>
+<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dlcLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;videoLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">}</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__contained_by,</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h4>has_key<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h4>
+<p>JSON field contains a given key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC has &#39;dlcLeft&#39; field:</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;extended_qc__has_key,dlcLeft&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h4>has_keys<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h4>
+<p>JSON contains all of the listed keys. The list should be surrounded by parentheses or square brackets, e.g. <code class="docutils literal notranslate"><span class="pre">'field__has_keys,['field1',</span> <span class="pre">'field2']'</span></code> or <code class="docutils literal notranslate"><span class="pre">'field__has_keys,('field1',</span> <span class="pre">'field2')'</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC &#39;behavior&#39; and &#39;ephys&#39; fields:</span>
+<span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">,</span> <span class="s1">&#39;ephys&#39;</span><span class="p">]</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__has_keys,</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h4>has_any_keys<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h4>
+<p>JSON contains at least one of the listed keys. The list should be surrounded by parentheses or square brackets, e.g. <code class="docutils literal notranslate"><span class="pre">'field__has_any_keys,['field1',</span> <span class="pre">'field2']'</span></code> or <code class="docutils literal notranslate"><span class="pre">'field__has_any_keys,('field1',</span> <span class="pre">'field2')'</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC exists for any video</span>
+<span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;videoLeft&#39;</span><span class="p">,</span> <span class="s1">&#39;videoRight&#39;</span><span class="p">,</span> <span class="s1">&#39;videoBody&#39;</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__has_any_keys,</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h3>exact<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h3>
+<p>An exact match. When the lookup is omitted it is assumed to be <code class="docutils literal notranslate"><span class="pre">exact</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname__exact,KS022&#39;</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname,KS022&#39;</span><span class="p">)</span>  <span class="c1"># equivalent</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>iexact<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h3>
+<p>Case insensitive exact match:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname__exact,ks022&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<span id="id11"></span><h3>contains<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id12">
+<h3>icontains<a class="headerlink" href="#id12" title="Permalink to this headline"></a></h3>
+<p>Search for records where a given field contains a substring, case insensitive. For examples to query insertions with a task protocol containing ‘choiceworld’:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__task_protocol__icontains,choiceworld&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h3>in<a class="headerlink" href="#id13" title="Permalink to this headline"></a></h3>
+<p>In a given iterable; often a list, tuple, or queryset. It’s not a common use case, but strings (being iterables) are accepted. For example to query session for several subjects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subjects</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DY_003&#39;</span><span class="p">,</span> <span class="s1">&#39;DY_006&#39;</span><span class="p">]</span>
+<span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subject__nickname__in,</span><span class="si">{</span><span class="n">subjects</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>This example query can be done more efficiently with `one.search(subject=[&#39;DY_003&#39;, &#39;DY_006&#39;])`
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h3>gt<a class="headerlink" href="#id14" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id15">
+<h3>gte<a class="headerlink" href="#id15" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id16">
+<h3>lt<a class="headerlink" href="#id16" title="Permalink to this headline"></a></h3>
+<p>Less than. Works for datetime, date and numerical fields:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__qc__lt,40&#39;</span><span class="p">)</span>  <span class="c1"># Where QC less than 40</span>
+</pre></div>
+</div>
+</section>
+<section id="id17">
+<h3>lte<a class="headerlink" href="#id17" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id18">
+<h3>startswith<a class="headerlink" href="#id18" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id19">
+<h3>istartswith<a class="headerlink" href="#id19" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id20">
+<h3>endswith<a class="headerlink" href="#id20" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id21">
+<h3>iendswith<a class="headerlink" href="#id21" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id22">
+<h3>not<a class="headerlink" href="#id22" title="Permalink to this headline"></a></h3>
+<p>A tilda can be used to negate any query filter, for example, to query sessions that <strong>do not</strong> have matlab in the project name:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~project__name__icontains,matlab&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id23">
+<h3>range<a class="headerlink" href="#id23" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id24">
+<h3>date<a class="headerlink" href="#id24" title="Permalink to this headline"></a></h3>
+<p>Get the date from a datetime field:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__start_time__date__lt,2021-07-22&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id25">
+<h3>year<a class="headerlink" href="#id25" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id26">
+<h3>iso_year<a class="headerlink" href="#id26" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id27">
+<h3>month<a class="headerlink" href="#id27" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id28">
+<h3>day<a class="headerlink" href="#id28" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id29">
+<h3>week<a class="headerlink" href="#id29" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id30">
+<h3>week_day<a class="headerlink" href="#id30" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id31">
+<h3>iso_week_day<a class="headerlink" href="#id31" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id32">
+<h3>quarter<a class="headerlink" href="#id32" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id33">
+<h3>time<a class="headerlink" href="#id33" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id34">
+<h3>hour<a class="headerlink" href="#id34" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id35">
+<h3>minute<a class="headerlink" href="#id35" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id36">
+<h3>second<a class="headerlink" href="#id36" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id37">
+<h3>isnull<a class="headerlink" href="#id37" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id38">
+<h3>regex<a class="headerlink" href="#id38" title="Permalink to this headline"></a></h3>
+<p>Case-sensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For a given session, find datasets that belong to a probe collection</span>
+<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;collection__regex,.*probe.*&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>This example query can be done more efficiently with `one.list(eid, collection=&#39;*probe*&#39;)`
+</pre></div>
+</div>
+</section>
+<section id="id39">
+<h3>iregex<a class="headerlink" href="#id39" title="Permalink to this headline"></a></h3>
 <p>Case-insensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># List datasets for a given session that are related to either the right or left videos</span>
 <span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span>
