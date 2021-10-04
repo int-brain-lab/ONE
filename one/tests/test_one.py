@@ -218,11 +218,22 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(2, len(verifiable))
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             filter_datasets(datasets, '_ibl_trials.*', None, None, revision_last_before=False)
+        # Test list as logical OR
+        verifiable = filter_datasets(datasets, ['spikes.*', 'alf/channels.*'], None, None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertTrue(all(x.startswith('spikes') or x.startswith('alf/channels')
+                            for x in verifiable.rel_path))
+
         # Test as dict
         dataset = dict(namespace='ibl', object='trials')
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
         self.assertEqual(2, len(verifiable))
+        dataset = dict(timescale='bpod', object='trials')
+        verifiable = filter_datasets(self.one._cache.datasets, dataset, None, None,
+                                     assert_unique=False, revision_last_before=False)
+        self.assertEqual(verifiable['rel_path'].values[0], 'alf/_ibl_trials.intervals_bpod.npy')
+
         # As dict with list (should act as logical OR)
         dataset = dict(attribute=['amp.?', 'rawRow'])
         verifiable = filter_datasets(datasets, dataset, None, None,
@@ -310,6 +321,17 @@ class TestONECache(unittest.TestCase):
         dsets = self.one.list_datasets('KS005/2019-04-02/001', details=True)
         self.assertEqual(27, len(dsets))
 
+        # Test filters
+        filename = {'attribute': ['times', 'intervals'], 'extension': 'npy'}
+        dsets = self.one.list_datasets('ZFM-01935/2021-02-05/001', filename)
+        self.assertEqual(10, len(dsets))
+        self.assertTrue(all(any(y in x for y in ('.times.', '.intervals')) for x in dsets))
+
+        filename['attribute'][0] += '*'  # Include wildcard to match both times and timestamps
+        dsets = self.one.list_datasets('ZFM-01935/2021-02-05/001', filename)
+        self.assertEqual(13, len(dsets))
+        self.assertEqual(3, sum('.timestamps.' in x for x in dsets))
+
         # Test using str ids as index
         util.caches_int2str(self.one._cache)
         dsets = self.one.list_datasets('KS005/2019-04-02/001')
@@ -367,7 +389,7 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(dsets['2020-01-08'].rel_path.str.contains('#2020-01-08#').all())
 
         # Test dataset filter
-        dsets = self.one.list_revisions(eid, dataset='spikes.times.npy', details=True)
+        dsets = self.one.list_revisions(eid, filename='spikes.times.npy', details=True)
         self.assertTrue(dsets['2020-01-08'].rel_path.str.endswith('spikes.times.npy').all())
 
         # Test collections filter

@@ -658,7 +658,14 @@ class AlyxClient():
             password=self._par.HTTP_DATA_SERVER_PWD,
             **kwargs
         )
-        return download_fcn(url, **pars)
+        try:
+            files = download_fcn(url, **pars)
+        except HTTPError as ex:
+            if ex.code == 401:
+                ex.msg += (' - please check your HTTP_DATA_SERVER_LOGIN and '
+                           'HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs')
+            raise ex
+        return files
 
     def download_cache_tables(self):
         """Downloads the Alyx cache tables to the local data cache directory

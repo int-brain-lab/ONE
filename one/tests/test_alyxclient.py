@@ -408,12 +408,16 @@ class TestDownloadHTTP(unittest.TestCase):
         old_par = ac._par
         ac._par = ac._par.set('HTTP_DATA_SERVER_PWD', 'foobar')
         with self.assertLogs(logging.getLogger('one.webclient'), logging.ERROR) as log:
+            raised = False
             try:
                 ac.download_file(url, cache_dir=cache_dir)
                 self.assertTrue(url[0] in log.output[-1])
-            except Exception:
-                pass
+            except Exception as ex:
+                # Check error message mentions the HTTP_DATA_SERVER params
+                self.assertTrue('HTTP_DATA_SERVER_PWD' in str(ex))
+                raised = True
             finally:
+                self.assertTrue(raised)
                 ac._par = old_par
 
     def test_download_datasets(self):

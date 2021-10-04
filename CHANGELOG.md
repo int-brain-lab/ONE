@@ -4,6 +4,11 @@
 ### Modified
 - fix bug where filters don't work in remote list_datasets
 - change order of kwargs in list_datasets: filename now the first kwarg
+- can now filter by list of filename strings functioning as a logical OR
+- dataset kwarg renamed to filename in list_revisions
+- fix ALF regular expression pattern: attribute, timescale and extension now parsed correctly
+- can now filter datasets by timescale
+- clearer error message when data server auth error
 
 ## [1.4.0]
 

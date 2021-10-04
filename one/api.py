@@ -607,7 +607,7 @@ class One(ConversionMixin):
             return datasets['collection'].unique().tolist()
 
     @util.refresh
-    def list_revisions(self, eid=None, dataset=None, collection=None, revision=None,
+    def list_revisions(self, eid=None, filename=None, collection=None, revision=None,
                        details=False, query_type=None):
         """
         List the revisions for a given experiment.  If no experiment id is given,
@@ -618,7 +618,7 @@ class One(ConversionMixin):
         eid : str, UUID, Path, dict
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path
-        dataset : str, dict, list
+        filename : str, dict, list
             Filters datasets and returns only the revisions containing matching datasets.
             Supports lists asterisks as wildcards.  May be a dict of ALF parts.
         collection : str, list
@@ -648,7 +648,7 @@ class One(ConversionMixin):
 
         List all revisions for a given experiment that contain the trials object
 
-        >>> revisions = one.list_revisions(eid, dataset={'object': 'trials'})
+        >>> revisions = one.list_revisions(eid, filename={'object': 'trials'})
 
         List all revisions for a given experiment that start with 2020 or 2021
 
@@ -658,7 +658,7 @@ class One(ConversionMixin):
         datasets = self.list_datasets(eid=eid, details=True, query_type=query_type).copy()
 
         # Call filter util ourselves with the revision_last_before set to False
-        kwargs = dict(collection=collection, filename=dataset, revision=revision,
+        kwargs = dict(collection=collection, filename=filename, revision=revision,
                       revision_last_before=False, wildcards=self.wildcards, assert_unique=False)
         datasets = util.filter_datasets(datasets, **kwargs)
         datasets['revision'] = datasets.rel_path.apply(
