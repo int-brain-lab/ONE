@@ -50,6 +50,10 @@ class Tests_REST(unittest.TestCase):
         eid = UUID(ses['url'][-36:])  # Should work with UUID object
         ses_ = one.alyx.rest('sessions', 'list', id=eid)[-1]
         self.assertEqual(ses, ses_)
+        # Check works with django query arg
+        query = f'start_time__date,{ses["start_time"][:10]}'
+        ses_ = one.alyx.rest('sessions', 'list', id=eid, django=query)[-1]
+        self.assertEqual(ses, ses_)
 
     def test_note_with_picture_upload(self):
         """Test adding session note with attached picture"""

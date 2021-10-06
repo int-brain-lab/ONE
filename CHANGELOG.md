@@ -8,7 +8,8 @@
 - dataset kwarg renamed to filename in list_revisions
 - fix ALF regular expression pattern: attribute, timescale and extension now parsed correctly
 - can now filter datasets by timescale
-- clearer error message when data server auth error
+- clearer error message auth errors raised
+- alyx client is_logged_in method now a dependent property
 
 ## [1.4.0]
 
