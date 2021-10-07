@@ -6,7 +6,8 @@ sphinx >=3.1.2
 sphinx-copybutton
 sphinx-gallery
 ipyevents
-matplotlib
+# ibllib  # Required to execute the one_quickstart notebook
+# matplotlib  # Required to execute the data_sharing notebook
 
 # Also need to run
 # jupyter nbextension enable --py --sys-prefix ipyevents

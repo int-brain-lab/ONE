@@ -174,8 +174,7 @@ def read_ts(filename):
         assert time_file
     except (ValueError, AssertionError):
         name = spec.to_alf(obj, attr, ext)
-        _logger.error(name + ' not found! no time-scale for' + str(filename))
-        raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
+        raise FileNotFoundError(name + ' not found! No time-scale for ' + str(filename))
 
     ts = np.load(filename.parent / time_file)
     val = np.load(filename)

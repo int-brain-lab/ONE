@@ -6,6 +6,7 @@ from typing import Union
 
 from iblutil.util import flatten
 
+"""dict: The ALF part names and their definitions."""
 SPEC_DESCRIPTION = {
     'lab': 'The name of the lab where the data were collected (optional).',
     'Subjects': 'An optional directory to indicate that the experiment data are divided by '
@@ -95,7 +96,7 @@ SESSION_SPEC = '({lab}/Subjects/)?{subject}/{date}/{number}'
 COLLECTION_SPEC = r'({collection}/)?(#{revision}#/)?'
 """str: The collection and revision specification pattern"""
 
-FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}_?{timescale}*\.?{extra}*\.{extension}$'
+FILE_SPEC = r'_?{namespace}?_?{object}\.{attribute}(?:_{timescale})?(?:\.{extra})*\.{extension}$'
 """str: The filename specification pattern"""
 
 REL_PATH_SPEC = f'{COLLECTION_SPEC}{FILE_SPEC}'
@@ -117,7 +118,7 @@ _DEFAULT = (
     # to treat _times and _intervals as timescale: (?P<attribute>[a-zA-Z]+)_?
     # (?:_[a-z]+_)? allows attribute level namespaces (deprecated)
     ('attribute', r'(?:_[a-z]+_)?[a-zA-Z0-9]+(?:_times(?=[_.])|_intervals(?=[_.]))?'),  # brackets
-    ('timescale', r'(?:_?)\w+'),  # brackets
+    ('timescale', r'\w+'),  # brackets
     ('extra', r'[.\w-]+'),  # brackets
     ('extension', r'\w+')
 )

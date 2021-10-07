@@ -408,8 +408,8 @@ def dataset_record_to_url(dataset_record) -> list:
 
 class AlyxClient():
     """
-    Class that implements simple GET/POST wrappers for the Alyx REST API
-    http://alyx.readthedocs.io/en/latest/api.html  # FIXME old link
+    Class that implements simple GET/POST wrappers for the Alyx REST API.
+    See https://openalyx.internationalbrainlab.org/docs
     """
     _token = None
     _headers = None  # Headers for REST requests only
@@ -471,13 +471,9 @@ class AlyxClient():
         """pathlib.Path: The location of the downloaded file cache"""
         return Path(self._par.CACHE_DIR)
 
+    @property
     def is_logged_in(self):
-        """Check if user logged into Alyx database
-
-        Returns
-        -------
-            True if user is authenticated
-        """
+        """bool: Check if user logged into Alyx database; True if user is authenticated"""
         return self._token and self.user and self._headers and 'Authorization' in self._headers
 
     def list_endpoints(self):
@@ -564,11 +560,19 @@ class AlyxClient():
                 f"Can't connect to {self.base_url}.\n" +
                 "Check your internet connections and Alyx database firewall"
             )
-        # Assign token or raise exception on internal server error
-        self._token = rep.json() if rep.ok else rep.raise_for_status()
-        if not (list(self._token.keys()) == ['token']):
-            _logger.error(rep)
-            raise Exception('Alyx authentication error. Check your credentials')
+        # Assign token or raise exception on auth error
+        if rep.ok:
+            self._token = rep.json()
+            assert list(self._token.keys()) == ['token']
+        else:
+            if rep.status_code == 400:  # Auth error; re-raise with details
+                redacted = '*' * len(credentials['password']) if credentials['password'] else None
+                message = ('Alyx authentication failed with credentials: '
+                           f'user = {credentials["username"]}, password = {redacted}')
+                raise requests.HTTPError(rep.status_code, rep.url, message, response=rep)
+            else:
+                rep.raise_for_status()
+
         self._headers = {
             'Authorization': 'Token {}'.format(list(self._token.values())[0]),
             'Accept': 'application/json'}
@@ -588,7 +592,7 @@ class AlyxClient():
         """Log out from Alyx
         Deletes the cached authentication token for the currently logged-in user
         """
-        if not self.is_logged_in():
+        if not self.is_logged_in:
             return
         par = one.params.get(client=self.base_url, silent=True)
         username = self.user
@@ -658,7 +662,14 @@ class AlyxClient():
             password=self._par.HTTP_DATA_SERVER_PWD,
             **kwargs
         )
-        return download_fcn(url, **pars)
+        try:
+            files = download_fcn(url, **pars)
+        except HTTPError as ex:
+            if ex.code == 401:
+                ex.msg += (' - please check your HTTP_DATA_SERVER_LOGIN and '
+                           'HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs')
+            raise ex
+        return files
 
     def download_cache_tables(self):
         """Downloads the Alyx cache tables to the local data cache directory
@@ -669,7 +680,7 @@ class AlyxClient():
         """
         # query the database for the latest cache; expires=None overrides cached response
         self.cache_dir.mkdir(exist_ok=True)
-        if not self.is_logged_in():
+        if not self.is_logged_in:
             self.authenticate()
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(f'{self.base_url}/cache.zip',
