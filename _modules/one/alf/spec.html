@@ -196,7 +196,7 @@
 <span class="n">COLLECTION_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(</span><span class="si">{collection}</span><span class="s1">/)?(#</span><span class="si">{revision}</span><span class="s1">#/)?&#39;</span>
 <span class="sd">&quot;&quot;&quot;str: The collection and revision specification pattern&quot;&quot;&quot;</span>
 
-<span class="n">FILE_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_?</span><span class="si">{namespace}</span><span class="s1">?_?</span><span class="si">{object}</span><span class="s1">\.</span><span class="si">{attribute}</span><span class="s1">_?</span><span class="si">{timescale}</span><span class="s1">*\.?</span><span class="si">{extra}</span><span class="s1">*\.</span><span class="si">{extension}</span><span class="s1">$&#39;</span>
+<span class="n">FILE_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_?</span><span class="si">{namespace}</span><span class="s1">?_?</span><span class="si">{object}</span><span class="s1">\.</span><span class="si">{attribute}</span><span class="s1">(?:_</span><span class="si">{timescale}</span><span class="s1">)?(?:\.</span><span class="si">{extra}</span><span class="s1">)*\.</span><span class="si">{extension}</span><span class="s1">$&#39;</span>
 <span class="sd">&quot;&quot;&quot;str: The filename specification pattern&quot;&quot;&quot;</span>
 
 <span class="n">REL_PATH_SPEC</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}{</span><span class="n">FILE_SPEC</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -218,7 +218,7 @@
     <span class="c1"># to treat _times and _intervals as timescale: (?P&lt;attribute&gt;[a-zA-Z]+)_?</span>
     <span class="c1"># (?:_[a-z]+_)? allows attribute level namespaces (deprecated)</span>
     <span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;(?:_[a-z]+_)?[a-zA-Z0-9]+(?:_times(?=[_.])|_intervals(?=[_.]))?&#39;</span><span class="p">),</span>  <span class="c1"># brackets</span>
-    <span class="p">(</span><span class="s1">&#39;timescale&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;(?:_?)\w+&#39;</span><span class="p">),</span>  <span class="c1"># brackets</span>
+    <span class="p">(</span><span class="s1">&#39;timescale&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">),</span>  <span class="c1"># brackets</span>
     <span class="p">(</span><span class="s1">&#39;extra&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;[.\w-]+&#39;</span><span class="p">),</span>  <span class="c1"># brackets</span>
     <span class="p">(</span><span class="s1">&#39;extension&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">)</span>
 <span class="p">)</span>

@@ -332,7 +332,7 @@ with regular expressions permitted.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Filter by dataset name and collection</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="s1">&#39;*.spikes.times.*&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe00&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="s1">&#39;.*spikes.times.*&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe00&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Filter datasets not in a collection</p>
@@ -341,7 +341,7 @@ with regular expressions permitted.</p></li>
 </div>
 <p>Filter by matching revision</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                       <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-12&#39;</span><span class="p">,</span> <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">... </span>                           <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-12&#39;</span><span class="p">,</span> <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Filter by filename parts</p>

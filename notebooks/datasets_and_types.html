@@ -382,7 +382,7 @@ datasets_and_types.ipynb"><button id="github">Github link</button></a><section i
 <h1>Datasets and their types<a class="headerlink" href="#Datasets-and-their-types" title="Permalink to this headline"></a></h1>
 <p>A dataset typically contains a single signal or data source, either values or times. When creating a new dataset, first familiarize yourself with the <a class="reference external" href="../alf_intro.html">ALF specification</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -396,7 +396,7 @@ datasets_and_types.ipynb"><button id="github">Github link</button></a><section i
 <h2>Datasets<a class="headerlink" href="#Datasets" title="Permalink to this headline"></a></h2>
 <p>Print information about ALF objects</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -429,7 +429,7 @@ remember we count arrays starting from 0.
 </div>
 <p>Check the file name is ALF compliant</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -439,7 +439,7 @@ remember we count arrays starting from 0.
 </div>
 <p>Safely construct an ALF dataset using the ‘to_alf’ function. This will ensure the correct case and format</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -450,7 +450,7 @@ remember we count arrays starting from 0.
 </div>
 <p>Parsing a new file into its constituent parts ensures the dataset is correct</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -464,7 +464,12 @@ remember we count arrays starting from 0.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;), (&#39;object&#39;, &#39;spikes&#39;), (&#39;attribute&#39;, &#39;times&#39;), (&#39;timescale&#39;, &#39;ephysClock&#39;), (&#39;extra&#39;, &#39;raw&#39;), (&#39;extension&#39;, &#39;npy&#39;)])
+OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;),
+             (&#39;object&#39;, &#39;spikes&#39;),
+             (&#39;attribute&#39;, &#39;times&#39;),
+             (&#39;timescale&#39;, &#39;ephysClock&#39;),
+             (&#39;extra&#39;, &#39;raw&#39;),
+             (&#39;extension&#39;, &#39;npy&#39;)])
 </pre></div></div>
 </div>
 </section>
@@ -480,7 +485,7 @@ OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;), (&#39;object&#39;, &#39;spike
 <p>When registering files they must match exactly 1 dataset type.</p>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
@@ -499,7 +504,7 @@ OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;), (&#39;object&#39;, &#39;spike
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -513,13 +518,16 @@ OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;), (&#39;object&#39;, &#39;spike
 </div>
 <p>Datasets and their types can be interconverted using the following functions (online mode only):</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">dataset_type</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">dataset2type</span><span class="p">(</span><span class="s1">&#39;_ibl_leftCamera.times.npy&#39;</span><span class="p">)</span>
-<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">type2datasets</span><span class="p">(</span><span class="s1">&#39;camera.times&#39;</span><span class="p">)</span>
+<span></span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>
+<span class="n">dataset_type</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">dataset2type</span><span class="p">(</span><span class="s1">&#39;_ibl_leftCamera.times.npy&#39;</span><span class="p">)</span>
+<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">type2datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;camera.times&#39;</span><span class="p">)</span>
 
+<span class="n">dset_list</span> <span class="o">=</span> <span class="s1">&#39;&quot;, &quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the dataset type &quot;</span><span class="si">{</span><span class="n">dataset_type</span><span class="si">}</span><span class="s1">&quot; for </span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s1"> comprises the datasets: </span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">dset_list</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -528,35 +536,8 @@ OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;), (&#39;object&#39;, &#39;spike
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">~\AppData\Local\Temp/ipykernel_4060/424116195.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">      1</span> dataset_type <span class="ansi-yellow-intense-fg ansi-bold">=</span> one<span class="ansi-yellow-intense-fg ansi-bold">.</span>dataset2type<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;_ibl_leftCamera.times.npy&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 2</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>datasets <span class="ansi-yellow-intense-fg ansi-bold">=</span> one<span class="ansi-yellow-intense-fg ansi-bold">.</span>type2datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;camera.times&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">      3</span>
-
-<span class="ansi-green-intense-fg ansi-bold">~\Documents\Github\ONE\one\util.py</span> in <span class="ansi-cyan-fg">wrapper</span><span class="ansi-blue-intense-fg ansi-bold">(self, id, *args, **kwargs)</span>
-<span class="ansi-green-fg">    115</span>     <span class="ansi-yellow-intense-fg ansi-bold">@</span>wraps<span class="ansi-yellow-intense-fg ansi-bold">(</span>method<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    116</span>     <span class="ansi-green-intense-fg ansi-bold">def</span> wrapper<span class="ansi-yellow-intense-fg ansi-bold">(</span>self<span class="ansi-yellow-intense-fg ansi-bold">,</span> id<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span>args<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-yellow-intense-fg ansi-bold">**</span>kwargs<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 117</span><span class="ansi-yellow-intense-fg ansi-bold">         </span>eid <span class="ansi-yellow-intense-fg ansi-bold">=</span> self<span class="ansi-yellow-intense-fg ansi-bold">.</span>to_eid<span class="ansi-yellow-intense-fg ansi-bold">(</span>id<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    118</span>         <span class="ansi-green-intense-fg ansi-bold">if</span> eid <span class="ansi-green-intense-fg ansi-bold">is</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-fg">    119</span>             <span class="ansi-green-intense-fg ansi-bold">raise</span> ValueError<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">f&#39;Cannot parse session ID &#34;{id}&#34; (session may not exist)&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-
-<span class="ansi-green-intense-fg ansi-bold">~\Documents\Github\ONE\one\converters.py</span> in <span class="ansi-cyan-fg">wrapper_decorator</span><span class="ansi-blue-intense-fg ansi-bold">(*args, **kwargs)</span>
-<span class="ansi-green-fg">     38</span>             <span class="ansi-green-intense-fg ansi-bold">return</span> <span class="ansi-yellow-intense-fg ansi-bold">[</span>func<span class="ansi-yellow-intense-fg ansi-bold">(</span>obj<span class="ansi-yellow-intense-fg ansi-bold">,</span> item<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span>args<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">2</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-yellow-intense-fg ansi-bold">**</span>kwargs<span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-green-intense-fg ansi-bold">for</span> item <span class="ansi-green-intense-fg ansi-bold">in</span> first<span class="ansi-yellow-intense-fg ansi-bold">]</span>
-<span class="ansi-green-fg">     39</span>         <span class="ansi-green-intense-fg ansi-bold">else</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 40</span><span class="ansi-yellow-intense-fg ansi-bold">             </span><span class="ansi-green-intense-fg ansi-bold">return</span> func<span class="ansi-yellow-intense-fg ansi-bold">(</span>obj<span class="ansi-yellow-intense-fg ansi-bold">,</span> first<span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-yellow-intense-fg ansi-bold">*</span>args<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-cyan-intense-fg ansi-bold">2</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-yellow-intense-fg ansi-bold">]</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-yellow-intense-fg ansi-bold">**</span>kwargs<span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">     41</span>     <span class="ansi-green-intense-fg ansi-bold">return</span> wrapper_decorator
-<span class="ansi-green-fg">     42</span>
-
-<span class="ansi-green-intense-fg ansi-bold">~\Documents\Github\ONE\one\converters.py</span> in <span class="ansi-cyan-fg">to_eid</span><span class="ansi-blue-intense-fg ansi-bold">(self, id, cache_dir)</span>
-<span class="ansi-green-fg">    103</span>                 id <span class="ansi-yellow-intense-fg ansi-bold">=</span> id<span class="ansi-yellow-intense-fg ansi-bold">[</span><span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-cyan-intense-fg ansi-bold">36</span><span class="ansi-yellow-intense-fg ansi-bold">:</span><span class="ansi-yellow-intense-fg ansi-bold">]</span>
-<span class="ansi-green-fg">    104</span>             <span class="ansi-green-intense-fg ansi-bold">if</span> <span class="ansi-green-intense-fg ansi-bold">not</span> is_uuid_string<span class="ansi-yellow-intense-fg ansi-bold">(</span>id<span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 105</span><span class="ansi-yellow-intense-fg ansi-bold">                 </span><span class="ansi-green-intense-fg ansi-bold">raise</span> ValueError<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-blue-intense-fg ansi-bold">&#39;Invalid experiment ID&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
-<span class="ansi-green-fg">    106</span>             <span class="ansi-green-intense-fg ansi-bold">else</span><span class="ansi-yellow-intense-fg ansi-bold">:</span>
-<span class="ansi-green-fg">    107</span>                 <span class="ansi-green-intense-fg ansi-bold">return</span> id
-
-<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: Invalid experiment ID
+the dataset type &#34;camera.times&#34; for KS023/2019-12-10/001 comprises the datasets:
+&#34;alf/_ibl_bodyCamera.times.npy&#34;, &#34;alf/_ibl_leftCamera.times.npy&#34;, &#34;alf/_ibl_rightCamera.times.npy&#34;
 </pre></div></div>
 </div>
 </section>

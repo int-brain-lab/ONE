@@ -558,7 +558,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;subject&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="One.list_datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
@@ -571,13 +571,13 @@
 <span class="sd">        eid : str, UUID, pathlib.Path, dict</span>
 <span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
 <span class="sd">            details dict or Path.</span>
-<span class="sd">        collection : str</span>
+<span class="sd">        filename : str, dict, list</span>
+<span class="sd">            Filters datasets and returns only the ones matching the filename</span>
+<span class="sd">            Supports lists asterisks as wildcards.  May be a dict of ALF parts.</span>
+<span class="sd">        collection : str, list</span>
 <span class="sd">            The collection to which the object belongs, e.g. &#39;alf/probe01&#39;.</span>
 <span class="sd">            This is the relative path of the file from the session root.</span>
 <span class="sd">            Supports asterisks as wildcards.</span>
-<span class="sd">        filename : str</span>
-<span class="sd">            Filters datasets and returns only the ones matching the filename</span>
-<span class="sd">            Supports asterisks as wildcards</span>
 <span class="sd">        revision : str</span>
 <span class="sd">            Filters datasets and returns only the ones matching the revision</span>
 <span class="sd">            Supports asterisks as wildcards</span>
@@ -591,6 +591,28 @@
 <span class="sd">        -------</span>
 <span class="sd">        np.ndarray, pd.DataFrame</span>
 <span class="sd">            Slice of datasets table or numpy array if details is False</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        List all unique datasets in ONE cache</span>
+
+<span class="sd">        &gt;&gt;&gt; datasets = one.list_datasets()</span>
+
+<span class="sd">        List all datasets for a given experiment</span>
+
+<span class="sd">        &gt;&gt;&gt; datasets = one.list_datasets(eid)</span>
+
+<span class="sd">        List all datasets for an experiment that match a collection name</span>
+
+<span class="sd">        &gt;&gt;&gt; probe_datasets = one.list_datasets(eid, collection=&#39;*probe*&#39;)</span>
+
+<span class="sd">        List datasets for an experiment that have &#39;wheel&#39; in the filename</span>
+
+<span class="sd">        &gt;&gt;&gt; datasets = one.list_datasets(eid, filename=&#39;*wheel*&#39;)</span>
+
+<span class="sd">        List datasets for an experiment that are part of a &#39;wheel&#39; or &#39;trial(s)&#39; object</span>
+
+<span class="sd">        &gt;&gt;&gt; datasets = one.list_datasets(eid, {&#39;object&#39;: [&#39;wheel&#39;, &#39;trial?&#39;]})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
         <span class="n">filter_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">,</span>
@@ -615,11 +637,10 @@
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="One.list_collections"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_collections">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">list_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">list_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        List the collections for a given experiment.  If no experiment id is given,</span>
+<span class="sd">        List the collections for a given experiment.  If no experiment ID is given,</span>
 <span class="sd">        all collections are returned.</span>
 
 <span class="sd">        Parameters</span>
@@ -627,14 +648,50 @@
 <span class="sd">        eid : [str, UUID, Path, dict]</span>
 <span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
 <span class="sd">            details dict or Path</span>
+<span class="sd">        filename : str, dict, list</span>
+<span class="sd">            Filters datasets and returns only the collections containing matching datasets.</span>
+<span class="sd">            Supports lists asterisks as wildcards.  May be a dict of ALF parts.</span>
+<span class="sd">        collection : str, list</span>
+<span class="sd">            Filter by a given pattern. Supports asterisks as wildcards.</span>
+<span class="sd">        revision : str</span>
+<span class="sd">            Filters collections and returns only the ones with the matching revision.</span>
+<span class="sd">            Supports asterisks as wildcards</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            If true a dict of pandas datasets tables is returned with collections as keys,</span>
 <span class="sd">            otherwise a numpy array of unique collections</span>
+<span class="sd">        query_type : str</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list, dict</span>
 <span class="sd">            A list of unique collections or dict of datasets tables</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        List all unique collections in ONE cache</span>
+
+<span class="sd">        &gt;&gt;&gt; collections = one.list_collections()</span>
+
+<span class="sd">        List all collections for a given experiment</span>
+
+<span class="sd">        &gt;&gt;&gt; collections = one.list_collections(eid)</span>
+
+<span class="sd">        List all collections for a given experiment and revision</span>
+
+<span class="sd">        &gt;&gt;&gt; revised = one.list_collections(eid, revision=&#39;2020-01-01&#39;)</span>
+
+<span class="sd">        List all collections that have &#39;probe&#39; in the name.</span>
+
+<span class="sd">        &gt;&gt;&gt; collections = one.list_collections(eid, collection=&#39;*probe*&#39;)</span>
+
+<span class="sd">        List collections for an experiment that have datasets with &#39;wheel&#39; in the name</span>
+
+<span class="sd">        &gt;&gt;&gt; collections = one.list_collections(eid, filename=&#39;*wheel*&#39;)</span>
+
+<span class="sd">        List collections for an experiment that contain numpy datasets</span>
+
+<span class="sd">        &gt;&gt;&gt; collections = one.list_collections(eid, {&#39;extension&#39;: &#39;npy&#39;})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filter_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">eid</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
                              <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">)</span>
@@ -650,29 +707,60 @@
             <span class="k">return</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="One.list_revisions"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_revisions">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">list_revisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">list_revisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List the revisions for a given experiment.  If no experiment id is given,</span>
 <span class="sd">        all collections are returned.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        eid : [str, UUID, Path, dict]</span>
+<span class="sd">        eid : str, UUID, Path, dict</span>
 <span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
 <span class="sd">            details dict or Path</span>
+<span class="sd">        filename : str, dict, list</span>
+<span class="sd">            Filters datasets and returns only the revisions containing matching datasets.</span>
+<span class="sd">            Supports lists asterisks as wildcards.  May be a dict of ALF parts.</span>
+<span class="sd">        collection : str, list</span>
+<span class="sd">            Filter by a given collection. Supports asterisks as wildcards.</span>
+<span class="sd">        revision : str, list</span>
+<span class="sd">            Filter by a given pattern. Supports asterisks as wildcards.</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            If true a dict of pandas datasets tables is returned with collections as keys,</span>
 <span class="sd">            otherwise a numpy array of unique collections</span>
+<span class="sd">        query_type : str</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list, dict</span>
 <span class="sd">            A list of unique collections or dict of datasets tables</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        List all revisions in ONE cache</span>
+
+<span class="sd">        &gt;&gt;&gt; revisions = one.list_revisions()</span>
+
+<span class="sd">        List all revisions for a given experiment</span>
+
+<span class="sd">        &gt;&gt;&gt; revisions = one.list_revisions(eid)</span>
+
+<span class="sd">        List all revisions for a given experiment that contain the trials object</span>
+
+<span class="sd">        &gt;&gt;&gt; revisions = one.list_revisions(eid, filename={&#39;object&#39;: &#39;trials&#39;})</span>
+
+<span class="sd">        List all revisions for a given experiment that start with 2020 or 2021</span>
+
+<span class="sd">        &gt;&gt;&gt; revisions = one.list_revisions(eid, revision=[&#39;202[01]*&#39;])</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">dataset</span><span class="p">:</span>
-            <span class="n">match</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">rel_path</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-            <span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[</span><span class="n">match</span><span class="p">]</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Call filter util ourselves with the revision_last_before set to False</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
+                      <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">rel_path</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">rel_path_parts</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
         <span class="p">)</span>
@@ -1328,19 +1416,20 @@
         <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="OneAlyx.list_datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.list_datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-        <span class="n">filter_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">eid</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
-                             <span class="n">details</span><span class="o">=</span><span class="n">details</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;remote&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="o">**</span><span class="n">filter_kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">details</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to list all remote datasets&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="o">**</span><span class="n">filter_kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">details</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
         <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>  <span class="c1"># Ensure we have a UUID str list</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Return empty</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ses2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">eid</span><span class="p">))</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_datasets</span><span class="p">(</span>
+            <span class="n">datasets</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
         <span class="c1"># Return only the relative path</span>
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 

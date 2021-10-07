@@ -391,7 +391,7 @@ div.rendered_html tbody tr:hover {
 one_load.ipynb"><button id="github">Github link</button></a><section id="Loading-with-ONE">
 <h1>Loading with ONE<a class="headerlink" href="#Loading-with-ONE" title="Permalink to this headline"></a></h1>
 <p>The datasets are organized into directory trees by subject, date and session number. For a given session there are data files grouped by object (e.g. ‘trials’), each with a specific attribute (e.g. ‘rewardVolume’). The dataset name follows the pattern ‘object.attribute’, for example ‘trials.rewardVolume’. For more information, see the <a class="reference external" href="../alyx_files.html">ALF documentation</a>.</p>
-<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. ‘C:UsersSubjectsKS0232019-12-10001’), or a UUID (aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
+<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span>:nbsphinx-math:<a href="#id1"><span class="problematic" id="id2">`</span></a>KS`0232019-12-10001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
 <p>If the data don’t exist locally, they will be downloaded, then loaded.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
@@ -526,8 +526,7 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;clusters.waveforms.npy&#39;</span><span class="p">],</span>
+<span></span><span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters.waveforms.npy&#39;</span><span class="p">],</span>
                                <span class="n">collections</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;alf&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe01&#39;</span><span class="p">])</span>
 </pre></div>
 </div>

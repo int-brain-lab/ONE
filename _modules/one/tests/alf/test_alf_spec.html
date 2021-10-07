@@ -120,8 +120,8 @@
                     <span class="s1">&#39;((?P&lt;collection&gt;[</span><span class="se">\\</span><span class="s1">w/]+)/)?(#(?P&lt;revision&gt;[</span><span class="se">\\</span><span class="s1">w-]+)#/)?&#39;</span>
                     <span class="s1">&#39;_?(?P&lt;namespace&gt;(?&lt;=_)[a-zA-Z0-9]+)?_?(?P&lt;object&gt;</span><span class="se">\\</span><span class="s1">w+)</span><span class="se">\\</span><span class="s1">.&#39;</span>
                     <span class="s1">&#39;(?P&lt;attribute&gt;(?:_[a-z]+_)?[a-zA-Z0-9]+&#39;</span>
-                    <span class="s1">&#39;(?:_times(?=[_.])|_intervals(?=[_.]))?)_?&#39;</span>
-                    <span class="s1">&#39;(?P&lt;timescale&gt;(?:_?)</span><span class="se">\\</span><span class="s1">w+)*</span><span class="se">\\</span><span class="s1">.?(?P&lt;extra&gt;[.</span><span class="se">\\</span><span class="s1">w-]+)*</span><span class="se">\\</span><span class="s1">.(?P&lt;extension&gt;</span><span class="se">\\</span><span class="s1">w+)$&#39;</span><span class="p">)</span>
+                    <span class="s1">&#39;(?:_times(?=[_.])|_intervals(?=[_.]))?)&#39;</span>
+                    <span class="s1">&#39;(?:_(?P&lt;timescale&gt;</span><span class="se">\\</span><span class="s1">w+))?(?:</span><span class="se">\\</span><span class="s1">.(?P&lt;extra&gt;[.</span><span class="se">\\</span><span class="s1">w-]+))*</span><span class="se">\\</span><span class="s1">.(?P&lt;extension&gt;</span><span class="se">\\</span><span class="s1">w+)$&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
 
         <span class="c1"># Should return only the filename regex pattern</span>

@@ -298,7 +298,7 @@ details dict or Path.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.list_datasets">
-<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_datasets" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_datasets" title="Permalink to this definition"></a></dt>
 <dd><p>Given an eid, return the datasets for those sessions.  If no eid is provided,
 a list of all datasets is returned.  When details is false, a sorted array of unique
 datasets is returned (their relative paths).</p>
@@ -307,11 +307,11 @@ datasets is returned (their relative paths).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename
+Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
+<li><p><strong>collection</strong> (<em>str</em><em>, </em><em>list</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the filename
-Supports asterisks as wildcards</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision
 Supports asterisks as wildcards</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
@@ -326,20 +326,47 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 <dd class="field-odd"><p>np.ndarray, pd.DataFrame</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>List all unique datasets in ONE cache</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>List all datasets for a given experiment</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all datasets for an experiment that match a collection name</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probe_datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List datasets for an experiment that have ‘wheel’ in the filename</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*wheel*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List datasets for an experiment that are part of a ‘wheel’ or ‘trial(s)’ object</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wheel&#39;</span><span class="p">,</span> <span class="s1">&#39;trial?&#39;</span><span class="p">]})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.list_collections">
-<span class="sig-name descname"><span class="pre">list_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_collections" title="Permalink to this definition"></a></dt>
-<dd><p>List the collections for a given experiment.  If no experiment id is given,
+<span class="sig-name descname"><span class="pre">list_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#One.list_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_collections" title="Permalink to this definition"></a></dt>
+<dd><p>List the collections for a given experiment.  If no experiment ID is given,
 all collections are returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>[</em><em>str</em><em>, </em><em>UUID</em><em>, </em><em>Path</em><em>, </em><em>dict</em><em>]</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the collections containing matching datasets.
+Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
+<li><p><strong>collection</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given pattern. Supports asterisks as wildcards.</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters collections and returns only the ones with the matching revision.
+Supports asterisks as wildcards</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – If true a dict of pandas datasets tables is returned with collections as keys,
 otherwise a numpy array of unique collections</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -349,20 +376,50 @@ otherwise a numpy array of unique collections</p></li>
 <dd class="field-odd"><p>list, dict</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>List all unique collections in ONE cache</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>List all collections for a given experiment</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all collections for a given experiment and revision</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revised</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all collections that have ‘probe’ in the name.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List collections for an experiment that have datasets with ‘wheel’ in the name</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*wheel*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List collections for an experiment that contain numpy datasets</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.list_revisions">
-<span class="sig-name descname"><span class="pre">list_revisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.list_revisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_revisions" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_revisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.list_revisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.list_revisions" title="Permalink to this definition"></a></dt>
 <dd><p>List the revisions for a given experiment.  If no experiment id is given,
 all collections are returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>eid</strong> (<em>[</em><em>str</em><em>, </em><em>UUID</em><em>, </em><em>Path</em><em>, </em><em>dict</em><em>]</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the revisions containing matching datasets.
+Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
+<li><p><strong>collection</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given collection. Supports asterisks as wildcards.</p></li>
+<li><p><strong>revision</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given pattern. Supports asterisks as wildcards.</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – If true a dict of pandas datasets tables is returned with collections as keys,
 otherwise a numpy array of unique collections</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -372,6 +429,23 @@ otherwise a numpy array of unique collections</p></li>
 <dd class="field-odd"><p>list, dict</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>List all revisions in ONE cache</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>List all revisions for a given experiment</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all revisions for a given experiment that contain the trials object</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="s1">&#39;trials&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>List all revisions for a given experiment that start with 2020 or 2021</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;202[01]*&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -681,7 +755,7 @@ location is used.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.list_datasets">
-<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.list_datasets" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.list_datasets" title="Permalink to this definition"></a></dt>
 <dd><p>Given an eid, return the datasets for those sessions.  If no eid is provided,
 a list of all datasets is returned.  When details is false, a sorted array of unique
 datasets is returned (their relative paths).</p>
@@ -690,11 +764,11 @@ datasets is returned (their relative paths).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>collection</strong> (<em>str</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename
+Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
+<li><p><strong>collection</strong> (<em>str</em><em>, </em><em>list</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the filename
-Supports asterisks as wildcards</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision
 Supports asterisks as wildcards</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
@@ -709,6 +783,27 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 <dd class="field-odd"><p>np.ndarray, pd.DataFrame</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>List all unique datasets in ONE cache</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>List all datasets for a given experiment</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List all datasets for an experiment that match a collection name</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probe_datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List datasets for an experiment that have ‘wheel’ in the filename</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*wheel*&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>List datasets for an experiment that are part of a ‘wheel’ or ‘trial(s)’ object</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wheel&#39;</span><span class="p">,</span> <span class="s1">&#39;trial?&#39;</span><span class="p">]})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
