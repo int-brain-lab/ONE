@@ -101,8 +101,8 @@ class Tests_REST(unittest.TestCase):
                 'x': np.random.randint(-2000, 2000),
                 'y': np.random.randint(-2000, 2000),
                 'z': np.random.randint(-2000, 2000),
-                'axial': np.random.randint(1, 40) * 20,
-                'lateral': np.random.randint(1, 4) * 4,
+                'axial': np.random.rand() * 800,
+                'lateral': np.random.rand() * 8,
                 'brain_region': 889,
                 'trajectory_estimate': trajectory['id']
             })
