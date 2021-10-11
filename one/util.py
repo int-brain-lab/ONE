@@ -241,6 +241,42 @@ def _collection_spec(collection=None, revision=None) -> str:
     return spec
 
 
+def _file_spec(**kwargs):
+    """
+    Return a template string for a ALF dataset regular expression.  Because 'namespace',
+    'timescale', and 'extra' are optional None will match any (including absent).  This function
+    removes the regex flags from the file spec string that make certain parts optional.
+
+    TODO an empty string should only match absent; this could be achieved by removing parts from
+     spec string
+
+    Parameters
+    ----------
+    namespace : None, str
+        If namespace is not None, the namespace section of the returned file spec will not be
+        optional.
+    timescale : None, str
+        If timescale is not None, the namespace section of the returned file spec will not be
+        optional.
+    extra : None, str
+        If extra is not None, the namespace section of the returned file spec will not be
+        optional.
+
+    Returns
+    -------
+    str
+        A string format for matching an ALF dataset
+    """
+    OPTIONAL = {'namespace': '?', 'timescale': '?', 'extra': '*'}
+    filespec = FILE_SPEC
+    for k, v in kwargs.items():
+        if k in OPTIONAL and v is not None:
+            i = filespec.find(k) + len(k)
+            i += filespec[i:].find(OPTIONAL[k])
+            filespec = filespec[:i] + filespec[i:].replace(OPTIONAL[k], '', 1)
+    return filespec
+
+
 def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
                     revision_last_before=True, assert_unique=True, wildcards=False):
     """
@@ -277,7 +313,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     --------
     Filter by dataset name and collection
 
-    >>> datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
+    >>> datasets = filter_datasets(all_datasets, '.*spikes.times.*', 'alf/probe00')
 
     Filter datasets not in a collection
 
@@ -286,7 +322,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Filter by matching revision
 
     >>> datasets = filter_datasets(all_datasets, 'spikes.times.npy',
-    ...                        revision='2020-01-12', revision_last_before=False)
+    ...                            revision='2020-01-12', revision_last_before=False)
 
     Filter by filename parts
 
@@ -298,11 +334,12 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     spec_str = _collection_spec(collection, None if revision_last_before else revision)
 
     if isinstance(filename, dict):
-        spec_str += FILE_SPEC
+        spec_str += _file_spec(**filename)
         regex_args.update(**filename)
     else:
         # Convert to regex is necessary and assert end of string
-        spec_str += fnmatch.translate(filename) if wildcards else filename + '$'
+        filename = (fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename))
+        spec_str += '|'.join(filename)
 
     # If matching revision name, add to regex string
     if not revision_last_before:

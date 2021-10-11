@@ -20,8 +20,8 @@ class TestALFSpec(unittest.TestCase):
                     '((?P<collection>[\\w/]+)/)?(#(?P<revision>[\\w-]+)#/)?'
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
                     '(?P<attribute>(?:_[a-z]+_)?[a-zA-Z0-9]+'
-                    '(?:_times(?=[_.])|_intervals(?=[_.]))?)_?'
-                    '(?P<timescale>(?:_?)\\w+)*\\.?(?P<extra>[.\\w-]+)*\\.(?P<extension>\\w+)$')
+                    '(?:_times(?=[_.])|_intervals(?=[_.]))?)'
+                    '(?:_(?P<timescale>\\w+))?(?:\\.(?P<extra>[.\\w-]+))*\\.(?P<extension>\\w+)$')
         self.assertEqual(expected, verifiable.pattern)
 
         # Should return only the filename regex pattern
