@@ -30,6 +30,7 @@ from one.alf.files import session_path_parts, get_session_path
 import one.alf.exceptions as alferr
 from one.api import ONE
 from one.util import ensure_list
+from one.webclient import no_cache
 
 _logger = logging.getLogger(__name__)
 
@@ -291,10 +292,11 @@ class RegistrationClient:
         self.assert_exists(details['subject'], 'subjects')
 
         # look for a session from the same subject, same number on the same day
-        session_id, session = self.one.search(subject=details['subject'],
-                                              date_range=details['date'],
-                                              number=details['number'],
-                                              details=True, query_type='remote')
+        with no_cache(self.one.alyx):
+            session_id, session = self.one.search(subject=details['subject'],
+                                                  date_range=details['date'],
+                                                  number=details['number'],
+                                                  details=True, query_type='remote')
         users = ensure_list(users or self.one.alyx.user)
         self.assert_exists(users, 'users')
 

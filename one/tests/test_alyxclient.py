@@ -569,6 +569,13 @@ class TestMisc(unittest.TestCase):
         # Should prepend data server URL
         self.assertEqual(ac._validate_file_url('/path/to/file.ext'), expected)
 
+    def test_no_cache_context_manager(self):
+        """Test for one.webclient.no_cache function"""
+        assert ac.cache_mode is not None
+        with wc.no_cache(ac):
+            self.assertIsNone(ac.cache_mode)
+        self.assertIsNotNone(ac.cache_mode)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)
