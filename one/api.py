@@ -460,7 +460,6 @@ class One(ConversionMixin):
     @util.refresh
     def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
-
         """
         Given an eid, return the datasets for those sessions.  If no eid is provided,
         a list of all datasets is returned.  When details is false, a sorted array of unique

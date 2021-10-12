@@ -67,6 +67,9 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_water_administration(self.subject, volume, session='NaN')
         with self.assertRaises(ValueError):
             self.client.register_water_administration(self.subject, .0)
+        with unittest.mock.patch.object(self.client.one, 'to_eid', return_value=None),\
+             self.assertRaises(ValueError):
+            self.client.register_water_administration(self.subject, 3.6, session=ses['url'])
 
     def test_register_weight(self):
         """Test for RegistrationClient.register_weight"""
@@ -134,7 +137,9 @@ class TestRegistrationClient(unittest.TestCase):
     def test_register_session(self):
         """Test for RegistrationClient.register_session"""
         datasets = self.one.list_datasets(self.one.search()[0])  # Some datasets to create
-        session_path = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001')
+        session_path = self.one.alyx.cache_dir.joinpath(
+            'mainenlab', 'Subjects', self.subject, '2020-01-01', '001'
+        )
         # Ensure session exists
         file_list = [session_path.joinpath(x) for x in datasets]
         # Create the files before registering
@@ -149,6 +154,15 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(len(ses['data_dataset_session_related']), len(recs))
         self.assertTrue(isinstance(ses['procedures'], list) and len(ses['procedures']) == 1)
         self.assertEqual(ses['end_time'], '2020-01-02T00:00:00')
+
+        # Check value error raised when provided lab name doesn't match
+        with self.assertRaises(ValueError):
+            self.client.register_session(str(session_path), lab='cortexlab')
+
+        # Check updating existing session
+        start_time = '2020-01-01T10:36:10'
+        ses, _ = self.client.register_session(str(session_path), start_time=start_time)
+        self.assertEqual(start_time, ses['start_time'])
 
     def test_create_sessions(self):
         """Test for RegistrationClient.create_sessions"""

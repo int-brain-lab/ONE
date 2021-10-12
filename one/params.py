@@ -195,10 +195,25 @@ def get(client=None, silent=False):
     return iopar.read(f'{_PAR_ID_STR}/{client_key or cache_map.DEFAULT}').set('CACHE_DIR', cache)
 
 
-def get_default_client():
-    """Returns the default AlyxClient URL, or None if no default is set."""
+def get_default_client(include_schema=True) -> str:
+    """Returns the default AlyxClient URL, or None if no default is set
+
+    Parameters
+    ----------
+    include_schema : bool
+        When True, the URL schema is included (i.e. http(s)://).  Set to False to return the URL
+        as a client key.
+
+    Returns
+    -------
+    str
+        The default database URL with or without the schema, or None if no default is set
+    """
     cache_map = iopar.as_dict(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})) or {}
-    return cache_map.get('DEFAULT', None)
+    client_key = cache_map.get('DEFAULT', None)
+    if not client_key or include_schema is False:
+        return client_key
+    return get(client_key).ALYX_URL
 
 
 def save(par, client):

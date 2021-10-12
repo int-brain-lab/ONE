@@ -1,7 +1,16 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.5.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.5.1]
 
 ### Modified
+
+- HOTFIX: correct kwarg name in setup documentation; get_default_client includes schema in URL
+- minor improvements to documentation and test coverage
+- raise ValueError in register_session when lab doesn't match parsed session path
+
+## [1.5.0]
+
+### Modified
+
 - fix bug where filters don't work in remote list_datasets
 - change order of kwargs in list_datasets: filename now the first kwarg
 - can now filter by list of filename strings functioning as a logical OR

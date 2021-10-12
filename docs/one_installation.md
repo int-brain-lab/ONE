@@ -57,5 +57,5 @@ one = ONE()
 
 To change your default database, or re-run the setup for a given database, you can use the following
 ```python
-one = ONE().setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
+one = ONE().setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 ```

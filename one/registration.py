@@ -225,6 +225,9 @@ class RegistrationClient:
         """
         Register session in Alyx
 
+        NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
+        and date of the session path.
+
         Parameters
         ----------
         ses_path : str, pathlib.Path
@@ -250,6 +253,15 @@ class RegistrationClient:
             The experiment type, e.g. 'Experiment', 'Base'
         task_protocol : str
             The task protocol (optional)
+        lab : str
+            The name of the lab where the session took place.  If None the lab name will be
+            taken from the path.  If no lab name is found in the path (i.e. no <lab>/Subjects)
+            the default lab on Alyx will be used.
+        start_time : str, datetime.datetime
+            The precise start time of the session.  The date must match the date in the session
+            path.
+        end_time : str, datetime.datetime
+            The precise end time of the session.
 
         Returns
         -------
@@ -257,6 +269,20 @@ class RegistrationClient:
             An Alyx session record
         list, None
             Alyx file records (or None if file_list is False)
+
+        Raises
+        ------
+        AssertionError
+            Subject does not exist on Alyx or provided start_time does not match date in
+            session path.
+        ValueError
+            The provided lab name does not match the one found in the session path or
+            start_time/end_time is not a valid ISO date time.
+        requests.HTTPError
+            A 400 status code means the submitted data was incorrect (e.g. task_protocol was an
+            int instead of a str); A 500 status code means there was a server error.
+        ConnectionError
+            Failed to connect to Alyx, most likely due to a bad internet connection.
         """
         if isinstance(ses_path, str):
             ses_path = Path(ses_path)
@@ -286,6 +312,9 @@ class RegistrationClient:
         assert ('subject', 'number') not in kwargs
         if 'lab' not in kwargs and details['lab']:
             kwargs.update({'lab': details['lab']})
+        elif details['lab'] and kwargs.get('lab', details['lab']) != details['lab']:
+            names = (kwargs['lab'], details['lab'])
+            raise ValueError('lab kwarg "%s" does not match lab name in path ("%s")' % names)
         ses_.update(kwargs)
 
         if not session:  # Create from scratch

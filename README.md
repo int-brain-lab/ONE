@@ -38,7 +38,7 @@ one = ONE()
 To set up ONE for another database and make it the default:
 ```python
 from one.api import OneAlyx, ONE
-OneAlyx.setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
+OneAlyx.setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 one = ONE()  # Connected to https://test.alyx.internationalbrainlab.org
 ```
 

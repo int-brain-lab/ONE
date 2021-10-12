@@ -54,7 +54,11 @@ class TestONEParamUtil(unittest.TestCase):
             self.assertIsNone(params.get_default_client())
             # Copy over caches fixture
             params.setup(silent=True)
-            self.assertEqual(params.get_default_client(), 'openalyx.internationalbrainlab.org')
+            client = params.get_default_client()
+            self.assertEqual(client, 'https://openalyx.internationalbrainlab.org')
+            # Test with include_schema=False
+            client = params.get_default_client(include_schema=False)
+            self.assertEqual(client, 'openalyx.internationalbrainlab.org')
 
     def test_get_cache_dir(self):
         """Test for one.params.get_cache_dir"""
