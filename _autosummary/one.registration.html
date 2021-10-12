@@ -314,6 +314,8 @@ cache directory.</p></li>
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.register_session">
 <span class="sig-name descname"><span class="pre">register_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">users</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_session" title="Permalink to this definition"></a></dt>
 <dd><p>Register session in Alyx</p>
+<p>NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
+and date of the session path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -329,6 +331,12 @@ session folder are registered.  If False, no files are registered</p></li>
 <li><p><strong>project</strong> (<em>str</em><em>, </em><em>list</em>) – The project(s) to which the experiment belongs (optional)</p></li>
 <li><p><strong>type</strong> (<em>str</em>) – The experiment type, e.g. ‘Experiment’, ‘Base’</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em>) – The task protocol (optional)</p></li>
+<li><p><strong>lab</strong> (<em>str</em>) – The name of the lab where the session took place.  If None the lab name will be
+taken from the path.  If no lab name is found in the path (i.e. no &lt;lab&gt;/Subjects)
+the default lab on Alyx will be used.</p></li>
+<li><p><strong>start_time</strong> (<em>str</em><em>, </em><em>datetime.datetime</em>) – The precise start time of the session.  The date must match the date in the session
+path.</p></li>
+<li><p><strong>end_time</strong> (<em>str</em><em>, </em><em>datetime.datetime</em>) – The precise end time of the session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -337,6 +345,17 @@ session folder are registered.  If False, no files are registered</p></li>
 <li><p><em>list, None</em> – Alyx file records (or None if file_list is False)</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>AssertionError</strong> – Subject does not exist on Alyx or provided start_time does not match date in
+    session path.</p></li>
+<li><p><strong>ValueError</strong> – The provided lab name does not match the one found in the session path or
+    start_time/end_time is not a valid ISO date time.</p></li>
+<li><p><strong>requests.HTTPError</strong> – A 400 status code means the submitted data was incorrect (e.g. task_protocol was an
+    int instead of a str); A 500 status code means there was a server error.</p></li>
+<li><p><strong>ConnectionError</strong> – Failed to connect to Alyx, most likely due to a bad internet connection.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

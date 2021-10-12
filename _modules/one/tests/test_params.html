@@ -154,7 +154,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">())</span>
             <span class="c1"># Copy over caches fixture</span>
             <span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">(),</span> <span class="s1">&#39;openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span></div>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+            <span class="c1"># Test with include_schema=False</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">(</span><span class="n">include_schema</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s1">&#39;openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestONEParamUtil.test_get_cache_dir"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_get_cache_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Test for one.params.get_cache_dir&quot;&quot;&quot;</span>

@@ -41,3 +41,18 @@ A problem can arise if something on the Alyx database changes in between the sam
     To circumvent this, use the `no_cache=True` argument in `one.alyx.rest(..., no_cache=True)`.
     Use this only if necessary, as ONE will then always query the Alyx database and
     never use any results that may be stored locally.
+
+## I made a mistake during setup and now can't call setup, how do I fix it?
+Usually you can re-run your setup with the following command:
+```python
+from one.api import ONE
+new_one = ONE().setup(base_url='https://alyx.example.com')
+```
+
+Sometimes if the settings are wrong, the call to `ONE()' raises an error before the setup method is
+called.  To avoid this, run the following command instead:
+
+```python
+from one.api import OneAlyx
+new_one = OneAlyx.setup(base_url='https://alyx.example.com')
+```

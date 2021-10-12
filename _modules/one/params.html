@@ -295,10 +295,25 @@
     <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_default_client"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_default_client">[docs]</a><span class="k">def</span> <span class="nf">get_default_client</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Returns the default AlyxClient URL, or None if no default is set.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="get_default_client"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_default_client">[docs]</a><span class="k">def</span> <span class="nf">get_default_client</span><span class="p">(</span><span class="n">include_schema</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns the default AlyxClient URL, or None if no default is set</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    include_schema : bool</span>
+<span class="sd">        When True, the URL schema is included (i.e. http(s)://).  Set to False to return the URL</span>
+<span class="sd">        as a client key.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The default database URL with or without the schema, or None if no default is set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{}))</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="k">return</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+    <span class="n">client_key</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">client_key</span> <span class="ow">or</span> <span class="n">include_schema</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">client_key</span>
+    <span class="k">return</span> <span class="n">get</span><span class="p">(</span><span class="n">client_key</span><span class="p">)</span><span class="o">.</span><span class="n">ALYX_URL</span></div>
 
 
 <div class="viewcode-block" id="save"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.save">[docs]</a><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>

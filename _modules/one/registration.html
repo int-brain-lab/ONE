@@ -325,6 +325,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register session in Alyx</span>
 
+<span class="sd">        NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)</span>
+<span class="sd">        and date of the session path.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ses_path : str, pathlib.Path</span>
@@ -350,6 +353,15 @@
 <span class="sd">            The experiment type, e.g. &#39;Experiment&#39;, &#39;Base&#39;</span>
 <span class="sd">        task_protocol : str</span>
 <span class="sd">            The task protocol (optional)</span>
+<span class="sd">        lab : str</span>
+<span class="sd">            The name of the lab where the session took place.  If None the lab name will be</span>
+<span class="sd">            taken from the path.  If no lab name is found in the path (i.e. no &lt;lab&gt;/Subjects)</span>
+<span class="sd">            the default lab on Alyx will be used.</span>
+<span class="sd">        start_time : str, datetime.datetime</span>
+<span class="sd">            The precise start time of the session.  The date must match the date in the session</span>
+<span class="sd">            path.</span>
+<span class="sd">        end_time : str, datetime.datetime</span>
+<span class="sd">            The precise end time of the session.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -357,6 +369,20 @@
 <span class="sd">            An Alyx session record</span>
 <span class="sd">        list, None</span>
 <span class="sd">            Alyx file records (or None if file_list is False)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            Subject does not exist on Alyx or provided start_time does not match date in</span>
+<span class="sd">            session path.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The provided lab name does not match the one found in the session path or</span>
+<span class="sd">            start_time/end_time is not a valid ISO date time.</span>
+<span class="sd">        requests.HTTPError</span>
+<span class="sd">            A 400 status code means the submitted data was incorrect (e.g. task_protocol was an</span>
+<span class="sd">            int instead of a str); A 500 status code means there was a server error.</span>
+<span class="sd">        ConnectionError</span>
+<span class="sd">            Failed to connect to Alyx, most likely due to a bad internet connection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">ses_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ses_path</span><span class="p">)</span>
@@ -386,6 +412,9 @@
         <span class="k">assert</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span>
         <span class="k">if</span> <span class="s1">&#39;lab&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;lab kwarg &quot;</span><span class="si">%s</span><span class="s1">&quot; does not match lab name in path (&quot;</span><span class="si">%s</span><span class="s1">&quot;)&#39;</span> <span class="o">%</span> <span class="n">names</span><span class="p">)</span>
         <span class="n">ses_</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="p">:</span>  <span class="c1"># Create from scratch</span>
