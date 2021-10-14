@@ -130,6 +130,7 @@
 <span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
+<span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">no_cache</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -391,10 +392,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
 
         <span class="c1"># look for a session from the same subject, same number on the same day</span>
-        <span class="n">session_id</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
-                                              <span class="n">date_range</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
-                                              <span class="n">number</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">],</span>
-                                              <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">no_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
+            <span class="n">session_id</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
+                                                  <span class="n">date_range</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
+                                                  <span class="n">number</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">],</span>
+                                                  <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
         <span class="n">users</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">users</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
 

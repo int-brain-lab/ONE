@@ -19,6 +19,7 @@ one.tests.test\_params
       :nosignatures:
    
       TestONEParamUtil
+      TestParamSetup
    
    
 

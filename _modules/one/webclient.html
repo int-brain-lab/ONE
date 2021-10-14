@@ -146,6 +146,7 @@
 <span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
@@ -235,6 +236,37 @@
         <span class="k">return</span> <span class="n">response</span>
 
     <span class="k">return</span> <span class="n">wrapper_decorator</span>
+
+
+<div class="viewcode-block" id="no_cache"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.no_cache">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">no_cache</span><span class="p">(</span><span class="n">ac</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Temporarily turn off the REST cache for a given Alyx instance.</span>
+
+<span class="sd">    This function is particularly useful when calling ONE methods in remote mode.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ac : AlyxClient</span>
+<span class="sd">        An instance of the AlyxClient to modify.  If None, the a new object is instantiated</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    AlyxClient</span>
+<span class="sd">        The instance of Alyx with cache disabled</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from one.api import ONE</span>
+<span class="sd">    &gt;&gt;&gt; with no_cache(ONE().alyx):</span>
+<span class="sd">    ...     eids = ONE().search(subject=&#39;foobar&#39;, query_type=&#39;remote&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ac</span> <span class="o">=</span> <span class="n">ac</span> <span class="ow">or</span> <span class="n">AlyxClient</span><span class="p">()</span>
+    <span class="n">cache_mode</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">cache_mode</span>
+    <span class="n">ac</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">ac</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="n">cache_mode</span></div>
 
 
 <span class="k">class</span> <span class="nc">_PaginatedResponse</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>

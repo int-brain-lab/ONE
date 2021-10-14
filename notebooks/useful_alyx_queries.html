@@ -741,8 +741,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subject__nickname__in,</span><span class="si">{</span><span class="n">subjects</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>This example query can be done more efficiently with `one.search(subject=[&#39;DY_003&#39;, &#39;DY_006&#39;])`
-</pre></div>
+<div class="admonition note">
+<p>NB: This example query can be done more efficiently with <code class="docutils literal notranslate"><span class="pre">one.search(subject=['DY_003',</span> <span class="pre">'DY_006'])</span></code></p>
 </div>
 </section>
 <section id="gt">
@@ -843,8 +843,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;collection__regex,.*probe.*&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>This example query can be done more efficiently with `one.list(eid, collection=&#39;*probe*&#39;)`
-</pre></div>
+<div class="admonition note">
+<p>NB: This example query can be done more efficiently with <code class="docutils literal notranslate"><span class="pre">one.list(eid,</span> <span class="pre">collection='*probe*')</span></code></p>
 </div>
 </section>
 <section id="iregex">
@@ -856,8 +856,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">eid</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>This example query can be done more efficiently with `one.list_datasets(eid, filename={&#39;object&#39;: [&#39;leftCamera&#39;, &#39;rightCamera&#39;]})`
-</pre></div>
+<div class="admonition note">
+<p>NB: This example query can be done more efficiently with <code class="docutils literal notranslate"><span class="pre">one.list_datasets(eid,</span> <span class="pre">filename={'object':</span> <span class="pre">['leftCamera',</span> <span class="pre">'rightCamera']})</span></code></p>
 </div>
 </section>
 </section>

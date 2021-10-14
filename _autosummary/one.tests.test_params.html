@@ -153,7 +153,7 @@
 <section id="module-one.tests.test_params">
 <span id="one-tests-test-params"></span><h1>one.tests.test_params<a class="headerlink" href="#module-one.tests.test_params" title="Permalink to this headline"></a></h1>
 <p>Unit tests for the one.params module.</p>
-<p>NB: <cite>setup</cite> function tested with TestOneSetup class in one.tests.test_one.</p>
+<p>NB: <cite>setup</cite> function also tested with TestOneSetup class in one.tests.test_one.</p>
 <p class="rubric">Classes</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -164,8 +164,30 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_params.TestONEParamUtil" title="one.tests.test_params.TestONEParamUtil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestONEParamUtil</span></code></a></p></td>
 <td><p>Test class for one.params utility functions</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_params.TestParamSetup" title="one.tests.test_params.TestParamSetup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestParamSetup</span></code></a></p></td>
+<td><p>Test for one.params.setup function</p></td>
+</tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.test_params.TestParamSetup">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestParamSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_params.html#TestParamSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_params.TestParamSetup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Test for one.params.setup function</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_params.TestParamSetup.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_params.html#TestParamSetup.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_params.TestParamSetup.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_params.TestParamSetup.test_setup">
+<span class="sig-name descname"><span class="pre">test_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_params.html#TestParamSetup.test_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_params.TestParamSetup.test_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Test fresh setup with default args</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_params.TestONEParamUtil">
 <em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestONEParamUtil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_params.html#TestONEParamUtil"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_params.TestONEParamUtil" title="Permalink to this definition"></a></dt>

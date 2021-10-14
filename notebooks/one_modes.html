@@ -59,7 +59,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ONE API modes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Online-vs-Offline">Online vs Offline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Query-modes">Query modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Refreshing-the-cache">Refreshing the cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#REST-caching">REST caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Refreshing-the-cache-tables">Refreshing the cache tables</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="one_advanced/one_advanced.html">ONE REST queries</a></li>
@@ -383,14 +384,15 @@ one_modes.ipynb"><button id="github">Github link</button></a><section id="ONE-AP
 <h1>ONE API modes<a class="headerlink" href="#ONE-API-modes" title="Permalink to this headline"></a></h1>
 <section id="Online-vs-Offline">
 <h2>Online vs Offline<a class="headerlink" href="#Online-vs-Offline" title="Permalink to this headline"></a></h2>
-<p>ONE can be instantiated in either the online and offline state. When online, ONE can query the Alyx database to retrieve information about dataset types , search with metadata such as session QC, task performance, histology and session narrative. Advanced queries may also be made <a class="reference external" href="../one_advanced/one_advanced.html">via REST</a>. Other online methods include <code class="docutils literal notranslate"><span class="pre">pid2eid</span></code> and <code class="docutils literal notranslate"><span class="pre">describe_revision</span></code>.</p>
+<p>ONE can be instantiated in either the online and offline state. When online, ONE can query the Alyx database to retrieve information about dataset types , search with metadata such as session QC, task performance, histology and session narrative. Advanced queries may also be made <a class="reference external" href="./one_advanced/one_advanced.html">via REST</a>. Other online methods include <code class="docutils literal notranslate"><span class="pre">pid2eid</span></code> and <code class="docutils literal notranslate"><span class="pre">describe_revision</span></code>.</p>
 <p>When the mode is not specified, it is usually set to ‘auto’, unless a cache_dir is specified for which no database has been configured.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span></span><span class="kn">import</span> <span class="nn">one.webclient</span> <span class="k">as</span> <span class="nn">webclient</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">one</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># online, &#39;auto&#39; mode</span>
@@ -430,9 +432,35 @@ One (offline, C:\data) local
 </div>
 </div>
 </section>
-<section id="Refreshing-the-cache">
-<h2>Refreshing the cache<a class="headerlink" href="#Refreshing-the-cache" title="Permalink to this headline"></a></h2>
-<p>By default ONE will try to update the cache once every 24 hours. This can be set by changing the ‘cache_expiry’ property:</p>
+<section id="REST-caching">
+<h2>REST caching<a class="headerlink" href="#REST-caching" title="Permalink to this headline"></a></h2>
+<p>In remote mode ONE makes a REST query instead of using the local cache tables. The results of the remote REST queries are also cached for 24 hours. This means that making the same remote REST query twice in a row will only hit the database once. The default cache expiry can be set by changing the relevant AlyxClient property:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Cache results for up to 20 days</span>
+</pre></div>
+</div>
+</div>
+<p>You can temporarily deactivate the REST cache using the <code class="docutils literal notranslate"><span class="pre">no_cache</span></code> function in <code class="docutils literal notranslate"><span class="pre">one.webclient</span></code>. When in this context no REST responses are cached and any existing cache files are not used. Use this when the most up-to-date information is required:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">with</span> <span class="n">webclient</span><span class="o">.</span><span class="n">no_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
+    <span class="n">eids</span><span class="p">,</span> <span class="n">det</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For more information on ONE REST queries, see <a class="reference external" href="./one_advanced/one_advanced.html">this guide</a>.</p>
+</section>
+<section id="Refreshing-the-cache-tables">
+<h2>Refreshing the cache tables<a class="headerlink" href="#Refreshing-the-cache-tables" title="Permalink to this headline"></a></h2>
+<p>By default ONE will try to update the cache tables once every 24 hours. This can be set by changing the ‘cache_expiry’ property:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
