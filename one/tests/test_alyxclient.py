@@ -340,7 +340,7 @@ class TestDownloadHTTP(unittest.TestCase):
         # Test what happens when list changes between paginated requests
         name = '0A' + str(random.randint(0, 10000))
         # Add subject between calls
-        rep = self.ac.rest('subjects', 'list', limit=10, no_cache=True)
+        rep = self.ac.rest('subjects', 'list', limit=5, no_cache=True)
         s = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
         self.addCleanup(self.ac.rest, 'subjects', 'delete', id=s['nickname'])
         with self.assertWarns(RuntimeWarning):
