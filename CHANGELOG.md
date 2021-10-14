@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main)  [1.5.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.0]
+
+### Added
+
+- no_cache function for temporarily deactivating the cache in a one-liner
+- fix for setup where wrong client key used
+- Alyx URL validation during setup and make default now yes by default
+
+## [1.5.1]
 
 ### Modified
 

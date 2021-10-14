@@ -340,7 +340,7 @@ class TestDownloadHTTP(unittest.TestCase):
         # Test what happens when list changes between paginated requests
         name = '0A' + str(random.randint(0, 10000))
         # Add subject between calls
-        rep = self.ac.rest('subjects', 'list', limit=10, no_cache=True)
+        rep = self.ac.rest('subjects', 'list', limit=5, no_cache=True)
         s = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
         self.addCleanup(self.ac.rest, 'subjects', 'delete', id=s['nickname'])
         with self.assertWarns(RuntimeWarning):
@@ -568,6 +568,13 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(ac._validate_file_url(expected), expected)
         # Should prepend data server URL
         self.assertEqual(ac._validate_file_url('/path/to/file.ext'), expected)
+
+    def test_no_cache_context_manager(self):
+        """Test for one.webclient.no_cache function"""
+        assert ac.cache_mode is not None
+        with wc.no_cache(ac):
+            self.assertIsNone(ac.cache_mode)
+        self.assertIsNotNone(ac.cache_mode)
 
 
 if __name__ == '__main__':

@@ -46,6 +46,7 @@ import hashlib
 import zipfile
 import tempfile
 from getpass import getpass
+from contextlib import contextmanager
 
 import requests
 from tqdm import tqdm
@@ -135,6 +136,37 @@ def _cache_response(method):
         return response
 
     return wrapper_decorator
+
+
+@contextmanager
+def no_cache(ac=None):
+    """Temporarily turn off the REST cache for a given Alyx instance.
+
+    This function is particularly useful when calling ONE methods in remote mode.
+
+    Parameters
+    ----------
+    ac : AlyxClient
+        An instance of the AlyxClient to modify.  If None, the a new object is instantiated
+
+    Returns
+    -------
+    AlyxClient
+        The instance of Alyx with cache disabled
+
+    Examples
+    --------
+    >>> from one.api import ONE
+    >>> with no_cache(ONE().alyx):
+    ...     eids = ONE().search(subject='foobar', query_type='remote')
+    """
+    ac = ac or AlyxClient()
+    cache_mode = ac.cache_mode
+    ac.cache_mode = None
+    try:
+        yield ac
+    finally:
+        ac.cache_mode = cache_mode
 
 
 class _PaginatedResponse(Mapping):
