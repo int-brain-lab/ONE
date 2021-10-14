@@ -4,6 +4,8 @@
 ### Added
 
 - no_cache function for temporarily deactivating the cache in a one-liner
+- fix for setup where wrong client key used
+- Alyx URL validation during setup and make default now yes by default
 
 ## [1.5.1]
 

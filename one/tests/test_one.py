@@ -1201,6 +1201,8 @@ class TestOneSetup(unittest.TestCase):
                     mock_input.conflict_warn = True
                     return 'y'
                 return 'n'
+            elif 'download cache' in prompt.lower():
+                return Path(self.tempdir.name).joinpath('downloads').as_posix()
             elif 'url' in prompt.lower():
                 return url
             else:
@@ -1223,6 +1225,15 @@ class TestOneSetup(unittest.TestCase):
             one.params.save(pars.set('ALYX_PWD', 'foobar'), url)
             one.params.setup(url)
             self.assertEqual(one.params.get(url).ALYX_PWD, 'mock_pwd')
+
+        # Check conflict warning
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file):
+            OneAlyx(mode='local',
+                    base_url=TEST_DB_2['base_url'],
+                    username=TEST_DB_2['username'],
+                    password=TEST_DB_2['password'])
+        self.assertTrue(getattr(mock_input, 'conflict_warn', False))
+
 
     def test_patch_params(self):
         """Test patching legacy params to the new location"""

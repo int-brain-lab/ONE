@@ -101,7 +101,7 @@ def setup(client=None, silent=False, make_default=None):
     IBLParams
         An updated cache map.
     """
-    # first get default parameters
+    # First get default parameters
     par_default = default()
     client_key = _key_from_url(client or par_default.ALYX_URL)
 
@@ -117,8 +117,18 @@ def setup(client=None, silent=False, make_default=None):
         par = iopar.as_dict(par_default)
         for k in par.keys():
             cpar = _get_current_par(k, par_current)
-            # Iterate through non-password pars; skip url if client url already provided
-            if 'PWD' not in k and not (client and k == 'ALYX_URL'):
+            # Prompt for database URL; skip if client url already provided
+            if k == 'ALYX_URL':
+                if not client:
+                    par[k] = input(f'Param {k}, current value is ["{str(cpar)}"]:') or cpar
+                    if '://' not in par[k]:
+                        par[k] = 'https://' + par[k]
+                    url_parsed = urlsplit(par[k])
+                    if not (url_parsed.netloc and re.match('https?', url_parsed.scheme)):
+                        raise ValueError(f'{k} must be valid HTTP URL')
+                    client = par[k]
+            # Iterate through other non-password pars
+            elif 'PWD' not in k:
                 par[k] = input(f'Param {k}, current value is ["{str(cpar)}"]:') or cpar
 
         cpar = _get_current_par('HTTP_DATA_SERVER_PWD', par_current)
@@ -136,6 +146,8 @@ def setup(client=None, silent=False, make_default=None):
         par = iopar.from_dict(par)
 
         # Prompt for cache directory
+        client_key = _key_from_url(par.ALYX_URL)
+        cache_dir = Path(CACHE_DIR_DEFAULT, client_key)
         prompt = f'Enter the location of the download cache, current value is ["{cache_dir}"]:'
         cache_dir = input(prompt) or cache_dir
 
@@ -150,8 +162,8 @@ def setup(client=None, silent=False, make_default=None):
             cache_dir = input(prompt) or cache_dir  # Prompt for another directory
 
         if make_default is None and 'DEFAULT' not in cache_map.as_dict():
-            answer = input('Would you like to set this URL as the default one? [y/N]')
-            make_default = True if answer and answer[0].lower() == 'y' else False
+            answer = input('Would you like to set this URL as the default one? [Y/n]')
+            make_default = True if not answer or answer[0].lower() == 'y' else False
     else:
         par = par_current
 

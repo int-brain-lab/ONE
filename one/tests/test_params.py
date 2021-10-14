@@ -1,14 +1,60 @@
 """Unit tests for the one.params module.
 
-NB: `setup` function tested with TestOneSetup class in one.tests.test_one.
+NB: `setup` function also tested with TestOneSetup class in one.tests.test_one.
 """
 import unittest
 from unittest import mock
 from pathlib import Path
 from functools import partial
+import tempfile
 
+import one.params
 import one.params as params
 from . import util
+from . import TEST_DB_1
+
+
+class TestParamSetup(unittest.TestCase):
+    """Test for one.params.setup function"""
+    def setUp(self) -> None:
+        self.par_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.par_dir.cleanup)
+        self.url = TEST_DB_1['base_url'][8:]  # URL without schema
+        # Change the location of the parameters to our temp dir
+        get_file = partial(util.get_file, self.par_dir.name)
+        self.get_file_mock = mock.patch('iblutil.io.params.getfile', new=get_file)
+        self.get_file_mock.start()
+        self.addCleanup(self.get_file_mock.stop)
+
+    def _mock_input(self, prompt):
+        """Stub function for builtins.input"""
+        if prompt.lower().startswith('warning'):
+            return 'n'
+        elif 'url' in prompt.lower():
+            return self.url
+        else:
+            return ''
+
+    @mock.patch('one.params.getpass', return_value='mock_pwd')
+    def test_setup(self, _):
+        """Test fresh setup with default args"""
+        with mock.patch('one.params.input', new=self._mock_input):
+            cache = one.params.setup()
+        # Check client map contains our url sans schema
+        self.assertTrue(self.url in cache.CLIENT_MAP)
+        # Check default download location includes client key
+        self.assertTrue(cache.CLIENT_MAP[self.url].endswith(self.url))
+        # Check default
+        self.assertEqual(cache.DEFAULT, self.url)
+        # Check that it added the schema to the URL
+        par = one.params.get(self.url, silent=True)
+        self.assertEqual('https://' + self.url, par.ALYX_URL)
+        self.assertEqual('mock_pwd', par.HTTP_DATA_SERVER_PWD)
+
+        # Check that raises ValueError when bad URL provided
+        self.url = 'ftp://'
+        with self.assertRaises(ValueError), mock.patch('one.params.input', new=self._mock_input):
+            one.params.setup()
 
 
 class TestONEParamUtil(unittest.TestCase):
