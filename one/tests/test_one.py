@@ -1234,7 +1234,6 @@ class TestOneSetup(unittest.TestCase):
                     password=TEST_DB_2['password'])
         self.assertTrue(getattr(mock_input, 'conflict_warn', False))
 
-
     def test_patch_params(self):
         """Test patching legacy params to the new location"""
         # Save some old-style params
