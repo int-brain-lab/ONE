@@ -182,11 +182,10 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(filename, '_ibl_spikes.times_ephysClock.raw.npy')
         filename = alf_spec.to_alf('wheel', 'timestamps', '.npy', 'ibl', 'bpod', ('raw', 'v12'))
         self.assertEqual(filename, '_ibl_wheel.timestamps_bpod.raw.v12.npy')
-
+        filename = alf_spec.to_alf('spikes', 'foo_bar', 'npy')  # it's ok to have underscores
+        self.assertEqual(filename, 'spikes.foo_bar.npy')
         with self.assertRaises(TypeError):
             alf_spec.to_alf('spikes', 'times', '')
-        with self.assertRaises(ValueError):
-            alf_spec.to_alf('spikes', 'foo_bar', 'npy')
         with self.assertRaises(ValueError):
             alf_spec.to_alf('spikes.times', 'fooBar', 'npy')
         with self.assertRaises(ValueError):
