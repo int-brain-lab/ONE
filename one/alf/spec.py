@@ -366,8 +366,6 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
         raise TypeError('An extension must be provided')
     elif extension.startswith('.'):
         extension = extension[1:]
-    if re.search('_(?!times$|intervals)', attribute):
-        raise ValueError('Object attributes must not contain underscores')
     if any(pt is not None and '.' in pt for pt in
            (object, attribute, namespace, extension, timescale)):
         raise ValueError('ALF parts must not contain a period (`.`)')
