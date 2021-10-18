@@ -9,7 +9,7 @@ from one.alf.spec import is_uuid, is_uuid_string
 from one.api import ONE
 
 import globus_sdk
-from globus_sdk.exc import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
+from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
     GlobusConnectionError, GlobusConnectionTimeoutError
 
 _logger = logging.getLogger(__name__)
@@ -121,7 +121,12 @@ def get_local_endpoint_id():
     """
     msg = ("Cannot find local endpoint ID, check if Globus Connect is set up correctly, "
            "{} exists and contains a UUID.")
-    id_file = Path.home().joinpath(".globusonline", "lta", "client-id.txt")
+    if sys.platform == 'win32' or sys.platform == 'cygwin':
+        id_path = Path(os.environ['LOCALAPPDATA']).joinpath("Globus Connect")
+    else:
+        id_path = Path.home().joinpath(".globusonline", "lta")
+
+    id_file = id_path.joinpath("client-id.txt")
     assert (id_file.exists()), msg.format(id_file)
     local_id = id_file.read_text().strip()
     assert (isinstance(local_id, str)), msg.format(id_file)
