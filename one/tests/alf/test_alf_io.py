@@ -1,3 +1,4 @@
+"""Unit tests for the one.alf.io module"""
 import logging
 import unittest
 import tempfile
@@ -6,6 +7,9 @@ import shutil
 import json
 
 import numpy as np
+import pandas as pd
+
+from iblutil.io import jsonable
 
 import one.alf.io as alfio
 from one.alf.exceptions import ALFObjectNotFound
@@ -30,13 +34,15 @@ class TestAlfBunch(unittest.TestCase):
     def test_to_dataframe_vectors(self):
         vectors = alfio.AlfBunch({'titi': np.random.rand(500, 1),
                                   'toto': np.random.rand(500),
-                                  'tata': np.random.rand(500, 2)})
+                                  'tata': np.random.rand(500, 12)})
         df = vectors.to_df()
         self.assertTrue(np.all(df['titi'].values == vectors.titi[:, 0]))
         self.assertTrue(np.all(df['toto'].values == vectors.toto))
         self.assertTrue(np.all(df['tata_0'].values == vectors.tata[:, 0]))
         self.assertTrue(np.all(df['tata_1'].values == vectors.tata[:, 1]))
-        self.assertTrue(len(df.columns) == 4)
+        self.assertTrue(len(df.columns) == 12)
+        self.assertEqual(10, len(df.filter(regex=r'tata_\d+', axis=1).columns),
+                         'failed to truncate columns')
 
     def test_append_numpy(self):
         a = alfio.AlfBunch({'titi': np.random.rand(500), 'toto': np.random.rand(500)})
@@ -129,6 +135,7 @@ class TestsAlfPartsFilters(unittest.TestCase):
         alfio.load_object(self.tmpdir, 'neuveux', short_keys=False)
 
     def test_filter_by(self):
+        """Test for one.alf.io.filter_by"""
         spec_idx_map = regex(FILE_SPEC).groupindex
         file_names = [
             'noalf.file',
@@ -160,6 +167,11 @@ class TestsAlfPartsFilters(unittest.TestCase):
         # Test wildcards; should return 'wheel' and 'wheelMoves' ALF objects
         alf_files, _ = alfio.filter_by(self.tmpdir, object='wh*')
         expected = ['wheel.position.npy', 'wheel.timestamps.npy', 'wheelMoves.intervals.npy']
+        self.assertCountEqual(alf_files, expected, 'failed to filter with wildcard')
+
+        # Test wildcard arrays
+        alf_files, _ = alfio.filter_by(self.tmpdir, object='wh*', attribute=['time*', 'pos*'])
+        expected = ['wheel.position.npy', 'wheel.timestamps.npy']
         self.assertCountEqual(alf_files, expected, 'failed to filter with wildcard')
 
         # Test filtering by specific timescale; test parts returned
@@ -232,6 +244,7 @@ class TestsAlf(unittest.TestCase):
         np.save(file=self.object_files[-1], arr=np.ones((2, 2)))
 
     def test_exists(self):
+        """Test for one.alf.io.exists"""
         self.assertFalse(alfio.exists(self.tmpdir, 'asodiujfas'))
         self.assertTrue(alfio.exists(self.tmpdir, 'neuveu'))
         # test with attribute string only
@@ -279,6 +292,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(np.all(dread['titi'] == data[:, 0]))
 
     def test_read_ts(self):
+        """Test for one.alf.io.read_ts"""
         # simplest test possible with one column in each file
         t = np.arange(0, 10)
         d = np.random.rand(10)
@@ -303,6 +317,7 @@ class TestsAlf(unittest.TestCase):
             alfio.read_ts(self.vfile)
 
     def test_load_object(self):
+        """Test for one.alf.io.load_object"""
         # first usage of load object is to provide one of the files belonging to the object
         expected_keys = {'riri', 'fifi', 'loulou', 'foobar_matlab', 'timestamps'}
         obj = alfio.load_object(self.object_files[0])
@@ -333,7 +348,24 @@ class TestsAlf(unittest.TestCase):
             alfio.load_object(self.tmpdir, 'neuveu', short_keys=False)
         self.assertIn(str(data.shape), log.output[0])
 
+    def test_ls(self):
+        """Test for one.alf.io._ls"""
+        # Test listing all ALF files in a directory
+        alf_files, _ = alfio._ls(self.tmpdir)
+        self.assertIsInstance(alf_files[0], Path)
+        self.assertEqual(7, len(alf_files))
+
+        # Test with filepath
+        alf_files, parts = alfio._ls(alf_files[0])
+        self.assertEqual(5, len(alf_files))
+        self.assertTrue(all(x[1] == 'neuveu') for x in parts)
+
+        # Test non-existent
+        with self.assertRaises(ALFObjectNotFound):
+            alfio._ls(self.tmpdir.joinpath('foobar'))
+
     def test_save_npy(self):
+        """Test for one.alf.io.save_npy"""
         # test with straight vectors
         a = {'riri': np.random.rand(100),
              'fifi': np.random.rand(100)}
@@ -360,6 +392,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue('Dimensions are not consistent' in str(context.exception))
 
     def test_check_dimensions(self):
+        """Test for one.alf.io.check_dimensions"""
         a = {'a': np.ones([10, 10]), 'b': np.ones([10, 2]), 'c': np.ones([10])}
         status = alfio.check_dimensions(a)
         self.assertTrue(status == 0)
@@ -383,6 +416,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(status == 1)
 
     def test_ts2vec(self):
+        """Test for one.alf.io.ts2vec"""
         n = 10
         # Test interpolate
         ts = np.array([[0, 10], [0, 100]]).T
@@ -425,8 +459,14 @@ class TestsLoadFile(unittest.TestCase):
         self.json2 = Path(self.tmpdir.name) / '_broken_foo.baz.json'
         with open(self.json2, 'w') as f:
             f.write('{"a": [1, 2, 3],"b": [4, 5 6]}')
+        self.json3 = Path(self.tmpdir.name) / 'foo.baz.jsonable'
+        jsonable.write(self.json3, {'a': [1, 2, 3], 'b': [4, 5, 6]})
+        self.xyz = Path(self.tmpdir.name) / 'foo.baz.xyz'
+        with open(self.xyz, 'wb') as f:
+            f.write(b'\x00\x00')
 
     def test_load_file_content(self):
+        """Test for one.alf.io.load_file_content"""
         self.assertIsNone(alfio.load_file_content(self.empty))
         self.assertIsInstance(alfio.load_file_content(self.npy), np.ndarray)
         for file in (self.csv, self.ssv, self.tsv):
@@ -437,6 +477,16 @@ class TestsLoadFile(unittest.TestCase):
         loaded = alfio.load_file_content(self.json1)
         self.assertCountEqual(loaded.keys(), ['a', 'b'])
         self.assertIsNone(alfio.load_file_content(self.json2))
+        loaded = alfio.load_file_content(self.json3)
+        self.assertCountEqual(loaded, ['a', 'b'])
+        # Load a parquet file
+        pqt = next(Path(__file__).parents[1].joinpath('fixtures').glob('*.pqt'))
+        loaded = alfio.load_file_content(pqt)
+        self.assertIsInstance(loaded, pd.DataFrame)
+        # Unknown file should return Path
+        file = alfio.load_file_content(str(self.xyz))
+        self.assertEqual(file, self.xyz)
+        self.assertIsNone(alfio.load_file_content(None))
 
     def tearDown(self) -> None:
         self.tmpdir.cleanup()
@@ -526,6 +576,14 @@ class TestALFFolders(unittest.TestCase):
         self.assertTrue(len(list(root.glob('*'))) == 2)
         alfio.remove_empty_folders(root)
         self.assertTrue(len(list(root.glob('*'))) == 1)
+
+    def test_iter_sessions(self):
+        # Create invalid session folder
+        self.session_path.parent.parent.joinpath('bad_session').mkdir()
+
+        valid_sessions = alfio.iter_sessions(self.tempdir.name)
+        self.assertEqual(next(valid_sessions), self.session_path)
+        self.assertFalse(next(valid_sessions, False))
 
 
 if __name__ == "__main__":

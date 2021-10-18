@@ -1,3 +1,4 @@
+"""Unit tests for the one.alf.files module"""
 import unittest
 from pathlib import Path
 import uuid
@@ -6,7 +7,9 @@ import one.alf.files as files
 
 
 class TestAlfParse(unittest.TestCase):
+    """Tests for ALF parsing methods"""
     def test_filename_parts(self):
+        """Test for one.alf.files.filename_parts"""
         verifiable = files.filename_parts('_namespace_obj.times_timescale.extra.foo.ext')
         expected = ('namespace', 'obj', 'times', 'timescale', 'extra.foo', 'ext')
         self.assertEqual(expected, verifiable)
@@ -47,12 +50,14 @@ class TestAlfParse(unittest.TestCase):
         self.assertFalse(any(verifiable))
 
     def test_rel_path_parts(self):
-        alf_str = 'collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext'
+        """Test for one.alf.files.rel_path_parts"""
+        alf_str = Path('collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext')
         verifiable = files.rel_path_parts(alf_str)
         expected = ('collection', 'revision', 'namespace', 'obj', 'times',
                     'timescale', 'extra.foo', 'ext')
         self.assertEqual(expected, verifiable)
 
+        # Check as_dict
         verifiable = files.rel_path_parts('spikes.clusters.npy', as_dict=True)
         expected = {
             'collection': None,
@@ -65,12 +70,14 @@ class TestAlfParse(unittest.TestCase):
             'extension': 'npy'}
         self.assertEqual(expected, verifiable)
 
+        # Check assert valid
         with self.assertRaises(ValueError):
             files.rel_path_parts('bad/badfile')
-        verifiable = files.filename_parts('bad/badfile', assert_valid=False)
+        verifiable = files.rel_path_parts('bad/badfile', assert_valid=False)
         self.assertFalse(any(verifiable))
 
     def test_session_path_parts(self):
+        """Test for one.alf.files.session_path_parts"""
         session_path = '/home/user/Data/labname/Subjects/subject/2020-01-01/001/alf'
         parsed = files.session_path_parts(session_path, as_dict=True)
         expected = {
@@ -81,6 +88,8 @@ class TestAlfParse(unittest.TestCase):
         self.assertEqual(expected, parsed)
         parsed = files.session_path_parts(session_path, as_dict=False)
         self.assertEqual(tuple(expected.values()), parsed)
+        # Check Path as input
+        self.assertTrue(any(files.session_path_parts(Path(session_path))))
         # Check parse fails
         session_path = '/home/user/Data/labname/2020-01-01/alf/001/'
         with self.assertRaises(ValueError):
@@ -91,9 +100,74 @@ class TestAlfParse(unittest.TestCase):
         parsed = files.session_path_parts(session_path, assert_valid=False, as_dict=False)
         self.assertEqual(tuple([None] * 4), parsed)
 
+    def test_folder_parts(self):
+        """Test for one.alf.files.folder_parts"""
+        path = Path('/home/user/Data/labname/Subjects/subject/2020-01-01/001/'
+                    'collection/#revision#/')
+        out = files.folder_parts(path)
+        expected_values = ('labname', 'subject', '2020-01-01', '001', 'collection', 'revision')
+        self.assertEqual(expected_values, out)
+
+        path = '/home/user/Data/labname/Subjects/subject/2020-01-01/001'
+        expected_values = ('labname', 'subject', '2020-01-01', '001', None, None)
+        self.assertEqual(expected_values, files.folder_parts(path))
+
+    def test_full_path_parts(self):
+        """Test for one.alf.files.full_path_parts"""
+        fullpath = Path(
+            '/home/user/Data/labname/Subjects/subject/2020-01-01/001/'
+            'collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext'
+        )
+        # As dict
+        out = files.full_path_parts(fullpath, as_dict=True)
+        expected_keys = (
+            'lab', 'subject', 'date', 'number', 'collection', 'revision',
+            'namespace', 'object', 'attribute', 'timescale', 'extra', 'extension'
+        )
+        self.assertIsInstance(out, dict)
+        self.assertEqual(expected_keys, tuple(out.keys()))
+
+        # As tuple
+        out = files.full_path_parts(fullpath, as_dict=False)
+        self.assertIsInstance(out, tuple)
+        self.assertEqual(len(expected_keys), len(out))
+        self.assertTrue(all(out))
+
+        # Folders only
+        out = files.full_path_parts(fullpath.parent, as_dict=False)
+        self.assertTrue(all(out[:6]) and not any(out[6:]))
+
+        # Filename only
+        out = files.full_path_parts(fullpath.name, as_dict=False)
+        self.assertTrue(not any(out[:6]) and all(out[6:]))
+
+    def test_isdatetime(self):
+        """Test for one.alf.files._isdatetime"""
+        inp = ['açsldfkça', '12312', '2020-01-01', '01-01-2020', '2020-12-32']
+        out = [False, False, True, False, False]
+        for i, o in zip(inp, out):
+            self.assertEqual(o, files._isdatetime(i))
+
+    def test_add_uuid(self):
+        """Test for one.alf.files.add_uuid"""
+        _uuid = uuid.uuid4()
+
+        file_with_uuid = f'/titi/tutu.part1.part1.{_uuid}.json'
+        inout = [(file_with_uuid, Path(file_with_uuid)),
+                 ('/tutu/tata.json', Path(f'/tutu/tata.{_uuid}.json')),
+                 ('/tutu/tata.part1.json', Path(f'/tutu/tata.part1.{_uuid}.json'))]
+        for tup in inout:
+            self.assertEqual(tup[1], files.add_uuid_string(tup[0], _uuid))
+            self.assertEqual(tup[1], files.add_uuid_string(tup[0], str(_uuid)))
+
+        with self.assertRaises(ValueError):
+            files.add_uuid_string('/foo/bar.npy', 'fake')
+
 
 class TestALFGet(unittest.TestCase):
+    """Tests for path extraction functions"""
     def test_get_session_folder(self):
+        """Test for one.alf.files.get_session_folder"""
         inp = (Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data/'
                     '_iblrig_micData.raw.wav'),
                Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
@@ -111,6 +185,7 @@ class TestALFGet(unittest.TestCase):
         self.assertTrue(no_out is None)
 
     def test_get_alf_path(self):
+        """Test for one.alf.files.get_alf_path"""
         path = Path('/mnt/s0/Data/Subjects/'
                     'ZM_1368/2019-04-19/001/raw_behavior_data/_iblrig_micData.raw.wav')
         out = files.get_alf_path(path)
@@ -119,26 +194,6 @@ class TestALFGet(unittest.TestCase):
         self.assertEqual(files.get_alf_path(path), path)
         path = '/trials.intervals_bpod.npy'
         self.assertEqual(files.get_alf_path(path), 'trials.intervals_bpod.npy')
-
-    def test_isdatetime(self):
-        inp = ['açsldfkça', '12312', '2020-01-01', '01-01-2020', '2020-12-32']
-        out = [False, False, True, False, False]
-        for i, o in zip(inp, out):
-            self.assertEqual(o, files._isdatetime(i))
-
-    def test_add_uuid(self):
-        _uuid = uuid.uuid4()
-
-        file_with_uuid = f'/titi/tutu.part1.part1.{_uuid}.json'
-        inout = [(file_with_uuid, Path(file_with_uuid)),
-                 ('/tutu/tata.json', Path(f'/tutu/tata.{_uuid}.json')),
-                 ('/tutu/tata.part1.json', Path(f'/tutu/tata.part1.{_uuid}.json'))]
-        for tup in inout:
-            self.assertEqual(tup[1], files.add_uuid_string(tup[0], _uuid))
-            self.assertEqual(tup[1], files.add_uuid_string(tup[0], str(_uuid)))
-
-        with self.assertRaises(ValueError):
-            files.add_uuid_string('/foo/bar.npy', 'fake')
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
-"""Tests for the one.converters module"""
+"""Unit tests for the one.converters module"""
 import unittest
+from unittest import mock
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from uuid import UUID
 import datetime
@@ -8,6 +9,7 @@ import pandas as pd
 
 from one.api import ONE
 from one import converters
+from one.alf.files import add_uuid_string
 from . import util, OFFLINE_ONLY, TEST_DB_2
 
 
@@ -29,7 +31,7 @@ class TestConverters(unittest.TestCase):
         eid = self.one.to_eid(eid)
         self.assertEqual(eid, expected)
         # Path
-        session_path = Path(self.one._cache_dir).joinpath(
+        session_path = Path(self.one.cache_dir).joinpath(
             'mainenlab', 'Subjects', 'ZFM-01935', '2021-02-05', '001', 'alf'
         )
         eid = self.one.to_eid(session_path)
@@ -44,6 +46,8 @@ class TestConverters(unittest.TestCase):
         base_url = 'https://alyx.internationalbrainlab.org/'
         eid = self.one.to_eid(base_url + 'sessions/' + eid)
         self.assertEqual(eid, expected)
+        # None
+        self.assertIsNone(self.one.to_eid(None))
 
         # Test value errors
         with self.assertRaises(ValueError):
@@ -52,6 +56,7 @@ class TestConverters(unittest.TestCase):
             self.one.to_eid(util)
 
     def test_path2eid(self):
+        """Test for ConversionMixin.path2eid (offline mode)"""
         verifiable = self.one.path2eid('CSK-im-007/2021-03-21/002')
         self.assertIsNone(verifiable)
 
@@ -64,7 +69,12 @@ class TestConverters(unittest.TestCase):
         verifiable = self.one.path2eid(session_path)
         self.assertEqual(verifiable, expected)
 
+        # Test short circuit
+        with mock.patch.object(self.one._cache, 'sessions', new=pd.DataFrame([])):
+            self.assertIsNone(self.one.path2eid(session_path))
+
     def test_eid2path(self):
+        """Test for ConversionMixin.eid2path"""
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.eid2path(eid)
         expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
@@ -80,16 +90,48 @@ class TestConverters(unittest.TestCase):
         self.assertIsInstance(verifiable, list)
         self.assertTrue(len(verifiable) == 2)
 
+        # Test short circuit
+        with mock.patch.object(self.one._cache, 'sessions', new=pd.DataFrame([])):
+            self.assertIsNone(self.one.eid2path(eid))
+
+    def test_eid2ref(self):
+        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
+        verifiable = self.one.eid2ref(eid, parse=False, as_dict=True)
+        expected = {'subject': 'ZFM-01935', 'date': '2021-02-05', 'sequence': '001'}
+        self.assertCountEqual(expected, verifiable)
+        verifiable = self.one.eid2ref(eid, parse=True, as_dict=True)
+        expected = {'subject': 'ZFM-01935', 'date': datetime.date(2021, 2, 5), 'sequence': 1}
+        self.assertCountEqual(expected, verifiable)
+        verifiable = self.one.eid2ref(eid, parse=False, as_dict=False)
+        self.assertCountEqual('2021-02-05_001_ZFM-01935', verifiable)
+        verifiable = self.one.eid2ref(eid, parse=True, as_dict=False)
+        self.assertCountEqual('2021-02-05_1_ZFM-01935', verifiable)
+
     def test_path2record(self):
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-02',
                                                 '001', 'alf', '_ibl_wheel.position.npy')
         rec = self.one.path2record(file)
-        self.assertIsInstance(rec, pd.DataFrame)
-        rel_path, = rec['rel_path'].values
-        self.assertTrue(file.as_posix().endswith(rel_path))
+        self.assertIsInstance(rec, pd.Series)
+        self.assertTrue(file.as_posix().endswith(rec['rel_path']))
+
+        # Test URL
+        parts = add_uuid_string(file, '94285bfd-7500-4583-83b1-906c420cc667').parts[-7:]
+        url = TEST_DB_2['base_url'] + '/'.join(('', *parts))
+        rec = self.one.path2record(url)
+        self.assertIsInstance(rec, pd.Series)
+        self.assertTrue(file.as_posix().endswith(rec['rel_path']))
 
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.path2record(file))
+
+        # Test short circuit
+        empty = self.one._cache.datasets.iloc[0:0].copy()
+        with mock.patch.object(self.one._cache, 'datasets', new=empty):
+            self.assertIsNone(self.one.path2record(file))
+
+        # Test empty session
+        with mock.patch.object(self.one._cache, 'datasets', new=self.one._cache.datasets.iloc[:2]):
+            self.assertIsNone(self.one.path2record(file))
 
     def test_is_exp_ref(self):
         ref = {'date': datetime.datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}
@@ -170,10 +212,12 @@ class TestOnlineConverters(unittest.TestCase):
         cls.session_record = cls.one.get_details(cls.eid)
 
     def test_to_eid(self):
+        """Test for ConversionMixin.to_eid"""
         eid = self.one.to_eid(self.session_record)
         self.assertEqual(eid, self.eid)
 
     def test_record2url(self):
+        """Test for ConversionMixin.record2url"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
         url = self.one.record2url(rec.iloc[0])
@@ -186,9 +230,10 @@ class TestOnlineConverters(unittest.TestCase):
         expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
                     'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
                     '_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin')
-        self.assertEqual(expected, url)
+        self.assertEqual([expected], url)
 
     def test_record2path(self):
+        """Test for ConversionMixin.record2path"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
         alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
@@ -202,6 +247,7 @@ class TestOnlineConverters(unittest.TestCase):
         self.assertEqual(expected, path)
 
     def test_ref2dj(self):
+        """Test for ConversionMixin.ref2dj"""
         try:
             ref = '2020-09-21_1_SWC_043'
             restriction = self.one.ref2dj(ref)
@@ -215,6 +261,32 @@ class TestOnlineConverters(unittest.TestCase):
             'session_date': datetime.date(2020, 9, 21),
             'subject_nickname': 'SWC_043'}
         self.assertEqual(restriction.fetch1(), expected)
+
+    def test_eid2path(self):
+        """Test for OneAlyx.eid2path"""
+        verifiable = self.one.eid2path(self.eid, query_type='remote')
+        expected = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
+                                                     '2020-09-21', '001',)
+        self.assertEqual(expected, verifiable)
+
+        with self.assertRaises(ValueError):
+            self.one.eid2path('fakeid', query_type='remote')
+        self.assertIsNone(self.one.eid2path(self.eid.replace('d', 'b')))
+
+        # Test list
+        verifiable = self.one.eid2path([self.eid, self.eid], query_type='remote')
+        self.assertIsInstance(verifiable, list)
+        self.assertTrue(len(verifiable) == 2)
+
+    def test_path2eid(self):
+        """Test for OneAlyx.path2eid"""
+        test_path = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
+                                                      '2020-09-21', '001',)
+        verifiable = self.one.path2eid(test_path, query_type='remote')
+        self.assertEqual(self.eid, verifiable)
+        # Check works with list
+        verifiable = self.one.path2eid([test_path, test_path], query_type='remote')
+        self.assertEqual([self.eid, self.eid], verifiable)
 
 
 class TestAlyx2Path(unittest.TestCase):
@@ -251,6 +323,9 @@ class TestAlyx2Path(unittest.TestCase):
         root = PurePosixPath('/one_root')
         testable = converters.one_path_from_dataset(self.dset, one_cache=root)
         self.assertEqual(str(testable), one_path)
+        # Check list input
+        testable = converters.one_path_from_dataset([self.dset], one_cache=root)
+        self.assertIsInstance(testable, list)
         # Check handles string inputs
         testable = converters.one_path_from_dataset(self.dset, one_cache='/one_root')
         self.assertTrue(hasattr(testable, 'is_absolute'), 'Failed to return Path object')
@@ -261,11 +336,23 @@ class TestAlyx2Path(unittest.TestCase):
         testable = converters.one_path_from_dataset(self.dset, one_cache=one_path)
         self.assertIsInstance(testable, PureWindowsPath)
         self.assertTrue(str(testable).startswith(str(one_path)))
+        self.assertTrue('hoferlab/Subjects' in testable.as_posix())
+        # Check repository arg
+        testable = converters.path_from_dataset(self.dset,
+                                                root_path=root, repository='ibl_floferlab_SR')
+        self.assertTrue('mnt/s0/Data/Subjects' in testable.as_posix())
 
         # Tests path_from_filerecord: when given a string, a system path object should be returned
         fr = self.dset['file_records'][0]
         testable = converters.path_from_filerecord(fr, root_path='C:\\')
         self.assertIsInstance(testable, Path)
+        # Check list
+        testable = converters.path_from_filerecord([fr], root_path='C:\\')
+        self.assertIsInstance(testable, list)
+        # Check uuid
+        uuid = '00059298-1b33-429c-a802-fa51bb662d72'
+        testable = converters.path_from_filerecord(fr, root_path='C:\\', uuid=uuid)
+        self.assertTrue(uuid in testable.as_posix())
 
 
 class TestWrappers(unittest.TestCase):
@@ -281,6 +368,23 @@ class TestWrappers(unittest.TestCase):
         wrapped = converters.recurse(lambda x, y: y * 2)
         self.assertEqual(wrapped(None, [1, 2, 3, 4]), [2, 4, 6, 8])
         self.assertEqual(wrapped(None, (1, 2, 3, 4)), [2, 4, 6, 8])
+
+    def test_parse_values(self):
+        wrapped = converters.parse_values(lambda x: x)
+        # Check ignores when str
+        ref = 'subject_1_2021-01-01'
+        self.assertEqual(ref, wrapped(ref, parse=True))
+        # Check parse values false (should be identity)
+        ref = {'subject': 'flowers', 'sequence': '001', 'date': '2021-01-01'}
+        self.assertEqual(ref, wrapped(ref.copy(), parse=False))
+        # Check parse values true (should change sequence and date)
+        expected = {'subject': 'flowers', 'sequence': 1, 'date': datetime.date(2021, 1, 1)}
+        self.assertEqual(expected, wrapped(ref.copy(), parse=True))
+        # Check handles datetime ISO
+        ref['date'] += 'T14:53:53.586024'
+        self.assertEqual(expected, wrapped(ref.copy(), parse=True))
+        # Check handles list
+        self.assertIsInstance(wrapped([ref.copy(), expected], parse=True), list)
 
 
 if __name__ == '__main__':

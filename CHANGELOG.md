@@ -1,6 +1,97 @@
 # Changelog
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.0]
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.1.0]
+### Added
+
+- no_cache function for temporarily deactivating the cache in a one-liner
+- fix for setup where wrong client key used
+- Alyx URL validation during setup and make default now yes by default
+
+## [1.5.1]
+
+### Modified
+
+- HOTFIX: correct kwarg name in setup documentation; get_default_client includes schema in URL
+- minor improvements to documentation and test coverage
+- raise ValueError in register_session when lab doesn't match parsed session path
+
+## [1.5.0]
+
+### Modified
+
+- fix bug where filters don't work in remote list_datasets
+- change order of kwargs in list_datasets: filename now the first kwarg
+- can now filter by list of filename strings functioning as a logical OR
+- dataset kwarg renamed to filename in list_revisions
+- fix ALF regular expression pattern: attribute, timescale and extension now parsed correctly
+- can now filter datasets by timescale
+- clearer error message auth errors raised
+- alyx client is_logged_in method now a dependent property
+
+## [1.4.0]
+
+### Modified
+
+- One and OneAlyx setup methods
+- old params files now cleaned up
+- removed ALYX_PWD prompt from setup
+- improved test coverage
+- docs formatting
+- One list_* methods return list instead of np arrays
+- get_details returns dict with 'date' key in remote mode
+- eid2ref works in offline mode
+- record2url now expects a pandas.Series object, iterates over DataFrame and returns list
+- path2record now returns a pandas.Series instead of DataFrame
+- _update_filesystem renamed to _check_filesystem
+- _index_type now accepts DataFrame as table input
+- better support for string indices in path2url and _download_dataset
+- fix for _check_filesystem with datasets dict input
+
+### Added
+
+- tests for eid2ref
+- load_collection method for loading a Bunch of ALF objects
+
+## [1.3.0]
+
+### Modified
+
+- propagate down filter datasets filters
+- OneAlyx list_* methods return list instead of np arrays
+- cache module gracefully deals with empty repos
+- cache module refactored to reuse ALF functions
+- cache str ids now exclude 'Subjects' part
+- session_path_parts now accepts pathlib objects
+- one.params.check_cache_conflict now public function
+- One.cache_dir now public property
+- cache args preserved between calls to paginated response object
+- runtime warning when remote list count changes
+
+### Added
+- alf.io function to return valid session paths within a directory 
+
+## [1.2.1]
+
+### Modified
+
+- HOTFIX: correct exception raise when files missing in load_datasets
+
+## [1.2.0]
+
+### Added
+
+- registration module with functions for posting sessions and file records to Alyx
+
+### Modified
+
+- bumped minimum pandas version in requirements
+- REST cache supports URL with port
+- describe revision now supported
+- ALF spec now requires 'Subjects' folder in order to parse lab, i.e. .../lab/Subjects/subjects/...
+- password prompt now specifies user
+- clearer REST HTTP response error messages
+
+## [1.1.0]
 
 ### Added
 - extension may be omitted when loading dataset in wildcard mode if dataset doesn't have extra parts
@@ -16,7 +107,7 @@
 
 ### Modified
 
-- HOTFIX: Error no longer raised when logging dimension mismatch in alf.io.load_object
+- HOTFIX: error no longer raised when logging dimension mismatch in alf.io.load_object
 
 ## [0.5.2]
 

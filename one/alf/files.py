@@ -11,7 +11,7 @@ Note the following:
     ALF files must always have an extension
 
 For more information, see the following documentation:
-    https://int-brain-lab.github.io/iblenv/one_docs/one_reference.html#alf  # FIXME Change link
+    https://int-brain-lab.github.io/ONE/alf_intro.html
 
 Created on Tue Sep 11 18:06:21 2018
 
@@ -30,12 +30,14 @@ _logger = logging.getLogger(__name__)
 
 
 def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
-    """Parse a relative path into the relevant parts.  A relative path follows the pattern
-    (collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension
+    """Parse a relative path into the relevant parts.
+
+    A relative path follows the pattern
+        (collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension
 
     Parameters
     ----------
-    rel_path : str
+    rel_path : str, pathlib.Path
         A relative path string
     as_dict : bool
         If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
@@ -46,27 +48,24 @@ def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
 
     Returns
     -------
-        An OrderedDict if as_dict is true, or a tuple of parsed values
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
     """
-    compiled = spec.regex(REL_PATH_SPEC)
-    if hasattr(rel_path, 'as_posix'):
-        rel_path = rel_path.as_posix()
-    match = compiled.match(rel_path)  # py 3.8
-    if match:
-        return OrderedDict(**match.groupdict()) if as_dict else tuple(match.groupdict().values())
-    elif assert_valid:
-        raise ValueError('Invalid relative path')
-    else:
-        parts = compiled.groupindex.keys()
-        return OrderedDict.fromkeys(parts) if as_dict else tuple([None] * len(parts))
+    return _path_parts(rel_path, REL_PATH_SPEC, True, as_dict, assert_valid)
 
 
-def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
-    """Parse a session path into the relevant parts
+def session_path_parts(session_path, as_dict=False, assert_valid=True):
+    """Parse a session path into the relevant parts.
+
+    Return keys:
+        - lab
+        - subject
+        - date
+        - number
 
     Parameters
     ----------
-    session_path : str
+    session_path : str, pathlib.Path
         A session path string
     as_dict : bool
         If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
@@ -77,18 +76,56 @@ def session_path_parts(session_path: str, as_dict=False, assert_valid=True):
 
     Returns
     -------
-        An OrderedDict if as_dict is true, or a tuple of parsed values
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
+
+    Raises
+    ------
+    ValueError
+        Invalid ALF session path (assert_valid is True)
     """
-    parsed = spec.regex(SESSION_SPEC).search(session_path)
-    if parsed:
-        return OrderedDict(**parsed.groupdict()) if as_dict else (*parsed.groupdict().values(),)
+    return _path_parts(session_path, SESSION_SPEC, False, as_dict, assert_valid)
+
+
+def _path_parts(path, spec_str, match=True, as_dict=False, assert_valid=True):
+    """Given a ALF and a spec string, parse into parts
+
+    Parameters
+    ----------
+    path : str, pathlib.Path
+        An ALF path or dataset
+    match : bool
+        If True, string must match exactly, otherwise search for expression within path
+    as_dict : bool
+        When true a dict of matches is returned
+    assert_valid : bool
+        When true an exception is raised when the filename cannot be parsed
+
+    Returns
+    -------
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
+
+    Raises
+    ------
+    ValueError
+        Invalid ALF path (assert_valid is True)
+    """
+    if hasattr(path, 'as_posix'):
+        path = path.as_posix()
+    pattern = spec.regex(spec_str)
+    empty = OrderedDict.fromkeys(pattern.groupindex.keys())
+    parsed = (pattern.match if match else pattern.search)(path)
+    if parsed:  # py3.8
+        parsed_dict = parsed.groupdict()
+        return OrderedDict(parsed_dict) if as_dict else tuple(parsed_dict.values())
     elif assert_valid:
-        raise ValueError('Invalid session path')
-    empty = spec.regex(SESSION_SPEC).groupindex.keys()
-    return OrderedDict.fromkeys(empty) if as_dict else tuple([None] * len(empty))
+        raise ValueError(f'Invalid ALF: "{path}"')
+    else:
+        return empty if as_dict else tuple(empty.values())
 
 
-def filename_parts(filename, as_dict=False, assert_valid=True):
+def filename_parts(filename, as_dict=False, assert_valid=True) -> Union[dict, tuple]:
     """
     Return the parsed elements of a given ALF filename.
 
@@ -137,27 +174,121 @@ def filename_parts(filename, as_dict=False, assert_valid=True):
     ('spikeglx', 'ephysData_g0_t0', 'imec0', None, 'lf', 'bin')
     >>> filename_parts('_ibl_trials.goCue_times_bpod.csv')
     ('ibl', 'trials', 'goCue_times', 'bpod', None, 'csv')
+
+    Raises
+    ------
+    ValueError
+        Invalid ALF dataset (assert_valid is True)
     """
-    pattern = spec.regex(FILE_SPEC)
-    empty = OrderedDict.fromkeys(pattern.groupindex.keys())
-    m = pattern.match(str(filename))
-    if m:  # py3.8
-        return OrderedDict(m.groupdict()) if as_dict else m.groups()
-    elif assert_valid:
-        raise ValueError(f'Invalid ALF filename: "{filename}"')
+    return _path_parts(filename, FILE_SPEC, True, as_dict, assert_valid)
+
+
+def full_path_parts(path, as_dict=False, assert_valid=True) -> Union[dict, tuple]:
+    """Parse all filename and folder parts.
+
+    Parameters
+    ----------
+    path : str, pathlib.Path
+        The ALF path
+    as_dict : bool
+        When true a dict of matches is returned
+    assert_valid : bool
+        When true an exception is raised when the filename cannot be parsed
+
+    Returns
+    -------
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
+
+    Examples
+    --------
+    >>> full_path_parts(
+    ...    'lab/Subjects/subject/2020-01-01/001/collection/#revision#/'
+    ...    '_namespace_obj.times_timescale.extra.foo.ext')
+    ('lab', 'subject', '2020-01-01', '001', 'collection', 'revision',
+    'namespace', 'obj', 'times','timescale', 'extra.foo', 'ext')
+    >>> full_path_parts('spikes.clusters.npy', as_dict=True)
+    {'lab': None,
+     'subject': None,
+     'date': None,
+     'number': None,
+     'collection': None,
+     'revision': None,
+     'namespace': None,
+     'object': 'spikes',
+     'attribute': 'clusters',
+     'timescale': None,
+     'extra': None,
+     'extension': 'npy'}
+
+    Raises
+    ------
+    ValueError
+        Invalid ALF path (assert_valid is True)
+    """
+    path = Path(path)
+    # NB We try to determine whether we have a folder or filename path.  Filenames contain at
+    # least two periods, however it is currently permitted to have any number of periods in a
+    # collection, making the ALF path ambiguous.
+    if sum(x == '.' for x in path.name) < 2:  # folder only
+        folders = folder_parts(path, as_dict, assert_valid)
+        dataset = filename_parts('', as_dict, assert_valid=False)
+    elif '/' not in path.as_posix():  # filename only
+        folders = folder_parts('', as_dict, assert_valid=False)
+        dataset = filename_parts(path.name, as_dict, assert_valid)
+    else:  # full filepath
+        folders = folder_parts(path.parent, as_dict, assert_valid)
+        dataset = filename_parts(path.name, as_dict, assert_valid)
+    if as_dict:
+        return OrderedDict(**folders, **dataset)
     else:
-        return empty if as_dict else empty.values()
+        return folders + dataset
 
 
-def path_parts(file_path: str) -> dict:
-    pass
+def folder_parts(folder_path, as_dict=False, assert_valid=True) -> Union[dict, tuple]:
+    """Parse all folder parts, including session, collection and revision.
 
+    Parameters
+    ----------
+    folder_path : str, pathlib.Path
+        The ALF folder path
+    as_dict : bool
+        When true a dict of matches is returned
+    assert_valid : bool
+        When true an exception is raised when the filename cannot be parsed
 
-def folder_parts(folder_path: str) -> dict:
-    pass
+    Returns
+    -------
+    OrderedDict, tuple
+        A dict if as_dict is true, or a tuple of parsed values
+
+    Examples
+    --------
+    >>> folder_parts('lab/Subjects/subject/2020-01-01/001/collection/#revision#')
+    ('lab', 'subject', '2020-01-01', '001', 'collection', 'revision')
+    >>> folder_parts(Path('lab/Subjects/subject/2020-01-01/001'), as_dict=True)
+    {'lab': 'lab',
+     'subject': 'subject',
+     'date': '2020-01-01',
+     'number': '001',
+     'collection': None,
+     'revision': None}
+
+    Raises
+    ------
+    ValueError
+        Invalid ALF path (assert_valid is True)
+    """
+    if hasattr(folder_path, 'as_posix'):
+        folder_path = folder_path.as_posix()
+    if folder_path and folder_path[-1] != '/':  # Slash required for regex pattern
+        folder_path = folder_path + '/'
+    spec_str = f'{SESSION_SPEC}/{COLLECTION_SPEC}'
+    return _path_parts(folder_path, spec_str, False, as_dict, assert_valid)
 
 
 def _isdatetime(s: str) -> bool:
+    """Returns True if input is valid ISO date string"""
     try:
         datetime.strptime(s, '%Y-%m-%d')
         return True
@@ -166,8 +297,23 @@ def _isdatetime(s: str) -> bool:
 
 
 def get_session_path(path: Union[str, Path]) -> Optional[Path]:
-    """Returns the session path from any filepath if the date/number
-    pattern is found"""
+    """
+    Returns the session path from any filepath if the date/number pattern is found,
+    including the root directory
+
+    Returns
+    -------
+    pathlib.Path
+        The session path part of the input path or None if path invalid.
+
+    Examples
+    --------
+    >>> get_session_path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
+    Path('/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001')
+
+    >>> get_session_path('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy')
+    Path('C:/Data/subject/2020-01-01/1')
+    """
     if path is None:
         return
     if isinstance(path, str):
@@ -181,13 +327,10 @@ def get_session_path(path: Union[str, Path]) -> Optional[Path]:
 
 
 def get_alf_path(path: Union[str, Path]) -> str:
-    """Returns the ALF part of a path or filename
+    """Returns the ALF part of a path or filename.
     Attempts to return the first valid part of the path, first searching for a session path,
     then relative path (collection/revision/filename), then just the filename.  If all invalid,
     None is returned.
-
-    NB: There is no way to discern between lab/Subjects/subject/date/number and
-    irrelevant/subject/date/number
 
     Parameters
     ----------
@@ -196,17 +339,18 @@ def get_alf_path(path: Union[str, Path]) -> str:
 
     Returns
     -------
-    A string containing the full ALF path, session path, relative path or filename
+    str
+        A string containing the full ALF path, session path, relative path or filename
 
     Examples
     --------
-    get_alf_path('etc/etc/lab/subj/2021-01-21/001')
-    'lab/subj/2021-01-21/001/collection/file.attr.ext'
+    >>> get_alf_path('etc/etc/lab/Subjects/subj/2021-01-21/001')
+    'lab/Subjects/subj/2021-01-21/001/collection/file.attr.ext'
 
-    get_alf_path('subj/2021-01-21/001/collection/file.attr.ext')
-    'file.attr.ext'
+    >>> get_alf_path('etc/etc/subj/2021-01-21/001/collection/file.attr.ext')
+    'subj/2021-01-21/001/collection/file.attr.ext'
 
-    get_alf_path('collection/file.attr.ext')
+    >>> get_alf_path('collection/file.attr.ext')
     'collection/file.attr.ext'
     """
     if not isinstance(path, str):
@@ -238,7 +382,8 @@ def add_uuid_string(file_path, uuid):
 
     Returns
     -------
-    A new Path object with a UUID in the filename
+    pathlib.Path
+        A new Path object with a UUID in the filename
     """
     if isinstance(uuid, str) and not spec.is_uuid_string(uuid):
         raise ValueError('Should provide a valid UUID v4')

@@ -1,3 +1,4 @@
+"""Unit tests for the one.webclient module"""
 import unittest
 from unittest import mock
 from pathlib import Path
@@ -12,6 +13,7 @@ import requests
 import json
 import logging
 from datetime import datetime, timedelta
+from uuid import UUID
 
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
@@ -27,14 +29,16 @@ ac = wc.AlyxClient(**TEST_DB_1)
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAuthentication(unittest.TestCase):
+    """Tests for AlyxClient authentication, token storage, login/out methods and user prompts"""
     def setUp(self) -> None:
         self.ac = wc.AlyxClient(**TEST_DB_2)
 
     def test_authentication(self):
+        """Test for AlyxClient.authenticate and AlyxClient.is_logged_in property"""
         ac = self.ac
-        self.assertTrue(ac.is_logged_in())
+        self.assertTrue(ac.is_logged_in)
         ac.logout()
-        self.assertFalse(ac.is_logged_in())
+        self.assertFalse(ac.is_logged_in)
         # Check token removed from cache
         cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
         self.assertFalse(TEST_DB_2['username'] in cached_token)
@@ -46,7 +50,7 @@ class TestAuthentication(unittest.TestCase):
         with mock.patch('builtins.input') as mock_input:
             ac.authenticate()
             mock_input.assert_not_called()
-        self.assertTrue(ac.is_logged_in())
+        self.assertTrue(ac.is_logged_in)
         # Test using input args
         ac._par = iopar.from_dict({k: v for k, v in ac._par.as_dict().items()
                                    if k not in login_keys})
@@ -63,7 +67,7 @@ class TestAuthentication(unittest.TestCase):
         with mock.patch('builtins.input', return_value=TEST_DB_2['username']),\
              mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']):
             ac.authenticate(cache_token=True)
-        self.assertTrue(ac.is_logged_in())
+        self.assertTrue(ac.is_logged_in)
         # Check token saved in cache
         ac.authenticate(cache_token=True)
         cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
@@ -77,9 +81,10 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()  # Shouldn't complain
 
     def test_auth_methods(self):
+        """Test behaviour when calling AlyxClient._generic_request when logged out"""
         # Check that authentication happens when making a logged out request
         self.ac.logout()
-        assert not self.ac.is_logged_in()
+        assert not self.ac.is_logged_in
         # Set pars for auto login
         login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
         if not set(self.ac._par.as_dict().keys()) >= login_keys:
@@ -88,16 +93,37 @@ class TestAuthentication(unittest.TestCase):
 
         # Test generic request
         self.ac._generic_request(requests.get, '/sessions?user=Hamish')
-        self.assertTrue(ac.is_logged_in())
+        self.assertTrue(ac.is_logged_in)
 
         # Test download cache tables
         self.ac.logout()
-        assert not self.ac.is_logged_in()
+        assert not self.ac.is_logged_in
         self.ac.download_cache_tables()
-        self.assertTrue(ac.is_logged_in())
+        self.assertTrue(ac.is_logged_in)
+
+    def test_auth_errors(self):
+        """Test behaviour when authentication fails"""
+        self.ac.logout()  # Make sure logged out
+        with self.assertRaises(requests.HTTPError) as ex:
+            ac.authenticate(password='wrong_pass')
+            self.assertTrue('user = intbrainlab' in str(ex))
+            self.assertFalse('wrong_pass' in str(ex))
+        # Check behaviour when connection error occurs (should mention firewall settings)
+        with mock.patch('one.webclient.requests.post', side_effect=requests.ConnectionError),\
+             self.assertRaises(ConnectionError) as ex:
+            ac.authenticate()
+            self.assertTrue('firewall' in str(ex))
+        # Check behaviour when server error occurs
+        rep = requests.Response()
+        rep.status_code = 500
+        with mock.patch('one.webclient.requests.post', return_value=rep),\
+             self.assertRaises(requests.HTTPError):
+            ac.authenticate()
 
 
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestJsonFieldMethods(unittest.TestCase):
+    """Tests for AlyxClient methods that modify the JSON field of a REST endpoint"""
     def setUp(self):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
         self.eid1 = '242f2929-faaf-4e7c-ae3f-4a935c6d8da5'
@@ -148,12 +174,14 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.assertTrue(len(ses) == 1)
 
     def test_json_methods(self):
+        """Test for AlyxClient.json_field* methods (write, update, remove_key and delete)"""
         self._json_field_write()
         self._json_field_update()
         self._json_field_remove_key()
         self._json_field_delete()
 
     def test_empty(self):
+        """Test for AlyxClient.json_field* methods when JSON field is empty"""
         # Check behaviour when fields are empty
         self.ac.rest(self.endpoint, 'partial_update', id=self.eid1, data={self.field_name: None})
         # Should return None as no keys exist
@@ -189,6 +217,7 @@ class TestJsonFieldMethods(unittest.TestCase):
 
 
 class TestRestCache(unittest.TestCase):
+    """Tests for REST caching system, the cache decorator and cache flags"""
     def setUp(self):
         util.setup_test_params()  # Ensure test alyx set up
         util.setup_rest_cache()  # Copy rest cache fixtures
@@ -203,6 +232,7 @@ class TestRestCache(unittest.TestCase):
         self.cache_mode = ac.cache_mode
 
     def test_loads_cached(self):
+        """Test for one.webclient._cache_response decorator, checks returns cached result"""
         # Check returns cache
         wrapped = wc._cache_response(lambda *args: self.assertTrue(False))
         client = ac  # Bunch({'base_url': 'https://test.alyx.internationalbrainlab.org'})
@@ -210,6 +240,7 @@ class TestRestCache(unittest.TestCase):
         self.assertEqual(res['id'], self.query.split('/')[-1])
 
     def test_expired_cache(self):
+        """Test behaviour when cached REST query is expired"""
         # Checks expired
         wrapped = wc._cache_response(lambda *args: 'called')
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')
@@ -217,6 +248,7 @@ class TestRestCache(unittest.TestCase):
         self.assertTrue(res == 'called')
 
     def test_caches_response(self):
+        """Test caches query response before returning"""
         # Default expiry time
         ac.default_expiry = timedelta(minutes=1)
         wrapped = wc._cache_response(lambda *args: 'called')
@@ -234,6 +266,7 @@ class TestRestCache(unittest.TestCase):
         self.assertEqual(when, '2021-05-13T00:01:00')
 
     def test_cache_mode(self):
+        """Test for AlyxClient.cache_mode property"""
         # With cache mode off, wrapped method should be called even in presence of valid cache
         ac.cache_mode = None  # cache nothing
         wrapped = wc._cache_response(lambda *args: 'called')
@@ -241,6 +274,7 @@ class TestRestCache(unittest.TestCase):
         self.assertTrue(res == 'called')
 
     def test_expiry_param(self):
+        """Test for expires kwarg in one.webclient._cache_response decorator"""
         # Check expiry param
         wrapped = wc._cache_response(lambda *args: '123')
         res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
@@ -257,6 +291,7 @@ class TestRestCache(unittest.TestCase):
         self.assertTrue(res == '789')
 
     def test_cache_returned_on_error(self):
+        """Test behaviour when connection error occurs and cached response exists"""
         func = mock.Mock(side_effect=requests.ConnectionError())
         wrapped = wc._cache_response(func)
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')  # Expired
@@ -269,6 +304,7 @@ class TestRestCache(unittest.TestCase):
             wrapped(ac, requests.get, self.query, clobber=True)
 
     def test_clear_cache(self):
+        """Test for AlyxClient.clear_rest_cache"""
         assert any(self.cache_dir.glob('*'))
         ac.clear_rest_cache()
         self.assertFalse(any(self.cache_dir.glob('*')))
@@ -294,10 +330,21 @@ class TestDownloadHTTP(unittest.TestCase):
         self.test_data_uuid = '84116a5c-131e-40a2-92d4-62c4aaae5c52'  # OpenAlyx dataset
 
     def test_paginated_request(self):
+        """Check that paginated response object is returned upon making large queries"""
         rep = self.ac.rest('datasets', 'list')
         self.assertTrue(isinstance(rep, one.webclient._PaginatedResponse))
         self.assertTrue(len(rep) > 250)
-        self.assertTrue(len([d['hash'] for d in rep]) == len(rep))
+        # This fails when new records are added/removed from the remote db while iterating
+        # self.assertTrue(len([_ for _ in rep]) == len(rep))
+
+        # Test what happens when list changes between paginated requests
+        name = '0A' + str(random.randint(0, 10000))
+        # Add subject between calls
+        rep = self.ac.rest('subjects', 'list', limit=5, no_cache=True)
+        s = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
+        self.addCleanup(self.ac.rest, 'subjects', 'delete', id=s['nickname'])
+        with self.assertWarns(RuntimeWarning):
+            _ = rep[10]
 
     def test_update_url_params(self):
         url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
@@ -339,6 +386,7 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertEqual(sub['death_date'], data['death_date'])
 
     def test_rest_endpoint_read_only(self):
+        """Test AlyxClient.rest method with 'list' and 'read' actions"""
         # tests that non-existing endpoints /actions are caught properly
         with self.assertRaises(ValueError):
             self.ac.rest(url='turlu', action='create')
@@ -353,6 +401,9 @@ class TestDownloadHTTP(unittest.TestCase):
         c = self.ac.rest('labs', 'read', 'mainenlab')
         self.assertTrue([lab for lab in a if
                          lab['name'] == 'mainenlab'][0] == c)
+        # test read with UUID object
+        dset = self.ac.rest('datasets', 'read', id=UUID('738eca6f-d437-40d6-a9b8-a3f4cbbfbff7'))
+        self.assertEqual(dset['name'], '_iblrig_videoCodeFiles.raw.zip')
         # Test with full URL
         d = self.ac.rest(
             'labs', 'read',
@@ -391,12 +442,16 @@ class TestDownloadHTTP(unittest.TestCase):
         old_par = ac._par
         ac._par = ac._par.set('HTTP_DATA_SERVER_PWD', 'foobar')
         with self.assertLogs(logging.getLogger('one.webclient'), logging.ERROR) as log:
+            raised = False
             try:
                 ac.download_file(url, cache_dir=cache_dir)
                 self.assertTrue(url[0] in log.output[-1])
-            except Exception:
-                pass
+            except Exception as ex:
+                # Check error message mentions the HTTP_DATA_SERVER params
+                self.assertTrue('HTTP_DATA_SERVER_PWD' in str(ex))
+                raised = True
             finally:
+                self.assertTrue(raised)
                 ac._par = old_par
 
     def test_download_datasets(self):
@@ -427,6 +482,7 @@ class TestDownloadHTTP(unittest.TestCase):
             self.assertTrue(len(data) > 0)
 
     def test_rest_all_actions(self):
+        """Test for AlyxClient.rest method using subjects endpoint"""
         # randint reduces conflicts with parallel tests
         nickname = f'foobar_{random.randint(0, 10000)}'
         newsub = {
@@ -462,14 +518,25 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertFalse(sub)
 
     def test_endpoints_docs(self):
+        """Test for AlyxClient.list_endpoints method and AlyxClient.rest"""
         # Test endpoint documentation and validation
         endpoints = self.ac.list_endpoints()
         self.assertTrue('auth-token' not in endpoints)
+        # Check that calling rest method with no args prints endpoints
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             self.ac.rest()
             self.assertTrue(k in stdout.getvalue() for k in endpoints)
+        # Same but with no action
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            self.ac.rest('sessions')
+            actions = self.ac.rest_schemes['sessions'].keys()
+            self.assertTrue(all(k in stdout.getvalue() for k in actions))
+        # Check logs warning when no id provided
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
             self.assertIsNone(self.ac.rest('sessions', 'read'))
+        # Check logs warning when creating record with missing data
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
+            self.assertIsNone(self.ac.rest('sessions', 'create'))
         with self.assertRaises(ValueError) as e:
             self.ac.json_field_write('foobar')
         self.assertTrue(k in str(e.exception) for k in endpoints)
@@ -477,6 +544,7 @@ class TestDownloadHTTP(unittest.TestCase):
 
 class TestMisc(unittest.TestCase):
     def test_update_url_params(self):
+        """Test for one.webclient.update_url_params"""
         url = wc.update_url_params('website.com/?q=', {'pg': 5})
         self.assertEqual('website.com/?pg=5', url)
 
@@ -489,6 +557,24 @@ class TestMisc(unittest.TestCase):
         new_url = wc.update_url_params(url, {'param2': '#2020-01-03#,#2021-02-01#'})
         expected = '/path?param1=foo+bar&param2=%232020-01-03%23%2C%232021-02-01%23'
         self.assertEqual(expected, new_url)
+
+    def test_validate_file_url(self):
+        """Test for AlyxClient._validate_file_url"""
+        # Should assert that domain matches data server parameter
+        with self.assertRaises(AssertionError):
+            ac._validate_file_url('https://webserver.net/path/to/file')
+        # Should check that the domain is equal and return same URL
+        expected = ac._par.HTTP_DATA_SERVER + '/path/to/file.ext'
+        self.assertEqual(ac._validate_file_url(expected), expected)
+        # Should prepend data server URL
+        self.assertEqual(ac._validate_file_url('/path/to/file.ext'), expected)
+
+    def test_no_cache_context_manager(self):
+        """Test for one.webclient.no_cache function"""
+        assert ac.cache_mode is not None
+        with wc.no_cache(ac):
+            self.assertIsNone(ac.cache_mode)
+        self.assertIsNotNone(ac.cache_mode)
 
 
 if __name__ == '__main__':

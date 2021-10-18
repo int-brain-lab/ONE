@@ -3,9 +3,9 @@
 There are multiple ways to uniquely identify an experiment:
     - eid (str) : An experiment UUID as a string
     - np (int64) : An experiment UUID encoded as 2 int64s
-    - path (Path) : A pathlib ALF path of the form <lab>/Subjects/<subject>/<date>/<number>
-    - ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject
-    - url (str) : An remote http session path of the form <lab>/Subjects/<subject>/<date>/<number>
+    - path (Path) : A pathlib ALF path of the form `<lab>/Subjects/<subject>/<date>/<number>`
+    - ref (str) : An experiment reference string of the form `yyyy-mm-dd_n_subject`
+    - url (str) : A remote http session path of the form `<lab>/Subjects/<subject>/<date>/<number>`
 """
 import re
 import functools
@@ -28,6 +28,23 @@ from .util import Listable
 
 
 def recurse(func):
+    """Decorator to call decorated function recursively if first arg is non-string iterable.
+
+    Allows decorated methods to accept both single values, and lists/tuples of values.  When
+    given the latter, a list is returned.  This decorator is intended to work on class methods,
+    therefore the first arg is assumed to be the object.  Maps and pandas objects are not
+    iterated over.
+
+    Parameters
+    ----------
+    func : function
+        A method to decorate
+
+    Returns
+    -------
+    function
+        The decorated method
+    """
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
         if len(args) <= 1:
@@ -42,7 +59,13 @@ def recurse(func):
 
 
 def parse_values(func):
-    """Convert str values in reference dict to appropriate type"""
+    """Convert str values in reference dict to appropriate type.
+
+    Example
+    -------
+    >>> parse_values(lambda x: x)({'date': '2020-01-01', 'sequence': '001'}, parse=True)
+    {'date': datetime.date(2020, 1, 1), 'sequence': 1}
+    """
     def parse_ref(ref):
         if ref:
             if isinstance(ref['date'], str):
@@ -67,6 +90,7 @@ def parse_values(func):
 
 
 class ConversionMixin:
+    """A mixin providing methods to interconvert experiment identifiers"""
 
     def __init__(self):
         self._cache = None
@@ -76,6 +100,27 @@ class ConversionMixin:
     def to_eid(self,
                id: Listable(Union[str, Path, UUID, dict]) = None,
                cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
+        """Given any kind of experiment identifier, return a corresponding eid string.
+
+        NB: Currently does not support integer IDs.
+
+        Parameters
+        ----------
+        id : str, pathlib.Path, UUID, dict, tuple, list
+            An experiment identifier
+        cache_dir : pathlib.Path, str
+            An optional cache directory path for intermittent conversion to path
+
+        Returns
+        -------
+        str, None
+            An experiment ID string or None if session not in cache
+
+        Raises
+        ------
+        ValueError
+            Input ID invalid
+        """
         # TODO Could add np2str here
         # if isinstance(id, (list, tuple)):  # Recurse
         #     return [self.to_eid(i, cache_dir) for i in id]
@@ -86,12 +131,12 @@ class ConversionMixin:
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
         elif isinstance(id, dict):
-            assert {'subject', 'number', 'start_time', 'lab'}.issubset(id)
-            root = Path(cache_dir or self._cache_dir)
+            assert {'subject', 'number', 'lab'}.issubset(id)
+            root = Path(cache_dir or self.cache_dir)
             id = root.joinpath(
                 id['lab'],
                 'Subjects', id['subject'],
-                id['start_time'][:10],
+                str(id.get('date') or id['start_time'][:10]),
                 ('%03d' % id['number']))
 
         if isinstance(id, Path):
@@ -120,14 +165,9 @@ class ConversionMixin:
 
         Returns
         -------
-        A pathlib.Path of the session
+        pathlib.Path
+            A session path
         """
-        # If eid is a list of eIDs recurse through list and return the results
-        if isinstance(eid, list):
-            path_list = []
-            for p in eid:
-                path_list.append(self.eid2path(p))
-            return path_list
         # If not valid return None
         if not is_uuid_string(eid):
             raise ValueError(eid + " is not a valid eID/UUID string")
@@ -141,7 +181,7 @@ class ConversionMixin:
             ses = self._cache['sessions'].loc[eid]
             assert len(ses) == 1, 'Duplicate eids in sessions table'
             ses, = ses.to_dict('records')
-            return Path(self._cache_dir).joinpath(
+            return Path(self.cache_dir).joinpath(
                 ses['lab'], 'Subjects', ses['subject'],
                 str(ses['date']), str(ses['number']).zfill(3))
         except KeyError:
@@ -159,7 +199,8 @@ class ConversionMixin:
 
         Returns
         -------
-        Experiment ID (eid) string or list of eids
+        eid, list
+            Experiment ID (eid) string or list of eids
         """
         # else ensure the path ends with mouse,date, number
         session_path = get_session_path(path_obj)
@@ -185,9 +226,9 @@ class ConversionMixin:
         return eid
 
     @recurse
-    def path2record(self, filepath):
-        """
-        TODO Return Series instead of DataFrame
+    def path2record(self, filepath) -> pd.Series:
+        """Convert a file path to a dataset cache record.
+
         NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
 
         Parameters
@@ -197,8 +238,14 @@ class ConversionMixin:
 
         Returns
         -------
-        pandas.Series corresponding to the file
+        pandas.Series
+            A cache file record
         """
+        rec = self._cache['datasets']
+        if rec.empty:
+            return
+        # if (rec := self._cache['datasets']).empty:  # py 3.8
+        #     return
         if isinstance(filepath, str) and filepath.startswith('http'):
             # Remove the UUID from path
             filepath = urlsplit(filepath).path.strip('/')
@@ -207,16 +254,14 @@ class ConversionMixin:
         else:
             # No way of knowing root session path parts without cache tables
             eid = self.path2eid(filepath)
-            session_path, *_ = self.list_datasets(eid, details=True).session_path
-        rec = self._cache['datasets']
-        if rec.empty:
-            return
-        # if (rec := self._cache['datasets']).empty:  # py 3.8
-        #     return
+            session_series = self.list_datasets(eid, details=True).session_path
+            if not eid or session_series.empty:
+                return
+            session_path, *_ = session_series
         rec = rec[rec['session_path'] == session_path]
         rec = rec[rec['rel_path'].apply(lambda x: filepath.as_posix().endswith(x))]
         assert len(rec) < 2, 'Multiple records found'
-        return None if rec.empty else rec
+        return None if rec.empty else rec.squeeze()
 
     @recurse
     def path2url(self, filepath):
@@ -230,7 +275,8 @@ class ConversionMixin:
 
         Returns
         -------
-        A remote URL string
+        str
+            A remote URL string
         """
         record = self.path2record(filepath)
         if record is None:
@@ -238,15 +284,30 @@ class ConversionMixin:
         return unwrap(self.record2url)(record)
 
     def record2url(self, dataset):
+        """Convert a dataset record to a remote file URL
+
+        NB: Requires online instance
+
+        Parameters
+        ----------
+        dataset : pd.Series, pd.DataFrame
+            A datasets cache record.  If DataFrame, iterate over and returns list.
+
+        Returns
+        -------
+        str, list
+            A dataset URL or list if input is DataFrame
+        """
         assert self._web_client
         # FIXME Should be OneAlyx converter only
-        # TODO Document
-        # for i, rec in dataset.iterrows():
+        if isinstance(dataset, pd.DataFrame):
+            return [self.record2url(r) for _, r in dataset.iterrows()]
         if isinstance(dataset, pd.Series):
-            uuid, = parquet.np2str(np.array([dataset.name]))
-        else:
-            assert len(dataset) == 1
-            uuid, = parquet.np2str(dataset.reset_index()[['id_0', 'id_1']])
+            if isinstance(dataset.name, str):
+                uuid = dataset.name
+            else:
+                uuid, = parquet.np2str(np.array([dataset.name]))
+
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
         return self._web_client.rel_path2url(add_uuid_string(url, uuid).as_posix())
@@ -263,11 +324,12 @@ class ConversionMixin:
 
         Returns
         -------
-        File path for the record
+        pathlib.Path
+            File path for the record
         """
         assert isinstance(dataset, pd.Series) or len(dataset) == 1
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
-        file = Path(self._cache_dir, session_path, rel_path)
+        file = Path(self.cache_dir, session_path, rel_path)
         return file  # files[0] if len(datasets) == 1 else files
 
     @recurse
@@ -288,8 +350,9 @@ class ConversionMixin:
 
         Returns
         -------
-        One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
-        form yyyy-mm-dd_n_subject
+        dict, str, list
+            One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
+            form yyyy-mm-dd_n_subject
 
         Examples
         --------
@@ -308,12 +371,12 @@ class ConversionMixin:
         """
         d = self.get_details(eid)
         if parse:
-            date = datetime.datetime.fromisoformat(d['start_time']).date()
-            ref = {'subject': d['subject'], 'date': date, 'sequence': d['number']}
+            ref = {'subject': d['subject'], 'date': d['date'], 'sequence': d['number']}
             format_str = '{date:%Y-%m-%d}_{sequence:d}_{subject:s}'
         else:
-            date = d['start_time'][:10]
-            ref = {'subject': d['subject'], 'date': date, 'sequence': '%03d' % d['number']}
+            ref = {
+                'subject': d['subject'], 'date': str(d['date']), 'sequence': '%03d' % d['number']
+            }
             format_str = '{date:s}_{sequence:s}_{subject:s}'
         return Bunch(ref) if as_dict else format_str.format(**ref)
 
@@ -330,7 +393,8 @@ class ConversionMixin:
 
         Returns
         -------
-        One or more experiment uuid strings
+        str, list
+            One or more experiment uuid strings
 
         Examples
         --------
@@ -365,7 +429,8 @@ class ConversionMixin:
 
         Returns
         -------
-        Path object(s) for the experiment session(s)
+        pathlib.Path
+            Path object(s) for the experiment session(s)
 
         Examples
         --------
@@ -399,7 +464,8 @@ class ConversionMixin:
 
         Returns
         -------
-        One or more objects with keys ('subject', 'date', 'sequence')
+        dict, str, list
+            One or more objects with keys ('subject', 'date', 'sequence')
 
         Examples
         --------
@@ -433,7 +499,8 @@ class ConversionMixin:
 
         Returns
         -------
-        An acquisition.Session table
+        acquisition.Session
+            An acquisition.Session table corresponding to the ref
 
         Examples
         --------
@@ -480,7 +547,8 @@ class ConversionMixin:
 
         Returns
         -------
-        True if ref is valid
+        bool
+            True if ref is valid
 
         Examples
         --------
@@ -521,7 +589,8 @@ class ConversionMixin:
 
         Returns
         -------
-        A Bunch in with keys ('subject', 'sequence', 'date')
+        iblutil.util.Bunch
+            A Bunch in with keys ('subject', 'sequence', 'date')
 
         Examples
         --------
@@ -541,7 +610,20 @@ class ConversionMixin:
         return Bunch(ref)
 
     @staticmethod
-    def dict2ref(ref_dict):
+    def dict2ref(ref_dict) -> Union[str, List]:
+        """
+        Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.
+
+        Parameters
+        ----------
+        ref_dict : dict, Bunch, list, tuple
+            A map with the keys ('subject', 'date', 'sequence')
+
+        Returns
+        -------
+        str, list:
+            An experiment reference string, or list thereof
+        """
         if isinstance(ref_dict, (list, tuple)):
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
         if not ref_dict:
@@ -567,14 +649,15 @@ def one_path_from_dataset(dset, one_cache):
 
     Returns
     -------
-    The local path for a given dataset
+    pathlib.Path
+        The local path for a given dataset
     """
     return path_from_dataset(dset, root_path=one_cache, uuid=False)
 
 
 def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=False):
     """
-    Returns the local file path from a dset record from a REST query
+    Returns the local file path from a dset record from a REST query.
     Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
 
     Parameters
@@ -591,7 +674,8 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
 
     Returns
     -------
-    File path or list of paths
+    pathlib.Path, list
+        File path or list of paths
     """
     if isinstance(dset, list):
         return [path_from_dataset(d) for d in dset]
@@ -620,7 +704,8 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
 
     Returns
     -------
-    A filepath as a pathlib object
+    pathlib.Path
+        A filepath as a pathlib object
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]

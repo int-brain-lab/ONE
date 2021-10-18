@@ -1,3 +1,4 @@
+"""Utilities functions for setting up test fixtures."""
 import tempfile
 from pathlib import Path
 import shutil
@@ -11,13 +12,21 @@ from iblutil.io.parquet import uuid2np, np2str
 import one.params
 
 
-def set_up_env() -> tempfile.TemporaryDirectory:
+def set_up_env(use_temp_cache=True) -> tempfile.TemporaryDirectory:
     """
-    Create a temporary directory and copy cache fixtures over
+    Create a temporary directory and copy cache fixtures over.
+
+    Parameters
+    ----------
+    use_temp_cache : bool
+        If True, copies REST cache fixtures to the temporary directory, otherwise they are copied
+        to the directory returned by one.params.get_params_dir
 
     Returns
     -------
-    TemporaryDirectory object
+    tempfile.TemporaryDirectory
+        The temporary directory containing the test ONE caches
+
     """
     fixture = Path(__file__).parent.joinpath('fixtures')
     tempdir = tempfile.TemporaryDirectory()
@@ -27,13 +36,21 @@ def set_up_env() -> tempfile.TemporaryDirectory:
         assert Path(filename).exists()
 
     # Copy cached rest responses
-    setup_rest_cache(Path(tempdir.name) / '.one')
+    rest_cache_location = Path(tempdir.name) / '.one' if use_temp_cache else None
+    setup_rest_cache(rest_cache_location)
 
     return tempdir
 
 
 def setup_rest_cache(param_dir=None):
-    """Copy REST cache fixtures to the .one parameter directory"""
+    """Copy REST cache fixtures to the .one parameter directory.
+
+    Parameters
+    ----------
+    param_dir : str, pathlib.Path
+        The location of the ONE params directory (e.g. ~/.one)
+
+    """
     fixture = Path(__file__).parent.joinpath('fixtures')
     path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
     rest_cache_dir = Path(param_dir or one.params.get_params_dir()).joinpath(*path_parts)
@@ -48,15 +65,33 @@ def setup_rest_cache(param_dir=None):
 
 
 def create_file_tree(one):
-    """Touch all the files in the datasets table"""
+    """Touch all the files in the datasets table.
+
+    Parameters
+    ----------
+    one : one.api.One
+        An instance of One containing cache tables to use.
+
+    """
     # Create dset files from cache
     for session_path, rel_path in one._cache.datasets[['session_path', 'rel_path']].values:
-        filepath = Path(one._cache_dir).joinpath(session_path, rel_path)
+        filepath = Path(one.cache_dir).joinpath(session_path, rel_path)
         filepath.parent.mkdir(exist_ok=True, parents=True)
         filepath.touch()
 
 
-def setup_test_params(token=False):
+def setup_test_params(token=False, cache_dir=None):
+    """
+    Copies cache parameter fixture to .one directory.
+
+    Parameters
+    ----------
+    token : bool
+        If true, save a token file so that client doesn't hit auth endpoint
+    cache_dir : str, pathlib.Path
+        The cache_dir to save
+
+    """
     params_dir = Path(one.params.get_params_dir())
     fixture = Path(__file__).parent.joinpath('fixtures')
     test_pars = '.test.alyx.internationalbrainlab.org'
@@ -66,14 +101,15 @@ def setup_test_params(token=False):
 
         # Add to cache map
         map_file = params_dir / '.caches'
-        if map_file.exists():
-            with open(map_file, 'r+') as f:
-                data = json.load(f)
-                data['CLIENT_MAP'][test_pars[1:]] = None
-                json.dump(data, f)
-        else:
+        if not map_file.exists():
             shutil.copy(fixture / 'params' / '.caches', map_file)
             assert Path(filename).exists()
+        with open(map_file, 'r+') as f:
+            data = json.load(f)
+            data['CLIENT_MAP'][test_pars[1:]] = str(cache_dir or '')
+            f.seek(0)
+            json.dump(data, f)
+            f.truncate()
 
     # Add token to file so db not hit
     if token:
@@ -86,6 +122,28 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
                              revisions=('', '2020-01-08', '2021-07-06'),
                              object='spikes',
                              attributes=('times', 'waveforems')):
+    """Returns a datasets cache DataFrame containing datasets with revision folders.
+
+    As there are no revised datasets on the test databases, this function acts as a fixture for
+    testing the filtering of datasets by a revision.
+
+    Parameters
+    ----------
+    collections : tuple
+        A list of collections
+    revisions : tuple
+        A list of revisions
+    object : str
+        An ALF object
+    attributes : tuple
+        A list of ALF attributes
+
+    Returns
+    -------
+    pd.DataFrame
+        A datasets cache table containing datasets made from the input names
+
+    """
     rel_path = []
     for attr in attributes:
         for collec in collections:
@@ -105,6 +163,16 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
 
 
 def create_schema_cache(param_dir=None):
+    """Save REST cache file for docs/ endpoint.
+
+    Ensures the database isn't hit when the rest_schemas property is accessed.
+
+    Parameters
+    ----------
+    param_dir : str, pathlib.Path
+        The location of the parameter directory.  If None, the default one is used.
+
+    """
     actions = dict.fromkeys(['list', 'read', 'create', 'update', 'partial_update', 'delete'])
     endpoints = ['cache', 'dataset-types', 'datasets', 'downloads', 'insertions', 'sessions']
     path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
@@ -126,7 +194,9 @@ def get_file(root: str, str_id: str) -> str:
 
     Returns
     -------
-    The parameter filename
+    str
+        The parameter file path
+
     """
     parts = ['.' + p if not p.startswith('.') else p for p in Path(str_id).parts]
     pfile = Path(root, *parts).as_posix()
@@ -134,16 +204,13 @@ def get_file(root: str, str_id: str) -> str:
 
 
 def caches_int2str(caches):
-    """Convert int ids to str ids for cache tables
+    """Convert int ids to str ids for cache tables.
 
     Parameters
     ----------
     caches : Bunch
         A bunch of cache tables (from One._cache)
 
-    Returns
-    -------
-        None
     """
     for table in ('sessions', 'datasets'):
         # Set integer uuids to NaN
