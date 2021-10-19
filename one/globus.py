@@ -141,15 +141,18 @@ def get_local_endpoint_path():
     """
     msg = ("Cannot find local endpoint path, check if Globus Connect is set up correctly, "
            "{} exists and contains a valid path.")
-    path_file = Path.home().joinpath(".globusonline", "lta", "config-paths")
-    if path_file.exists():
-        local_path = Path(path_file.read_text().strip().split(',')[0])
-        # TODO: needs to be tested on windows, got this from alyx transfers_integration.py
-        if os.environ.get('WSL_DISTRO_NAME', None):
-            local_path = Path(str(Path('/mnt/c/').joinpath(*str(local_path).split('/')[2:])) + '/')
-        if local_path.exists():
-            print(f"Found local endpoint path in Globus Connect settings {local_path}")
-            return str(local_path)
+    if sys.platform == 'win32':
+        local_path_input = input(f'On windows the local globus path needs to be entered manually. Press Enter to use the same'
+                                 f' path as the ONE cache dir or enter a path here: ').strip()
+        local_path = ONE().cache_dir if not local_path_input else Path(local_path_input)
+    else:
+        path_file = Path.home().joinpath(".globusonline", "lta", "config-paths")
+        if path_file.exists():
+            local_path = Path(path_file.read_text().strip().split(',')[0])
+
+    if local_path.exists():
+        print(f"Found local endpoint path in Globus Connect settings {local_path}")
+        return str(local_path)
     _logger.warning(msg.format(path_file))
     return None
 
@@ -173,6 +176,24 @@ def get_endpoint_info_from_name(endpoint=None, one=None):
     else:
         endpoint_dict = [r for r in repos if r['name'] == endpoint][0]
         return endpoint_dict['globus_endpoint_id'], endpoint_dict['globus_path']
+
+
+def get_lab_from_endpoint_id(endpoint=None, one=None):
+    """
+    Extracts lab name given an endpoint id root path given a repository name that is registered in the
+    database accessed by ONE.
+
+    :param endpoint: endpoint UUID, optional if not given will get attempt to find local endpoint id
+    :param one: ONE instance, optional
+    :return: list of str, [lab name]
+    """
+
+    one = one or ONE()
+    if not endpoint:
+        endpoint = get_local_endpoint_id()
+    lab = one.alyx.rest('labs', 'list', django=f"repositories__globus_endpoint_id,{endpoint}")
+    if len(lab):
+        return [la['name'] for la in lab]
 
 
 def _remove_uuid_from_filename(file_path):
@@ -285,7 +306,7 @@ class Globus:
             if 'root_path' in self.endpoints[endpoint].keys():
                 root_path = str(self.endpoints[endpoint]['root_path'])
             return endpoint_id, root_path
-        elif is_uuid(endpoint, range(1,5)):
+        elif is_uuid(endpoint, range(1, 5)):
             endpoint_id = endpoint
             return endpoint_id, None
         else:
@@ -383,4 +404,4 @@ class Globus:
                 _logger.debug("\nGlobus experienced a network error", exc_info=True)
                 # if we reach this point without returning or erroring, retry
                 _logger.warning("\nGlobus experienced a network error, retrying.")
-                self.run_task(globus_func, retries=(retries-1), time_out=time_out)
+                self.run_task(globus_func, retries=(retries - 1), time_out=time_out)
