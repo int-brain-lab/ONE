@@ -643,11 +643,15 @@ see the one.alf.spec.describe function.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.setup">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.setup" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.setup" title="Permalink to this definition"></a></dt>
 <dd><p>Set up One cache tables for a given data directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cache_dir</strong> (<em>pathlib.Path</em><em>, </em><em>str</em>) – A path to the ALF data directory</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dir</strong> (<em>pathlib.Path</em><em>, </em><em>str</em>) – A path to the ALF data directory</p></li>
+<li><p><strong>silent</strong> (<em>(</em><em>False</em><em>) </em><em>bool</em>) – when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
+when False will use cwd for cache_dir if cache_dir is None and use existing cache</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>An instance of One for the provided cache directory</p>

@@ -1189,29 +1189,35 @@
         <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="One.setup"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.setup">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set up One cache tables for a given data directory.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        cache_dir : pathlib.Path, str</span>
 <span class="sd">            A path to the ALF data directory</span>
-
+<span class="sd">        silent : (False) bool</span>
+<span class="sd">            when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any</span>
+<span class="sd">            when False will use cwd for cache_dir if cache_dir is None and use existing cache</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        One</span>
 <span class="sd">            An instance of One for the provided cache directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="p">:</span>
-            <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Select a directory from which to build cache (</span><span class="si">{</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+                <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Select a directory from which to build cache (</span><span class="si">{</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
             <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1"> does not exist&#39;</span>
 
         <span class="c1"># Check if cache already exists</span>
         <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;sessions.pqt&#39;</span><span class="p">),</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cache tables exist for </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">, overwrite? [y/N]&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">answer</span> <span class="ow">or</span> <span class="s1">&#39;n&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+            <span class="n">generate_cache</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+                <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cache tables exist for </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">, overwrite? [y/N]&#39;</span><span class="p">)</span>
+                <span class="n">generate_cache</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">generate_cache</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build cache tables</span>
