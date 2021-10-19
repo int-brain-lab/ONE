@@ -24,7 +24,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='ONE-api',
-    version='1.6.0',
+    version='1.6.1',
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
     description='Open Neurophysiology Environment',
     license="MIT",

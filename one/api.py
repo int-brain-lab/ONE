@@ -1089,29 +1089,35 @@ class One(ConversionMixin):
         return Bunch(collection)
 
     @staticmethod
-    def setup(cache_dir=None, **kwargs):
+    def setup(cache_dir=None, silent=False, **kwargs):
         """Set up One cache tables for a given data directory.
 
         Parameters
         ----------
         cache_dir : pathlib.Path, str
             A path to the ALF data directory
-
+        silent : (False) bool
+            when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
+            when False will use cwd for cache_dir if cache_dir is None and use existing cache
         Returns
         -------
         One
             An instance of One for the provided cache directory
         """
         if not cache_dir:
-            cache_dir = input(f'Select a directory from which to build cache ({Path.cwd()})')
+            if not silent:
+                cache_dir = input(f'Select a directory from which to build cache ({Path.cwd()})')
             cache_dir = cache_dir or Path.cwd()
         cache_dir = Path(cache_dir)
         assert cache_dir.exists(), f'{cache_dir} does not exist'
 
         # Check if cache already exists
         if next(cache_dir.glob('sessions.pqt'), False):
-            answer = input(f'Cache tables exist for {cache_dir}, overwrite? [y/N]')
-            if (answer or 'n').lower() == 'n':
+            generate_cache = False
+            if not silent:
+                answer = input(f'Cache tables exist for {cache_dir}, overwrite? [y/N]')
+                generate_cache = True if answer == 'y' else False
+            if not generate_cache:
                 return One(cache_dir, mode='local')
 
         # Build cache tables

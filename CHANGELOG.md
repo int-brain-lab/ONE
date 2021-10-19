@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.1]
+
+### Modified
+
+- rest command loging includes the whole json field on error
+- added silent option to instantiate One on local files
+
+
+## [1.6.0]
 
 ### Added
 

@@ -543,7 +543,7 @@ class AlyxClient():
             return
         else:
             try:
-                message = json.loads(r.text).get('detail')
+                message = json.loads(r.text)
             except json.decoder.JSONDecodeError:
                 message = r.text
             raise requests.HTTPError(r.status_code, rest_query, message, response=r)
