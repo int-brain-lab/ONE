@@ -542,8 +542,11 @@ class AlyxClient():
         elif r and r.status_code == 204:
             return
         else:
+            _logger.debug('Response text: ' + r.text)
             try:
                 message = json.loads(r.text)
+                message.pop('status_code', None)  # Get status code from response object instead
+                message = message.get('detail') or message  # Get details if available
             except json.decoder.JSONDecodeError:
                 message = r.text
             raise requests.HTTPError(r.status_code, rest_query, message, response=r)
@@ -790,7 +793,6 @@ class AlyxClient():
         JSON interpreted dictionary from response
         """
         rep = self._generic_request(requests.get, rest_query, **kwargs)
-        _logger.debug(rest_query)
         if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
             if len(rep['results']) < rep['count']:
                 cache_args = {k: v for k, v in kwargs.items() if k in ('clobber', 'expires')}
@@ -998,8 +1000,8 @@ class AlyxClient():
             field_name: str = None,
             data: dict = None
     ) -> dict:
-        """json_field_write [summary]
-        Write data to WILL NOT CHECK IF DATA EXISTS
+        """
+        Write data to JSON field.  WILL NOT CHECK IF DATA EXISTS
         NOTE: Destructive write!
 
         Parameters
@@ -1032,11 +1034,11 @@ class AlyxClient():
             field_name: str = 'json',
             data: dict = None
     ) -> dict:
-        """json_field_update
-        Non destructive update of json field of endpoint for object
+        """
+        Non-destructive update of JSON field of endpoint for object
         Will update the field_name of the object with pk = uuid of given endpoint
         If data has keys with the same name of existing keys it will squash the old
-        values (uses the dict.update() method)
+        values (uses the dict.update() method).
 
         Parameters
         ----------
@@ -1086,8 +1088,8 @@ class AlyxClient():
             field_name: str = 'json',
             key: str = None
     ) -> Optional[dict]:
-        """json_field_remove_key
-        Will remove inputted key from json field dict and re-upload it to Alyx.
+        """
+        Remove inputted key from JSON field dict and re-upload it to Alyx.
         Needs endpoint, uuid and json field name
 
         Parameters
