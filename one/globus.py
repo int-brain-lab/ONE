@@ -382,8 +382,8 @@ class Globus:
                 # Sometime Globus sets the status to SUCCEEDED but doesn't truly finish.
                 # Handle error thrown when querying task_successful_transfers too early
                 try:
-                    successful = self.client.task_successful_transfers(task_id, None)
-                    skipped = self.client.task_skipped_errors(task_id, None)
+                    successful = self.client.task_successful_transfers(task_id)
+                    skipped = self.client.task_skipped_errors(task_id)
                     print(f"\nGlobus task {task_id} completed."
                           f"\nSkipped transfers: {len(list(skipped))}"
                           f"\nSuccessful transfers: {len(list(successful))}")
