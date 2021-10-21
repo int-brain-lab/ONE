@@ -642,8 +642,11 @@
         <span class="k">elif</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Response text: &#39;</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">message</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Get status code from response object instead</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;detail&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">message</span>  <span class="c1"># Get details if available</span>
             <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
                 <span class="n">message</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
             <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
@@ -890,7 +893,6 @@
 <span class="sd">        JSON interpreted dictionary from response</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">rest_query</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;next&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]:</span>
                 <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;clobber&#39;</span><span class="p">,</span> <span class="s1">&#39;expires&#39;</span><span class="p">)}</span>
@@ -1098,8 +1100,8 @@
             <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;json_field_write [summary]</span>
-<span class="sd">        Write data to WILL NOT CHECK IF DATA EXISTS</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write data to JSON field.  WILL NOT CHECK IF DATA EXISTS</span>
 <span class="sd">        NOTE: Destructive write!</span>
 
 <span class="sd">        Parameters</span>
@@ -1132,11 +1134,11 @@
             <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
             <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;json_field_update</span>
-<span class="sd">        Non destructive update of json field of endpoint for object</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Non-destructive update of JSON field of endpoint for object</span>
 <span class="sd">        Will update the field_name of the object with pk = uuid of given endpoint</span>
 <span class="sd">        If data has keys with the same name of existing keys it will squash the old</span>
-<span class="sd">        values (uses the dict.update() method)</span>
+<span class="sd">        values (uses the dict.update() method).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1186,8 +1188,8 @@
             <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
             <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;json_field_remove_key</span>
-<span class="sd">        Will remove inputted key from json field dict and re-upload it to Alyx.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove inputted key from JSON field dict and re-upload it to Alyx.</span>
 <span class="sd">        Needs endpoint, uuid and json field name</span>
 
 <span class="sd">        Parameters</span>
