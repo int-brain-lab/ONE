@@ -22,10 +22,10 @@ def setup():
     Sets up Globus as a backend for ONE functions.
 
     In order to use this function you need:
-    1. Have the Client ID of an existing Globus Client, or create one
-       (https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html)
-    2. Set up Global Connect on your local device (https://www.globus.org/globus-connect-personal)
-    3. Register your local device as an Enpoint in your Globus Client (https://app.globus.org/)
+    1. The Client ID of an existing Globus Client, or to create one
+       (https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html).
+    2. Set up Global Connect on your local device (https://www.globus.org/globus-connect-personal).
+    3. Register your local device as an Endpoint in your Globus Client (https://app.globus.org/).
     """
 
     print("Setting up Globus parameter file. See docstring for help.")
