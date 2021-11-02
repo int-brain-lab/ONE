@@ -7,6 +7,7 @@ from collections.abc import Mapping
 import fnmatch
 
 import pandas as pd
+
 from iblutil.io import parquet
 import numpy as np
 
@@ -21,6 +22,29 @@ logger = logging.getLogger(__name__)
 def Listable(t):
     """Return a typing.Union if the input and sequence of input"""
     return Union[t, Sequence[t]]
+
+
+def ses2df(ses: list) -> pd.DataFrame:
+    """Extract session cache records from a remote sessions list.
+
+    Unlike ses2records which takes the output of a full session read, ses2df takes the output of
+    session list.
+
+    Parameters
+    ----------
+    ses : list of dict
+        List of session dictionaries from Alyx REST endpoint
+
+    Returns
+    -------
+    pd.DataFrame
+        Sessions frame
+    """
+    eid = parquet.str2np([x['url'][-36:] for x in ses])
+    session = pd.DataFrame(data=ses).rename({'start_time': 'date'}, axis=1).drop('url', axis=1)
+    session['date'] = session['date'].apply(lambda x: x[:10])
+    session[['eid_0', 'eid_1']] = eid
+    return session.set_index(['eid_0', 'eid_1'])
 
 
 def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
