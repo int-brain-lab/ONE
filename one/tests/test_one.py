@@ -1136,7 +1136,7 @@ class TestOneSetup(unittest.TestCase):
         self.addCleanup(self.tempdir.cleanup)
         self.get_file = partial(util.get_file, self.tempdir.name)
 
-    def test_local_cache_setup(self):
+    def test_local_cache_setup_prompt(self):
         """Test One.setup"""
         path = Path(self.tempdir.name).joinpath('subject', '2020-01-01', '1', 'spikes.times.npy')
         path.parent.mkdir(parents=True)
@@ -1147,11 +1147,17 @@ class TestOneSetup(unittest.TestCase):
 
         # Check prompts warns about cache existing
         path.parent.joinpath('spikes.clusters.npy').touch()
+        one_obj = One.setup(cache_dir=self.tempdir.name, silent=True)
+        self.assertEqual(1, len(one_obj.list_datasets()))
         with mock.patch('builtins.input', side_effect=['n', 'y']):
             one_obj = One.setup(cache_dir=self.tempdir.name)  # Reply no to cache overwrite
             self.assertEqual(1, len(one_obj.list_datasets()))
             one_obj = One.setup(cache_dir=self.tempdir.name)  # Reply yes to cache overwrite
             self.assertEqual(2, len(one_obj.list_datasets()))
+
+        # Test with no prompt
+        one_obj = One.setup(cache_dir=self.tempdir.name, silent=True)
+        assert len(one_obj.list_datasets()) == 2
 
     def test_setup_silent(self):
         """Test setting up parameters with silent flag.
