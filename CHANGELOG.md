@@ -1,11 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.0]
+
+### Modified
+
+- added Globus interface for downloading data
+
+## [1.6.2]
 
 ### Modified
 
 - more readable error message; raw JSON printed to debug logger
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.1]
+## [1.6.1]
 
 ### Modified
 
