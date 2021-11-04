@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import logging
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PurePath, PureWindowsPath
 import warnings
 
 import globus_sdk
@@ -24,8 +24,8 @@ DEFAULT_PAR = {'GLOBUS_CLIENT_ID': None, 'local_endpoint': None, 'local_path': N
 def setup(par_id=None):
     """
     Sets up Globus as a backend for ONE functions.
-
     In order to use this function you need:
+
     1. The Client ID of an existing Globus Client, or to create one
        (https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html).
     2. Set up Global Connect on your local device (https://www.globus.org/globus-connect-personal).
@@ -138,7 +138,7 @@ def get_local_endpoint_id():
     """
     msg = ('Cannot find local endpoint ID, check if Globus Connect is set up correctly, '
            '{} exists and contains a UUID.')
-    if sys.platform == 'win32' or sys.platform == 'cygwin':
+    if sys.platform in ('win32', 'cygwin'):
         id_path = Path(os.environ['LOCALAPPDATA']).joinpath('Globus Connect')
     else:
         id_path = Path.home().joinpath('.globusonline', 'lta')
@@ -161,7 +161,7 @@ def get_local_endpoint_paths():
     list of pathlib.Path
         Local endpoint paths set in Globus Connect.
     """
-    if sys.platform == 'win32':
+    if sys.platform in ('win32', 'cygwin'):
         print('On windows the local Globus path needs to be entered manually')
         return []
     else:
@@ -207,12 +207,12 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
 
 def as_globus_path(path):
     """
-    Convert a path into one suitable for the Globus TransferClient.  NB: If using tilda in path,
-    the home folder of your Globus Connect instance must be the same as the OS home dir.
+    Convert a path into one suitable for the Globus TransferClient.  NB:
+
 
     Parameters
     ----------
-    path : pathlib.Path, str
+    path : pathlib.Path, pathlib.PurePath, str
         A path to convert to a Globus-complient path string
 
     Returns
@@ -220,28 +220,42 @@ def as_globus_path(path):
     str
         A formatted path string
 
+    Notes
+    -----
+    - If using tilda in path, the home folder of your Globus Connect instance must be the same as
+      the OS home dir.
+    - If validating a path for another system ensure the input path is a PurePath, in particular,
+    on a Linux computer a remote Windows should first be made into a PureWindowsPath.
+
     Examples
     --------
-        # A Windows path
-        >>> as_globus_path('E:\\FlatIron\\integration')
-        >>> '/E/FlatIron/integration'
+    A Windows path
 
-        # A relative POSIX path
-        >>> as_globus_path('../data/integration')
-        >>> '/mnt/data/integration'
+    >>> as_globus_path('E:\\FlatIron\\integration')
+    '/E/FlatIron/integration'
 
-        # A globus path
-        >>> as_globus_path('/E/FlatIron/integration')
-        >>> '/E/FlatIron/integration'
+    A relative POSIX path
+
+    >>> as_globus_path('../data/integration')
+    '/mnt/data/integration'
+
+    A globus path
+
+    >>> as_globus_path('/E/FlatIron/integration')
+    '/E/FlatIron/integration'
     """
-    path = str(path)
+    is_pure_path = isinstance(path, PurePath)
+    is_win = sys.platform in ('win32', 'cygwin') or isinstance(path, PureWindowsPath)
+    if isinstance(path, str):
+        path = Path(path)
     if (
-        re.match(r'/[A-Z]($|/)', path)
-        if sys.platform in ('win32', 'cygwin')
-        else Path(path).is_absolute()
+        re.match(r'/[A-Z]($|/)', path.as_posix())
+        if is_win
+        else path.is_absolute()
     ):
-        return path
-    path = Path(path).resolve()
+        return path.as_posix()
+    if not is_pure_path:
+        path = path.resolve()
     if path.drive:
         path = '/' + str(path.as_posix().replace(':', '', 1))
     return str(path)
@@ -259,7 +273,7 @@ class Globus(DownloadClient):
         _logger.info('Adding local endpoint.')
         self.endpoints['local']['root_path'] = self.pars.local_path
 
-    def to_address(self, data_path):
+    def to_address(self, data_path, endpoint):
         pass
 
     def download_file(self, file_address):
@@ -306,13 +320,43 @@ class Globus(DownloadClient):
 
     @staticmethod
     def _endpoint_path(path, root_path=None):
-        path = Path(path)
-        if root_path and not str(path).startswith(root_path):
-            path = Path(root_path).joinpath(path)
+        """
+        Given an absolute path or relative path with a root path, return a Globus path str.
+        Note: Paths must be POSIX or Globus-compliant paths.  In other words for Windows systems
+        the input root_path or absolute path must be passed through `as_globus_path` before
+        calling this method.
+
+        TODO include globus_path_from_dataset
+
+        Parameters
+        ----------
+        path : Path, PurePath, str
+            An absolute or relative POSIX path
+        root_path : Path, PurePath, str
+            A root path to prepend.  Optional if `path` is absolute.
+
+        Returns
+        -------
+        str
+            A path string formatted for Globus.
+
+        See Also
+        --------
+        as_globus_path
+
+        Raises
+        ------
+        ValueError
+            Path was not absolute and no root path was given.  An absolute path must start with
+            a slash on *nix systems.
+        """
+        if isinstance(path, str):
+            path = PurePosixPath(path)
+        if root_path and not str(path).startswith(str(root_path)):
+            path = PurePosixPath(root_path) / path
         if not path.is_absolute():
-            _logger.error('If there is no root_path for this endpoint in .endpoints, "path" must '
-                          'be an absolute path.')
-        return path
+            raise ValueError(f'{path} is relative and no root_path defined')
+        return as_globus_path(path)
 
     def _endpoint_id_root(self, endpoint):
         root_path = None
@@ -329,26 +373,43 @@ class Globus(DownloadClient):
                 '"endpoint" must be a UUID or the label of an endpoint registered in this '
                 'Globus instance. You can add endpoints via the add_endpoints method')
 
-    def ls(self, endpoint, path, remove_uuid=False, return_size=False):
+    def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
         """
         Return the list of (filename, filesize) in a given endpoint directory.
+
+        Parameters
+        ----------
+        endpoint
+        path
+        remove_uuid
+        return_size
+
+        Returns
+        -------
+
         """
         # Check if endpoint is a UUID, if not try to get UUID from registered endpoints
         endpoint_id, root_path = self._endpoint_id_root(endpoint)
         # Check if root_path should be added and if path is absolute
-        path = str(self._endpoint_path(path, root_path))
+        path = self._endpoint_path(path, root_path)
         # Do the actual listing
         out = []
-        try:
-            for entry in self.client.operation_ls(endpoint_id, path=path):
-                fn = remove_uuid_file(entry['name'], dry=True) if remove_uuid else entry['name']
-                if return_size:
-                    size = entry['size'] if entry['type'] == 'file' else None
-                    out.append((fn, size))
-                else:
-                    out.append(fn)
-        except Exception as e:
-            _logger.error(str(e))
+        response = []
+        for i in range(max_retries):
+            try:
+                response = self.client.operation_ls(endpoint_id, path=path)
+                break
+            except (GlobusConnectionError, GlobusAPIError) as ex:
+                if i == max_retries - 1:
+                    raise ex
+        for entry in response:
+            fn = remove_uuid_file(entry['name'], dry=True) if remove_uuid else entry['name']
+            if return_size:
+                size = entry['size'] if entry['type'] == 'file' else None
+                out.append((fn, size))
+            else:
+                out.append(fn)
+
         return out
 
     # TODO: allow to move all content of a directory with 'recursive' keyword in add_item
@@ -374,10 +435,22 @@ class Globus(DownloadClient):
 
         return self.run_task(wrapper, time_out=timeout)
 
-    def run_task(self, globus_func, retries=3, time_out=None):
+    def run_task(self, globus_func, retries=3, time_out=None, skip_source_errors=False):
         """
         Block until a Globus task finishes and retry upon Network or REST Errors.
         globus_func needs to submit a task to the client and return a task_id
+
+
+        Parameters
+        ----------
+        globus_func
+        retries
+        time_out
+        skip_source_errors
+
+        Returns
+        -------
+
         """
         try:
             task_id = globus_func()
@@ -412,10 +485,10 @@ class Globus(DownloadClient):
         except (GlobusAPIError, NetworkError, GlobusTimeoutError, GlobusConnectionError,
                 GlobusConnectionTimeoutError) as e:
             if retries < 1:
-                _logger.error(f'\nRetried too many times.')
+                _logger.error(f'\nMax retries exceeded.')
                 raise e
             else:
                 _logger.debug('\nGlobus experienced a network error', exc_info=True)
-                # if we reach this point without returning or erroring, retry
+                # if we reach this point without returning or erring, retry
                 _logger.warning('\nGlobus experienced a network error, retrying.')
                 self.run_task(globus_func, retries=(retries - 1), time_out=time_out)

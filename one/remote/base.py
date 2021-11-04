@@ -120,7 +120,7 @@ class DownloadClient:
         pass
 
     @abstractmethod
-    def to_address(self, data_path):
+    def to_address(self, data_path, *args, **kwargs):
         """Returns the remote data URL for a given ALF path"""
         pass
 

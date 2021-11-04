@@ -2,7 +2,7 @@ import logging
 import tempfile
 import unittest
 from unittest import mock
-from pathlib import Path
+from pathlib import Path, PureWindowsPath, PurePosixPath
 import shutil
 from functools import partial
 from tempfile import TemporaryDirectory
@@ -332,6 +332,15 @@ class TestGlobusClient(unittest.TestCase):
             self.assertNotEqual(self.client.endpoints[name]['root_path'], '/')
         self.client.add_endpoint(name, root_path='/', overwrite=True, alyx=ac)
         self.assertEqual(self.client.endpoints[name]['root_path'], '/')
+
+    def test_endpoint_path(self):
+        """Test for Globus._endpoint_path method"""
+        expected = PurePosixPath('/mnt/foo/bar')
+        self.assertEqual(str(expected), self.client._endpoint_path(expected))
+        expected = '/foo/bar/baz'
+        self.assertEqual(expected, self.client._endpoint_path('bar/baz', root_path='/foo'))
+        with self.assertRaises(ValueError):
+            self.client._endpoint_path('bar', root_path='foo')
 
 
 if __name__ == '__main__':
