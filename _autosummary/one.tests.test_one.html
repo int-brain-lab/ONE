@@ -206,19 +206,20 @@ properties to their original state on teardown, or call one.api.ONE.cache_clear(
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestONECache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestONECache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
 <p>Test methods that use sessions and datasets tables.
 This class loads the parquet tables from the fixtures and builds a file tree in a temp folder</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.tempdir">
-<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestONECache.tempdir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestONECache.tempdir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.setUpClass">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.setUpClass" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.setUpClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.tearDown">
@@ -228,8 +229,9 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.tearDownClass">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.tearDownClass" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.tearDownClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_list_subjects">
@@ -337,23 +339,24 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestOneAlyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneAlyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
 <p>This could be an offline test.  Would need to add /docs REST cache fixture.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tempdir">
-<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.tempdir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.tempdir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.one">
-<span class="sig-name descname"><span class="pre">one</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.one" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.one" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.setUpClass">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.setUpClass" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.setUpClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tearDown">
@@ -432,14 +435,15 @@ dicts as input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tearDownClass">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.tearDownClass" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.tearDownClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestOneRemote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneRemote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
 <p>Test remote queries</p>
 <dl class="py method">
@@ -488,17 +492,17 @@ dicts as input.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestOneDownload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneDownload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
 <p>Test downloading datasets using OpenAlyx</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.tempdir">
-<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneDownload.tempdir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneDownload.tempdir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.one">
-<span class="sig-name descname"><span class="pre">one</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneDownload.one" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneDownload.one" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -530,7 +534,7 @@ This method is also tested in test_download_datasets.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestOneSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
 <p>Test parameter setup upon ONE instantiation and calling setup methods</p>
 <dl class="py method">
@@ -581,7 +585,7 @@ This method is also tested in test_download_datasets.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TestOneMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
 <p>Test functions in one.util</p>
 <dl class="py method">
