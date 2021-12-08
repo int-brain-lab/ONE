@@ -1,11 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.3]
+
+### Added
+
+- ugly hack to download from aws instead of default http server
+
+## [1.6.2]
 
 ### Modified
 
 - more readable error message; raw JSON printed to debug logger
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.1]
+## [1.6.1]
 
 ### Modified
 
