@@ -11,7 +11,7 @@ one = ONE(base_url='https://openalyx.internationalbrainlab.org', mode='local')
 ```
 Read more about ONE modes [here](notebooks/one_modes).
 
-## Why are my recent data are missing from my cache but present on Alyx?
+## Why are my recent data missing from my cache but present on Alyx?
 After new data are acquired it may take time for it to be copied to an online server (it will
 be marked as 'online' in Alyx).  Once the data is marked as existing and online, it should appear
 in the cache tables next time they are generated.  For the IBL Alyx, the ONE cache tables are
@@ -38,9 +38,9 @@ A problem can arise if something on the Alyx database changes in between the sam
     At time X+2, you run the same query again.
     Because you had already made the query earlier, ONE uses the local result that 
     it had previously and displays that there isn't a histology session. 
-    To circumvent this, use the `no_cache=True` argument in `one.alyx.rest(..., no_cache=True)`.
-    Use this only if necessary, as ONE will then always query the Alyx database and
-    never use any results that may be stored locally.
+    To circumvent this, use the `no_cache=True` argument in `one.alyx.rest(..., no_cache=True)` or
+    the `no_cache` web client context.  More information can be found [here](https://int-brain-lab.github.io/ONE/notebooks/one_modes.html#REST-caching).
+    Use this only if necessary, as these methods are not optimized.
 
 ## I made a mistake during setup and now can't call setup, how do I fix it?
 Usually you can re-run your setup with the following command:
