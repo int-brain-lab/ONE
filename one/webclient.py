@@ -897,8 +897,8 @@ class AlyxClient():
         files : dict, tuple
             Option file(s) to upload
         no_cache : bool
-            If true the `list` and `read` actions are performed without caching
-        kwargs : any
+            If true the `list` and `read` actions are performed without returning the cache
+        kwargs
             Filters as per the Alyx REST documentation
             cf. https://openalyx.internationalbrainlab.org/docs/
 
@@ -948,7 +948,7 @@ class AlyxClient():
             return
 
         # clobber=True means remote request always made, expires=True means response is not cached
-        cache_args = {'clobber': no_cache, 'expires': no_cache}
+        cache_args = {'clobber': no_cache, 'expires': kwargs.pop('expires', False) or no_cache}
         if action == 'list':
             # list doesn't require id nor
             assert endpoint_scheme[action]['action'] == 'get'

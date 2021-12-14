@@ -1458,7 +1458,8 @@ class OneAlyx(One):
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         # If all datasets exist on AWS, download from there.
         try:
-            assert dsets.exists_aws.all()
+            assert 'exists_aws' in dsets and dsets['exists_aws'].all()
+            _logger.info('Downloading from AWS')
             return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
         except Exception as ex:
             _logger.debug(ex)
@@ -1493,7 +1494,7 @@ class OneAlyx(One):
                 dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
             )
             local_path = alfio.remove_uuid_file(
-                self.cache_dir.joinpath(dset['rel_path']), dry=True)
+                self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(local_path)
             if local_path.exists():
@@ -1511,7 +1512,7 @@ class OneAlyx(One):
                 file_object = s3.Object(bucket_name, source_path.as_posix())
                 filesize = file_object.content_length
                 with tqdm(total=filesize, unit='B',
-                          unit_scale=True, desc=source_path.as_posix()) as t:
+                          unit_scale=True, desc=local_path.as_posix()) as t:
                     file_object.download_file(Filename=str(local_path), Callback=_callback_hook(t))
             except (NoCredentialsError, PartialCredentialsError) as ex:
                 raise ex  # Credentials need updating in Alyx
@@ -1519,6 +1520,7 @@ class OneAlyx(One):
                 if ex.response.get('Error', {}).get('Code', None) == '404':
                     _logger.error(f'File {source_path} not found on {bucket_name}')
                     out_files[-1] = None
+        return out_files
 
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """

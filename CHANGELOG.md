@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.0]
+
+### Added
+
+- expires kwarg in AlyxClient.rest
+- fix for AWS download location
+
+## [1.6.3]
 
 ### Added
 
