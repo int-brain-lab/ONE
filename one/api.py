@@ -69,6 +69,7 @@ class One(ConversionMixin):
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
+        self.record_loaded = False
         # init the cache file
         self._cache = Bunch({'_meta': {
             'expired': False,
@@ -158,6 +159,44 @@ class One(ConversionMixin):
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
+
+    def save_loaded_ids(self, sessions_only=False, clear_list=True):
+        """
+        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.
+
+        Parameters
+        ----------
+        sessions_only : bool
+            If true, save list of experiment IDs, otherwise the full list of dataset IDs.
+        clear_list : bool
+            If true, clear the current list of loaded dataset IDs after saving.
+
+        Returns
+        -------
+        list of str
+            List of UUIDs.
+        pathlib.Path
+            The file path of the saved list.
+        """
+        if '_loaded_datasets' not in self._cache or self._cache['_loaded_datasets'].size == 0:
+            warnings.warn('No datasets loaded; check "record_datasets" attribute is True')
+            return [], None
+        if sessions_only:
+            name = 'session_uuid'
+            datasets = self._cache['datasets'].loc[self._cache['_loaded_datasets'].tolist()]
+            if self._index_type() is int:
+                ids = parquet.np2str(np.unique(datasets[['eid_0', 'eid_1']].values, axis=0))
+            else:
+                ids = datasets['eid'].unique().tolist()
+        else:
+            name = 'dataset_uuid'
+            ids = parquet.np2str(self._cache['_loaded_datasets'])
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
+        filename = self.cache_dir.joinpath(f'{timestamp}_loaded_{name}s.csv')
+        pd.DataFrame(ids, columns=['dataset_uuid']).to_csv(filename, index=False)
+        if clear_list:
+            self._cache['_loaded_datasets'] = np.array([])
+        return ids, filename
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -381,6 +420,12 @@ class One(ConversionMixin):
         else:
             # TODO deal with clobber and exists here?
             files = self._download_datasets(datasets, update_cache=update_exists, clobber=clobber)
+        if self.record_loaded:
+            if '_loaded_datasets' not in self._cache:
+                self._cache['_loaded_datasets'] = np.array(datasets.index.to_list())
+            else:
+                loaded_set = np.hstack([self._cache['_loaded_datasets'], datasets.index.to_list()])
+                self._cache['_loaded_datasets'] = np.unique(loaded_set, axis=0)
         return files
 
     def _index_type(self, table='sessions'):
