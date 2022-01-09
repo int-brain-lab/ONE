@@ -55,7 +55,7 @@ from pprint import pprint
 import one.params
 from iblutil.io import hashfile
 from one.util import ensure_list
-
+import concurrent.futures
 _logger = logging.getLogger(__name__)
 
 
@@ -267,9 +267,10 @@ def update_url_params(url: str, params: dict) -> str:
     return parsed_url._replace(query=encoded_get_args).geturl()
 
 
-def http_download_file_list(links_to_file_list, **kwargs):
+def http_download_file_list(links_to_file_list: object, **kwargs: object) -> object:
     """
     Downloads a list of files from a remote HTTP server from a list of links.
+    Generates up to 4 separate threads to handle downloads.
     Same options behaviour as http_download_file.
 
     Parameters
@@ -284,9 +285,18 @@ def http_download_file_list(links_to_file_list, **kwargs):
     list of pathlib.Path
         A list of the local full path of the downloaded files.
     """
+    n_threads = 4  # Max number of threads
     file_names_list = []
-    for link_str in links_to_file_list:
-        file_names_list.append(http_download_file(link_str, **kwargs))
+    # using with statement to ensure threads are cleaned up promptly
+    with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
+        # Multithreading load operations
+        futures = [executor.submit(http_download_file, link_str, **kwargs) for link_str in links_to_file_list]
+        # TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?
+        # timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000 ?
+        concurrent.futures.wait(futures, timeout=None)
+        # build return dict
+        for future in futures:
+            file_names_list.append(future.result())
     return file_names_list
 
 

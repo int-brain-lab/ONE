@@ -173,18 +173,14 @@ class One(ConversionMixin):
         list of pathlib.Path
             A local file path list
         """
+        print("LOG: _download_datasets method called")
         out_files = []
+        # Check if the dsets object has the 'iterrows' property
         if hasattr(dsets, 'iterrows'):
             dsets = list(map(lambda x: x[1], dsets.iterrows()))
-        # Timeout based a download speed of 5 Mb/s
-        timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000
-        with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
-            # TODO Subclass can just call web client method directly, no need to pass hash, etc.
-            futures = [executor.submit(self._download_dataset, dset, file_size=dset['file_size'],
-                                       hash=dset['hash'], **kwargs) for dset in dsets]
-            concurrent.futures.wait(futures, timeout=np.ceil(timeout) + 10)
-            for future in futures:
-                out_files.append(future.result())
+        # download and build return dict
+        for dset in dsets:
+            out_files.append(self._download_dataset(dset, **kwargs))
         return out_files
 
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
