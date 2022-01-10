@@ -105,20 +105,20 @@ class TestAuthentication(unittest.TestCase):
         """Test behaviour when authentication fails"""
         self.ac.logout()  # Make sure logged out
         with self.assertRaises(requests.HTTPError) as ex:
-            ac.authenticate(password='wrong_pass')
+            self.ac.authenticate(password='wrong_pass')
             self.assertTrue('user = intbrainlab' in str(ex))
             self.assertFalse('wrong_pass' in str(ex))
         # Check behaviour when connection error occurs (should mention firewall settings)
         with mock.patch('one.webclient.requests.post', side_effect=requests.ConnectionError),\
              self.assertRaises(ConnectionError) as ex:
-            ac.authenticate()
+            self.ac.authenticate()
             self.assertTrue('firewall' in str(ex))
         # Check behaviour when server error occurs
         rep = requests.Response()
         rep.status_code = 500
         with mock.patch('one.webclient.requests.post', return_value=rep),\
              self.assertRaises(requests.HTTPError):
-            ac.authenticate()
+            self.ac.authenticate()
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
