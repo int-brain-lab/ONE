@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.1]
+
+### Modified
+
+- HOTFIX: failed to return most recent revision; raised MultipleObjectsFound error instead
+
+## [1.7.0]
 
 ### Added
 
