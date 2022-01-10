@@ -312,7 +312,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -381,8 +381,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
@@ -402,8 +401,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">])</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
 </pre></div>
@@ -424,8 +422,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">],</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">],</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -463,8 +460,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_043&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_043&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters&#39;</span><span class="p">])</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -482,8 +478,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
 <span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">performance_gte</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -493,8 +488,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

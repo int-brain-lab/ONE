@@ -319,7 +319,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -391,8 +391,7 @@ one_modes.ipynb"><button id="github">Github link</button></a><section id="ONE-AP
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">one.webclient</span> <span class="k">as</span> <span class="nn">webclient</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">one.webclient</span> <span class="k">as</span> <span class="nn">webclient</span>
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
@@ -427,8 +426,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>  <span class="c1"># Search Alyx instead of the local cache</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>  <span class="c1"># Search Alyx instead of the local cache</span>
 </pre></div>
 </div>
 </div>
@@ -440,8 +438,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Cache results for up to 20 days</span>
 </pre></div>
 </div>
@@ -451,8 +448,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">with</span> <span class="n">webclient</span><span class="o">.</span><span class="n">no_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">webclient</span><span class="o">.</span><span class="n">no_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
     <span class="n">eids</span><span class="p">,</span> <span class="n">det</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -462,8 +458,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -476,8 +471,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
 <span class="n">one</span><span class="o">.</span><span class="n">cache_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Check for new remote cache every hour</span>
 
 <span class="c1"># The time when the cache was generated can be found in the cache metadata:</span>
@@ -503,8 +497,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">loaded_time</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">refresh_cache</span><span class="p">(</span><span class="s1">&#39;refresh&#39;</span><span class="p">)</span>  <span class="c1"># Explicitly refresh the cache</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">loaded_time</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">refresh_cache</span><span class="p">(</span><span class="s1">&#39;refresh&#39;</span><span class="p">)</span>  <span class="c1"># Explicitly refresh the cache</span>
 <span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;refresh&#39;</span><span class="p">)</span>  <span class="c1"># Calls `refresh_cache` before searching</span>
 </pre></div>
 </div>

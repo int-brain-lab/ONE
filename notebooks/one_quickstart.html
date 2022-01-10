@@ -312,7 +312,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -387,8 +387,7 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;international&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -398,8 +397,7 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -416,8 +414,7 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-09-30&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;probes.description&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-09-30&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;probes.description&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
@@ -450,8 +447,7 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eid</span> <span class="o">=</span> <span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Select the first experiment</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eid</span> <span class="o">=</span> <span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Select the first experiment</span>
 <span class="n">probe_insertions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;probes.description&#39;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;N probes = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">probe_insertions</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -476,8 +472,7 @@ N probes = 2
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">probe_label</span> <span class="o">=</span> <span class="n">probe_insertions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">probe_label</span> <span class="o">=</span> <span class="n">probe_insertions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
 <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;alf/</span><span class="si">{</span><span class="n">probe_label</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -518,8 +513,7 @@ N probes = 2
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
                          <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;depths&#39;</span><span class="p">,</span> <span class="s1">&#39;amps&#39;</span><span class="p">])</span>
 <span class="n">spikes</span>
 </pre></div>
@@ -548,8 +542,7 @@ N probes = 2
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">brainbox.plot</span> <span class="kn">import</span> <span class="n">driftmap</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">brainbox.plot</span> <span class="kn">import</span> <span class="n">driftmap</span>
 <span class="n">driftmap</span><span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">spikes</span><span class="o">.</span><span class="n">depths</span><span class="p">,</span> <span class="n">t_bin</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">d_bin</span><span class="o">=</span><span class="mi">5</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -566,8 +559,7 @@ N probes = 2
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

@@ -312,7 +312,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -398,8 +398,7 @@ alyx_files.ipynb"><button id="github">Github link</button></a><section id="Listi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">one.alf.cache</span> <span class="kn">import</span> <span class="n">make_parquet_db</span>
 
@@ -438,8 +437,7 @@ alyx_files.ipynb"><button id="github">Github link</button></a><section id="Listi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">one.alf.spec</span> <span class="k">as</span> <span class="nn">alf_spec</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">one.alf.spec</span> <span class="k">as</span> <span class="nn">alf_spec</span>
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -451,8 +449,7 @@ alyx_files.ipynb"><button id="github">Github link</button></a><section id="Listi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">path_pattern</span><span class="p">())</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">path_pattern</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -469,8 +466,7 @@ alyx_files.ipynb"><button id="github">Github link</button></a><section id="Listi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">alf_spec</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">alf_spec</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -494,8 +490,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -519,8 +514,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -529,8 +523,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -548,8 +541,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
 <span class="p">[</span><span class="n">x</span> <span class="ow">or</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">revisions</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -568,8 +560,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
 <span class="p">[</span><span class="n">x</span> <span class="ow">or</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">]</span>
 </pre></div>
 </div>

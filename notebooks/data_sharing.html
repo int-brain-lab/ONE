@@ -318,7 +318,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -404,8 +404,7 @@ data_sharing.ipynb"><button id="github">Github link</button></a><section id="Rel
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">One</span>
 <span class="kn">from</span> <span class="nn">one.params</span> <span class="kn">import</span> <span class="n">CACHE_DIR_DEFAULT</span>
@@ -433,8 +432,7 @@ data_sharing.ipynb"><button id="github">Github link</button></a><section id="Rel
     <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;ibl-behavioral-data-Dec2019&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Rename</span>
     <span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;one_example.py&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>  <span class="c1"># Delete outdated example</span>
     <span class="k">del</span> <span class="n">request</span>  <span class="c1"># Free resources</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -460,8 +458,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
 <span class="n">session_path</span> <span class="o">=</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;zadorlab/Subjects/CSH_ZAD_003/2019-08-11/001/alf&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
@@ -482,8 +479,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_valid</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_valid</span>
 <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_valid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -500,8 +496,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Building ONE cache from filesystem...&#39;</span><span class="p">)</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Building ONE cache from filesystem...&#39;</span><span class="p">)</span>
 <span class="n">One</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -532,8 +527,7 @@ One (offline, C:\Users\User\Downloads\ONE\my_example)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>

@@ -316,7 +316,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -386,8 +386,7 @@ one_list.ipynb"><button id="github">Github link</button></a><section id="Listing
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 
 <span class="c1"># All datasets in the database</span>
@@ -404,8 +403,7 @@ one_list.ipynb"><button id="github">Github link</button></a><section id="Listing
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">describe_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">describe_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -435,8 +433,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>
 
 <span class="c1"># All datasets for specific session</span>
 <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
@@ -551,8 +548,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># All collections in database</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All collections in database</span>
 <span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">()</span>
 
 <span class="c1"># All collections for specific session</span>
@@ -580,8 +576,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># All revisions in database</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All revisions in database</span>
 <span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">()</span>
 
 <span class="c1"># All revisions for specific session</span>
@@ -594,8 +589,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># All subjects in the database</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All subjects in the database</span>
 <span class="n">subjects</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_subjects</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -609,8 +603,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># All datasets for specific session in alf/probe01 collection:</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All datasets for specific session in alf/probe01 collection:</span>
 <span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
 
 <span class="c1"># All datasets for a specific session in any probe collection:</span>
@@ -621,8 +614,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 
 <span class="c1"># All datasets with &#39;raw&#39; in the name:</span>
 <span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;*raw*&#39;</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <p>Note that for <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code> and <code class="docutils literal notranslate"><span class="pre">list_collections</span></code> a provided revision name can’t include wildcards.</p>
@@ -633,8 +625,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;raw*&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;raw*&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -644,8 +635,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;202[01]&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;202[01]&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -654,8 +644,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -692,8 +681,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;attribute&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;timestamps&#39;</span><span class="p">,</span> <span class="s1">&#39;intervals&#39;</span><span class="p">],</span> <span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">})</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;attribute&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;timestamps&#39;</span><span class="p">,</span> <span class="s1">&#39;intervals&#39;</span><span class="p">],</span> <span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
@@ -719,8 +707,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
 <span class="n">data</span><span class="p">,</span> <span class="n">records</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -738,8 +725,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe*&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe*&#39;</span><span class="p">)</span>
 <span class="c1"># Build a dictionary of collections containing bunches of objects</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">one</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">}</span>
 
@@ -770,8 +756,7 @@ dict_keys([&#39;spikes&#39;, &#39;channels&#39;, &#39;whitening&#39;, &#39;clust
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;clusters*&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;clusters*&#39;</span><span class="p">)</span>
 <span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
