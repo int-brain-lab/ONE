@@ -305,7 +305,6 @@ class TestONECache(unittest.TestCase):
             filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
                             assert_unique=True, wildcards=True, revision_last_before=False)
 
-
     def test_filter_wildcards(self):
         """Test one.util.filter_datasets with wildcards flag set to True"""
         datasets = self.one._cache.datasets.iloc[:5].copy()
