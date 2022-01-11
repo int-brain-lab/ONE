@@ -159,7 +159,7 @@ class One(ConversionMixin):
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
 
-    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
+    def _download_datasets(self, dsets, **kwargs) -> Path:
         """
         Download several datasets given a set of datasets
 
@@ -173,15 +173,8 @@ class One(ConversionMixin):
         list of pathlib.Path
             A local file path list
         """
-        print("LOG: _download_datasets method called")
-        out_files = []
-        # Check if the dsets object has the 'iterrows' property
-        if hasattr(dsets, 'iterrows'):
-            dsets = list(map(lambda x: x[1], dsets.iterrows()))
-        # download and build return dict
-        for dset in dsets:
-            out_files.append(self._download_dataset(dset, **kwargs))
-        return out_files
+        # Looking to entirely remove method
+        pass
 
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
         """
@@ -318,12 +311,12 @@ class One(ConversionMixin):
         else:
             return eids
 
-    def _check_filesystem(self, datasets, offline=None, update_exists=True, clobber=False):
+    def _check_filesystem(self, datasets, offline=None, update_exists=True):
         """Update the local filesystem for the given datasets.
 
         Given a set of datasets, check whether records correctly reflect the filesystem.
         Called by load methods, this returns a list of file paths to load and return.
-        TODO This needs changing; overlaod for downloading?
+        TODO This needs changing; overload for downloading?
          This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
          update and save tables.  Download_datasets can also call this function.
         TODO Remove clobber
@@ -337,46 +330,43 @@ class One(ConversionMixin):
             repository
         update_exists : bool
             If true, the cache is updated to reflect the filesystem
-        clobber : bool
-            If true and not offline, datasets are re-downloaded regardless of local filesystem
 
         Returns
         -------
         A list of file paths for the datasets (None elements for non-existent datasets)
         """
-        if offline or self.offline:
-            files = []
-            if isinstance(datasets, pd.Series):
-                datasets = pd.DataFrame([datasets])
-            elif not isinstance(datasets, pd.DataFrame):
-                # Cast set of dicts (i.e. from REST datasets endpoint)
-                datasets = util.datasets2records(list(datasets))
-            for i, rec in datasets.iterrows():
-                file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
-                if file.exists():
-                    # TODO Factor out; hash & file size also checked in _download_file;
-                    #  see _update_cache - we need to save changed cache
-                    files.append(file)
-                    new_hash = hashfile.md5(file)
-                    new_size = file.stat().st_size
-                    hash_mismatch = rec['hash'] and new_hash != rec['hash']
-                    size_mismatch = rec['file_size'] and new_size != rec['file_size']
-                    # TODO clobber and tag mismatched
-                    if hash_mismatch or size_mismatch:
-                        # the local file hash doesn't match the dataset table cached hash
-                        # datasets.at[i, ['hash', 'file_size']] = new_hash, new_size
-                        # Raise warning if size changed or hash changed and wasn't empty
-                        if size_mismatch or (hash_mismatch and rec['hash']):
-                            _logger.warning('local md5 or size mismatch')
-                else:
-                    files.append(None)
-                if rec['exists'] != file.exists():
-                    datasets.at[i, 'exists'] = not rec['exists']
-                    if update_exists:
-                        self._cache['datasets'].loc[i, 'exists'] = rec['exists']
-        else:
-            # TODO deal with clobber and exists here?
-            files = self._download_datasets(datasets, update_cache=update_exists, clobber=clobber)
+        indices_to_download = []  # indices of datasets that need (re)downloading
+        files = []  # file path list to return
+        # First go through datasets and check if file exists and hash matches
+        for i, rec in datasets.iterrows():
+            file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
+            if file.exists():
+                # Check if there's a hash mismatch
+                new_hash = hashfile.md5(file)
+                hash_mismatch = rec['hash'] and new_hash != rec['hash']
+                new_size = file.stat().st_size
+                size_mismatch = rec['file_size'] and new_size != rec['file_size']
+                if hash_mismatch or size_mismatch:
+                    _logger.warning('local md5 or size mismatch')
+                    # Mismatch: add this index to list of datasets that need downloading
+                    indices_to_download.append(i)
+                files.append(file)  # File exists so add to file list
+            else:
+                # File doesn't exist so add None to output file list
+                files.append(None)
+                # Add this index to list of datasets that need downloading
+                indices_to_download.append(i)
+
+        # If online and we have datasets to download, call download_datasets with these datasets
+        if not offline and indices_to_download:
+            dsets_to_download = datasets.loc[indices_to_download]
+            new_files = self._download_datasets(  # Returns list of local file paths and set to variable
+                dsets_to_download, update_cache=update_exists)
+            # Add each downloaded file to the output list of files
+            for i, file in zip(indices_to_download, new_files):
+                files[datasets.index.get_loc(i)] = file
+
+        # Return full list of file paths
         return files
 
     def _index_type(self, table='sessions'):
@@ -1452,6 +1442,19 @@ class OneAlyx(One):
         return (eids, ses) if details else eids
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
+        """
+         Download a single or multitude of datasets if stored on AWS, otherwise calls OneAlyx._download_dataset
+
+         Parameters
+         ----------
+         dset : dict, str, pd.Series
+             A single or multitude of dataset dictionaries
+
+         Returns
+         -------
+         pathlib.Path
+             A local file path or list of paths
+         """
         # If all datasets exist on AWS, download from there.
         try:
             assert 'exists_aws' in dsets and dsets['exists_aws'].all()
@@ -1459,7 +1462,7 @@ class OneAlyx(One):
             return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
         except Exception as ex:
             _logger.debug(ex)
-            return super()._download_datasets(dsets, **kwargs)
+            return self._download_dataset(dsets, **kwargs)
 
     def _download_aws(self, dsets, clobber=False, **kwargs) -> List[Path]:
         # Download datasets from AWS
@@ -1520,12 +1523,12 @@ class OneAlyx(One):
 
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """
-        Download a dataset from an Alyx REST dictionary
+        Download a single or multitude of dataset from an Alyx REST dictionary
 
         Parameters
         ----------
         dset : dict, str, pd.Series
-            A single dataset dictionary from an Alyx REST query OR URL string
+            A single or multitude of dataset dictionary from an Alyx REST query OR URL string
         cache_dir : str, pathlib.Path
             The root directory to save the data to (default taken from ONE parameters)
         update_cache : bool
@@ -1534,7 +1537,7 @@ class OneAlyx(One):
         Returns
         -------
         pathlib.Path
-            A local file path
+            A local file path or list of paths
         """
         if isinstance(dset, str) and dset.startswith('http'):
             url = dset
@@ -1544,7 +1547,19 @@ class OneAlyx(One):
                 _logger.warning('Dataset not found in cache')
                 return
         else:
-            if 'data_url' in dset:  # data_dataset_session_related dict
+            # check if dset is dataframe, iterate over rows
+            if hasattr(dset, 'iterrows'):
+                dsets = list(map(lambda x: x[1], dset.iterrows()))
+                urls = []
+                dids = []
+
+                # Need urls and dids from dsets
+                for single_dset in dsets:
+                    url = self.record2url(single_dset)
+                    urls.append(url)
+                    dids.append(parquet.np2str(np.array(single_dset.name)))
+
+            elif 'data_url' in dset:  # data_dataset_session_related dict
                 url = dset['data_url']
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
@@ -1555,7 +1570,8 @@ class OneAlyx(One):
                             if fr['data_url'] and fr['exists']), None)
                 did = dset['url'][-36:]
 
-        if not url:
+        # TODO: Move 'if not url' block to separate method
+        if (not url) and (not urls):
             if 'session' in dset:
                 dset_str = f"{dset['session'][-36:]}: "\
                            f"{dset.get('collection', '.')}/{dset.get('name', '')}"
@@ -1569,7 +1585,12 @@ class OneAlyx(One):
                     did = parquet.np2str(did)
                 self._cache['datasets'].loc[did, 'exists'] = False
             return
+
+        # Set target directory for download
         target_dir = Path(cache_dir or self.cache_dir, get_alf_path(url)).parent
+        # Check if we have a multitude of urls
+        if urls:
+            url = urls
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
 
     def _tag_mismatched_file_record(self, url):
@@ -1589,12 +1610,12 @@ class OneAlyx(One):
     def _download_file(self, url, target_dir,
                        clobber=False, offline=None, keep_uuid=False, file_size=None, hash=None):
         """
-        Downloads a single file from an HTTP webserver.  The webserver in question is set by the
+        Downloads a single file or multitude of files from an HTTP webserver.  The webserver in question is set by the
         AlyxClient object.
 
         Parameters
         ----------
-        url : str
+        url : str, list
             An absolute or relative URL for a remote dataset
         target_dir : str, pathlib.Path
             The root directory to download file to
@@ -1613,40 +1634,79 @@ class OneAlyx(One):
         Returns
         -------
         pathlib.Path
-            The file path of the downloaded file
+            The file path of the downloaded file or files
         """
         if offline is None:
             offline = self.mode == 'local'
-        Path(target_dir).mkdir(parents=True, exist_ok=True)
-        local_path = target_dir / os.path.basename(url)
-        if not keep_uuid:
-            local_path = alfio.remove_uuid_file(local_path, dry=True)
-        if Path(local_path).exists():
-            # the local file hash doesn't match the dataset table cached hash
-            hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
-            file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-            if (hash_mismatch or file_size_mismatch) and not offline:
+        # TODO: simplify execution, remove hash/size mismatch?
+        # check if url is a list
+        if isinstance(url, list):
+            local_path_list = []
+            # iterate over the list of urls
+            for single_url in url:
+                Path(target_dir).mkdir(parents=True, exist_ok=True)
+                local_path = target_dir / os.path.basename(single_url)
+                if not keep_uuid:
+                    local_path = alfio.remove_uuid_file(local_path, dry=True)
+                if Path(local_path).exists():
+                    # the local file has does not match the dataset table cached hash
+                    hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
+                    file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+                    if (hash_mismatch or file_size_mismatch) and not offline:
+                        clobber = True
+                        if not self.alyx.silent:
+                            _logger.warning(f'local md5 or size mismath, re-downloading {local_path}')
+                # if there is no cached file, download
+                else:
+                    clobber = True
+                if clobber and not offline:
+                    local_path, md5 = self.alyx.download_file(
+                        single_url, cache_dir=str(target_dir), clobber=clobber, return_md5=True)
+                    # TODO: If 404 update JSON on Alyx for data record
+                    # post download, if there is a mismatch between Alyx and the newly downloaded file size
+                    # or hash flag the offending file record in Alyx for database maintenance
+                    hash_mismatch = hash and md5 != hash
+                    file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+                    if hash_mismatch or file_size_mismatch:
+                        self._tag_mismatched_file_record(single_url)
+                        # TODO: Update cache here
+                if keep_uuid:
+                    local_path_list.append(local_path)
+                else:
+                    local_path_list.append(alfio.remove_uuid_file(local_path))
+            return local_path_list
+        else:
+            # url is not a list
+            Path(target_dir).mkdir(parents=True, exist_ok=True)
+            local_path = target_dir / os.path.basename(url)
+            if not keep_uuid:
+                local_path = alfio.remove_uuid_file(local_path, dry=True)
+            if Path(local_path).exists():
+                # the local file hash doesn't match the dataset table cached hash
+                hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
+                file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+                if (hash_mismatch or file_size_mismatch) and not offline:
+                    clobber = True
+                    if not self.alyx.silent:
+                        _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
+            # if there is no cached file, download
+            else:
                 clobber = True
-                if not self.alyx.silent:
-                    _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
-        # if there is no cached file, download
-        else:
-            clobber = True
-        if clobber and not offline:
-            local_path, md5 = self.alyx.download_file(
-                url, cache_dir=str(target_dir), clobber=clobber, return_md5=True)
-            # TODO If 404 update JSON on Alyx for data record
-            # post download, if there is a mismatch between Alyx and the newly downloaded file size
-            # or hash flag the offending file record in Alyx for database maintenance
-            hash_mismatch = hash and md5 != hash
-            file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-            if hash_mismatch or file_size_mismatch:
-                self._tag_mismatched_file_record(url)
-                # TODO Update cache here
-        if keep_uuid:
-            return local_path
-        else:
-            return alfio.remove_uuid_file(local_path)
+            if clobber and not offline:
+                local_path, md5 = self.alyx.download_file(
+                    url, cache_dir=str(target_dir), clobber=clobber, return_md5=True)
+                # TODO If 404 update JSON on Alyx for data record
+                # post download, if there is a mismatch between Alyx and the newly downloaded file size
+                # or hash flag the offending file record in Alyx for database maintenance
+                hash_mismatch = hash and md5 != hash
+                file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+                if hash_mismatch or file_size_mismatch:
+                    self._tag_mismatched_file_record(url)
+                    # TODO Update cache here
+            if keep_uuid:
+                return local_path
+            else:
+                return alfio.remove_uuid_file(local_path)
 
     @staticmethod
     def setup(base_url=None, **kwargs):

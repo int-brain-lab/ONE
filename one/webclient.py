@@ -267,7 +267,7 @@ def update_url_params(url: str, params: dict) -> str:
     return parsed_url._replace(query=encoded_get_args).geturl()
 
 
-def http_download_file_list(links_to_file_list: object, **kwargs: object) -> object:
+def http_download_file_list(links_to_file_list, **kwargs):
     """
     Downloads a list of files from a remote HTTP server from a list of links.
     Generates up to 4 separate threads to handle downloads.
@@ -294,7 +294,7 @@ def http_download_file_list(links_to_file_list: object, **kwargs: object) -> obj
         # TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?
         # timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000 ?
         concurrent.futures.wait(futures, timeout=None)
-        # build return dict
+        # build return list
         for future in futures:
             file_names_list.append(future.result())
     return file_names_list
@@ -681,7 +681,7 @@ class AlyxClient():
 
     def download_file(self, url, **kwargs):
         """
-        Downloads a file on the Alyx server from a file record REST field URL
+        Downloads a single file or list of files on the Alyx server from a file record REST field URL
 
         Parameters
         ----------
