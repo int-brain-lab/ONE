@@ -8,12 +8,10 @@ Things left to complete:
     - TODO save parquet in update_filesystem.
 """
 import collections.abc
-import concurrent.futures
 import warnings
 import logging
-import os
 from datetime import datetime, timedelta
-from functools import lru_cache, reduce
+from functools import lru_cache
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
@@ -159,7 +157,7 @@ class One(ConversionMixin):
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
 
-    def _download_datasets(self, dsets, **kwargs) -> Path:
+    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
         Download several datasets given a set of datasets
 
@@ -1606,8 +1604,7 @@ class OneAlyx(One):
             self.alyx.rest('files', 'partial_update',
                            id=fr[0]['url'][-36:], data={'json': json_field})
 
-    def _download_file(self, url, target_dir,
-                       clobber=False, offline=None, keep_uuid=False, file_size=None, hash=None):
+    def _download_file(self, url, target_dir, offline=None, keep_uuid=False):
         """
         Downloads a single file or multitude of files from an HTTP webserver.  The webserver in question is set by the
         AlyxClient object.
@@ -1618,31 +1615,23 @@ class OneAlyx(One):
             An absolute or relative URL for a remote dataset
         target_dir : str, pathlib.Path
             The root directory to download file to
-        clobber : bool
-            If true, overwrites local dataset if any
         offline : bool, None
-            If true, the file path is returned only if the file exists.  No download will take
-            place
+            If true, the file path is returned only if the file exists.  No download will take place
         keep_uuid : bool
             If true, the UUID is not removed from the file name (default is False)
-        file_size : int
-            The expected file size to compare with downloaded file
-        hash : str
-            The expected file hash to compare with downloaded file
 
         Returns
         -------
         pathlib.Path
             The file path of the downloaded file or files
         """
-        # TODO: Reevaluate logic over a cup of coffee
         if offline is None:
             offline = self.mode == 'local'
         Path(target_dir).mkdir(parents=True, exist_ok=True)
         # check if url is a list
         if isinstance(url, list):
-            # call to download the list of urls
-            local_path_list = self.alyx.download_file(url, cache_dir=str(target_dir), clobber=clobber)
+            # download all files in the list of urls, store file paths with UUID to variable
+            local_path_list = self.alyx.download_file(url, cache_dir=str(target_dir))
 
             if keep_uuid:
                 return local_path_list
@@ -1653,8 +1642,8 @@ class OneAlyx(One):
                 return local_path_list_to_return
 
         else:  # url is not a list
-            if clobber and not offline:
-                local_path = self.alyx.download_file(url, cache_dir=str(target_dir), clobber=clobber)
+            if not offline:
+                local_path = self.alyx.download_file(url, cache_dir=str(target_dir))
             if keep_uuid:
                 return local_path
             else:  # remove uuids from filenames
