@@ -61,7 +61,7 @@ class AlfBunch(Bunch):
         if b == {}:
             return a
         if a == {}:
-            return b
+            return AlfBunch(b)
         # right now supports only strictly matching keys. Will implement other cases as needed
         if set(a.keys()) != set(b.keys()):
             raise NotImplementedError("Append bunches only works with strictly matching keys"
@@ -476,7 +476,16 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         # if this is the actual meta-data file, skip and it will be read later
         if meta_data_file == fil:
             continue
-        out[att] = load_file_content(fil)
+        if att.split('_')[0] == 'data':
+            # Load as table and append to ALFBunch
+            df = load_file_content(fil)
+            data = dict(zip(df.columns, df.values.T))
+            split_keys = sorted(x for x in data.keys() if re.match(r'.+?_[01]$', x))
+            for x1, x2 in zip(*[iter(split_keys)] * 2):
+                data[x1[:-2]] = np.c_[data.pop(x1), data.pop(x2)]
+            out = out.append(data)
+        else:
+            out[att] = load_file_content(fil)
         if meta_data_file:
             meta = load_file_content(meta_data_file)
             # the columns keyword splits array along the last dimension

@@ -242,6 +242,10 @@ class TestsAlf(unittest.TestCase):
             np.save(file=f, arr=np.random.rand(*shape))
         self.object_files.append(self.tmpdir / 'neuveu.timestamps.npy')
         np.save(file=self.object_files[-1], arr=np.ones((2, 2)))
+        # Save an obj.data pqt file
+        self.object_files.append(self.tmpdir / 'obj.data.pqt')
+        cols = ['foo_0', 'foo_1', 'bar_0', 'bar_1', 'baz']
+        pd.DataFrame(np.random.rand(10, 5), columns=cols).to_parquet(self.object_files[-1])
 
     def test_exists(self):
         """Test for one.alf.io.exists"""
@@ -347,6 +351,17 @@ class TestsAlf(unittest.TestCase):
         with self.assertLogs(logging.getLogger('one.alf.io'), logging.WARNING) as log:
             alfio.load_object(self.tmpdir, 'neuveu', short_keys=False)
         self.assertIn(str(data.shape), log.output[0])
+        # Check loading of 'data' attribute
+        obj = alfio.load_object(self.tmpdir, 'obj')
+        self.assertIsInstance(obj, alfio.AlfBunch)
+        self.assertCountEqual(obj.keys(), ['foo', 'bar', 'baz'])
+        self.assertEqual(obj['foo'].shape, (10, 2))
+        self.assertEqual(obj['bar'].shape, (10, 2))
+        self.assertEqual(obj['baz'].shape, (10,))
+        # Check behaviour on conflicting keys
+        np.save(self.tmpdir.joinpath('obj.baz.npy'), np.arange(len(obj['foo'])))
+        alfio.load_object(self.tmpdir, 'obj')  # FIXME
+
 
     def test_ls(self):
         """Test for one.alf.io._ls"""
