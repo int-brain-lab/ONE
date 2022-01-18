@@ -333,6 +333,12 @@ class One(ConversionMixin):
         -------
         A list of file paths for the datasets (None elements for non-existent datasets)
         """
+
+        if isinstance(datasets, pd.Series):
+            datasets = pd.DataFrame([datasets])
+        elif not isinstance(datasets, pd.DataFrame):
+            # Cast set of dicts (i.e. from REST datasets endpoint)
+            datasets = util.datasets2records(list(datasets))
         indices_to_download = []  # indices of datasets that need (re)downloading
         files = []  # file path list to return
         # First go through datasets and check if file exists and hash matches
@@ -345,7 +351,7 @@ class One(ConversionMixin):
                 new_size = file.stat().st_size
                 size_mismatch = rec['file_size'] and new_size != rec['file_size']
                 if hash_mismatch or size_mismatch:
-                    _logger.warning('local md5 or size mismatch')
+                    _logger.warning('local md5 or size mismatch on dataset') # TODO: add in relative path of dataset
                     # Mismatch: add this index to list of datasets that need downloading
                     indices_to_download.append(i)
                 files.append(file)  # File exists so add to file list
@@ -355,11 +361,15 @@ class One(ConversionMixin):
                 # Add this index to list of datasets that need downloading
                 indices_to_download.append(i)
 
+        # TODO: if update_exists:
+        #                         self._cache['datasets'].loc[i, 'exists'] = rec['exists']
+        # TODO: reintroduce the has check into one._download_dataset
+
         # If online and we have datasets to download, call download_datasets with these datasets
-        if not offline and indices_to_download:
+        if not (offline or self.offline) and indices_to_download:
             dsets_to_download = datasets.loc[indices_to_download]
-            new_files = self._download_datasets(  # Returns list of local file paths and set to variable
-                dsets_to_download, update_cache=update_exists)
+            # Returns list of local file paths and set to variable
+            new_files = self._download_datasets(dsets_to_download, update_cache=update_exists)
             # Add each downloaded file to the output list of files
             for i, file in zip(indices_to_download, new_files):
                 files[datasets.index.get_loc(i)] = file
@@ -1519,7 +1529,7 @@ class OneAlyx(One):
                     out_files[-1] = None
         return out_files
 
-    def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
+    def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[Path]:
         """
         Download a single or multitude of dataset from an Alyx REST dictionary
 
