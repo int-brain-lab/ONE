@@ -258,6 +258,11 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(2, len(verifiable))
         self.assertTrue(all(x.split('#')[1] < revision for x in verifiable['rel_path']))
 
+        # Should return single dataset with last revision when default specified
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
+            filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
+                            assert_unique=True, wildcards=True, revision_last_before=True)
+
         # Should return matching revision
         verifiable = filter_datasets(datasets, None, None, r'2020-08-\d{2}',
                                      assert_unique=False, revision_last_before=False)
@@ -291,6 +296,16 @@ class TestONECache(unittest.TestCase):
         datasets['default_revision'] = [True] + [False] * 4
         verifiable = filter_datasets(datasets, None, None, None, assert_unique=False)
         self.assertEqual(revisions[0], verifiable.rel_path.values[0])
+
+        # Load dataset with default revision
+        verifiable = filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
+                                     assert_unique=True, wildcards=True, revision_last_before=True)
+        self.assertEqual(verifiable.rel_path.to_list(),
+                         ['alf/probe00/#2020-01-01#/spikes.times.npy'])
+        # When revision_last_before is false, expect multiple objects error
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
+                            assert_unique=True, wildcards=True, revision_last_before=False)
 
     def test_filter_wildcards(self):
         """Test one.util.filter_datasets with wildcards flag set to True"""
