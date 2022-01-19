@@ -118,8 +118,8 @@ def _ids_to_uuid(df_ses, df_dsets):
             .equals(ses_id_set)), 'session int ID mismatch between frames'
 
     # Set index
-    df_ses = df_ses.set_index('id').drop('id_', axis=1)
-    df_dsets = df_dsets.set_index(['eid', 'id']).drop('eid_', axis=1)
+    df_ses = df_ses.set_index('id').drop('id_', axis=1).sort_index()
+    df_dsets = df_dsets.set_index(['eid', 'id']).drop('eid_', axis=1).sort_index()
 
     return df_ses, df_dsets
 

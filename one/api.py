@@ -116,11 +116,8 @@ class One(ConversionMixin):
                 cache.set_index(idx_columns, inplace=True)
 
             # Check sorted
-            is_sorted = (cache.index.is_monotonic_increasing
-                         if isinstance(cache.index, pd.MultiIndex)
-                         else True)
             # Sorting makes MultiIndex indexing O(N) -> O(1)
-            if table == 'datasets' and not is_sorted:
+            if not cache.index.is_monotonic_increasing:
                 cache.sort_index(inplace=True)
 
             self._cache[table] = cache
