@@ -404,11 +404,8 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <span class="sig-name descname"><span class="pre">list_endpoints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.list_endpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.list_endpoints" title="Permalink to this definition"></a></dt>
 <dd><p>Return a list of available REST endpoints</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List of REST endpoint strings</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of REST endpoint strings</p>
 </dd>
 </dl>
 </dd></dl>
@@ -446,11 +443,8 @@ other than 200, 201.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – A REST query string either as a relative URL path complete URL</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>JSON interpreted dictionary from response</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>JSON interpreted dictionary from response</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -472,11 +466,8 @@ other than 200, 201.</p>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – WebClient.http_download_file parameters</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Local path(s) of downloaded file(s)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Local path(s) of downloaded file(s)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -486,11 +477,8 @@ other than 200, 201.</p>
 <span class="sig-name descname"><span class="pre">download_cache_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_cache_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_cache_tables" title="Permalink to this definition"></a></dt>
 <dd><p>Downloads the Alyx cache tables to the local data cache directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List of parquet table file paths</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of parquet table file paths</p>
 </dd>
 </dl>
 </dd></dl>
@@ -504,11 +492,8 @@ It is expected that the remote HTTP server has the same file tree as the local s
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative ALF path (subject/date/number/etc.)</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>A URL string</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A URL string</p>
 </dd>
 </dl>
 </dd></dl>
@@ -527,11 +512,8 @@ For the dictionary contents and list of endpoints, refer to:
 <li><p><strong>kwargs</strong> (<em>any</em>) – Optional arguments to pass to _generic_request and _cache_response decorator</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>JSON interpreted dictionary from response</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>JSON interpreted dictionary from response</p>
 </dd>
 </dl>
 </dd></dl>
@@ -550,11 +532,8 @@ For the dictionary contents, refer to:
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Response object</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Response object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -573,11 +552,8 @@ For the dictionary contents, refer to:
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Response object</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Response object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -631,8 +607,8 @@ alyx_client.rest(endpoint, action): lists fields and URL</p>
 <li><p><strong>id</strong> (<em>str</em>) – Lookup string for actions ‘read’, ‘update’, ‘partial_update’, and ‘delete’</p></li>
 <li><p><strong>data</strong> (<em>dict</em>) – Data dictionary for actions ‘update’, ‘partial_update’ and ‘create’</p></li>
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Option file(s) to upload</p></li>
-<li><p><strong>no_cache</strong> (<em>bool</em>) – If true the <cite>list</cite> and <cite>read</cite> actions are performed without returning the cache</p></li>
-<li><p><strong>kwargs</strong> – Filters as per the Alyx REST documentation
+<li><p><strong>no_cache</strong> (<em>bool</em>) – If true the <cite>list</cite> and <cite>read</cite> actions are performed without caching</p></li>
+<li><p><strong>kwargs</strong> (<em>any</em>) – Filters as per the Alyx REST documentation
 cf. <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/">https://openalyx.internationalbrainlab.org/docs/</a></p></li>
 </ul>
 </dd>

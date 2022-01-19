@@ -115,7 +115,7 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span><span class="p">,</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">unwrap</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
@@ -131,7 +131,7 @@
 <span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
 <span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
 <span class="kn">from</span> <span class="nn">.alf.cache</span> <span class="kn">import</span> <span class="n">make_parquet_db</span>
-<span class="kn">from</span> <span class="nn">.alf.files</span> <span class="kn">import</span> <span class="n">rel_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">get_alf_path</span><span class="p">,</span> <span class="n">add_uuid_string</span>
+<span class="kn">from</span> <span class="nn">.alf.files</span> <span class="kn">import</span> <span class="n">rel_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">get_alf_path</span>
 <span class="kn">from</span> <span class="nn">.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid_string</span>
 <span class="kn">from</span> <span class="nn">one.converters</span> <span class="kn">import</span> <span class="n">ConversionMixin</span>
 <span class="kn">import</span> <span class="nn">one.util</span> <span class="k">as</span> <span class="nn">util</span>
@@ -1554,73 +1554,6 @@
         <span class="c1"># LazyId only transforms records when indexed</span>
         <span class="n">eids</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">eids</span><span class="p">,</span> <span class="n">ses</span><span class="p">)</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">eids</span></div>
-
-    <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="c1"># If all datasets exist on AWS, download from there.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="s1">&#39;exists_aws&#39;</span> <span class="ow">in</span> <span class="n">dsets</span> <span class="ow">and</span> <span class="n">dsets</span><span class="p">[</span><span class="s1">&#39;exists_aws&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading from AWS&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_aws</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dsets</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_download_datasets</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="c1"># Download datasets from AWS</span>
-        <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-        <span class="kn">import</span> <span class="nn">boto3</span>
-        <span class="kn">from</span> <span class="nn">botocore.exceptions</span> <span class="kn">import</span> <span class="n">NoCredentialsError</span><span class="p">,</span> <span class="n">PartialCredentialsError</span><span class="p">,</span> <span class="n">ClientError</span>
-
-        <span class="k">def</span> <span class="nf">_callback_hook</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-            <span class="c1"># https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586</span>
-            <span class="c1"># For example that uses actual file size:</span>
-            <span class="c1"># boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/s3/transfer.html</span>
-            <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">bytes_amount</span><span class="p">):</span>
-                <span class="n">t</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bytes_amount</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">inner</span>
-
-        <span class="n">repo_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;aws_cortexlab&#39;</span><span class="p">)[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span>
-        <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">repo_json</span><span class="p">[</span><span class="s1">&#39;bucket_name&#39;</span><span class="p">]</span>
-        <span class="n">session_keys</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;aws_access_key_id&#39;</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Access key ID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;aws_secret_access_key&#39;</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Secret access key&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">session_keys</span><span class="p">)</span>
-        <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">)</span>
-        <span class="n">out_files</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">:</span>
-            <span class="n">dset_uuid</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">source_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">add_uuid_string</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="n">dset_uuid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">local_path</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]),</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">local_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="c1"># the local file hash doesn&#39;t match the dataset table cached hash</span>
-                <span class="n">hash_mismatch</span> <span class="o">=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">hash_mismatch</span><span class="p">:</span>
-                    <span class="n">clobber</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
-                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;local md5 or size mismatch, re-downloading </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">clobber</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">file_object</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">Object</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">source_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
-                <span class="n">filesize</span> <span class="o">=</span> <span class="n">file_object</span><span class="o">.</span><span class="n">content_length</span>
-                <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">filesize</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span>
-                          <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">local_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
-                    <span class="n">file_object</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">Filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">),</span> <span class="n">Callback</span><span class="o">=</span><span class="n">_callback_hook</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
-            <span class="k">except</span> <span class="p">(</span><span class="n">NoCredentialsError</span><span class="p">,</span> <span class="n">PartialCredentialsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ex</span>  <span class="c1"># Credentials need updating in Alyx</span>
-            <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Code&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;404&#39;</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">source_path</span><span class="si">}</span><span class="s1"> not found on </span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="n">out_files</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">out_files</span>
 
     <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
