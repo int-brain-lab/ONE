@@ -349,7 +349,8 @@ class One(ConversionMixin):
                 new_size = file.stat().st_size
                 size_mismatch = rec['file_size'] and new_size != rec['file_size']
                 if hash_mismatch or size_mismatch:
-                    _logger.warning('local md5 or size mismatch on dataset') # TODO: add in relative path of dataset
+                    full_relative_path = rec.session_path + rec.rel_path
+                    _logger.warning(f'local md5 or size mismatch on dataset: {full_relative_path}')
                     # Mismatch: add this index to list of datasets that need downloading
                     indices_to_download.append(i)
                 files.append(file)  # File exists so add to file list
@@ -358,10 +359,10 @@ class One(ConversionMixin):
                 files.append(None)
                 # Add this index to list of datasets that need downloading
                 indices_to_download.append(i)
-
-        # TODO: if update_exists:
-        #                         self._cache['datasets'].loc[i, 'exists'] = rec['exists']
-        # TODO: reintroduce the has check into one._download_dataset
+            if rec['exists'] != file.exists():
+                datasets.at[i, 'exists'] = not rec['exists']
+                if update_exists:
+                    self._cache['datasets'].loc[i, 'exists'] = rec['exists']
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
@@ -1549,6 +1550,7 @@ class OneAlyx(One):
         pathlib.Path
             A local file path or list of paths
         """
+        # TODO: reintroduce the has check into one._download_dataset
         # empty lists created for use with multiple datasets
         urls, dids = [], []
         if isinstance(dset, str) and dset.startswith('http'):
@@ -1566,7 +1568,8 @@ class OneAlyx(One):
                 for single_dset in dsets:
                     url = self.record2url(single_dset)
                     urls.append(url)
-                    dids.append(parquet.np2str(np.array(single_dset.name)))
+                    is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(single_dset.name))
+                    dids.append(np.array(single_dset.name)[-2:] if is_int else util.ensure_list(single_dset.name)[-1])
 
             elif 'data_url' in dset:  # data_dataset_session_related dict
                 url = dset['data_url']
