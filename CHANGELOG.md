@@ -1,9 +1,22 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.1]
 
 ### Modified
 
-- added Globus interface for downloading data
+- HOTFIX: failed to return most recent revision; raised MultipleObjectsFound error instead
+
+## [1.7.0]
+
+### Added
+
+- expires kwarg in AlyxClient.rest
+- fix for AWS download location
+
+## [1.6.3]
+
+### Added
+
+- ugly hack to download from aws instead of default http server
 
 ## [1.6.2]
 

@@ -15,7 +15,7 @@ import os
 from datetime import datetime, timedelta
 from functools import lru_cache, reduce
 from inspect import unwrap
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
 from uuid import UUID
 
@@ -31,7 +31,7 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import rel_path_parts, get_session_path, get_alf_path
+from .alf.files import rel_path_parts, get_session_path, get_alf_path, add_uuid_string
 from .alf.spec import is_uuid_string
 from one.converters import ConversionMixin
 import one.util as util
@@ -1454,6 +1454,73 @@ class OneAlyx(One):
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         return (eids, ses) if details else eids
+
+    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
+        # If all datasets exist on AWS, download from there.
+        try:
+            assert 'exists_aws' in dsets and dsets['exists_aws'].all()
+            _logger.info('Downloading from AWS')
+            return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+        except Exception as ex:
+            _logger.debug(ex)
+            return super()._download_datasets(dsets, **kwargs)
+
+    def _download_aws(self, dsets, clobber=False, **kwargs) -> List[Path]:
+        # Download datasets from AWS
+        from tqdm import tqdm
+        import boto3
+        from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+
+        def _callback_hook(t):
+            # https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586
+            # For example that uses actual file size:
+            # boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/s3/transfer.html
+            def inner(bytes_amount):
+                t.update(bytes_amount)
+            return inner
+
+        repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
+        bucket_name = repo_json['bucket_name']
+        session_keys = {
+            'aws_access_key_id': repo_json.get('Access key ID', None),
+            'aws_secret_access_key': repo_json.get('Secret access key', None)
+        }
+        session = boto3.Session(**session_keys)
+        s3 = session.resource('s3')
+        out_files = []
+        for dset in dsets:
+            dset_uuid = parquet.np2str(np.array(dset.name))
+            source_path = PurePosixPath('data').joinpath(
+                dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
+            )
+            local_path = alfio.remove_uuid_file(
+                self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
+            local_path.parent.mkdir(exist_ok=True, parents=True)
+            out_files.append(local_path)
+            if local_path.exists():
+                # the local file hash doesn't match the dataset table cached hash
+                hash_mismatch = dset['hash'] and hashfile.md5(local_path) != dset['hash']
+                if hash_mismatch:
+                    clobber = True
+                    if not self.alyx.silent:
+                        _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
+            else:
+                clobber = True
+            if local_path.exists() and not clobber:
+                continue
+            try:
+                file_object = s3.Object(bucket_name, source_path.as_posix())
+                filesize = file_object.content_length
+                with tqdm(total=filesize, unit='B',
+                          unit_scale=True, desc=local_path.as_posix()) as t:
+                    file_object.download_file(Filename=str(local_path), Callback=_callback_hook(t))
+            except (NoCredentialsError, PartialCredentialsError) as ex:
+                raise ex  # Credentials need updating in Alyx
+            except ClientError as ex:
+                if ex.response.get('Error', {}).get('Code', None) == '404':
+                    _logger.error(f'File {source_path} not found on {bucket_name}')
+                    out_files[-1] = None
+        return out_files
 
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
         """

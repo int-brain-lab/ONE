@@ -356,7 +356,7 @@ class TestsAlf(unittest.TestCase):
         self.assertEqual(7, len(alf_files))
 
         # Test with filepath
-        alf_files, parts = alfio._ls(alf_files[0])
+        alf_files, parts = alfio._ls(sorted(alf_files)[0])
         self.assertEqual(5, len(alf_files))
         self.assertTrue(all(x[1] == 'neuveu') for x in parts)
 

@@ -338,7 +338,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         regex_args.update(**filename)
     else:
         # Convert to regex is necessary and assert end of string
-        filename = (fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename))
+        filename = [fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename)]
         spec_str += '|'.join(filename)
 
     # If matching revision name, add to regex string
@@ -366,15 +366,18 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         if len(collections) > 1:
             _list = '"' + '", "'.join(collections) + '"'
             raise alferr.ALFMultipleCollectionsFound(_list)
-        if filename and len(match) > 1:
-            _list = '"' + '", "'.join(match['rel_path']) + '"'
-            raise alferr.ALFMultipleObjectsFound(_list)
         if not revision_last_before:
+            if filename and len(match) > 1:
+                _list = '"' + '", "'.join(match['rel_path']) + '"'
+                raise alferr.ALFMultipleObjectsFound(_list)
             if len(set(revisions)) > 1:
                 _list = '"' + '", "'.join(set(revisions)) + '"'
                 raise alferr.ALFMultipleRevisionsFound(_list)
             else:
                 return match
+        elif filename and len(set(revisions)) != len(revisions):
+            _list = '"' + '", "'.join(match['rel_path']) + '"'
+            raise alferr.ALFMultipleObjectsFound(_list)
 
     return filter_revision_last_before(match, revision, assert_unique=assert_unique)
 
