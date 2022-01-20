@@ -219,7 +219,7 @@ class TestGlobus(unittest.TestCase):
         setup_rest_cache()
         ac = AlyxClient(**TEST_DB_1)
         endpoint_id = '2dc8ccc6-2f8e-11e9-9351-0e3d676669f4'
-        name = globus.get_lab_from_endpoint_id(endpoint_id, ac)
+        name = globus.get_lab_from_endpoint_id(endpoint_id, ac)[0]
         self.assertEqual(name, 'mainenlab')
 
         # Check behaviour when unknown UUID
@@ -227,13 +227,12 @@ class TestGlobus(unittest.TestCase):
             self.assertIsNone(globus.get_lab_from_endpoint_id('123', ac))
 
         # Check behaviour when multiple labs returned
-        with mock.patch.object(ac, 'rest', return_value=[{'name': 'lab_A'}, {'name': 'lab_B'}]),\
-             self.assertRaises(AssertionError):
-            globus.get_lab_from_endpoint_id('123', ac)
+        with mock.patch.object(ac, 'rest', return_value=[{'name': 'lab_A'}, {'name': 'lab_B'}]):
+            self.assertEqual(len(globus.get_lab_from_endpoint_id('123', ac)), 2)
 
         # Check behaviour when no input ID returned
         with mock.patch('one.remote.globus.get_local_endpoint_id', return_value=endpoint_id):
-            name = globus.get_lab_from_endpoint_id(alyx=ac)
+            name = globus.get_lab_from_endpoint_id(alyx=ac)[0]
             self.assertEqual(name, 'mainenlab')
 
     @mock.patch('one.remote.globus.globus_sdk')

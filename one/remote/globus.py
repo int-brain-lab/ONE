@@ -201,8 +201,7 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     lab = alyx.rest('labs', 'list', django=f'repositories__globus_endpoint_id,{endpoint}')
     if len(lab):
         lab_names = [la['name'] for la in lab]
-        assert len(set(lab_names)) == 1, f'Multiple labs associated with endpoint UUID {endpoint}'
-        return lab_names[0]
+        return lab_names
 
 
 def as_globus_path(path):
