@@ -6,8 +6,7 @@ import json
 from uuid import uuid4
 
 import pandas as pd
-import numpy as np
-from iblutil.io.parquet import uuid2np, np2str
+from iblutil.io.parquet import str2np
 
 import one.params
 
@@ -149,17 +148,16 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         for collec in collections:
             for rev in (f'#{x}#' if x else '' for x in revisions):
                 rel_path.append('/'.join(x for x in (collec, rev, f'{object}.{attr}.npy') if x))
-    ids = uuid2np([uuid4() for _ in range(len(rel_path))])
-    eid_0, eid_1 = uuid2np([uuid4()])[0]
-
-    return pd.DataFrame(data={
+    d = {
         'rel_path': rel_path,
         'session_path': 'subject/1900-01-01/001',
         'file_size': None,
         'hash': None,
-        'eid_0': eid_0,
-        'eid_1': eid_1
-    }, index=[ids[:, 0], ids[:, 1]])
+        'eid': str(uuid4()),
+        'id': map(str, (uuid4() for _ in rel_path))
+    }
+
+    return pd.DataFrame(data=d).set_index(['eid', 'id'])
 
 
 def create_schema_cache(param_dir=None):
@@ -203,8 +201,8 @@ def get_file(root: str, str_id: str) -> str:
     return pfile
 
 
-def caches_int2str(caches):
-    """Convert int ids to str ids for cache tables.
+def caches_str2int(caches):
+    """Convert str ids to int ids for cache tables.
 
     Parameters
     ----------
@@ -213,11 +211,11 @@ def caches_int2str(caches):
 
     """
     for table in ('sessions', 'datasets'):
-        # Set integer uuids to NaN
+        index = caches[table].index
+        names = (index.name,) if index.name else index.names
         cache = caches[table].reset_index()
-        int_cols = cache.filter(regex=r'_\d{1}$').columns
-        for i in range(0, len(int_cols), 2):
-            name = int_cols.values[i].rsplit('_', 1)[0]
-            cache[name] = np2str(cache[int_cols[i:i + 2]])
-        cache[int_cols] = np.nan
-        caches[table] = cache.set_index('id')
+        for name in names:
+            for i, col in enumerate(str2np(cache.pop(name).values).T):
+                cache[f'{name}_{i}'] = col
+        int_cols = cache.filter(regex=r'_\d{1}$').columns.sort_values().tolist()
+        caches[table] = cache.set_index(int_cols)

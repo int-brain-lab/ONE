@@ -222,22 +222,19 @@ class TestOnlineConverters(unittest.TestCase):
         # As pd.Series
         url = self.one.record2url(rec.iloc[0])
         expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
-                    'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
-                    '_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin')
+                    'SWC_043/2020-09-21/001/alf/probe00/'
+                    '_phy_spikes_subset.channels.00c234a3-a4ff-4f97-a522-939d15528a45.npy')
         self.assertEqual(expected, url)
         # As pd.DataFrame
         url = self.one.record2url(rec.iloc[[0]])
-        expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
-                    'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
-                    '_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin')
         self.assertEqual([expected], url)
 
     def test_record2path(self):
         """Test for ConversionMixin.record2path"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
-        alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
-                    '_spikeglx_ephysData_g0_t0.imec0.ap.cbin')
+        alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/'
+                    'alf/probe00/_phy_spikes_subset.channels.npy')
         expected = Path(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
         path = self.one.record2path(rec.iloc[0])
         self.assertIsInstance(path, Path)

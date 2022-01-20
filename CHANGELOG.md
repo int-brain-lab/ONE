@@ -1,5 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.7.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.8.0]
+
+### Modified
+
+- datasets cache table expected to have index of (eid, id).  NB: This changes the order of datasets returned by some functions
+
+## [1.7.1]
+
+### Modified
+
+- HOTFIX: failed to return most recent revision; raised MultipleObjectsFound error instead
+
+## [1.7.0]
 
 ### Added
 
