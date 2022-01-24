@@ -1454,7 +1454,8 @@ class OneAlyx(One):
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
-         Download a single or multitude of datasets if stored on AWS, otherwise calls OneAlyx._download_dataset
+         Download a single or multitude of datasets if stored on AWS, otherwise calls
+         OneAlyx._download_dataset
 
          Parameters
          ----------
@@ -1568,8 +1569,11 @@ class OneAlyx(One):
                 for single_dset in dsets:
                     url = self.record2url(single_dset)
                     urls.append(url)
-                    is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(single_dset.name))
-                    dids.append(np.array(single_dset.name)[-2:] if is_int else util.ensure_list(single_dset.name)[-1])
+                    is_int = all(isinstance(
+                        x, (int, np.int64)) for x in util.ensure_list(single_dset.name))
+                    dids.append(np.array(
+                        single_dset.name)[-2:] if is_int else util.ensure_list(
+                        single_dset.name)[-1])
 
             elif 'data_url' in dset:  # data_dataset_session_related dict
                 url = dset['data_url']
@@ -1624,8 +1628,8 @@ class OneAlyx(One):
 
     def _download_file(self, url, target_dir, offline=None, keep_uuid=False):
         """
-        Downloads a single file or multitude of files from an HTTP webserver.  The webserver in question is set by the
-        AlyxClient object.
+        Downloads a single file or multitude of files from an HTTP webserver.
+        The webserver in question is set by the AlyxClient object.
 
         Parameters
         ----------
@@ -1634,7 +1638,8 @@ class OneAlyx(One):
         target_dir : str, pathlib.Path
             The root directory to download file to
         offline : bool, None
-            If true, the file path is returned only if the file exists.  No download will take place
+            If true, the file path is returned only if the file exists.
+            No download will take place
         keep_uuid : bool
             If true, the UUID is not removed from the file name (default is False)
 

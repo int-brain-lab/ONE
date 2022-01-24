@@ -1100,7 +1100,8 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec)
         self.assertIsNotNone(file)
 
-        # Commenting out hash mismatches as they are being done in the One._check_filesystem method now
+        # Commenting out hash mismatches as they are being done in the
+        # One._check_filesystem method now
         # Check behaviour when hash mismatch
         # self.one.alyx.silent = False  # So we can check for warning
         # file_hash = rec['hash'].replace('a', 'd')
@@ -1108,7 +1109,7 @@ class TestOneDownload(unittest.TestCase):
         #     self.one._download_dataset(rec, hash=file_hash)
 
         # Check JSON field added
-        json_field = self.one.alyx.rest('files', 'read', id=self.fid, no_cache=True)['json']
+        # json_field = self.one.alyx.rest('files', 'read', id=self.fid, no_cache=True)['json']
         # self.assertTrue(json_field.get('mismatch_hash', False))
         self.one.alyx.silent = True  # Remove console clutter
 

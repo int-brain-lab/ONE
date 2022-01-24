@@ -290,7 +290,8 @@ def http_download_file_list(links_to_file_list, **kwargs):
     # using with statement to ensure threads are cleaned up promptly
     with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
         # Multithreading load operations
-        futures = [executor.submit(http_download_file, link_str, **kwargs) for link_str in links_to_file_list]
+        futures = [executor.submit(
+            http_download_file, link_str, **kwargs) for link_str in links_to_file_list]
         # TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?
         # timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000 ?
         concurrent.futures.wait(futures, timeout=None)
@@ -681,7 +682,8 @@ class AlyxClient():
 
     def download_file(self, url, **kwargs):
         """
-        Downloads a single file or list of files on the Alyx server from a file record REST field URL
+        Downloads a single file or list of files on the Alyx server from a
+        file record REST field URL
 
         Parameters
         ----------
