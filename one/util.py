@@ -47,7 +47,7 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
     # session_data['id_0'], session_data['id_1'] = eid.flatten().tolist()
     session = (
         (pd.Series(data=session_data, name=tuple(eid.flatten()))
-            .rename({'start_time': 'date'}, axis=1))
+            .rename({'start_time': 'date'}))
     )
     session['date'] = session['date'][:10]
 

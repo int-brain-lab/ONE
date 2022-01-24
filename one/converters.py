@@ -182,7 +182,7 @@ class ConversionMixin:
             assert len(ses) == 1, 'Duplicate eids in sessions table'
             ses, = ses.to_dict('records')
             return Path(self.cache_dir).joinpath(
-                ses['lab'], 'Subjects', ses['subject'],
+                ses['lab'] if ses['lab'] else '', 'Subjects' if ses['lab'] else '', ses['subject'],
                 str(ses['date']), str(ses['number']).zfill(3))
         except KeyError:
             return
