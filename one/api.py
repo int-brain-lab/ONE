@@ -362,7 +362,7 @@ class One(ConversionMixin):
             if rec['exists'] != file.exists():
                 datasets.at[i, 'exists'] = not rec['exists']
                 if update_exists:
-                    self._cache['datasets'].loc[i, 'exists'] = rec['exists']
+                    self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
