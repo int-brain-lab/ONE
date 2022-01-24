@@ -63,8 +63,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#Example-queries">Example queries</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#convert-session-dicts-to-eids">convert session dicts to eids</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-sessions-that-have-histology-available">list sessions that have histology available</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#list-experiments-spanning-channel-locations">list experiments spanning channel locations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-having-specific-channel-locations-(hierarchical,-will-fetch-everything-below)">list sessions having specific channel locations (hierarchical, will fetch everything below)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-sessions-that-do-not-have-matlab-in-the-project-name">list sessions that do not have matlab in the project name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-trajectories-with-channels-in-given-brain-region">list trajectories with channels in given brain region</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-insertions-that-have-alignment-resolved">list insertions that have alignment resolved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-names-of-users-who-have-aligned-specified-insertion">list names of users who have aligned specified insertion</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-probe-insertions-for-a-given-task-protocol">list probe insertions for a given task protocol</a></li>
@@ -546,26 +547,25 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </pre></div>
 </div>
 </section>
-<section id="list-experiments-spanning-channel-locations">
-<h3>list experiments spanning channel locations<a class="headerlink" href="#list-experiments-spanning-channel-locations" title="Permalink to this headline"></a></h3>
-<p>By default the channels are assigned to the regions ID available in the Allen Institute brain atlas volume. Users may want to query higher level regions, so the query will return all insertions or sessions that have at least one channel in the brain region or in one of its descendants. For example a query in Somatomotor areas would get all the leaf nodes belonging to that region and encompass somatomotor layers and primary and secondary motor areas.</p>
-<p>The table of brain regions as per the Allen Atlas is available <a class="reference external" href="https://openalyx.internationalbrainlab.org/admin/experiments/brainregion/">on alyx</a></p>
-<p>For sessions:</p>
+<section id="list-sessions-having-specific-channel-locations-(hierarchical,-will-fetch-everything-below)">
+<h3>list sessions having specific channel locations (hierarchical, will fetch everything below)<a class="headerlink" href="#list-sessions-having-specific-channel-locations-(hierarchical,-will-fetch-everything-below)" title="Permalink to this headline"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">atlas_id</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">atlas_acronym</span><span class="o">=</span><span class="s2">&quot;MO&quot;</span><span class="p">)</span>
 <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">atlas_name</span><span class="o">=</span><span class="s2">&quot;Somatomotor areas&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>For insertions:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">insertions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">atlas_id</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-<span class="n">insertions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">atlas_acronym</span><span class="o">=</span><span class="s2">&quot;MO&quot;</span><span class="p">)</span>
-<span class="n">insertions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">atlas_name</span><span class="o">=</span><span class="s2">&quot;Somatomotor areas&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-sessions-that-do-not-have-matlab-in-the-project-name">
 <h3>list sessions that do not have matlab in the project name<a class="headerlink" href="#list-sessions-that-do-not-have-matlab-in-the-project-name" title="Permalink to this headline"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~project__name__icontains,matlab&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="list-trajectories-with-channels-in-given-brain-region">
+<h3>list trajectories with channels in given brain region<a class="headerlink" href="#list-trajectories-with-channels-in-given-brain-region" title="Permalink to this headline"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">trajs</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;trajectories&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;channels__brain_region__name__icontains,&#39;</span>
+                                                     <span class="s1">&#39;Entorhinal area medial part dorsal zone &#39;</span>
+                                                     <span class="s1">&#39;layer 2&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

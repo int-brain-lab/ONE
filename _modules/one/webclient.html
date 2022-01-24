@@ -997,8 +997,8 @@
 <span class="sd">        files : dict, tuple</span>
 <span class="sd">            Option file(s) to upload</span>
 <span class="sd">        no_cache : bool</span>
-<span class="sd">            If true the `list` and `read` actions are performed without caching</span>
-<span class="sd">        kwargs : any</span>
+<span class="sd">            If true the `list` and `read` actions are performed without returning the cache</span>
+<span class="sd">        kwargs</span>
 <span class="sd">            Filters as per the Alyx REST documentation</span>
 <span class="sd">            cf. https://openalyx.internationalbrainlab.org/docs/</span>
 
@@ -1048,7 +1048,7 @@
             <span class="k">return</span>
 
         <span class="c1"># clobber=True means remote request always made, expires=True means response is not cached</span>
-        <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;clobber&#39;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">,</span> <span class="s1">&#39;expires&#39;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">}</span>
+        <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;clobber&#39;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">,</span> <span class="s1">&#39;expires&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;expires&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="n">no_cache</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
             <span class="c1"># list doesn&#39;t require id nor</span>
             <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span>
