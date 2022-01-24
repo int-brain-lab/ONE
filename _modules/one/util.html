@@ -147,7 +147,7 @@
     <span class="c1"># session_data[&#39;id_0&#39;], session_data[&#39;id_1&#39;] = eid.flatten().tolist()</span>
     <span class="n">session</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">session_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">eid</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
-            <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;start_time&#39;</span><span class="p">:</span> <span class="s1">&#39;date&#39;</span><span class="p">},</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;start_time&#39;</span><span class="p">:</span> <span class="s1">&#39;date&#39;</span><span class="p">}))</span>
     <span class="p">)</span>
     <span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">][:</span><span class="mi">10</span><span class="p">]</span>
 
