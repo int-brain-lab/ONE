@@ -4,8 +4,11 @@
 
 [Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.
 
+## Requirements
+ONE runs on Python 3.7 or later, and is tested on the latest Ubuntu and Windows (3.7 and 3.8 only).
+
 ## Installing
-For Python 3.7 or later, run
+Installing the package via pip typically takes a few seconds.  To install, run
 ```
 pip install ONE-api
 ```
@@ -74,4 +77,4 @@ ts = one.load_dataset(eid, 'wheel.timestamps', collection='alf')
 filename = one.load_dataset(eid, 'wheel.timestamps', download_only=True)
 ```
 
-Further examples and tutorials can be found in the documentation.
+Further examples and tutorials can be found in the [documentation](https://int-brain-lab.github.io/ONE/).
