@@ -584,6 +584,8 @@ class TestALFFolders(unittest.TestCase):
         valid_sessions = alfio.iter_sessions(self.tempdir.name)
         self.assertEqual(next(valid_sessions), self.session_path)
         self.assertFalse(next(valid_sessions, False))
+        # makes sure that the session path returns itself on the iterator
+        self.assertEqual(self.session_path, next(alfio.iter_sessions(self.session_path)))
 
 
 if __name__ == "__main__":
