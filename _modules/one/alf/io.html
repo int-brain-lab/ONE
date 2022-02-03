@@ -466,6 +466,8 @@
 <span class="sd">    pathlib.Path</span>
 <span class="sd">        The next session path in lexicographical order</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">root_dir</span>
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">path</span></div>
