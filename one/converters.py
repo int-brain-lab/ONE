@@ -570,12 +570,6 @@ class ConversionMixin:
             return False
         return re.compile(r'\d{4}(-\d{2}){2}_(\d{1}|\d{3})_\w+').match(ref) is not None
 
-    @recurse
-    def path2pid(self, path):
-        """Returns a portion of the path that represents the session and probe label"""
-        raise NotImplementedError()
-        path = Path(path).as_posix()
-
     @staticmethod
     @parse_values
     def ref2dict(ref: Union[str, Mapping, Iter]) -> Union[Bunch, List]:

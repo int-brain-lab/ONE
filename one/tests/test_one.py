@@ -767,6 +767,9 @@ class TestOneAlyx(unittest.TestCase):
         self.one.mode = 'remote'
         dset_type = self.one.dataset2type(did)
         self.assertEqual('wheelMoves.peakAmplitude', dset_type)
+        # Check with tuple int
+        dset_type = self.one.dataset2type(tuple(did.squeeze().tolist()))
+        self.assertEqual('wheelMoves.peakAmplitude', dset_type)
         # Check with str id
         did, = parquet.np2str(did)
         dset_type = self.one.dataset2type(did)
@@ -1114,6 +1117,11 @@ class TestOneDownload(unittest.TestCase):
         # Check keep_uuid kwarg
         file = self.one._download_dataset(rec, keep_uuid=True)
         self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
+
+        # Check Series input
+        r_ = datasets2records(rec, int_id=True).squeeze()
+        file = self.one._download_dataset(r_)
+        self.assertIn('channels.brainLocation', file.as_posix())
 
         # Check behaviour when URL invalid
         did = rec['url'].split('/')[-1]
