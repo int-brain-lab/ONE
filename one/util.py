@@ -49,7 +49,7 @@ def ses2records(ses: dict, int_id=False):
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'project')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
     session = (
-        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'}, axis=1)
+        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
     session['date'] = session['date'][:10]
 
