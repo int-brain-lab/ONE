@@ -64,9 +64,8 @@ class AlfBunch(Bunch):
             return AlfBunch(b)
         # right now supports only strictly matching keys. Will implement other cases as needed
         if set(a.keys()) != set(b.keys()):
-            raise NotImplementedError(
-                "Append bunches only works with strictly matching keys"
-                "For more complex merges, convert to pandas dataframe.")
+            raise NotImplementedError('Append bunches only works with strictly matching keys'
+                                      'For more complex merges, convert to pandas dataframe.')
         # do the merge; only concatenate lists and np arrays right now
         for k in a:
             if isinstance(a[k], np.ndarray):
@@ -74,8 +73,8 @@ class AlfBunch(Bunch):
             elif isinstance(a[k], list):
                 a[k].extend(b[k])
             else:
-                _logger.warning(f"bunch key '{k}' is a {a[k].__class__}. I don't know how to"
-                                f" handle that. Use pandas for advanced features")
+                _logger.warning(f'bunch key "{k}" is a {a[k].__class__}. I don\'t know how to'
+                                f' handle that. Use pandas for advanced features')
         check_dimensions(a)
         return a
 
@@ -125,7 +124,7 @@ def dataframe(adict):
                 if i == 9:
                     break
         else:
-            _logger.warning(f"{k} attribute is 3D or more and won't convert to dataframe")
+            _logger.warning(f'{k} attribute is 3D or more and won\'t convert to dataframe')
             continue
     return df
 
@@ -484,8 +483,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         # if this is the actual meta-data file, skip and it will be read later
         if meta_data_file == fil:
             continue
-        else:
-            out[att] = load_file_content(fil)
+        out[att] = load_file_content(fil)
         if meta_data_file:
             meta = load_file_content(meta_data_file)
             # the columns keyword splits array along the last dimension
@@ -508,7 +506,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
         print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
-        _logger.warning(f"Inconsistent dimensions for object: {object} \n{print_sizes}")
+        _logger.warning(f'Inconsistent dimensions for object: {object} \n{print_sizes}')
     return out
 
 
@@ -700,7 +698,7 @@ def filter_by(alf_path, wildcards=True, **kwargs):
         # Validate keyword arguments against regex group names
         invalid = kwargs.keys() - spec.regex(FILE_SPEC).groupindex.keys()
         if invalid:
-            raise TypeError("%s() got an unexpected keyword argument '%s'"
+            raise TypeError('%s() got an unexpected keyword argument "%s"'
                             % (__name__, set(invalid).pop()))
 
         # # Ensure 'extra' input is a list; if str split on dot
