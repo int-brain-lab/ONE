@@ -372,6 +372,8 @@ def iter_sessions(root_dir):
     pathlib.Path
         The next session path in lexicographical order
     """
+    if spec.is_session_path(root_dir):
+        yield root_dir
     for path in sorted(Path(root_dir).rglob('*')):
         if path.is_dir() and spec.is_session_path(path):
             yield path
