@@ -1642,10 +1642,10 @@ class OneAlyx(One):
             No download will take place
         keep_uuid : bool
             If true, the UUID is not removed from the file name (default is False)
-        file_size : int
-            The expected file size to compare with downloaded file
-        hash : str
-            The expected file hash to compare with downloaded file
+        file_size : int, list
+            The expected file size or list of file sizes to compare with downloaded file
+        hash : str, list
+            The expected file hash or list of file hashes to compare with downloaded file
 
         Returns
         -------
@@ -1653,13 +1653,19 @@ class OneAlyx(One):
             The file path of the downloaded file or files
         """
         if offline is None:
-            offline = self.mode == 'local'
+            offline = (self.mode == 'local')
         Path(target_dir).mkdir(parents=True, exist_ok=True)
-        # check if url is a list
+        # check if url, hash, and file_size are lists
         if isinstance(url, list):
             # download all files in the list of urls, store file paths with UUID to variable
             local_path_list = self.alyx.download_file(url, cache_dir=str(target_dir))
-
+            # check hash and file_size mismatches on downloaded files
+            if isinstance(hash, list) | isinstance(file_size, list):
+                for single_file_size, single_hash, local_path, single_url in \
+                        zip(file_size, hash, local_path_list, url):
+                    self._check_hash_and_file_size_mismatch(single_file_size, single_hash,
+                                                            local_path, target_dir, single_url)
+            # check if we are keeping the uuid on the list of file names
             if keep_uuid:
                 return local_path_list
             else:  # remove uuids from list of file names
@@ -1671,24 +1677,49 @@ class OneAlyx(One):
         else:  # url is not a list
             if not offline:
                 local_path = self.alyx.download_file(url, cache_dir=str(target_dir))
-                hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
-                file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-                if hash_mismatch or file_size_mismatch:
-                    _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
-                    local_path, md5 = self.alyx.download_file(url, cache_dir=str(target_dir),
-                                                              return_md5=True)
-                    # post download, if there is a mismatch between Alyx and the newly downloaded
-                    # file size or hash, flag the offending file record in Alyx for database
-                    # maintenance
-                    hash_mismatch = hash and md5 != hash
-                    file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-                    if hash_mismatch or file_size_mismatch:
-                        self._tag_mismatched_file_record(url)
+                if isinstance(file_size, int) | isinstance(hash, str):
+                    self._check_hash_and_file_size_mismatch(file_size, hash, local_path,
+                                                            target_dir, url)
 
-            if keep_uuid:
-                return local_path
-            else:  # remove uuids from filenames
-                return alfio.remove_uuid_file(local_path)
+                # check if we are keeping the uuid on the list of file names
+                if keep_uuid:
+                    return local_path
+                else:  # remove uuids from filenames
+                    return alfio.remove_uuid_file(local_path)
+
+    def _check_hash_and_file_size_mismatch(self, file_size, hash, local_path, target_dir, url):
+        """
+        Check to ensure the hash and file size of a downloaded file matches what is on disk
+
+        Parameters
+        ----------
+        file_size : int
+            The expected file size to compare with downloaded file
+        hash : str
+            The expected file hash to compare with downloaded file
+        local_path: str
+            The path of the downloaded file
+        target_dir : str
+            The root directory of the downloaded file
+        url : str
+            An absolute or relative URL for a remote dataset
+        """
+        # verify has size
+        hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
+        # verify file size
+        file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+        # check if there is a mismatch in hash or file_size
+        if hash_mismatch or file_size_mismatch:
+            _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
+            local_path, md5 = self.alyx.download_file(url, cache_dir=str(target_dir),
+                                                      return_md5=True)
+            # post download, if there is a mismatch between Alyx and the newly downloaded file size
+            # or hash, flag the offending file record in Alyx for database for maintenance
+            hash_mismatch = (hash and md5 != hash)
+            file_size_mismatch = (file_size and Path(local_path).stat().st_size != file_size)
+            if hash_mismatch or file_size_mismatch:
+                # tag the mismatched file records
+                self._tag_mismatched_file_record(url)
 
     @staticmethod
     def setup(base_url=None, **kwargs):
