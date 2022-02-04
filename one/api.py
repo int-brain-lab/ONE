@@ -24,7 +24,6 @@ import numpy as np
 import requests.exceptions
 from iblutil.io import parquet, hashfile
 from iblutil.util import Bunch
-from iblutil.numerical import ismember2d
 
 import one.params
 import one.webclient as wc
@@ -93,7 +92,7 @@ class One(ConversionMixin):
 
     def _load_cache(self, cache_dir=None, **kwargs):
         meta = self._cache['_meta']
-        INDEX_KEY = 'id'
+        INDEX_KEY = '.?id'
         for cache_file in Path(cache_dir or self.cache_dir).glob('*.pqt'):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
@@ -106,21 +105,19 @@ class One(ConversionMixin):
             meta['loaded_time'] = datetime.now()
             meta['expired'] |= datetime.now() - created > self.cache_expiry
 
+            # Convert to str ids
+            cache = util.cache_int2str(cache)
+
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
-                num_index = [f'{INDEX_KEY}_{n}' for n in range(2)]
-                try:
-                    int_eids = cache[num_index].any(axis=None)
-                except KeyError:
-                    int_eids = False
-                cache.set_index(num_index if int_eids else INDEX_KEY, inplace=True)
+                idx_columns = cache.filter(regex=INDEX_KEY).columns.tolist()
+                if len(idx_columns) == 0:
+                    raise KeyError('Failed to set index')
+                cache.set_index(idx_columns, inplace=True)
 
             # Check sorted
-            is_sorted = (cache.index.is_monotonic_increasing
-                         if isinstance(cache.index, pd.MultiIndex)
-                         else True)
             # Sorting makes MultiIndex indexing O(N) -> O(1)
-            if table == 'datasets' and not is_sorted:
+            if not cache.index.is_monotonic_increasing:
                 cache.sort_index(inplace=True)
 
             self._cache[table] = cache
@@ -294,13 +291,13 @@ class One(ConversionMixin):
                 query = util.ensure_list(value)
                 datasets = self._cache['datasets']
                 if self._index_type() is int:
-                    isin, _ = ismember2d(datasets[['eid_0', 'eid_1']].values,
-                                         np.array(sessions.index.values.tolist()))
+                    idx = np.array(sessions.index.tolist())
+                    datasets = datasets.loc[(idx[:, 0], idx[:, 1], ), ]
                 else:
-                    isin = datasets['eid'].isin(sessions.index.values)
+                    datasets = datasets.loc[(sessions.index.values, ), :]
                 # For each session check any dataset both contains query and exists
                 mask = (
-                    (datasets[isin]
+                    (datasets
                         .groupby(index, sort=False)
                         .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
                 )
@@ -313,12 +310,13 @@ class One(ConversionMixin):
         # Return results
         if sessions.size == 0:
             return ([], None) if details else []
+        sessions = sessions.sort_values(['date', 'subject', 'number'], ascending=False)
         eids = sessions.index.to_list()
         if self._index_type() is int:
             eids = parquet.np2str(np.array(eids))
 
         if details:
-            return eids, sessions.reset_index().iloc[:, 2:].to_dict('records', Bunch)
+            return eids, sessions.reset_index(drop=True).to_dict('records', Bunch)
         else:
             return eids
 
@@ -377,7 +375,7 @@ class One(ConversionMixin):
                 if rec['exists'] != file.exists():
                     datasets.at[i, 'exists'] = not rec['exists']
                     if update_exists:
-                        self._cache['datasets'].loc[i, 'exists'] = rec['exists']
+                        self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
         else:
             # TODO deal with clobber and exists here?
             files = self._download_datasets(datasets, update_cache=update_exists, clobber=clobber)
@@ -403,9 +401,9 @@ class One(ConversionMixin):
         """
         table = self._cache[table] if isinstance(table, str) else table
         idx_0 = table.index.values[0]
-        if len(table.index.names) == 2 and all(isinstance(x, int) for x in idx_0):
+        if len(table.index.names) % 2 == 0 and all(isinstance(x, int) for x in idx_0):
             return int
-        elif len(table.index.names) == 1 and isinstance(idx_0, str):
+        elif all(isinstance(x, str) for x in util.ensure_list(idx_0)):
             return str
         else:
             raise IndexError
@@ -440,8 +438,7 @@ class One(ConversionMixin):
             raise alferr.ALFMultipleObjectsFound(f'Multiple sessions in cache for eid {eid}')
         if not full:
             return det.iloc[0]
-        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']
-        # det = det.drop(to_drop, axis=1)
+        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']  # .reset_index(to_drop, drop=True)
         column = ['eid_0', 'eid_1'] if int_ids else 'eid'
         return self._cache['datasets'].join(det, on=column, how='right')
 
@@ -522,14 +519,14 @@ class One(ConversionMixin):
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return datasets.iloc[0:0]  # Return empty
-        if self._index_type() is int:
-            eid_num = parquet.str2np(eid)
-            index = ['eid_0', 'eid_1']
-            isin, _ = ismember2d(datasets[index].to_numpy(), eid_num)
-            datasets = datasets[isin]
-        else:
-            session_match = datasets['eid'] == eid
-            datasets = datasets[session_match]
+        try:
+            if self._index_type() is int:
+                eid_num, = parquet.str2np(eid)
+                datasets = datasets.loc[pd.IndexSlice[eid_num, ], :]
+            else:
+                datasets = datasets.loc[(eid,), :]
+        except KeyError:
+            return datasets.iloc[0:0]  # Return empty
 
         datasets = util.filter_datasets(datasets, **filter_args)
         # Return only the relative path
@@ -702,7 +699,8 @@ class One(ConversionMixin):
         query_type : str
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
-            When true the data are downloaded and the file path is returned.
+            When true the data are downloaded and the file path is returned. NB: The order of the
+            file path list is undefined.
         kwargs : dict
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
@@ -941,7 +939,6 @@ class One(ConversionMixin):
         # Make list of metadata Bunches out of the table
         records = (present_datasets
                    .reset_index()
-                   .drop(['eid_0', 'eid_1'], axis=1)
                    .to_dict('records', Bunch))
 
         # Ensure result same length as input datasets list
@@ -978,14 +975,17 @@ class One(ConversionMixin):
             dset_id = parquet.str2np(dset_id)
         elif isinstance(dset_id, UUID):
             dset_id = parquet.uuid2np([dset_id]) if int_idx else str(dset_id)
+        elif not int_idx and not isinstance(dset_id, str):
+            dset_id, = parquet.np2str(dset_id)
         try:
             if int_idx:
-                dataset = self._cache['datasets'].loc[dset_id.tolist()].iloc[0]
+                idx = (slice(None), slice(None), *dset_id.tolist())
+                dataset = self._cache['datasets'].loc[idx, :].squeeze()
             else:
-                dataset = self._cache['datasets'].loc[[dset_id]]
+                dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
+            if dataset.empty:
+                raise alferr.ALFObjectNotFound('Dataset not found')
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
-        except KeyError:
-            raise alferr.ALFObjectNotFound('Dataset not found')
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
 
@@ -1552,14 +1552,15 @@ class OneAlyx(One):
                 url = dset['data_url']
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
-                url = self.record2url(dset)
-                did = np.array(dset.name)
+                url = self.record2url(dset)  # NB: URL will always be returned
+                is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
+                did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
                 url = next((fr['data_url'] for fr in dset['file_records']
                             if fr['data_url'] and fr['exists']), None)
                 did = dset['url'][-36:]
 
-        if not url:
+        if not url:  # Only relevant to file_records dataset
             if 'session' in dset:
                 dset_str = f"{dset['session'][-36:]}: "\
                            f"{dset.get('collection', '.')}/{dset.get('name', '')}"
@@ -1568,10 +1569,12 @@ class OneAlyx(One):
             _logger.warning(f"{dset_str} not found")
             if update_cache:
                 if isinstance(did, str) and self._index_type('datasets') is int:
-                    did = parquet.str2np(did)
+                    did, = parquet.str2np(did).tolist()
                 elif self._index_type('datasets') is str and not isinstance(did, str):
                     did = parquet.np2str(did)
-                self._cache['datasets'].loc[did, 'exists'] = False
+                # NB: This will be considerably easier when IndexSlice supports Ellipsis
+                idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
+                self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
             return
         target_dir = Path(cache_dir or self.cache_dir, get_alf_path(url)).parent
         return self._download_file(url=url, target_dir=target_dir, **kwargs)
@@ -1878,7 +1881,7 @@ class OneAlyx(One):
         # Get ID of fist matching dset
         for idx, rel_path in datasets['rel_path'].items():
             if rel_path.endswith(dset_name):
-                return idx
+                return idx[-1]  # (eid, did)
         raise ValueError(f'Dataset {dset_name} not found in cache')
 
     @util.refresh

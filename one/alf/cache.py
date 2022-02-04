@@ -90,40 +90,38 @@ def _get_dataset_info(full_ses_path, rel_dset_path, ses_eid=None, compute_hash=F
     }
 
 
-def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, drop_key=False):
+def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, keep_old=False):
     base_id = base_id or uuid.uuid1()  # Base hash based on system by default
     toUUID = partial(uuid.uuid3, base_id)  # MD5 hash from base uuid and rel session path string
-    uuids = df[id_key].map(toUUID)
-    assert len(uuids.unique()) == uuids.size  # WARNING This fails :(
-    npuuid = parquet.uuid2np(uuids)
-    df[f"{id_key}_0"] = npuuid[:, 0]
-    df[f"{id_key}_1"] = npuuid[:, 1]
-    if drop_key:
-        df.drop(id_key, axis=1, inplace=True)
+    if keep_old:
+        df[f'{id_key}_'] = df[id_key].copy()
+    df[id_key] = df[id_key].apply(lambda x: str(toUUID(x)))
+    assert len(df[id_key].unique()) == len(df[id_key])  # WARNING This fails :(
+    return df
 
 
-def _ids_to_int(df_ses, df_dsets, drop_id=False):
+def _ids_to_uuid(df_ses, df_dsets):
     ns = uuid.uuid1()
-    _rel_path_to_uuid(df_dsets, id_key='id', base_id=ns, drop_key=drop_id)
-    _rel_path_to_uuid(df_ses, id_key='id', base_id=ns, drop_key=False)
-    # Copy int eids into datasets frame
-    eid_cols = ['eid_0', 'eid_1']
-    df_dsets[eid_cols] = (df_ses
-                          .set_index('id')
-                          .loc[df_dsets['eid'], ['id_0', 'id_1']]
-                          .values)
+    df_dsets = _rel_path_to_uuid(df_dsets, id_key='id', base_id=ns)
+    df_ses = _rel_path_to_uuid(df_ses, id_key='id', base_id=ns, keep_old=True)
+    # Copy new eids into datasets frame
+    df_dsets['eid_'] = df_dsets['eid'].copy()
+    df_dsets['eid'] = (df_ses
+                       .set_index('id_')
+                       .loc[df_dsets['eid'], 'id']
+                       .values)
     # Check that the session int IDs in both frames match
-    ses_int_id_set = (df_ses
-                      .set_index('id')[['id_0', 'id_1']]
-                      .rename(columns=lambda x: f'e{x}'))
+    ses_id_set = df_ses.set_index('id_')['id']
     assert (df_dsets
-            .set_index('eid')[eid_cols]
+            .set_index('eid_')['eid']
             .drop_duplicates()
-            .equals(ses_int_id_set)), 'session int ID mismatch between frames'
-    # Drop original id fields
-    if drop_id:
-        df_ses.drop('id', axis=1, inplace=True)
-        df_dsets.drop('eid', axis=1, inplace=True)
+            .equals(ses_id_set)), 'session int ID mismatch between frames'
+
+    # Set index
+    df_ses = df_ses.set_index('id').drop('id_', axis=1).sort_index()
+    df_dsets = df_dsets.set_index(['eid', 'id']).drop('eid_', axis=1).sort_index()
+
+    return df_ses, df_dsets
 
 
 # -------------------------------------------------------------------------------------------------
@@ -219,7 +217,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
         root directory.
     hash_ids : bool
         If True, experiment and dataset IDs will be UUIDs generated from the system and relative
-        paths.
+        paths (required for use with ONE API)
     hash_files : bool
         If True, an MD5 hash is computed for each dataset and stored in the datasets table.
         This will substantially increase cache generation time.
@@ -242,7 +240,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
 
     # Add integer id columns
     if hash_ids and len(df_ses) > 0:
-        _ids_to_int(df_ses, df_dsets, drop_id=True)
+        df_ses, df_dsets = _ids_to_uuid(df_ses, df_dsets)
 
     if lab:  # Fill in lab name field
         assert not df_ses['lab'].any() or (df_ses['lab'] == 'lab').all(), 'lab name conflict'
