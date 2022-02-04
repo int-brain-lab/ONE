@@ -64,8 +64,9 @@ class AlfBunch(Bunch):
             return AlfBunch(b)
         # right now supports only strictly matching keys. Will implement other cases as needed
         if set(a.keys()) != set(b.keys()):
-            raise NotImplementedError("Append bunches only works with strictly matching keys"
-                                      "For more complex merges, convert to pandas dataframe.")
+            raise NotImplementedError(
+                "Append bunches only works with strictly matching keys"
+                "For more complex merges, convert to pandas dataframe.")
         # do the merge; only concatenate lists and np arrays right now
         for k in a:
             if isinstance(a[k], np.ndarray):
@@ -81,6 +82,14 @@ class AlfBunch(Bunch):
     def to_df(self) -> pd.DataFrame:
         """Return DataFrame with data keys as columns"""
         return dataframe(self)
+
+    @staticmethod
+    def from_df(df) -> 'AlfBunch':
+        data = dict(zip(df.columns, df.values.T))
+        split_keys = sorted(x for x in data.keys() if re.match(r'.+?_[01]$', x))
+        for x1, x2 in zip(*[iter(split_keys)] * 2):
+            data[x1[:-2]] = np.c_[data.pop(x1), data.pop(x2)]
+        return AlfBunch(data)
 
 
 def dataframe(adict):
@@ -137,9 +146,7 @@ def _find_metadata(file_alf) -> Path:
     """
     file_alf = Path(file_alf)
     ns, obj = file_alf.name.split('.')[:2]
-    meta_data_file = list(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'))
-    if meta_data_file:
-        return meta_data_file[0]
+    return next(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'), None)
 
 
 def read_ts(filename):
@@ -469,6 +476,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     assert len(set(attributes)) == len(attributes), (
         f'multiple object {object} with the same attribute in {alfpath}, restrict parts/namespace')
     out = AlfBunch({})
+
     # load content for each file
     for fil, att in zip(files_alf, attributes):
         # if there is a corresponding metadata file, read it:
@@ -476,14 +484,6 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         # if this is the actual meta-data file, skip and it will be read later
         if meta_data_file == fil:
             continue
-        if att.split('_')[0] == 'data':
-            # Load as table and append to ALFBunch
-            df = load_file_content(fil)
-            data = dict(zip(df.columns, df.values.T))
-            split_keys = sorted(x for x in data.keys() if re.match(r'.+?_[01]$', x))
-            for x1, x2 in zip(*[iter(split_keys)] * 2):
-                data[x1[:-2]] = np.c_[data.pop(x1), data.pop(x2)]
-            out = out.append(data)
         else:
             out[att] = load_file_content(fil)
         if meta_data_file:
@@ -496,6 +496,8 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # if there is other stuff in the dictionary, save it, otherwise disregard
             if meta:
                 out[att + 'metadata'] = meta
+    if 'table' in out.keys():  # Merge 'table' dataframe into bunch
+        out.update(AlfBunch.from_df(out.pop('table')))
     status = check_dimensions(out)
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
