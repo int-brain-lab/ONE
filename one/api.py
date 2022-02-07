@@ -981,8 +981,6 @@ class One(ConversionMixin):
             if dataset.empty:
                 raise alferr.ALFObjectNotFound('Dataset not found')
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
-        except KeyError:
-            raise alferr.ALFObjectNotFound('Dataset not found')
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
 
@@ -1578,7 +1576,7 @@ class OneAlyx(One):
                 url = dset['data_url']
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
-                url = self.record2url(dset)
+                url = self.record2url(dset)  # NB: URL will always be returned
                 is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
                 did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
@@ -1587,7 +1585,7 @@ class OneAlyx(One):
                 did = dset['url'][-36:]
 
         # TODO: Move 'if not url' block to separate method
-        if (not url) and (not urls):
+        if (not url) and (not urls):  # Only relevant to file_records dataset
             if 'session' in dset:
                 dset_str = f"{dset['session'][-36:]}: "\
                            f"{dset.get('collection', '.')}/{dset.get('name', '')}"

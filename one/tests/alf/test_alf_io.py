@@ -7,6 +7,7 @@ import shutil
 import json
 
 import numpy as np
+import numpy.testing
 import pandas as pd
 
 from iblutil.io import jsonable
@@ -43,6 +44,15 @@ class TestAlfBunch(unittest.TestCase):
         self.assertTrue(len(df.columns) == 12)
         self.assertEqual(10, len(df.filter(regex=r'tata_\d+', axis=1).columns),
                          'failed to truncate columns')
+
+    def test_from_dataframe(self):
+        """Tests for AlfBunch.from_df method"""
+        cols = ['foo_0', 'foo_1', 'bar_0', 'bar_1', 'baz']
+        df = pd.DataFrame(np.random.rand(10, 5), columns=cols)
+        a = alfio.AlfBunch.from_df(df)
+        self.assertIsInstance(a, alfio.AlfBunch)
+        self.assertCountEqual(['foo', 'bar', 'baz'], a.keys())
+        numpy.testing.assert_array_equal(df['foo_0'], a['foo'][:, 0])
 
     def test_append_numpy(self):
         a = alfio.AlfBunch({'titi': np.random.rand(500), 'toto': np.random.rand(500)})
@@ -242,6 +252,10 @@ class TestsAlf(unittest.TestCase):
             np.save(file=f, arr=np.random.rand(*shape))
         self.object_files.append(self.tmpdir / 'neuveu.timestamps.npy')
         np.save(file=self.object_files[-1], arr=np.ones((2, 2)))
+        # Save an obj.data pqt file
+        self.object_files.append(self.tmpdir / 'obj.table.pqt')
+        cols = ['foo_0', 'foo_1', 'bar_0', 'bar_1', 'baz']
+        pd.DataFrame(np.random.rand(10, 5), columns=cols).to_parquet(self.object_files[-1])
 
     def test_exists(self):
         """Test for one.alf.io.exists"""
@@ -347,13 +361,26 @@ class TestsAlf(unittest.TestCase):
         with self.assertLogs(logging.getLogger('one.alf.io'), logging.WARNING) as log:
             alfio.load_object(self.tmpdir, 'neuveu', short_keys=False)
         self.assertIn(str(data.shape), log.output[0])
+        # Check loading of 'table' attribute
+        obj = alfio.load_object(self.tmpdir, 'obj')
+        self.assertIsInstance(obj, alfio.AlfBunch)
+        self.assertCountEqual(obj.keys(), ['foo', 'bar', 'baz'])
+        self.assertEqual(obj['foo'].shape, (10, 2))
+        self.assertEqual(obj['bar'].shape, (10, 2))
+        self.assertEqual(obj['baz'].shape, (10,))
+        # Check behaviour on conflicting keys
+        np.save(self.tmpdir.joinpath('obj.baz.npy'), np.arange(len(obj['foo'])))
+        new_obj = alfio.load_object(self.tmpdir, 'obj')
+        self.assertNotIn('table', new_obj)
+        np.testing.assert_array_equal(new_obj['baz'], obj['baz'],
+                                      'Table attribute should take precedent')
 
     def test_ls(self):
         """Test for one.alf.io._ls"""
         # Test listing all ALF files in a directory
         alf_files, _ = alfio._ls(self.tmpdir)
         self.assertIsInstance(alf_files[0], Path)
-        self.assertEqual(7, len(alf_files))
+        self.assertEqual(8, len(alf_files))
 
         # Test with filepath
         alf_files, parts = alfio._ls(sorted(alf_files)[0])
@@ -584,6 +611,8 @@ class TestALFFolders(unittest.TestCase):
         valid_sessions = alfio.iter_sessions(self.tempdir.name)
         self.assertEqual(next(valid_sessions), self.session_path)
         self.assertFalse(next(valid_sessions, False))
+        # makes sure that the session path returns itself on the iterator
+        self.assertEqual(self.session_path, next(alfio.iter_sessions(self.session_path)))
 
 
 if __name__ == "__main__":
