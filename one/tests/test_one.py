@@ -1106,7 +1106,7 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when hash mismatch
         self.one.alyx.silent = False  # So we can check for warning
         file_hash = rec['hash'].replace('a', 'd')
-        with self.assertLogs(logging.getLogger('one.api'), logging.WARNING):
+        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG):
             self.one._download_dataset(rec, hash=file_hash)
 
         # Check JSON field added
