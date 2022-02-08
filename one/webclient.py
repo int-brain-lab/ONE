@@ -471,7 +471,7 @@ class AlyxClient():
     base_url = None
 
     def __init__(self, base_url=None, username=None, password=None,
-                 cache_dir=None, silent=False, cache_rest='GET', stay_logged_in=True):
+                 cache_dir=None, silent=False, cache_rest='GET'):
         """
         Create a client instance that allows to GET and POST to the Alyx server.
         For One, constructor attempts to authenticate with credentials in params.py.
@@ -498,10 +498,11 @@ class AlyxClient():
         self._par = one.params.get(client=base_url, silent=self.silent)
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
-        self.authenticate(username, password, cache_token=stay_logged_in)
+        if username or password:
+            self.authenticate(username, password)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers['Accept'] = 'application/json'
+        self._headers = {**(self._headers or {}), 'Accept': 'application/json'}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
