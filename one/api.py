@@ -1608,7 +1608,6 @@ class OneAlyx(One):
             A local file path or list of paths
         """
         cache_dir = cache_dir or self.cache_dir
-        # Check if we have a multitude of urls
         url = self._dset2url(dset, update_cache=update_cache)
         if url is None:
             return
