@@ -10,7 +10,7 @@ from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTim
     GlobusConnectionError, GlobusConnectionTimeoutError
 from iblutil.io import params as iopar
 
-from one.alf.spec import is_uuid, is_uuid_string
+from one.alf.spec import is_uuid
 from one.alf.io import remove_uuid_file
 import one.params
 from one.webclient import AlyxClient
@@ -57,7 +57,7 @@ def setup(par_id=None):
                   'Press Enter to keep it, or enter a new ID here: ')
         pars['GLOBUS_CLIENT_ID'] = input(prompt).strip() or current_id
     else:
-        new_id = input(f'Please enter the Globus client ID: ').strip()
+        new_id = input('Please enter the Globus client ID: ').strip()
         if not new_id:
             raise ValueError('Globus client ID is a required field')
         pars['GLOBUS_CLIENT_ID'] = new_id
@@ -168,7 +168,7 @@ def get_local_endpoint_paths():
         path_file = Path.home().joinpath('.globusonline', 'lta', 'config-paths')
         if path_file.exists():
             local_paths = map(Path, filter(None, path_file.read_text().strip().split(',')))
-            _logger.debug(f'Found local endpoint paths in Globus Connect settings')
+            _logger.debug('Found local endpoint paths in Globus Connect settings')
         else:
             msg = ('Cannot find local endpoint path, check if Globus Connect is set up correctly, '
                    '{} exists and contains a valid path.')
@@ -179,8 +179,8 @@ def get_local_endpoint_paths():
 
 def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     """
-    Extracts lab name given an endpoint id root path given a repository name that is registered in the
-    database accessed by ONE.
+    Extracts lab name given an endpoint id root path given a repository name that is registered in
+    the database accessed by ONE.
 
     Parameters
     ----------
@@ -423,7 +423,7 @@ class Globus(DownloadClient):
 
         tdata = globus_sdk.TransferData(self.client, source_endpoint, target_endpoint,
                                         verify_checksum=True, sync_level='checksum',
-                                        label=f'ONE globus')
+                                        label='ONE globus')
         for source_path, target_path in zip(source_paths, target_paths):
             tdata.add_item(source_path, target_path)
 
@@ -484,7 +484,7 @@ class Globus(DownloadClient):
         except (GlobusAPIError, NetworkError, GlobusTimeoutError, GlobusConnectionError,
                 GlobusConnectionTimeoutError) as e:
             if retries < 1:
-                _logger.error(f'\nMax retries exceeded.')
+                _logger.error('\nMax retries exceeded.')
                 raise e
             else:
                 _logger.debug('\nGlobus experienced a network error', exc_info=True)

@@ -2,7 +2,7 @@ import logging
 import tempfile
 import unittest
 from unittest import mock
-from pathlib import Path, PureWindowsPath, PurePosixPath
+from pathlib import Path, PurePosixPath
 import shutil
 from functools import partial
 from tempfile import TemporaryDirectory
