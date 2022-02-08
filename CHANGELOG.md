@@ -6,6 +6,8 @@
 - datasets cache table expected to have index of (eid, id).  NB: This changes the order of datasets returned by some functions
 - multithreading moved from One._download_datasets to one.webclient.http_download_file_list
 - cache_dir kwarg renamed to target_dir in one.webclient.http_download_file
+- 'table' attribute now split into columns and merged
+- added `from_df` method to one.alf.io.AlfBunch
 
 ## [1.7.1]
 
