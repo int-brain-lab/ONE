@@ -1087,7 +1087,7 @@ class TestOneDownload(unittest.TestCase):
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
     def test_download_datasets(self):
-        """Test OneAlyx._download_dataset, _download_file and _tag_mismatched_file_record"""
+        """Test OneAlyx._download_dataset, _download_file and _dset2url"""
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
@@ -1118,6 +1118,11 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec, keep_uuid=True)
         self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
 
+        # Check list input
+        files = self.one._download_dataset([rec] * 2)
+        self.assertIsInstance(files, list)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+
         # Check Series input
         r_ = datasets2records(rec, int_id=True).squeeze()
         file = self.one._download_dataset(r_)
@@ -1130,6 +1135,7 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec)
         self.assertIsNone(file)
         self.assertFalse(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
+        self.one._cache.datasets.loc[(slice(None), did), 'exists'] = True  # Reset values
 
         # Check with invalid path
         path = self.one.cache_dir.joinpath('lab', 'Subjects', 'subj', '2020-01-01', '001',
@@ -1143,6 +1149,13 @@ class TestOneDownload(unittest.TestCase):
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
+        # Check update cache when id is int and cache table ids are str
+        int_id, = parquet.str2np(np.array(rec.index.tolist())).tolist()
+        self.one._download_dataset({'data_url': None, 'id': np.array(int_id)})
+        exists, = self.one._cache.datasets.loc[(slice(None), rec.index[0]), 'exists']
+        self.assertFalse(exists, 'failed to update dataset cache with str index')
+        self.one._cache.datasets.loc[(slice(None), rec.index[0]), 'exists'] = True  # Reset values
+
         # Check works with int index
         util.caches_str2int(self.one._cache)
         self.assertIsNotNone(self.one._download_dataset(files[0]))
@@ -1150,7 +1163,7 @@ class TestOneDownload(unittest.TestCase):
         # and when dataset missing
         with mock.patch.object(self.one, 'record2url', return_value=None):
             self.assertIsNone(self.one._download_dataset(rec.squeeze()))
-        int_id, = parquet.str2np(np.array(rec.index.tolist())).tolist()
+
         exists, = self.one._cache.datasets.loc[(slice(None), slice(None), *int_id), 'exists']
         self.assertFalse(exists, 'failed to update dataset cache with str index')
 

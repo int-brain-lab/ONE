@@ -1537,7 +1537,7 @@ class OneAlyx(One):
         following: a dict from returned by the sessions endpoint or dataset endpoint, a record
         from the datasets cache table, or a file path.  If the dataset is from Alyx and cannot be
         converted to a URL, 'exists' will be set to False in the corresponding entry in the cache
-        table.
+        table. Unlike record2url, this method can convert dicts and paths to URLs.
 
         Parameters
         ----------
@@ -1578,7 +1578,7 @@ class OneAlyx(One):
                 did = dset['url'][-36:]
 
         # Update cache if url not found
-        if did is not None and not url:
+        if did is not None and not url and update_cache:
             if isinstance(did, str) and self._index_type('datasets') is int:
                 did, = parquet.str2np(did).tolist()
             elif self._index_type('datasets') is str and not isinstance(did, str):
@@ -1595,7 +1595,7 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        dset : dict, str, pd.Series
+        dset : dict, str, pd.Series, pd.DataFrame, list
             A single or multitude of dataset dictionary from an Alyx REST query OR URL string
         cache_dir : str, pathlib.Path
             The root directory to save the data to (default taken from ONE parameters)
