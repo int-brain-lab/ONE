@@ -2,7 +2,6 @@
 
 Things left to complete:
 
-    - TODO Add sig to ONE Light uuids.
     - TODO Save changes to cache.
     - TODO Fix update cache in AlyxONE - save parquet table.
     - TODO save parquet in update_filesystem.
@@ -10,6 +9,7 @@ Things left to complete:
 import collections.abc
 import warnings
 import logging
+import packaging.version
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
 from inspect import unwrap
@@ -1235,6 +1235,14 @@ class OneAlyx(One):
         try:
             # Determine whether a newer cache is available
             cache_info = self.alyx.get('cache/info', expires=True)
+
+            # Check version compatibility
+            min_version = packaging.version.parse(cache_info.get('min_api_version', '0.0.0'))
+            if packaging.version.parse(one.__version__) < min_version:
+                warnings.warn(f'Newer cache tables require ONE version {min_version} or greater')
+                return
+
+            # Check whether remote cache more recent
             remote_created = datetime.fromisoformat(cache_info['date_created'])
             local_created = cache_meta.get('created_time', None)
             if local_created and (remote_created - local_created) < timedelta(minutes=1):

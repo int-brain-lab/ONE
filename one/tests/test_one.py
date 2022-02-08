@@ -936,6 +936,13 @@ class TestOneAlyx(unittest.TestCase):
                     self.one._load_cache(clobber=True)
                     self.assertEqual('local', self.one.mode)
                 self.assertTrue('Failed to connect' in lg.output[-1])
+
+            cache_info = {'min_api_version': '200.0.0'}
+            # Check version verification
+            with mock.patch.object(self.one.alyx, 'get', return_value=cache_info),\
+                    self.assertWarns(UserWarning):
+                self.one._load_cache(clobber=True)
+
         finally:  # Restore properties
             self.one.mode = 'auto'
             self.one.alyx.silent = True

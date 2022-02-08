@@ -22,9 +22,20 @@ with open('README.md', 'r') as f:
 with open('requirements.txt') as f:
     require = [x.strip() for x in f.readlines() if not x.startswith('git+')]
 
+
+def get_version(rel_path):
+    here = Path(__file__).parent.absolute()
+    with open(here.joinpath(rel_path), 'r') as fp:
+        for line in fp.read().splitlines():
+            if line.startswith('__version__'):
+                delim = '"' if '"' in line else "'"
+                return line.split(delim)[1]
+    raise RuntimeError('Unable to find version string.')
+
+
 setup(
     name='ONE-api',
-    version='1.8.0',
+    version=get_version(Path('one', '__init__.py')),
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
     description='Open Neurophysiology Environment',
     license="MIT",
