@@ -426,14 +426,14 @@ class TestDownloadHTTP(unittest.TestCase):
         # Test 1: empty dir, dict mode
         dset = ac_open.get('/datasets/' + self.test_data_uuid)
         url = wc.dataset_record_to_url(dset)
-        file_name, = ac_open.download_file(url, cache_dir=cache_dir)
+        file_name, = ac_open.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
         # Test 2: empty dir, list mode
         dset = ac_open.get('/datasets?id=' + self.test_data_uuid)
         url = wc.dataset_record_to_url(dset)
-        file_name, = ac_open.download_file(url, cache_dir=cache_dir)
+        file_name, = ac_open.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
@@ -444,7 +444,7 @@ class TestDownloadHTTP(unittest.TestCase):
         with self.assertLogs(logging.getLogger('one.webclient'), logging.ERROR) as log:
             raised = False
             try:
-                ac.download_file(url, cache_dir=cache_dir)
+                ac.download_file(url, target_dir=cache_dir)
                 self.assertTrue(url[0] in log.output[-1])
             except Exception as ex:
                 # Check error message mentions the HTTP_DATA_SERVER params

@@ -11,7 +11,7 @@ import collections.abc
 import warnings
 import logging
 from datetime import datetime, timedelta
-from functools import lru_cache
+from functools import lru_cache, partial
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
@@ -20,8 +20,9 @@ from uuid import UUID
 import pandas as pd
 import numpy as np
 import requests.exceptions
+
 from iblutil.io import parquet, hashfile
-from iblutil.util import Bunch
+from iblutil.util import Bunch, flatten
 
 import one.params
 import one.webclient as wc
@@ -315,7 +316,6 @@ class One(ConversionMixin):
         TODO This needs changing; overload for downloading?
          This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
          update and save tables.  Download_datasets can also call this function.
-        TODO Remove clobber
 
         Parameters
         ----------
@@ -1531,6 +1531,64 @@ class OneAlyx(One):
                     out_files[-1] = None
         return out_files
 
+    def _dset2url(self, dset, update_cache=True):
+        """
+        Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the
+        following: a dict from returned by the sessions endpoint or dataset endpoint, a record
+        from the datasets cache table, or a file path.  If the dataset is from Alyx and cannot be
+        converted to a URL, 'exists' will be set to False in the corresponding entry in the cache
+        table.
+
+        Parameters
+        ----------
+        dset : dict, str, pd.Series, pd.DataFrame, list
+            A single or multitude of dataset dictionary from an Alyx REST query OR URL string
+
+        Returns
+        -------
+        str
+            The remote URL of the dataset
+        """
+        did = None
+        if isinstance(dset, str) and dset.startswith('http'):
+            url = dset
+        elif isinstance(dset, (str, Path)):
+            url = self.path2url(dset)
+            if not url:
+                _logger.warning(f'Dataset {dset} not found in cache')
+                return
+        elif isinstance(dset, (list, tuple)):
+            dset2url = partial(self._dset2url, update_cache=update_cache)
+            return list(flatten(map(dset2url, dset)))
+        else:
+            # check if dset is dataframe, iterate over rows
+            if hasattr(dset, 'iterrows'):
+                dset2url = partial(self._dset2url, update_cache=update_cache)
+                url = list(map(lambda x: dset2url(x[1]), dset.iterrows()))
+            elif 'data_url' in dset:  # data_dataset_session_related dict
+                url = dset['data_url']
+                did = dset['id']
+            elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
+                url = self.record2url(dset)  # NB: URL will always be returned but may not exist
+                is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
+                did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
+            else:  # from datasets endpoint
+                url = next((fr['data_url'] for fr in dset['file_records']
+                            if fr['data_url'] and fr['exists']), None)
+                did = dset['url'][-36:]
+
+        # Update cache if url not found
+        if did is not None and not url:
+            if isinstance(did, str) and self._index_type('datasets') is int:
+                did, = parquet.str2np(did).tolist()
+            elif self._index_type('datasets') is str and not isinstance(did, str):
+                did = parquet.np2str(did)
+            # NB: This will be considerably easier when IndexSlice supports Ellipsis
+            idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
+            self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
+
+        return url
+
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[Path]:
         """
         Download a single or multitude of dataset from an Alyx REST dictionary
@@ -1546,68 +1604,23 @@ class OneAlyx(One):
 
         Returns
         -------
-        pathlib.Path
+        pathlib.Path, list
             A local file path or list of paths
         """
-        # empty lists created for use with multiple datasets
-        urls, dids = [], []
-        if isinstance(dset, str) and dset.startswith('http'):
-            url = dset
-        elif isinstance(dset, (str, Path)):
-            url = self.path2url(dset)
-            if not url:
-                _logger.warning('Dataset not found in cache')
-                return
-        else:
-            # check if dset is dataframe, iterate over rows
-            if hasattr(dset, 'iterrows'):
-                dsets = list(map(lambda x: x[1], dset.iterrows()))
-                # Need urls and dids from dsets
-                for single_dset in dsets:
-                    url = self.record2url(single_dset)
-                    urls.append(url)
-                    is_int = all(isinstance(
-                        x, (int, np.int64)) for x in util.ensure_list(single_dset.name))
-                    dids.append(np.array(
-                        single_dset.name)[-2:] if is_int else util.ensure_list(
-                        single_dset.name)[-1])
-
-            elif 'data_url' in dset:  # data_dataset_session_related dict
-                url = dset['data_url']
-                did = dset['id']
-            elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
-                url = self.record2url(dset)  # NB: URL will always be returned
-                is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
-                did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
-            else:  # from datasets endpoint
-                url = next((fr['data_url'] for fr in dset['file_records']
-                            if fr['data_url'] and fr['exists']), None)
-                did = dset['url'][-36:]
-
-        # TODO: Move 'if not url' block to separate method
-        if (not url) and (not urls):  # Only relevant to file_records dataset
-            if 'session' in dset:
-                dset_str = f"{dset['session'][-36:]}: "\
-                           f"{dset.get('collection', '.')}/{dset.get('name', '')}"
-            else:
-                dset_str = f"{dset.get('session_path', '')}/{dset.get('rel_path', '')}"
-            _logger.warning(f"{dset_str} not found")
-            if update_cache:
-                if isinstance(did, str) and self._index_type('datasets') is int:
-                    did, = parquet.str2np(did).tolist()
-                elif self._index_type('datasets') is str and not isinstance(did, str):
-                    did = parquet.np2str(did)
-                # NB: This will be considerably easier when IndexSlice supports Ellipsis
-                idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
-                self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
-            return
-
-        # Set target directory for download
-        target_dir = Path(cache_dir or self.cache_dir, get_alf_path(url)).parent
+        cache_dir = cache_dir or self.cache_dir
         # Check if we have a multitude of urls
-        if urls:
-            url = urls
-        return self._download_file(url=url, target_dir=target_dir, **kwargs)
+        url = self._dset2url(dset, update_cache=update_cache)
+        if url is None:
+            return
+        if isinstance(url, str):
+            target_dir = str(Path(cache_dir, get_alf_path(url)).parent)
+            return self._download_file(url, target_dir, **kwargs)
+        # must be list of URLs
+        valid_urls = list(filter(None, url))
+        target_dir = [str(Path(cache_dir, get_alf_path(x)).parent) for x in valid_urls]
+        files = self._download_file(valid_urls, target_dir, **kwargs)
+        # Return list of file paths or None if we failed to extract URL from dataset
+        return [None if not x else files.pop(0) for x in url]
 
     def _tag_mismatched_file_record(self, url):
         fr = self.alyx.rest('files', 'list',
@@ -1623,8 +1636,7 @@ class OneAlyx(One):
             self.alyx.rest('files', 'partial_update',
                            id=fr[0]['url'][-36:], data={'json': json_field})
 
-    def _download_file(self, url, target_dir, offline=None, keep_uuid=False, file_size=None,
-                       hash=None):
+    def _download_file(self, url, target_dir, keep_uuid=False, file_size=None, hash=None):
         """
         Downloads a single file or multitude of files from an HTTP webserver.
         The webserver in question is set by the AlyxClient object.
@@ -1633,11 +1645,8 @@ class OneAlyx(One):
         ----------
         url : str, list
             An absolute or relative URL for a remote dataset
-        target_dir : str, pathlib.Path
-            The root directory to download file to
-        offline : bool, None
-            If true, the file path is returned only if the file exists.
-            No download will take place
+        target_dir : str, list
+            Absolute path of directory to download file to (including alf path)
         keep_uuid : bool
             If true, the UUID is not removed from the file name (default is False)
         file_size : int, list
@@ -1649,43 +1658,37 @@ class OneAlyx(One):
         -------
         pathlib.Path
             The file path of the downloaded file or files
+
+        Example
+        -------
+        >>> file_path = OneAlyx._download_file(
+        ...    'https://example.com/data.file.npy', '/home/Downloads/subj/1900-01-01/001/alf')
         """
-        if offline is None:
-            offline = (self.mode == 'local')
-        Path(target_dir).mkdir(parents=True, exist_ok=True)
+        assert not self.offline
+        # Ensure all target directories exist
+        [Path(x).mkdir(parents=True, exist_ok=True) for x in set(util.ensure_list(target_dir))]
+
+        # download file(s) from url(s), returns file path(s) with UUID
+        local_path, md5 = self.alyx.download_file(url, target_dir=target_dir, return_md5=True)
+
         # check if url, hash, and file_size are lists
-        if isinstance(url, list):
-            # download all files in the list of urls, store file paths with UUID to variable
-            local_path_list = self.alyx.download_file(url, cache_dir=str(target_dir))
-            # check hash and file_size mismatches on downloaded files
-            if isinstance(hash, list) | isinstance(file_size, list):
-                for single_file_size, single_hash, local_path, single_url in \
-                        zip(file_size, hash, local_path_list, url):
-                    self._check_hash_and_file_size_mismatch(single_file_size, single_hash,
-                                                            local_path, target_dir, single_url)
-            # check if we are keeping the uuid on the list of file names
-            if keep_uuid:
-                return local_path_list
-            else:  # remove uuids from list of file names
-                local_path_list_to_return = []
-                for local_path in local_path_list:
-                    local_path_list_to_return.append(alfio.remove_uuid_file(local_path))
-                return local_path_list_to_return
+        if isinstance(url, (tuple, list)):
+            assert (file_size is None) or len(file_size) == len(url)
+            assert (hash is None) or len(hash) == len(url)
+        for args in zip(*map(util.ensure_list, (file_size, md5, hash, local_path, url))):
+            self._check_hash_and_file_size_mismatch(*args)
 
-        else:  # url is not a list
-            if not offline:
-                local_path = self.alyx.download_file(url, cache_dir=str(target_dir))
-                if isinstance(file_size, int) | isinstance(hash, str):
-                    self._check_hash_and_file_size_mismatch(file_size, hash, local_path,
-                                                            target_dir, url)
+        # check if we are keeping the uuid on the list of file names
+        if keep_uuid:
+            return local_path
 
-                # check if we are keeping the uuid on the list of file names
-                if keep_uuid:
-                    return local_path
-                else:  # remove uuids from filenames
-                    return alfio.remove_uuid_file(local_path)
+        # remove uuids from list of file names
+        if isinstance(local_path, (list, tuple)):
+            return [alfio.remove_uuid_file(x) for x in local_path]
+        else:
+            return alfio.remove_uuid_file(local_path)
 
-    def _check_hash_and_file_size_mismatch(self, file_size, hash, local_path, target_dir, url):
+    def _check_hash_and_file_size_mismatch(self, file_size, hash, expected_hash, local_path, url):
         """
         Check to ensure the hash and file size of a downloaded file matches what is on disk
 
@@ -1697,25 +1700,23 @@ class OneAlyx(One):
             The expected file hash to compare with downloaded file
         local_path: str
             The path of the downloaded file
-        target_dir : str
-            The root directory of the downloaded file
         url : str
             An absolute or relative URL for a remote dataset
         """
-        # verify has size
-        hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
+        # verify hash size
+        hash = hash or hashfile.md5(local_path)
+        hash_mismatch = hash and hash != expected_hash
         # verify file size
         file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
         # check if there is a mismatch in hash or file_size
         if hash_mismatch or file_size_mismatch:
-            _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
-            local_path, md5 = self.alyx.download_file(url, cache_dir=str(target_dir),
-                                                      return_md5=True)
             # post download, if there is a mismatch between Alyx and the newly downloaded file size
             # or hash, flag the offending file record in Alyx for database for maintenance
-            hash_mismatch = (hash and md5 != hash)
-            file_size_mismatch = (file_size and Path(local_path).stat().st_size != file_size)
+            hash_mismatch = expected_hash and expected_hash != hash
+            file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
             if hash_mismatch or file_size_mismatch:
+                url = url or self.path2url(local_path)
+                _logger.debug(f'Tagging mismatch for {url}')
                 # tag the mismatched file records
                 self._tag_mismatched_file_record(url)
 
