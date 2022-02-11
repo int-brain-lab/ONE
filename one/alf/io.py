@@ -61,11 +61,11 @@ class AlfBunch(Bunch):
         if b == {}:
             return a
         if a == {}:
-            return b
+            return AlfBunch(b)
         # right now supports only strictly matching keys. Will implement other cases as needed
         if set(a.keys()) != set(b.keys()):
-            raise NotImplementedError("Append bunches only works with strictly matching keys"
-                                      "For more complex merges, convert to pandas dataframe.")
+            raise NotImplementedError('Append bunches only works with strictly matching keys'
+                                      'For more complex merges, convert to pandas dataframe.')
         # do the merge; only concatenate lists and np arrays right now
         for k in a:
             if isinstance(a[k], np.ndarray):
@@ -73,14 +73,22 @@ class AlfBunch(Bunch):
             elif isinstance(a[k], list):
                 a[k].extend(b[k])
             else:
-                _logger.warning(f"bunch key '{k}' is a {a[k].__class__}. I don't know how to"
-                                f" handle that. Use pandas for advanced features")
+                _logger.warning(f'bunch key "{k}" is a {a[k].__class__}. I don\'t know how to'
+                                f' handle that. Use pandas for advanced features')
         check_dimensions(a)
         return a
 
     def to_df(self) -> pd.DataFrame:
         """Return DataFrame with data keys as columns"""
         return dataframe(self)
+
+    @staticmethod
+    def from_df(df) -> 'AlfBunch':
+        data = dict(zip(df.columns, df.values.T))
+        split_keys = sorted(x for x in data.keys() if re.match(r'.+?_[01]$', x))
+        for x1, x2 in zip(*[iter(split_keys)] * 2):
+            data[x1[:-2]] = np.c_[data.pop(x1), data.pop(x2)]
+        return AlfBunch(data)
 
 
 def dataframe(adict):
@@ -116,7 +124,7 @@ def dataframe(adict):
                 if i == 9:
                     break
         else:
-            _logger.warning(f"{k} attribute is 3D or more and won't convert to dataframe")
+            _logger.warning(f'{k} attribute is 3D or more and won\'t convert to dataframe')
             continue
     return df
 
@@ -137,9 +145,7 @@ def _find_metadata(file_alf) -> Path:
     """
     file_alf = Path(file_alf)
     ns, obj = file_alf.name.split('.')[:2]
-    meta_data_file = list(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'))
-    if meta_data_file:
-        return meta_data_file[0]
+    return next(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'), None)
 
 
 def read_ts(filename):
@@ -366,6 +372,8 @@ def iter_sessions(root_dir):
     pathlib.Path
         The next session path in lexicographical order
     """
+    if spec.is_session_path(root_dir):
+        yield root_dir
     for path in sorted(Path(root_dir).rglob('*')):
         if path.is_dir() and spec.is_session_path(path):
             yield path
@@ -469,6 +477,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     assert len(set(attributes)) == len(attributes), (
         f'multiple object {object} with the same attribute in {alfpath}, restrict parts/namespace')
     out = AlfBunch({})
+
     # load content for each file
     for fil, att in zip(files_alf, attributes):
         # if there is a corresponding metadata file, read it:
@@ -487,6 +496,8 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # if there is other stuff in the dictionary, save it, otherwise disregard
             if meta:
                 out[att + 'metadata'] = meta
+    if 'table' in out.keys():  # Merge 'table' dataframe into bunch
+        out.update(AlfBunch.from_df(out.pop('table')))
     status = check_dimensions(out)
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
@@ -497,7 +508,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
         print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
-        _logger.warning(f"Inconsistent dimensions for object: {object} \n{print_sizes}")
+        _logger.warning(f'Inconsistent dimensions for object: {object} \n{print_sizes}')
     return out
 
 
@@ -689,7 +700,7 @@ def filter_by(alf_path, wildcards=True, **kwargs):
         # Validate keyword arguments against regex group names
         invalid = kwargs.keys() - spec.regex(FILE_SPEC).groupindex.keys()
         if invalid:
-            raise TypeError("%s() got an unexpected keyword argument '%s'"
+            raise TypeError('%s() got an unexpected keyword argument "%s"'
                             % (__name__, set(invalid).pop()))
 
         # # Ensure 'extra' input is a list; if str split on dot

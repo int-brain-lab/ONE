@@ -66,6 +66,11 @@ Any dataset name of the form `*.times` or `*.*_times` will a 1-column array of t
 seconds relative to experiment start. Any dataset name of the form `*.intervals` or `*.*_intervals` 
 will be a two-column array of start and stop times measured in seconds relative to experiment start. 
 
+Additionally datasets with a `table` attribute will be loaded and split into one key per column and
+merged with any other data part of the same object.  Table columns will take precedent in the case
+of duplicate attributes.  If a `*.*.metadata.*` file exists for a given attribute and specifies
+column names, the loaded table/matrix will be split into said columns.
+
 Datasets are organized into experiment folders by subject, date and sequence.  These session folders 
 may optionally be organized by lab.
 
