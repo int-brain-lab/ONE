@@ -56,3 +56,34 @@ called.  To avoid this, run the following command instead:
 from one.api import OneAlyx
 new_one = OneAlyx.setup(base_url='https://alyx.example.com')
 ```
+
+## How do I change my download (a.k.a. cache) directory?
+For one-time changes, simply re-run the setup routine:
+```python
+from one.api import ONE
+new_one = ONE().setup()  # Re-run setup for default database
+```
+When prompted ('Enter the location of the download cache') enter the absolute path of the new download location.
+
+## How do check who I'm logged in as?
+```python
+from one.api import ONE
+one = ONE()
+if not one.offline:
+    print(one.alyx.user)
+    print(one.alyx.base_url)
+```
+
+## How do I log out, or temporarily log in as someone else?
+To log out:
+```python
+from one.api import ONE
+one = ONE()
+
+one.alyx.logout()
+```
+
+To log in as someone else temporarily:
+```python
+one.alyx.authenticate(username='other_user', cache_token=False, force=True)
+```

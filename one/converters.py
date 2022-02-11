@@ -24,7 +24,7 @@ from iblutil.util import Bunch
 import one.alf.io as alfio
 from one.alf.spec import is_session_path, is_uuid_string
 from one.alf.files import get_session_path, add_uuid_string
-from .util import Listable
+from .util import Listable, ensure_list
 
 
 def recurse(func):
@@ -178,9 +178,9 @@ class ConversionMixin:
         if self._index_type() is int:
             eid = parquet.str2np(eid).tolist()
         try:
-            ses = self._cache['sessions'].loc[eid]
-            assert len(ses) == 1, 'Duplicate eids in sessions table'
-            ses, = ses.to_dict('records')
+            ses = self._cache['sessions'].loc[eid].squeeze()
+            assert isinstance(ses, pd.Series), 'Duplicate eids in sessions table'
+            ses = ses.to_dict()
             return Path(self.cache_dir).joinpath(
                 ses['lab'] if ses['lab'] else '', 'Subjects' if ses['lab'] else '', ses['subject'],
                 str(ses['date']), str(ses['number']).zfill(3))
@@ -303,10 +303,10 @@ class ConversionMixin:
         if isinstance(dataset, pd.DataFrame):
             return [self.record2url(r) for _, r in dataset.iterrows()]
         if isinstance(dataset, pd.Series):
-            if isinstance(dataset.name, str):
-                uuid = dataset.name
+            if all(isinstance(x, (int, np.int64)) for x in dataset.name):
+                uuid, = parquet.np2str(np.array([dataset.name[-2:]]))
             else:
-                uuid, = parquet.np2str(np.array([dataset.name]))
+                uuid = ensure_list(dataset.name)[-1]  # may be (eid, did) or simply did
 
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
@@ -569,12 +569,6 @@ class ConversionMixin:
         elif not isinstance(ref, str):
             return False
         return re.compile(r'\d{4}(-\d{2}){2}_(\d{1}|\d{3})_\w+').match(ref) is not None
-
-    @recurse
-    def path2pid(self, path):
-        """Returns a portion of the path that represents the session and probe label"""
-        raise NotImplementedError()
-        path = Path(path).as_posix()
 
     @staticmethod
     @parse_values

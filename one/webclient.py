@@ -26,7 +26,7 @@ Create a subject
 Download a remote file, given a local path
 
 >>> url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
->>> local_path = alyx.download_file(url)
+>>> local_path = alyx.download_file(url, target_dir='zadorlab/Subjects/flowers/2018-07-13/1/')
 """
 import json
 import logging
@@ -55,7 +55,7 @@ from pprint import pprint
 import one.params
 from iblutil.io import hashfile
 from one.util import ensure_list
-
+import concurrent.futures
 _logger = logging.getLogger(__name__)
 
 
@@ -270,13 +270,14 @@ def update_url_params(url: str, params: dict) -> str:
 def http_download_file_list(links_to_file_list, **kwargs):
     """
     Downloads a list of files from a remote HTTP server from a list of links.
+    Generates up to 4 separate threads to handle downloads.
     Same options behaviour as http_download_file.
 
     Parameters
     ----------
     links_to_file_list : list
         List of http links to files
-    kwargs : any
+    kwargs
         Optional arguments to pass to http_download_file
 
     Returns
@@ -284,14 +285,33 @@ def http_download_file_list(links_to_file_list, **kwargs):
     list of pathlib.Path
         A list of the local full path of the downloaded files.
     """
-    file_names_list = []
-    for link_str in links_to_file_list:
-        file_names_list.append(http_download_file(link_str, **kwargs))
-    return file_names_list
+    links_to_file_list = list(links_to_file_list)  # In case generator was passed
+    n_threads = 4  # Max number of threads
+    outputs = []
+    target_dir = kwargs.pop('target_dir', None)
+    # Ensure target dir the length of url list
+    if target_dir is None or isinstance(target_dir, (str, Path)):
+        target_dir = [target_dir] * len(links_to_file_list)
+    assert len(target_dir) == len(links_to_file_list)
+    # using with statement to ensure threads are cleaned up promptly
+    zipped = zip(links_to_file_list, target_dir)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
+        # Multithreading load operations
+        futures = [executor.submit(
+            http_download_file, link, target_dir=target, **kwargs) for link, target in zipped]
+        zip(links_to_file_list, ensure_list(kwargs.pop('target_dir', None)))
+        # TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?
+        # timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000 ?
+        concurrent.futures.wait(futures, timeout=None)
+        # build return list
+        for future in futures:
+            outputs.append(future.result())
+    # if returning md5, separate list of tuples into two lists: (files, md5)
+    return list(zip(*outputs)) if kwargs.get('return_md5', False) else outputs
 
 
 def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=False,
-                       username='', password='', cache_dir='', return_md5=False, headers=None):
+                       username='', password='', target_dir='', return_md5=False, headers=None):
     """
     Download a file from a remote HTTP server.
 
@@ -309,8 +329,8 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
         User authentication for password protected file server
     password : str
         Password authentication for password protected file server
-    cache_dir : str, pathlib.Path
-        Directory in which files are cached; defaults to user's Download directory
+    target_dir : str, pathlib.Path
+        Directory in which files are downloaded; defaults to user's Download directory
     return_md5 : bool
         If True an MD5 hash of the file is additionally returned
     headers : list of dicts
@@ -322,18 +342,18 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
         The full file path of the downloaded file
     """
     if not full_link_to_file:
-        return ''
+        return None
 
     # makes sure special characters get encoded ('#' in file names for example)
     surl = urllib.parse.urlsplit(full_link_to_file, allow_fragments=False)
     full_link_to_file = surl._replace(path=urllib.parse.quote(surl.path)).geturl()
 
     # default cache directory is the home dir
-    if not cache_dir:
-        cache_dir = str(Path.home().joinpath('Downloads'))
+    if not target_dir:
+        target_dir = str(Path.home().joinpath('Downloads'))
 
     # This is the local file name
-    file_name = str(cache_dir) + os.sep + os.path.basename(full_link_to_file)
+    file_name = str(target_dir) + os.sep + os.path.basename(full_link_to_file)
 
     # do not overwrite an existing file unless specified
     if not clobber and os.path.exists(file_name):
@@ -451,7 +471,7 @@ class AlyxClient():
     base_url = None
 
     def __init__(self, base_url=None, username=None, password=None,
-                 cache_dir=None, silent=False, cache_rest='GET', stay_logged_in=True):
+                 cache_dir=None, silent=False, cache_rest='GET'):
         """
         Create a client instance that allows to GET and POST to the Alyx server.
         For One, constructor attempts to authenticate with credentials in params.py.
@@ -466,7 +486,7 @@ class AlyxClient():
         password : str
             Alyx database password
         cache_dir : str, pathlib.Path
-            The default download location
+            The default root download location
         silent : bool
             If true, user prompts and progress bars are suppressed
         cache_rest : str
@@ -478,10 +498,11 @@ class AlyxClient():
         self._par = one.params.get(client=base_url, silent=self.silent)
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
-        self.authenticate(username, password, cache_token=stay_logged_in)
+        if username or password:
+            self.authenticate(username, password)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers['Accept'] = 'application/json'
+        self._headers = {**(self._headers or {}), 'Accept': 'application/json'}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -671,7 +692,8 @@ class AlyxClient():
 
     def download_file(self, url, **kwargs):
         """
-        Downloads a file on the Alyx server from a file record REST field URL
+        Downloads a single file or list of files on the Alyx server from a
+        file record REST field URL
 
         Parameters
         ----------
@@ -692,7 +714,7 @@ class AlyxClient():
             download_fcn = http_download_file_list
         pars = dict(
             silent=kwargs.pop('silent', self.silent),
-            cache_dir=kwargs.pop('cache_dir', self._par.CACHE_DIR),
+            target_dir=kwargs.pop('target_dir', self._par.CACHE_DIR),
             username=self._par.HTTP_DATA_SERVER_LOGIN,
             password=self._par.HTTP_DATA_SERVER_PWD,
             **kwargs
@@ -721,7 +743,7 @@ class AlyxClient():
             file = http_download_file(f'{self.base_url}/cache.zip',
                                       headers=self._headers,
                                       silent=self.silent,
-                                      cache_dir=tmp,
+                                      target_dir=tmp,
                                       clobber=True)
             with zipfile.ZipFile(file, 'r') as zipped:
                 files = zipped.namelist()
