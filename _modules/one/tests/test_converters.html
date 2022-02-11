@@ -178,7 +178,7 @@
         <span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;d3372b15-f696-4279-9be5-98f15783b5bb&#39;</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;mainenlab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;ZFM-01935&#39;</span><span class="p">,</span>
-                                                    <span class="s1">&#39;2021-02-05&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">,)</span>
+                                                    <span class="s1">&#39;2021-02-05&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
@@ -192,7 +192,18 @@
 
         <span class="c1"># Test short circuit</span>
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">))</span>
+
+        <span class="c1"># Test with int ids</span>
+        <span class="n">old_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">caches_str2int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">verifiable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                <span class="s1">&#39;mainenlab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;ZFM-01935&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-02-05&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">verifiable</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">old_cache</span></div>
 
 <div class="viewcode-block" id="TestConverters.test_eid2ref"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestConverters.test_eid2ref">[docs]</a>    <span class="k">def</span> <span class="nf">test_eid2ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;d3372b15-f696-4279-9be5-98f15783b5bb&#39;</span>
@@ -322,22 +333,19 @@
         <span class="c1"># As pd.Series</span>
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">record2url</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;https://ibl.flatironinstitute.org/public/hoferlab/Subjects/&#39;</span>
-                    <span class="s1">&#39;SWC_043/2020-09-21/001/raw_ephys_data/probe00/&#39;</span>
-                    <span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin&#39;</span><span class="p">)</span>
+                    <span class="s1">&#39;SWC_043/2020-09-21/001/alf/probe00/&#39;</span>
+                    <span class="s1">&#39;_phy_spikes_subset.channels.00c234a3-a4ff-4f97-a522-939d15528a45.npy&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
         <span class="c1"># As pd.DataFrame</span>
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">record2url</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">0</span><span class="p">]])</span>
-        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;https://ibl.flatironinstitute.org/public/hoferlab/Subjects/&#39;</span>
-                    <span class="s1">&#39;SWC_043/2020-09-21/001/raw_ephys_data/probe00/&#39;</span>
-                    <span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="n">expected</span><span class="p">],</span> <span class="n">url</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOnlineConverters.test_record2path"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_record2path">[docs]</a>    <span class="k">def</span> <span class="nf">test_record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Test for ConversionMixin.record2path&quot;&quot;&quot;</span>
         <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
         <span class="c1"># As pd.Series</span>
-        <span class="n">alf_path</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;public/hoferlab/Subjects/SWC_043/2020-09-21/001/raw_ephys_data/probe00/&#39;</span>
-                    <span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec0.ap.cbin&#39;</span><span class="p">)</span>
+        <span class="n">alf_path</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;public/hoferlab/Subjects/SWC_043/2020-09-21/001/&#39;</span>
+                    <span class="s1">&#39;alf/probe00/_phy_spikes_subset.channels.npy&#39;</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">alf_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">record2path</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>

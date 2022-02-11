@@ -75,6 +75,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-use-one-without-connecting-to-my-database">How do I use ONE without connecting to my database?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx">Why are my recent data missing from my cache but present on Alyx?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it">I made a mistake during setup and now can’t call setup, how do I fix it?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-change-my-download-a-k-a-cache-directory">How do I change my download (a.k.a. cache) directory?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-check-who-i-m-logged-in-as">How do check who I’m logged in as?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
@@ -192,6 +195,39 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 called.  To avoid this, run the following command instead:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">OneAlyx</span>
 <span class="n">new_one</span> <span class="o">=</span> <span class="n">OneAlyx</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="how-do-i-change-my-download-a-k-a-cache-directory">
+<h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Permalink to this headline"></a></h2>
+<p>For one-time changes, simply re-run the setup routine:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">new_one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Re-run setup for default database</span>
+</pre></div>
+</div>
+<p>When prompted (‘Enter the location of the download cache’) enter the absolute path of the new download location.</p>
+</section>
+<section id="how-do-check-who-i-m-logged-in-as">
+<h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="how-do-i-log-out-or-temporarily-log-in-as-someone-else">
+<h2>How do I log out, or temporarily log in as someone else?<a class="headerlink" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else" title="Permalink to this headline"></a></h2>
+<p>To log out:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To log in as someone else temporarily:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;other_user&#39;</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

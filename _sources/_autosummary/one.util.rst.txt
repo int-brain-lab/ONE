@@ -16,6 +16,7 @@ one.util
    
       Listable
       autocomplete
+      cache_int2str
       datasets2records
       ensure_list
       filter_datasets

@@ -126,7 +126,7 @@
 <span class="sd">Download a remote file, given a local path</span>
 
 <span class="sd">&gt;&gt;&gt; url = &#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
-<span class="sd">&gt;&gt;&gt; local_path = alyx.download_file(url)</span>
+<span class="sd">&gt;&gt;&gt; local_path = alyx.download_file(url, target_dir=&#39;zadorlab/Subjects/flowers/2018-07-13/1/&#39;)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -155,7 +155,7 @@
 <span class="kn">import</span> <span class="nn">one.params</span>
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
 <span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
-
+<span class="kn">import</span> <span class="nn">concurrent.futures</span>
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -370,13 +370,14 @@
 <div class="viewcode-block" id="http_download_file_list"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.http_download_file_list">[docs]</a><span class="k">def</span> <span class="nf">http_download_file_list</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Downloads a list of files from a remote HTTP server from a list of links.</span>
+<span class="sd">    Generates up to 4 separate threads to handle downloads.</span>
 <span class="sd">    Same options behaviour as http_download_file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    links_to_file_list : list</span>
 <span class="sd">        List of http links to files</span>
-<span class="sd">    kwargs : any</span>
+<span class="sd">    kwargs</span>
 <span class="sd">        Optional arguments to pass to http_download_file</span>
 
 <span class="sd">    Returns</span>
@@ -384,14 +385,33 @@
 <span class="sd">    list of pathlib.Path</span>
 <span class="sd">        A list of the local full path of the downloaded files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">file_names_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">link_str</span> <span class="ow">in</span> <span class="n">links_to_file_list</span><span class="p">:</span>
-        <span class="n">file_names_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">http_download_file</span><span class="p">(</span><span class="n">link_str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">file_names_list</span></div>
+    <span class="n">links_to_file_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">)</span>  <span class="c1"># In case generator was passed</span>
+    <span class="n">n_threads</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># Max number of threads</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">target_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># Ensure target dir the length of url list</span>
+    <span class="k">if</span> <span class="n">target_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="n">target_dir</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_dir</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">)</span>
+    <span class="c1"># using with statement to ensure threads are cleaned up promptly</span>
+    <span class="n">zipped</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">n_threads</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="c1"># Multithreading load operations</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+            <span class="n">http_download_file</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">link</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">zipped</span><span class="p">]</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span>
+        <span class="c1"># TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?</span>
+        <span class="c1"># timeout = reduce(lambda x, y: x + (y.get(&#39;file_size&#39;, 0) or 0), dsets, 0) / 625000 ?</span>
+        <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">futures</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># build return list</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">futures</span><span class="p">:</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+    <span class="c1"># if returning md5, separate list of tuples into two lists: (files, md5)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">outputs</span><span class="p">))</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;return_md5&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">outputs</span></div>
 
 
 <div class="viewcode-block" id="http_download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.http_download_file">[docs]</a><span class="k">def</span> <span class="nf">http_download_file</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                       <span class="n">username</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">return_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                       <span class="n">username</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">return_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download a file from a remote HTTP server.</span>
 
@@ -409,8 +429,8 @@
 <span class="sd">        User authentication for password protected file server</span>
 <span class="sd">    password : str</span>
 <span class="sd">        Password authentication for password protected file server</span>
-<span class="sd">    cache_dir : str, pathlib.Path</span>
-<span class="sd">        Directory in which files are cached; defaults to user&#39;s Download directory</span>
+<span class="sd">    target_dir : str, pathlib.Path</span>
+<span class="sd">        Directory in which files are downloaded; defaults to user&#39;s Download directory</span>
 <span class="sd">    return_md5 : bool</span>
 <span class="sd">        If True an MD5 hash of the file is additionally returned</span>
 <span class="sd">    headers : list of dicts</span>
@@ -422,18 +442,18 @@
 <span class="sd">        The full file path of the downloaded file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">full_link_to_file</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># makes sure special characters get encoded (&#39;#&#39; in file names for example)</span>
     <span class="n">surl</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">full_link_to_file</span> <span class="o">=</span> <span class="n">surl</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">surl</span><span class="o">.</span><span class="n">path</span><span class="p">))</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
 
     <span class="c1"># default cache directory is the home dir</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="p">:</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;Downloads&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">target_dir</span><span class="p">:</span>
+        <span class="n">target_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;Downloads&#39;</span><span class="p">))</span>
 
     <span class="c1"># This is the local file name</span>
-    <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">)</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">)</span>
 
     <span class="c1"># do not overwrite an existing file unless specified</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">clobber</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
@@ -551,7 +571,7 @@
     <span class="n">base_url</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a client instance that allows to GET and POST to the Alyx server.</span>
 <span class="sd">        For One, constructor attempts to authenticate with credentials in params.py.</span>
@@ -566,7 +586,7 @@
 <span class="sd">        password : str</span>
 <span class="sd">            Alyx database password</span>
 <span class="sd">        cache_dir : str, pathlib.Path</span>
-<span class="sd">            The default download location</span>
+<span class="sd">            The default root download location</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            If true, user prompts and progress bars are suppressed</span>
 <span class="sd">        cache_rest : str</span>
@@ -578,10 +598,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">ALYX_URL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="n">stay_logged_in</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">or</span> <span class="n">password</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># the mixed accept application may cause errors sometimes, only necessary for the docs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s1">&#39;Accept&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
         <span class="c1"># REST cache parameters</span>
         <span class="c1"># The default length of time that cache file is valid for,</span>
         <span class="c1"># The default expiry is overridden by the `expires` kwarg.  If False, the caching is</span>
@@ -771,7 +792,8 @@
 
 <div class="viewcode-block" id="AlyxClient.download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Downloads a file on the Alyx server from a file record REST field URL</span>
+<span class="sd">        Downloads a single file or list of files on the Alyx server from a</span>
+<span class="sd">        file record REST field URL</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -792,7 +814,7 @@
             <span class="n">download_fcn</span> <span class="o">=</span> <span class="n">http_download_file_list</span>
         <span class="n">pars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">silent</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;silent&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">),</span>
-            <span class="n">cache_dir</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;cache_dir&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">),</span>
+            <span class="n">target_dir</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">),</span>
             <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_LOGIN</span><span class="p">,</span>
             <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_PWD</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span>
@@ -821,7 +843,7 @@
             <span class="n">file</span> <span class="o">=</span> <span class="n">http_download_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/cache.zip&#39;</span><span class="p">,</span>
                                       <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span>
                                       <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">,</span>
-                                      <span class="n">cache_dir</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span>
+                                      <span class="n">target_dir</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span>
                                       <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zipped</span><span class="p">:</span>
                 <span class="n">files</span> <span class="o">=</span> <span class="n">zipped</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>

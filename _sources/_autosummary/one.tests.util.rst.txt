@@ -14,7 +14,7 @@ one.tests.util
    .. autosummary::
       :nosignatures:
    
-      caches_int2str
+      caches_str2int
       create_file_tree
       create_schema_cache
       get_file

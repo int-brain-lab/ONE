@@ -106,8 +106,7 @@
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">iblutil.io.parquet</span> <span class="kn">import</span> <span class="n">uuid2np</span><span class="p">,</span> <span class="n">np2str</span>
+<span class="kn">from</span> <span class="nn">iblutil.io.parquet</span> <span class="kn">import</span> <span class="n">str2np</span>
 
 <span class="kn">import</span> <span class="nn">one.params</span>
 
@@ -249,17 +248,16 @@
         <span class="k">for</span> <span class="n">collec</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">#&#39;</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">revisions</span><span class="p">):</span>
                 <span class="n">rel_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">collec</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">.npy&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">))</span>
-    <span class="n">ids</span> <span class="o">=</span> <span class="n">uuid2np</span><span class="p">([</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel_path</span><span class="p">))])</span>
-    <span class="n">eid_0</span><span class="p">,</span> <span class="n">eid_1</span> <span class="o">=</span> <span class="n">uuid2np</span><span class="p">([</span><span class="n">uuid4</span><span class="p">()])[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;rel_path&#39;</span><span class="p">:</span> <span class="n">rel_path</span><span class="p">,</span>
         <span class="s1">&#39;session_path&#39;</span><span class="p">:</span> <span class="s1">&#39;subject/1900-01-01/001&#39;</span><span class="p">,</span>
         <span class="s1">&#39;file_size&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;eid_0&#39;</span><span class="p">:</span> <span class="n">eid_0</span><span class="p">,</span>
-        <span class="s1">&#39;eid_1&#39;</span><span class="p">:</span> <span class="n">eid_1</span>
-    <span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">ids</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ids</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]])</span></div>
+        <span class="s1">&#39;eid&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">(</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">))</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="create_schema_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_schema_cache">[docs]</a><span class="k">def</span> <span class="nf">create_schema_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -303,8 +301,8 @@
     <span class="k">return</span> <span class="n">pfile</span></div>
 
 
-<div class="viewcode-block" id="caches_int2str"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.caches_int2str">[docs]</a><span class="k">def</span> <span class="nf">caches_int2str</span><span class="p">(</span><span class="n">caches</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert int ids to str ids for cache tables.</span>
+<div class="viewcode-block" id="caches_str2int"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.caches_str2int">[docs]</a><span class="k">def</span> <span class="nf">caches_str2int</span><span class="p">(</span><span class="n">caches</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert str ids to int ids for cache tables.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -313,14 +311,14 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">):</span>
-        <span class="c1"># Set integer uuids to NaN</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span> <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="n">int_cols</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;_\d</span><span class="si">{1}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_cols</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">int_cols</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">cache</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np2str</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">int_cols</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]])</span>
-        <span class="n">cache</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span></div>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">str2np</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="n">cache</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="n">int_cols</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;_\d</span><span class="si">{1}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">int_cols</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

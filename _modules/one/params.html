@@ -261,9 +261,15 @@
                 <span class="k">break</span>
             <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cache_dir</span>  <span class="c1"># Prompt for another directory</span>
 
-        <span class="k">if</span> <span class="n">make_default</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;DEFAULT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">as_dict</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">make_default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Would you like to set this URL as the default one? [Y/n]&#39;</span><span class="p">)</span>
-            <span class="n">make_default</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">answer</span> <span class="ow">or</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="n">make_default</span> <span class="o">=</span> <span class="p">(</span><span class="n">answer</span> <span class="ow">or</span> <span class="s1">&#39;y&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span>
+
+        <span class="c1"># Verify setup pars</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Are the above settings correct? [Y/n]&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">answer</span> <span class="ow">and</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;SETUP ABANDONED.  Please re-run.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">par_current</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">par</span> <span class="o">=</span> <span class="n">par_current</span>
 

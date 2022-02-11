@@ -197,6 +197,10 @@ This convention therefore allows a basic relational model to be encoded in datas
 <p>Any dataset name of the form <code class="docutils literal notranslate"><span class="pre">*.times</span></code> or <code class="docutils literal notranslate"><span class="pre">*.*_times</span></code> will a 1-column array of times measured in
 seconds relative to experiment start. Any dataset name of the form <code class="docutils literal notranslate"><span class="pre">*.intervals</span></code> or <code class="docutils literal notranslate"><span class="pre">*.*_intervals</span></code>
 will be a two-column array of start and stop times measured in seconds relative to experiment start.</p>
+<p>Additionally datasets with a <code class="docutils literal notranslate"><span class="pre">table</span></code> attribute will be loaded and split into one key per column and
+merged with any other data part of the same object.  Table columns will take precedent in the case
+of duplicate attributes.  If a <code class="docutils literal notranslate"><span class="pre">*.*.metadata.*</span></code> file exists for a given attribute and specifies
+column names, the loaded table/matrix will be split into said columns.</p>
 <p>Datasets are organized into experiment folders by subject, date and sequence.  These session folders
 may optionally be organized by lab.</p>
 <p>For detailed information, see the <a class="reference internal" href="notebooks/datasets_and_types.html"><span class="doc std std-doc">datasets and types</span></a> guide.</p>
