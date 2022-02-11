@@ -342,7 +342,7 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
         The full file path of the downloaded file
     """
     if not full_link_to_file:
-        return None
+        return (None, None) if return_md5 else None
 
     # makes sure special characters get encoded ('#' in file names for example)
     surl = urllib.parse.urlsplit(full_link_to_file, allow_fragments=False)

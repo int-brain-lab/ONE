@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.8.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.8.1]
+
+### Modified
+
+- HOTFIX: OneAlyx._download_datasets deals gracefully with empty datasets frame
+- removed try-assert-catch logic from One._download_datasets to improve error stack 
+
+## [1.8.0]
 
 ### Added
 

@@ -1142,6 +1142,9 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec)
         self.assertIsNone(file)
         self.assertFalse(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
+        # With multiple dsets
+        files = self.one._download_dataset([rec, rec])
+        self.assertTrue(all(x is None for x in files))
         self.one._cache.datasets.loc[(slice(None), did), 'exists'] = True  # Reset values
 
         # Check with invalid path

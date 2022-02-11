@@ -1475,12 +1475,12 @@ class OneAlyx(One):
          """
         # If all datasets exist on AWS, download from there.
         try:
-            assert 'exists_aws' in dsets and dsets['exists_aws'].all()
-            _logger.info('Downloading from AWS')
-            return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+            if 'exists_aws' in dsets and dsets['exists_aws'].all():
+                _logger.info('Downloading from AWS')
+                return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
         except Exception as ex:
             _logger.debug(ex)
-            return self._download_dataset(dsets, **kwargs)
+        return self._download_dataset(dsets, **kwargs)
 
     def _download_aws(self, dsets, clobber=False, **kwargs) -> List[Path]:
         # Download datasets from AWS
@@ -1617,13 +1617,15 @@ class OneAlyx(One):
         """
         cache_dir = cache_dir or self.cache_dir
         url = self._dset2url(dset, update_cache=update_cache)
-        if url is None:
+        if not url:
             return
         if isinstance(url, str):
             target_dir = str(Path(cache_dir, get_alf_path(url)).parent)
             return self._download_file(url, target_dir, **kwargs)
         # must be list of URLs
         valid_urls = list(filter(None, url))
+        if not valid_urls:
+            return [None] * len(url)
         target_dir = [str(Path(cache_dir, get_alf_path(x)).parent) for x in valid_urls]
         files = self._download_file(valid_urls, target_dir, **kwargs)
         # Return list of file paths or None if we failed to extract URL from dataset
