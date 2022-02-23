@@ -78,7 +78,7 @@ class TestConverters(unittest.TestCase):
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.eid2path(eid)
         expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
-                                                    '2021-02-05', '001',)
+                                                    '2021-02-05', '001')
         self.assertEqual(expected, verifiable)
 
         with self.assertRaises(ValueError):
@@ -93,6 +93,17 @@ class TestConverters(unittest.TestCase):
         # Test short circuit
         with mock.patch.object(self.one._cache, 'sessions', new=pd.DataFrame([])):
             self.assertIsNone(self.one.eid2path(eid))
+
+        # Test with int ids
+        old_cache = self.one._cache.copy()
+        util.caches_str2int(self.one._cache)
+        try:
+            verifiable = self.one.eid2path(eid)
+            expected = Path(self.tempdir.name).joinpath(
+                'mainenlab', 'Subjects', 'ZFM-01935', '2021-02-05', '001')
+            self.assertEqual(verifiable, expected)
+        finally:
+            self.one._cache = old_cache
 
     def test_eid2ref(self):
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
@@ -222,22 +233,19 @@ class TestOnlineConverters(unittest.TestCase):
         # As pd.Series
         url = self.one.record2url(rec.iloc[0])
         expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
-                    'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
-                    '_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin')
+                    'SWC_043/2020-09-21/001/alf/probe00/'
+                    '_phy_spikes_subset.channels.00c234a3-a4ff-4f97-a522-939d15528a45.npy')
         self.assertEqual(expected, url)
         # As pd.DataFrame
         url = self.one.record2url(rec.iloc[[0]])
-        expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
-                    'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
-                    '_spikeglx_ephysData_g0_t0.imec0.ap.94285bfd-7500-4583-83b1-906c420cc667.cbin')
         self.assertEqual([expected], url)
 
     def test_record2path(self):
         """Test for ConversionMixin.record2path"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
-        alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
-                    '_spikeglx_ephysData_g0_t0.imec0.ap.cbin')
+        alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/'
+                    'alf/probe00/_phy_spikes_subset.channels.npy')
         expected = Path(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
         path = self.one.record2path(rec.iloc[0])
         self.assertIsInstance(path, Path)

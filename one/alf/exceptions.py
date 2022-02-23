@@ -79,5 +79,5 @@ class ALFMultipleCollectionsFound(ALFError):
 class ALFMultipleRevisionsFound(ALFError):
     """'Multiple objects found' error"""
     explanation = ('The matching object/file(s) belong to more than one revision.  '
-                   'Multiple datasets in different revision folders were found with no default'
+                   'Multiple datasets in different revision folders were found with no default '
                    'specified.')

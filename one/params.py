@@ -161,9 +161,15 @@ def setup(client=None, silent=False, make_default=None):
                 break
             cache_dir = input(prompt) or cache_dir  # Prompt for another directory
 
-        if make_default is None and 'DEFAULT' not in cache_map.as_dict():
+        if make_default is None:
             answer = input('Would you like to set this URL as the default one? [Y/n]')
-            make_default = True if not answer or answer[0].lower() == 'y' else False
+            make_default = (answer or 'y')[0].lower() == 'y'
+
+        # Verify setup pars
+        answer = input('Are the above settings correct? [Y/n]')
+        if answer and answer.lower()[0] == 'n':
+            print('SETUP ABANDONED.  Please re-run.')
+            return par_current
     else:
         par = par_current
 

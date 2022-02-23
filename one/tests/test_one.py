@@ -129,8 +129,8 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(eids)
         expected = [
             'd3372b15-f696-4279-9be5-98f15783b5bb',
-            'cf264653-2deb-44cb-aa84-89b82507028a',
-            'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
+            'b1c968ad-4874-468d-b2e4-5ffa9b9964e9',
+            'cf264653-2deb-44cb-aa84-89b82507028a'
         ]
         self.assertEqual(eids, expected)
 
@@ -154,13 +154,13 @@ class TestONECache(unittest.TestCase):
         number = 1
         eids = one.search(num=number)
 
-        sess_num = self.one._cache.sessions.loc[parquet.str2np(eids).tolist(), 'number']
+        sess_num = self.one._cache.sessions.loc[eids, 'number']
         self.assertTrue(all(sess_num == number))
 
         number = '002'
         eids = one.search(number=number)
 
-        sess_num = self.one._cache.sessions.loc[parquet.str2np(eids).tolist(), 'number']
+        sess_num = self.one._cache.sessions.loc[eids, 'number']
         self.assertTrue(all(sess_num == int(number)))
 
         # Empty results
@@ -187,8 +187,8 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(len(eids), len(details))
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
 
-        # Test search without integer ids
-        util.caches_int2str(one._cache)
+        # Test search with integer ids
+        util.caches_str2int(one._cache)
         query = 'clusters'
         eids = one.search(data=query)
         self.assertTrue(all(isinstance(x, str) for x in eids))
@@ -205,40 +205,42 @@ class TestONECache(unittest.TestCase):
         # Test collection filter
         verifiable = filter_datasets(datasets, None, 'alf', None,
                                      assert_unique=False, revision_last_before=False)
-        self.assertEqual(3, len(verifiable))
+        self.assertEqual(2, len(verifiable))
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
-            filter_datasets(datasets, None, 'alf.*', None, revision_last_before=False)
+            filter_datasets(datasets, None, 'raw.*', None, revision_last_before=False)
         # Test filter empty collection
+        datasets.rel_path[-1] = '_ibl_trials.rewardVolume.npy'
         verifiable = filter_datasets(datasets, None, '', None, revision_last_before=False)
         self.assertTrue(len(verifiable), 1)
 
         # Test dataset filter
-        verifiable = filter_datasets(datasets, '_ibl_trials.*', None, None,
+        verifiable = filter_datasets(datasets, '_iblrig_.*', None, None,
                                      assert_unique=False, revision_last_before=False)
-        self.assertEqual(2, len(verifiable))
+        self.assertEqual(3, len(verifiable))
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
-            filter_datasets(datasets, '_ibl_trials.*', None, None, revision_last_before=False)
+            filter_datasets(datasets, '_iblrig_.*', 'raw_video_data', None,
+                            revision_last_before=False)
         # Test list as logical OR
-        verifiable = filter_datasets(datasets, ['spikes.*', 'alf/channels.*'], None, None,
+        verifiable = filter_datasets(datasets, ['alf/_ibl_wheel.*', '_ibl_trials.*'], None, None,
                                      assert_unique=False, revision_last_before=False)
-        self.assertTrue(all(x.startswith('spikes') or x.startswith('alf/channels')
+        self.assertTrue(all(x.startswith('_ibl_trials') or x.startswith('alf/_ibl_wheel')
                             for x in verifiable.rel_path))
 
         # Test as dict
         dataset = dict(namespace='ibl', object='trials')
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
-        self.assertEqual(2, len(verifiable))
+        self.assertEqual(1, len(verifiable))
         dataset = dict(timescale='bpod', object='trials')
         verifiable = filter_datasets(self.one._cache.datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
         self.assertEqual(verifiable['rel_path'].values[0], 'alf/_ibl_trials.intervals_bpod.npy')
 
         # As dict with list (should act as logical OR)
-        dataset = dict(attribute=['amp.?', 'rawRow'])
+        dataset = dict(attribute=['time.+', 'raw'])
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
-        self.assertEqual(2, len(verifiable))
+        self.assertEqual(4, len(verifiable))
 
         # Revisions
         revisions = [
@@ -255,6 +257,11 @@ class TestONECache(unittest.TestCase):
         verifiable = filter_datasets(datasets, None, None, revision, assert_unique=False)
         self.assertEqual(2, len(verifiable))
         self.assertTrue(all(x.split('#')[1] < revision for x in verifiable['rel_path']))
+
+        # Should return single dataset with last revision when default specified
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
+            filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
+                            assert_unique=True, wildcards=True, revision_last_before=True)
 
         # Should return matching revision
         verifiable = filter_datasets(datasets, None, None, r'2020-08-\d{2}',
@@ -290,6 +297,16 @@ class TestONECache(unittest.TestCase):
         verifiable = filter_datasets(datasets, None, None, None, assert_unique=False)
         self.assertEqual(revisions[0], verifiable.rel_path.values[0])
 
+        # Load dataset with default revision
+        verifiable = filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
+                                     assert_unique=True, wildcards=True, revision_last_before=True)
+        self.assertEqual(verifiable.rel_path.to_list(),
+                         ['alf/probe00/#2020-01-01#/spikes.times.npy'])
+        # When revision_last_before is false, expect multiple objects error
+        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+            filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
+                            assert_unique=True, wildcards=True, revision_last_before=False)
+
     def test_filter_wildcards(self):
         """Test one.util.filter_datasets with wildcards flag set to True"""
         datasets = self.one._cache.datasets.iloc[:5].copy()
@@ -298,11 +315,11 @@ class TestONECache(unittest.TestCase):
                                      assert_unique=False, wildcards=True)
         self.assertTrue(len(verifiable) == 2)
         # As dict with list (should act as logical OR)
-        dataset = dict(attribute=['amp?', 'rawRow'])
+        dataset = dict(attribute=['timestamp?', 'raw'])
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False,
                                      wildcards=True)
-        self.assertEqual(2, len(verifiable))
+        self.assertEqual(4, len(verifiable))
 
     def test_list_datasets(self):
         """Test One.list_datasets"""
@@ -333,7 +350,7 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(3, sum('.timestamps.' in x for x in dsets))
 
         # Test using str ids as index
-        util.caches_int2str(self.one._cache)
+        util.caches_str2int(self.one._cache)
         dsets = self.one.list_datasets('KS005/2019-04-02/001')
         self.assertEqual(27, len(dsets))
 
@@ -374,7 +391,7 @@ class TestONECache(unittest.TestCase):
         # No revisions in cache fixture so generate our own
         revisions_datasets = util.revisions_datasets_table()
         self.one._cache.datasets = pd.concat([self.one._cache.datasets, revisions_datasets])
-        eid = parquet.np2str(revisions_datasets[['eid_0', 'eid_1']].iloc[0].values)
+        eid, _ = revisions_datasets.index[0]
 
         # Test no eid
         dsets = self.one.list_revisions()
@@ -418,8 +435,8 @@ class TestONECache(unittest.TestCase):
         self.assertIsInstance(det, pd.DataFrame)
         self.assertTrue('rel_path' in det.columns)
 
-        # Test with str index ids
-        util.caches_int2str(self.one._cache)
+        # Test with int index ids
+        util.caches_str2int(self.one._cache)
         det = self.one.get_details(eid)
         self.assertIsInstance(det, pd.Series)
 
@@ -433,9 +450,9 @@ class TestONECache(unittest.TestCase):
 
     def test_index_type(self):
         """Test One._index_type"""
-        self.assertIs(int, self.one._index_type())
-        util.caches_int2str(self.one._cache)
         self.assertIs(str, self.one._index_type())
+        util.caches_str2int(self.one._cache)
+        self.assertIs(int, self.one._index_type())
         self.one._cache.datasets.reset_index(inplace=True)
         with self.assertRaises(IndexError):
             self.one._index_type('datasets')
@@ -546,36 +563,36 @@ class TestONECache(unittest.TestCase):
         self.assertIsInstance(details, pd.Series)
 
         # Load file content with str id
-        eid, = parquet.np2str(id)
+        s_id, = parquet.np2str(id)
         data = np.arange(3)
         np.save(str(file), data)  # Ensure data to load
-        dset = self.one.load_dataset_from_id(eid)
+        dset = self.one.load_dataset_from_id(s_id)
         self.assertTrue(np.array_equal(dset, data))
 
         # Load file content with UUID
-        dset = self.one.load_dataset_from_id(UUID(eid))
+        dset = self.one.load_dataset_from_id(UUID(s_id))
         self.assertTrue(np.array_equal(dset, data))
 
-        # Load without int ids as index
-        util.caches_int2str(self.one._cache)
-        dset = self.one.load_dataset_from_id(eid)
+        # Load with int ids as index
+        util.caches_str2int(self.one._cache)
+        dset = self.one.load_dataset_from_id(s_id)
         self.assertTrue(np.array_equal(dset, data))
 
         # Test errors
         # ID not in cache
         with self.assertRaises(alferr.ALFObjectNotFound):
-            self.one.load_dataset_from_id(eid.replace('a', 'b'))
+            self.one.load_dataset_from_id(s_id.replace('a', 'b'))
         # File missing
         self.addCleanup(file.touch)  # File may be required by other tests
         file.unlink()
         with self.assertRaises(alferr.ALFObjectNotFound):
-            self.one.load_dataset_from_id(eid)
+            self.one.load_dataset_from_id(s_id)
         # Duplicate ids in cache
-        details.name = eid
+        details.name = (8737712210713458643, -4920882604093676133, *id.flatten().tolist())
         datasets = self.one._cache.datasets
         self.one._cache.datasets = pd.concat([datasets, details.to_frame().T]).sort_index()
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
-            self.one.load_dataset_from_id(eid)
+            self.one.load_dataset_from_id(s_id)
 
     def test_load_object(self):
         """Test One.load_object"""
@@ -606,6 +623,8 @@ class TestONECache(unittest.TestCase):
         [f.unlink() for f in files]
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_object(eid, 'wheel')
+        # Check the three wheel datasets set to exist = False in cache
+        self.assertFalse(self.one._cache.datasets.loc[(eid,), 'exists'].all())
 
         eid = 'ZFM-01935/2021-02-05/001'
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
@@ -655,8 +674,9 @@ class TestONECache(unittest.TestCase):
             self.one._load_cache(tdir)
             self.assertIsInstance(self.one._cache['datasets'].index, pd.MultiIndex)
             # Save shuffled
-            df[['id_0', 'id_1']] = np.random.permutation(df[['id_0', 'id_1']])
-            assert not df.set_index(['id_0', 'id_1']).index.is_monotonic_increasing
+            id_keys = ['eid', 'id']
+            df[id_keys] = np.random.permutation(df[id_keys])
+            assert not df.set_index(id_keys).index.is_monotonic_increasing
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             del self.one._cache['datasets']
             self.one._load_cache(tdir)
@@ -667,7 +687,7 @@ class TestONECache(unittest.TestCase):
                 self.one._load_cache(tdir)
                 self.assertTrue('gnagna.pqt' in log.output[0])
             # Save table with missing id columns
-            df.drop(['id_0', 'id_1'], axis=1, inplace=True)
+            df.drop(id_keys, axis=1, inplace=True)
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             with self.assertRaises(KeyError):
                 self.one._load_cache(tdir)
@@ -747,6 +767,14 @@ class TestOneAlyx(unittest.TestCase):
         self.one.mode = 'remote'
         dset_type = self.one.dataset2type(did)
         self.assertEqual('wheelMoves.peakAmplitude', dset_type)
+        # Check with tuple int
+        dset_type = self.one.dataset2type(tuple(did.squeeze().tolist()))
+        self.assertEqual('wheelMoves.peakAmplitude', dset_type)
+        # Check with str id
+        did, = parquet.np2str(did)
+        dset_type = self.one.dataset2type(did)
+        self.assertEqual('wheelMoves.peakAmplitude', dset_type)
+
         dset_type = self.one.dataset2type('_ibl_wheelMoves.peakAmplitude.npy')
         self.assertEqual('wheelMoves.peakAmplitude', dset_type)
 
@@ -759,16 +787,22 @@ class TestOneAlyx(unittest.TestCase):
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
         ses = self.one.alyx.rest('sessions', 'read', id=eid)
         session, datasets = ses2records(ses)
+
         # Verify returned tables are compatible with cache tables
         self.assertIsInstance(session, pd.Series)
         self.assertIsInstance(datasets, pd.DataFrame)
-        self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
+        self.assertEqual(session.name, eid)
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
         expected = [x for x in self.one._cache['datasets'].columns] + ['default_revision']
         self.assertCountEqual(expected, datasets.columns)
-        self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
+        self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
         self.assertTrue(datasets.default_revision.all())
+
+        # Check int_id as True
+        session, datasets = ses2records(ses, int_id=True)
+        self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
+        self.assertEqual(tuple(datasets.index.names), ('eid_0', 'eid_1', 'id_0', 'id_1'))
 
     def test_datasets2records(self):
         """Test one.util.datasets2records"""
@@ -781,7 +815,11 @@ class TestOneAlyx(unittest.TestCase):
         self.assertTrue(len(datasets) >= len(dsets))
         expected = self.one._cache['datasets'].columns
         self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
-        self.assertEqual(tuple(datasets.index.names), ('id_0', 'id_1'))
+        self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
+
+        # Check behaviour when ind_id is True
+        datasets = datasets2records(dsets, int_id=True)
+        self.assertEqual(tuple(datasets.index.names), ('eid_0', 'eid_1', 'id_0', 'id_1'))
 
         # Test single input
         dataset = datasets2records(dsets[0])
@@ -874,8 +912,8 @@ class TestOneAlyx(unittest.TestCase):
 
     def test_url_from_record(self):
         """Test ConversionMixin.record2url"""
-        parquet.str2np('91546fc6-b67c-4a69-badc-5e66088519c4')
-        dataset = self.one._cache['datasets'].loc[[[7587013646714098833, -4316272496734184262]]]
+        idx = (slice(None), '91546fc6-b67c-4a69-badc-5e66088519c4')
+        dataset = self.one._cache['datasets'].loc[idx, :]
         url = self.one.record2url(dataset.squeeze())
         expected = ('https://ibl.flatironinstitute.org/'
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
@@ -898,6 +936,13 @@ class TestOneAlyx(unittest.TestCase):
                     self.one._load_cache(clobber=True)
                     self.assertEqual('local', self.one.mode)
                 self.assertTrue('Failed to connect' in lg.output[-1])
+
+            cache_info = {'min_api_version': '200.0.0'}
+            # Check version verification
+            with mock.patch.object(self.one.alyx, 'get', return_value=cache_info),\
+                    self.assertWarns(UserWarning):
+                self.one._load_cache(clobber=True)
+
         finally:  # Restore properties
             self.one.mode = 'auto'
             self.one.alyx.silent = True
@@ -1015,7 +1060,7 @@ class TestOneRemote(unittest.TestCase):
                                      download_only=True)
         self.assertIsInstance(files[0], Path)
         self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.position.npy')
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
         )
 
     def test_get_details(self):
@@ -1049,7 +1094,7 @@ class TestOneDownload(unittest.TestCase):
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
     def test_download_datasets(self):
-        """Test OneAlyx._download_dataset, _download_file and _tag_mismatched_file_record"""
+        """Test OneAlyx._download_dataset, _download_file and _dset2url"""
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
@@ -1068,7 +1113,7 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when hash mismatch
         self.one.alyx.silent = False  # So we can check for warning
         file_hash = rec['hash'].replace('a', 'd')
-        with self.assertLogs(logging.getLogger('one.api'), logging.WARNING):
+        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG):
             self.one._download_dataset(rec, hash=file_hash)
 
         # Check JSON field added
@@ -1080,13 +1125,27 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec, keep_uuid=True)
         self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
 
+        # Check list input
+        files = self.one._download_dataset([rec] * 2)
+        self.assertIsInstance(files, list)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+
+        # Check Series input
+        r_ = datasets2records(rec, int_id=True).squeeze()
+        file = self.one._download_dataset(r_)
+        self.assertIn('channels.brainLocation', file.as_posix())
+
         # Check behaviour when URL invalid
-        did = parquet.str2np(rec['url'].split('/')[-1]).tolist()
-        self.assertTrue(self.one._cache.datasets.loc[did, 'exists'].all())
+        did = rec['url'].split('/')[-1]
+        self.assertTrue(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
         rec['file_records'][0]['data_url'] = None
         file = self.one._download_dataset(rec)
         self.assertIsNone(file)
-        self.assertFalse(self.one._cache.datasets.loc[did, 'exists'].all())
+        self.assertFalse(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
+        # With multiple dsets
+        files = self.one._download_dataset([rec, rec])
+        self.assertTrue(all(x is None for x in files))
+        self.one._cache.datasets.loc[(slice(None), did), 'exists'] = True  # Reset values
 
         # Check with invalid path
         path = self.one.cache_dir.joinpath('lab', 'Subjects', 'subj', '2020-01-01', '001',
@@ -1100,15 +1159,22 @@ class TestOneDownload(unittest.TestCase):
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
-        # Check works with string index
-        util.caches_int2str(self.one._cache)
+        # Check update cache when id is int and cache table ids are str
+        int_id, = parquet.str2np(np.array(rec.index.tolist())).tolist()
+        self.one._download_dataset({'data_url': None, 'id': np.array(int_id)})
+        exists, = self.one._cache.datasets.loc[(slice(None), rec.index[0]), 'exists']
+        self.assertFalse(exists, 'failed to update dataset cache with str index')
+        self.one._cache.datasets.loc[(slice(None), rec.index[0]), 'exists'] = True  # Reset values
+
+        # Check works with int index
+        util.caches_str2int(self.one._cache)
         self.assertIsNotNone(self.one._download_dataset(files[0]))
         self.assertIsNotNone(self.one._download_datasets(rec))
         # and when dataset missing
         with mock.patch.object(self.one, 'record2url', return_value=None):
             self.assertIsNone(self.one._download_dataset(rec.squeeze()))
-        str_id, = parquet.np2str(np.array(rec.index.tolist()))
-        exists = self.one._cache.datasets.loc[str_id, 'exists']
+
+        exists, = self.one._cache.datasets.loc[(slice(None), slice(None), *int_id), 'exists']
         self.assertFalse(exists, 'failed to update dataset cache with str index')
 
     def test_tag_mismatched_file_record(self):
