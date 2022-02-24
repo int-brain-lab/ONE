@@ -990,7 +990,7 @@ class One(ConversionMixin):
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]
         # Replace missing file records with None
-        records = [None if not here else rec for here, rec in zip(files, records)]
+        records = [None if not here else records.pop(0) for here in present]
         if download_only:
             return files, records
         return [alfio.load_file_content(x) for x in files], records
