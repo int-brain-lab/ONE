@@ -34,7 +34,7 @@ from functools import partial
 import unittest
 from unittest import mock
 import tempfile
-from uuid import UUID
+from uuid import UUID, uuid4
 import json
 import io
 
@@ -710,6 +710,69 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(len(self.one._cache.datasets))
         with self.assertRaises(ValueError):
             self.one.refresh_cache('double')
+
+    def test_save_loaded_ids(self):
+        """Test One.save_loaded_ids and logic within One._check_filesystem"""
+        self.one.record_loaded = True  # Turn on saving UUIDs
+        self.one._cache.pop('_loaded_datasets', None)  # Ensure we start with a clean slate
+        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
+        files = self.one.load_object(eid, 'trials', download_only=True)
+        # Check datasets added to list
+        self.assertIn('_loaded_datasets', self.one._cache)
+        loaded = self.one._cache['_loaded_datasets']
+        self.assertEqual(len(files), len(loaded))
+        # Ensure all are from the same session
+        eids = self.one._cache.datasets.loc[(slice(None), loaded), ].index.get_level_values(0)
+        self.assertTrue(np.all(eids == eid))
+
+        # Test loading a dataset that doesn't exist
+        dset = self.one.list_datasets(eid, filename='*trials*', details=True).iloc[-1]
+        dset['rel_path'] = dset['rel_path'].replace('.npy', '.pqt')
+        dset.name = (eid, str(uuid4()))
+        old_cache = self.one._cache['datasets']
+        try:
+            self.one._cache['datasets'] = self.one._cache.datasets.append(dset)
+            dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
+            new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
+            loaded = self.one._cache['_loaded_datasets']
+            # One dataset is already in the list (test for duplicates) and other doesn't exist
+            self.assertEqual(len(files), len(loaded), 'No new UUIDs should have been added')
+            self.assertIn(rec[1]['id'], loaded)  # Already in list
+            self.assertEqual(len(loaded), len(np.unique(loaded)))
+            self.assertNotIn(dset.name[1], loaded)  # Wasn't loaded as doesn't exist on disk
+        finally:
+            self.one._cache['datasets'] = old_cache
+
+        # Test saving the loaded datasets list
+        ids, filename = self.one.save_loaded_ids(clear_list=False)
+        self.assertTrue(loaded is ids)
+        self.assertTrue(filename.exists())
+        # Load from file
+        ids = pd.read_csv(filename)
+        self.assertCountEqual(ids['dataset_uuid'], loaded)
+        self.assertTrue(self.one._cache['_loaded_datasets'].size, 'List unexpectedly cleared')
+
+        # Test as session UUIDs
+        ids, filename = self.one.save_loaded_ids(sessions_only=True, clear_list=False)
+        self.assertCountEqual([eid], ids)
+        self.assertEqual(pd.read_csv(filename)['session_uuid'][0], eid)
+
+        # Test int IDs.
+        self.one._cache['_loaded_datasets'] = parquet.str2np(self.one._cache['_loaded_datasets'])
+        # IDs should be cast to string
+        with self.assertRaises(NotImplementedError):
+            self.one.save_loaded_ids(clear_list=False, sessions_only=True)
+
+        # Check dataset int IDs and clear list
+        ids, _ = self.one.save_loaded_ids(clear_list=True)
+        self.assertCountEqual(loaded, ids)
+        self.assertFalse(self.one._cache['_loaded_datasets'].size, 'List not cleared')
+
+        # Test clear list and warn on empty
+        with self.assertWarns(Warning):
+            ids, filename = self.one.save_loaded_ids()
+        self.assertEqual(ids, [])
+        self.assertIsNone(filename)
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')

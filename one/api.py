@@ -67,6 +67,7 @@ class One(ConversionMixin):
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
+        self.record_loaded = False
         # init the cache file
         self._cache = Bunch({'_meta': {
             'expired': False,
@@ -154,6 +155,48 @@ class One(ConversionMixin):
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
+
+    def save_loaded_ids(self, sessions_only=False, clear_list=True):
+        """
+        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.
+
+        Parameters
+        ----------
+        sessions_only : bool
+            If true, save list of experiment IDs, otherwise the full list of dataset IDs.
+        clear_list : bool
+            If true, clear the current list of loaded dataset IDs after saving.
+
+        Returns
+        -------
+        list of str
+            List of UUIDs.
+        pathlib.Path
+            The file path of the saved list.
+        """
+        if '_loaded_datasets' not in self._cache or self._cache['_loaded_datasets'].size == 0:
+            warnings.warn('No datasets loaded; check "record_datasets" attribute is True')
+            return [], None
+        if sessions_only:
+            name = 'session_uuid'
+            if self._cache['_loaded_datasets'].dtype == 'int64' or self._index_type() is int:
+                # We're unlikely to return to int IDs and all caches should be cast to str on load
+                raise NotImplementedError('Saving integer session IDs not supported')
+            else:
+                idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
+                ids = self._cache['datasets'][idx].index.unique('eid').values
+        else:
+            name = 'dataset_uuid'
+            ids = self._cache['_loaded_datasets']
+            if ids.dtype != '<U36':
+                ids = parquet.np2str(ids)
+
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
+        filename = Path(self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
+        pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
+        if clear_list:
+            self._cache['_loaded_datasets'] = np.array([])
+        return ids, filename
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -331,7 +374,6 @@ class One(ConversionMixin):
         -------
         A list of file paths for the datasets (None elements for non-existent datasets)
         """
-
         if isinstance(datasets, pd.Series):
             datasets = pd.DataFrame([datasets])
         elif not isinstance(datasets, pd.DataFrame):
@@ -372,6 +414,15 @@ class One(ConversionMixin):
             # Add each downloaded file to the output list of files
             for i, file in zip(indices_to_download, new_files):
                 files[datasets.index.get_loc(i)] = file
+
+        if self.record_loaded:
+            loaded = np.fromiter(map(bool, files), bool)
+            loaded_ids = np.array(datasets.index.to_list())[loaded]
+            if '_loaded_datasets' not in self._cache:
+                self._cache['_loaded_datasets'] = np.unique(loaded_ids)
+            else:
+                loaded_set = np.hstack([self._cache['_loaded_datasets'], loaded_ids])
+                self._cache['_loaded_datasets'] = np.unique(loaded_set, axis=0)
 
         # Return full list of file paths
         return files
@@ -938,7 +989,8 @@ class One(ConversionMixin):
 
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]
-        records = [None if not here else records.pop(0) for here in files]
+        # Replace missing file records with None
+        records = [None if not here else records.pop(0) for here in present]
         if download_only:
             return files, records
         return [alfio.load_file_content(x) for x in files], records
