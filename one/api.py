@@ -179,17 +179,21 @@ class One(ConversionMixin):
             return [], None
         if sessions_only:
             name = 'session_uuid'
-            datasets = self._cache['datasets'].loc[self._cache['_loaded_datasets'].tolist()]
-            if self._index_type() is int:
-                ids = parquet.np2str(np.unique(datasets[['eid_0', 'eid_1']].values, axis=0))
+            if self._cache['_loaded_datasets'].dtype == 'int64' or self._index_type() is int:
+                # We're unlikely to return to int IDs and all caches should be cast to str on load
+                raise NotImplementedError('Saving integer session IDs not supported')
             else:
-                ids = datasets['eid'].unique().tolist()
+                idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
+                ids = self._cache['datasets'][idx].index.unique('eid').values
         else:
             name = 'dataset_uuid'
-            ids = parquet.np2str(self._cache['_loaded_datasets'])
+            ids = self._cache['_loaded_datasets']
+            if ids.dtype != '<U36':
+                ids = parquet.np2str(ids)
+
         timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
-        filename = self.cache_dir.joinpath(f'{timestamp}_loaded_{name}s.csv')
-        pd.DataFrame(ids, columns=['dataset_uuid']).to_csv(filename, index=False)
+        filename = Path(self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
+        pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
         if clear_list:
             self._cache['_loaded_datasets'] = np.array([])
         return ids, filename
@@ -985,7 +989,8 @@ class One(ConversionMixin):
 
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]
-        records = [None if not here else records.pop(0) for here in files]
+        # Replace missing file records with None
+        records = [None if not here else rec for here, rec in zip(files, records)]
         if download_only:
             return files, records
         return [alfio.load_file_content(x) for x in files], records

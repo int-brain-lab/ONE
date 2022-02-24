@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.8.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.9.0]
+
+### Added
+
+- Method for recording and save the UUIDs of loaded datasets
+
+### Modified
+
+- Fix order of records returned by One.load_datasets when datasets missing
+
+## [1.8.1]
 
 ### Modified
 
