@@ -61,6 +61,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -213,6 +214,27 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>datetime.datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.save_loaded_ids">
+<span class="sig-name descname"><span class="pre">save_loaded_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sessions_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.save_loaded_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.save_loaded_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sessions_only</strong> (<em>bool</em>) – If true, save list of experiment IDs, otherwise the full list of dataset IDs.</p></li>
+<li><p><strong>clear_list</strong> (<em>bool</em>) – If true, clear the current list of loaded dataset IDs after saving.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>list of str</em> – List of UUIDs.</p></li>
+<li><p><em>pathlib.Path</em> – The file path of the saved list.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
