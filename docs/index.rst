@@ -32,6 +32,7 @@ Welcome to ONE's documentation!
    :maxdepth: 2
 
    notebooks/data_sharing
+   notebooks/recording_data_access
 
 .. toctree::
    :caption: ALF
