@@ -389,11 +389,11 @@ recording_data_access.ipynb"><button id="github">Github link</button></a><sectio
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">record_loaded</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
+<p>At the end of your analysis script, you can save the data by calling <code class="docutils literal notranslate"><span class="pre">one.save_loaded_ids()</span></code>. By default this will save the dataset UUIDs to a CSV file in the root of your cache directory and will clear the list of dataset UUIDs. The <code class="docutils literal notranslate"><span class="pre">sessions_only</span></code> kwarg will save the <a class="reference external" href="./experiment_ids">eids</a> instead.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note.</p>
-<p>Within a Python session, calling ONE again with the same arguments will return the previous object, therefore if you want to stop recording dataset UUIDs you must explicitly set <code class="docutils literal notranslate"><span class="pre">record_loaded</span></code> to False, e.g. <code class="docutils literal notranslate"><span class="pre">ONE().record_loaded</span> <span class="pre">=</span> <span class="pre">False</span></code>.</p>
+<p>Within a Python session, calling ONE again with the same arguments (from any location) will return the previous object, therefore if you want to stop recording dataset UUIDs you must explicitly set <code class="docutils literal notranslate"><span class="pre">record_loaded</span></code> to False, e.g. <code class="docutils literal notranslate"><span class="pre">ONE().record_loaded</span> <span class="pre">=</span> <span class="pre">False</span></code>.</p>
 </div>
-<p>At the end of your analysis script, you can save the data by calling <code class="docutils literal notranslate"><span class="pre">one.save_loaded_ids()</span></code>. By default this will save the dataset UUIDs to a CSV file in the root of your cache directory and will clear the list of dataset UUIDs. The <code class="docutils literal notranslate"><span class="pre">sessions_only</span></code> kwarg will save the <a class="reference external" href="./experiment_ids">eids</a> instead.</p>
 </section>
 <section id="Example">
 <h2>Example<a class="headerlink" href="#Example" title="Permalink to this headline"></a></h2>
