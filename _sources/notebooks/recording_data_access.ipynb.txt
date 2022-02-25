@@ -46,7 +46,7 @@
     "At the end of your analysis script, you can save the data by calling `one.save_loaded_ids()`.\n",
     "By default this will save the dataset UUIDs to a CSV file in the root of your cache directory\n",
     "and will clear the list of dataset UUIDs.  The `sessions_only` kwarg will save the\n",
-    "[eids](../experiment_ids) instead.\n",
+    "[eids](./experiment_ids) instead.\n",
     "\n",
     "## Example"
    ]
