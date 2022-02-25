@@ -1,11 +1,66 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.9.0]
+
+### Added
+
+- Method for recording and save the UUIDs of loaded datasets
+
+### Modified
+
+- Fix order of records returned by One.load_datasets when datasets missing
+
+## [1.8.1]
+
+### Modified
+
+- HOTFIX: OneAlyx._download_datasets deals gracefully with empty datasets frame
+- removed try-assert-catch logic from One._download_datasets to improve error stack 
+
+## [1.8.0]
+
+### Added
+
+- added `from_df` method to one.alf.io.AlfBunch
+- added `__version__` variable
+- added check for remote cache minimum API version
+- user prompted to verify settings correct in setup
+
+### Modified
+
+- datasets cache table expected to have index of (eid, id).  NB: This changes the order of datasets returned by some functions
+- multithreading moved from One._download_datasets to one.webclient.http_download_file_list
+- cache_dir kwarg renamed to target_dir in one.webclient.http_download_file
+- 'table' attribute now split into columns and merged
+- when no username or password provided to constructor, AlyxClient init doesn't call authenticate
+- 'stay_logged_in' kwarg removed from AlyxClient constructor; must manually call `authenticate` or remember to call `logout`
+- user prompted whether to make url default in setup even if default already set
+
+## [1.7.1]
+
+### Modified
+
+- HOTFIX: failed to return most recent revision; raised MultipleObjectsFound error instead
+
+## [1.7.0]
+
+### Added
+
+- expires kwarg in AlyxClient.rest
+- fix for AWS download location
+
+## [1.6.3]
+
+### Added
+
+- ugly hack to download from aws instead of default http server
+
+## [1.6.2]
 
 ### Modified
 
 - more readable error message; raw JSON printed to debug logger
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.6.1]
+## [1.6.1]
 
 ### Modified
 

@@ -23,7 +23,7 @@ def Listable(t):
     return Union[t, Sequence[t]]
 
 
-def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
+def ses2records(ses: dict, int_id=False):
     """Extract session cache record and datasets cache from a remote session data record.
 
     TODO Fix for new tables; use to update caches from remote queries.
@@ -32,6 +32,8 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
     ----------
     ses : dict
         Session dictionary from Alyx REST endpoint
+    int_id : bool
+        If True, the UUIDs are converted to two int64s
 
     Returns
     -------
@@ -41,35 +43,39 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
         Datasets frame
     """
     # Extract session record
-    eid = parquet.str2np(ses['url'][-36:])
+    eid = ses['url'][-36:]
+    if int_id:
+        eid = tuple(parquet.str2np(eid).flatten())
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'project')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
-    # session_data['id_0'], session_data['id_1'] = eid.flatten().tolist()
     session = (
-        (pd.Series(data=session_data, name=tuple(eid.flatten()))
-            .rename({'start_time': 'date'}, axis=1))
+        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
     session['date'] = session['date'][:10]
 
     # Extract datasets table
     def _to_record(d):
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
-        rec['eid_0'], rec['eid_1'] = session.name
+        if int_id:
+            rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
+            rec['eid_0'], rec['eid_1'] = session.name
+        else:
+            rec['id'] = d['id']
+            rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
-        if 'default_revision' in d:
-            rec['default_revision'] = d['default_revision'] == 'True'
+        rec['default_revision'] = d['default_revision'] == 'True'
         return rec
 
     records = map(_to_record, ses['data_dataset_session_related'])
-    datasets = pd.DataFrame(records).set_index(['id_0', 'id_1']).sort_index()
+    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    datasets = pd.DataFrame(records).set_index(index).sort_index()
     return session, datasets
 
 
-def datasets2records(datasets) -> pd.DataFrame:
+def datasets2records(datasets, int_id=False) -> pd.DataFrame:
     """Extract datasets DataFrame from one or more Alyx dataset records
 
     Parameters
@@ -81,6 +87,8 @@ def datasets2records(datasets) -> pd.DataFrame:
     -------
     pd.DataFrame
         Datasets frame
+    int_id : bool
+        If True, the UUIDs are converted to two int64s
 
     Examples
     --------
@@ -94,8 +102,12 @@ def datasets2records(datasets) -> pd.DataFrame:
         if not file_record:
             continue  # Ignore files that are not accessible
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
-        rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
+        if int_id:
+            rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
+            rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
+        else:
+            rec['id'] = d['url'][-36:]
+            rec['eid'] = d['session'][-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = data_url.path.strip('/')
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
@@ -104,11 +116,11 @@ def datasets2records(datasets) -> pd.DataFrame:
         rec['default_revision'] = d['default_dataset']
         records.append(rec)
 
+    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
     if not records:
-        keys = ('id_0', 'id_1', 'eid_0', 'eid_1', 'file_size', 'hash', 'session_path',
-                'rel_path', 'default_revision')
-        return pd.DataFrame(columns=keys).set_index(['id_0', 'id_1'])
-    return pd.DataFrame(records).set_index(['id_0', 'id_1']).sort_index()
+        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision')
+        return pd.DataFrame(columns=keys).set_index(index)
+    return pd.DataFrame(records).set_index(index).sort_index()
 
 
 def parse_id(method):
@@ -338,7 +350,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         regex_args.update(**filename)
     else:
         # Convert to regex is necessary and assert end of string
-        filename = (fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename))
+        filename = [fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename)]
         spec_str += '|'.join(filename)
 
     # If matching revision name, add to regex string
@@ -366,15 +378,18 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         if len(collections) > 1:
             _list = '"' + '", "'.join(collections) + '"'
             raise alferr.ALFMultipleCollectionsFound(_list)
-        if filename and len(match) > 1:
-            _list = '"' + '", "'.join(match['rel_path']) + '"'
-            raise alferr.ALFMultipleObjectsFound(_list)
         if not revision_last_before:
+            if filename and len(match) > 1:
+                _list = '"' + '", "'.join(match['rel_path']) + '"'
+                raise alferr.ALFMultipleObjectsFound(_list)
             if len(set(revisions)) > 1:
                 _list = '"' + '", "'.join(set(revisions)) + '"'
                 raise alferr.ALFMultipleRevisionsFound(_list)
             else:
                 return match
+        elif filename and len(set(revisions)) != len(revisions):
+            _list = '"' + '", "'.join(match['rel_path']) + '"'
+            raise alferr.ALFMultipleObjectsFound(_list)
 
     return filter_revision_last_before(match, revision, assert_unique=assert_unique)
 
@@ -516,3 +531,25 @@ class LazyId(Mapping):
             return [LazyId.ses2eid(x) for x in ses]
         else:
             return ses.get('id', None) or ses['url'].split('/').pop()
+
+
+def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
+    """Convert int ids to str ids for cache table.
+
+    Parameters
+    ----------
+    table : pd.DataFrame
+        A cache table (from One._cache)
+
+    """
+    # Convert integer uuids to str uuids
+    if table.index.nlevels < 2 or not any(x.endswith('_0') for x in table.index.names):
+        return table
+    table = table.reset_index()
+    int_cols = table.filter(regex=r'_\d{1}$').columns.sort_values()
+    assert not len(int_cols) % 2, 'expected even number of columns ending in _0 or _1'
+    names = sorted(set(c.rsplit('_', 1)[0] for c in int_cols.values))
+    for i, name in zip(range(0, len(int_cols), 2), names):
+        table[name] = parquet.np2str(table[int_cols[i:i + 2]])
+    table = table.drop(int_cols, axis=1).set_index(names)
+    return table
