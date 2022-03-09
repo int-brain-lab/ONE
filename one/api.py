@@ -1534,7 +1534,7 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, clobber=False, **kwargs) -> List[Path]:
+    def _download_aws(self, dsets, **kwargs) -> List[Path]:
         # Download datasets from AWS
         from tqdm import tqdm
         import boto3
@@ -1548,6 +1548,8 @@ class OneAlyx(One):
                 t.update(bytes_amount)
             return inner
 
+        if self._index_type() is int:
+            raise NotImplementedError('AWS download only supported for str index cache')
         repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
         bucket_name = repo_json['bucket_name']
         session_keys = {
@@ -1558,7 +1560,7 @@ class OneAlyx(One):
         s3 = session.resource('s3')
         out_files = []
         for dset in dsets:
-            dset_uuid = parquet.np2str(np.array(dset.name))
+            eid, dset_uuid = dset.name
             source_path = PurePosixPath('data').joinpath(
                 dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
             )
@@ -1566,17 +1568,6 @@ class OneAlyx(One):
                 self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(local_path)
-            if local_path.exists():
-                # the local file hash doesn't match the dataset table cached hash
-                hash_mismatch = dset['hash'] and hashfile.md5(local_path) != dset['hash']
-                if hash_mismatch:
-                    clobber = True
-                    if not self.alyx.silent:
-                        _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
-            else:
-                clobber = True
-            if local_path.exists() and not clobber:
-                continue
             try:
                 file_object = s3.Object(bucket_name, source_path.as_posix())
                 filesize = file_object.content_length

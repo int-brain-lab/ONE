@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.9.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.9.1]
+
+### Added
+
+- Tests for OneAlyx._download_aws
+
+### Modified
+
+- HOTFIX: OneAlyx._download_aws now works with new cache index
+
+## [1.9.0]
 
 ### Added
 
