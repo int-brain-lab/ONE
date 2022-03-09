@@ -1057,7 +1057,6 @@ class TestOneAlyx(unittest.TestCase):
             self.one._download_datasets(dsets)
             fallback_method.assert_called()
 
-
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
