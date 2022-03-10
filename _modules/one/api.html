@@ -1635,7 +1635,7 @@
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
         <span class="c1"># Download datasets from AWS</span>
         <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
         <span class="kn">import</span> <span class="nn">boto3</span>
@@ -1649,6 +1649,8 @@
                 <span class="n">t</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bytes_amount</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">inner</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_type</span><span class="p">()</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;AWS download only supported for str index cache&#39;</span><span class="p">)</span>
         <span class="n">repo_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;aws_cortexlab&#39;</span><span class="p">)[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span>
         <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">repo_json</span><span class="p">[</span><span class="s1">&#39;bucket_name&#39;</span><span class="p">]</span>
         <span class="n">session_keys</span> <span class="o">=</span> <span class="p">{</span>
@@ -1659,7 +1661,7 @@
         <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">)</span>
         <span class="n">out_files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">:</span>
-            <span class="n">dset_uuid</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">eid</span><span class="p">,</span> <span class="n">dset_uuid</span> <span class="o">=</span> <span class="n">dset</span><span class="o">.</span><span class="n">name</span>
             <span class="n">source_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
                 <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">add_uuid_string</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="n">dset_uuid</span><span class="p">)</span>
             <span class="p">)</span>
@@ -1667,17 +1669,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]),</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">local_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="c1"># the local file hash doesn&#39;t match the dataset table cached hash</span>
-                <span class="n">hash_mismatch</span> <span class="o">=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">hash_mismatch</span><span class="p">:</span>
-                    <span class="n">clobber</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
-                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;local md5 or size mismatch, re-downloading </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">clobber</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
-                <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">file_object</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">Object</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">source_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
                 <span class="n">filesize</span> <span class="o">=</span> <span class="n">file_object</span><span class="o">.</span><span class="n">content_length</span>
