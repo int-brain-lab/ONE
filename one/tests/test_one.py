@@ -1026,6 +1026,37 @@ class TestOneAlyx(unittest.TestCase):
         file, = self.one._check_filesystem(dsets)
         self.assertIsNotNone(file)
 
+    @mock.patch('boto3.Session')
+    def test_download_aws(self, boto3_mock):
+        """ Tests for the OneAlyx._download_aws method"""
+        N = 5
+        dsets = self.one._cache['datasets'].iloc[:N].copy()
+        dsets['exists_aws'] = True
+
+        # Return a file size so progress bar callback hook functions
+        file_object = mock.MagicMock()
+        file_object.content_length = 1024
+        boto3_mock().resource().Object.return_value = file_object
+
+        # Mock _download_dataset for safety: method should not be called
+        with mock.patch.object(self.one, '_download_dataset') as fallback_method:
+            out_paths = self.one._download_datasets(dsets)
+            fallback_method.assert_not_called()
+        self.assertEqual(len(out_paths), N, 'Returned list should equal length of input datasets')
+        self.assertTrue(all(isinstance(x, Path) for x in out_paths))
+        # These values come from REST cache fixture
+        boto3_mock.assert_called_with(aws_access_key_id='ABCDEF', aws_secret_access_key='shhh')
+        ((bucket, path), _), *_ = boto3_mock().resource().Object.call_args_list
+        self.assertEqual(bucket, 's3_bucket')
+        self.assertTrue(dsets['rel_path'][0].split('.')[0] in path)
+        self.assertTrue(dsets.index[0][1] in path, 'Dataset UUID not in filepath')
+
+        # Should fall back to usual method if any datasets do not exist on AWS
+        dsets['exists_aws'] = False
+        with mock.patch.object(self.one, '_download_dataset') as fallback_method:
+            self.one._download_datasets(dsets)
+            fallback_method.assert_called()
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
