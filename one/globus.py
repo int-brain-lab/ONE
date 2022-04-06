@@ -42,7 +42,7 @@ def setup():
                        f'keep it, or enter a new ID here: ').strip()
         new_id = current_id if not new_id else new_id
     else:
-        new_id = input(f'Please enter the Globus client ID: ').strip()
+        new_id = input('Please enter the Globus client ID: ').strip()
     pars = pars.set('GLOBUS_CLIENT_ID', new_id)
 
     # Find and set local ID
@@ -142,8 +142,9 @@ def get_local_endpoint_path():
     msg = ("Cannot find local endpoint path, check if Globus Connect is set up correctly, "
            "{} exists and contains a valid path.")
     if sys.platform == 'win32':
-        local_path_input = input(f'On windows the local globus path needs to be entered manually. Press Enter to use the same'
-                                 f' path as the ONE cache dir or enter a path here: ').strip()
+        local_path_input = input('On windows the local globus path needs to be entered manually. '
+                                 'Press Enter to use the same path as the ONE cache dir or enter '
+                                 'a path here: ').strip()
         local_path = ONE().cache_dir if not local_path_input else Path(local_path_input)
     else:
         path_file = Path.home().joinpath(".globusonline", "lta", "config-paths")
@@ -180,10 +181,11 @@ def get_endpoint_info_from_name(endpoint=None, one=None):
 
 def get_lab_from_endpoint_id(endpoint=None, one=None):
     """
-    Extracts lab name given an endpoint id root path given a repository name that is registered in the
-    database accessed by ONE.
+    Extracts lab name given an endpoint id root path given a repository name that is
+    registered in the database accessed by ONE.
 
-    :param endpoint: endpoint UUID, optional if not given will get attempt to find local endpoint id
+    :param endpoint: endpoint UUID, optional if not given will get attempt to find local
+     endpoint id
     :param one: ONE instance, optional
     :return: list of str, [lab name]
     """
@@ -243,7 +245,8 @@ def as_globus_path(path):
 class Globus:
     """
     Wrapper for managing files on Globus endpoints.
-    Adapted from https://github.com/int-brain-lab/ibllib/blob/ca8cd93ccac665efda6943f14047ba53503e8bb8/ibllib/io/globus.py
+    Adapted from
+    https://github.com/int-brain-lab/ibllib/blob/ca8cd93ccac665efda6943f14047ba53503e8bb8/ibllib/io/globus.py
     """
     def __init__(self, client_name='default'):
         # Setting up transfer client
@@ -310,9 +313,9 @@ class Globus:
             endpoint_id = endpoint
             return endpoint_id, None
         else:
-            _logger.error(f"'endpoint' must be a UUID or the label of an endpoint registered in "
-                          f"this Globus instance. You can add endpoints via the add_endpoints "
-                          f"method")
+            _logger.error("'endpoint' must be a UUID or the label of an endpoint registered in "
+                          "this Globus instance. You can add endpoints via the add_endpoints "
+                          "method")
             return
 
     def ls(self, endpoint, path, remove_uuid=False, return_size=False):
@@ -349,7 +352,7 @@ class Globus:
 
         tdata = globus_sdk.TransferData(self.client, source_endpoint, target_endpoint,
                                         verify_checksum=True, sync_level='checksum',
-                                        label=f'ONE globus')
+                                        label='ONE globus')
         for source_path, target_path in zip(source_paths, target_paths):
             tdata.add_item(source_path, target_path)
 
@@ -398,7 +401,7 @@ class Globus:
         except (GlobusAPIError, NetworkError, GlobusTimeoutError, GlobusConnectionError,
                 GlobusConnectionTimeoutError) as e:
             if retries < 1:
-                _logger.error(f"\nRetried too many times.")
+                _logger.error("\nRetried too many times.")
                 raise e
             else:
                 _logger.debug("\nGlobus experienced a network error", exc_info=True)
