@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.9.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.10.0]
+
+### Modified
+
+- Cache may be downloaded from a variable location set by the 'location' field returned by cache/info endpoint
+- urllib exception now caught in OneAlyx._load_cache
+
+## [1.9.1]
 
 ### Added
 

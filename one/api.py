@@ -1303,10 +1303,10 @@ class OneAlyx(One):
 
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
-            files = self.alyx.download_cache_tables()
+            files = self.alyx.download_cache_tables(cache_info.get('location'))
             assert any(files)
             super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
-        except requests.exceptions.HTTPError:
+        except (requests.exceptions.HTTPError, wc.HTTPError):
             _logger.error('Failed to load the remote cache file')
             self.mode = 'remote'
         except (ConnectionError, requests.exceptions.ConnectionError):
