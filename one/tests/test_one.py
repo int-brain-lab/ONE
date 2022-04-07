@@ -1106,7 +1106,7 @@ class TestOneRemote(unittest.TestCase):
     def test_search(self):
         """Test OneAlyx.search"""
         eids = self.one.search(subject='SWC_043', query_type='remote')
-        self.assertEqual(eids[0], self.eid)
+        self.assertCountEqual(eids, [self.eid])
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
