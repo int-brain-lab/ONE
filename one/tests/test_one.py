@@ -1110,6 +1110,9 @@ class TestOneRemote(unittest.TestCase):
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
+        # Check minimum set of keys present (these are present in One.search output)
+        expected = {'lab', 'subject', 'date', 'number', 'project'}
+        self.assertTrue(det[0].keys() >= expected)
         # Test dataset search with Django
         eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
                                django='data_dataset_session_related__collection__iexact,alf',

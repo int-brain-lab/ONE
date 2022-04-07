@@ -1506,6 +1506,9 @@ class OneAlyx(One):
 
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+        # Add date field for compatibility with One.search output
+        for s in ses:
+            s['date'] = str(datetime.fromisoformat(s['start_time']).date())
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         return (eids, ses) if details else eids

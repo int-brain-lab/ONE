@@ -3,14 +3,15 @@
 
 ### Modified
 
-- Cache may be downloaded from a variable location set by the 'location' field returned by cache/info endpoint
+- cache may be downloaded from a variable location set by the 'location' field returned by cache/info endpoint
 - urllib exception now caught in OneAlyx._load_cache
+- details dict in remote mode search now contains 'date' field
 
 ## [1.9.1]
 
 ### Added
 
-- Tests for OneAlyx._download_aws
+- tests for OneAlyx._download_aws
 
 ### Modified
 
@@ -20,11 +21,11 @@
 
 ### Added
 
-- Method for recording and save the UUIDs of loaded datasets
+- method for recording and save the UUIDs of loaded datasets
 
 ### Modified
 
-- Fix order of records returned by One.load_datasets when datasets missing
+- fix order of records returned by One.load_datasets when datasets missing
 
 ## [1.8.1]
 
