@@ -1106,7 +1106,7 @@ class TestOneRemote(unittest.TestCase):
     def test_search(self):
         """Test OneAlyx.search"""
         eids = self.one.search(subject='SWC_043', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
@@ -1127,9 +1127,9 @@ class TestOneRemote(unittest.TestCase):
         self.assertTrue(all(len(x) == 36 for x in eids))
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
         eids = self.one.search(lab='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
 
     def test_load_dataset(self):
         """Test OneAlyx.load_dataset"""
