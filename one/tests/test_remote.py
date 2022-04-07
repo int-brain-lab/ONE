@@ -8,6 +8,7 @@ from functools import partial
 from tempfile import TemporaryDirectory
 import io
 import json
+import sys
 
 from iblutil.io import params as iopar
 
@@ -169,8 +170,10 @@ class TestGlobus(unittest.TestCase):
         """Tests for one.remote.globus.as_globus_path"""
         # A Windows path
         # "/E/FlatIron/integration"
-        actual = globus.as_globus_path('E:\\FlatIron\\integration')
-        self.assertTrue(actual.startswith('/E/'))
+        # Only test this on windows
+        if sys.platform == 'win32':
+            actual = globus.as_globus_path('E:\\FlatIron\\integration')
+            self.assertTrue(actual.startswith('/E/'))
         # A relative POSIX path
         actual = globus.as_globus_path('/mnt/foo/../data/integration')
         expected = '/mnt/data/integration'  # "/C/mnt/data/integration
