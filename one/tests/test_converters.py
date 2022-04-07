@@ -78,7 +78,7 @@ class TestConverters(unittest.TestCase):
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.eid2path(eid)
         expected = Path(self.tempdir.name).joinpath('mainenlab', 'Subjects', 'ZFM-01935',
-                                                    '2021-02-05', '001',)
+                                                    '2021-02-05', '001')
         self.assertEqual(expected, verifiable)
 
         with self.assertRaises(ValueError):
@@ -93,6 +93,17 @@ class TestConverters(unittest.TestCase):
         # Test short circuit
         with mock.patch.object(self.one._cache, 'sessions', new=pd.DataFrame([])):
             self.assertIsNone(self.one.eid2path(eid))
+
+        # Test with int ids
+        old_cache = self.one._cache.copy()
+        util.caches_str2int(self.one._cache)
+        try:
+            verifiable = self.one.eid2path(eid)
+            expected = Path(self.tempdir.name).joinpath(
+                'mainenlab', 'Subjects', 'ZFM-01935', '2021-02-05', '001')
+            self.assertEqual(verifiable, expected)
+        finally:
+            self.one._cache = old_cache
 
     def test_eid2ref(self):
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'

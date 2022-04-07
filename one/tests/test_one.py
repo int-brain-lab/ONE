@@ -34,7 +34,7 @@ from functools import partial
 import unittest
 from unittest import mock
 import tempfile
-from uuid import UUID
+from uuid import UUID, uuid4
 import json
 import io
 
@@ -711,6 +711,69 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.one.refresh_cache('double')
 
+    def test_save_loaded_ids(self):
+        """Test One.save_loaded_ids and logic within One._check_filesystem"""
+        self.one.record_loaded = True  # Turn on saving UUIDs
+        self.one._cache.pop('_loaded_datasets', None)  # Ensure we start with a clean slate
+        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
+        files = self.one.load_object(eid, 'trials', download_only=True)
+        # Check datasets added to list
+        self.assertIn('_loaded_datasets', self.one._cache)
+        loaded = self.one._cache['_loaded_datasets']
+        self.assertEqual(len(files), len(loaded))
+        # Ensure all are from the same session
+        eids = self.one._cache.datasets.loc[(slice(None), loaded), ].index.get_level_values(0)
+        self.assertTrue(np.all(eids == eid))
+
+        # Test loading a dataset that doesn't exist
+        dset = self.one.list_datasets(eid, filename='*trials*', details=True).iloc[-1]
+        dset['rel_path'] = dset['rel_path'].replace('.npy', '.pqt')
+        dset.name = (eid, str(uuid4()))
+        old_cache = self.one._cache['datasets']
+        try:
+            self.one._cache['datasets'] = self.one._cache.datasets.append(dset)
+            dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
+            new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
+            loaded = self.one._cache['_loaded_datasets']
+            # One dataset is already in the list (test for duplicates) and other doesn't exist
+            self.assertEqual(len(files), len(loaded), 'No new UUIDs should have been added')
+            self.assertIn(rec[1]['id'], loaded)  # Already in list
+            self.assertEqual(len(loaded), len(np.unique(loaded)))
+            self.assertNotIn(dset.name[1], loaded)  # Wasn't loaded as doesn't exist on disk
+        finally:
+            self.one._cache['datasets'] = old_cache
+
+        # Test saving the loaded datasets list
+        ids, filename = self.one.save_loaded_ids(clear_list=False)
+        self.assertTrue(loaded is ids)
+        self.assertTrue(filename.exists())
+        # Load from file
+        ids = pd.read_csv(filename)
+        self.assertCountEqual(ids['dataset_uuid'], loaded)
+        self.assertTrue(self.one._cache['_loaded_datasets'].size, 'List unexpectedly cleared')
+
+        # Test as session UUIDs
+        ids, filename = self.one.save_loaded_ids(sessions_only=True, clear_list=False)
+        self.assertCountEqual([eid], ids)
+        self.assertEqual(pd.read_csv(filename)['session_uuid'][0], eid)
+
+        # Test int IDs.
+        self.one._cache['_loaded_datasets'] = parquet.str2np(self.one._cache['_loaded_datasets'])
+        # IDs should be cast to string
+        with self.assertRaises(NotImplementedError):
+            self.one.save_loaded_ids(clear_list=False, sessions_only=True)
+
+        # Check dataset int IDs and clear list
+        ids, _ = self.one.save_loaded_ids(clear_list=True)
+        self.assertCountEqual(loaded, ids)
+        self.assertFalse(self.one._cache['_loaded_datasets'].size, 'List not cleared')
+
+        # Test clear list and warn on empty
+        with self.assertWarns(Warning):
+            ids, filename = self.one.save_loaded_ids()
+        self.assertEqual(ids, [])
+        self.assertIsNone(filename)
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneAlyx(unittest.TestCase):
@@ -766,6 +829,9 @@ class TestOneAlyx(unittest.TestCase):
 
         self.one.mode = 'remote'
         dset_type = self.one.dataset2type(did)
+        self.assertEqual('wheelMoves.peakAmplitude', dset_type)
+        # Check with tuple int
+        dset_type = self.one.dataset2type(tuple(did.squeeze().tolist()))
         self.assertEqual('wheelMoves.peakAmplitude', dset_type)
         # Check with str id
         did, = parquet.np2str(did)
@@ -933,6 +999,13 @@ class TestOneAlyx(unittest.TestCase):
                     self.one._load_cache(clobber=True)
                     self.assertEqual('local', self.one.mode)
                 self.assertTrue('Failed to connect' in lg.output[-1])
+
+            cache_info = {'min_api_version': '200.0.0'}
+            # Check version verification
+            with mock.patch.object(self.one.alyx, 'get', return_value=cache_info),\
+                    self.assertWarns(UserWarning):
+                self.one._load_cache(clobber=True)
+
         finally:  # Restore properties
             self.one.mode = 'auto'
             self.one.alyx.silent = True
@@ -952,6 +1025,37 @@ class TestOneAlyx(unittest.TestCase):
         # Test method
         file, = self.one._check_filesystem(dsets)
         self.assertIsNotNone(file)
+
+    @mock.patch('boto3.Session')
+    def test_download_aws(self, boto3_mock):
+        """ Tests for the OneAlyx._download_aws method"""
+        N = 5
+        dsets = self.one._cache['datasets'].iloc[:N].copy()
+        dsets['exists_aws'] = True
+
+        # Return a file size so progress bar callback hook functions
+        file_object = mock.MagicMock()
+        file_object.content_length = 1024
+        boto3_mock().resource().Object.return_value = file_object
+
+        # Mock _download_dataset for safety: method should not be called
+        with mock.patch.object(self.one, '_download_dataset') as fallback_method:
+            out_paths = self.one._download_datasets(dsets)
+            fallback_method.assert_not_called()
+        self.assertEqual(len(out_paths), N, 'Returned list should equal length of input datasets')
+        self.assertTrue(all(isinstance(x, Path) for x in out_paths))
+        # These values come from REST cache fixture
+        boto3_mock.assert_called_with(aws_access_key_id='ABCDEF', aws_secret_access_key='shhh')
+        ((bucket, path), _), *_ = boto3_mock().resource().Object.call_args_list
+        self.assertEqual(bucket, 's3_bucket')
+        self.assertTrue(dsets['rel_path'][0].split('.')[0] in path)
+        self.assertTrue(dsets.index[0][1] in path, 'Dataset UUID not in filepath')
+
+        # Should fall back to usual method if any datasets do not exist on AWS
+        dsets['exists_aws'] = False
+        with mock.patch.object(self.one, '_download_dataset') as fallback_method:
+            self.one._download_datasets(dsets)
+            fallback_method.assert_called()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -1084,7 +1188,7 @@ class TestOneDownload(unittest.TestCase):
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
     def test_download_datasets(self):
-        """Test OneAlyx._download_dataset, _download_file and _tag_mismatched_file_record"""
+        """Test OneAlyx._download_dataset, _download_file and _dset2url"""
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
@@ -1103,7 +1207,7 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when hash mismatch
         self.one.alyx.silent = False  # So we can check for warning
         file_hash = rec['hash'].replace('a', 'd')
-        with self.assertLogs(logging.getLogger('one.api'), logging.WARNING):
+        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG):
             self.one._download_dataset(rec, hash=file_hash)
 
         # Check JSON field added
@@ -1115,6 +1219,16 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec, keep_uuid=True)
         self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
 
+        # Check list input
+        files = self.one._download_dataset([rec] * 2)
+        self.assertIsInstance(files, list)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+
+        # Check Series input
+        r_ = datasets2records(rec, int_id=True).squeeze()
+        file = self.one._download_dataset(r_)
+        self.assertIn('channels.brainLocation', file.as_posix())
+
         # Check behaviour when URL invalid
         did = rec['url'].split('/')[-1]
         self.assertTrue(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
@@ -1122,6 +1236,10 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec)
         self.assertIsNone(file)
         self.assertFalse(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
+        # With multiple dsets
+        files = self.one._download_dataset([rec, rec])
+        self.assertTrue(all(x is None for x in files))
+        self.one._cache.datasets.loc[(slice(None), did), 'exists'] = True  # Reset values
 
         # Check with invalid path
         path = self.one.cache_dir.joinpath('lab', 'Subjects', 'subj', '2020-01-01', '001',
@@ -1135,6 +1253,13 @@ class TestOneDownload(unittest.TestCase):
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
+        # Check update cache when id is int and cache table ids are str
+        int_id, = parquet.str2np(np.array(rec.index.tolist())).tolist()
+        self.one._download_dataset({'data_url': None, 'id': np.array(int_id)})
+        exists, = self.one._cache.datasets.loc[(slice(None), rec.index[0]), 'exists']
+        self.assertFalse(exists, 'failed to update dataset cache with str index')
+        self.one._cache.datasets.loc[(slice(None), rec.index[0]), 'exists'] = True  # Reset values
+
         # Check works with int index
         util.caches_str2int(self.one._cache)
         self.assertIsNotNone(self.one._download_dataset(files[0]))
@@ -1142,7 +1267,7 @@ class TestOneDownload(unittest.TestCase):
         # and when dataset missing
         with mock.patch.object(self.one, 'record2url', return_value=None):
             self.assertIsNone(self.one._download_dataset(rec.squeeze()))
-        int_id, = parquet.str2np(np.array(rec.index.tolist())).tolist()
+
         exists, = self.one._cache.datasets.loc[(slice(None), slice(None), *int_id), 'exists']
         self.assertFalse(exists, 'failed to update dataset cache with str index')
 

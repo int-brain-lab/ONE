@@ -182,7 +182,7 @@ class ConversionMixin:
             assert isinstance(ses, pd.Series), 'Duplicate eids in sessions table'
             ses = ses.to_dict()
             return Path(self.cache_dir).joinpath(
-                ses['lab'], 'Subjects', ses['subject'],
+                ses['lab'] if ses['lab'] else '', 'Subjects' if ses['lab'] else '', ses['subject'],
                 str(ses['date']), str(ses['number']).zfill(3))
         except KeyError:
             return
@@ -569,12 +569,6 @@ class ConversionMixin:
         elif not isinstance(ref, str):
             return False
         return re.compile(r'\d{4}(-\d{2}){2}_(\d{1}|\d{3})_\w+').match(ref) is not None
-
-    @recurse
-    def path2pid(self, path):
-        """Returns a portion of the path that represents the session and probe label"""
-        raise NotImplementedError()
-        path = Path(path).as_posix()
 
     @staticmethod
     @parse_values

@@ -26,13 +26,16 @@ class TestParamSetup(unittest.TestCase):
         self.get_file_mock.start()
         self.addCleanup(self.get_file_mock.stop)
 
-    def _mock_input(self, prompt):
+    def _mock_input(self, prompt, **kwargs):
         """Stub function for builtins.input"""
         if prompt.lower().startswith('warning'):
             return 'n'
         elif 'url' in prompt.lower():
             return self.url
         else:
+            for k, v in kwargs.items():
+                if k in prompt:
+                    return v
             return ''
 
     @mock.patch('one.params.getpass', return_value='mock_pwd')
@@ -50,6 +53,12 @@ class TestParamSetup(unittest.TestCase):
         par = one.params.get(self.url, silent=True)
         self.assertEqual('https://' + self.url, par.ALYX_URL)
         self.assertEqual('mock_pwd', par.HTTP_DATA_SERVER_PWD)
+
+        # Check verification prompt
+        resp_map = {'ALYX_LOGIN': 'mistake', 'settings correct?': 'N'}
+        with mock.patch('one.params.input', new=partial(self._mock_input, **resp_map)):
+            cache = one.params.setup()
+            self.assertNotEqual(cache.ALYX_LOGIN, 'mistake')
 
         # Check that raises ValueError when bad URL provided
         self.url = 'ftp://'
