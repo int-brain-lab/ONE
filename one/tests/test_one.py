@@ -1057,17 +1057,6 @@ class TestOneAlyx(unittest.TestCase):
             self.one._download_datasets(dsets)
             fallback_method.assert_called()
 
-    def test_tag_mismatched_file_record(self):
-        """Test for OneAlyx._tag_mismatched_file_record.
-        """
-        did = '4a1500c2-60f3-418f-afa2-c752bb1890f0'
-        url = f'https://example.com/channels.brainLocationIds_ccf_2017.{did}.npy'
-        data = [{'json': {'mismatch_hash': False}, 'url': f'https://example.com/files/{did}'}]
-        with mock.patch.object(self.one.alyx, 'rest', return_value=data) as mk:
-            self.one._tag_mismatched_file_record(url)
-        data[0]['json']['mismatch_hash'] = True
-        mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
-
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
@@ -1271,6 +1260,17 @@ class TestOneDownload(unittest.TestCase):
 
         exists, = self.one._cache.datasets.loc[(slice(None), slice(None), *int_id), 'exists']
         self.assertFalse(exists, 'failed to update dataset cache with str index')
+
+    def test_tag_mismatched_file_record(self):
+        """Test for OneAlyx._tag_mismatched_file_record.
+        """
+        did = '4a1500c2-60f3-418f-afa2-c752bb1890f0'
+        url = f'https://example.com/channels.brainLocationIds_ccf_2017.{did}.npy'
+        data = [{'json': {'mismatch_hash': False}, 'url': f'https://example.com/files/{did}'}]
+        with mock.patch.object(self.one.alyx, 'rest', return_value=data) as mk:
+            self.one._tag_mismatched_file_record(url)
+        data[0]['json']['mismatch_hash'] = True
+        mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
 
     def tearDown(self) -> None:
         self.patch.stop()
