@@ -1089,10 +1089,16 @@ class TestOneRemote(unittest.TestCase):
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
         self.assertEqual(122, len(dsets))
 
-        # Test empty
+        # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
         self.assertIsInstance(dsets, pd.DataFrame)
         self.assertEqual(len(dsets), 0)
+
+        # Test empty datasets
+        with mock.patch('one.util.ses2records', return_value=({}, None)):
+            dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
+            self.assertIsInstance(dsets, pd.DataFrame)
+            self.assertEqual(len(dsets), 0)
 
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
