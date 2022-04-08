@@ -1204,6 +1204,25 @@ class TestOneDownload(unittest.TestCase):
         file = self.one._download_dataset(rec)
         self.assertIsNotNone(file)
 
+        # Check behaviour when hash mismatch
+        self.one.alyx.silent = False  # So we can check for warning
+        file_hash = rec['hash'].replace('a', 'd')
+        # Check three things:
+        # 1. The mismatch should be logged at the debug level
+        # 2. As we don't have permission to update this db we should see a failure warning
+        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG), \
+                self.assertWarns(Warning, msg=f'files/{self.fid}'):
+            self.one._download_dataset(rec, hash=file_hash)
+        self.one.alyx.silent = True  # Remove console clutter
+
+        # Check JSON field added
+        # 3. The files endpoint should be called with a 'mismatch_hash' json key
+        fr = [{'url': f'files/{self.fid}', 'json': None}]
+        with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
+            self.one._download_dataset(rec, hash=file_hash)
+            call_kwargs = patched.call_args_list[-1].kwargs
+            self.assertEqual(call_kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
+
         # Check keep_uuid kwarg
         file = self.one._download_dataset(rec, keep_uuid=True)
         self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
@@ -1263,6 +1282,7 @@ class TestOneDownload(unittest.TestCase):
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.
+        This method is also tested in test_download_datasets.
         """
         did = '4a1500c2-60f3-418f-afa2-c752bb1890f0'
         url = f'https://example.com/channels.brainLocationIds_ccf_2017.{did}.npy'
@@ -1273,6 +1293,12 @@ class TestOneDownload(unittest.TestCase):
         mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
 
     def tearDown(self) -> None:
+        try:
+            # In case we did indeed have remote REST permissions, try resetting the json field
+            self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
+        except HTTPError as ex:
+            if ex.errno != 403:
+                raise ex
         self.patch.stop()
         self.tempdir.cleanup()
 
