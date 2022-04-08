@@ -1690,8 +1690,13 @@ class OneAlyx(One):
                 json_field = {'mismatch_hash': True}
             else:
                 json_field.update({'mismatch_hash': True})
-            self.alyx.rest('files', 'partial_update',
-                           id=fr[0]['url'][-36:], data={'json': json_field})
+            try:
+                self.alyx.rest('files', 'partial_update',
+                               id=fr[0]['url'][-36:], data={'json': json_field})
+            except requests.exceptions.HTTPError as ex:
+                warnings.warn(
+                    f'Failed to tag remote file record mismatch: {ex}\n'
+                    'Please contact the database administrator.')
 
     def _download_file(self, url, target_dir, keep_uuid=False, file_size=None, hash=None):
         """
