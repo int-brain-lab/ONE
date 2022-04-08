@@ -1386,8 +1386,10 @@ class OneAlyx(One):
             return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
-            return self._cache['datasets'].iloc[0:0]  # Return empty
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        if datasets is None or datasets.empty:
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
             datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path

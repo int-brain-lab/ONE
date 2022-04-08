@@ -867,6 +867,11 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertEqual(tuple(datasets.index.names), ('eid_0', 'eid_1', 'id_0', 'id_1'))
 
+        # Check behaviour when no datasets present
+        ses['data_dataset_session_related'] = []
+        _, datasets = ses2records(ses)
+        self.assertIsNone(datasets)
+
     def test_datasets2records(self):
         """Test one.util.datasets2records"""
         eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
