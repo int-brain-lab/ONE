@@ -1220,8 +1220,8 @@ class TestOneDownload(unittest.TestCase):
         fr = [{'url': f'files/{self.fid}', 'json': None}]
         with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
             self.one._download_dataset(rec, hash=file_hash)
-            call_kwargs = patched.call_args_list[-1].kwargs
-            self.assertEqual(call_kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
+            args, kwargs = patched.call_args_list[-1]
+            self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
         file = self.one._download_dataset(rec, keep_uuid=True)
