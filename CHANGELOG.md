@@ -6,6 +6,8 @@
 - cache may be downloaded from a variable location set by the 'location' field returned by cache/info endpoint
 - urllib exception now caught in OneAlyx._load_cache
 - details dict in remote mode search now contains 'date' field
+- fix tests relying on OpenAlyx
+- warning instead of error raised when tag_mismatched_dataset REST query returns 403
 
 ## [1.9.1]
 
