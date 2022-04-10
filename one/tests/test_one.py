@@ -1082,7 +1082,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(110, len(dsets))
+        self.assertEqual(122, len(dsets))
 
         # Test empty
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
@@ -1092,12 +1092,12 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(110, len(dsets))
+        self.assertEqual(122, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(5, len(dsets))
+        self.assertEqual(11, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
@@ -1106,7 +1106,7 @@ class TestOneRemote(unittest.TestCase):
     def test_search(self):
         """Test OneAlyx.search"""
         eids = self.one.search(subject='SWC_043', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
@@ -1127,20 +1127,20 @@ class TestOneRemote(unittest.TestCase):
         self.assertTrue(all(len(x) == 36 for x in eids))
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
         eids = self.one.search(lab='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
 
     def test_load_dataset(self):
         """Test OneAlyx.load_dataset"""
-        file = self.one.load_dataset(self.eid, '_iblrig_encoderEvents.raw.ssv',
-                                     collection='raw_passive_data', query_type='remote',
+        file = self.one.load_dataset(self.eid, '_spikeglx_sync.channels.npy',
+                                     collection='raw_ephys_data', query_type='remote',
                                      download_only=True)
         self.assertIsInstance(file, Path)
-        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
+        self.assertTrue(file.as_posix().endswith('raw_ephys_data/_spikeglx_sync.channels.npy'))
         # Test validations
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
-            self.one.load_dataset(self.eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
+            self.one.load_dataset(self.eid, 'spikes.clusters', query_type='remote')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             self.one.load_dataset(self.eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
         with self.assertRaises(alferr.ALFObjectNotFound):
@@ -1154,7 +1154,7 @@ class TestOneRemote(unittest.TestCase):
                                      download_only=True)
         self.assertIsInstance(files[0], Path)
         self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.position.npy')
         )
 
     def test_get_details(self):
@@ -1207,13 +1207,21 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when hash mismatch
         self.one.alyx.silent = False  # So we can check for warning
         file_hash = rec['hash'].replace('a', 'd')
-        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG):
+        # Check three things:
+        # 1. The mismatch should be logged at the debug level
+        # 2. As we don't have permission to update this db we should see a failure warning
+        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG), \
+                self.assertWarns(Warning, msg=f'files/{self.fid}'):
             self.one._download_dataset(rec, hash=file_hash)
+        self.one.alyx.silent = True  # Remove console clutter
 
         # Check JSON field added
-        json_field = self.one.alyx.rest('files', 'read', id=self.fid, no_cache=True)['json']
-        self.assertTrue(json_field.get('mismatch_hash', False))
-        self.one.alyx.silent = True  # Remove console clutter
+        # 3. The files endpoint should be called with a 'mismatch_hash' json key
+        fr = [{'url': f'files/{self.fid}', 'json': None}]
+        with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
+            self.one._download_dataset(rec, hash=file_hash)
+            args, kwargs = patched.call_args_list[-1]
+            self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
         file = self.one._download_dataset(rec, keep_uuid=True)
@@ -1232,7 +1240,8 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when URL invalid
         did = rec['url'].split('/')[-1]
         self.assertTrue(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
-        rec['file_records'][0]['data_url'] = None
+        for fr in rec['file_records']:
+            fr['data_url'] = None
         file = self.one._download_dataset(rec)
         self.assertIsNone(file)
         self.assertFalse(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
@@ -1249,7 +1258,7 @@ class TestOneDownload(unittest.TestCase):
             self.assertIsNone(file)
 
         rec = self.one.list_datasets(self.eid, details=True)
-        rec = rec[rec.rel_path.str.contains('channels.brainLocation')]
+        rec = rec[rec.rel_path.str.contains('pykilosort/channels.brainLocation')]
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
@@ -1284,7 +1293,12 @@ class TestOneDownload(unittest.TestCase):
         mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
 
     def tearDown(self) -> None:
-        self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
+        try:
+            # In case we did indeed have remote REST permissions, try resetting the json field
+            self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
+        except HTTPError as ex:
+            if ex.errno != 403:
+                raise ex
         self.patch.stop()
         self.tempdir.cleanup()
 
