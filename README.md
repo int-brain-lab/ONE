@@ -50,7 +50,7 @@ To search for sessions:
 ```python
 from one.api import ONE
 one = ONE()
-print(one.search_terms)  # A list of search keyword arguments
+print(one.search_terms())  # A list of search keyword arguments
 
 # Search session with wheel timestamps from January 2021 onward
 eids = one.search(date_range=['2021-01-01',], dataset='wheel.timestamps')

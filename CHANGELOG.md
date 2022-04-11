@@ -1,5 +1,36 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.8.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.10.0]
+
+### Modified
+
+- cache may be downloaded from a variable location set by the 'location' field returned by cache/info endpoint
+- urllib exception now caught in OneAlyx._load_cache
+- details dict in remote mode search now contains 'date' field
+- fix tests relying on OpenAlyx
+- warning instead of error raised when tag_mismatched_dataset REST query returns 403
+- list_datasets and ses2records now better handle sessions with no datasets in remote mode
+
+## [1.9.1]
+
+### Added
+
+- tests for OneAlyx._download_aws
+
+### Modified
+
+- HOTFIX: OneAlyx._download_aws now works with new cache index
+
+## [1.9.0]
+
+### Added
+
+- method for recording and save the UUIDs of loaded datasets
+
+### Modified
+
+- fix order of records returned by One.load_datasets when datasets missing
+
+## [1.8.1]
 
 ### Modified
 

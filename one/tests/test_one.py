@@ -34,7 +34,7 @@ from functools import partial
 import unittest
 from unittest import mock
 import tempfile
-from uuid import UUID
+from uuid import UUID, uuid4
 import json
 import io
 
@@ -711,6 +711,69 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.one.refresh_cache('double')
 
+    def test_save_loaded_ids(self):
+        """Test One.save_loaded_ids and logic within One._check_filesystem"""
+        self.one.record_loaded = True  # Turn on saving UUIDs
+        self.one._cache.pop('_loaded_datasets', None)  # Ensure we start with a clean slate
+        eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
+        files = self.one.load_object(eid, 'trials', download_only=True)
+        # Check datasets added to list
+        self.assertIn('_loaded_datasets', self.one._cache)
+        loaded = self.one._cache['_loaded_datasets']
+        self.assertEqual(len(files), len(loaded))
+        # Ensure all are from the same session
+        eids = self.one._cache.datasets.loc[(slice(None), loaded), ].index.get_level_values(0)
+        self.assertTrue(np.all(eids == eid))
+
+        # Test loading a dataset that doesn't exist
+        dset = self.one.list_datasets(eid, filename='*trials*', details=True).iloc[-1]
+        dset['rel_path'] = dset['rel_path'].replace('.npy', '.pqt')
+        dset.name = (eid, str(uuid4()))
+        old_cache = self.one._cache['datasets']
+        try:
+            self.one._cache['datasets'] = self.one._cache.datasets.append(dset)
+            dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
+            new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
+            loaded = self.one._cache['_loaded_datasets']
+            # One dataset is already in the list (test for duplicates) and other doesn't exist
+            self.assertEqual(len(files), len(loaded), 'No new UUIDs should have been added')
+            self.assertIn(rec[1]['id'], loaded)  # Already in list
+            self.assertEqual(len(loaded), len(np.unique(loaded)))
+            self.assertNotIn(dset.name[1], loaded)  # Wasn't loaded as doesn't exist on disk
+        finally:
+            self.one._cache['datasets'] = old_cache
+
+        # Test saving the loaded datasets list
+        ids, filename = self.one.save_loaded_ids(clear_list=False)
+        self.assertTrue(loaded is ids)
+        self.assertTrue(filename.exists())
+        # Load from file
+        ids = pd.read_csv(filename)
+        self.assertCountEqual(ids['dataset_uuid'], loaded)
+        self.assertTrue(self.one._cache['_loaded_datasets'].size, 'List unexpectedly cleared')
+
+        # Test as session UUIDs
+        ids, filename = self.one.save_loaded_ids(sessions_only=True, clear_list=False)
+        self.assertCountEqual([eid], ids)
+        self.assertEqual(pd.read_csv(filename)['session_uuid'][0], eid)
+
+        # Test int IDs.
+        self.one._cache['_loaded_datasets'] = parquet.str2np(self.one._cache['_loaded_datasets'])
+        # IDs should be cast to string
+        with self.assertRaises(NotImplementedError):
+            self.one.save_loaded_ids(clear_list=False, sessions_only=True)
+
+        # Check dataset int IDs and clear list
+        ids, _ = self.one.save_loaded_ids(clear_list=True)
+        self.assertCountEqual(loaded, ids)
+        self.assertFalse(self.one._cache['_loaded_datasets'].size, 'List not cleared')
+
+        # Test clear list and warn on empty
+        with self.assertWarns(Warning):
+            ids, filename = self.one.save_loaded_ids()
+        self.assertEqual(ids, [])
+        self.assertIsNone(filename)
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneAlyx(unittest.TestCase):
@@ -803,6 +866,11 @@ class TestOneAlyx(unittest.TestCase):
         session, datasets = ses2records(ses, int_id=True)
         self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
         self.assertEqual(tuple(datasets.index.names), ('eid_0', 'eid_1', 'id_0', 'id_1'))
+
+        # Check behaviour when no datasets present
+        ses['data_dataset_session_related'] = []
+        _, datasets = ses2records(ses)
+        self.assertIsNone(datasets)
 
     def test_datasets2records(self):
         """Test one.util.datasets2records"""
@@ -963,6 +1031,37 @@ class TestOneAlyx(unittest.TestCase):
         file, = self.one._check_filesystem(dsets)
         self.assertIsNotNone(file)
 
+    @mock.patch('boto3.Session')
+    def test_download_aws(self, boto3_mock):
+        """ Tests for the OneAlyx._download_aws method"""
+        N = 5
+        dsets = self.one._cache['datasets'].iloc[:N].copy()
+        dsets['exists_aws'] = True
+
+        # Return a file size so progress bar callback hook functions
+        file_object = mock.MagicMock()
+        file_object.content_length = 1024
+        boto3_mock().resource().Object.return_value = file_object
+
+        # Mock _download_dataset for safety: method should not be called
+        with mock.patch.object(self.one, '_download_dataset') as fallback_method:
+            out_paths = self.one._download_datasets(dsets)
+            fallback_method.assert_not_called()
+        self.assertEqual(len(out_paths), N, 'Returned list should equal length of input datasets')
+        self.assertTrue(all(isinstance(x, Path) for x in out_paths))
+        # These values come from REST cache fixture
+        boto3_mock.assert_called_with(aws_access_key_id='ABCDEF', aws_secret_access_key='shhh')
+        ((bucket, path), _), *_ = boto3_mock().resource().Object.call_args_list
+        self.assertEqual(bucket, 's3_bucket')
+        self.assertTrue(dsets['rel_path'][0].split('.')[0] in path)
+        self.assertTrue(dsets.index[0][1] in path, 'Dataset UUID not in filepath')
+
+        # Should fall back to usual method if any datasets do not exist on AWS
+        dsets['exists_aws'] = False
+        with mock.patch.object(self.one, '_download_dataset') as fallback_method:
+            self.one._download_datasets(dsets)
+            fallback_method.assert_called()
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
@@ -988,22 +1087,28 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(110, len(dsets))
+        self.assertEqual(122, len(dsets))
 
-        # Test empty
+        # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
         self.assertIsInstance(dsets, pd.DataFrame)
         self.assertEqual(len(dsets), 0)
 
+        # Test empty datasets
+        with mock.patch('one.util.ses2records', return_value=({}, None)):
+            dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
+            self.assertIsInstance(dsets, pd.DataFrame)
+            self.assertEqual(len(dsets), 0)
+
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(110, len(dsets))
+        self.assertEqual(122, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(5, len(dsets))
+        self.assertEqual(11, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
@@ -1012,10 +1117,13 @@ class TestOneRemote(unittest.TestCase):
     def test_search(self):
         """Test OneAlyx.search"""
         eids = self.one.search(subject='SWC_043', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
+        # Check minimum set of keys present (these are present in One.search output)
+        expected = {'lab', 'subject', 'date', 'number', 'project'}
+        self.assertTrue(det[0].keys() >= expected)
         # Test dataset search with Django
         eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
                                django='data_dataset_session_related__collection__iexact,alf',
@@ -1033,20 +1141,20 @@ class TestOneRemote(unittest.TestCase):
         self.assertTrue(all(len(x) == 36 for x in eids))
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
         eids = self.one.search(lab='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
 
     def test_load_dataset(self):
         """Test OneAlyx.load_dataset"""
-        file = self.one.load_dataset(self.eid, '_iblrig_encoderEvents.raw.ssv',
-                                     collection='raw_passive_data', query_type='remote',
+        file = self.one.load_dataset(self.eid, '_spikeglx_sync.channels.npy',
+                                     collection='raw_ephys_data', query_type='remote',
                                      download_only=True)
         self.assertIsInstance(file, Path)
-        self.assertTrue(file.as_posix().endswith('raw_passive_data/_iblrig_encoderEvents.raw.ssv'))
+        self.assertTrue(file.as_posix().endswith('raw_ephys_data/_spikeglx_sync.channels.npy'))
         # Test validations
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
-            self.one.load_dataset(self.eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
+            self.one.load_dataset(self.eid, 'spikes.clusters', query_type='remote')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             self.one.load_dataset(self.eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
         with self.assertRaises(alferr.ALFObjectNotFound):
@@ -1060,7 +1168,7 @@ class TestOneRemote(unittest.TestCase):
                                      download_only=True)
         self.assertIsInstance(files[0], Path)
         self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.position.npy')
         )
 
     def test_get_details(self):
@@ -1113,13 +1221,21 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when hash mismatch
         self.one.alyx.silent = False  # So we can check for warning
         file_hash = rec['hash'].replace('a', 'd')
-        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG):
+        # Check three things:
+        # 1. The mismatch should be logged at the debug level
+        # 2. As we don't have permission to update this db we should see a failure warning
+        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG), \
+                self.assertWarns(Warning, msg=f'files/{self.fid}'):
             self.one._download_dataset(rec, hash=file_hash)
+        self.one.alyx.silent = True  # Remove console clutter
 
         # Check JSON field added
-        json_field = self.one.alyx.rest('files', 'read', id=self.fid, no_cache=True)['json']
-        self.assertTrue(json_field.get('mismatch_hash', False))
-        self.one.alyx.silent = True  # Remove console clutter
+        # 3. The files endpoint should be called with a 'mismatch_hash' json key
+        fr = [{'url': f'files/{self.fid}', 'json': None}]
+        with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
+            self.one._download_dataset(rec, hash=file_hash)
+            args, kwargs = patched.call_args_list[-1]
+            self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
         file = self.one._download_dataset(rec, keep_uuid=True)
@@ -1138,7 +1254,8 @@ class TestOneDownload(unittest.TestCase):
         # Check behaviour when URL invalid
         did = rec['url'].split('/')[-1]
         self.assertTrue(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
-        rec['file_records'][0]['data_url'] = None
+        for fr in rec['file_records']:
+            fr['data_url'] = None
         file = self.one._download_dataset(rec)
         self.assertIsNone(file)
         self.assertFalse(self.one._cache.datasets.loc[(slice(None), did), 'exists'].all())
@@ -1155,7 +1272,7 @@ class TestOneDownload(unittest.TestCase):
             self.assertIsNone(file)
 
         rec = self.one.list_datasets(self.eid, details=True)
-        rec = rec[rec.rel_path.str.contains('channels.brainLocation')]
+        rec = rec[rec.rel_path.str.contains('pykilosort/channels.brainLocation')]
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
@@ -1190,7 +1307,12 @@ class TestOneDownload(unittest.TestCase):
         mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
 
     def tearDown(self) -> None:
-        self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
+        try:
+            # In case we did indeed have remote REST permissions, try resetting the json field
+            self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
+        except HTTPError as ex:
+            if ex.errno != 403:
+                raise ex
         self.patch.stop()
         self.tempdir.cleanup()
 

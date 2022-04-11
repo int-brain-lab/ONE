@@ -67,6 +67,7 @@ class One(ConversionMixin):
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
+        self.record_loaded = False
         # init the cache file
         self._cache = Bunch({'_meta': {
             'expired': False,
@@ -154,6 +155,48 @@ class One(ConversionMixin):
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
+
+    def save_loaded_ids(self, sessions_only=False, clear_list=True):
+        """
+        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.
+
+        Parameters
+        ----------
+        sessions_only : bool
+            If true, save list of experiment IDs, otherwise the full list of dataset IDs.
+        clear_list : bool
+            If true, clear the current list of loaded dataset IDs after saving.
+
+        Returns
+        -------
+        list of str
+            List of UUIDs.
+        pathlib.Path
+            The file path of the saved list.
+        """
+        if '_loaded_datasets' not in self._cache or self._cache['_loaded_datasets'].size == 0:
+            warnings.warn('No datasets loaded; check "record_datasets" attribute is True')
+            return [], None
+        if sessions_only:
+            name = 'session_uuid'
+            if self._cache['_loaded_datasets'].dtype == 'int64' or self._index_type() is int:
+                # We're unlikely to return to int IDs and all caches should be cast to str on load
+                raise NotImplementedError('Saving integer session IDs not supported')
+            else:
+                idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
+                ids = self._cache['datasets'][idx].index.unique('eid').values
+        else:
+            name = 'dataset_uuid'
+            ids = self._cache['_loaded_datasets']
+            if ids.dtype != '<U36':
+                ids = parquet.np2str(ids)
+
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
+        filename = Path(self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
+        pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
+        if clear_list:
+            self._cache['_loaded_datasets'] = np.array([])
+        return ids, filename
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -331,7 +374,6 @@ class One(ConversionMixin):
         -------
         A list of file paths for the datasets (None elements for non-existent datasets)
         """
-
         if isinstance(datasets, pd.Series):
             datasets = pd.DataFrame([datasets])
         elif not isinstance(datasets, pd.DataFrame):
@@ -372,6 +414,15 @@ class One(ConversionMixin):
             # Add each downloaded file to the output list of files
             for i, file in zip(indices_to_download, new_files):
                 files[datasets.index.get_loc(i)] = file
+
+        if self.record_loaded:
+            loaded = np.fromiter(map(bool, files), bool)
+            loaded_ids = np.array(datasets.index.to_list())[loaded]
+            if '_loaded_datasets' not in self._cache:
+                self._cache['_loaded_datasets'] = np.unique(loaded_ids)
+            else:
+                loaded_set = np.hstack([self._cache['_loaded_datasets'], loaded_ids])
+                self._cache['_loaded_datasets'] = np.unique(loaded_set, axis=0)
 
         # Return full list of file paths
         return files
@@ -938,7 +989,8 @@ class One(ConversionMixin):
 
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]
-        records = [None if not here else records.pop(0) for here in files]
+        # Replace missing file records with None
+        records = [None if not here else records.pop(0) for here in present]
         if download_only:
             return files, records
         return [alfio.load_file_content(x) for x in files], records
@@ -1251,10 +1303,10 @@ class OneAlyx(One):
 
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
-            files = self.alyx.download_cache_tables()
+            files = self.alyx.download_cache_tables(cache_info.get('location'))
             assert any(files)
             super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
-        except requests.exceptions.HTTPError:
+        except (requests.exceptions.HTTPError, wc.HTTPError):
             _logger.error('Failed to load the remote cache file')
             self.mode = 'remote'
         except (ConnectionError, requests.exceptions.ConnectionError):
@@ -1334,8 +1386,10 @@ class OneAlyx(One):
             return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
-            return self._cache['datasets'].iloc[0:0]  # Return empty
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        if datasets is None or datasets.empty:
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
             datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
@@ -1454,6 +1508,9 @@ class OneAlyx(One):
 
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+        # Add date field for compatibility with One.search output
+        for s in ses:
+            s['date'] = str(datetime.fromisoformat(s['start_time']).date())
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         return (eids, ses) if details else eids
@@ -1482,7 +1539,7 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, clobber=False, **kwargs) -> List[Path]:
+    def _download_aws(self, dsets, **kwargs) -> List[Path]:
         # Download datasets from AWS
         from tqdm import tqdm
         import boto3
@@ -1496,6 +1553,8 @@ class OneAlyx(One):
                 t.update(bytes_amount)
             return inner
 
+        if self._index_type() is int:
+            raise NotImplementedError('AWS download only supported for str index cache')
         repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
         bucket_name = repo_json['bucket_name']
         session_keys = {
@@ -1506,7 +1565,7 @@ class OneAlyx(One):
         s3 = session.resource('s3')
         out_files = []
         for dset in dsets:
-            dset_uuid = parquet.np2str(np.array(dset.name))
+            eid, dset_uuid = dset.name
             source_path = PurePosixPath('data').joinpath(
                 dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
             )
@@ -1514,17 +1573,6 @@ class OneAlyx(One):
                 self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(local_path)
-            if local_path.exists():
-                # the local file hash doesn't match the dataset table cached hash
-                hash_mismatch = dset['hash'] and hashfile.md5(local_path) != dset['hash']
-                if hash_mismatch:
-                    clobber = True
-                    if not self.alyx.silent:
-                        _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
-            else:
-                clobber = True
-            if local_path.exists() and not clobber:
-                continue
             try:
                 file_object = s3.Object(bucket_name, source_path.as_posix())
                 filesize = file_object.content_length
@@ -1642,8 +1690,13 @@ class OneAlyx(One):
                 json_field = {'mismatch_hash': True}
             else:
                 json_field.update({'mismatch_hash': True})
-            self.alyx.rest('files', 'partial_update',
-                           id=fr[0]['url'][-36:], data={'json': json_field})
+            try:
+                self.alyx.rest('files', 'partial_update',
+                               id=fr[0]['url'][-36:], data={'json': json_field})
+            except requests.exceptions.HTTPError as ex:
+                warnings.warn(
+                    f'Failed to tag remote file record mismatch: {ex}\n'
+                    'Please contact the database administrator.')
 
     def _download_file(self, url, target_dir, keep_uuid=False, file_size=None, hash=None):
         """
