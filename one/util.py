@@ -23,6 +23,10 @@ def Listable(t):
     return Union[t, Sequence[t]]
 
 
+def update_merge_tables(df, other):
+    pass
+
+
 def ses2records(ses: dict, int_id=False):
     """Extract session cache record and datasets cache from a remote session data record.
 

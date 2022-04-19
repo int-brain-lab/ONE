@@ -1387,7 +1387,11 @@ class OneAlyx(One):
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
-        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        session, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        # Add to cache tables
+        # FIXME Would need to sort and remove dupes; see
+        # self._cache['sessions'] = pd.concat([self._cache['sessions'], session.to_frame().T], copy=False)
+        # self._cache['sessions'].update(session)  # Only updates if present?
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
