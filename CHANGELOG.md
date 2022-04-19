@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.10.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.11.0]
+
+### Modified
+
+- path2record now returns a session path when called with session path
+- record2url now returns a session URL when called with a sessions record
+
+## [1.10.0]
 
 ### Modified
 
