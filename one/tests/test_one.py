@@ -1477,6 +1477,7 @@ class TestOneSetup(unittest.TestCase):
 class TestOneMisc(unittest.TestCase):
     """Test functions in one.util"""
     def test_validate_date_range(self):
+        """Test one.util.validate_date_range"""
         # Single string date
         actual = validate_date_range('2020-01-01')  # On this day
         expected = (pd.Timestamp('2020-01-01 00:00:00'),
@@ -1519,6 +1520,7 @@ class TestOneMisc(unittest.TestCase):
             validate_date_range(['2020-01-01', '2019-09-06', '2021-10-04'])
 
     def test_index_last_before(self):
+        """Test one.util.index_last_before"""
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
         verifiable = index_last_before(revisions, '2021-01-01')
         self.assertEqual(0, verifiable)
@@ -1535,6 +1537,7 @@ class TestOneMisc(unittest.TestCase):
         self.assertEqual(0, verifiable, 'should return most recent')
 
     def test_collection_spec(self):
+        """Test one.util._collection_spec"""
         # Test every combination of input
         inputs = []
         _collection = {None: '({collection}/)?', '': '', '-': '{collection}/'}
@@ -1548,6 +1551,7 @@ class TestOneMisc(unittest.TestCase):
                 self.assertEqual(expected, verifiable)
 
     def test_revision_last_before(self):
+        """Test one.util.filter_revision_last_before"""
         datasets = util.revisions_datasets_table()
         df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
         verifiable = filter_revision_last_before(df,
@@ -1581,6 +1585,7 @@ class TestOneMisc(unittest.TestCase):
             filter_revision_last_before(df.copy(), assert_unique=True)
 
     def test_parse_id(self):
+        """Test one.util.parse_id"""
         obj = unittest.mock.MagicMock()  # Mock object to decorate
         obj.to_eid.return_value = 'parsed_id'  # Method to be called
         input = 'subj/date/num'  # Input id to pass to `to_eid`
@@ -1594,6 +1599,7 @@ class TestOneMisc(unittest.TestCase):
             parse_id(obj.method)(obj, input)
 
     def test_autocomplete(self):
+        """Test one.util.autocomplete"""
         search_terms = ('subject', 'date_range', 'dataset', 'dataset_type')
         self.assertEqual('subject', autocomplete('Subj', search_terms))
         self.assertEqual('dataset', autocomplete('dataset', search_terms))
@@ -1603,6 +1609,7 @@ class TestOneMisc(unittest.TestCase):
             autocomplete('dat', search_terms)
 
     def test_LazyID(self):
+        """Test one.util.LazyID"""
         uuids = [
             'c1a2758d-3ce5-4fa7-8d96-6b960f029fa9',
             '0780da08-a12b-452a-b936-ebc576aa7670',
