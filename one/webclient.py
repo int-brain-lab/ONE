@@ -728,7 +728,7 @@ class AlyxClient():
             raise ex
         return files
 
-    def download_cache_tables(self):
+    def download_cache_tables(self, location=None):
         """Downloads the Alyx cache tables to the local data cache directory
 
         Returns
@@ -739,9 +739,11 @@ class AlyxClient():
         self.cache_dir.mkdir(exist_ok=True)
         if not self.is_logged_in:
             self.authenticate()
+        location = location or f'{self.base_url}/cache.zip'
+        headers = self._headers if location.startswith(self.base_url) else None
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
-            file = http_download_file(f'{self.base_url}/cache.zip',
-                                      headers=self._headers,
+            file = http_download_file(location,
+                                      headers=headers,
                                       silent=self.silent,
                                       target_dir=tmp,
                                       clobber=True)

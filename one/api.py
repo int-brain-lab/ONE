@@ -1303,10 +1303,10 @@ class OneAlyx(One):
 
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
-            files = self.alyx.download_cache_tables()
+            files = self.alyx.download_cache_tables(cache_info.get('location'))
             assert any(files)
             super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
-        except requests.exceptions.HTTPError:
+        except (requests.exceptions.HTTPError, wc.HTTPError):
             _logger.error('Failed to load the remote cache file')
             self.mode = 'remote'
         except (ConnectionError, requests.exceptions.ConnectionError):
@@ -1386,8 +1386,10 @@ class OneAlyx(One):
             return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
-            return self._cache['datasets'].iloc[0:0]  # Return empty
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        if datasets is None or datasets.empty:
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
             datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
@@ -1506,6 +1508,9 @@ class OneAlyx(One):
 
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+        # Add date field for compatibility with One.search output
+        for s in ses:
+            s['date'] = str(datetime.fromisoformat(s['start_time']).date())
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         return (eids, ses) if details else eids
@@ -1685,8 +1690,13 @@ class OneAlyx(One):
                 json_field = {'mismatch_hash': True}
             else:
                 json_field.update({'mismatch_hash': True})
-            self.alyx.rest('files', 'partial_update',
-                           id=fr[0]['url'][-36:], data={'json': json_field})
+            try:
+                self.alyx.rest('files', 'partial_update',
+                               id=fr[0]['url'][-36:], data={'json': json_field})
+            except requests.exceptions.HTTPError as ex:
+                warnings.warn(
+                    f'Failed to tag remote file record mismatch: {ex}\n'
+                    'Please contact the database administrator.')
 
     def _download_file(self, url, target_dir, keep_uuid=False, file_size=None, hash=None):
         """

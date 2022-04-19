@@ -425,14 +425,16 @@ class TestDownloadHTTP(unittest.TestCase):
 
         # Test 1: empty dir, dict mode
         dset = ac_open.get('/datasets/' + self.test_data_uuid)
-        url = wc.dataset_record_to_url(dset)
+        urls = wc.dataset_record_to_url(dset)
+        url = [u for u in urls if u.startswith('https://ibl.flatiron')]
         file_name, = ac_open.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
         # Test 2: empty dir, list mode
         dset = ac_open.get('/datasets?id=' + self.test_data_uuid)
-        url = wc.dataset_record_to_url(dset)
+        urls = wc.dataset_record_to_url(dset)
+        url = [u for u in urls if u.startswith('https://ibl.flatiron')]
         file_name, = ac_open.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
