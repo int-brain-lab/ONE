@@ -395,7 +395,6 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     file_size = int(u.getheader('Content-length'))
     if not silent:
         print(f'Downloading: {file_name} Bytes: {file_size}')
-    file_size_dl = 0
     block_sz = 8192 * 64 * 8
 
     md5 = hashlib.md5()
