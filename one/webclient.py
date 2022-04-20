@@ -400,16 +400,15 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
 
     md5 = hashlib.md5()
     f = open(file_name, 'wb')
-    with tqdm(total=file_size, disable=silent) as pbar:
+    with tqdm(total=file_size / 1024 / 1024, disable=silent) as pbar:
         while True:
             buffer = u.read(block_sz)
             if not buffer:
                 break
-            file_size_dl += len(buffer)
             f.write(buffer)
             if return_md5:
                 md5.update(buffer)
-            pbar.update(file_size_dl)
+            pbar.update(len(buffer) / 1024 / 1024)
     f.close()
 
     return (file_name, md5.hexdigest()) if return_md5 else file_name
