@@ -1555,6 +1555,7 @@ class OneAlyx(One):
 
         if self._index_type() is int:
             raise NotImplementedError('AWS download only supported for str index cache')
+        assert self.mode != 'local'
         repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
         bucket_name = repo_json['bucket_name']
         session_keys = {
@@ -1565,7 +1566,13 @@ class OneAlyx(One):
         s3 = session.resource('s3')
         out_files = []
         for dset in dsets:
-            eid, dset_uuid = dset.name
+            dset_uuid = dset.name if isinstance(dset.name, str) else dset.name[1]
+            # Fetch file record path
+            # fr = next(x for x in self.alyx.rest('files', 'list', dataset=dset_uuid)
+            #           if x['data_repository'].startswith('aws'))
+            # repo = self.alyx.rest('data-repository', 'read', id=fr['data_repository'])
+            # source_path = PurePosixPath(repo['globus_path'], fr['relative_path'])
+            # source_path = add_uuid_string(source_path, dset_uuid)
             source_path = PurePosixPath('data').joinpath(
                 dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
             )

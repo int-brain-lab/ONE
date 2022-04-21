@@ -251,9 +251,9 @@ class ConversionMixin:
         if is_session_path(path):
             lab, subject, date, number = session_path_parts(path)
             rec = rec[
-                  (rec['lab'] == lab) & (rec['subject'] == subject) &
-                  (rec['number'] == int(number)) &
-                  (rec['date'] == datetime.date.fromisoformat(date))
+                (rec['lab'] == lab) & (rec['subject'] == subject) &
+                (rec['number'] == int(number)) &
+                (rec['date'] == datetime.date.fromisoformat(date))
             ]
             return None if rec.empty else rec.squeeze()
 
