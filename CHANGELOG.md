@@ -6,6 +6,7 @@
 - path2record now returns a session path when called with session path
 - record2url now returns a session URL when called with a sessions record
 - fix'd download bar
+- attempt to re-authenticate upon 403 invalid token response
 
 ## [1.10.0]
 

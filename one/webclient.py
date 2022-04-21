@@ -554,12 +554,16 @@ class AlyxClient():
         if rest_query.startswith('/docs'):
             # the mixed accept application may cause errors sometimes, only necessary for the docs
             headers['Accept'] = 'application/coreapi+json'
-        r = reqfunction(self.base_url + rest_query, stream=True, headers=headers,
-                        data=data, files=files)
+        r = reqfunction(self.base_url + rest_query,
+                        stream=True, headers=headers, data=data, files=files)
         if r and r.status_code in (200, 201):
             return json.loads(r.text)
         elif r and r.status_code == 204:
             return
+        if r.status_code == 403 and '"Invalid token."' in r.text:
+            _logger.debug('Token invalid; Attempting to re-authenticate...')
+            self.authenticate(username=self.user, force=True)
+            return self._generic_request(reqfunction, rest_query, data=data, files=files)
         else:
             _logger.debug('Response text: ' + r.text)
             try:
