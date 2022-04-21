@@ -5,6 +5,7 @@
 
 - path2record now returns a session path when called with session path
 - record2url now returns a session URL when called with a sessions record
+- fix'd download bar
 
 ## [1.10.0]
 
