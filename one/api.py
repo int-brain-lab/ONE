@@ -1,11 +1,4 @@
-"""Classes for searching, listing and (down)loading ALyx Files.
-
-Things left to complete:
-
-    - TODO Save changes to cache.
-    - TODO Fix update cache in AlyxONE - save parquet table.
-    - TODO save parquet in update_filesystem.
-"""
+"""Classes for searching, listing and (down)loading ALyx Files."""
 import collections.abc
 import warnings
 import logging
@@ -73,9 +66,18 @@ class One(ConversionMixin):
             'expired': False,
             'created_time': None,
             'loaded_time': None,
+            'modified_time': None,
             'raw': {}  # map of original table metadata
         }})
         self._load_cache()
+
+    def __del__(self):
+        """Attempt to save the cache (if modified) during cleanup"""
+        try:
+            self.save_cache()
+        except (ImportError, RuntimeError) as e:
+            # Very likely to fail upon exit; no away around this as pyarrow uses futures
+            logging.debug(f'Failed to write cache: {e}')
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.cache_dir})'
@@ -129,6 +131,26 @@ class One(ConversionMixin):
         self._cache['_meta'] = meta
         return self._cache['_meta']['loaded_time']
 
+    def save_cache(self, save_dir=None, force=False):
+        """Save One._cache attribute into parquet tables if recently modified.
+
+        Parameters
+        ----------
+        save_dir : str, pathlib.Path
+            The directory path into which the tables are saved.  Defaults to cache directory.
+        force : bool
+            If True, the cache is saved regardless of modification time.
+        """
+        modified = self._cache['_meta'].get('modified_time', False)
+        save_dir = Path(save_dir or self.cache_dir)
+        if (not modified or modified < self._cache['_meta']['loaded_time']) and not force:
+            return
+        _logger.info('Saving cache tables...')
+        for table in filter(lambda x: not x[0] == '_', self._cache.keys()):
+            metadata = self._cache['_meta']['raw'][table]
+            metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
+            parquet.save(save_dir.joinpath(f'{table}.pqt'), self._cache[table], metadata)
+
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
 
@@ -143,10 +165,16 @@ class One(ConversionMixin):
         datetime.datetime
             Loaded timestamp
         """
+        expired = datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry
+        if expired:
+            # NB: Currently modified table will be lost if called with 'refresh';
+            # May be instances where modified cache is saved then immediately replaced with a new
+            # remote cache
+            self.save_cache()  # Save cache if modified
         if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
+            if expired:
                 _logger.info('Cache expired, refreshing')
                 self._load_cache()
         elif mode == 'refresh':
@@ -155,6 +183,70 @@ class One(ConversionMixin):
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
+
+    def _update_cache_from_records(self, strict=False, **kwargs):
+        """
+        Update the cache tables with new records.
+
+        Parameters
+        ----------
+        strict : bool
+            If not True, the columns don't need to match.  Extra columns in input tables are
+            dropped and missing columns are added and filled with np.nan.
+        kwargs
+            pandas.DataFrame or pandas.Series to insert/update for each table
+
+        Returns
+        -------
+        datetime.datetime:
+            A timestamp of when the cache was updated
+
+        Example
+        -------
+        >>> session, datasets = util.ses2records(self.get_details(eid, full=True))
+        ... self._update_cache_from_records(sessions=session, datasets=datasets)
+
+        Raises
+        ------
+        AssertionError
+            When strict is True the input columns must exactly match those oo the cache table,
+            including the order.
+        KeyError
+            One or more of the keyword arguments does not match a table in One._cache
+        """
+        updated = None
+        for table, records in kwargs.items():
+            if records is None or records.empty:
+                continue
+            if table not in self._cache:
+                raise KeyError(f'Table "{table}" not in cache')
+            if isinstance(records, pd.Series):
+                records = pd.DataFrame([records])
+            if not strict:
+                # Deal with case where there are extra columns in the cache
+                extra_columns = set(self._cache[table].columns) - set(records.columns)
+                for col in extra_columns:
+                    n = list(self._cache[table].columns).index(col)
+                    records.insert(n, col, np.nan)
+                # Drop any extra columns in the records that aren't in cache table
+                to_drop = set(records.columns) - set(self._cache[table].columns)
+                records.drop(to_drop, axis=1, inplace=True)
+                records = records.reindex(columns=self._cache[table].columns)
+            assert all(self._cache[table].columns == records.columns)
+            # Update existing rows
+            to_update = records.index.isin(self._cache[table].index)
+            self._cache[table].loc[records.index[to_update], :] = records[to_update]
+            # Assign new rows
+            to_assign = records[~to_update]
+            if isinstance(self._cache[table].index, pd.MultiIndex) and not to_assign.empty:
+                # Concatenate and sort (no other way for non-unique index within MultiIndex)
+                self._cache[table] = pd.concat([self._cache[table], to_assign]).sort_index()
+            else:
+                for index, record in to_assign.iterrows():
+                    self._cache[table].loc[index, :] = record[self._cache[table].columns].values
+            updated = datetime.now()
+        self._cache['_meta']['modified_time'] = updated
+        return updated
 
     def save_loaded_ids(self, sessions_only=False, clear_list=True):
         """
@@ -404,7 +496,9 @@ class One(ConversionMixin):
             if rec['exists'] != file.exists():
                 datasets.at[i, 'exists'] = not rec['exists']
                 if update_exists:
+                    _logger.debug('Updating exists field')
                     self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
+                    self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
@@ -1389,9 +1483,7 @@ class OneAlyx(One):
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         session, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
         # Add to cache tables
-        # FIXME Would need to sort and remove dupes; see
-        # self._cache['sessions'] = pd.concat([self._cache['sessions'], session.to_frame().T], copy=False)
-        # self._cache['sessions'].update(session)  # Only updates if present?
+        self._update_cache_from_records(sessions=session, datasets=datasets)
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
@@ -1723,7 +1815,7 @@ class OneAlyx(One):
         Returns
         -------
         pathlib.Path
-            The file path of the downloaded file or files
+            The file path of the downloaded file or files.
 
         Example
         -------
@@ -2064,46 +2156,3 @@ class OneAlyx(One):
         out.update({'local_path': self.eid2path(eid),
                     'date': datetime.fromisoformat(out['start_time']).date()})
         return out
-
-    # def _update_cache(self, ses, dataset_types):
-    #     """
-    #     TODO move to One; currently unused
-    #     :param ses: session details dictionary as per Alyx response
-    #     :param dataset_types:
-    #     :return: is_updated (bool): if the cache was updated or not
-    #     """
-    #     save = False
-    #     pqt_dsets = _ses2pandas(ses, dtypes=dataset_types)
-    #     # if the dataframe is empty, return
-    #     if pqt_dsets.size == 0:
-    #         return
-    #     # if the cache is empty create the cache variable
-    #     elif self._cache.size == 0:
-    #         self._cache = pqt_dsets
-    #         save = True
-    #     # the cache is not empty and there are datasets in the query
-    #     else:
-    #         isin, icache = ismember2d(pqt_dsets[['id_0', 'id_1']].to_numpy(),
-    #                                   self._cache[['id_0', 'id_1']].to_numpy())
-    #         # check if the hash / filesize fields have changed on patching
-    #         heq = (self._cache['hash'].iloc[icache].to_numpy() ==
-    #                pqt_dsets['hash'].iloc[isin].to_numpy())
-    #         feq = np.isclose(self._cache['file_size'].iloc[icache].to_numpy(),
-    #                          pqt_dsets['file_size'].iloc[isin].to_numpy(),
-    #                          rtol=0, atol=0, equal_nan=True)
-    #         eq = np.logical_and(heq, feq)
-    #         # update new hash / filesizes
-    #         if not np.all(eq):
-    #             self._cache.iloc[icache, 4:6] = pqt_dsets.iloc[np.where(isin)[0], 4:6].to_numpy()
-    #             save = True
-    #         # append datasets that haven't been found
-    #         if not np.all(isin):
-    #             self._cache = self._cache.append(pqt_dsets.iloc[np.where(~isin)[0]])
-    #             self._cache = self._cache.reindex()
-    #             save = True
-    #     if save:
-    #         # before saving makes sure pandas did not cast uuids in float
-    #         typs = [t for t, k in zip(self._cache.dtypes, self._cache.keys()) if 'id_' in k]
-    #         assert (all(map(lambda t: t == np.int64, typs)))
-    #         # if this gets too big, look into saving only when destroying the ONE object
-    #         parquet.save(self._cache_file, self._cache)

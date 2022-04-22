@@ -5,6 +5,7 @@ from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
 from collections.abc import Mapping
 import fnmatch
+from datetime import datetime
 
 import pandas as pd
 from iblutil.io import parquet
@@ -23,14 +24,8 @@ def Listable(t):
     return Union[t, Sequence[t]]
 
 
-def update_merge_tables(df, other):
-    pass
-
-
 def ses2records(ses: dict, int_id=False):
     """Extract session cache record and datasets cache from a remote session data record.
-
-    TODO Fix for new tables; use to update caches from remote queries.
 
     Parameters
     ----------
@@ -55,7 +50,7 @@ def ses2records(ses: dict, int_id=False):
     session = (
         pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
-    session['date'] = session['date'][:10]
+    session['date'] = datetime.fromisoformat(session['date']).date()
 
     # Extract datasets table
     def _to_record(d):

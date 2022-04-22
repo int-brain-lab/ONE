@@ -711,6 +711,62 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.one.refresh_cache('double')
 
+    def test_save_cache(self):
+        """Test one.util.save_cache"""
+        self.one._cache['_meta'].pop('modified_time', None)
+        # Should be no cache save as it's not been modified
+        with tempfile.TemporaryDirectory() as tdir:
+            self.one.save_cache(save_dir=tdir)
+            self.assertFalse(any(Path(tdir).glob('*')))
+            # Should save two tables
+            self.one._cache['_meta']['modified_time'] = datetime.datetime.now()
+            self.one.save_cache(save_dir=tdir)
+            self.assertEqual(2, len(list(Path(tdir).glob('*.pqt'))))
+            # Load with One and check modified time is preserved
+            raw_modified = One(cache_dir=tdir)._cache['_meta']['raw']['datasets']['date_modified']
+            expected = self.one._cache['_meta']['modified_time'].strftime('%Y-%m-%d %H:%M')
+            self.assertEqual(raw_modified, expected)
+
+    def test_update_cache_from_records(self):
+        """Test One._update_cache_from_records"""
+        # Update with single record (pandas.Series), one exists, one doesn't
+        session = self.one._cache.sessions.iloc[0].squeeze()
+        session.name = str(uuid4())  # New record
+        dataset = self.one._cache.datasets.iloc[0].squeeze()
+        dataset['exists'] = not dataset['exists']
+        self.one._update_cache_from_records(sessions=session, datasets=dataset)
+        self.assertTrue(session.name in self.one._cache.sessions.index)
+        updated, = dataset['exists'] == self.one._cache.datasets.loc[dataset.name, 'exists']
+        self.assertTrue(updated)
+
+        # Update a number of records
+        datasets = self.one._cache.datasets.iloc[:3].copy()
+        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
+        # Make one of the datasets a new record
+        idx = datasets.index.values
+        idx[-1] = (idx[-1][0], str(uuid4()))
+        datasets.index = pd.MultiIndex.from_tuples(idx)
+        self.one._update_cache_from_records(datasets=datasets)
+        self.assertTrue(idx[-1] in self.one._cache.datasets.index)
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+
+        # Check behaviour when columns don't match
+        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
+        datasets['extra_column'] = True
+        self.one._cache.datasets['new_column'] = False
+        self.addCleanup(self.one._cache.datasets.drop, 'new_column', axis=1, inplace=True)
+        with self.assertRaises(AssertionError):
+            self.one._update_cache_from_records(datasets=datasets, strict=True)
+        self.one._update_cache_from_records(datasets=datasets)
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+
+        # Check fringe cases
+        with self.assertRaises(KeyError):
+            self.one._update_cache_from_records(unknown=datasets)
+        self.assertIsNone(self.one._update_cache_from_records(datasets=None))
+
     def test_save_loaded_ids(self):
         """Test One.save_loaded_ids and logic within One._check_filesystem"""
         self.one.record_loaded = True  # Turn on saving UUIDs
