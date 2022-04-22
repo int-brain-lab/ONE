@@ -23,7 +23,7 @@ from iblutil.util import Bunch
 
 import one.alf.io as alfio
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.files import get_session_path, add_uuid_string
+from one.alf.files import get_session_path, add_uuid_string, session_path_parts
 from .util import Listable, ensure_list
 
 
@@ -226,40 +226,53 @@ class ConversionMixin:
         return eid
 
     @recurse
-    def path2record(self, filepath) -> pd.Series:
-        """Convert a file path to a dataset cache record.
+    def path2record(self, path) -> pd.Series:
+        """Convert a file or session path to a dataset or session cache record.
 
         NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
 
         Parameters
         ----------
-        filepath : str, pathlib.Path
-            File path or HTTP URL
+        path : str, pathlib.Path
+            Local path or HTTP URL
 
         Returns
         -------
         pandas.Series
             A cache file record
         """
-        rec = self._cache['datasets']
+        is_session = is_session_path(path)
+        rec = self._cache['sessions' if is_session else 'datasets']
         if rec.empty:
             return
         # if (rec := self._cache['datasets']).empty:  # py 3.8
         #     return
-        if isinstance(filepath, str) and filepath.startswith('http'):
+
+        if is_session_path(path):
+            lab, subject, date, number = session_path_parts(path)
+            rec = rec[
+                (rec['lab'] == lab) & (rec['subject'] == subject) &
+                (rec['number'] == int(number)) &
+                (rec['date'] == datetime.date.fromisoformat(date))
+            ]
+            return None if rec.empty else rec.squeeze()
+
+        # Deal with file path
+        if isinstance(path, str) and path.startswith('http'):
             # Remove the UUID from path
-            filepath = urlsplit(filepath).path.strip('/')
-            filepath = alfio.remove_uuid_file(PurePosixPath(filepath), dry=True)
-            session_path = get_session_path(filepath).as_posix()
+            path = urlsplit(path).path.strip('/')
+            path = alfio.remove_uuid_file(PurePosixPath(path), dry=True)
+            session_path = get_session_path(path).as_posix()
         else:
             # No way of knowing root session path parts without cache tables
-            eid = self.path2eid(filepath)
+            eid = self.path2eid(path)
             session_series = self.list_datasets(eid, details=True).session_path
             if not eid or session_series.empty:
                 return
             session_path, *_ = session_series
+
         rec = rec[rec['session_path'] == session_path]
-        rec = rec[rec['rel_path'].apply(lambda x: filepath.as_posix().endswith(x))]
+        rec = rec[rec['rel_path'].apply(lambda x: path.as_posix().endswith(x))]
         assert len(rec) < 2, 'Multiple records found'
         return None if rec.empty else rec.squeeze()
 
@@ -283,34 +296,41 @@ class ConversionMixin:
             return
         return unwrap(self.record2url)(record)
 
-    def record2url(self, dataset):
-        """Convert a dataset record to a remote file URL
+    def record2url(self, record):
+        """Convert a session or dataset record to a remote URL
 
         NB: Requires online instance
 
         Parameters
         ----------
-        dataset : pd.Series, pd.DataFrame
-            A datasets cache record.  If DataFrame, iterate over and returns list.
+        record : pd.Series, pd.DataFrame
+            A datasets or sessions cache record.  If DataFrame, iterate over and returns list.
 
         Returns
         -------
         str, list
             A dataset URL or list if input is DataFrame
         """
-        assert self._web_client
+        webclient = getattr(self, '_web_client', False)
+        assert webclient, 'No Web client found for instance'
         # FIXME Should be OneAlyx converter only
-        if isinstance(dataset, pd.DataFrame):
-            return [self.record2url(r) for _, r in dataset.iterrows()]
-        if isinstance(dataset, pd.Series):
-            if all(isinstance(x, (int, np.int64)) for x in dataset.name):
-                uuid, = parquet.np2str(np.array([dataset.name[-2:]]))
+        if isinstance(record, pd.DataFrame):
+            return [self.record2url(r) for _, r in record.iterrows()]
+        if isinstance(record, pd.Series):
+            is_session_record = 'rel_path' not in record
+            if is_session_record:
+                # NB: This assumes the root path is in the webclient URL
+                session_spec = '{lab}/Subjects/{subject}/{date}/{number:03d}'
+                url = record.get('session_path') or session_spec.format(**record)
+                return webclient.rel_path2url(url)
+            if all(isinstance(x, (int, np.int64)) for x in record.name):
+                uuid, = parquet.np2str(np.array([record.name[-2:]]))
             else:
-                uuid = ensure_list(dataset.name)[-1]  # may be (eid, did) or simply did
+                uuid = ensure_list(record.name)[-1]  # may be (eid, did) or simply did
 
-        session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
+        session_path, rel_path = record[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
-        return self._web_client.rel_path2url(add_uuid_string(url, uuid).as_posix())
+        return webclient.rel_path2url(add_uuid_string(url, uuid).as_posix())
 
     def record2path(self, dataset) -> Optional[Path]:
         """

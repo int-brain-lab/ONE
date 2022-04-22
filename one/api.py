@@ -1651,6 +1651,7 @@ class OneAlyx(One):
 
         if self._index_type() is int:
             raise NotImplementedError('AWS download only supported for str index cache')
+        assert self.mode != 'local'
         repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
         bucket_name = repo_json['bucket_name']
         session_keys = {
@@ -1661,7 +1662,13 @@ class OneAlyx(One):
         s3 = session.resource('s3')
         out_files = []
         for dset in dsets:
-            eid, dset_uuid = dset.name
+            dset_uuid = dset.name if isinstance(dset.name, str) else dset.name[1]
+            # Fetch file record path
+            # fr = next(x for x in self.alyx.rest('files', 'list', dataset=dset_uuid)
+            #           if x['data_repository'].startswith('aws'))
+            # repo = self.alyx.rest('data-repository', 'read', id=fr['data_repository'])
+            # source_path = PurePosixPath(repo['globus_path'], fr['relative_path'])
+            # source_path = add_uuid_string(source_path, dset_uuid)
             source_path = PurePosixPath('data').joinpath(
                 dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
             )
@@ -1687,14 +1694,16 @@ class OneAlyx(One):
         """
         Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the
         following: a dict from returned by the sessions endpoint or dataset endpoint, a record
-        from the datasets cache table, or a file path.  If the dataset is from Alyx and cannot be
-        converted to a URL, 'exists' will be set to False in the corresponding entry in the cache
-        table. Unlike record2url, this method can convert dicts and paths to URLs.
+        from the datasets cache table, or a file path.  Unlike record2url, this method can convert
+        dicts and paths to URLs.
 
         Parameters
         ----------
         dset : dict, str, pd.Series, pd.DataFrame, list
             A single or multitude of dataset dictionary from an Alyx REST query OR URL string
+        update_cache : bool
+            If True (default) and the dataset is from Alyx and cannot be converted to a URL,
+            'exists' will be set to False in the corresponding entry in the cache table.
 
         Returns
         -------
@@ -1731,6 +1740,7 @@ class OneAlyx(One):
 
         # Update cache if url not found
         if did is not None and not url and update_cache:
+            _logger.debug('Updating cache')
             if isinstance(did, str) and self._index_type('datasets') is int:
                 did, = parquet.str2np(did).tolist()
             elif self._index_type('datasets') is str and not isinstance(did, str):
@@ -1738,6 +1748,7 @@ class OneAlyx(One):
             # NB: This will be considerably easier when IndexSlice supports Ellipsis
             idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
             self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
+            self._cache['_meta']['modified_time'] = datetime.now()
 
         return url
 

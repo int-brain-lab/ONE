@@ -92,14 +92,20 @@ class TestAuthentication(unittest.TestCase):
                 self.ac._par = self.ac._par.set(k, v)
 
         # Test generic request
-        self.ac._generic_request(requests.get, '/sessions?user=Hamish')
-        self.assertTrue(ac.is_logged_in)
+        self.ac._generic_request(requests.get, '/sessions?user=Hamish', clobber=True)
+        self.assertTrue(self.ac.is_logged_in)
+
+        # Test behaviour when token invalid
+        self.ac._token['token'] = '1NVAL1DT0K3N'
+        self.ac._headers['Authorization'] = 'Token ' + self.ac._token['token']
+        self.ac._generic_request(requests.get, '/sessions?user=Hamish', clobber=True)
+        self.assertTrue(self.ac.is_logged_in)
 
         # Test download cache tables
         self.ac.logout()
         assert not self.ac.is_logged_in
         self.ac.download_cache_tables()
-        self.assertTrue(ac.is_logged_in)
+        self.assertTrue(self.ac.is_logged_in)
 
     def test_auth_errors(self):
         """Test behaviour when authentication fails"""

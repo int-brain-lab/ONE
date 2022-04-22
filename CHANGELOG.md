@@ -1,5 +1,21 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.10.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.11.0]
+
+### Added
+
+- One._update_cache_from_records method for adding remote Alyx records to the cache
+- One.save_cache method that saves modified cache
+- attempt to save cache upon object delete
+
+### Modified
+
+- path2record now returns a session path when called with session path
+- record2url now returns a session URL when called with a sessions record
+- fix'd download bar
+- attempt to re-authenticate upon 403 invalid token response
+- set cache modified timestamp whenever cache tables are modified
+
+## [1.10.0]
 
 ### Modified
 
