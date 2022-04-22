@@ -26,7 +26,7 @@ def default():
     """Default Web client parameters"""
     par = {"ALYX_URL": "https://openalyx.internationalbrainlab.org",
            "ALYX_LOGIN": "intbrainlab",
-           "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org",
+           "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org/public",
            "HTTP_DATA_SERVER_LOGIN": None,
            "HTTP_DATA_SERVER_PWD": None}
     return iopar.from_dict(par)

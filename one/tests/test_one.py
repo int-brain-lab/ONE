@@ -1329,6 +1329,7 @@ class TestOneDownload(unittest.TestCase):
 
         rec = self.one.list_datasets(self.eid, details=True)
         rec = rec[rec.rel_path.str.contains('pykilosort/channels.brainLocation')]
+        rec['exists_aws'] = False  # Ensure we use FlatIron for this
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 

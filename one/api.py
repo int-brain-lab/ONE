@@ -1635,7 +1635,7 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, **kwargs) -> List[Path]:
+    def _download_aws(self, dsets, update_exists=True, **kwargs) -> List[Path]:
         # Download datasets from AWS
         from tqdm import tqdm
         import boto3
@@ -1660,18 +1660,24 @@ class OneAlyx(One):
         }
         session = boto3.Session(**session_keys)
         s3 = session.resource('s3')
+        # Get all dataset URLs
+        dsets = list(dsets)  # Ensure not generator
+        uuids = [x.name if isinstance(x.name, str) else x.name[1] for x in dsets]
+        remote_records = self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids}')
+        remote_records = sorted(remote_records, key=lambda x: uuids.index(x['url'].split('/')[-1]))
         out_files = []
-        for dset in dsets:
-            dset_uuid = dset.name if isinstance(dset.name, str) else dset.name[1]
+        for dset, uuid, record in zip(dsets, uuids, remote_records):
             # Fetch file record path
-            # fr = next(x for x in self.alyx.rest('files', 'list', dataset=dset_uuid)
-            #           if x['data_repository'].startswith('aws'))
-            # repo = self.alyx.rest('data-repository', 'read', id=fr['data_repository'])
-            # source_path = PurePosixPath(repo['globus_path'], fr['relative_path'])
-            # source_path = add_uuid_string(source_path, dset_uuid)
-            source_path = PurePosixPath('data').joinpath(
-                dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
-            )
+            record = next((x for x in record['file_records']
+                           if x['data_repository'].startswith('aws') and x['exists']), None)
+            if not record and update_exists and 'exists_aws' in self._cache['datasets']:
+                _logger.debug('Updating exists field')
+                self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
+                self._cache['_meta']['modified_time'] = datetime.now()
+                out_files.append(None)
+                continue
+            source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
+            source_path = add_uuid_string(source_path, uuid)
             local_path = alfio.remove_uuid_file(
                 self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
