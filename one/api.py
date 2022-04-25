@@ -1662,7 +1662,7 @@ class OneAlyx(One):
         s3 = session.resource('s3')
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
-        uuids = [x.name if isinstance(x.name, str) else x.name[1] for x in dsets]
+        uuids = [util.ensure_list(x.name)[-1] for x in dsets]
         remote_records = self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids}')
         remote_records = sorted(remote_records, key=lambda x: uuids.index(x['url'].split('/')[-1]))
         out_files = []

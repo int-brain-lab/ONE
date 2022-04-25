@@ -52,7 +52,7 @@ from one.util import (
 import one.params
 import one.alf.exceptions as alferr
 from . import util
-from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
+from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
 
 class TestONECache(unittest.TestCase):
@@ -1026,7 +1026,8 @@ class TestOneAlyx(unittest.TestCase):
         self.assertTrue('91546fc6-b67c-4a69-badc-5e66088519c4' in url)
         # Check remote mode
         url = self.one.path2url(file, query_type='remote')
-        self.assertTrue(url.startswith(self.one.alyx._par.HTTP_DATA_SERVER))
+        # Local data server path ends with '/public'; remote path does not
+        self.assertTrue(url.startswith(self.one.alyx._par.HTTP_DATA_SERVER.rsplit('/', 1)[0]))
 
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.path2url(file))
@@ -1039,7 +1040,7 @@ class TestOneAlyx(unittest.TestCase):
         idx = (slice(None), '91546fc6-b67c-4a69-badc-5e66088519c4')
         dataset = self.one._cache['datasets'].loc[idx, :]
         url = self.one.record2url(dataset.squeeze())
-        expected = ('https://ibl.flatironinstitute.org/'
+        expected = ('https://ibl.flatironinstitute.org/public/'
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
                     '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
         self.assertEqual(expected, url)
@@ -1094,6 +1095,8 @@ class TestOneAlyx(unittest.TestCase):
         dsets = self.one._cache['datasets'].iloc[:N].copy()
         dsets['exists_aws'] = True
 
+        self.one.mode = 'auto'  # Can't download in local mode
+
         # Return a file size so progress bar callback hook functions
         file_object = mock.MagicMock()
         file_object.content_length = 1024
@@ -1143,7 +1146,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(122, len(dsets))
+        self.assertEqual(121, len(dsets))
 
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
@@ -1212,7 +1215,7 @@ class TestOneRemote(unittest.TestCase):
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
             self.one.load_dataset(self.eid, 'spikes.clusters', query_type='remote')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
-            self.one.load_dataset(self.eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
+            self.one.load_dataset(self.eid, '_iblrig_*Camera.raw', query_type='remote')
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(self.eid, '_iblrig_encoderEvents.raw.ssv',
                                   collection='alf', query_type='remote')
@@ -1295,7 +1298,7 @@ class TestOneDownload(unittest.TestCase):
 
         # Check keep_uuid kwarg
         file = self.one._download_dataset(rec, keep_uuid=True)
-        self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
+        self.assertEqual(str(file).split('.')[2], 'fd512afe-de5f-4dbb-9dfa-4a65426cee23')
 
         # Check list input
         files = self.one._download_dataset([rec] * 2)
