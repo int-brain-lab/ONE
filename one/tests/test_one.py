@@ -1154,7 +1154,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(len(dsets), 0)
 
         # Test empty datasets
-        with mock.patch('one.util.ses2records', return_value=({}, None)):
+        with mock.patch('one.util.ses2records', return_value=(None, None)):
             dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
             self.assertIsInstance(dsets, pd.DataFrame)
             self.assertEqual(len(dsets), 0)
@@ -1162,12 +1162,12 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(122, len(dsets))
+        self.assertEqual(121, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(11, len(dsets))
+        self.assertEqual(13, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
