@@ -35,7 +35,6 @@ import unittest
 from unittest import mock
 import tempfile
 from uuid import UUID, uuid4
-import json
 import io
 
 import numpy as np
