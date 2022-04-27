@@ -254,14 +254,15 @@ class TestOnlineConverters(unittest.TestCase):
         # Session record
         rec = self.one._cache['sessions'].loc[self.eid]
         url = self.one.record2url(rec)
-        expected = 'https://ibl.flatironinstitute.org/hoferlab/Subjects/SWC_043/2020-09-21/001'
+        expected = 'https://ibl.flatironinstitute.org/public/' \
+                   'hoferlab/Subjects/SWC_043/2020-09-21/001'
         self.assertEqual(expected, url)
 
     def test_record2path(self):
         """Test for ConversionMixin.record2path"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
-        alf_path = ('public/hoferlab/Subjects/SWC_043/2020-09-21/001/'
+        alf_path = ('hoferlab/Subjects/SWC_043/2020-09-21/001/'
                     'alf/probe00/_phy_spikes_subset.channels.npy')
         expected = Path(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
         path = self.one.record2path(rec.iloc[0])

@@ -344,4 +344,5 @@ def _patch_params(par):
     if 'openalyx' in par.ALYX_URL and 'public' not in par.HTTP_DATA_SERVER:
         par = par.set('HTTP_DATA_SERVER', default().HTTP_DATA_SERVER)
         save(par, par.ALYX_URL)
+
     return par

@@ -1490,18 +1490,17 @@ class TestOneSetup(unittest.TestCase):
 
     def test_patch_params(self):
         """Test patching legacy params to the new location"""
+
         # Save some old-style params
         old_pars = (one.params.default()
                     .set('CACHE_DIR', self.tempdir.name)
-                    .set('HTTP_DATA_SERVER_PWD', '123')
-                    .set('ALYX_LOGIN', 'intbrainlab'))
-        with open(Path(self.tempdir.name, '.one_params'), 'w') as f:
-            json.dump(old_pars.as_dict(), f)
+                    .set('HTTP_DATA_SERVER', 'openalyx.org'))
 
-        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
-                mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=False, mode='local', password='international')
-        self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER_PWD, '123')
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file):
+            one.params.setup(silent=True)
+            one.params.save(old_pars, old_pars.ALYX_URL)
+            one_obj = ONE(base_url=old_pars.ALYX_URL, mode='local')
+        self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER, one.params.default().HTTP_DATA_SERVER)
 
     def test_one_factory(self):
         """Tests the ONE class factory"""
