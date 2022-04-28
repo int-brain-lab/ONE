@@ -74,14 +74,6 @@ class One(ConversionMixin):
         }})
         self._load_cache()
 
-    def __del__(self):
-        """Attempt to save the cache (if modified) during cleanup"""
-        try:
-            self._save_cache()
-        except (ImportError, RuntimeError) as e:
-            # Very likely to fail upon exit; no away around this as pyarrow uses futures
-            logging.debug(f'Failed to write cache: {e}')
-
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.cache_dir})'
 
@@ -200,16 +192,14 @@ class One(ConversionMixin):
         datetime.datetime
             Loaded timestamp
         """
-        expired = datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry
-        if expired:
-            # NB: Currently modified table will be lost if called with 'refresh';
-            # May be instances where modified cache is saved then immediately replaced with a new
-            # remote cache
-            self.save_cache()  # Save cache if modified
+        # NB: Currently modified table will be lost if called with 'refresh';
+        # May be instances where modified cache is saved then immediately replaced with a new
+        # remote cache
+        self.save_cache()  # Save cache if modified
         if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
-            if expired:
+            if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
                 self._load_cache()
         elif mode == 'refresh':
