@@ -9,6 +9,8 @@ from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
 from uuid import UUID
+import time
+import threading
 
 import pandas as pd
 import numpy as np
@@ -67,6 +69,7 @@ class One(ConversionMixin):
             'created_time': None,
             'loaded_time': None,
             'modified_time': None,
+            'saved_time': None,
             'raw': {}  # map of original table metadata
         }})
         self._load_cache()
@@ -74,7 +77,7 @@ class One(ConversionMixin):
     def __del__(self):
         """Attempt to save the cache (if modified) during cleanup"""
         try:
-            self.save_cache()
+            self._save_cache()
         except (ImportError, RuntimeError) as e:
             # Very likely to fail upon exit; no away around this as pyarrow uses futures
             logging.debug(f'Failed to write cache: {e}')
@@ -141,15 +144,47 @@ class One(ConversionMixin):
         force : bool
             If True, the cache is saved regardless of modification time.
         """
-        modified = self._cache['_meta'].get('modified_time', False)
+        threading.Thread(target=lambda: self._save_cache(save_dir=save_dir, force=force)).start()
+
+    def _save_cache(self, save_dir=None, force=False):
+        """
+        Checks if another process is writing to file, if so waits before saving.
+
+        Parameters
+        ----------
+        save_dir : str, pathlib.Path
+            The directory path into which the tables are saved.  Defaults to cache directory.
+        force : bool
+            If True, the cache is saved regardless of modification time.
+        """
+        TIMEOUT = 30  # Delete lock file this many seconds after creation/modification or waiting
+        lock_file = Path(self.cache_dir).joinpath('.cache.lock')
         save_dir = Path(save_dir or self.cache_dir)
-        if (not modified or modified < self._cache['_meta']['loaded_time']) and not force:
-            return
+        meta = self._cache['_meta']
+        modified = meta.get('modified_time', datetime.min)
+        update_time = max(meta['loaded_time'], meta.get('saved_time') or datetime.min)
+        if modified < update_time and not force:
+            return  # Not recently modified; return
+
+        # Check if in use by another process
+        while lock_file.exists():
+            if time.time() - lock_file.stat().st_ctime > TIMEOUT:
+                lock_file.unlink(missing_ok=True)
+            else:
+                time.sleep(.1)
+
         _logger.info('Saving cache tables...')
-        for table in filter(lambda x: not x[0] == '_', self._cache.keys()):
-            metadata = self._cache['_meta']['raw'][table]
-            metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
-            parquet.save(save_dir.joinpath(f'{table}.pqt'), self._cache[table], metadata)
+        lock_file.touch()
+        try:
+            for table in filter(lambda x: not x[0] == '_', self._cache.keys()):
+                metadata = meta['raw'][table]
+                metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
+                filename = save_dir.joinpath(f'{table}.pqt')
+                parquet.save(filename, self._cache[table], metadata)
+                _logger.debug(f'Saved {filename}')
+            meta['saved_time'] = datetime.now()
+        finally:
+            lock_file.unlink()
 
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
