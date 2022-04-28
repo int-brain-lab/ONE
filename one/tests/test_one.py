@@ -1174,17 +1174,12 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search(self):
         """Test OneAlyx.search"""
-        import time
-        t0 = time.time()
-
         eids = self.one.search(subject='SWC_043', query_type='remote')
         self.assertIn(self.eid, list(eids))
-        print(time.time() - t0); t0 = time.time()
 
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
-        print(time.time() - t0); t0 = time.time()
 
         # Check minimum set of keys present (these are present in One.search output)
         expected = {'lab', 'subject', 'date', 'number', 'project'}
@@ -1194,32 +1189,26 @@ class TestOneRemote(unittest.TestCase):
                                django='data_dataset_session_related__collection__iexact,alf',
                                query_type='remote')
         self.assertCountEqual(eids, [self.eid])
-        print(time.time() - t0); t0 = time.time()
 
         # Test date range
         eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
         self.assertCountEqual(eids, [self.eid])
-        print(time.time() - t0); t0 = time.time()
 
         eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
                                query_type='remote')
         self.assertCountEqual(eids, [self.eid])
-        print(time.time() - t0); t0 = time.time()
 
         # Test limit arg and LazyId
-        eids = self.one.search(limit=2, query_type='remote')
+        eids = self.one.search(date='2020-03-23', limit=2, query_type='remote')
         self.assertIsInstance(eids, LazyId)
         self.assertTrue(all(len(x) == 36 for x in eids))
-        print(time.time() - t0); t0 = time.time()
 
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')
         self.assertIn(self.eid, list(eids))
-        print(time.time() - t0); t0 = time.time()
 
         eids = self.one.search(lab='hoferlab', query_type='remote')
         self.assertIn(self.eid, list(eids))
-        print(time.time() - t0); t0 = time.time()
 
     def test_load_dataset(self):
         """Test OneAlyx.load_dataset"""

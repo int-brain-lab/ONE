@@ -162,7 +162,7 @@ class One(ConversionMixin):
         save_dir = Path(save_dir or self.cache_dir)
         meta = self._cache['_meta']
         modified = meta.get('modified_time', datetime.min)
-        update_time = max(meta['loaded_time'], meta.get('saved_time') or datetime.min)
+        update_time = max(meta.get(x) or datetime.min for x in ('loaded_time', 'saved_time'))
         if modified < update_time and not force:
             return  # Not recently modified; return
 
