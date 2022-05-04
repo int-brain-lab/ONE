@@ -127,7 +127,7 @@
     <span class="sd">&quot;&quot;&quot;Default Web client parameters&quot;&quot;&quot;</span>
     <span class="n">par</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ALYX_URL&quot;</span><span class="p">:</span> <span class="s2">&quot;https://openalyx.internationalbrainlab.org&quot;</span><span class="p">,</span>
            <span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">:</span> <span class="s2">&quot;intbrainlab&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;HTTP_DATA_SERVER&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ibl.flatironinstitute.org&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;HTTP_DATA_SERVER&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ibl.flatironinstitute.org/public&quot;</span><span class="p">,</span>
            <span class="s2">&quot;HTTP_DATA_SERVER_LOGIN&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
            <span class="s2">&quot;HTTP_DATA_SERVER_PWD&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span></div>
@@ -305,13 +305,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_map</span><span class="p">:</span>  <span class="c1"># This can be removed in the future</span>
-        <span class="n">cache_map</span> <span class="o">=</span> <span class="n">_patch_params</span><span class="p">()</span>
     <span class="c1"># If there are no params for this client, run setup routine</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_map</span> <span class="ow">or</span> <span class="p">(</span><span class="n">client_key</span> <span class="ow">and</span> <span class="n">client_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">):</span>
         <span class="n">cache_map</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
     <span class="n">cache</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div>
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_patch_params</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_default_client"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_default_client">[docs]</a><span class="k">def</span> <span class="nf">get_default_client</span><span class="p">(</span><span class="n">include_schema</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -426,44 +425,26 @@
         <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
 
-<span class="k">def</span> <span class="nf">_patch_params</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">_patch_params</span><span class="p">(</span><span class="n">par</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Copy over old parameters to the new cache dir based format</span>
+<span class="sd">    Patch previous version of parameters, if required.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    par : IBLParams</span>
+<span class="sd">        The old parameters object</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    IBLParams</span>
 <span class="sd">        New parameters object containing the previous parameters</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">OLD_PAR_STR</span> <span class="o">=</span> <span class="s1">&#39;one_params&#39;</span>
-    <span class="n">old_par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">OLD_PAR_STR</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">par</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">old_par</span><span class="p">,</span> <span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># Copy pars to new location</span>
-        <span class="k">assert</span> <span class="n">old_par</span><span class="o">.</span><span class="n">CACHE_DIR</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">old_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
-        <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Save web client parameters</span>
-        <span class="n">new_web_client_pars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">old_par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                               <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">}</span>
-        <span class="n">cache_name</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">old_par</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
-        <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">cache_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">new_web_client_pars</span><span class="p">)</span>
-
-        <span class="c1"># Add to cache map</span>
-        <span class="n">cache_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="n">cache_name</span><span class="p">:</span> <span class="n">old_par</span><span class="o">.</span><span class="n">CACHE_DIR</span>
-            <span class="p">},</span>
-            <span class="s1">&#39;DEFAULT&#39;</span><span class="p">:</span> <span class="n">cache_name</span>
-        <span class="p">}</span>
-        <span class="n">iopar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cache_map</span><span class="p">)</span>
-        <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cache_map</span><span class="p">)</span>
-
-    <span class="c1"># Remove the old parameters file</span>
-    <span class="n">old_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">OLD_PAR_STR</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">old_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="n">old_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="c1"># Patch the URL of data server, if database is OpenAlyx.</span>
+    <span class="c1"># The data location is in /public, however this path is no longer in the cache table</span>
+    <span class="k">if</span> <span class="s1">&#39;openalyx&#39;</span> <span class="ow">in</span> <span class="n">par</span><span class="o">.</span><span class="n">ALYX_URL</span> <span class="ow">and</span> <span class="s1">&#39;public&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">:</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;HTTP_DATA_SERVER&#39;</span><span class="p">,</span> <span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">)</span>
+        <span class="n">save</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">par</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">par</span>
 </pre></div>

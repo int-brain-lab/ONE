@@ -143,14 +143,6 @@
 <section id="module-one.api">
 <span id="one-api"></span><h1>one.api<a class="headerlink" href="#module-one.api" title="Permalink to this headline"></a></h1>
 <p>Classes for searching, listing and (down)loading ALyx Files.</p>
-<p>Things left to complete:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>TODO Save changes to cache.</p></li>
-<li><p>TODO Fix update cache in AlyxONE - save parquet table.</p></li>
-<li><p>TODO save parquet in update_filesystem.</p></li>
-</ul>
-</div></blockquote>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -198,6 +190,20 @@
 <dt class="sig sig-object py" id="one.api.One.search_terms">
 <span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.search_terms" title="Permalink to this definition"></a></dt>
 <dd><p>List the search term keyword args for use in the search method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.save_cache">
+<span class="sig-name descname"><span class="pre">save_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.save_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.save_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Save One._cache attribute into parquet tables if recently modified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The directory path into which the tables are saved.  Defaults to cache directory.</p></li>
+<li><p><strong>force</strong> (<em>bool</em>) – If True, the cache is saved regardless of modification time.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

@@ -124,7 +124,7 @@
 
 <span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
 <span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_session_path</span><span class="p">,</span> <span class="n">is_uuid_string</span>
-<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">add_uuid_string</span>
+<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">add_uuid_string</span><span class="p">,</span> <span class="n">session_path_parts</span>
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">Listable</span><span class="p">,</span> <span class="n">ensure_list</span>
 
 
@@ -327,40 +327,53 @@
         <span class="k">return</span> <span class="n">eid</span></div>
 
 <div class="viewcode-block" id="ConversionMixin.path2record"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2record">[docs]</a>    <span class="nd">@recurse</span>
-    <span class="k">def</span> <span class="nf">path2record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Convert a file path to a dataset cache record.</span>
+    <span class="k">def</span> <span class="nf">path2record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert a file or session path to a dataset or session cache record.</span>
 
 <span class="sd">        NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pattern</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        filepath : str, pathlib.Path</span>
-<span class="sd">            File path or HTTP URL</span>
+<span class="sd">        path : str, pathlib.Path</span>
+<span class="sd">            Local path or HTTP URL</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        pandas.Series</span>
 <span class="sd">            A cache file record</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
+        <span class="n">is_session</span> <span class="o">=</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span> <span class="k">if</span> <span class="n">is_session</span> <span class="k">else</span> <span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="c1"># if (rec := self._cache[&#39;datasets&#39;]).empty:  # py 3.8</span>
         <span class="c1">#     return</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">filepath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">lab</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">number</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">lab</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">subject</span><span class="p">)</span> <span class="o">&amp;</span>
+                <span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">))</span> <span class="o">&amp;</span>
+                <span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="n">rec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="c1"># Deal with file path</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>
             <span class="c1"># Remove the UUID from path</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="n">urlsplit</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">urlsplit</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># No way of knowing root session path parts without cache tables</span>
-            <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2eid</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2eid</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="n">session_series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">session_path</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">eid</span> <span class="ow">or</span> <span class="n">session_series</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                 <span class="k">return</span>
             <span class="n">session_path</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">session_series</span>
+
         <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">session_path</span><span class="p">]</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">filepath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">x</span><span class="p">))]</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">x</span><span class="p">))]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Multiple records found&#39;</span>
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="n">rec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
 
@@ -384,34 +397,41 @@
             <span class="k">return</span>
         <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record2url</span><span class="p">)(</span><span class="n">record</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.record2url"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2url">[docs]</a>    <span class="k">def</span> <span class="nf">record2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Convert a dataset record to a remote file URL</span>
+<div class="viewcode-block" id="ConversionMixin.record2url"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2url">[docs]</a>    <span class="k">def</span> <span class="nf">record2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert a session or dataset record to a remote URL</span>
 
 <span class="sd">        NB: Requires online instance</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset : pd.Series, pd.DataFrame</span>
-<span class="sd">            A datasets cache record.  If DataFrame, iterate over and returns list.</span>
+<span class="sd">        record : pd.Series, pd.DataFrame</span>
+<span class="sd">            A datasets or sessions cache record.  If DataFrame, iterate over and returns list.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str, list</span>
 <span class="sd">            A dataset URL or list if input is DataFrame</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span>
+        <span class="n">webclient</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_web_client&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">webclient</span><span class="p">,</span> <span class="s1">&#39;No Web client found for instance&#39;</span>
         <span class="c1"># FIXME Should be OneAlyx converter only</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">record2url</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-                <span class="n">uuid</span><span class="p">,</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]]))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">record2url</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">is_session_record</span> <span class="o">=</span> <span class="s1">&#39;rel_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">record</span>
+            <span class="k">if</span> <span class="n">is_session_record</span><span class="p">:</span>
+                <span class="c1"># NB: This assumes the root path is in the webclient URL</span>
+                <span class="n">session_spec</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{lab}</span><span class="s1">/Subjects/</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number:03d}</span><span class="s1">&#39;</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;session_path&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">session_spec</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">webclient</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">uuid</span><span class="p">,</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]]))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">uuid</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># may be (eid, did) or simply did</span>
+                <span class="n">uuid</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># may be (eid, did) or simply did</span>
 
-        <span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span> <span class="o">=</span> <span class="n">record</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">webclient</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ConversionMixin.record2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2path">[docs]</a>    <span class="k">def</span> <span class="nf">record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>

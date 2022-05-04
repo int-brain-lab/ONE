@@ -99,14 +99,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.api</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Classes for searching, listing and (down)loading ALyx Files.</span>
-
-<span class="sd">Things left to complete:</span>
-
-<span class="sd">    - TODO Save changes to cache.</span>
-<span class="sd">    - TODO Fix update cache in AlyxONE - save parquet table.</span>
-<span class="sd">    - TODO save parquet in update_filesystem.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Classes for searching, listing and (down)loading ALyx Files.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">collections.abc</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -117,6 +110,8 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -174,6 +169,8 @@
             <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># map of original table metadata</span>
         <span class="p">}})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_cache</span><span class="p">()</span>
@@ -230,6 +227,58 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span>
 
+<div class="viewcode-block" id="One.save_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_cache">[docs]</a>    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save One._cache attribute into parquet tables if recently modified.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        save_dir : str, pathlib.Path</span>
+<span class="sd">            The directory path into which the tables are saved.  Defaults to cache directory.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            If True, the cache is saved regardless of modification time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">))</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if another process is writing to file, if so waits before saving.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        save_dir : str, pathlib.Path</span>
+<span class="sd">            The directory path into which the tables are saved.  Defaults to cache directory.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            If True, the cache is saved regardless of modification time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># Delete lock file this many seconds after creation/modification or waiting</span>
+        <span class="n">lock_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.cache.lock&#39;</span><span class="p">)</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">save_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
+        <span class="n">modified</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;modified_time&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span>
+        <span class="n">update_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">,</span> <span class="s1">&#39;saved_time&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">modified</span> <span class="o">&lt;</span> <span class="n">update_time</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># Not recently modified; return</span>
+
+        <span class="c1"># Check if in use by another process</span>
+        <span class="k">while</span> <span class="n">lock_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lock_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_ctime</span> <span class="o">&gt;</span> <span class="n">TIMEOUT</span><span class="p">:</span>
+                <span class="n">lock_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">.1</span><span class="p">)</span>
+
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving cache tables...&#39;</span><span class="p">)</span>
+        <span class="n">lock_file</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;date_modified&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">modified</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">timespec</span><span class="o">=</span><span class="s1">&#39;minutes&#39;</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">save_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">.pqt&#39;</span><span class="p">)</span>
+                <span class="n">parquet</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">],</span> <span class="n">metadata</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;saved_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">lock_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
 <div class="viewcode-block" id="One.refresh_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.refresh_cache">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check and reload cache tables</span>
 
@@ -244,6 +293,10 @@
 <span class="sd">        datetime.datetime</span>
 <span class="sd">            Loaded timestamp</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NB: Currently modified table will be lost if called with &#39;refresh&#39;;</span>
+        <span class="c1"># May be instances where modified cache is saved then immediately replaced with a new</span>
+        <span class="c1"># remote cache. Also it&#39;s too slow :(</span>
+        <span class="c1"># self.save_cache()  # Save cache if modified</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">):</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
@@ -256,6 +309,70 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown refresh type &quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_update_cache_from_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the cache tables with new records.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        strict : bool</span>
+<span class="sd">            If not True, the columns don&#39;t need to match.  Extra columns in input tables are</span>
+<span class="sd">            dropped and missing columns are added and filled with np.nan.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            pandas.DataFrame or pandas.Series to insert/update for each table</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        datetime.datetime:</span>
+<span class="sd">            A timestamp of when the cache was updated</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; session, datasets = util.ses2records(self.get_details(eid, full=True))</span>
+<span class="sd">        ... self._update_cache_from_records(sessions=session, datasets=datasets)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            When strict is True the input columns must exactly match those oo the cache table,</span>
+<span class="sd">            including the order.</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            One or more of the keyword arguments does not match a table in One._cache</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">records</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">records</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">table</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Table &quot;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">&quot; not in cache&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                <span class="n">records</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">records</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
+                <span class="c1"># Deal with case where there are extra columns in the cache</span>
+                <span class="n">extra_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">extra_columns</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                    <span class="n">records</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="c1"># Drop any extra columns in the records that aren&#39;t in cache table</span>
+                <span class="n">to_drop</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+                <span class="n">records</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span> <span class="o">==</span> <span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="c1"># Update existing rows</span>
+            <span class="n">to_update</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_update</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">to_update</span><span class="p">]</span>
+            <span class="c1"># Assign new rows</span>
+            <span class="n">to_assign</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="o">~</span><span class="n">to_update</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">to_assign</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="c1"># Concatenate and sort (no other way for non-unique index within MultiIndex)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">],</span> <span class="n">to_assign</span><span class="p">])</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">to_assign</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">updated</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
+        <span class="k">return</span> <span class="n">updated</span>
 
 <div class="viewcode-block" id="One.save_loaded_ids"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_loaded_ids">[docs]</a>    <span class="k">def</span> <span class="nf">save_loaded_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clear_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -505,7 +622,9 @@
             <span class="k">if</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">datasets</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">update_exists</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Updating exists field&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">i</span><span class="p">),</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
         <span class="c1"># If online and we have datasets to download, call download_datasets with these datasets</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">offline</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="p">)</span> <span class="ow">and</span> <span class="n">indices_to_download</span><span class="p">:</span>
@@ -1488,7 +1607,9 @@
         <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>  <span class="c1"># Ensure we have a UUID str list</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="p">[]</span>  <span class="c1"># Return empty</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ses2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">eid</span><span class="p">))</span>
+        <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ses2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">eid</span><span class="p">))</span>
+        <span class="c1"># Add to cache tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_from_records</span><span class="p">(</span><span class="n">sessions</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">datasets</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">datasets</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="p">[]</span>  <span class="c1"># Return empty</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_datasets</span><span class="p">(</span>
@@ -1640,7 +1761,7 @@
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
         <span class="c1"># Download datasets from AWS</span>
         <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
         <span class="kn">import</span> <span class="nn">boto3</span>
@@ -1656,6 +1777,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_type</span><span class="p">()</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;AWS download only supported for str index cache&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;local&#39;</span>
         <span class="n">repo_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;aws_cortexlab&#39;</span><span class="p">)[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span>
         <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">repo_json</span><span class="p">[</span><span class="s1">&#39;bucket_name&#39;</span><span class="p">]</span>
         <span class="n">session_keys</span> <span class="o">=</span> <span class="p">{</span>
@@ -1664,12 +1786,24 @@
         <span class="p">}</span>
         <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">session_keys</span><span class="p">)</span>
         <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">)</span>
+        <span class="c1"># Get all dataset URLs</span>
+        <span class="n">dsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsets</span><span class="p">)</span>  <span class="c1"># Ensure not generator</span>
+        <span class="n">uuids</span> <span class="o">=</span> <span class="p">[</span><span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">]</span>
+        <span class="n">remote_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;id__in,</span><span class="si">{</span><span class="n">uuids</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">remote_records</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">remote_records</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">uuids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="n">out_files</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">:</span>
-            <span class="n">eid</span><span class="p">,</span> <span class="n">dset_uuid</span> <span class="o">=</span> <span class="n">dset</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">source_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">add_uuid_string</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="n">dset_uuid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">dset</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="n">uuids</span><span class="p">,</span> <span class="n">remote_records</span><span class="p">):</span>
+            <span class="c1"># Fetch file record path</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span>
+                           <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;data_repository&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;aws&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">record</span> <span class="ow">and</span> <span class="n">update_exists</span> <span class="ow">and</span> <span class="s1">&#39;exists_aws&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Updating exists field&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">uuid</span><span class="p">),</span> <span class="s1">&#39;exists_aws&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">source_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;data_repository_path&#39;</span><span class="p">],</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;relative_path&#39;</span><span class="p">])</span>
+            <span class="n">source_path</span> <span class="o">=</span> <span class="n">add_uuid_string</span><span class="p">(</span><span class="n">source_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span>
             <span class="n">local_path</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]),</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">local_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1692,14 +1826,16 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the</span>
 <span class="sd">        following: a dict from returned by the sessions endpoint or dataset endpoint, a record</span>
-<span class="sd">        from the datasets cache table, or a file path.  If the dataset is from Alyx and cannot be</span>
-<span class="sd">        converted to a URL, &#39;exists&#39; will be set to False in the corresponding entry in the cache</span>
-<span class="sd">        table. Unlike record2url, this method can convert dicts and paths to URLs.</span>
+<span class="sd">        from the datasets cache table, or a file path.  Unlike record2url, this method can convert</span>
+<span class="sd">        dicts and paths to URLs.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dset : dict, str, pd.Series, pd.DataFrame, list</span>
 <span class="sd">            A single or multitude of dataset dictionary from an Alyx REST query OR URL string</span>
+<span class="sd">        update_cache : bool</span>
+<span class="sd">            If True (default) and the dataset is from Alyx and cannot be converted to a URL,</span>
+<span class="sd">            &#39;exists&#39; will be set to False in the corresponding entry in the cache table.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1730,12 +1866,16 @@
                 <span class="n">is_int</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                 <span class="n">did</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="k">if</span> <span class="n">is_int</span> <span class="k">else</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># from datasets endpoint</span>
-                <span class="n">url</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span>
-                            <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">repo</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span><span class="p">,</span> <span class="s1">&#39;_par&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;HTTP_DATA_SERVER&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span>
+                     <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="ow">and</span>
+                     <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">repo</span> <span class="ow">or</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">])),</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="n">did</span> <span class="o">=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
 
         <span class="c1"># Update cache if url not found</span>
         <span class="k">if</span> <span class="n">did</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">url</span> <span class="ow">and</span> <span class="n">update_cache</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Updating cache&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_type</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
                 <span class="n">did</span><span class="p">,</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">str2np</span><span class="p">(</span><span class="n">did</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_type</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -1743,6 +1883,7 @@
             <span class="c1"># NB: This will be considerably easier when IndexSlice supports Ellipsis</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="o">*</span><span class="n">idx</span><span class="p">,</span> <span class="o">*</span><span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">did</span><span class="p">)),</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">url</span>
 
@@ -1820,7 +1961,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        pathlib.Path</span>
-<span class="sd">            The file path of the downloaded file or files</span>
+<span class="sd">            The file path of the downloaded file or files.</span>
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
@@ -2161,49 +2302,6 @@
         <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">),</span>
                     <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()})</span>
         <span class="k">return</span> <span class="n">out</span></div></div>
-
-    <span class="c1"># def _update_cache(self, ses, dataset_types):</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     TODO move to One; currently unused</span>
-    <span class="c1">#     :param ses: session details dictionary as per Alyx response</span>
-    <span class="c1">#     :param dataset_types:</span>
-    <span class="c1">#     :return: is_updated (bool): if the cache was updated or not</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     save = False</span>
-    <span class="c1">#     pqt_dsets = _ses2pandas(ses, dtypes=dataset_types)</span>
-    <span class="c1">#     # if the dataframe is empty, return</span>
-    <span class="c1">#     if pqt_dsets.size == 0:</span>
-    <span class="c1">#         return</span>
-    <span class="c1">#     # if the cache is empty create the cache variable</span>
-    <span class="c1">#     elif self._cache.size == 0:</span>
-    <span class="c1">#         self._cache = pqt_dsets</span>
-    <span class="c1">#         save = True</span>
-    <span class="c1">#     # the cache is not empty and there are datasets in the query</span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         isin, icache = ismember2d(pqt_dsets[[&#39;id_0&#39;, &#39;id_1&#39;]].to_numpy(),</span>
-    <span class="c1">#                                   self._cache[[&#39;id_0&#39;, &#39;id_1&#39;]].to_numpy())</span>
-    <span class="c1">#         # check if the hash / filesize fields have changed on patching</span>
-    <span class="c1">#         heq = (self._cache[&#39;hash&#39;].iloc[icache].to_numpy() ==</span>
-    <span class="c1">#                pqt_dsets[&#39;hash&#39;].iloc[isin].to_numpy())</span>
-    <span class="c1">#         feq = np.isclose(self._cache[&#39;file_size&#39;].iloc[icache].to_numpy(),</span>
-    <span class="c1">#                          pqt_dsets[&#39;file_size&#39;].iloc[isin].to_numpy(),</span>
-    <span class="c1">#                          rtol=0, atol=0, equal_nan=True)</span>
-    <span class="c1">#         eq = np.logical_and(heq, feq)</span>
-    <span class="c1">#         # update new hash / filesizes</span>
-    <span class="c1">#         if not np.all(eq):</span>
-    <span class="c1">#             self._cache.iloc[icache, 4:6] = pqt_dsets.iloc[np.where(isin)[0], 4:6].to_numpy()</span>
-    <span class="c1">#             save = True</span>
-    <span class="c1">#         # append datasets that haven&#39;t been found</span>
-    <span class="c1">#         if not np.all(isin):</span>
-    <span class="c1">#             self._cache = self._cache.append(pqt_dsets.iloc[np.where(~isin)[0]])</span>
-    <span class="c1">#             self._cache = self._cache.reindex()</span>
-    <span class="c1">#             save = True</span>
-    <span class="c1">#     if save:</span>
-    <span class="c1">#         # before saving makes sure pandas did not cast uuids in float</span>
-    <span class="c1">#         typs = [t for t, k in zip(self._cache.dtypes, self._cache.keys()) if &#39;id_&#39; in k]</span>
-    <span class="c1">#         assert (all(map(lambda t: t == np.int64, typs)))</span>
-    <span class="c1">#         # if this gets too big, look into saving only when destroying the ONE object</span>
-    <span class="c1">#         parquet.save(self._cache_file, self._cache)</span>
 </pre></div>
 
            </div>

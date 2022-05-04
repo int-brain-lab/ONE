@@ -286,12 +286,12 @@ iterated over.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.path2record">
-<span class="sig-name descname"><span class="pre">path2record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.series.Series</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.path2record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.path2record" title="Permalink to this definition"></a></dt>
-<dd><p>Convert a file path to a dataset cache record.</p>
+<span class="sig-name descname"><span class="pre">path2record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.series.Series</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.path2record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.path2record" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a file or session path to a dataset or session cache record.</p>
 <p>NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pattern</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – File path or HTTP URL</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Local path or HTTP URL</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A cache file record</p>
@@ -321,12 +321,12 @@ iterated over.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.record2url">
-<span class="sig-name descname"><span class="pre">record2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.record2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.record2url" title="Permalink to this definition"></a></dt>
-<dd><p>Convert a dataset record to a remote file URL</p>
+<span class="sig-name descname"><span class="pre">record2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.record2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.record2url" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a session or dataset record to a remote URL</p>
 <p>NB: Requires online instance</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<em>pd.Series</em><em>, </em><em>pd.DataFrame</em>) – A datasets cache record.  If DataFrame, iterate over and returns list.</p>
+<dd class="field-odd"><p><strong>record</strong> (<em>pd.Series</em><em>, </em><em>pd.DataFrame</em>) – A datasets or sessions cache record.  If DataFrame, iterate over and returns list.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dataset URL or list if input is DataFrame</p>
