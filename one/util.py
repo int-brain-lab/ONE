@@ -12,7 +12,7 @@ from iblutil.io import parquet
 import numpy as np
 
 import one.alf.exceptions as alferr
-from one.alf.files import rel_path_parts, get_session_path
+from one.alf.files import rel_path_parts, get_session_path, get_alf_path
 from one.alf.spec import FILE_SPEC, regex as alf_regex
 import one.alf.io as alfio
 
@@ -110,7 +110,7 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
             rec['id'] = d['url'][-36:]
             rec['eid'] = d['session'][-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
-        file_path = data_url.path.strip('/')
+        file_path = get_alf_path(data_url.path.strip('/'))
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')

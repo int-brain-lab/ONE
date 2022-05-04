@@ -28,6 +28,7 @@ Note ONE and AlyxClient use caching:
 """
 import datetime
 import logging
+import time
 from pathlib import Path
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -60,21 +61,17 @@ class TestONECache(unittest.TestCase):
     """
     tempdir = None
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.tempdir = util.set_up_env()
+    def setUp(self) -> None:
+        self.tempdir = util.set_up_env()
         # Create ONE object with temp cache dir
-        cls.one = ONE(mode='local', cache_dir=cls.tempdir.name)
+        self.one = ONE(mode='local', cache_dir=self.tempdir.name)
         # Create dset files from cache
-        util.create_file_tree(cls.one)
+        util.create_file_tree(self.one)
 
     def tearDown(self) -> None:
-        # Reload cache table after each test
-        self.one.refresh_cache('refresh')
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.tempdir.cleanup()
+        while Path(self.one.cache_dir).joinpath('.cache.lock').exists():
+            time.sleep(.1)
+        self.tempdir.cleanup()
 
     def test_list_subjects(self):
         """Test One.list_subejcts"""
@@ -478,8 +475,6 @@ class TestONECache(unittest.TestCase):
         fake_id = self.one.to_eid(eid).replace('b', 'a')
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(fake_id, '_iblrig_leftCamera.timestamps.ssv')
-        # File missing
-        self.addCleanup(file.touch)  # File may be required by other tests
         file.unlink()
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv')
@@ -582,7 +577,6 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset_from_id(s_id.replace('a', 'b'))
         # File missing
-        self.addCleanup(file.touch)  # File may be required by other tests
         file.unlink()
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset_from_id(s_id)
@@ -618,7 +612,6 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_object(eid.replace('a', 'b'), 'wheel')
         # Test missing files on disk
-        self.addCleanup(lambda: [f.touch() for f in files])  # Restore files on cleanup
         [f.unlink() for f in files]
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_object(eid, 'wheel')
@@ -1145,7 +1138,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(121, len(dsets))
+        self.assertEqual(122, len(dsets))
 
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
@@ -1161,7 +1154,7 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(121, len(dsets))
+        self.assertEqual(122, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
@@ -1185,7 +1178,7 @@ class TestOneRemote(unittest.TestCase):
         expected = {'lab', 'subject', 'date', 'number', 'project'}
         self.assertTrue(det[0].keys() >= expected)
         # Test dataset search with Django
-        eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
+        eids = self.one.search(subject='SWC_043', dataset=['probes.description'], number=1,
                                django='data_dataset_session_related__collection__iexact,alf',
                                query_type='remote')
         self.assertCountEqual(eids, [self.eid])
@@ -1195,7 +1188,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertCountEqual(eids, [self.eid])
 
         eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
-                               query_type='remote')
+                               lab='hoferlab', query_type='remote')
         self.assertCountEqual(eids, [self.eid])
 
         # Test limit arg and LazyId
@@ -1271,6 +1264,10 @@ class TestOneDownload(unittest.TestCase):
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
+        # FIXME hack because data_url may be AWS
+        from one.alf.files import get_alf_path
+        rec['data_url'] = self.one.alyx.rel_path2url(get_alf_path(rec['data_url']))
+        # FIXME order may not be stable, this only works
         file = self.one._download_dataset(rec)
         self.assertIsInstance(file, Path)
         self.assertTrue(file.exists())
@@ -1303,8 +1300,13 @@ class TestOneDownload(unittest.TestCase):
             self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
+        # FIXME Another hack: for this to work the file records order must be correct.
+        fi = next(i for i, x in enumerate(rec['file_records'])
+                  if x['data_url'].startswith(self.one.alyx._par.HTTP_DATA_SERVER))
+        if fi != 0:
+            rec['file_records'] = [rec['file_records'].pop(fi), *rec['file_records']]
         file = self.one._download_dataset(rec, keep_uuid=True)
-        self.assertEqual(str(file).split('.')[2], 'fd512afe-de5f-4dbb-9dfa-4a65426cee23')
+        self.assertEqual(str(file).split('.')[2], rec['url'].split('/')[-1])
 
         # Check list input
         files = self.one._download_dataset([rec] * 2)

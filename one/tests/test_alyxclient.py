@@ -25,6 +25,9 @@ par = one.params.get(silent=True)
 
 # Init connection to the database
 ac = wc.AlyxClient(**TEST_DB_1)
+# Remove /public from data server url
+if 'public' in ac._par.HTTP_DATA_SERVER:
+    ac._par = ac._par.set('HTTP_DATA_SERVER', ac._par.HTTP_DATA_SERVER.rsplit('/', 1)[0])
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -104,7 +107,8 @@ class TestAuthentication(unittest.TestCase):
         # Test download cache tables
         self.ac.logout()
         assert not self.ac.is_logged_in
-        self.ac.download_cache_tables()
+        url = self.ac.get('cache/info')['location']
+        self.ac.download_cache_tables(url)
         self.assertTrue(self.ac.is_logged_in)
 
     def test_auth_errors(self):
@@ -453,7 +457,7 @@ class TestDownloadHTTP(unittest.TestCase):
             raised = False
             try:
                 ac.download_file(url, target_dir=cache_dir)
-                self.assertTrue(url[0] in log.output[-1])
+                self.assertTrue(url in log.output[-1])
             except Exception as ex:
                 # Check error message mentions the HTTP_DATA_SERVER params
                 self.assertTrue('HTTP_DATA_SERVER_PWD' in str(ex))

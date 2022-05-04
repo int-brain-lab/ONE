@@ -4,8 +4,7 @@
 ### Added
 
 - One._update_cache_from_records method for adding remote Alyx records to the cache
-- One.save_cache method that saves modified cache
-- attempt to save cache upon object delete
+- One.save_cache method to save modified cache
 
 ### Modified
 

@@ -153,7 +153,7 @@ class One(ConversionMixin):
         lock_file = Path(self.cache_dir).joinpath('.cache.lock')
         save_dir = Path(save_dir or self.cache_dir)
         meta = self._cache['_meta']
-        modified = meta.get('modified_time', datetime.min)
+        modified = meta.get('modified_time') or datetime.min
         update_time = max(meta.get(x) or datetime.min for x in ('loaded_time', 'saved_time'))
         if modified < update_time and not force:
             return  # Not recently modified; return
@@ -194,8 +194,8 @@ class One(ConversionMixin):
         """
         # NB: Currently modified table will be lost if called with 'refresh';
         # May be instances where modified cache is saved then immediately replaced with a new
-        # remote cache
-        self.save_cache()  # Save cache if modified
+        # remote cache. Also it's too slow :(
+        # self.save_cache()  # Save cache if modified
         if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
@@ -1765,8 +1765,11 @@ class OneAlyx(One):
                 is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
                 did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
-                url = next((fr['data_url'] for fr in dset['file_records']
-                            if fr['data_url'] and fr['exists']), None)
+                repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
+                url = next(
+                    (fr['data_url'] for fr in dset['file_records']
+                     if fr['data_url'] and fr['exists'] and
+                     fr['data_url'].startswith(repo or fr['data_url'])), None)
                 did = dset['url'][-36:]
 
         # Update cache if url not found

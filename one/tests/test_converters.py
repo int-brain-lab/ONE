@@ -242,14 +242,15 @@ class TestOnlineConverters(unittest.TestCase):
     def test_record2url(self):
         """Test for ConversionMixin.record2url"""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
+        idx = rec.rel_path == 'alf/probe00/_phy_spikes_subset.channels.npy'
         # As pd.Series
-        url = self.one.record2url(rec.iloc[0])
+        url = self.one.record2url(rec[idx].squeeze())
         expected = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/'
                     'SWC_043/2020-09-21/001/alf/probe00/'
                     '_phy_spikes_subset.channels.00c234a3-a4ff-4f97-a522-939d15528a45.npy')
         self.assertEqual(expected, url)
         # As pd.DataFrame
-        url = self.one.record2url(rec.iloc[[0]])
+        url = self.one.record2url(rec[idx])
         self.assertEqual([expected], url)
         # Session record
         rec = self.one._cache['sessions'].loc[self.eid]
@@ -265,11 +266,12 @@ class TestOnlineConverters(unittest.TestCase):
         alf_path = ('hoferlab/Subjects/SWC_043/2020-09-21/001/'
                     'alf/probe00/_phy_spikes_subset.channels.npy')
         expected = Path(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
-        path = self.one.record2path(rec.iloc[0])
+        path = self.one.record2path(rec.loc[(self.eid, '00c234a3-a4ff-4f97-a522-939d15528a45')])
         self.assertIsInstance(path, Path)
         self.assertEqual(expected, path)
         # As pd.DataFrame
-        path = self.one.record2path(rec.iloc[[0]])
+        idx = rec.rel_path == 'alf/probe00/_phy_spikes_subset.channels.npy'
+        path = self.one.record2path(rec[idx])
         self.assertEqual(expected, path)
 
     def test_ref2dj(self):

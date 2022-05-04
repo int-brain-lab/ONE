@@ -742,6 +742,7 @@ class AlyxClient():
         if not self.is_logged_in:
             self.authenticate()
         location = location or f'{self.base_url}/cache.zip'
+
         headers = self._headers if location.startswith(self.base_url) else None
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(location,
