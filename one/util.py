@@ -5,13 +5,14 @@ from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
 from collections.abc import Mapping
 import fnmatch
+from datetime import datetime
 
 import pandas as pd
 from iblutil.io import parquet
 import numpy as np
 
 import one.alf.exceptions as alferr
-from one.alf.files import rel_path_parts, get_session_path
+from one.alf.files import rel_path_parts, get_session_path, get_alf_path
 from one.alf.spec import FILE_SPEC, regex as alf_regex
 import one.alf.io as alfio
 
@@ -25,8 +26,6 @@ def Listable(t):
 
 def ses2records(ses: dict, int_id=False):
     """Extract session cache record and datasets cache from a remote session data record.
-
-    TODO Fix for new tables; use to update caches from remote queries.
 
     Parameters
     ----------
@@ -51,7 +50,7 @@ def ses2records(ses: dict, int_id=False):
     session = (
         pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
-    session['date'] = session['date'][:10]
+    session['date'] = datetime.fromisoformat(session['date']).date()
 
     # Extract datasets table
     def _to_record(d):
@@ -111,7 +110,7 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
             rec['id'] = d['url'][-36:]
             rec['eid'] = d['session'][-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
-        file_path = data_url.path.strip('/')
+        file_path = get_alf_path(data_url.path.strip('/'))
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')

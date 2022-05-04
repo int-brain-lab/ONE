@@ -94,7 +94,7 @@ def setup_test_params(token=False, cache_dir=None):
     params_dir = Path(one.params.get_params_dir())
     fixture = Path(__file__).parent.joinpath('fixtures')
     test_pars = '.test.alyx.internationalbrainlab.org'
-    if not list(params_dir.glob(test_pars)):
+    if not next(params_dir.glob(test_pars), None):
         filename = shutil.copy(fixture / 'params' / test_pars, params_dir)
         assert Path(filename).exists()
 

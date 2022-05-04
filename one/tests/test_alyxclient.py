@@ -25,6 +25,9 @@ par = one.params.get(silent=True)
 
 # Init connection to the database
 ac = wc.AlyxClient(**TEST_DB_1)
+# Remove /public from data server url
+if 'public' in ac._par.HTTP_DATA_SERVER:
+    ac._par = ac._par.set('HTTP_DATA_SERVER', ac._par.HTTP_DATA_SERVER.rsplit('/', 1)[0])
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -92,14 +95,21 @@ class TestAuthentication(unittest.TestCase):
                 self.ac._par = self.ac._par.set(k, v)
 
         # Test generic request
-        self.ac._generic_request(requests.get, '/sessions?user=Hamish')
-        self.assertTrue(ac.is_logged_in)
+        self.ac._generic_request(requests.get, '/sessions?user=Hamish', clobber=True)
+        self.assertTrue(self.ac.is_logged_in)
+
+        # Test behaviour when token invalid
+        self.ac._token['token'] = '1NVAL1DT0K3N'
+        self.ac._headers['Authorization'] = 'Token ' + self.ac._token['token']
+        self.ac._generic_request(requests.get, '/sessions?user=Hamish', clobber=True)
+        self.assertTrue(self.ac.is_logged_in)
 
         # Test download cache tables
         self.ac.logout()
         assert not self.ac.is_logged_in
-        self.ac.download_cache_tables()
-        self.assertTrue(ac.is_logged_in)
+        url = self.ac.get('cache/info')['location']
+        self.ac.download_cache_tables(url)
+        self.assertTrue(self.ac.is_logged_in)
 
     def test_auth_errors(self):
         """Test behaviour when authentication fails"""
@@ -327,7 +337,7 @@ class TestDownloadHTTP(unittest.TestCase):
 
     def setUp(self):
         self.ac = ac
-        self.test_data_uuid = '84116a5c-131e-40a2-92d4-62c4aaae5c52'  # OpenAlyx dataset
+        self.test_data_uuid = '40af4a49-1b9d-45ec-b443-a151c010ea3c'  # OpenAlyx dataset
 
     def test_paginated_request(self):
         """Check that paginated response object is returned upon making large queries"""
@@ -419,23 +429,23 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertEqual(sub1, sub2)
 
     def test_download_datasets_with_api(self):
-        ac_open = wc.AlyxClient(**TEST_DB_2)
+        ac_public = wc.AlyxClient(**TEST_DB_2)
         cache_dir = tempfile.mkdtemp()
         self.addCleanup(lambda: shutil.rmtree(cache_dir))
 
         # Test 1: empty dir, dict mode
-        dset = ac_open.get('/datasets/' + self.test_data_uuid)
+        dset = ac_public.get('/datasets/' + self.test_data_uuid)
         urls = wc.dataset_record_to_url(dset)
         url = [u for u in urls if u.startswith('https://ibl.flatiron')]
-        file_name, = ac_open.download_file(url, target_dir=cache_dir)
+        file_name, = ac_public.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
         # Test 2: empty dir, list mode
-        dset = ac_open.get('/datasets?id=' + self.test_data_uuid)
+        dset = ac_public.get('/datasets?id=' + self.test_data_uuid)
         urls = wc.dataset_record_to_url(dset)
         url = [u for u in urls if u.startswith('https://ibl.flatiron')]
-        file_name, = ac_open.download_file(url, target_dir=cache_dir)
+        file_name, = ac_public.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
@@ -447,7 +457,7 @@ class TestDownloadHTTP(unittest.TestCase):
             raised = False
             try:
                 ac.download_file(url, target_dir=cache_dir)
-                self.assertTrue(url[0] in log.output[-1])
+                self.assertTrue(url in log.output[-1])
             except Exception as ex:
                 # Check error message mentions the HTTP_DATA_SERVER params
                 self.assertTrue('HTTP_DATA_SERVER_PWD' in str(ex))

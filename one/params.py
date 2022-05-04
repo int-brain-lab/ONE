@@ -26,7 +26,7 @@ def default():
     """Default Web client parameters"""
     par = {"ALYX_URL": "https://openalyx.internationalbrainlab.org",
            "ALYX_LOGIN": "intbrainlab",
-           "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org",
+           "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org/public",
            "HTTP_DATA_SERVER_LOGIN": None,
            "HTTP_DATA_SERVER_PWD": None}
     return iopar.from_dict(par)
@@ -204,13 +204,12 @@ def get(client=None, silent=False):
     """
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
-    if not cache_map:  # This can be removed in the future
-        cache_map = _patch_params()
     # If there are no params for this client, run setup routine
     if not cache_map or (client_key and client_key not in cache_map.CLIENT_MAP):
         cache_map = setup(client=client, silent=silent)
     cache = cache_map.CLIENT_MAP[client_key or cache_map.DEFAULT]
-    return iopar.read(f'{_PAR_ID_STR}/{client_key or cache_map.DEFAULT}').set('CACHE_DIR', cache)
+    pars = iopar.read(f'{_PAR_ID_STR}/{client_key or cache_map.DEFAULT}').set('CACHE_DIR', cache)
+    return _patch_params(pars)
 
 
 def get_default_client(include_schema=True) -> str:
@@ -325,43 +324,25 @@ def check_cache_conflict(cache_dir):
         assert not any(x == str(cache_dir) for x in cache_map.values())
 
 
-def _patch_params():
+def _patch_params(par):
     """
-    Copy over old parameters to the new cache dir based format
+    Patch previous version of parameters, if required.
+
+    Parameters
+    ----------
+    par : IBLParams
+        The old parameters object
 
     Returns
     -------
     IBLParams
         New parameters object containing the previous parameters
+
     """
-    OLD_PAR_STR = 'one_params'
-    old_par = iopar.read(OLD_PAR_STR, {})
-    par = None
-    if getattr(old_par, 'HTTP_DATA_SERVER_PWD', None):
-        # Copy pars to new location
-        assert old_par.CACHE_DIR
-        cache_dir = Path(old_par.CACHE_DIR)
-        cache_dir.mkdir(exist_ok=True)
-
-        # Save web client parameters
-        new_web_client_pars = {k: v for k, v in old_par.as_dict().items()
-                               if k in default().as_dict() or k == 'ALYX_LOGIN'}
-        cache_name = _key_from_url(old_par.ALYX_URL)
-        iopar.write(f'{_PAR_ID_STR}/{cache_name}', new_web_client_pars)
-
-        # Add to cache map
-        cache_map = {
-            'CLIENT_MAP': {
-                cache_name: old_par.CACHE_DIR
-            },
-            'DEFAULT': cache_name
-        }
-        iopar.write(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', cache_map)
-        par = iopar.from_dict(cache_map)
-
-    # Remove the old parameters file
-    old_path = Path(iopar.getfile(OLD_PAR_STR))
-    if old_path.exists():
-        old_path.unlink()
+    # Patch the URL of data server, if database is OpenAlyx.
+    # The data location is in /public, however this path is no longer in the cache table
+    if 'openalyx' in par.ALYX_URL and 'public' not in par.HTTP_DATA_SERVER:
+        par = par.set('HTTP_DATA_SERVER', default().HTTP_DATA_SERVER)
+        save(par, par.ALYX_URL)
 
     return par
