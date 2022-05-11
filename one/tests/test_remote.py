@@ -1,3 +1,4 @@
+"""Unit tests for the one.remote package."""
 import logging
 import tempfile
 import unittest
@@ -9,7 +10,13 @@ from tempfile import TemporaryDirectory
 import io
 import json
 import sys
+import uuid
+import random
 
+try:
+    import globus_sdk
+except ModuleNotFoundError:
+    unittest.skip('globus_sdk module not installed')
 from iblutil.io import params as iopar
 
 from .util import get_file, setup_rest_cache
@@ -343,6 +350,97 @@ class TestGlobusClient(unittest.TestCase):
         self.assertEqual(expected, self.client._endpoint_path('bar/baz', root_path='/foo'))
         with self.assertRaises(ValueError):
             self.client._endpoint_path('bar', root_path='foo')
+
+    def test_endpoint_id_root(self):
+        """Test for Globus._endpoint_id_root method"""
+        id, path = self.client._endpoint_id_root('local')
+        self.assertEqual('987', id)
+        self.assertEqual(path, self.tempdir.name)
+
+        expected = uuid.uuid4()
+        id, path = self.client._endpoint_id_root(expected)
+        self.assertEqual(expected, id)
+        self.assertIsNone(path)
+
+        with self.assertRaises(ValueError):
+            self.client._endpoint_id_root('remote')
+
+    def test_ls(self):
+        """Test for Globus.ls method"""
+        response = dict(
+            name=Path(self.tempdir.name, f'some.{uuid.uuid4()}.file').as_posix(),
+            type='file', size=1024)
+        err = globus_sdk.GlobusConnectionError('', ConnectionError)
+        self.client.client.operation_ls.side_effect = (err, [response])
+        path = globus.as_globus_path(self.tempdir.name)
+        out = self.client.ls('local', path)
+        self.assertEqual(2, self.client.client.operation_ls.call_count)
+        self.assertEqual([response['name']], out)
+
+        # Remove uuid and return size args
+        self.client.client.operation_ls.side_effect = ([response],)
+        out, = self.client.ls('local', path, remove_uuid=True, return_size=True)
+        self.assertEqual(response['size'], out[1])
+        self.assertNotIn(response['name'].split('.')[-2], str(out[0]))
+
+        self.client.client.operation_ls.reset_mock()
+        self.client.client.operation_ls.side_effect = err
+        with self.assertRaises(globus_sdk.GlobusConnectionError):
+            self.client.ls('local', path, max_retries=2)
+        self.assertEqual(3, self.client.client.operation_ls.call_count)
+
+    def test_mv(self):
+        """Test for Globus.mv and Globus.run_task methods"""
+        source = ('some.file', 'some2.file')
+        destination = ('new.file', 'new2.file')
+        # Ensure root path is Globus compliant (required on Windows)
+        self.client.endpoints['local']['root_path'] = globus.as_globus_path(self.tempdir.name)
+        # Mock transfer output
+        task_id = random.randint(0, int(1e6))
+        self.client.client.submit_transfer.return_value = {'task_id': task_id}
+        self.client.client.get_task.return_value = {'status': 'SUCCEEDED'}
+        self.client.client.task_successful_transfers.return_value = \
+            [dict(source_path=src, destination_path=dst) for src, dst in zip(source, destination)]
+        self.client.client.task_skipped_errors.return_value = []
+        task_response = self.client.mv('local', 'local', source, destination)
+        self.assertEqual(task_id, task_response)
+
+        # Test errors
+        # Check timeout behaviour
+        self.client.client.task_wait.reset_mock()
+        self.client.client.task_wait.return_value = False
+        timeout = 10
+        with self.assertRaises(IOError) as ex:
+            self.client.mv('local', 'local', source, destination, timeout=timeout)
+            self.assertIn(str(task_id), str(ex))
+        self.assertEqual(timeout, self.client.client.task_wait.call_count)
+
+        # Check status check error behaviour
+        self.client.client.task_wait.return_value = True
+        self.client.client.task_successful_transfers.side_effect = \
+            globus_sdk.TransferAPIError(mock.MagicMock())
+        with self.assertLogs(logging.getLogger('one.remote.globus'), logging.WARNING):
+            self.client.mv('local', 'local', source, destination)
+
+        # Check failed transfer
+        self.client.client.get_task.return_value = {'status': 'FAILED'}
+        self.client.client.task_successful_transfers.reset_mock()
+        with self.assertRaises(IOError) as ex:
+            self.client.mv('local', 'local', source, destination)
+            self.assertIn(self.client.client.get_task.return_value['status'], str(ex))
+
+        # Check submission error behaviour
+        self.client.client.submit_transfer.side_effect = \
+            globus_sdk.GlobusConnectionError('', ConnectionError)
+        default_n_retries = 3
+        with self.assertLogs(logging.getLogger('one.remote.globus')) as log, \
+                self.assertRaises(globus_sdk.GlobusConnectionError):
+            self.client.mv('local', 'local', source, destination)
+            warnings = filter(lambda x: x.levelno == 30, log.records)
+            self.assertEqual(default_n_retries, len(list(warnings)))
+            self.assertIn(log.records[-1].msg)
+            self.assertRegex(log.records[-1].msg, 'Max retries')
+            self.assertEqual('ERROR', log.records[-1].levelname)
 
 
 if __name__ == '__main__':

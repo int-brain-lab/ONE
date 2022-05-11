@@ -1,5 +1,8 @@
 """Construct Parquet database from local file system.
 
+NB: If using a remote Alyx instance it is advisable to generate the cache via the Alyx one_cache
+management command, otherwise the resulting cache UUIDs will not match those on the database.
+
 Examples
 --------
 >>> from one.api import One

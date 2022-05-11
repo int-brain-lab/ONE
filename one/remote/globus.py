@@ -1,3 +1,4 @@
+"""A module for handling file operations through the Globus SDK"""
 import os
 import re
 import sys
@@ -375,17 +376,26 @@ class Globus(DownloadClient):
     def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
         """
         Return the list of (filename, filesize) in a given endpoint directory.
+        NB: If you're using ls routinely when transferring or deleting files you're probably doing
+        something wrong!
 
         Parameters
         ----------
-        endpoint
-        path
-        remove_uuid
-        return_size
+        endpoint : uuid.UUID, str
+            The Globus endpoint. May be a UUID or a key in the Globus.endpoints attribute.
+        path : Path, PurePath, str
+            The absolute or relative Globus path to list.  Note: if endpoint is a UUID, the path
+            must be absolute.
+        remove_uuid : bool
+            If True, remove the UUID from the returned filenames.
+        return_size : bool
+            If True, return the size of each listed file in bytes.
 
         Returns
         -------
-
+        list
+            A list of PurePosixPath objects of the files and folders listed, or if return_size is
+            True, tuples of PurePosixPath objects and the corresponding file sizes.
         """
         # Check if endpoint is a UUID, if not try to get UUID from registered endpoints
         endpoint_id, root_path = self._endpoint_id_root(endpoint)
@@ -394,15 +404,17 @@ class Globus(DownloadClient):
         # Do the actual listing
         out = []
         response = []
-        for i in range(max_retries):
+        for i in range(max_retries + 1):
             try:
                 response = self.client.operation_ls(endpoint_id, path=path)
                 break
             except (GlobusConnectionError, GlobusAPIError) as ex:
-                if i == max_retries - 1:
+                if i == max_retries:
                     raise ex
         for entry in response:
-            fn = remove_uuid_file(entry['name'], dry=True) if remove_uuid else entry['name']
+            fn = PurePosixPath(
+                remove_uuid_file(entry['name'], dry=True) if remove_uuid else entry['name']
+            )
             if return_size:
                 size = entry['size'] if entry['type'] == 'file' else None
                 out.append((fn, size))
@@ -412,9 +424,33 @@ class Globus(DownloadClient):
         return out
 
     # TODO: allow to move all content of a directory with 'recursive' keyword in add_item
-    def mv(self, source_endpoint, target_endpoint, source_paths, target_paths, timeout=None):
+    def mv(self, source_endpoint, target_endpoint, source_paths, target_paths,
+           timeout=None, **kwargs):
         """
         Move files from one endpoint to another.
+
+        Parameters
+        ----------
+        source_endpoint : uuid.UUID, str
+            The Globus source endpoint. May be a UUID or a key in the Globus.endpoints attribute.
+        target_endpoint : uuid.UUID, str
+            The Globus destination endpoint. May be a UUID or a key in the Globus.endpoints
+            attribute.
+        source_paths : list of str, Path or PurePath
+            The absolute or relative Globus paths of source files to moves.  Note: if endpoint is
+            a UUID, the path must be absolute.
+        target_paths : list of str, Path or PurePath
+            The absolute or relative Globus paths of destination files to moves.  Note: if endpoint
+            is a UUID, the path must be absolute.
+        timeout : int
+            Maximum time in seconds to wait for the task to complete.
+        kwargs
+            Optional arguments for globus_sdk.TransferData.
+
+        Returns
+        -------
+        int
+            A Globus task ID.
         """
         source_endpoint, source_root = self._endpoint_id_root(source_endpoint)
         target_endpoint, target_root = self._endpoint_id_root(target_endpoint)
@@ -423,33 +459,42 @@ class Globus(DownloadClient):
 
         tdata = globus_sdk.TransferData(self.client, source_endpoint, target_endpoint,
                                         verify_checksum=True, sync_level='checksum',
-                                        label='ONE globus')
+                                        label='ONE globus', **kwargs)
         for source_path, target_path in zip(source_paths, target_paths):
             tdata.add_item(source_path, target_path)
 
         def wrapper():
+            """Function to submit Globus transfer and return the resulting task ID"""
             response = self.client.submit_transfer(tdata)
             task_id = response.get('task_id', None)
             return task_id
 
-        return self.run_task(wrapper, time_out=timeout)
+        return self.run_task(wrapper, timeout=timeout)
 
-    def run_task(self, globus_func, retries=3, time_out=None, skip_source_errors=False):
+    def run_task(self, globus_func, retries=3, timeout=None):
         """
         Block until a Globus task finishes and retry upon Network or REST Errors.
-        globus_func needs to submit a task to the client and return a task_id
+        globus_func needs to submit a task to the client and return a task_id.
 
 
         Parameters
         ----------
-        globus_func
-        retries
-        time_out
-        skip_source_errors
+        globus_func : function
+            A function that returns a Globus task ID, typically it will submit a transfer.
+        retries : int
+            The number of times to call globus_func if it raises a Globus error.
+        timeout : int
+            Maximum time in seconds to wait for the task to complete.
 
         Returns
         -------
+        int
+            Globus task ID.
 
+        Raises
+        ------
+        IOError
+            Timed out waiting for task to complete.
         """
         try:
             task_id = globus_func()
@@ -459,9 +504,9 @@ class Globus(DownloadClient):
             while not self.client.task_wait(task_id, timeout=5, polling_interval=1):
                 print('.', end='')
                 i += 1
-                if time_out and i >= time_out:
+                if timeout and i >= timeout:
                     task = self.client.get_task(task_id)
-                    raise IOError(f'Globus task {task_id} timed out after {time_out} seconds, '
+                    raise IOError(f'Globus task {task_id} timed out after {timeout} seconds, '
                                   f'with task status {task["status"]}')
             task = self.client.get_task(task_id)
             if task['status'] == 'SUCCEEDED':
@@ -479,7 +524,7 @@ class Globus(DownloadClient):
                     _logger.warning(f'\nGlobus task {task_id} SUCCEEDED but querying transfers was'
                                     f'unsuccessful')
             else:
-                raise IOError(f'Globus task finished unsucessfully with status {task["status"]}')
+                raise IOError(f'Globus task finished unsuccessfully with status {task["status"]}')
             return task_id
         except (GlobusAPIError, NetworkError, GlobusTimeoutError, GlobusConnectionError,
                 GlobusConnectionTimeoutError) as e:
@@ -490,4 +535,4 @@ class Globus(DownloadClient):
                 _logger.debug('\nGlobus experienced a network error', exc_info=True)
                 # if we reach this point without returning or erring, retry
                 _logger.warning('\nGlobus experienced a network error, retrying.')
-                self.run_task(globus_func, retries=(retries - 1), time_out=time_out)
+                self.run_task(globus_func, retries=(retries - 1), timeout=timeout)
