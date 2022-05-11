@@ -193,7 +193,8 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
             file_info = _get_dataset_info(session_path, rel_dset_path, compute_hash=hash_files)
             assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
             rows.append(file_info)
-        df = df.append(rows, ignore_index=True, verify_integrity=True)
+        df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS)),
+                       ignore_index=True, verify_integrity=True)
     return df
 
 

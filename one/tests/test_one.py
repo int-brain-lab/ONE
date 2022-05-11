@@ -28,6 +28,7 @@ Note ONE and AlyxClient use caching:
 """
 import datetime
 import logging
+import time
 from pathlib import Path
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -35,7 +36,6 @@ import unittest
 from unittest import mock
 import tempfile
 from uuid import UUID, uuid4
-import json
 import io
 
 import numpy as np
@@ -52,7 +52,7 @@ from one.util import (
 import one.params
 import one.alf.exceptions as alferr
 from . import util
-from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
+from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
 
 class TestONECache(unittest.TestCase):
@@ -61,21 +61,17 @@ class TestONECache(unittest.TestCase):
     """
     tempdir = None
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.tempdir = util.set_up_env()
+    def setUp(self) -> None:
+        self.tempdir = util.set_up_env()
         # Create ONE object with temp cache dir
-        cls.one = ONE(mode='local', cache_dir=cls.tempdir.name)
+        self.one = ONE(mode='local', cache_dir=self.tempdir.name)
         # Create dset files from cache
-        util.create_file_tree(cls.one)
+        util.create_file_tree(self.one)
 
     def tearDown(self) -> None:
-        # Reload cache table after each test
-        self.one.refresh_cache('refresh')
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.tempdir.cleanup()
+        while Path(self.one.cache_dir).joinpath('.cache.lock').exists():
+            time.sleep(.1)
+        self.tempdir.cleanup()
 
     def test_list_subjects(self):
         """Test One.list_subejcts"""
@@ -479,8 +475,6 @@ class TestONECache(unittest.TestCase):
         fake_id = self.one.to_eid(eid).replace('b', 'a')
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(fake_id, '_iblrig_leftCamera.timestamps.ssv')
-        # File missing
-        self.addCleanup(file.touch)  # File may be required by other tests
         file.unlink()
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv')
@@ -583,7 +577,6 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset_from_id(s_id.replace('a', 'b'))
         # File missing
-        self.addCleanup(file.touch)  # File may be required by other tests
         file.unlink()
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset_from_id(s_id)
@@ -619,7 +612,6 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_object(eid.replace('a', 'b'), 'wheel')
         # Test missing files on disk
-        self.addCleanup(lambda: [f.touch() for f in files])  # Restore files on cleanup
         [f.unlink() for f in files]
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_object(eid, 'wheel')
@@ -710,6 +702,62 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(len(self.one._cache.datasets))
         with self.assertRaises(ValueError):
             self.one.refresh_cache('double')
+
+    def test_save_cache(self):
+        """Test one.util.save_cache"""
+        self.one._cache['_meta'].pop('modified_time', None)
+        # Should be no cache save as it's not been modified
+        with tempfile.TemporaryDirectory() as tdir:
+            self.one._save_cache(save_dir=tdir)
+            self.assertFalse(any(Path(tdir).glob('*')))
+            # Should save two tables
+            self.one._cache['_meta']['modified_time'] = datetime.datetime.now()
+            self.one._save_cache(save_dir=tdir)
+            self.assertEqual(2, len(list(Path(tdir).glob('*.pqt'))))
+            # Load with One and check modified time is preserved
+            raw_modified = One(cache_dir=tdir)._cache['_meta']['raw']['datasets']['date_modified']
+            expected = self.one._cache['_meta']['modified_time'].strftime('%Y-%m-%d %H:%M')
+            self.assertEqual(raw_modified, expected)
+
+    def test_update_cache_from_records(self):
+        """Test One._update_cache_from_records"""
+        # Update with single record (pandas.Series), one exists, one doesn't
+        session = self.one._cache.sessions.iloc[0].squeeze()
+        session.name = str(uuid4())  # New record
+        dataset = self.one._cache.datasets.iloc[0].squeeze()
+        dataset['exists'] = not dataset['exists']
+        self.one._update_cache_from_records(sessions=session, datasets=dataset)
+        self.assertTrue(session.name in self.one._cache.sessions.index)
+        updated, = dataset['exists'] == self.one._cache.datasets.loc[dataset.name, 'exists']
+        self.assertTrue(updated)
+
+        # Update a number of records
+        datasets = self.one._cache.datasets.iloc[:3].copy()
+        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
+        # Make one of the datasets a new record
+        idx = datasets.index.values
+        idx[-1] = (idx[-1][0], str(uuid4()))
+        datasets.index = pd.MultiIndex.from_tuples(idx)
+        self.one._update_cache_from_records(datasets=datasets)
+        self.assertTrue(idx[-1] in self.one._cache.datasets.index)
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+
+        # Check behaviour when columns don't match
+        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
+        datasets['extra_column'] = True
+        self.one._cache.datasets['new_column'] = False
+        self.addCleanup(self.one._cache.datasets.drop, 'new_column', axis=1, inplace=True)
+        with self.assertRaises(AssertionError):
+            self.one._update_cache_from_records(datasets=datasets, strict=True)
+        self.one._update_cache_from_records(datasets=datasets)
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+
+        # Check fringe cases
+        with self.assertRaises(KeyError):
+            self.one._update_cache_from_records(unknown=datasets)
+        self.assertIsNone(self.one._update_cache_from_records(datasets=None))
 
     def test_save_loaded_ids(self):
         """Test One.save_loaded_ids and logic within One._check_filesystem"""
@@ -970,7 +1018,8 @@ class TestOneAlyx(unittest.TestCase):
         self.assertTrue('91546fc6-b67c-4a69-badc-5e66088519c4' in url)
         # Check remote mode
         url = self.one.path2url(file, query_type='remote')
-        self.assertTrue(url.startswith(self.one.alyx._par.HTTP_DATA_SERVER))
+        # Local data server path ends with '/public'; remote path does not
+        self.assertTrue(url.startswith(self.one.alyx._par.HTTP_DATA_SERVER.rsplit('/', 1)[0]))
 
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.path2url(file))
@@ -983,7 +1032,7 @@ class TestOneAlyx(unittest.TestCase):
         idx = (slice(None), '91546fc6-b67c-4a69-badc-5e66088519c4')
         dataset = self.one._cache['datasets'].loc[idx, :]
         url = self.one.record2url(dataset.squeeze())
-        expected = ('https://ibl.flatironinstitute.org/'
+        expected = ('https://ibl.flatironinstitute.org/public/'
                     'cortexlab/Subjects/KS005/2019-04-04/004/alf/'
                     '_ibl_wheel.position.91546fc6-b67c-4a69-badc-5e66088519c4.npy')
         self.assertEqual(expected, url)
@@ -1037,6 +1086,8 @@ class TestOneAlyx(unittest.TestCase):
         N = 5
         dsets = self.one._cache['datasets'].iloc[:N].copy()
         dsets['exists_aws'] = True
+
+        self.one.mode = 'auto'  # Can't download in local mode
 
         # Return a file size so progress bar callback hook functions
         file_object = mock.MagicMock()
@@ -1095,7 +1146,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(len(dsets), 0)
 
         # Test empty datasets
-        with mock.patch('one.util.ses2records', return_value=({}, None)):
+        with mock.patch('one.util.ses2records', return_value=(None, None)):
             dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
             self.assertIsInstance(dsets, pd.DataFrame)
             self.assertEqual(len(dsets), 0)
@@ -1108,7 +1159,7 @@ class TestOneRemote(unittest.TestCase):
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(11, len(dsets))
+        self.assertEqual(13, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
@@ -1118,30 +1169,37 @@ class TestOneRemote(unittest.TestCase):
         """Test OneAlyx.search"""
         eids = self.one.search(subject='SWC_043', query_type='remote')
         self.assertIn(self.eid, list(eids))
+
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
         self.assertTrue(correct)
+
         # Check minimum set of keys present (these are present in One.search output)
         expected = {'lab', 'subject', 'date', 'number', 'project'}
         self.assertTrue(det[0].keys() >= expected)
         # Test dataset search with Django
-        eids = self.one.search(subject='SWC_043', dataset=['spikes.times'],
+        eids = self.one.search(subject='SWC_043', dataset=['probes.description'], number=1,
                                django='data_dataset_session_related__collection__iexact,alf',
                                query_type='remote')
         self.assertCountEqual(eids, [self.eid])
+
         # Test date range
         eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
         self.assertCountEqual(eids, [self.eid])
+
         eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
-                               query_type='remote')
+                               lab='hoferlab', query_type='remote')
         self.assertCountEqual(eids, [self.eid])
+
         # Test limit arg and LazyId
-        eids = self.one.search(limit=2, query_type='remote')
+        eids = self.one.search(date='2020-03-23', limit=2, query_type='remote')
         self.assertIsInstance(eids, LazyId)
         self.assertTrue(all(len(x) == 36 for x in eids))
+
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')
         self.assertIn(self.eid, list(eids))
+
         eids = self.one.search(lab='hoferlab', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
@@ -1156,7 +1214,7 @@ class TestOneRemote(unittest.TestCase):
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
             self.one.load_dataset(self.eid, 'spikes.clusters', query_type='remote')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
-            self.one.load_dataset(self.eid, '_iblrig_*Camera.GPIO.bin', query_type='remote')
+            self.one.load_dataset(self.eid, '_iblrig_*Camera.raw', query_type='remote')
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(self.eid, '_iblrig_encoderEvents.raw.ssv',
                                   collection='alf', query_type='remote')
@@ -1206,6 +1264,10 @@ class TestOneDownload(unittest.TestCase):
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
+        # FIXME hack because data_url may be AWS
+        from one.alf.files import get_alf_path
+        rec['data_url'] = self.one.alyx.rel_path2url(get_alf_path(rec['data_url']))
+        # FIXME order may not be stable, this only works
         file = self.one._download_dataset(rec)
         self.assertIsInstance(file, Path)
         self.assertTrue(file.exists())
@@ -1238,8 +1300,13 @@ class TestOneDownload(unittest.TestCase):
             self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
+        # FIXME Another hack: for this to work the file records order must be correct.
+        fi = next(i for i, x in enumerate(rec['file_records'])
+                  if x['data_url'].startswith(self.one.alyx._par.HTTP_DATA_SERVER))
+        if fi != 0:
+            rec['file_records'] = [rec['file_records'].pop(fi), *rec['file_records']]
         file = self.one._download_dataset(rec, keep_uuid=True)
-        self.assertEqual(str(file).split('.')[2], '4a1500c2-60f3-418f-afa2-c752bb1890f0')
+        self.assertEqual(str(file).split('.')[2], rec['url'].split('/')[-1])
 
         # Check list input
         files = self.one._download_dataset([rec] * 2)
@@ -1273,6 +1340,7 @@ class TestOneDownload(unittest.TestCase):
 
         rec = self.one.list_datasets(self.eid, details=True)
         rec = rec[rec.rel_path.str.contains('pykilosort/channels.brainLocation')]
+        rec['exists_aws'] = False  # Ensure we use FlatIron for this
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
@@ -1430,18 +1498,17 @@ class TestOneSetup(unittest.TestCase):
 
     def test_patch_params(self):
         """Test patching legacy params to the new location"""
+
         # Save some old-style params
         old_pars = (one.params.default()
                     .set('CACHE_DIR', self.tempdir.name)
-                    .set('HTTP_DATA_SERVER_PWD', '123')
-                    .set('ALYX_LOGIN', 'intbrainlab'))
-        with open(Path(self.tempdir.name, '.one_params'), 'w') as f:
-            json.dump(old_pars.as_dict(), f)
+                    .set('HTTP_DATA_SERVER', 'openalyx.org'))
 
-        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
-                mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=False, mode='local', password='international')
-        self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER_PWD, '123')
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file):
+            one.params.setup(silent=True)
+            one.params.save(old_pars, old_pars.ALYX_URL)
+            one_obj = ONE(base_url=old_pars.ALYX_URL, mode='local')
+        self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER, one.params.default().HTTP_DATA_SERVER)
 
     def test_one_factory(self):
         """Tests the ONE class factory"""

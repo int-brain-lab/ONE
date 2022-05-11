@@ -1,11 +1,4 @@
-"""Classes for searching, listing and (down)loading ALyx Files.
-
-Things left to complete:
-
-    - TODO Save changes to cache.
-    - TODO Fix update cache in AlyxONE - save parquet table.
-    - TODO save parquet in update_filesystem.
-"""
+"""Classes for searching, listing and (down)loading ALyx Files."""
 import collections.abc
 import warnings
 import logging
@@ -16,6 +9,8 @@ from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
 from uuid import UUID
+import time
+import threading
 
 import pandas as pd
 import numpy as np
@@ -73,6 +68,8 @@ class One(ConversionMixin):
             'expired': False,
             'created_time': None,
             'loaded_time': None,
+            'modified_time': None,
+            'saved_time': None,
             'raw': {}  # map of original table metadata
         }})
         self._load_cache()
@@ -129,6 +126,58 @@ class One(ConversionMixin):
         self._cache['_meta'] = meta
         return self._cache['_meta']['loaded_time']
 
+    def save_cache(self, save_dir=None, force=False):
+        """Save One._cache attribute into parquet tables if recently modified.
+
+        Parameters
+        ----------
+        save_dir : str, pathlib.Path
+            The directory path into which the tables are saved.  Defaults to cache directory.
+        force : bool
+            If True, the cache is saved regardless of modification time.
+        """
+        threading.Thread(target=lambda: self._save_cache(save_dir=save_dir, force=force)).start()
+
+    def _save_cache(self, save_dir=None, force=False):
+        """
+        Checks if another process is writing to file, if so waits before saving.
+
+        Parameters
+        ----------
+        save_dir : str, pathlib.Path
+            The directory path into which the tables are saved.  Defaults to cache directory.
+        force : bool
+            If True, the cache is saved regardless of modification time.
+        """
+        TIMEOUT = 30  # Delete lock file this many seconds after creation/modification or waiting
+        lock_file = Path(self.cache_dir).joinpath('.cache.lock')
+        save_dir = Path(save_dir or self.cache_dir)
+        meta = self._cache['_meta']
+        modified = meta.get('modified_time') or datetime.min
+        update_time = max(meta.get(x) or datetime.min for x in ('loaded_time', 'saved_time'))
+        if modified < update_time and not force:
+            return  # Not recently modified; return
+
+        # Check if in use by another process
+        while lock_file.exists():
+            if time.time() - lock_file.stat().st_ctime > TIMEOUT:
+                lock_file.unlink(missing_ok=True)
+            else:
+                time.sleep(.1)
+
+        _logger.info('Saving cache tables...')
+        lock_file.touch()
+        try:
+            for table in filter(lambda x: not x[0] == '_', self._cache.keys()):
+                metadata = meta['raw'][table]
+                metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
+                filename = save_dir.joinpath(f'{table}.pqt')
+                parquet.save(filename, self._cache[table], metadata)
+                _logger.debug(f'Saved {filename}')
+            meta['saved_time'] = datetime.now()
+        finally:
+            lock_file.unlink()
+
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
 
@@ -143,6 +192,10 @@ class One(ConversionMixin):
         datetime.datetime
             Loaded timestamp
         """
+        # NB: Currently modified table will be lost if called with 'refresh';
+        # May be instances where modified cache is saved then immediately replaced with a new
+        # remote cache. Also it's too slow :(
+        # self.save_cache()  # Save cache if modified
         if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
@@ -155,6 +208,70 @@ class One(ConversionMixin):
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
+
+    def _update_cache_from_records(self, strict=False, **kwargs):
+        """
+        Update the cache tables with new records.
+
+        Parameters
+        ----------
+        strict : bool
+            If not True, the columns don't need to match.  Extra columns in input tables are
+            dropped and missing columns are added and filled with np.nan.
+        kwargs
+            pandas.DataFrame or pandas.Series to insert/update for each table
+
+        Returns
+        -------
+        datetime.datetime:
+            A timestamp of when the cache was updated
+
+        Example
+        -------
+        >>> session, datasets = util.ses2records(self.get_details(eid, full=True))
+        ... self._update_cache_from_records(sessions=session, datasets=datasets)
+
+        Raises
+        ------
+        AssertionError
+            When strict is True the input columns must exactly match those oo the cache table,
+            including the order.
+        KeyError
+            One or more of the keyword arguments does not match a table in One._cache
+        """
+        updated = None
+        for table, records in kwargs.items():
+            if records is None or records.empty:
+                continue
+            if table not in self._cache:
+                raise KeyError(f'Table "{table}" not in cache')
+            if isinstance(records, pd.Series):
+                records = pd.DataFrame([records])
+            if not strict:
+                # Deal with case where there are extra columns in the cache
+                extra_columns = set(self._cache[table].columns) - set(records.columns)
+                for col in extra_columns:
+                    n = list(self._cache[table].columns).index(col)
+                    records.insert(n, col, np.nan)
+                # Drop any extra columns in the records that aren't in cache table
+                to_drop = set(records.columns) - set(self._cache[table].columns)
+                records.drop(to_drop, axis=1, inplace=True)
+                records = records.reindex(columns=self._cache[table].columns)
+            assert all(self._cache[table].columns == records.columns)
+            # Update existing rows
+            to_update = records.index.isin(self._cache[table].index)
+            self._cache[table].loc[records.index[to_update], :] = records[to_update]
+            # Assign new rows
+            to_assign = records[~to_update]
+            if isinstance(self._cache[table].index, pd.MultiIndex) and not to_assign.empty:
+                # Concatenate and sort (no other way for non-unique index within MultiIndex)
+                self._cache[table] = pd.concat([self._cache[table], to_assign]).sort_index()
+            else:
+                for index, record in to_assign.iterrows():
+                    self._cache[table].loc[index, :] = record[self._cache[table].columns].values
+            updated = datetime.now()
+        self._cache['_meta']['modified_time'] = updated
+        return updated
 
     def save_loaded_ids(self, sessions_only=False, clear_list=True):
         """
@@ -404,7 +521,9 @@ class One(ConversionMixin):
             if rec['exists'] != file.exists():
                 datasets.at[i, 'exists'] = not rec['exists']
                 if update_exists:
+                    _logger.debug('Updating exists field')
                     self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
+                    self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
@@ -1387,7 +1506,9 @@ class OneAlyx(One):
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
-        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        session, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        # Add to cache tables
+        self._update_cache_from_records(sessions=session, datasets=datasets)
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
@@ -1539,7 +1660,7 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, **kwargs) -> List[Path]:
+    def _download_aws(self, dsets, update_exists=True, **kwargs) -> List[Path]:
         # Download datasets from AWS
         from tqdm import tqdm
         import boto3
@@ -1555,6 +1676,7 @@ class OneAlyx(One):
 
         if self._index_type() is int:
             raise NotImplementedError('AWS download only supported for str index cache')
+        assert self.mode != 'local'
         repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
         bucket_name = repo_json['bucket_name']
         session_keys = {
@@ -1563,12 +1685,24 @@ class OneAlyx(One):
         }
         session = boto3.Session(**session_keys)
         s3 = session.resource('s3')
+        # Get all dataset URLs
+        dsets = list(dsets)  # Ensure not generator
+        uuids = [util.ensure_list(x.name)[-1] for x in dsets]
+        remote_records = self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids}')
+        remote_records = sorted(remote_records, key=lambda x: uuids.index(x['url'].split('/')[-1]))
         out_files = []
-        for dset in dsets:
-            eid, dset_uuid = dset.name
-            source_path = PurePosixPath('data').joinpath(
-                dset['session_path'], add_uuid_string(dset['rel_path'], dset_uuid)
-            )
+        for dset, uuid, record in zip(dsets, uuids, remote_records):
+            # Fetch file record path
+            record = next((x for x in record['file_records']
+                           if x['data_repository'].startswith('aws') and x['exists']), None)
+            if not record and update_exists and 'exists_aws' in self._cache['datasets']:
+                _logger.debug('Updating exists field')
+                self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
+                self._cache['_meta']['modified_time'] = datetime.now()
+                out_files.append(None)
+                continue
+            source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
+            source_path = add_uuid_string(source_path, uuid)
             local_path = alfio.remove_uuid_file(
                 self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
@@ -1591,14 +1725,16 @@ class OneAlyx(One):
         """
         Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the
         following: a dict from returned by the sessions endpoint or dataset endpoint, a record
-        from the datasets cache table, or a file path.  If the dataset is from Alyx and cannot be
-        converted to a URL, 'exists' will be set to False in the corresponding entry in the cache
-        table. Unlike record2url, this method can convert dicts and paths to URLs.
+        from the datasets cache table, or a file path.  Unlike record2url, this method can convert
+        dicts and paths to URLs.
 
         Parameters
         ----------
         dset : dict, str, pd.Series, pd.DataFrame, list
             A single or multitude of dataset dictionary from an Alyx REST query OR URL string
+        update_cache : bool
+            If True (default) and the dataset is from Alyx and cannot be converted to a URL,
+            'exists' will be set to False in the corresponding entry in the cache table.
 
         Returns
         -------
@@ -1629,12 +1765,16 @@ class OneAlyx(One):
                 is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
                 did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
-                url = next((fr['data_url'] for fr in dset['file_records']
-                            if fr['data_url'] and fr['exists']), None)
+                repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
+                url = next(
+                    (fr['data_url'] for fr in dset['file_records']
+                     if fr['data_url'] and fr['exists'] and
+                     fr['data_url'].startswith(repo or fr['data_url'])), None)
                 did = dset['url'][-36:]
 
         # Update cache if url not found
         if did is not None and not url and update_cache:
+            _logger.debug('Updating cache')
             if isinstance(did, str) and self._index_type('datasets') is int:
                 did, = parquet.str2np(did).tolist()
             elif self._index_type('datasets') is str and not isinstance(did, str):
@@ -1642,6 +1782,7 @@ class OneAlyx(One):
             # NB: This will be considerably easier when IndexSlice supports Ellipsis
             idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
             self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
+            self._cache['_meta']['modified_time'] = datetime.now()
 
         return url
 
@@ -1719,7 +1860,7 @@ class OneAlyx(One):
         Returns
         -------
         pathlib.Path
-            The file path of the downloaded file or files
+            The file path of the downloaded file or files.
 
         Example
         -------
@@ -2060,46 +2201,3 @@ class OneAlyx(One):
         out.update({'local_path': self.eid2path(eid),
                     'date': datetime.fromisoformat(out['start_time']).date()})
         return out
-
-    # def _update_cache(self, ses, dataset_types):
-    #     """
-    #     TODO move to One; currently unused
-    #     :param ses: session details dictionary as per Alyx response
-    #     :param dataset_types:
-    #     :return: is_updated (bool): if the cache was updated or not
-    #     """
-    #     save = False
-    #     pqt_dsets = _ses2pandas(ses, dtypes=dataset_types)
-    #     # if the dataframe is empty, return
-    #     if pqt_dsets.size == 0:
-    #         return
-    #     # if the cache is empty create the cache variable
-    #     elif self._cache.size == 0:
-    #         self._cache = pqt_dsets
-    #         save = True
-    #     # the cache is not empty and there are datasets in the query
-    #     else:
-    #         isin, icache = ismember2d(pqt_dsets[['id_0', 'id_1']].to_numpy(),
-    #                                   self._cache[['id_0', 'id_1']].to_numpy())
-    #         # check if the hash / filesize fields have changed on patching
-    #         heq = (self._cache['hash'].iloc[icache].to_numpy() ==
-    #                pqt_dsets['hash'].iloc[isin].to_numpy())
-    #         feq = np.isclose(self._cache['file_size'].iloc[icache].to_numpy(),
-    #                          pqt_dsets['file_size'].iloc[isin].to_numpy(),
-    #                          rtol=0, atol=0, equal_nan=True)
-    #         eq = np.logical_and(heq, feq)
-    #         # update new hash / filesizes
-    #         if not np.all(eq):
-    #             self._cache.iloc[icache, 4:6] = pqt_dsets.iloc[np.where(isin)[0], 4:6].to_numpy()
-    #             save = True
-    #         # append datasets that haven't been found
-    #         if not np.all(isin):
-    #             self._cache = self._cache.append(pqt_dsets.iloc[np.where(~isin)[0]])
-    #             self._cache = self._cache.reindex()
-    #             save = True
-    #     if save:
-    #         # before saving makes sure pandas did not cast uuids in float
-    #         typs = [t for t, k in zip(self._cache.dtypes, self._cache.keys()) if 'id_' in k]
-    #         assert (all(map(lambda t: t == np.int64, typs)))
-    #         # if this gets too big, look into saving only when destroying the ONE object
-    #         parquet.save(self._cache_file, self._cache)

@@ -395,21 +395,19 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     file_size = int(u.getheader('Content-length'))
     if not silent:
         print(f'Downloading: {file_name} Bytes: {file_size}')
-    file_size_dl = 0
     block_sz = 8192 * 64 * 8
 
     md5 = hashlib.md5()
     f = open(file_name, 'wb')
-    with tqdm(total=file_size, disable=silent) as pbar:
+    with tqdm(total=file_size / 1024 / 1024, disable=silent) as pbar:
         while True:
             buffer = u.read(block_sz)
             if not buffer:
                 break
-            file_size_dl += len(buffer)
             f.write(buffer)
             if return_md5:
                 md5.update(buffer)
-            pbar.update(file_size_dl)
+            pbar.update(len(buffer) / 1024 / 1024)
     f.close()
 
     return (file_name, md5.hexdigest()) if return_md5 else file_name
@@ -556,12 +554,16 @@ class AlyxClient():
         if rest_query.startswith('/docs'):
             # the mixed accept application may cause errors sometimes, only necessary for the docs
             headers['Accept'] = 'application/coreapi+json'
-        r = reqfunction(self.base_url + rest_query, stream=True, headers=headers,
-                        data=data, files=files)
+        r = reqfunction(self.base_url + rest_query,
+                        stream=True, headers=headers, data=data, files=files)
         if r and r.status_code in (200, 201):
             return json.loads(r.text)
         elif r and r.status_code == 204:
             return
+        if r.status_code == 403 and '"Invalid token."' in r.text:
+            _logger.debug('Token invalid; Attempting to re-authenticate...')
+            self.authenticate(username=self.user, force=True)
+            return self._generic_request(reqfunction, rest_query, data=data, files=files)
         else:
             _logger.debug('Response text: ' + r.text)
             try:
@@ -740,6 +742,7 @@ class AlyxClient():
         if not self.is_logged_in:
             self.authenticate()
         location = location or f'{self.base_url}/cache.zip'
+
         headers = self._headers if location.startswith(self.base_url) else None
         with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
             file = http_download_file(location,

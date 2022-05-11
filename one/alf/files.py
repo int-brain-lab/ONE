@@ -375,7 +375,7 @@ def add_uuid_string(file_path, uuid):
 
     Parameters
     ----------
-    file_path : str, pathlib.Path
+    file_path : str, pathlib.Path, pathlib.PurePath
         An ALF path to add the UUID to
     uuid : str, uuid.UUID
         The UUID to add
