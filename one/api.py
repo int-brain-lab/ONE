@@ -1662,29 +1662,11 @@ class OneAlyx(One):
 
     def _download_aws(self, dsets, update_exists=True, **kwargs) -> List[Path]:
         # Download datasets from AWS
-        from tqdm import tqdm
-        import boto3
-        from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
-
-        def _callback_hook(t):
-            # https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586
-            # For example that uses actual file size:
-            # boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/s3/transfer.html
-            def inner(bytes_amount):
-                t.update(bytes_amount)
-            return inner
-
+        import one.remote.aws as aws
+        s3, bucket_name = aws.get_s3_from_alyx(self)
         if self._index_type() is int:
             raise NotImplementedError('AWS download only supported for str index cache')
         assert self.mode != 'local'
-        repo_json = self.alyx.rest('data-repository', 'read', id='aws_cortexlab')['json']
-        bucket_name = repo_json['bucket_name']
-        session_keys = {
-            'aws_access_key_id': repo_json.get('Access key ID', None),
-            'aws_secret_access_key': repo_json.get('Secret access key', None)
-        }
-        session = boto3.Session(**session_keys)
-        s3 = session.resource('s3')
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
         uuids = [util.ensure_list(x.name)[-1] for x in dsets]
@@ -1706,19 +1688,8 @@ class OneAlyx(One):
             local_path = alfio.remove_uuid_file(
                 self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
-            out_files.append(local_path)
-            try:
-                file_object = s3.Object(bucket_name, source_path.as_posix())
-                filesize = file_object.content_length
-                with tqdm(total=filesize, unit='B',
-                          unit_scale=True, desc=local_path.as_posix()) as t:
-                    file_object.download_file(Filename=str(local_path), Callback=_callback_hook(t))
-            except (NoCredentialsError, PartialCredentialsError) as ex:
-                raise ex  # Credentials need updating in Alyx
-            except ClientError as ex:
-                if ex.response.get('Error', {}).get('Code', None) == '404':
-                    _logger.error(f'File {source_path} not found on {bucket_name}')
-                    out_files[-1] = None
+            out_files.append(
+                aws.s3_download_file(source_path, local_path, s3=s3, bucket_name=bucket_name))
         return out_files
 
     def _dset2url(self, dset, update_cache=True):

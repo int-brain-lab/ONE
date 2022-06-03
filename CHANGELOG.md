@@ -3,6 +3,15 @@
 
 ### Added
 
+- one.remote.aws module to provide low-level access to s3 download functions, both private and public
+
+### Modified
+
+
+## [1.11.0]
+
+### Added
+
 - One._update_cache_from_records method for adding remote Alyx records to the cache
 - One.save_cache method to save modified cache
 
