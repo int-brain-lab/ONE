@@ -1101,7 +1101,8 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(len(out_paths), N, 'Returned list should equal length of input datasets')
         self.assertTrue(all(isinstance(x, Path) for x in out_paths))
         # These values come from REST cache fixture
-        boto3_mock.assert_called_with(aws_access_key_id='ABCDEF', aws_secret_access_key='shhh')
+        boto3_mock.assert_called_with(aws_access_key_id='ABCDEF', aws_secret_access_key='shhh',
+                                      region_name='us-east-1')
         ((bucket, path), _), *_ = boto3_mock().resource().Object.call_args_list
         self.assertEqual(bucket, 's3_bucket')
         self.assertTrue(dsets['rel_path'][0].split('.')[0] in path)
