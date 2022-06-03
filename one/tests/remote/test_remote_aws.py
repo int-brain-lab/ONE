@@ -1,10 +1,37 @@
+import json
 import unittest
+import tempfile
+from pathlib import Path
 
 from one.tests import TEST_DB_1, OFFLINE_ONLY
 from one.api import ONE
 import one.remote.aws as aws
 
 one = ONE(**TEST_DB_1)
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestAWSPublic(unittest.TestCase):
+    source = 'caches/openalyx/cache_info.json'
+    """
+    This test relies on downloading the cache folder for open alyx as it is rather small
+    The assertions may change if the content does change.
+    If the folder grows bigger, we could create a dedicated test folder for this test
+    """
+    def test_download_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            destination = Path(td).joinpath('caches/unit_test/cache_info.json')
+            local_file = aws.s3_download_file(self.source, destination)
+            with open(local_file, 'r') as fid:
+                js = json.load(fid)
+        assert(len(js.keys()) == 5)
+
+    def test_download_folder(self):
+        source = 'caches/openalyx'
+        with tempfile.TemporaryDirectory() as td:
+            destination = Path(td).joinpath('caches/unit_test')
+            local_files = aws.s3_download_public_folder(source, destination)
+        assert(len(local_files) == 2)
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')

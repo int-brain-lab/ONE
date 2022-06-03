@@ -1,4 +1,21 @@
-""" Backend for AWS"""
+"""
+This module is intended to provide a backend to download IBL data from AWS Buckets
+
+For example, without any credentials, to download a public file from the IBL public bucket:
+```
+import one.remote.aws as aws
+source = 'caches/unit_test/cache_info.json'
+destination = '/home/olivier/scratch/cache_info.json'
+aws.s3_download_file(source, destination)
+
+For a folder, the following
+```
+source = 'caches/unit_test'
+destination = '/home/olivier/scratch/caches/unit_test'
+local_files = aws.s3_download_public_folder(source, destination)
+"""
+
+
 from pathlib import Path
 import logging
 from tqdm import tqdm
@@ -69,6 +86,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=T
     :return: local file path, None if not found
     """
     destination = Path(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
     if s3 is None:
         s3, bucket_name = get_s3_public()
     try:
@@ -91,23 +109,26 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=T
     return destination
 
 
-def s3_download_public_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, overwrite=False):
+def s3_download_public_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL,
+                              overwrite=False):
     """
     downloads a public folder content to a local folder
     :param source: relative path within the bucket, for example: 'spikesorting/benchmark
     :param destination: local folder path
     :param bucket_name: if not specified, 'ibl-brain-wide-map-public'
     :param s3: s3 resource, if not specified, public IBL repository
-    :param overwrite: (default False) if set to True, will re-download files even if already exists and size matches
+    :param overwrite: (default False) if set to True, will re-download files even if file
+     already exists and file size matches s3 file size
     :return:
     """
     if s3 is None:
         s3, bucket_name = get_s3_public()
-    response = s3.list_objects_v2(Prefix=source, Bucket=bucket_name)
     local_files = []
-    for item in response.get('Contents', []):
-        object = item['Key']
-        if object.endswith('/') and item['Size'] == 0:  # skips folder
+    for obj_summary in s3.Bucket(name=bucket_name).objects.filter(Prefix=source):
+        if obj_summary.key.endswith('/') and obj_summary.size == 0:  # skips folder
             continue
-        lf = s3_download_file(source, destination, s3=s3, bucket_name=bucket_name, overwrite=overwrite)
+        local_file = Path(destination).joinpath(Path(obj_summary.key).relative_to(source))
+        lf = s3_download_file(obj_summary.key, local_file, s3=s3, bucket_name=bucket_name,
+                              overwrite=overwrite)
         local_files.append(lf)
+    return local_files
