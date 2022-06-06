@@ -3,12 +3,9 @@
 The Open Neurophysiology Environment is a protocol for standardizing, searching and sharing
 neurophysiology data.
 
-A user searches and loads data using a Python API, which returns the data as numerical arrays, or 
-other objects. When connected to an [Alyx database](https://github.com/cortex-lab/alyx/#alyx) 
-(e.g. with IBL data), the user can search and download from remote servers. However the same API can 
-also be used to access data files stored on the user's machine, provided they follow 
-**the Alyx file name specification** ([ALF](./alf_intro)).
-This makes it easy for scientists to share data using ONE as a standard.
+ONE defines a simple set of conventions for how to store and share neurophysiology data, including features such as cross-references between datasets, versioning, and time synchronization. The easiest way to share data with ONE is save it in files following the [ONE filename convention](./Open_Neurophysiology_Environment_Filename_Convention.pdf), and put them on a website. By following this convention, individual labs or small collaborations can enable users to easily load their data and understand how it is organized, without having to spend hours reading documentation.  
+
+ONE also provides an API to search and load datasets. The same API commands can be used to access a few files kept on a user's local machine, or large collections of files stored on a remote server. By releasing data in remote mode, large collaborations can release data covering all aspects of their experiments while allowing users to find and download only the specific data items that they need. Using the same interface to access small and large collections makes it easy for scientists to share data using ONE as a standard, and to scale up as their projects grow.
 
 ## How the ONE API works
 

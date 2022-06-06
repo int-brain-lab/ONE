@@ -141,12 +141,8 @@
 <h1>Introduction to ONE (Open Neurophysiology Environment)<a class="headerlink" href="#introduction-to-one-open-neurophysiology-environment" title="Permalink to this headline"></a></h1>
 <p>The Open Neurophysiology Environment is a protocol for standardizing, searching and sharing
 neurophysiology data.</p>
-<p>A user searches and loads data using a Python API, which returns the data as numerical arrays, or
-other objects. When connected to an <a class="reference external" href="https://github.com/cortex-lab/alyx/#alyx">Alyx database</a>
-(e.g. with IBL data), the user can search and download from remote servers. However the same API can
-also be used to access data files stored on the user’s machine, provided they follow
-<strong>the Alyx file name specification</strong> (<a class="reference internal" href="alf_intro.html"><span class="doc std std-doc">ALF</span></a>).
-This makes it easy for scientists to share data using ONE as a standard.</p>
+<p>ONE defines a simple set of conventions for how to store and share neurophysiology data, including features such as cross-references between datasets, versioning, and time synchronization. The easiest way to share data with ONE is save it in files following the <a class="reference download internal" download="" href="_downloads/d82e118af539e2761734231bc1153cab/Open_Neurophysiology_Environment_Filename_Convention.pdf"><span class="xref download myst">ONE filename convention</span></a>, and put them on a website. By following this convention, individual labs or small collaborations can enable users to easily load their data and understand how it is organized, without having to spend hours reading documentation.</p>
+<p>ONE also provides an API to search and load datasets. The same API commands can be used to access a few files kept on a user’s local machine, or large collections of files stored on a remote server. By releasing data in remote mode, large collaborations can release data covering all aspects of their experiments while allowing users to find and download only the specific data items that they need. Using the same interface to access small and large collections makes it easy for scientists to share data using ONE as a standard, and to scale up as their projects grow.</p>
 <section id="how-the-one-api-works">
 <h2>How the ONE API works<a class="headerlink" href="#how-the-one-api-works" title="Permalink to this headline"></a></h2>
 <p>The API comprises three simple methods to search, list and load data.
