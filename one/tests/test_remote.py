@@ -181,10 +181,6 @@ class TestGlobus(unittest.TestCase):
         if sys.platform == 'win32':
             actual = globus.as_globus_path('E:\\FlatIron\\integration')
             self.assertTrue(actual.startswith('/E/'))
-        # A relative POSIX path
-        actual = globus.as_globus_path('/mnt/foo/../data/integration')
-        expected = '/mnt/data/integration'  # "/C/mnt/data/integration
-        self.assertTrue(actual.endswith(expected))
 
         # A globus path
         actual = globus.as_globus_path('/E/FlatIron/integration')
@@ -375,7 +371,8 @@ class TestGlobusClient(unittest.TestCase):
         path = globus.as_globus_path(self.tempdir.name)
         out = self.client.ls('local', path)
         self.assertEqual(2, self.client.client.operation_ls.call_count)
-        self.assertEqual([response['name']], out)
+        self.assertIsInstance(out[0], PurePosixPath)
+        self.assertEqual(response['name'], out[0].as_posix())
 
         # Remove uuid and return size args
         self.client.client.operation_ls.side_effect = ([response],)
