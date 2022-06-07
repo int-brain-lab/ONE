@@ -186,7 +186,8 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
     list of pathlib.Path
         The local file paths.
     """
-    if (destination := Path(destination)).exists():
+    destination = Path(destination)
+    if destination.exists():
         assert destination.is_dir(), 'destination must be a folder'
     if s3 is None:
         s3, bucket_name = get_s3_public()
