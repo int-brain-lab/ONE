@@ -1,3 +1,4 @@
+"""Tests for the one.remote.aws module."""
 import json
 import unittest
 import tempfile
@@ -12,13 +13,15 @@ one = ONE(**TEST_DB_1)
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAWSPublic(unittest.TestCase):
-    source = 'caches/openalyx/cache_info.json'
     """
     This test relies on downloading the cache folder for open alyx as it is rather small
     The assertions may change if the content does change.
     If the folder grows bigger, we could create a dedicated test folder for this test
     """
+    source = 'caches/openalyx/cache_info.json'
+
     def test_download_file(self):
+        """Test for one.aws.remote.s3_download_file function."""
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td).joinpath('caches/unit_test/cache_info.json')
             local_file = aws.s3_download_file(self.source, destination)
@@ -27,16 +30,21 @@ class TestAWSPublic(unittest.TestCase):
         assert(len(js.keys()) == 5)
 
     def test_download_folder(self):
+        """Test for one.remote.aws.s3_download_public_folder function."""
         source = 'caches/openalyx'
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td).joinpath('caches/unit_test')
-            local_files = aws.s3_download_public_folder(source, destination)
+            local_files = aws.s3_download_folder(source, destination)
         assert(len(local_files) == 2)
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAWS(unittest.TestCase):
     """Tests for AlyxClient authentication, token storage, login/out methods and user prompts"""
+
+    """Data for our repo fixture."""
+    repo = None
+
     @classmethod
     def setUpClass(cls):
         """ get_some_resource() is slow, to avoid calling it for each test use setUpClass()
@@ -68,6 +76,8 @@ class TestAWS(unittest.TestCase):
         one.alyx.rest('data-repository', 'delete', id=cls.repo['name'])
 
     def test_credentials(self):
+        """Test for one.remote.aws.get_aws_access_keys function."""
         cred, bucket_name = aws.get_aws_access_keys(one, self.repo['name'])
-        assert cred == {'aws_access_key_id': 'key', 'aws_secret_access_key': 'secret_access'}
-        assert bucket_name == self.repo['json']['bucket_name']
+        expected = {'aws_access_key_id': 'key', 'aws_secret_access_key': 'secret_access'}
+        self.assertDictEqual(cred, expected)
+        self.assertEqual(bucket_name, self.repo['json']['bucket_name'])
