@@ -86,6 +86,7 @@
 <li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
@@ -151,6 +152,8 @@
 <section id="module-one.alf.cache">
 <span id="one-alf-cache"></span><h1>one.alf.cache<a class="headerlink" href="#module-one.alf.cache" title="Permalink to this headline"></a></h1>
 <p>Construct Parquet database from local file system.</p>
+<p>NB: If using a remote Alyx instance it is advisable to generate the cache via the Alyx one_cache
+management command, otherwise the resulting cache UUIDs will not match those on the database.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">One</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cache_dir</span> <span class="o">=</span> <span class="s1">&#39;path/to/data&#39;</span>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.remote.base &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.remote.base.ALYX_JSON" href="one.remote.base.ALYX_JSON.html" />
+    <link rel="prev" title="one.remote" href="one.remote.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.remote.html">one.remote</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">one.remote.base</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+          <li><a href="one.remote.html">one.remote</a> &raquo;</li>
+      <li>one.remote.base</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.remote.base.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.remote.base">
+<span id="one-remote-base"></span><h1>one.remote.base<a class="headerlink" href="#module-one.remote.base" title="Permalink to this headline"></a></h1>
+<p>Download methods common to all remote file download clients.</p>
+<p>All supported access protocols are defined in ALYX_JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param - All parameters are stored in the .remote JSON file.</dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">param - The base keys are access protocols</dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">type - The base keys are access protocols</dt>
+<dd class="field-odd"><p>e.g. ‘globus’</p>
+</dd>
+<dt class="field-even">param - Each contains a map of ID to parameters</dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">type - Each contains a map of ID to parameters</dt>
+<dd class="field-odd"><p>e.g. keys such as ‘default’, ‘admin’</p>
+</dd>
+<dt class="field-even">param - load_client_params and save_client_params are used to read/write these params.</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+<p>Includes the DownloadClient superclass.</p>
+<dl class="simple">
+<dt>TODO Currently record2url assumes all data are stored on a single HTTP data server. Data repos</dt><dd><p>are not stored in the cache tables so should by default use HTTP data server but could get
+address by precedence.  NB: OneAlyx._download_dataset uses record2url then calls
+AlyxClient.download_file.</p>
+</dd>
+</dl>
+<p>TODO Could have .one/.params file that stores ONE state, including whether files are distributed?
+TODO Release changes to alyx repo first</p>
+<p class="rubric">Module attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="one.remote.base.ALYX_JSON.html#one.remote.base.ALYX_JSON" title="one.remote.base.ALYX_JSON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALYX_JSON</span></code></a></p></td>
+<td><p>Location of the remote download client parameters</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.base.load_client_params" title="one.remote.base.load_client_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_client_params</span></code></a></p></td>
+<td><p>Load the parameters from the remote params file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.base.save_client_params" title="one.remote.base.save_client_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_client_params</span></code></a></p></td>
+<td><p>Save parameters into the remote params file.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.base.DownloadClient" title="one.remote.base.DownloadClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DownloadClient</span></code></a></p></td>
+<td><p>Data download handler base class</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="one.remote.base.ALYX_JSON">
+<span class="sig-name descname"><span class="pre">ALYX_JSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'access_protocol':</span> <span class="pre">{('aws',</span> <span class="pre">'http',</span> <span class="pre">'kachary',</span> <span class="pre">'globus')}}</span></em><a class="headerlink" href="#one.remote.base.ALYX_JSON" title="Permalink to this definition"></a></dt>
+<dd><p>Location of the remote download client parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.base.load_client_params">
+<span class="sig-name descname"><span class="pre">load_client_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_present</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#load_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.load_client_params" title="Permalink to this definition"></a></dt>
+<dd><p>Load the parameters from the remote params file.  If a client key is provided, only those
+client parameters are returned.  NB: Remote param values are expected to all be dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client_key</strong> (<em>str</em>) – An optional, specific client whose parameters to return.</p></li>
+<li><p><strong>assert_present</strong> (<em>bool</em>) – If True, raise error if client parameters not found.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Download client parameters or None if assert_present is False and no parameters found.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>IBLParams, None</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> – No one/remote JSON file found</p></li>
+<li><p><strong>AttributeError</strong> – Provided client key not present in one/remote params</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Load all remote parameters</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Load all glogus parameters or return None if non-existent</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="s1">&#39;globus&#39;</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load parameters for a specific globus profile</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="s1">&#39;globus.admin&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.base.save_client_params">
+<span class="sig-name descname"><span class="pre">save_client_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_pars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#save_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.save_client_params" title="Permalink to this definition"></a></dt>
+<dd><p>Save parameters into the remote params file.  If a client key is provided, parameters are
+saved into this field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_pars</strong> (<em>dict</em><em>, </em><em>IBLParams</em>) – A set or subset or parameters to save</p></li>
+<li><p><strong>client_key</strong> (<em>str</em>) – An optional, specific client whose parameters to save.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If client_key is None, all parameter fields must hold dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.remote.base.DownloadClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DownloadClient</span></span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data download handler base class</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.base.DownloadClient.to_address">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.to_address" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the remote data URL for a given ALF path</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.base.DownloadClient.download_file">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.download_file" title="Permalink to this definition"></a></dt>
+<dd><p>Download an ALF dataset given its address</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.base.DownloadClient.setup">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.setup" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.base.DownloadClient.repo_from_alyx">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">repo_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.repo_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.repo_from_alyx" title="Permalink to this definition"></a></dt>
+<dd><p>Return the data repository information for a given data repository</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.remote.html" class="btn btn-neutral float-left" title="one.remote" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.remote.base.ALYX_JSON.html" class="btn btn-neutral float-right" title="one.remote.base.ALYX_JSON" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+one.remote.base.ALYX\_JSON
+==========================
+
+.. currentmodule:: one.remote.base
+
+.. autodata:: ALYX_JSON

@@ -1645,6 +1645,7 @@
 <div class="viewcode-block" id="TestOneMisc"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc">[docs]</a><span class="k">class</span> <span class="nc">TestOneMisc</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Test functions in one.util&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TestOneMisc.test_validate_date_range"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_validate_date_range">[docs]</a>    <span class="k">def</span> <span class="nf">test_validate_date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util.validate_date_range&quot;&quot;&quot;</span>
         <span class="c1"># Single string date</span>
         <span class="n">actual</span> <span class="o">=</span> <span class="n">validate_date_range</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>  <span class="c1"># On this day</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">),</span>
@@ -1687,6 +1688,7 @@
             <span class="n">validate_date_range</span><span class="p">([</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2019-09-06&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-10-04&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="TestOneMisc.test_index_last_before"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_index_last_before">[docs]</a>    <span class="k">def</span> <span class="nf">test_index_last_before</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util.index_last_before&quot;&quot;&quot;</span>
         <span class="n">revisions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-08-01&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-09-30&#39;</span><span class="p">]</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="n">index_last_before</span><span class="p">(</span><span class="n">revisions</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
@@ -1703,6 +1705,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">,</span> <span class="s1">&#39;should return most recent&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOneMisc.test_collection_spec"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_collection_spec">[docs]</a>    <span class="k">def</span> <span class="nf">test_collection_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util._collection_spec&quot;&quot;&quot;</span>
         <span class="c1"># Test every combination of input</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">_collection</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="s1">&#39;(</span><span class="si">{collection}</span><span class="s1">/)?&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{collection}</span><span class="s1">/&#39;</span><span class="p">}</span>
@@ -1716,6 +1719,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOneMisc.test_revision_last_before"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_revision_last_before">[docs]</a>    <span class="k">def</span> <span class="nf">test_revision_last_before</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util.filter_revision_last_before&quot;&quot;&quot;</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">revisions_datasets_table</span><span class="p">()</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[</span><span class="n">datasets</span><span class="o">.</span><span class="n">rel_path</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="n">filter_revision_last_before</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
@@ -1749,6 +1753,7 @@
             <span class="n">filter_revision_last_before</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOneMisc.test_parse_id"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_parse_id">[docs]</a>    <span class="k">def</span> <span class="nf">test_parse_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util.parse_id&quot;&quot;&quot;</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">()</span>  <span class="c1"># Mock object to decorate</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">to_eid</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="s1">&#39;parsed_id&#39;</span>  <span class="c1"># Method to be called</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="s1">&#39;subj/date/num&#39;</span>  <span class="c1"># Input id to pass to `to_eid`</span>
@@ -1762,6 +1767,7 @@
             <span class="n">parse_id</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">method</span><span class="p">)(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOneMisc.test_autocomplete"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_autocomplete">[docs]</a>    <span class="k">def</span> <span class="nf">test_autocomplete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util.autocomplete&quot;&quot;&quot;</span>
         <span class="n">search_terms</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset_type&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="n">autocomplete</span><span class="p">(</span><span class="s1">&#39;Subj&#39;</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">autocomplete</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">))</span>
@@ -1771,6 +1777,7 @@
             <span class="n">autocomplete</span><span class="p">(</span><span class="s1">&#39;dat&#39;</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOneMisc.test_LazyID"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_LazyID">[docs]</a>    <span class="k">def</span> <span class="nf">test_LazyID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test one.util.LazyID&quot;&quot;&quot;</span>
         <span class="n">uuids</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;c1a2758d-3ce5-4fa7-8d96-6b960f029fa9&#39;</span><span class="p">,</span>
             <span class="s1">&#39;0780da08-a12b-452a-b936-ebc576aa7670&#39;</span><span class="p">,</span>

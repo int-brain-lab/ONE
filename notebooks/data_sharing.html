@@ -396,6 +396,7 @@ data_sharing.ipynb"><button id="github">Github link</button></a><section id="Rel
 <p>The easiest way for data producers to release ONE-standard data is thus to create a directory containing your data files, collect them all into a .zip file, and put it on a website along with the index files.</p>
 <p>Users can then download and unzip your data files, and access them using ONE local mode.</p>
 <p>For information about creating and validating ONE-standard data (a.k.a. ALFs) see the <a class="reference external" href="./datasets_and_types.html">guide on datasets</a>.</p>
+<p>This guide is for releasing data without an Alyx database. If using an Alyx database instance and wish to share dataset UUIDs with others, see <a class="reference external" href="./recording_data_access.html">recording data access</a>.</p>
 <p>In this tutorial we will show how to create the index files.</p>
 <p>First <a class="reference external" href="../one_installation.html">install ONE</a>:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install ONE-api
@@ -572,6 +573,10 @@ There are 98 behaviour sessions for subject &#34;NYU-01&#34;
 </div>
 </div>
 <p>Now to release the data, just zip up the directory and upload to your favourite web hosting service!</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>If you are using an Alyx database instance, this is not the correct way to release data or generate cache files as the UUIDs will not match. Instead, generate the cache through the database <code class="docutils literal notranslate"><span class="pre">one_cache</span></code> management command. If you are using Alyx and wish to share accessed dataset UUIDs with others, see <a class="reference external" href="./recording_data_access.html">recording data access</a>.</p>
+</div>
 </section>
 </section>
 

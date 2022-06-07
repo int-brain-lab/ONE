@@ -101,6 +101,9 @@
   <h1>Source code for one.alf.cache</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Construct Parquet database from local file system.</span>
 
+<span class="sd">NB: If using a remote Alyx instance it is advisable to generate the cache via the Alyx one_cache</span>
+<span class="sd">management command, otherwise the resulting cache UUIDs will not match those on the database.</span>
+
 <span class="sd">Examples</span>
 <span class="sd">--------</span>
 <span class="sd">&gt;&gt;&gt; from one.api import One</span>
