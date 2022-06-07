@@ -8,7 +8,10 @@ from functools import partial
 
 from one.tests import TEST_DB_1, OFFLINE_ONLY, util
 from one.api import OneAlyx
-import one.remote.aws as aws
+try:
+    import one.remote.aws as aws
+except ModuleNotFoundError:
+    unittest.skip('boto3 module not installed')
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')

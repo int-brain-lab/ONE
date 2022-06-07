@@ -6,19 +6,11 @@
 - remote package for handling file operations with different protocols
 - a Globus class for interfacing with the Globus SDK
 - an abstract download manager class
-
-### Modified
-
-- added clarification for generating cache with an Alyx database in documentation
-
-## [1.11.0]
-
-### Added
-
 - one.remote.aws module to provide low-level access to s3 download functions, both private and public
 
 ### Modified
 
+- added clarification for generating cache with an Alyx database in documentation
 
 ## [1.11.0]
 

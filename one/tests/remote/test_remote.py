@@ -19,8 +19,8 @@ except ModuleNotFoundError:
     unittest.skip('globus_sdk module not installed')
 from iblutil.io import params as iopar
 
-from .util import get_file, setup_rest_cache
-from . import TEST_DB_1
+from one.tests.util import get_file, setup_rest_cache
+from one.tests import TEST_DB_1
 from one.webclient import AlyxClient
 from one.remote import base, globus
 
