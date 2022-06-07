@@ -123,7 +123,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=T
 
     Parameters
     ----------
-    source : str, pathlib.PurePosixPath
+    source : str, pathlib.Path, pathlib.PurePosixPath
         Relative path (key) within the bucket, for example: 'atlas/dorsal_cortex_50.nrrd'.
     destination : str, pathlib.Path
         The full file path on local machine.
@@ -172,7 +172,8 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
     source : str
         Relative path (key) within the bucket, for example: 'spikesorting/benchmark'.
     destination : str, pathlib.Path
-        Local folder path.
+        Local folder path.  Note: The contents of the source folder will be downloaded to
+        `destination`, not the folder itself.
     s3 : s3.ServiceResource
         An S3 ServiceResource instance.  Defaults to the IBL public instance.
     bucket_name : str
@@ -185,7 +186,8 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
     list of pathlib.Path
         The local file paths.
     """
-    assert Path(destination).is_dir(), 'destination must be a folder'
+    if (destination := Path(destination)).exists():
+        assert destination.is_dir(), 'destination must be a folder'
     if s3 is None:
         s3, bucket_name = get_s3_public()
     local_files = []
