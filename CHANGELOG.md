@@ -1,5 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.11.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.0]
+
+### Added
+
+- remote package for handling file operations with different protocols
+- a Globus class for interfacing with the Globus SDK
+- an abstract download manager class
+
+### Modified
+
+- added clarification for generating cache with an Alyx database in documentation
+
+## [1.11.0]
 
 ### Added
 

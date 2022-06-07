@@ -29,7 +29,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install coverage coveralls
         pip install -r requirements.txt
-        pip install boto3
+        pip install boto3 globus_sdk
         pip install -e .
     - name: run tests
       run: |
