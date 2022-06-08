@@ -11,6 +11,7 @@
 ### Modified
 
 - added clarification for generating cache with an Alyx database in documentation
+- debug log of exceptions upon HTTP and connection errors during loading of cache
 
 ## [1.11.0]
 

@@ -1425,10 +1425,12 @@ class OneAlyx(One):
             files = self.alyx.download_cache_tables(cache_info.get('location'))
             assert any(files)
             super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
-        except (requests.exceptions.HTTPError, wc.HTTPError):
+        except (requests.exceptions.HTTPError, wc.HTTPError) as ex:
+            _logger.debug(ex)
             _logger.error('Failed to load the remote cache file')
             self.mode = 'remote'
-        except (ConnectionError, requests.exceptions.ConnectionError):
+        except (ConnectionError, requests.exceptions.ConnectionError) as ex:
+            _logger.debug(ex)
             _logger.error('Failed to connect to Alyx')
             self.mode = 'local'
 
