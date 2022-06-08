@@ -12,6 +12,7 @@
 
 - added clarification for generating cache with an Alyx database in documentation
 - debug log of exceptions upon HTTP and connection errors during loading of cache
+- added htsv file support in alf.io.load_file_content
 
 ## [1.11.0]
 
