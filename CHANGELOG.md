@@ -10,6 +10,8 @@
 ### Modified
 
 - added clarification for generating cache with an Alyx database in documentation
+- fix'd dimension check for DataFrame attributes in ALF objects
+- dimension warning logged when dimensions don't match after appending to ALFBunch
 
 ## [1.11.0]
 
