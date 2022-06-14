@@ -28,7 +28,6 @@ Note ONE and AlyxClient use caching:
 """
 import datetime
 import logging
-import shutil
 import time
 from pathlib import Path
 from itertools import permutations, combinations_with_replacement
@@ -1393,6 +1392,7 @@ class TestOneSetup(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
         self.get_file = partial(util.get_file, self.tempdir.name)
+        # Change default cache dir to temporary directory
         patch = mock.patch('one.params.CACHE_DIR_DEFAULT', Path(self.tempdir.name))
         patch.start()
         self.addCleanup(patch.stop)
