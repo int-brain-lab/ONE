@@ -11,6 +11,7 @@
 
 - added clarification for generating cache with an Alyx database in documentation
 - REST cache now stored in download cache directory
+- JSON tests may now be run concurrently
 
 ## [1.11.0]
 

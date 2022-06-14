@@ -19,6 +19,7 @@ import iblutil.io.params as iopar
 
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 from . import util
+from one.registration import RegistrationClient
 
 par = one.params.get(silent=True)
 
@@ -135,22 +136,29 @@ class TestJsonFieldMethods(unittest.TestCase):
     """Tests for AlyxClient methods that modify the JSON field of a REST endpoint"""
     def setUp(self):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
-        self.eid1 = '242f2929-faaf-4e7c-ae3f-4a935c6d8da5'
-        self.eid2 = 'dfe99506-b873-45db-bc93-731f9362e304'
+
+        #
+        name = '0A' + str(random.randint(0, 10000))
+        self.subj = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
+        sessions = [self.ac.rest('sessions', 'create', data={
+            'subject': name,
+            'start_time': datetime.isoformat(datetime.now()),
+            'number': random.randint(1, 999),
+            'type': 'Experiment',
+            'users': [TEST_DB_1['username']],
+        }) for _ in range(2)]
+
+        self.eids = [x['url'].split('/')[-1] for x in sessions]
         self.endpoint = 'sessions'
         self.field_name = 'extended_qc'
         self.data_dict = {'some': 0, 'data': 1}
-        self.ac.json_field_delete(self.endpoint, self.eid1, self.field_name)
-        self.ac.json_field_delete(self.endpoint, self.eid2, self.field_name)
-        self.eid1_eqc = None
-        self.eid2_eqc = None
 
     def _json_field_write(self):
         written1 = self.ac.json_field_write(
-            self.endpoint, self.eid1, self.field_name, self.data_dict
+            self.endpoint, self.eids[0], self.field_name, self.data_dict
         )
         written2 = self.ac.json_field_write(
-            self.endpoint, self.eid2, self.field_name, self.data_dict
+            self.endpoint, self.eids[1], self.field_name, self.data_dict
         )
         self.assertTrue(written1 == written2)
         self.assertTrue(written1 == self.data_dict)
@@ -160,7 +168,7 @@ class TestJsonFieldMethods(unittest.TestCase):
 
     def _json_field_update(self):
         modified = self.ac.json_field_update(
-            self.endpoint, self.eid1, self.field_name, {'some': 0.6}
+            self.endpoint, self.eids[0], self.field_name, {'some': 0.6}
         )
         self.assertTrue('data' in modified)
         self.assertTrue('some' in modified)
@@ -171,13 +179,13 @@ class TestJsonFieldMethods(unittest.TestCase):
         url = f'/{self.endpoint}?&extended_qc=data__gte,0.5'
         pre_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(pre_delete) == 2)
-        deleted = self.ac.json_field_remove_key(self.endpoint, self.eid2, self.field_name, 'data')
+        deleted = self.ac.json_field_remove_key(self.endpoint, self.eids[1], self.field_name, 'data')
         self.assertTrue('data' not in deleted)
         post_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(post_delete) == 1)
 
     def _json_field_delete(self):
-        deleted = self.ac.json_field_delete(self.endpoint, self.eid2, self.field_name)
+        deleted = self.ac.json_field_delete(self.endpoint, self.eids[1], self.field_name)
         self.assertTrue(deleted is None)
         ses = self.ac.get(f'/{self.endpoint}?&extended_qc=data__gte,0.5', expires=True)
         self.assertTrue(len(ses) == 1)
@@ -192,37 +200,31 @@ class TestJsonFieldMethods(unittest.TestCase):
     def test_empty(self):
         """Test for AlyxClient.json_field* methods when JSON field is empty"""
         # Check behaviour when fields are empty
-        self.ac.rest(self.endpoint, 'partial_update', id=self.eid1, data={self.field_name: None})
+        self.ac.rest(self.endpoint, 'partial_update', id=self.eids[0], data={self.field_name: None})
         # Should return None as no keys exist
-        modified = self.ac.json_field_remove_key(self.endpoint, self.eid1, self.field_name, 'foo')
+        modified = self.ac.json_field_remove_key(self.endpoint, self.eids[0], self.field_name, 'foo')
         self.assertIsNone(modified)
         # Should return data
         data = {'some': 0.6}
-        modified = self.ac.json_field_update(self.endpoint, self.eid1, self.field_name, data)
+        modified = self.ac.json_field_update(self.endpoint, self.eids[0], self.field_name, data)
         self.assertTrue(modified == data)
         # Should warn if key not in dict
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            self.ac.json_field_remove_key(self.endpoint, self.eid1, self.field_name, 'foo')
+            self.ac.json_field_remove_key(self.endpoint, self.eids[0], self.field_name, 'foo')
         # Check behaviour when fields not a dict
         data = {self.field_name: json.dumps(data)}
-        self.ac.rest(self.endpoint, 'partial_update', id=self.eid1, data=data)
+        self.ac.rest(self.endpoint, 'partial_update', id=self.eids[0], data=data)
         # Update field
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            modified = self.ac.json_field_update(self.endpoint, self.eid1, self.field_name, data)
+            modified = self.ac.json_field_update(self.endpoint, self.eids[0], self.field_name, data)
         self.assertEqual(data[self.field_name], modified)
         # Remove key
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            modified = self.ac.json_field_remove_key(self.endpoint, self.eid1, self.field_name)
+            modified = self.ac.json_field_remove_key(self.endpoint, self.eids[0], self.field_name)
         self.assertIsNone(modified)
 
     def tearDown(self):
-        # Delete any dict created by this test
-        url = f'/{self.endpoint}?&extended_qc=some__lt,0.5'
-        for x in self.ac.get(url, expires=True):
-            self.ac.json_field_delete(self.endpoint, x['url'][-36:], self.field_name)
-        # Restore whatever was there in the first place
-        self.ac.json_field_write(self.endpoint, self.eid1, self.field_name, self.eid1_eqc)
-        self.ac.json_field_write(self.endpoint, self.eid2, self.field_name, self.eid2_eqc)
+        self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
 
 
 class TestRestCache(unittest.TestCase):
