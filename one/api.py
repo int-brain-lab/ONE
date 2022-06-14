@@ -97,10 +97,7 @@ class One(ConversionMixin):
             if 'date_created' not in meta['raw'][table]:
                 _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
                 continue
-            created = datetime.fromisoformat(meta['raw'][table]['date_created'])
-            meta['created_time'] = min([meta['created_time'] or datetime.max, created])
             meta['loaded_time'] = datetime.now()
-            meta['expired'] |= datetime.now() - created > self.cache_expiry
 
             # Convert to str ids
             cache = util.cache_int2str(cache)
@@ -122,8 +119,14 @@ class One(ConversionMixin):
         if len(self._cache) == 1:
             # No tables present
             meta['expired'] = True
+            meta['raw'] = {}
             self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
         self._cache['_meta'] = meta
+        created = [datetime.fromisoformat(x['date_created'])
+                   for x in meta['raw'].values() if 'date_created' in x]
+        if created:
+            meta['created_time'] = min(created)
+            meta['expired'] |= datetime.now() - meta['created_time'] > self.cache_expiry
         return self._cache['_meta']['loaded_time']
 
     def save_cache(self, save_dir=None, force=False):

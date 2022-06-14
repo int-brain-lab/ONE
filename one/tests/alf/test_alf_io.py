@@ -73,6 +73,12 @@ class TestAlfBunch(unittest.TestCase):
         a.append(b, inplace=True)
         self.assertTrue(np.all(np.equal(c['toto'], a['toto'])))
         self.assertTrue(np.all(np.equal(c['titi'], a['titi'])))
+        # test warning thrown when uneven append occurs
+        with self.assertLogs('one.alf.io', logging.WARNING):
+            a.append({
+                'titi': np.random.rand(10),
+                'toto': np.random.rand(4)
+            })
 
     def test_append_list(self):
         # test with lists

@@ -75,7 +75,10 @@ class AlfBunch(Bunch):
             else:
                 _logger.warning(f'bunch key "{k}" is a {a[k].__class__}. I don\'t know how to'
                                 f' handle that. Use pandas for advanced features')
-        check_dimensions(a)
+        if a.check_dimensions != 0:
+            print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in a.items())
+            _logger.warning(f'Inconsistent dimensions for object: \n{print_sizes}')
+
         return a
 
     def to_df(self) -> pd.DataFrame:
@@ -107,7 +110,7 @@ def dataframe(adict):
         A pandas DataFrame of data
     """
     if check_dimensions(adict) != 0:
-        raise ValueError("Can only convert to Dataframe objects with consistent size")
+        raise ValueError('Can only convert to DataFrame objects with consistent size')
     # easy case where there are only vectors
     if all([len(adict[k].shape) == 1 for k in adict]):
         return pd.DataFrame(adict)
@@ -250,8 +253,9 @@ def check_dimensions(dico):
     int
         Status 0 for consistent dimensions, 1 for inconsistent dimensions
     """
-    shapes = [dico[lab].shape for lab in dico if isinstance(dico[lab], np.ndarray) and
-              lab.split('.')[0] != 'timestamps']
+    supported = (np.ndarray, pd.DataFrame)  # Data types that have a shape attribute
+    shapes = [dico[lab].shape for lab in dico
+              if isinstance(dico[lab], supported) and lab.split('.')[0] != 'timestamps']
     first_shapes = [sh[0] for sh in shapes]
     # Continuous timeseries are permitted to be a (2, 2)
     timeseries = [k for k, v in dico.items() if 'timestamps' in k and isinstance(v, np.ndarray)]
@@ -469,6 +473,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         files_alf = alfpath
         parts = [files.filename_parts(x.name) for x in files_alf]
         assert len(set(p[1] for p in parts)) == 1
+        object = next(x[1] for x in parts)
     # Take attribute and timescale from parts list
     attributes = [p[2] if not p[3] else '_'.join(p[2:4]) for p in parts]
     if not short_keys:  # Include extra parts in the keys
@@ -498,7 +503,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
                 out[att + 'metadata'] = meta
     if 'table' in out.keys():  # Merge 'table' dataframe into bunch
         out.update(AlfBunch.from_df(out.pop('table')))
-    status = check_dimensions(out)
+    status = out.check_dimensions
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
         # Get length of one of the other arrays
@@ -507,7 +512,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # Expand timeseries if necessary
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
-        print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
+        print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in out.items())
         _logger.warning(f'Inconsistent dimensions for object: {object} \n{print_sizes}')
     return out
 
