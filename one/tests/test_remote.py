@@ -91,8 +91,8 @@ class TestBase(unittest.TestCase):
 
     def test_repo_from_alyx(self):
         """Test for DownloadClient.repo_from_alyx method"""
-        setup_rest_cache()  # Copy REST cache fixtures to temp dir
         ac = AlyxClient(**TEST_DB_1)
+        setup_rest_cache(ac.cache_dir)  # Copy REST cache fixtures to temp dir
         record = base.DownloadClient.repo_from_alyx('mainenlab', ac)
         self.assertEqual('mainenlab', record['name'])
 
@@ -222,8 +222,8 @@ class TestGlobus(unittest.TestCase):
     def test_get_lab_from_endpoint_id(self):
         """Tests for one.remote.globus.get_lab_from_endpoint_id function"""
         # Set up REST cache fixtures
-        setup_rest_cache()
         ac = AlyxClient(**TEST_DB_1)
+        setup_rest_cache(ac.cache_dir)
         endpoint_id = '2dc8ccc6-2f8e-11e9-9351-0e3d676669f4'
         name = globus.get_lab_from_endpoint_id(endpoint_id, ac)[0]
         self.assertEqual(name, 'mainenlab')
@@ -320,8 +320,8 @@ class TestGlobusClient(unittest.TestCase):
 
         # Test with Alyx repo name
         # Set up REST cache fixtures
-        setup_rest_cache()
         ac = AlyxClient(**TEST_DB_1)
+        setup_rest_cache(ac.cache_dir)
         name = 'mainenlab'
         self.client.add_endpoint(name, alyx=ac)
         self.assertIn(name, self.client.endpoints)
