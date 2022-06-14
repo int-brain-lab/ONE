@@ -7,19 +7,14 @@ from uuid import uuid4
 
 import pandas as pd
 from iblutil.io.parquet import str2np
+from iblutil.io.params import set_hidden
 
 import one.params
 
 
-def set_up_env(use_temp_cache=True) -> tempfile.TemporaryDirectory:
+def set_up_env() -> tempfile.TemporaryDirectory:
     """
     Create a temporary directory and copy cache fixtures over.
-
-    Parameters
-    ----------
-    use_temp_cache : bool
-        If True, copies REST cache fixtures to the temporary directory, otherwise they are copied
-        to the directory returned by one.params.get_params_dir
 
     Returns
     -------
@@ -35,28 +30,27 @@ def set_up_env(use_temp_cache=True) -> tempfile.TemporaryDirectory:
         assert Path(filename).exists()
 
     # Copy cached rest responses
-    rest_cache_location = Path(tempdir.name) / '.one' if use_temp_cache else None
-    setup_rest_cache(rest_cache_location)
+    setup_rest_cache(tempdir.name)
 
     return tempdir
 
 
-def setup_rest_cache(param_dir=None):
+def setup_rest_cache(cache_dir):
     """Copy REST cache fixtures to the .one parameter directory.
 
     Parameters
     ----------
-    param_dir : str, pathlib.Path
-        The location of the ONE params directory (e.g. ~/.one)
+    cache_dir : str, pathlib.Path
+        The location of the ONE cache directory (e.g. ~/Downloads/ONE/alyx.example.com)
 
     """
     fixture = Path(__file__).parent.joinpath('fixtures')
-    path_parts = ('.rest', 'test.alyx.internationalbrainlab.org', 'https')
-    rest_cache_dir = Path(param_dir or one.params.get_params_dir()).joinpath(*path_parts)
+    rest_cache_dir = Path(cache_dir).joinpath('.rest')
 
     # Ensure empty
     shutil.rmtree(rest_cache_dir, ignore_errors=True)
     rest_cache_dir.mkdir(parents=True, exist_ok=True)
+    set_hidden(rest_cache_dir, True)
     # Copy over fixtures
     for file in fixture.joinpath('rest_responses').glob('*'):
         filename = shutil.copy(file, rest_cache_dir)
@@ -92,10 +86,11 @@ def setup_test_params(token=False, cache_dir=None):
 
     """
     params_dir = Path(one.params.get_params_dir())
+    params_dir.mkdir(exist_ok=True)
     fixture = Path(__file__).parent.joinpath('fixtures')
     test_pars = '.test.alyx.internationalbrainlab.org'
     if not next(params_dir.glob(test_pars), None):
-        filename = shutil.copy(fixture / 'params' / test_pars, params_dir)
+        filename = shutil.copy(fixture / 'params' / test_pars, params_dir / test_pars)
         assert Path(filename).exists()
 
         # Add to cache map

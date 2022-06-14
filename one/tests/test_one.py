@@ -28,6 +28,7 @@ Note ONE and AlyxClient use caching:
 """
 import datetime
 import logging
+import shutil
 import time
 from pathlib import Path
 from itertools import permutations, combinations_with_replacement
@@ -833,7 +834,7 @@ class TestOneAlyx(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.tempdir = util.set_up_env(use_temp_cache=False)
+        cls.tempdir = util.set_up_env()
         with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, cls.tempdir.name)):
             # util.setup_test_params(token=True)
             cls.one = OneAlyx(
@@ -1392,6 +1393,9 @@ class TestOneSetup(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
         self.get_file = partial(util.get_file, self.tempdir.name)
+        patch = mock.patch('one.params.CACHE_DIR_DEFAULT', Path(self.tempdir.name))
+        patch.start()
+        self.addCleanup(patch.stop)
 
     def test_local_cache_setup_prompt(self):
         """Test One.setup"""
@@ -1499,17 +1503,20 @@ class TestOneSetup(unittest.TestCase):
 
     def test_patch_params(self):
         """Test patching legacy params to the new location"""
-
         # Save some old-style params
-        old_pars = (one.params.default()
-                    .set('CACHE_DIR', self.tempdir.name)
-                    .set('HTTP_DATA_SERVER', 'openalyx.org'))
+        old_pars = one.params.default().set('HTTP_DATA_SERVER', 'openalyx.org')
+        # Save a REST query in the old location
+        old_rest = Path(self.tempdir.name, '.one', '.rest', old_pars.ALYX_URL[8:], 'https')
+        old_rest.mkdir(parents=True, exist_ok=True)
+        old_rest.joinpath('1baff95c2d0e31059720a3716ad5b5a34b61a207').touch()
 
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
             one.params.setup(silent=True)
             one.params.save(old_pars, old_pars.ALYX_URL)
             one_obj = ONE(base_url=old_pars.ALYX_URL, mode='local')
         self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER, one.params.default().HTTP_DATA_SERVER)
+        self.assertFalse(Path(self.tempdir.name, '.rest').exists())
+        self.assertTrue(any(one_obj.alyx.cache_dir.joinpath('.rest').glob('*')))
 
     def test_one_factory(self):
         """Tests the ONE class factory"""

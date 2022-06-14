@@ -54,6 +54,7 @@ from tqdm import tqdm
 from pprint import pprint
 import one.params
 from iblutil.io import hashfile
+from iblutil.io.params import set_hidden
 from one.util import ensure_list
 import concurrent.futures
 _logger = logging.getLogger(__name__)
@@ -105,7 +106,7 @@ def _cache_response(method):
         if args[0].__name__ != mode and mode != '*':
             return method(alyx_client, *args, **kwargs)
         # Check cache
-        rest_cache = one.params.get_rest_dir(alyx_client.base_url)
+        rest_cache = alyx_client.cache_dir.joinpath('.rest')
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[1], 'utf-8'))
         name = sha1.hexdigest()
@@ -128,7 +129,10 @@ def _cache_response(method):
             raise ex  # No cache and can't connect to database; re-raise
 
         # Save response into cache
-        rest_cache.mkdir(exist_ok=True, parents=True)
+        if not rest_cache.exists():
+            rest_cache.mkdir(parents=True)
+            rest_cache = set_hidden(rest_cache, True)
+
         _logger.debug('caching REST response')
         expiry_datetime = datetime.now() + (timedelta() if expires is True else expires)
         with open(rest_cache / name, 'w') as f:
@@ -1167,5 +1171,5 @@ class AlyxClient():
 
     def clear_rest_cache(self):
         """Clear all REST response cache files for the base url"""
-        for file in one.params.get_rest_dir(self.base_url).glob('*'):
+        for file in self.cache_dir.joinpath('.rest').glob('*'):
             file.unlink()

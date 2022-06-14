@@ -13,6 +13,8 @@
 - added clarification for generating cache with an Alyx database in documentation
 - debug log of exceptions upon HTTP and connection errors during loading of cache
 - added htsv file support in alf.io.load_file_content
+- REST cache now stored in download cache directory
+- JSON tests may now be run concurrently
 - fix'd dimension check for DataFrame attributes in ALF objects
 - dimension warning logged when dimensions don't match after appending to ALFBunch
 - created_time now updated correctly in cache meta

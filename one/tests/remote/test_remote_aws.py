@@ -52,7 +52,7 @@ class TestAWS(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.tempdir = util.set_up_env(use_temp_cache=False)
+        cls.tempdir = util.set_up_env()
         with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, cls.tempdir.name)):
             # util.setup_test_params(token=True)
             cls.one = OneAlyx(
