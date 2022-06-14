@@ -274,7 +274,7 @@ def check_dimensions(dico):
 def load_file_content(fil):
     """
     Returns content of files. Designed for very generic file formats:
-    so far supported contents are `json`, `npy`, `csv`, `tsv`, `ssv`, `jsonable`
+    so far supported contents are `json`, `npy`, `csv`, `(h)tsv`, `ssv`, `jsonable`
 
     Parameters
     ----------
@@ -308,7 +308,7 @@ def load_file_content(fil):
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
         return pd.read_csv(fil, delimiter=' ')
-    if fil.suffix == '.tsv':
+    if fil.suffix in ('.tsv', '.htsv'):
         return pd.read_csv(fil, delimiter='\t')
     return Path(fil)
 

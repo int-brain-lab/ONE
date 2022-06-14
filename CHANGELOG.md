@@ -6,10 +6,13 @@
 - remote package for handling file operations with different protocols
 - a Globus class for interfacing with the Globus SDK
 - an abstract download manager class
+- one.remote.aws module to provide low-level access to s3 download functions, both private and public
 
 ### Modified
 
 - added clarification for generating cache with an Alyx database in documentation
+- debug log of exceptions upon HTTP and connection errors during loading of cache
+- added htsv file support in alf.io.load_file_content
 - REST cache now stored in download cache directory
 - JSON tests may now be run concurrently
 - fix'd dimension check for DataFrame attributes in ALF objects
