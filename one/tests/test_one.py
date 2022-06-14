@@ -1502,12 +1502,18 @@ class TestOneSetup(unittest.TestCase):
         old_pars = (one.params.default()
                     .set('CACHE_DIR', self.tempdir.name)
                     .set('HTTP_DATA_SERVER', 'openalyx.org'))
+        # Save a REST query in the old location
+        old_rest = Path(self.tempdir.name, '.one', '.rest', old_pars.ALYX_URL[8:], 'https')
+        old_rest.mkdir(parents=True, exist_ok=True)
+        old_rest.joinpath('1baff95c2d0e31059720a3716ad5b5a34b61a207').touch()
 
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
             one.params.setup(silent=True)
             one.params.save(old_pars, old_pars.ALYX_URL)
             one_obj = ONE(base_url=old_pars.ALYX_URL, mode='local')
         self.assertEqual(one_obj.alyx._par.HTTP_DATA_SERVER, one.params.default().HTTP_DATA_SERVER)
+        self.assertFalse(Path(self.tempdir.name, '.rest').exists())
+        self.assertTrue(any(one_obj.alyx.cache_dir.joinpath('.rest').glob('*')))
 
     def test_one_factory(self):
         """Tests the ONE class factory"""

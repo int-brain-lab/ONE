@@ -10,6 +10,8 @@ directories, and a separate parameter file for each url containing the client pa
 caches file also sets the default client for when no url is provided.
 """
 import re
+import shutil
+
 from iblutil.io import params as iopar
 from getpass import getpass
 from pathlib import Path
@@ -323,5 +325,18 @@ def _patch_params(par):
     if 'openalyx' in par.ALYX_URL and 'public' not in par.HTTP_DATA_SERVER:
         par = par.set('HTTP_DATA_SERVER', default().HTTP_DATA_SERVER)
         save(par, par.ALYX_URL)
+
+    # Move old REST data
+    rest_dir = get_params_dir() / '.rest'
+    scheme, loc, *_ = urlsplit(par.ALYX_URL)
+    rest_dir /= Path(loc.replace(':', '_'), scheme)
+    new_rest_dir = Path(par.CACHE_DIR, '.rest')
+    if rest_dir.exists() and any(x for x in rest_dir.glob('*') if x.is_file()):
+        shutil.move(str(rest_dir), str(new_rest_dir))
+        from iblutil.io.params import set_hidden
+        set_hidden(new_rest_dir, True)
+        shutil.rmtree(rest_dir.parent)
+        if not any(get_params_dir().joinpath('.rest').glob('*')):
+            get_params_dir().joinpath('.rest').rmdir()
 
     return par
