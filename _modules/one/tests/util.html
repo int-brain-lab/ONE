@@ -109,19 +109,14 @@
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">iblutil.io.parquet</span> <span class="kn">import</span> <span class="n">str2np</span>
+<span class="kn">from</span> <span class="nn">iblutil.io.params</span> <span class="kn">import</span> <span class="n">set_hidden</span>
 
 <span class="kn">import</span> <span class="nn">one.params</span>
 
 
-<div class="viewcode-block" id="set_up_env"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.set_up_env">[docs]</a><span class="k">def</span> <span class="nf">set_up_env</span><span class="p">(</span><span class="n">use_temp_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">:</span>
+<div class="viewcode-block" id="set_up_env"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.set_up_env">[docs]</a><span class="k">def</span> <span class="nf">set_up_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a temporary directory and copy cache fixtures over.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    use_temp_cache : bool</span>
-<span class="sd">        If True, copies REST cache fixtures to the temporary directory, otherwise they are copied</span>
-<span class="sd">        to the directory returned by one.params.get_params_dir</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -137,28 +132,27 @@
         <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
     <span class="c1"># Copy cached rest responses</span>
-    <span class="n">rest_cache_location</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;.one&#39;</span> <span class="k">if</span> <span class="n">use_temp_cache</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="n">setup_rest_cache</span><span class="p">(</span><span class="n">rest_cache_location</span><span class="p">)</span>
+    <span class="n">setup_rest_cache</span><span class="p">(</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">tempdir</span></div>
 
 
-<div class="viewcode-block" id="setup_rest_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_rest_cache">[docs]</a><span class="k">def</span> <span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="setup_rest_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_rest_cache">[docs]</a><span class="k">def</span> <span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    param_dir : str, pathlib.Path</span>
-<span class="sd">        The location of the ONE params directory (e.g. ~/.one)</span>
+<span class="sd">    cache_dir : str, pathlib.Path</span>
+<span class="sd">        The location of the ONE cache directory (e.g. ~/Downloads/ONE/alyx.example.com)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
-    <span class="n">path_parts</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">,</span> <span class="s1">&#39;test.alyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">)</span>
-    <span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">param_dir</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">path_parts</span><span class="p">)</span>
+    <span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span>
 
     <span class="c1"># Ensure empty</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">rest_cache_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">rest_cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">set_hidden</span><span class="p">(</span><span class="n">rest_cache_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Copy over fixtures</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">fixture</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;rest_responses&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">rest_cache_dir</span><span class="p">)</span>
@@ -194,10 +188,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span>
+    <span class="n">params_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
     <span class="n">test_pars</span> <span class="o">=</span> <span class="s1">&#39;.test.alyx.internationalbrainlab.org&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="n">params_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">test_pars</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="s1">&#39;params&#39;</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">,</span> <span class="n">params_dir</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="s1">&#39;params&#39;</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">,</span> <span class="n">params_dir</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
         <span class="c1"># Add to cache map</span>

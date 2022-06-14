@@ -156,6 +156,7 @@
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">import</span> <span class="nn">one.params</span>
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
+<span class="kn">from</span> <span class="nn">iblutil.io.params</span> <span class="kn">import</span> <span class="n">set_hidden</span>
 <span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
 <span class="kn">import</span> <span class="nn">concurrent.futures</span>
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -207,7 +208,7 @@
         <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="n">mode</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># Check cache</span>
-        <span class="n">rest_cache</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_rest_dir</span><span class="p">(</span><span class="n">alyx_client</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="n">rest_cache</span> <span class="o">=</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span>
         <span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">()</span>
         <span class="n">sha1</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">sha1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
@@ -230,7 +231,10 @@
             <span class="k">raise</span> <span class="n">ex</span>  <span class="c1"># No cache and can&#39;t connect to database; re-raise</span>
 
         <span class="c1"># Save response into cache</span>
-        <span class="n">rest_cache</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rest_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">rest_cache</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rest_cache</span> <span class="o">=</span> <span class="n">set_hidden</span><span class="p">(</span><span class="n">rest_cache</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;caching REST response&#39;</span><span class="p">)</span>
         <span class="n">expiry_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="n">timedelta</span><span class="p">()</span> <span class="k">if</span> <span class="n">expires</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">expires</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rest_cache</span> <span class="o">/</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1269,7 +1273,7 @@
 
 <div class="viewcode-block" id="AlyxClient.clear_rest_cache"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_rest_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clear all REST response cache files for the base url&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_rest_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
             <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span></div></div>
 </pre></div>
 
