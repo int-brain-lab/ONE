@@ -19,7 +19,6 @@ import iblutil.io.params as iopar
 
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 from . import util
-from one.registration import RegistrationClient
 
 par = one.params.get(silent=True)
 
@@ -176,10 +175,11 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.assertTrue(len(self.ac.get(url, expires=True)) == 1)
 
     def _json_field_remove_key(self):
+        eid = self.eids[1]
         url = f'/{self.endpoint}?&extended_qc=data__gte,0.5'
         pre_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(pre_delete) == 2)
-        deleted = self.ac.json_field_remove_key(self.endpoint, self.eids[1], self.field_name, 'data')
+        deleted = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name, 'data')
         self.assertTrue('data' not in deleted)
         post_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(post_delete) == 1)
@@ -199,28 +199,29 @@ class TestJsonFieldMethods(unittest.TestCase):
 
     def test_empty(self):
         """Test for AlyxClient.json_field* methods when JSON field is empty"""
+        eid = self.eids[0]
         # Check behaviour when fields are empty
-        self.ac.rest(self.endpoint, 'partial_update', id=self.eids[0], data={self.field_name: None})
+        self.ac.rest(self.endpoint, 'partial_update', id=eid, data={self.field_name: None})
         # Should return None as no keys exist
-        modified = self.ac.json_field_remove_key(self.endpoint, self.eids[0], self.field_name, 'foo')
+        modified = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name, 'foo')
         self.assertIsNone(modified)
         # Should return data
         data = {'some': 0.6}
-        modified = self.ac.json_field_update(self.endpoint, self.eids[0], self.field_name, data)
+        modified = self.ac.json_field_update(self.endpoint, eid, self.field_name, data)
         self.assertTrue(modified == data)
         # Should warn if key not in dict
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            self.ac.json_field_remove_key(self.endpoint, self.eids[0], self.field_name, 'foo')
+            self.ac.json_field_remove_key(self.endpoint, eid, self.field_name, 'foo')
         # Check behaviour when fields not a dict
         data = {self.field_name: json.dumps(data)}
-        self.ac.rest(self.endpoint, 'partial_update', id=self.eids[0], data=data)
+        self.ac.rest(self.endpoint, 'partial_update', id=eid, data=data)
         # Update field
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            modified = self.ac.json_field_update(self.endpoint, self.eids[0], self.field_name, data)
+            modified = self.ac.json_field_update(self.endpoint, eid, self.field_name, data)
         self.assertEqual(data[self.field_name], modified)
         # Remove key
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            modified = self.ac.json_field_remove_key(self.endpoint, self.eids[0], self.field_name)
+            modified = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name)
         self.assertIsNone(modified)
 
     def tearDown(self):
