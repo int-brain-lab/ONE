@@ -282,27 +282,6 @@ def get_params_dir() -> Path:
     return Path(iopar.getfile(_PAR_ID_STR))
 
 
-def get_rest_dir(client=None) -> Path:
-    """Return path to REST cache directory
-
-    Parameters
-    ----------
-    client : str
-        Location of rest cache for a given database URL.  If None, the root REST cache directory is
-        returned
-
-    Returns
-    -------
-    pathlib.Path
-        The REST cache directory path
-    """
-    rest_dir = get_params_dir() / '.rest'
-    if client:
-        scheme, loc, *_ = urlsplit(client)
-        rest_dir /= Path(loc.replace(':', '_'), scheme)
-    return rest_dir
-
-
 def check_cache_conflict(cache_dir):
     """Asserts that a given directory is not currently used as a cache directory.
     This function checks whether a given directory is used as a cache directory for an Alyx

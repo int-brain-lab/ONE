@@ -833,7 +833,7 @@ class TestOneAlyx(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.tempdir = util.set_up_env(use_temp_cache=False)
+        cls.tempdir = util.set_up_env()
         with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, cls.tempdir.name)):
             # util.setup_test_params(token=True)
             cls.one = OneAlyx(
@@ -1498,7 +1498,6 @@ class TestOneSetup(unittest.TestCase):
 
     def test_patch_params(self):
         """Test patching legacy params to the new location"""
-
         # Save some old-style params
         old_pars = (one.params.default()
                     .set('CACHE_DIR', self.tempdir.name)

@@ -10,6 +10,7 @@
 ### Modified
 
 - added clarification for generating cache with an Alyx database in documentation
+- REST cache now stored in download cache directory
 
 ## [1.11.0]
 

@@ -1,7 +1,6 @@
 """Unit tests for the one.webclient module"""
 import unittest
 from unittest import mock
-from pathlib import Path
 import random
 import os
 import io
@@ -230,14 +229,13 @@ class TestRestCache(unittest.TestCase):
     """Tests for REST caching system, the cache decorator and cache flags"""
     def setUp(self):
         util.setup_test_params()  # Ensure test alyx set up
-        util.setup_rest_cache()  # Copy rest cache fixtures
+        util.setup_rest_cache(ac.cache_dir)  # Copy rest cache fixtures
         self.query = '/insertions/b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
         self.tempdir = util.set_up_env()
         self.addCleanup(self.tempdir.cleanup)
         one.webclient.datetime = _FakeDateTime
         _FakeDateTime._now = None
-        path_parts = ('.rest', one.params._key_from_url(TEST_DB_1['base_url']), 'https')
-        self.cache_dir = Path(one.params.get_params_dir()).joinpath(*path_parts)
+        self.cache_dir = ac.cache_dir.joinpath('.rest')
         self.default_expiry = ac.default_expiry
         self.cache_mode = ac.cache_mode
 
