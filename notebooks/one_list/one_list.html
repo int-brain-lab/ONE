@@ -16,6 +16,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
@@ -388,7 +389,7 @@ div.rendered_html tbody tr:hover {
 <a href="one_list.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/one_list/
 one_list.ipynb"><button id="github">Github link</button></a><section id="Listing-with-ONE">
-<h1>Listing with ONE<a class="headerlink" href="#Listing-with-ONE" title="Permalink to this headline"></a></h1>
+<h1>Listing with ONE<a class="headerlink" href="#Listing-with-ONE" title="Permalink to this heading"></a></h1>
 <p>ONE contains a number of list methods that can be used to explore the datasets available.</p>
 <p>To list all available datasets we can use</p>
 <div class="nbinput nblast docutils container">
@@ -605,7 +606,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 </div>
 <p>For more examples of file organization, including the use of dataset revisions, see <a class="reference external" href="../alyx_files">this guide</a>.</p>
 <section id="Filtering-lists">
-<h2>Filtering lists<a class="headerlink" href="#Filtering-lists" title="Permalink to this headline"></a></h2>
+<h2>Filtering lists<a class="headerlink" href="#Filtering-lists" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">list_collections</span></code>, <code class="docutils literal notranslate"><span class="pre">list_revisions</span></code> and <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code> can be called with various filter arguments. Collections and datasets may be filtered using wildcards, or regular expressions when the wildcard flag is set to False. For more information on using wildcards, see the <a class="reference external" href="../one_load/one_load.html#Advanced-loading">ONE load guide</a>.</p>
 <p>Below are some examples of filtering with wildcards:</p>
 <div class="nbinput nblast docutils container">
@@ -710,7 +711,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 </div>
 </section>
 <section id="Combining-with-load-methods">
-<h2>Combining with load methods<a class="headerlink" href="#Combining-with-load-methods" title="Permalink to this headline"></a></h2>
+<h2>Combining with load methods<a class="headerlink" href="#Combining-with-load-methods" title="Permalink to this heading"></a></h2>
 <p>The list methods are useful in combination with the load methods. For example, the output of the <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code> method can be a direct input of the <code class="docutils literal notranslate"><span class="pre">load_datasets</span></code> method:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:

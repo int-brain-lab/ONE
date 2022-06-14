@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
@@ -135,15 +136,15 @@
 }
 </style>
 <section id="faq">
-<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline"></a></h1>
+<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this heading"></a></h1>
 <section id="how-do-i-release-my-own-data-with-the-one-api">
-<h2>How do I release my own data with the ONE API?<a class="headerlink" href="#how-do-i-release-my-own-data-with-the-one-api" title="Permalink to this headline"></a></h2>
+<h2>How do I release my own data with the ONE API?<a class="headerlink" href="#how-do-i-release-my-own-data-with-the-one-api" title="Permalink to this heading"></a></h2>
 <p>First create a directory of <a class="reference internal" href="notebooks/datasets_and_types.html"><span class="doc std std-doc">ALF datasets</span></a>, generate the
 cache tables, then share the directory with others.  See <a class="reference internal" href="notebooks/data_sharing.html"><span class="doc std std-doc">data sharing</span></a>
 guide for more information.</p>
 </section>
 <section id="how-do-i-use-one-without-connecting-to-my-database">
-<h2>How do I use ONE without connecting to my database?<a class="headerlink" href="#how-do-i-use-one-without-connecting-to-my-database" title="Permalink to this headline"></a></h2>
+<h2>How do I use ONE without connecting to my database?<a class="headerlink" href="#how-do-i-use-one-without-connecting-to-my-database" title="Permalink to this heading"></a></h2>
 <p>If you temporarily lose access to your Alyx database, you can instantiate ONE in local mode:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
 </pre></div>
@@ -151,7 +152,7 @@ guide for more information.</p>
 <p>Read more about ONE modes <a class="reference internal" href="notebooks/one_modes.html"><span class="doc std std-doc">here</span></a>.</p>
 </section>
 <section id="why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx">
-<h2>Why are my recent data missing from my cache but present on Alyx?<a class="headerlink" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx" title="Permalink to this headline"></a></h2>
+<h2>Why are my recent data missing from my cache but present on Alyx?<a class="headerlink" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx" title="Permalink to this heading"></a></h2>
 <p>After new data are acquired it may take time for it to be copied to an online server (it will
 be marked as ‘online’ in Alyx).  Once the data is marked as existing and online, it should appear
 in the cache tables next time they are generated.  For the IBL Alyx, the ONE cache tables are
@@ -186,7 +187,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 </ol>
 </section>
 <section id="i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it">
-<h2>I made a mistake during setup and now can’t call setup, how do I fix it?<a class="headerlink" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it" title="Permalink to this headline"></a></h2>
+<h2>I made a mistake during setup and now can’t call setup, how do I fix it?<a class="headerlink" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it" title="Permalink to this heading"></a></h2>
 <p>Usually you can re-run your setup with the following command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">new_one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
@@ -200,7 +201,7 @@ called.  To avoid this, run the following command instead:</p>
 </div>
 </section>
 <section id="how-do-i-change-my-download-a-k-a-cache-directory">
-<h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Permalink to this headline"></a></h2>
+<h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Permalink to this heading"></a></h2>
 <p>For one-time changes, simply re-run the setup routine:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">new_one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Re-run setup for default database</span>
@@ -209,7 +210,7 @@ called.  To avoid this, run the following command instead:</p>
 <p>When prompted (‘Enter the location of the download cache’) enter the absolute path of the new download location.</p>
 </section>
 <section id="how-do-check-who-i-m-logged-in-as">
-<h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Permalink to this headline"></a></h2>
+<h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Permalink to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">:</span>
@@ -219,7 +220,7 @@ called.  To avoid this, run the following command instead:</p>
 </div>
 </section>
 <section id="how-do-i-log-out-or-temporarily-log-in-as-someone-else">
-<h2>How do I log out, or temporarily log in as someone else?<a class="headerlink" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else" title="Permalink to this headline"></a></h2>
+<h2>How do I log out, or temporarily log in as someone else?<a class="headerlink" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else" title="Permalink to this heading"></a></h2>
 <p>To log out:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>

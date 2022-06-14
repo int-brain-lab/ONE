@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -150,7 +151,7 @@
 }
 </style>
 <section id="module-one.alf.exceptions">
-<span id="one-alf-exceptions"></span><h1>one.alf.exceptions<a class="headerlink" href="#module-one.alf.exceptions" title="Permalink to this headline"></a></h1>
+<span id="one-alf-exceptions"></span><h1>one.alf.exceptions<a class="headerlink" href="#module-one.alf.exceptions" title="Permalink to this heading"></a></h1>
 <p>ALyx File related errors</p>
 <p>A set of Alyx and ALF related error classes which provide a more verbose description of the raised
 issues.</p>
@@ -208,7 +209,7 @@ the same explanation.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.AlyxSubjectNotFound">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AlyxSubjectNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#AlyxSubjectNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.AlyxSubjectNotFound" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.alf.exceptions.ALFError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
 <p>‘Subject not found’ error</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.AlyxSubjectNotFound.explanation">
@@ -220,7 +221,7 @@ the same explanation.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFObjectNotFound">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFObjectNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFObjectNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFObjectNotFound" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.alf.exceptions.ALFError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
 <p>‘Object not found’ error</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFObjectNotFound.explanation">
@@ -232,7 +233,7 @@ the same explanation.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleObjectsFound">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleObjectsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleObjectsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleObjectsFound" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.alf.exceptions.ALFError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
 <p>‘Multiple objects found’ error</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleObjectsFound.explanation">
@@ -244,7 +245,7 @@ the same explanation.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleCollectionsFound">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleCollectionsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleCollectionsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleCollectionsFound" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.alf.exceptions.ALFError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
 <p>‘Multiple collections found’ error</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleCollectionsFound.explanation">
@@ -256,7 +257,7 @@ the same explanation.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleRevisionsFound">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleRevisionsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleRevisionsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleRevisionsFound" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">one.alf.exceptions.ALFError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
 <p>‘Multiple objects found’ error</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleRevisionsFound.explanation">

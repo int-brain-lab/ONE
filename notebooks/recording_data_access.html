@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -388,11 +389,11 @@ div.rendered_html tbody tr:hover {
 <a href="recording_data_access.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/
 recording_data_access.ipynb"><button id="github">Github link</button></a><section id="Recording-Data-Access">
-<h1>Recording Data Access<a class="headerlink" href="#Recording-Data-Access" title="Permalink to this headline"></a></h1>
+<h1>Recording Data Access<a class="headerlink" href="#Recording-Data-Access" title="Permalink to this heading"></a></h1>
 <p>When working with huge data repositories it can be worthwhile to record the subset of data used for a given analysis. ONE can keep track of which datasets were loaded via the <code class="docutils literal notranslate"><span class="pre">load_*</span></code> methods.</p>
 <p>Only datasets that were successfully loaded are recorded; missing datasets are ignored.</p>
 <section id="How-to-set-up-and-save">
-<h2>How to set up and save<a class="headerlink" href="#How-to-set-up-and-save" title="Permalink to this headline"></a></h2>
+<h2>How to set up and save<a class="headerlink" href="#How-to-set-up-and-save" title="Permalink to this heading"></a></h2>
 <p>At the top of your analysis script, after instantiating ONE, simply set the <code class="docutils literal notranslate"><span class="pre">record_loaded</span></code> attribute to True:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">record_loaded</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
@@ -404,7 +405,7 @@ recording_data_access.ipynb"><button id="github">Github link</button></a><sectio
 </div>
 </section>
 <section id="Example">
-<h2>Example<a class="headerlink" href="#Example" title="Permalink to this headline"></a></h2>
+<h2>Example<a class="headerlink" href="#Example" title="Permalink to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>

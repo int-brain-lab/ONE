@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -150,7 +151,7 @@
 }
 </style>
 <section id="module-one.alf.spec">
-<span id="one-alf-spec"></span><h1>one.alf.spec<a class="headerlink" href="#module-one.alf.spec" title="Permalink to this headline"></a></h1>
+<span id="one-alf-spec"></span><h1>one.alf.spec<a class="headerlink" href="#module-one.alf.spec" title="Permalink to this heading"></a></h1>
 <p>The complete ALF specification descriptors and validators</p>
 <p class="rubric">Module attributes</p>
 <table class="autosummary longtable docutils align-default">
@@ -312,7 +313,7 @@ described.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.spec.regex">
-<span class="sig-name descname"><span class="pre">regex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'({lab}/Subjects/)?{subject}/{date}/{number}/({collection}/)?(#{revision}#/)?_?{namespace}?_?{object}\\.{attribute}(?:_{timescale})?(?:\\.{extra})*\\.{extension}$'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">re.Pattern</span></span></span><a class="reference internal" href="../_modules/one/alf/spec.html#regex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.spec.regex" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">regex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'({lab}/Subjects/)?{subject}/{date}/{number}/({collection}/)?(#{revision}#/)?_?{namespace}?_?{object}\\.{attribute}(?:_{timescale})?(?:\\.{extra})*\\.{extension}$'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Pattern</span></span></span><a class="reference internal" href="../_modules/one/alf/spec.html#regex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.spec.regex" title="Permalink to this definition"></a></dt>
 <dd><p>Construct a regular expression pattern for parsing or validating an ALF</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -398,7 +399,7 @@ NB: unlike is_uuid, is_uuid_string checks that uuid is correctly hyphen separate
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.spec.is_uuid">
-<span class="sig-name descname"><span class="pre">is_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">uuid.UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(4,)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/one/alf/spec.html#is_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.spec.is_uuid" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">UUID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(4,)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/one/alf/spec.html#is_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.spec.is_uuid" title="Permalink to this definition"></a></dt>
 <dd><p>Bool test for randomly generated hexadecimal uuid validity.
 Unlike <cite>is_uuid_string</cite>, this function accepts UUID objects</p>
 </dd></dl>

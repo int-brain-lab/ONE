@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -153,7 +154,7 @@
 }
 </style>
 <section id="module-one.tests.test_one">
-<span id="one-tests-test-one"></span><h1>one.tests.test_one<a class="headerlink" href="#module-one.tests.test_one" title="Permalink to this headline"></a></h1>
+<span id="one-tests-test-one"></span><h1>one.tests.test_one<a class="headerlink" href="#module-one.tests.test_one" title="Permalink to this heading"></a></h1>
 <p>Unit tests for the one.api module</p>
 <p>Wherever possible the ONE tests should not rely on an internet connection</p>
 <p>Fixture locations:</p>
@@ -209,7 +210,7 @@ properties to their original state on teardown, or call one.api.ONE.cache_clear(
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestONECache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Test methods that use sessions and datasets tables.
 This class loads the parquet tables from the fixtures and builds a file tree in a temp folder</p>
 <dl class="py attribute">
@@ -354,7 +355,7 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneAlyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>This could be an offline test.  Would need to add /docs REST cache fixture.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tempdir">
@@ -464,7 +465,7 @@ dicts as input.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneRemote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Test remote queries</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.setUp">
@@ -513,7 +514,7 @@ dicts as input.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneDownload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Test downloading datasets using OpenAlyx</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.tempdir">
@@ -555,7 +556,7 @@ This method is also tested in test_download_datasets.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Test parameter setup upon ONE instantiation and calling setup methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.setUp">
@@ -606,7 +607,7 @@ This method is also tested in test_download_datasets.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Test functions in one.util</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_validate_date_range">

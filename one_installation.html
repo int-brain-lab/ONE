@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
@@ -136,9 +137,9 @@
 }
 </style>
 <section id="one-installation-and-setup">
-<h1>ONE installation and setup<a class="headerlink" href="#one-installation-and-setup" title="Permalink to this headline"></a></h1>
+<h1>ONE installation and setup<a class="headerlink" href="#one-installation-and-setup" title="Permalink to this heading"></a></h1>
 <section id="installation">
-<h2>1. Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<h2>1. Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>ONE can be installed as a standalone package with python 3.7 or later by running,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">ONE</span><span class="o">-</span><span class="n">api</span>
 </pre></div>
@@ -150,11 +151,11 @@ installed, so you can skip this step!</p>
 </div>
 </section>
 <section id="setup">
-<h2>2. Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h2>
+<h2>2. Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
 <p>To start using ONE, we must first configure some settings that tell ONE whether it should connect to a database or
 use a local file system</p>
 <section id="connect-to-ibl-public-database">
-<h3>Connect to IBL Public database<a class="headerlink" href="#connect-to-ibl-public-database" title="Permalink to this headline"></a></h3>
+<h3>Connect to IBL Public database<a class="headerlink" href="#connect-to-ibl-public-database" title="Permalink to this heading"></a></h3>
 <p>By default ONE is configured to connect to the public IBL database, this can be setup by typing the following</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -162,7 +163,7 @@ use a local file system</p>
 </div>
 </section>
 <section id="using-local-folder-structure">
-<h3>Using local folder structure<a class="headerlink" href="#using-local-folder-structure" title="Permalink to this headline"></a></h3>
+<h3>Using local folder structure<a class="headerlink" href="#using-local-folder-structure" title="Permalink to this heading"></a></h3>
 <p>ONE can also be used independently of a database by using a local cache directory. This can be setup in the following way</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">One</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;/home/user/downlaods/ONE/behavior_paper&#39;</span><span class="p">)</span>
@@ -171,7 +172,7 @@ use a local file system</p>
 <p>For more information about using ONE with a local cache directory please refer to this <a class="reference internal" href="notebooks/data_sharing.html"><span class="doc std std-doc">section</span></a>.</p>
 </section>
 <section id="connecting-to-specific-database-relevant-for-ibl-users">
-<h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Permalink to this headline"></a></h3>
+<h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Permalink to this heading"></a></h3>
 <p>To connect to a specific database, for example the internal IBL Alyx database, a base-url argument must be given</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
@@ -189,7 +190,7 @@ available datasets</p>
 </section>
 </section>
 <section id="post-setup">
-<h2>3. Post setup<a class="headerlink" href="#post-setup" title="Permalink to this headline"></a></h2>
+<h2>3. Post setup<a class="headerlink" href="#post-setup" title="Permalink to this heading"></a></h2>
 <p>Once you’ve setup the server you can initialise ONE in the following way and it will automatically connect to the
 default database configured in your settings,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>

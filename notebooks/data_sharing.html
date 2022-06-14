@@ -16,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -390,7 +391,7 @@ div.rendered_html tbody tr:hover {
 <a href="data_sharing.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/
 data_sharing.ipynb"><button id="github">Github link</button></a><section id="Releasing-data-with-ONE">
-<h1>Releasing data with ONE<a class="headerlink" href="#Releasing-data-with-ONE" title="Permalink to this headline"></a></h1>
+<h1>Releasing data with ONE<a class="headerlink" href="#Releasing-data-with-ONE" title="Permalink to this heading"></a></h1>
 <p>ONE can operate in <a class="reference external" href="./one_modes.html">two modes</a>. For very large collections, such as the main IBL data, it operates in ‘remote mode’, downloading data from a remote store only as required. However it can also be used in ‘local mode’, in which all data files are stored on the user’s local machine. This is simpler, and allows access with no internet connection. To access data in local mode, a user uses exactly the same commands as in remote mode.</p>
 <p>ONE stores an index of the local filesystem in a couple of parquet files in the root directory, called ‘sessions.pqt’ and ‘datasets.pqt’.</p>
 <p>The easiest way for data producers to release ONE-standard data is thus to create a directory containing your data files, collect them all into a .zip file, and put it on a website along with the index files.</p>
@@ -403,7 +404,7 @@ data_sharing.ipynb"><button id="github">Github link</button></a><section id="Rel
 </pre></div>
 </div>
 <section id="Downloading-example-data">
-<h2>Downloading example data<a class="headerlink" href="#Downloading-example-data" title="Permalink to this headline"></a></h2>
+<h2>Downloading example data<a class="headerlink" href="#Downloading-example-data" title="Permalink to this heading"></a></h2>
 <p>Next we are going to download an example collection of behavioural data files. The following commands download a zip file from figshare into a cache directory, and unzip it. It is of course also possible to download and unzip the file manually, in any directory of the users choice. This should take around a minute.</p>
 <p>The dataset is around 74,000 behaviour files (~218MB) from the beta data release for the <a class="reference external" href="https://elifesciences.org/articles/63711">IBL behaviour paper</a>. The code in this cell is not important.</p>
 <div class="admonition note">
@@ -456,7 +457,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 </div>
 </section>
 <section id="Validating-your-data">
-<h2>Validating your data<a class="headerlink" href="#Validating-your-data" title="Permalink to this headline"></a></h2>
+<h2>Validating your data<a class="headerlink" href="#Validating-your-data" title="Permalink to this heading"></a></h2>
 <p>Before building the cache tables, you need to organize your data files into directories with a specific naming convention:</p>
 <p><code class="docutils literal notranslate"><span class="pre">lab/Subjects/subject/date/number</span></code></p>
 <div class="admonition note">
@@ -496,7 +497,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 </div>
 </section>
 <section id="Generating-the-cache">
-<h2>Generating the cache<a class="headerlink" href="#Generating-the-cache" title="Permalink to this headline"></a></h2>
+<h2>Generating the cache<a class="headerlink" href="#Generating-the-cache" title="Permalink to this heading"></a></h2>
 <p>Now let’s see how you would release data in ONE standard if you are a data producer. Before zipping and uploading, you need to create the index files, which is done with one line of code. This should take about 3 minutes for the current behavioral data.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note.</p>
@@ -530,7 +531,7 @@ One (offline, C:\Users\User\Downloads\ONE\my_example)
 </div>
 </section>
 <section id="Checking-the-cache">
-<h2>Checking the cache<a class="headerlink" href="#Checking-the-cache" title="Permalink to this headline"></a></h2>
+<h2>Checking the cache<a class="headerlink" href="#Checking-the-cache" title="Permalink to this heading"></a></h2>
 <p>Now the files are indexed you can use ONE search and load commands as you would with remote data. Let’s search for all sessions of subject NYU-01, that have behavioral trial data, then make a plot of reaction time vs. trial number which we obtain by subtracting the time of the go cue onset from the feedback (i.e. reward or failure) time.</p>
 <p>For more information on listing, searching and loading data see <a class="reference external" href="../index.html#basic-usage">the API guides</a></p>
 <div class="nbinput docutils container">
