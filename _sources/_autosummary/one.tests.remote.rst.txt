@@ -1,7 +1,7 @@
-one.remote
-==========
+one.tests.remote
+================
 
-.. automodule:: one.remote
+.. automodule:: one.tests.remote
 
    
    
@@ -26,7 +26,6 @@ one.remote
    :template: custom-module-template.rst
    :recursive:
 
-   one.remote.aws
-   one.remote.base
-   one.remote.globus
+   one.tests.remote.test_remote
+   one.tests.remote.test_remote_aws
 

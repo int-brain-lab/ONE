@@ -27,12 +27,12 @@ one.tests
    :recursive:
 
    one.tests.alf
+   one.tests.remote
    one.tests.test_alyxclient
    one.tests.test_alyxrest
    one.tests.test_converters
    one.tests.test_one
    one.tests.test_params
    one.tests.test_registration
-   one.tests.test_remote
    one.tests.util
 

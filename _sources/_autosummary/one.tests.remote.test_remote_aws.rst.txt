@@ -1,0 +1,31 @@
+one.tests.remote.test\_remote\_aws
+==================================
+
+.. automodule:: one.tests.remote.test_remote_aws
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      TestAWS
+      TestAWSPublic
+   
+   
+
+   
+   
+   
+
+
+

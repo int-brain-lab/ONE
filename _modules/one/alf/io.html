@@ -376,7 +376,7 @@
 <div class="viewcode-block" id="load_file_content"><a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.load_file_content">[docs]</a><span class="k">def</span> <span class="nf">load_file_content</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns content of files. Designed for very generic file formats:</span>
-<span class="sd">    so far supported contents are `json`, `npy`, `csv`, `tsv`, `ssv`, `jsonable`</span>
+<span class="sd">    so far supported contents are `json`, `npy`, `csv`, `(h)tsv`, `ssv`, `jsonable`</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -410,7 +410,7 @@
         <span class="k">return</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fil</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">fil</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.ssv&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">fil</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.tsv&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">fil</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;.tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;.htsv&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span></div>
 

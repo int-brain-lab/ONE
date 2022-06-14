@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>one.tests.test_alyxrest &mdash; ONE  documentation</title>
+  <title>one.tests.remote.test_remote_aws &mdash; ONE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="one.tests.test_converters" href="one.tests.test_converters.html" />
-    <link rel="prev" title="one.tests.test_alyxclient" href="one.tests.test_alyxclient.html" /> 
+    <link rel="next" title="one.tests.test_alyxclient" href="one.tests.test_alyxclient.html" />
+    <link rel="prev" title="one.tests.remote" href="one.tests.remote.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -83,9 +83,9 @@
 <li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="one.tests.html">one.tests</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="one.tests.alf.html">one.tests.alf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="one.tests.remote.html">one.tests.remote</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="one.tests.remote.html">one.tests.remote</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxclient.html">one.tests.test_alyxclient</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">one.tests.test_alyxrest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxrest.html">one.tests.test_alyxrest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.tests.test_converters.html">one.tests.test_converters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.tests.test_one.html">one.tests.test_one</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.tests.test_params.html">one.tests.test_params</a></li>
@@ -120,9 +120,10 @@
           <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
           <li><a href="one.html">one</a> &raquo;</li>
           <li><a href="one.tests.html">one.tests</a> &raquo;</li>
-      <li>one.tests.test_alyxrest</li>
+          <li><a href="one.tests.remote.html">one.tests.remote</a> &raquo;</li>
+      <li>one.tests.remote.test_remote_aws</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/one.tests.test_alyxrest.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/one.tests.remote.test_remote_aws.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -154,9 +155,9 @@
     text-align: unset;
 }
 </style>
-<section id="module-one.tests.test_alyxrest">
-<span id="one-tests-test-alyxrest"></span><h1>one.tests.test_alyxrest<a class="headerlink" href="#module-one.tests.test_alyxrest" title="Permalink to this heading"></a></h1>
-<p>Unit tests for Alyx REST queries using the AlyxClient.rest method</p>
+<section id="module-one.tests.remote.test_remote_aws">
+<span id="one-tests-remote-test-remote-aws"></span><h1>one.tests.remote.test_remote_aws<a class="headerlink" href="#module-one.tests.remote.test_remote_aws" title="Permalink to this heading"></a></h1>
+<p>Tests for the one.remote.aws module.</p>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -164,43 +165,70 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxrest.Tests_REST" title="one.tests.test_alyxrest.Tests_REST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tests_REST</span></code></a></p></td>
-<td><p>Specific Alyx REST endpoint tests</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.remote.test_remote_aws.TestAWS" title="one.tests.remote.test_remote_aws.TestAWS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestAWS</span></code></a></p></td>
+<td><p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.remote.test_remote_aws.TestAWSPublic" title="one.tests.remote.test_remote_aws.TestAWSPublic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestAWSPublic</span></code></a></p></td>
+<td><p>This test relies on downloading the cache folder for open alyx as it is rather small The assertions may change if the content does change.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tests_REST</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWSPublic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAWSPublic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote_aws.html#TestAWSPublic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWSPublic" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Specific Alyx REST endpoint tests</p>
+<p>This test relies on downloading the cache folder for open alyx as it is rather small
+The assertions may change if the content does change.
+If the folder grows bigger, we could create a dedicated test folder for this test</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWSPublic.source">
+<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'caches/openalyx/cache_info.json'</span></em><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWSPublic.source" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_water_restriction">
-<span class="sig-name descname"><span class="pre">test_water_restriction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_water_restriction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_water_restriction" title="Permalink to this definition"></a></dt>
-<dd><p>Test listing water-restriction endpoint.</p>
-<p>Examples of how to list all water restrictions and water-restriction for a given
-subject.</p>
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWSPublic.test_download_file">
+<span class="sig-name descname"><span class="pre">test_download_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote_aws.html#TestAWSPublic.test_download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWSPublic.test_download_file" title="Permalink to this definition"></a></dt>
+<dd><p>Test for one.aws.remote.s3_download_file function.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_list_pk_query">
-<span class="sig-name descname"><span class="pre">test_list_pk_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_list_pk_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_list_pk_query" title="Permalink to this definition"></a></dt>
-<dd><p>Test REST list with id keyword argument.</p>
-<p>It’s a bit stupid but the REST endpoint can’t forward a direct query of the uuid via
-the pk keyword. The AlyxClient has already an id parameter, which on the list method
-is used as a pk identifier. This special case is tested here.</p>
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWSPublic.test_download_folder">
+<span class="sig-name descname"><span class="pre">test_download_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote_aws.html#TestAWSPublic.test_download_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWSPublic.test_download_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Test for one.remote.aws.s3_download_public_folder function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAWS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote_aws.html#TestAWS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWS.repo">
+<span class="sig-name descname"><span class="pre">repo</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWS.repo" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWS.tempdir">
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWS.tempdir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWS.one">
+<span class="sig-name descname"><span class="pre">one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWS.one" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWS.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote_aws.html#TestAWS.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWS.setUpClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload">
-<span class="sig-name descname"><span class="pre">test_note_with_picture_upload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_note_with_picture_upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload" title="Permalink to this definition"></a></dt>
-<dd><p>Test adding session note with attached picture</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_channels">
-<span class="sig-name descname"><span class="pre">test_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_channels" title="Permalink to this definition"></a></dt>
-<dd><p>Test creation of insertion, trajectory and channels</p>
+<dt class="sig sig-object py" id="one.tests.remote.test_remote_aws.TestAWS.test_credentials">
+<span class="sig-name descname"><span class="pre">test_credentials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote_aws.html#TestAWS.test_credentials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote_aws.TestAWS.test_credentials" title="Permalink to this definition"></a></dt>
+<dd><p>Test for one.remote.aws.get_aws_access_keys function.</p>
 </dd></dl>
 
 </dd></dl>
@@ -211,8 +239,8 @@ is used as a pk identifier. This special case is tested here.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.tests.test_alyxclient.html" class="btn btn-neutral float-left" title="one.tests.test_alyxclient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="one.tests.test_converters.html" class="btn btn-neutral float-right" title="one.tests.test_converters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="one.tests.remote.html" class="btn btn-neutral float-left" title="one.tests.remote" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.tests.test_alyxclient.html" class="btn btn-neutral float-right" title="one.tests.test_alyxclient" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
