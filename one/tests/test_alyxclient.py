@@ -136,7 +136,7 @@ class TestJsonFieldMethods(unittest.TestCase):
     def setUp(self):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
 
-        #
+        # Create new subject and two new sessions
         name = '0A' + str(random.randint(0, 10000))
         self.subj = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
         sessions = [self.ac.rest('sessions', 'create', data={
@@ -150,7 +150,9 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.eids = [x['url'].split('/')[-1] for x in sessions]
         self.endpoint = 'sessions'
         self.field_name = 'extended_qc'
-        self.data_dict = {'some': 0, 'data': 1}
+        # We filter by key value so we use randint to avoid race condition in concurrent tests
+        i = str(random.randint(0, 10000))
+        self.data_dict = {'low_' + i: 0, 'high_' + i: 1}
 
     def _json_field_write(self):
         written1 = self.ac.json_field_write(
@@ -161,33 +163,37 @@ class TestJsonFieldMethods(unittest.TestCase):
         )
         self.assertTrue(written1 == written2)
         self.assertTrue(written1 == self.data_dict)
-        url = f'/{self.endpoint}?&extended_qc=some__lt,0.5'
+        data_field = next(filter(lambda x: x.startswith('low'), self.data_dict))
+        url = f'/{self.endpoint}?&{self.field_name}={data_field}__lt,0.5'
         sess_dict = self.ac.get(url, expires=True)
         self.assertTrue(len(sess_dict) == 2)
 
     def _json_field_update(self):
+        data_field = next(filter(lambda x: x.startswith('low'), self.data_dict))
         modified = self.ac.json_field_update(
-            self.endpoint, self.eids[0], self.field_name, {'some': 0.6}
+            self.endpoint, self.eids[0], self.field_name, {data_field: 0.6}
         )
-        self.assertTrue('data' in modified)
-        self.assertTrue('some' in modified)
-        url = f'/{self.endpoint}?&extended_qc=some__lt,0.5'
+        self.assertCountEqual(modified.keys(), self.data_dict.keys())
+        url = f'/{self.endpoint}?&{self.field_name}={data_field}__lt,0.5'
         self.assertTrue(len(self.ac.get(url, expires=True)) == 1)
 
     def _json_field_remove_key(self):
         eid = self.eids[1]
-        url = f'/{self.endpoint}?&extended_qc=data__gte,0.5'
+        data_field = next(filter(lambda x: x.startswith('hi'), self.data_dict))
+        url = f'/{self.endpoint}?&{self.field_name}={data_field}__gte,0.5'
         pre_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(pre_delete) == 2)
-        deleted = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name, 'data')
-        self.assertTrue('data' not in deleted)
+        deleted = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name, data_field)
+        self.assertTrue(data_field not in deleted)
         post_delete = self.ac.get(url, expires=True)
         self.assertTrue(len(post_delete) == 1)
 
     def _json_field_delete(self):
+        data_field = next(filter(lambda x: x.startswith('hi'), self.data_dict))
         deleted = self.ac.json_field_delete(self.endpoint, self.eids[1], self.field_name)
         self.assertTrue(deleted is None)
-        ses = self.ac.get(f'/{self.endpoint}?&extended_qc=data__gte,0.5', expires=True)
+        url = f'/{self.endpoint}?&{self.field_name}={data_field}__gte,0.5'
+        ses = self.ac.get(url, expires=True)
         self.assertTrue(len(ses) == 1)
 
     def test_json_methods(self):
