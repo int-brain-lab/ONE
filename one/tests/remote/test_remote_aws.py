@@ -1,5 +1,6 @@
 """Tests for the one.remote.aws module."""
 import json
+import logging
 import unittest
 from unittest import mock
 import tempfile
@@ -30,7 +31,15 @@ class TestAWSPublic(unittest.TestCase):
             local_file = aws.s3_download_file(self.source, destination)
             with open(local_file, 'r') as fid:
                 js = json.load(fid)
-        self.assertEqual(5, len(js.keys()))
+            self.assertEqual(5, len(js.keys()))
+            # Test skip re-download
+            with self.assertLogs('one.remote.aws', logging.DEBUG) as lg:
+                aws.s3_download_file(self.source, destination)
+                self.assertIn('exists', lg.output[-1])
+            # Test file not found
+            with self.assertLogs('one.remote.aws', logging.ERROR) as lg:
+                self.assertIsNone(aws.s3_download_file('foo/bar/baz.BAT', destination))
+                self.assertIn('not found', lg.output[-1])
 
     def test_download_folder(self):
         """Test for one.remote.aws.s3_download_public_folder function."""
@@ -38,7 +47,12 @@ class TestAWSPublic(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td).joinpath('caches/unit_test')
             local_files = aws.s3_download_folder(source, destination)
-        self.assertEqual(2, len(local_files))
+            self.assertEqual(2, len(local_files))
+            # Test not folder assert
+            destination = Path(td).joinpath('file')
+            destination.touch()
+            with self.assertRaises(AssertionError):
+                aws.s3_download_folder(source, destination)
 
 
 class TestAWS(unittest.TestCase):

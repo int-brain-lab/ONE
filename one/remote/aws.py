@@ -115,7 +115,7 @@ def get_s3_from_alyx(one):
     return s3, bucket_name
 
 
-def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=True):
+def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=False):
     """
     Downloads a file from an S3 instance to a local folder.
 
