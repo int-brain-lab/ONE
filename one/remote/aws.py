@@ -13,8 +13,6 @@ source = 'caches/unit_test'
 destination = '/home/olivier/scratch/caches/unit_test'
 local_files = aws.s3_download_folder(source, destination)
 """
-
-
 from pathlib import Path
 import logging
 from tqdm import tqdm
