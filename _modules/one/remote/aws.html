@@ -102,22 +102,20 @@
   <h1>Source code for one.remote.aws</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;A backend to download IBL data from AWS Buckets.</span>
 
-<span class="sd">For example, without any credentials, to download a public file from the IBL public bucket:</span>
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">Without any credentials, to download a public file from the IBL public bucket:</span>
 
-<span class="sd">```</span>
-<span class="sd">import one.remote.aws as aws</span>
-<span class="sd">source = &#39;caches/unit_test/cache_info.json&#39;</span>
-<span class="sd">destination = &#39;/home/olivier/scratch/cache_info.json&#39;</span>
-<span class="sd">aws.s3_download_file(source, destination)</span>
-<span class="sd">```</span>
+<span class="sd">    from one.remote import aws</span>
+<span class="sd">    source = &#39;caches/unit_test/cache_info.json&#39;</span>
+<span class="sd">    destination = &#39;/home/olivier/scratch/cache_info.json&#39;</span>
+<span class="sd">    aws.s3_download_file(source, destination)</span>
 
-<span class="sd">For a folder, the following</span>
+<span class="sd">For a folder, the following:</span>
 
-<span class="sd">```</span>
-<span class="sd">source = &#39;caches/unit_test&#39;</span>
-<span class="sd">destination = &#39;/home/olivier/scratch/caches/unit_test&#39;</span>
-<span class="sd">local_files = aws.s3_download_folder(source, destination)</span>
-<span class="sd">```</span>
+<span class="sd">    source = &#39;caches/unit_test&#39;</span>
+<span class="sd">    destination = &#39;/home/olivier/scratch/caches/unit_test&#39;</span>
+<span class="sd">    local_files = aws.s3_download_folder(source, destination)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">logging</span>
