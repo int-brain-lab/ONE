@@ -21,7 +21,7 @@ Create a subject
 ...     'death_date': None,
 ...     'lab': 'cortexlab',
 ... }
-... new_subj = alyx.rest('subjects', 'create', data=record)
+>>> new_subj = alyx.rest('subjects', 'create', data=record)
 
 Download a remote file, given a local path
 
