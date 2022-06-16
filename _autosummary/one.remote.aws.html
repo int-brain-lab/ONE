@@ -153,18 +153,18 @@
 <p>A backend to download IBL data from AWS Buckets.</p>
 <p class="rubric">Examples</p>
 <p>Without any credentials, to download a public file from the IBL public bucket:</p>
-<blockquote>
-<div><p>from one.remote import aws
-source = ‘caches/unit_test/cache_info.json’
-destination = ‘/home/olivier/scratch/cache_info.json’
-aws.s3_download_file(source, destination)</p>
-</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">one.remote</span> <span class="kn">import</span> <span class="n">aws</span>
+<span class="gp">... </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span>
+<span class="gp">... </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/cache_info.json&#39;</span>
+<span class="gp">... </span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>For a folder, the following:</p>
-<blockquote>
-<div><p>source = ‘caches/unit_test’
-destination = ‘/home/olivier/scratch/caches/unit_test’
-local_files = aws.s3_download_folder(source, destination)</p>
-</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test&#39;</span>
+<span class="gp">... </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/caches/unit_test&#39;</span>
+<span class="gp">... </span><span class="n">local_files</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">s3_download_folder</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+</pre></div>
+</div>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
