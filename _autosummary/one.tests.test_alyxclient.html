@@ -171,7 +171,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestJsonFieldMethods" title="one.tests.test_alyxclient.TestJsonFieldMethods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestJsonFieldMethods</span></code></a></p></td>
-<td><p>Tests for AlyxClient methods that modify the JSON field of a REST endpoint</p></td>
+<td><p>Tests for AlyxClient methods that modify the JSON field of a REST endpoint.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestMisc" title="one.tests.test_alyxclient.TestMisc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestMisc</span></code></a></p></td>
 <td><p></p></td>
@@ -216,7 +216,9 @@
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestJsonFieldMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Tests for AlyxClient methods that modify the JSON field of a REST endpoint</p>
+<p>Tests for AlyxClient methods that modify the JSON field of a REST endpoint.</p>
+<p>These tests are over-engineered in order to test Alyx Django queries with JSON fields.
+Django queries are also tested in TestRemote.test_search.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods.setUp" title="Permalink to this definition"></a></dt>

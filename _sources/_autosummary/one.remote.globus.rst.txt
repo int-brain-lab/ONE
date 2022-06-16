@@ -1,0 +1,42 @@
+one.remote.globus
+=================
+
+.. automodule:: one.remote.globus
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+   
+      as_globus_path
+      create_globus_client
+      get_lab_from_endpoint_id
+      get_local_endpoint_id
+      get_local_endpoint_paths
+      setup
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      Globus
+   
+   
+
+   
+   
+   
+
+
+

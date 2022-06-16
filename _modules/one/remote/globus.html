@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.remote.globus &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html">Recording Data Access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Detailed Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>one.remote.globus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for one.remote.globus</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;A module for handling file operations through the Globus SDK&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">globus_sdk</span>
+<span class="kn">from</span> <span class="nn">globus_sdk</span> <span class="kn">import</span> <span class="n">TransferAPIError</span><span class="p">,</span> <span class="n">GlobusAPIError</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">,</span> <span class="n">GlobusTimeoutError</span><span class="p">,</span> \
+    <span class="n">GlobusConnectionError</span><span class="p">,</span> <span class="n">GlobusConnectionTimeoutError</span>
+<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
+
+<span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid</span>
+<span class="kn">from</span> <span class="nn">one.alf.io</span> <span class="kn">import</span> <span class="n">remove_uuid_file</span>
+<span class="kn">import</span> <span class="nn">one.params</span>
+<span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">DownloadClient</span><span class="p">,</span> <span class="n">load_client_params</span><span class="p">,</span> <span class="n">save_client_params</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">CLIENT_KEY</span> <span class="o">=</span> <span class="s1">&#39;globus&#39;</span>
+<span class="n">DEFAULT_PAR</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;local_endpoint&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">par_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets up Globus as a backend for ONE functions.</span>
+<span class="sd">    In order to use this function you need:</span>
+
+<span class="sd">    1. The Client ID of an existing Globus Client, or to create one</span>
+<span class="sd">       (https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html).</span>
+<span class="sd">    2. Set up Global Connect on your local device (https://www.globus.org/globus-connect-personal).</span>
+<span class="sd">    3. Register your local device as an Endpoint in your Globus Client (https://app.globus.org/).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    par_id : str</span>
+<span class="sd">        Parameter profile name to set up e.g. &#39;default&#39;, &#39;admin&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up Globus parameter file. See docstring for help.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">par_id</span><span class="p">:</span>
+        <span class="n">default_par_id</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+        <span class="n">par_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Enter name for this client or press Enter to keep value &quot;</span><span class="si">{</span><span class="n">default_par_id</span><span class="si">}</span><span class="s1">&quot;: &#39;</span>
+        <span class="p">)</span>
+        <span class="n">par_id</span> <span class="o">=</span> <span class="n">par_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">default_par_id</span>
+
+    <span class="c1"># Read existing globus params if present</span>
+    <span class="n">globus_pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">load_client_params</span><span class="p">(</span><span class="n">CLIENT_KEY</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">pars</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">DEFAULT_PAR</span><span class="p">,</span> <span class="o">**</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">par_id</span><span class="p">,</span> <span class="p">{})}</span>
+
+    <span class="c1"># Set GLOBUS_CLIENT_ID</span>
+    <span class="n">current_id</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">current_id</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found Globus client ID in parameter file (</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s1">). &#39;</span>
+                  <span class="s1">&#39;Press Enter to keep it, or enter a new ID here: &#39;</span><span class="p">)</span>
+        <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">current_id</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">new_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Please enter the Globus client ID: &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Globus client ID is a required field&#39;</span><span class="p">)</span>
+        <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
+
+    <span class="c1"># Find and set local ID</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Please enter the local endpoint ID&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">default_endpoint</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">get_local_endpoint_id</span><span class="p">()</span>
+        <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; (default: </span><span class="si">{</span><span class="n">default_endpoint</span><span class="si">}</span><span class="s1">)&#39;</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">default_endpoint</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s1">&#39;Cannot find local endpoint ID. Beware that this might mean that Globus Connect &#39;</span>
+            <span class="s1">&#39;is not set up properly.&#39;</span><span class="p">)</span>
+    <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">default_endpoint</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Globus local endpoint ID is a required field&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Check for local path</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Please enter the local endpoint path&#39;</span>
+    <span class="n">local_path</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_path&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">CACHE_DIR</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; (default: </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s1">)&#39;</span>
+    <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">local_path</span>
+
+    <span class="c1"># Log in manually and get refresh token to avoid having to login repeatedly</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">])</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">authorize_url</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">oauth2_get_authorize_url</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;To get a new token, go to this URL and login: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">authorize_url</span><span class="p">))</span>
+    <span class="n">auth_code</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter the code you get after login here (press &quot;c&quot; to cancel): &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">auth_code</span> <span class="ow">and</span> <span class="n">auth_code</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
+        <span class="n">token_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">oauth2_exchange_code_for_tokens</span><span class="p">(</span><span class="n">auth_code</span><span class="p">)</span>
+        <span class="n">globus_transfer_data</span> <span class="o">=</span> <span class="n">token_response</span><span class="o">.</span><span class="n">by_resource_server</span><span class="p">[</span><span class="s1">&#39;transfer.api.globus.org&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">]:</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">globus_transfer_data</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+
+    <span class="n">globus_pars</span><span class="p">[</span><span class="n">par_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">pars</span>
+    <span class="n">save_client_params</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">,</span> <span class="n">client_key</span><span class="o">=</span><span class="n">CLIENT_KEY</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished setup.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_globus_client"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.create_globus_client">[docs]</a><span class="k">def</span> <span class="nf">create_globus_client</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a Globus transfer client based on existing parameter file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    client_name : str</span>
+<span class="sd">        Defines the parameter name to use (globus.client_name), e.g. &#39;default&#39;, &#39;admin&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    globus_sdk.TransferClient</span>
+<span class="sd">        Globus transfer client instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">globus_pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
+        <span class="n">setup</span><span class="p">(</span><span class="n">client_name</span><span class="p">)</span>
+        <span class="n">globus_pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">required_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">globus_pars</span> <span class="ow">and</span> <span class="n">required_fields</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">))):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No token in client parameter file. Run one.globus.setup first&#39;</span><span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">GLOBUS_CLIENT_ID</span><span class="p">)</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">authorizer</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">RefreshTokenAuthorizer</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferClient</span><span class="p">(</span><span class="n">authorizer</span><span class="o">=</span><span class="n">authorizer</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_local_endpoint_id"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.get_local_endpoint_id">[docs]</a><span class="k">def</span> <span class="nf">get_local_endpoint_id</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts the ID of the local Globus Connect endpoint.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The local Globus endpoint ID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot find local endpoint ID, check if Globus Connect is set up correctly, &#39;</span>
+           <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> exists and contains a UUID.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">):</span>
+        <span class="n">id_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOCALAPPDATA&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;Globus Connect&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">id_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.globusonline&#39;</span><span class="p">,</span> <span class="s1">&#39;lta&#39;</span><span class="p">)</span>
+
+    <span class="n">id_file</span> <span class="o">=</span> <span class="n">id_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;client-id.txt&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">id_file</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_file</span><span class="p">)</span>
+    <span class="n">local_id</span> <span class="o">=</span> <span class="n">id_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_file</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found local endpoint ID in Globus Connect settings </span><span class="si">{</span><span class="n">local_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">local_id</span></div>
+
+
+<div class="viewcode-block" id="get_local_endpoint_paths"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.get_local_endpoint_paths">[docs]</a><span class="k">def</span> <span class="nf">get_local_endpoint_paths</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts the local endpoint paths accessible by Globus Connect.  NB: This is only supported</span>
+<span class="sd">    on Linux.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of pathlib.Path</span>
+<span class="sd">        Local endpoint paths set in Globus Connect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;On windows the local Globus path needs to be entered manually&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path_file</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.globusonline&#39;</span><span class="p">,</span> <span class="s1">&#39;lta&#39;</span><span class="p">,</span> <span class="s1">&#39;config-paths&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">local_paths</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">path_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Found local endpoint paths in Globus Connect settings&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot find local endpoint path, check if Globus Connect is set up correctly, &#39;</span>
+                   <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> exists and contains a valid path.&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_file</span><span class="p">))</span>
+            <span class="n">local_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_paths</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_lab_from_endpoint_id"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.get_lab_from_endpoint_id">[docs]</a><span class="k">def</span> <span class="nf">get_lab_from_endpoint_id</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts lab name given an endpoint id root path given a repository name that is registered in</span>
+<span class="sd">    the database accessed by ONE.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    endpoint : uuid.UUID, str</span>
+<span class="sd">        Endpoint UUID, optional if not given will get attempt to find local endpoint UUID.</span>
+<span class="sd">    alyx : one.webclient.AlyxClient</span>
+<span class="sd">        An instance of AlyxClient to use</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Lab name associated with the endpoint UUID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span> <span class="ow">or</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">endpoint</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">get_local_endpoint_id</span><span class="p">()</span>
+    <span class="n">lab</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;repositories__globus_endpoint_id,</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lab</span><span class="p">):</span>
+        <span class="n">lab_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">la</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">la</span> <span class="ow">in</span> <span class="n">lab</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">lab_names</span></div>
+
+
+<div class="viewcode-block" id="as_globus_path"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.as_globus_path">[docs]</a><span class="k">def</span> <span class="nf">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a path into one suitable for the Globus TransferClient.  NB:</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : pathlib.Path, pathlib.PurePath, str</span>
+<span class="sd">        A path to convert to a Globus-complient path string</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A formatted path string</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If using tilda in path, the home folder of your Globus Connect instance must be the same as</span>
+<span class="sd">      the OS home dir.</span>
+<span class="sd">    - If validating a path for another system ensure the input path is a PurePath, in particular,</span>
+<span class="sd">    on a Linux computer a remote Windows should first be made into a PureWindowsPath.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    A Windows path</span>
+
+<span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;E:\\FlatIron\\integration&#39;)</span>
+<span class="sd">    &#39;/E/FlatIron/integration&#39;</span>
+
+<span class="sd">    A relative POSIX path</span>
+
+<span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;../data/integration&#39;)</span>
+<span class="sd">    &#39;/mnt/data/integration&#39;</span>
+
+<span class="sd">    A globus path</span>
+
+<span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;/E/FlatIron/integration&#39;)</span>
+<span class="sd">    &#39;/E/FlatIron/integration&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_pure_path</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">)</span>
+    <span class="n">is_win</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">PureWindowsPath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/[A-Z]($|/)&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">is_win</span>
+        <span class="k">else</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_pure_path</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">drive</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Globus"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus">[docs]</a><span class="k">class</span> <span class="nc">Globus</span><span class="p">(</span><span class="n">DownloadClient</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for managing files on Globus endpoints.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
+        <span class="c1"># Setting up transfer client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">create_globus_client</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="n">client_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Try adding local endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">local_endpoint</span><span class="p">}}</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding local endpoint.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">local_path</span>
+
+<div class="viewcode-block" id="Globus.to_address"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.to_address">[docs]</a>    <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Globus.download_file"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Globus.setup"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.setup">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Globus.add_endpoint"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.add_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">add_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an endpoint to the Globus instance to be used by other functions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : uuid.UUID, str</span>
+<span class="sd">            The endpoint UUID or database repository name of the endpoint.</span>
+<span class="sd">        label : str</span>
+<span class="sd">            Label to access the endpoint. If endpoint is UUID this has to be set, otherwise is</span>
+<span class="sd">            optional.</span>
+<span class="sd">        root_path : str, pathlib.Path, pathlib.PurePath</span>
+<span class="sd">            File path to be accessed by Globus on the endpoint.</span>
+<span class="sd">        overwrite : bool</span>
+<span class="sd">            Whether existing endpoint with the same label should be replaced.</span>
+<span class="sd">        alyx : webclient.AlyxClient</span>
+<span class="sd">            An AlyxClient instance for looking up repository information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,)):</span>  <span class="c1"># MAC address UUID</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;If &quot;endpoint&quot; is a UUID, &quot;label&quot; cannot be None.&#39;</span><span class="p">)</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_from_alyx</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="n">repo</span><span class="p">[</span><span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">]</span>
+            <span class="n">root_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="ow">or</span> <span class="n">repo</span><span class="p">[</span><span class="s1">&#39;globus_path&#39;</span><span class="p">]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">endpoint</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">overwrite</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;An endpoint called &quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&quot; already exists. Choose a different label &#39;</span>
+                          <span class="s1">&#39;or set overwrite=True&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">endpoint_id</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">root_path</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an absolute path or relative path with a root path, return a Globus path str.</span>
+<span class="sd">        Note: Paths must be POSIX or Globus-compliant paths.  In other words for Windows systems</span>
+<span class="sd">        the input root_path or absolute path must be passed through `as_globus_path` before</span>
+<span class="sd">        calling this method.</span>
+
+<span class="sd">        TODO include globus_path_from_dataset</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : Path, PurePath, str</span>
+<span class="sd">            An absolute or relative POSIX path</span>
+<span class="sd">        root_path : Path, PurePath, str</span>
+<span class="sd">            A root path to prepend.  Optional if `path` is absolute.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A path string formatted for Globus.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        as_globus_path</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Path was not absolute and no root path was given.  An absolute path must start with</span>
+<span class="sd">            a slash on *nix systems.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">root_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">root_path</span><span class="p">)):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> is relative and no root_path defined&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_endpoint_id_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="n">root_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;root_path&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">root_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span>
+        <span class="k">elif</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)):</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="n">endpoint</span>
+            <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;&quot;endpoint&quot; must be a UUID or the label of an endpoint registered in this &#39;</span>
+                <span class="s1">&#39;Globus instance. You can add endpoints via the add_endpoints method&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Globus.ls"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove_uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the list of (filename, filesize) in a given endpoint directory.</span>
+<span class="sd">        NB: If you&#39;re using ls routinely when transferring or deleting files you&#39;re probably doing</span>
+<span class="sd">        something wrong!</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : uuid.UUID, str</span>
+<span class="sd">            The Globus endpoint. May be a UUID or a key in the Globus.endpoints attribute.</span>
+<span class="sd">        path : Path, PurePath, str</span>
+<span class="sd">            The absolute or relative Globus path to list.  Note: if endpoint is a UUID, the path</span>
+<span class="sd">            must be absolute.</span>
+<span class="sd">        remove_uuid : bool</span>
+<span class="sd">            If True, remove the UUID from the returned filenames.</span>
+<span class="sd">        return_size : bool</span>
+<span class="sd">            If True, return the size of each listed file in bytes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of PurePosixPath objects of the files and folders listed, or if return_size is</span>
+<span class="sd">            True, tuples of PurePosixPath objects and the corresponding file sizes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if endpoint is a UUID, if not try to get UUID from registered endpoints</span>
+        <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="c1"># Check if root_path should be added and if path is absolute</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">root_path</span><span class="p">)</span>
+        <span class="c1"># Do the actual listing</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">GlobusConnectionError</span><span class="p">,</span> <span class="n">GlobusAPIError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">max_retries</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ex</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span>
+                <span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">remove_uuid</span> <span class="k">else</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">return_size</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fn</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+    <span class="c1"># TODO: allow to move all content of a directory with &#39;recursive&#39; keyword in add_item</span>
+<div class="viewcode-block" id="Globus.mv"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.mv">[docs]</a>    <span class="k">def</span> <span class="nf">mv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">target_endpoint</span><span class="p">,</span> <span class="n">source_paths</span><span class="p">,</span> <span class="n">target_paths</span><span class="p">,</span>
+           <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move files from one endpoint to another.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        source_endpoint : uuid.UUID, str</span>
+<span class="sd">            The Globus source endpoint. May be a UUID or a key in the Globus.endpoints attribute.</span>
+<span class="sd">        target_endpoint : uuid.UUID, str</span>
+<span class="sd">            The Globus destination endpoint. May be a UUID or a key in the Globus.endpoints</span>
+<span class="sd">            attribute.</span>
+<span class="sd">        source_paths : list of str, Path or PurePath</span>
+<span class="sd">            The absolute or relative Globus paths of source files to moves.  Note: if endpoint is</span>
+<span class="sd">            a UUID, the path must be absolute.</span>
+<span class="sd">        target_paths : list of str, Path or PurePath</span>
+<span class="sd">            The absolute or relative Globus paths of destination files to moves.  Note: if endpoint</span>
+<span class="sd">            is a UUID, the path must be absolute.</span>
+<span class="sd">        timeout : int</span>
+<span class="sd">            Maximum time in seconds to wait for the task to complete.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            Optional arguments for globus_sdk.TransferData.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            A Globus task ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">source_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">)</span>
+        <span class="n">target_endpoint</span><span class="p">,</span> <span class="n">target_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">target_endpoint</span><span class="p">)</span>
+        <span class="n">source_paths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">source_root</span><span class="p">))</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">source_paths</span><span class="p">]</span>
+        <span class="n">target_paths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">target_root</span><span class="p">))</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">target_paths</span><span class="p">]</span>
+
+        <span class="n">tdata</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">target_endpoint</span><span class="p">,</span>
+                                        <span class="n">verify_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sync_level</span><span class="o">=</span><span class="s1">&#39;checksum&#39;</span><span class="p">,</span>
+                                        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ONE globus&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">source_path</span><span class="p">,</span> <span class="n">target_path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source_paths</span><span class="p">,</span> <span class="n">target_paths</span><span class="p">):</span>
+            <span class="n">tdata</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">source_path</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;Function to submit Globus transfer and return the resulting task ID&quot;&quot;&quot;</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="p">(</span><span class="n">tdata</span><span class="p">)</span>
+            <span class="n">task_id</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;task_id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">task_id</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Globus.run_task"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">globus_func</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Block until a Globus task finishes and retry upon Network or REST Errors.</span>
+<span class="sd">        globus_func needs to submit a task to the client and return a task_id.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        globus_func : function</span>
+<span class="sd">            A function that returns a Globus task ID, typically it will submit a transfer.</span>
+<span class="sd">        retries : int</span>
+<span class="sd">            The number of times to call globus_func if it raises a Globus error.</span>
+<span class="sd">        timeout : int</span>
+<span class="sd">            Maximum time in seconds to wait for the task to complete.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Globus task ID.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IOError</span>
+<span class="sd">            Timed out waiting for task to complete.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">task_id</span> <span class="o">=</span> <span class="n">globus_func</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for Globus task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s1"> to complete&#39;</span><span class="p">)</span>
+            <span class="c1"># While the task with task is active, print a dot every second. Timeout after timeout</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_wait</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">polling_interval</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Globus task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s1"> timed out after </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s1"> seconds, &#39;</span>
+                                  <span class="sa">f</span><span class="s1">&#39;with task status </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SUCCEEDED&#39;</span><span class="p">:</span>
+                <span class="c1"># Sometime Globus sets the status to SUCCEEDED but doesn&#39;t truly finish.</span>
+                <span class="c1"># Handle error thrown when querying task_successful_transfers too early</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">successful</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+                    <span class="n">skipped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_skipped_errors</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Globus task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s1"> completed.&#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Skipped transfers: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">skipped</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Successful transfers: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">successful</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">successful</span><span class="p">:</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;source_path&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> -&gt; </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;destination_path&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">TransferAPIError</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Globus task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s1"> SUCCEEDED but querying transfers was&#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;unsuccessful&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Globus task finished unsuccessfully with status </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">task_id</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">GlobusAPIError</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">,</span> <span class="n">GlobusTimeoutError</span><span class="p">,</span> <span class="n">GlobusConnectionError</span><span class="p">,</span>
+                <span class="n">GlobusConnectionTimeoutError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">retries</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Max retries exceeded.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">e</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Globus experienced a network error&#39;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># if we reach this point without returning or erring, retry</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Globus experienced a network error, retrying.&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">globus_func</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="p">(</span><span class="n">retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

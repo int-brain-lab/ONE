@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.tests.remote.test_remote &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.tests.remote.test_remote_aws" href="one.tests.remote.test_remote_aws.html" />
+    <link rel="prev" title="one.tests.remote" href="one.tests.remote.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.tests.html">one.tests</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="one.tests.alf.html">one.tests.alf</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="one.tests.remote.html">one.tests.remote</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxclient.html">one.tests.test_alyxclient</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxrest.html">one.tests.test_alyxrest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_converters.html">one.tests.test_converters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_one.html">one.tests.test_one</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_params.html">one.tests.test_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_registration.html">one.tests.test_registration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.util.html">one.tests.util</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+          <li><a href="one.tests.html">one.tests</a> &raquo;</li>
+          <li><a href="one.tests.remote.html">one.tests.remote</a> &raquo;</li>
+      <li>one.tests.remote.test_remote</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.tests.remote.test_remote.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.tests.remote.test_remote">
+<span id="one-tests-remote-test-remote"></span><h1>one.tests.remote.test_remote<a class="headerlink" href="#module-one.tests.remote.test_remote" title="Permalink to this heading"></a></h1>
+<p>Unit tests for the one.remote package.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.remote.test_remote.TestBase" title="one.tests.remote.test_remote.TestBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestBase</span></code></a></p></td>
+<td><p>Tests for the one.remote.base module</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.remote.test_remote.TestGlobus" title="one.tests.remote.test_remote.TestGlobus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGlobus</span></code></a></p></td>
+<td><p>Tests for the one.remote.globus module</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.remote.test_remote.TestGlobusClient" title="one.tests.remote.test_remote.TestGlobusClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGlobusClient</span></code></a></p></td>
+<td><p>Tests for the GlobusClient class</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for the one.remote.base module</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.path_mock">
+<span class="sig-name descname"><span class="pre">path_mock</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.path_mock" title="Permalink to this definition"></a></dt>
+<dd><p>The temporary location of remote parameters file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>tempfile.TemporaryDirectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.tempdir">
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.tempdir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.setUpClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.test_load_client_params">
+<span class="sig-name descname"><span class="pre">test_load_client_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.test_load_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.test_load_client_params" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.base.load_client_params function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.test_save_client_params">
+<span class="sig-name descname"><span class="pre">test_save_client_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.test_save_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.test_save_client_params" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.base.save_client_params function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.test_repo_from_alyx">
+<span class="sig-name descname"><span class="pre">test_repo_from_alyx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.test_repo_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.test_repo_from_alyx" title="Permalink to this definition"></a></dt>
+<dd><p>Test for DownloadClient.repo_from_alyx method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.tearDown" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestBase.tearDownClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestBase.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestBase.tearDownClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestGlobus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for the one.remote.globus module</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.path_mock">
+<span class="sig-name descname"><span class="pre">path_mock</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.path_mock" title="Permalink to this definition"></a></dt>
+<dd><p>The temporary location of remote parameters file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>tempfile.TemporaryDirectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.tempdir">
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.tempdir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.setUpClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.test_setup">
+<span class="sig-name descname"><span class="pre">test_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.test_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.test_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.globus.setup function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.test_as_globus_path">
+<span class="sig-name descname"><span class="pre">test_as_globus_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.test_as_globus_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.test_as_globus_path" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.globus.as_globus_path</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.test_get_local_endpoint_id">
+<span class="sig-name descname"><span class="pre">test_get_local_endpoint_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.test_get_local_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.test_get_local_endpoint_id" title="Permalink to this definition"></a></dt>
+<dd><p>Test for one.remote.globus.get_local_endpoint_id function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.test_get_local_endpoint_paths">
+<span class="sig-name descname"><span class="pre">test_get_local_endpoint_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.test_get_local_endpoint_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.test_get_local_endpoint_paths" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.globus.get_local_endpoint_paths function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.test_get_lab_from_endpoint_id">
+<span class="sig-name descname"><span class="pre">test_get_lab_from_endpoint_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.test_get_lab_from_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.test_get_lab_from_endpoint_id" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.globus.get_lab_from_endpoint_id function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.test_create_globus_client">
+<span class="sig-name descname"><span class="pre">test_create_globus_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">globus_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.test_create_globus_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.test_create_globus_client" title="Permalink to this definition"></a></dt>
+<dd><p>Tests for one.remote.globus.create_globus_client function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.tearDown" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobus.tearDownClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobus.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobus.tearDownClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestGlobusClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for the GlobusClient class</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.globus_sdk_mock">
+<span class="sig-name descname"><span class="pre">globus_sdk_mock</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.globus_sdk_mock" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.test_constructor">
+<span class="sig-name descname"><span class="pre">test_constructor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.test_constructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.test_constructor" title="Permalink to this definition"></a></dt>
+<dd><p>Test for Globus.__init__ method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.test_add_endpoint">
+<span class="sig-name descname"><span class="pre">test_add_endpoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.test_add_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.test_add_endpoint" title="Permalink to this definition"></a></dt>
+<dd><p>Test for Globus.add_endpoint method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.test_endpoint_path">
+<span class="sig-name descname"><span class="pre">test_endpoint_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.test_endpoint_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.test_endpoint_path" title="Permalink to this definition"></a></dt>
+<dd><p>Test for Globus._endpoint_path method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.test_endpoint_id_root">
+<span class="sig-name descname"><span class="pre">test_endpoint_id_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.test_endpoint_id_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.test_endpoint_id_root" title="Permalink to this definition"></a></dt>
+<dd><p>Test for Globus._endpoint_id_root method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.test_ls">
+<span class="sig-name descname"><span class="pre">test_ls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.test_ls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.test_ls" title="Permalink to this definition"></a></dt>
+<dd><p>Test for Globus.ls method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_remote.TestGlobusClient.test_mv">
+<span class="sig-name descname"><span class="pre">test_mv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_remote.html#TestGlobusClient.test_mv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_remote.TestGlobusClient.test_mv" title="Permalink to this definition"></a></dt>
+<dd><p>Test for Globus.mv and Globus.run_task methods</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.tests.remote.html" class="btn btn-neutral float-left" title="one.tests.remote" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.tests.remote.test_remote_aws.html" class="btn btn-neutral float-right" title="one.tests.remote.test_remote_aws" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

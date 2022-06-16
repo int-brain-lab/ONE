@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.remote.globus &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.tests" href="one.tests.html" />
+    <link rel="prev" title="one.remote.base.ALYX_JSON" href="one.remote.base.ALYX_JSON.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.remote.html">one.remote</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="one.remote.aws.html">one.remote.aws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.remote.base.html">one.remote.base</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">one.remote.globus</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api_reference.html">API Reference</a> &raquo;</li>
+          <li><a href="one.html">one</a> &raquo;</li>
+          <li><a href="one.remote.html">one.remote</a> &raquo;</li>
+      <li>one.remote.globus</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.remote.globus.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-one.remote.globus">
+<span id="one-remote-globus"></span><h1>one.remote.globus<a class="headerlink" href="#module-one.remote.globus" title="Permalink to this heading"></a></h1>
+<p>A module for handling file operations through the Globus SDK</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.as_globus_path" title="one.remote.globus.as_globus_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_globus_path</span></code></a></p></td>
+<td><p>Convert a path into one suitable for the Globus TransferClient.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.globus.create_globus_client" title="one.remote.globus.create_globus_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_globus_client</span></code></a></p></td>
+<td><p>Creates a Globus transfer client based on existing parameter file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.get_lab_from_endpoint_id" title="one.remote.globus.get_lab_from_endpoint_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lab_from_endpoint_id</span></code></a></p></td>
+<td><p>Extracts lab name given an endpoint id root path given a repository name that is registered in the database accessed by ONE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.globus.get_local_endpoint_id" title="one.remote.globus.get_local_endpoint_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_local_endpoint_id</span></code></a></p></td>
+<td><p>Extracts the ID of the local Globus Connect endpoint.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.get_local_endpoint_paths" title="one.remote.globus.get_local_endpoint_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_local_endpoint_paths</span></code></a></p></td>
+<td><p>Extracts the local endpoint paths accessible by Globus Connect.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.globus.setup" title="one.remote.globus.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a></p></td>
+<td><p>Sets up Globus as a backend for ONE functions.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.Globus" title="one.remote.globus.Globus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Globus</span></code></a></p></td>
+<td><p>Wrapper for managing files on Globus endpoints.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.globus.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Sets up Globus as a backend for ONE functions.
+In order to use this function you need:</p>
+<ol class="arabic simple">
+<li><p>The Client ID of an existing Globus Client, or to create one
+(<a class="reference external" href="https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html">https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html</a>).</p></li>
+<li><p>Set up Global Connect on your local device (<a class="reference external" href="https://www.globus.org/globus-connect-personal">https://www.globus.org/globus-connect-personal</a>).</p></li>
+<li><p>Register your local device as an Endpoint in your Globus Client (<a class="reference external" href="https://app.globus.org/">https://app.globus.org/</a>).</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>par_id</strong> (<em>str</em>) – Parameter profile name to set up e.g. ‘default’, ‘admin’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.globus.create_globus_client">
+<span class="sig-name descname"><span class="pre">create_globus_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#create_globus_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.create_globus_client" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a Globus transfer client based on existing parameter file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>client_name</strong> (<em>str</em>) – Defines the parameter name to use (globus.client_name), e.g. ‘default’, ‘admin’.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Globus transfer client instance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>globus_sdk.TransferClient</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.globus.get_local_endpoint_id">
+<span class="sig-name descname"><span class="pre">get_local_endpoint_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_id" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts the ID of the local Globus Connect endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The local Globus endpoint ID</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.globus.get_local_endpoint_paths">
+<span class="sig-name descname"><span class="pre">get_local_endpoint_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_paths" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts the local endpoint paths accessible by Globus Connect.  NB: This is only supported
+on Linux.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Local endpoint paths set in Globus Connect.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of pathlib.Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.globus.get_lab_from_endpoint_id">
+<span class="sig-name descname"><span class="pre">get_lab_from_endpoint_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_lab_from_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_lab_from_endpoint_id" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts lab name given an endpoint id root path given a repository name that is registered in
+the database accessed by ONE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – Endpoint UUID, optional if not given will get attempt to find local endpoint UUID.</p></li>
+<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>one.webclient.AlyxClient</em></a>) – An instance of AlyxClient to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lab name associated with the endpoint UUID</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.globus.as_globus_path">
+<span class="sig-name descname"><span class="pre">as_globus_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#as_globus_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.as_globus_path" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a path into one suitable for the Globus TransferClient.  NB:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em><em>, </em><em>str</em>) – A path to convert to a Globus-complient path string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A formatted path string</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If using tilda in path, the home folder of your Globus Connect instance must be the same as
+the OS home dir.</p></li>
+<li><p>If validating a path for another system ensure the input path is a PurePath, in particular,</p></li>
+</ul>
+<p>on a Linux computer a remote Windows should first be made into a PureWindowsPath.</p>
+<p class="rubric">Examples</p>
+<p>A Windows path</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;E:\FlatIron\integration&#39;</span><span class="p">)</span>
+<span class="go">&#39;/E/FlatIron/integration&#39;</span>
+</pre></div>
+</div>
+<p>A relative POSIX path</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;../data/integration&#39;</span><span class="p">)</span>
+<span class="go">&#39;/mnt/data/integration&#39;</span>
+</pre></div>
+</div>
+<p>A globus path</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;/E/FlatIron/integration&#39;</span><span class="p">)</span>
+<span class="go">&#39;/E/FlatIron/integration&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.remote.globus.Globus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Globus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="one.remote.base.html#one.remote.base.DownloadClient" title="one.remote.base.DownloadClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">DownloadClient</span></code></a></p>
+<p>Wrapper for managing files on Globus endpoints.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.to_address">
+<span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.to_address" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the remote data URL for a given ALF path</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.download_file">
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.download_file" title="Permalink to this definition"></a></dt>
+<dd><p>Download an ALF dataset given its address</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.setup">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.setup" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.add_endpoint">
+<span class="sig-name descname"><span class="pre">add_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.add_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.add_endpoint" title="Permalink to this definition"></a></dt>
+<dd><p>Add an endpoint to the Globus instance to be used by other functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The endpoint UUID or database repository name of the endpoint.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – Label to access the endpoint. If endpoint is UUID this has to be set, otherwise is
+optional.</p></li>
+<li><p><strong>root_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – File path to be accessed by Globus on the endpoint.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – Whether existing endpoint with the same label should be replaced.</p></li>
+<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>webclient.AlyxClient</em></a>) – An AlyxClient instance for looking up repository information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.ls">
+<span class="sig-name descname"><span class="pre">ls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.ls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.ls" title="Permalink to this definition"></a></dt>
+<dd><p>Return the list of (filename, filesize) in a given endpoint directory.
+NB: If you’re using ls routinely when transferring or deleting files you’re probably doing
+something wrong!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus endpoint. May be a UUID or a key in the Globus.endpoints attribute.</p></li>
+<li><p><strong>path</strong> (<em>Path</em><em>, </em><em>PurePath</em><em>, </em><em>str</em>) – The absolute or relative Globus path to list.  Note: if endpoint is a UUID, the path
+must be absolute.</p></li>
+<li><p><strong>remove_uuid</strong> (<em>bool</em>) – If True, remove the UUID from the returned filenames.</p></li>
+<li><p><strong>return_size</strong> (<em>bool</em>) – If True, return the size of each listed file in bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of PurePosixPath objects of the files and folders listed, or if return_size is
+True, tuples of PurePosixPath objects and the corresponding file sizes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.mv">
+<span class="sig-name descname"><span class="pre">mv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.mv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.mv" title="Permalink to this definition"></a></dt>
+<dd><p>Move files from one endpoint to another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus source endpoint. May be a UUID or a key in the Globus.endpoints attribute.</p></li>
+<li><p><strong>target_endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus destination endpoint. May be a UUID or a key in the Globus.endpoints
+attribute.</p></li>
+<li><p><strong>source_paths</strong> (<em>list of str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of source files to moves.  Note: if endpoint is
+a UUID, the path must be absolute.</p></li>
+<li><p><strong>target_paths</strong> (<em>list of str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of destination files to moves.  Note: if endpoint
+is a UUID, the path must be absolute.</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>) – Maximum time in seconds to wait for the task to complete.</p></li>
+<li><p><strong>kwargs</strong> – Optional arguments for globus_sdk.TransferData.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Globus task ID.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.run_task">
+<span class="sig-name descname"><span class="pre">run_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">globus_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.run_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.run_task" title="Permalink to this definition"></a></dt>
+<dd><p>Block until a Globus task finishes and retry upon Network or REST Errors.
+globus_func needs to submit a task to the client and return a task_id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>globus_func</strong> (<em>function</em>) – A function that returns a Globus task ID, typically it will submit a transfer.</p></li>
+<li><p><strong>retries</strong> (<em>int</em>) – The number of times to call globus_func if it raises a Globus error.</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>) – Maximum time in seconds to wait for the task to complete.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Globus task ID.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>IOError</strong> – Timed out waiting for task to complete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.remote.base.ALYX_JSON.html" class="btn btn-neutral float-left" title="one.remote.base.ALYX_JSON" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.tests.html" class="btn btn-neutral float-right" title="one.tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -234,7 +234,11 @@
 
 <div class="viewcode-block" id="TestJsonFieldMethods"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TestJsonFieldMethods</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tests for AlyxClient methods that modify the JSON field of a REST endpoint&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Tests for AlyxClient methods that modify the JSON field of a REST endpoint.</span>
+
+<span class="sd">    These tests are over-engineered in order to test Alyx Django queries with JSON fields.</span>
+<span class="sd">    Django queries are also tested in TestRemote.test_search.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TestJsonFieldMethods.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ac</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
