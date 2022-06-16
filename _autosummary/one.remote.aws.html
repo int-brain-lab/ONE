@@ -151,17 +151,19 @@
 <section id="module-one.remote.aws">
 <span id="one-remote-aws"></span><h1>one.remote.aws<a class="headerlink" href="#module-one.remote.aws" title="Permalink to this heading"></a></h1>
 <p>A backend to download IBL data from AWS Buckets.</p>
-<p>For example, without any credentials, to download a public file from the IBL public bucket:
-<a href="#id1"><span class="problematic" id="id2">``</span></a>`
-import one.remote.aws as aws
-source = ‘caches/unit_test/cache_info.json’
-destination = ‘/home/olivier/scratch/cache_info.json’
-aws.s3_download_file(source, destination)</p>
-<p>For a folder, the following
-<a href="#id3"><span class="problematic" id="id4">``</span></a>`
-source = ‘caches/unit_test’
-destination = ‘/home/olivier/scratch/caches/unit_test’
-local_files = aws.s3_download_folder(source, destination)</p>
+<p>For example, without any credentials, to download a public file from the IBL public bucket:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">import</span> <span class="pre">one.remote.aws</span> <span class="pre">as</span> <span class="pre">aws</span>
+<span class="pre">source</span> <span class="pre">=</span> <span class="pre">'caches/unit_test/cache_info.json'</span>
+<span class="pre">destination</span> <span class="pre">=</span> <span class="pre">'/home/olivier/scratch/cache_info.json'</span>
+<span class="pre">aws.s3_download_file(source,</span> <span class="pre">destination)</span>
+<span class="pre">`</span></code></p>
+<p>For a folder, the following</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">source</span> <span class="pre">=</span> <span class="pre">'caches/unit_test'</span>
+<span class="pre">destination</span> <span class="pre">=</span> <span class="pre">'/home/olivier/scratch/caches/unit_test'</span>
+<span class="pre">local_files</span> <span class="pre">=</span> <span class="pre">aws.s3_download_folder(source,</span> <span class="pre">destination)</span>
+<span class="pre">`</span></code></p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
