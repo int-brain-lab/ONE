@@ -1,21 +1,19 @@
 """A backend to download IBL data from AWS Buckets.
 
-For example, without any credentials, to download a public file from the IBL public bucket:
+Examples
+--------
+Without any credentials, to download a public file from the IBL public bucket:
 
-```
-import one.remote.aws as aws
-source = 'caches/unit_test/cache_info.json'
-destination = '/home/olivier/scratch/cache_info.json'
-aws.s3_download_file(source, destination)
-```
+    from one.remote import aws
+    source = 'caches/unit_test/cache_info.json'
+    destination = '/home/olivier/scratch/cache_info.json'
+    aws.s3_download_file(source, destination)
 
-For a folder, the following
+For a folder, the following:
 
-```
-source = 'caches/unit_test'
-destination = '/home/olivier/scratch/caches/unit_test'
-local_files = aws.s3_download_folder(source, destination)
-```
+    source = 'caches/unit_test'
+    destination = '/home/olivier/scratch/caches/unit_test'
+    local_files = aws.s3_download_folder(source, destination)
 """
 from pathlib import Path
 import logging
