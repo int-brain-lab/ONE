@@ -132,7 +132,11 @@ class TestAuthentication(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestJsonFieldMethods(unittest.TestCase):
-    """Tests for AlyxClient methods that modify the JSON field of a REST endpoint"""
+    """Tests for AlyxClient methods that modify the JSON field of a REST endpoint.
+
+    These tests are over-engineered in order to test Alyx Django queries with JSON fields.
+    Django queries are also tested in TestRemote.test_search.
+    """
     def setUp(self):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
 
