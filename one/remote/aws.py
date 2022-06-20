@@ -25,6 +25,7 @@ from botocore.exceptions import NoCredentialsError, PartialCredentialsError, Cli
 
 _logger = logging.getLogger(__name__)
 
+REPO_DEFAULT = 'aws_cortexlab'
 S3_BUCKET_IBL = 'ibl-brain-wide-map-public'
 REGION_NAME = 'us-east-1'
 
@@ -49,7 +50,7 @@ def _callback_hook(t):
     return inner
 
 
-def get_aws_access_keys(one, repo_name='aws_cortexlab'):
+def get_aws_access_keys(one, repo_name=REPO_DEFAULT):
     """
     Query Alyx database to get credentials in the json field of an aws repository.
 
@@ -93,7 +94,7 @@ def get_s3_public():
     return s3, S3_BUCKET_IBL
 
 
-def get_s3_from_alyx(one):
+def get_s3_from_alyx(one, repo_name=REPO_DEFAULT):
     """
     Create an S3 resource instance using credentials from an Alyx data repository.
 
@@ -101,6 +102,8 @@ def get_s3_from_alyx(one):
     ----------
     one : one.OneAlyx
         An online instance of ONE.
+    repo_name : str
+        The data repository name in Alyx from which to fetch the S3 access keys.
 
     Returns
     -------
@@ -109,7 +112,7 @@ def get_s3_from_alyx(one):
     str
         The name of the S3 bucket.
     """
-    session_keys, bucket_name = get_aws_access_keys(one)
+    session_keys, bucket_name = get_aws_access_keys(one, repo_name)
     session = boto3.Session(**session_keys)
     s3 = session.resource('s3')
     return s3, bucket_name
