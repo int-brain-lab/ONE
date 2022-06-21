@@ -502,10 +502,23 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             if meta:
                 out[att + 'metadata'] = meta
     # Merge 'table' dataframe into bunch
-    if table_key := next((x for x in out if x.split('.')[0] == 'table'), None):
+    if table_key := next(filter(re.compile(r'^table([_.]|$)').match, out), None):
         table = out.pop(table_key)
-        if not short_keys and '.' in table_key:  # Add extra name parts to table columns
-            table.rename(columns=lambda x: f'{x}.{table_key.split(".", 1)[1]}', inplace=True)
+
+        def rename_columns(field):
+            """
+            For each field name in the DataFrame, return a new one that includes any timescale or
+            extra ALF parts found in table_key.
+
+            For example...
+                with table_key = table_clock, field1 -> field1_clock;
+                with table_key = table_clock.extra, field1_0 -> field1_clock.extra_0;
+                with table_key = table, field1 -> field1
+            """
+            return (field[:-2] + table_key[5:] + field[-2:]
+                    if re.match(r'.+?_[01]$', field)
+                    else field + table_key[5:])
+        table.rename(columns=rename_columns, inplace=True)
         out.update(AlfBunch.from_df(table))
     status = out.check_dimensions
     timeseries = [k for k in out.keys() if 'timestamps' in k]
