@@ -356,7 +356,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
 
     # raise error if no files found
     if not files_alf:
-        err_str = f'object "{object}" ' if object else 'ALF files'
+        err_str = f'object "{object}"' if object else 'ALF files'
         raise ALFObjectNotFound(f'No {err_str} found in {alfpath}')
 
     return [alfpath.joinpath(f) for f in files_alf], attributes
@@ -477,7 +477,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     # Take attribute and timescale from parts list
     attributes = [p[2] if not p[3] else '_'.join(p[2:4]) for p in parts]
     if not short_keys:  # Include extra parts in the keys
-        attributes = [attr + ('.' + p[4] if p[4] else '') for attr, p in zip(attributes, parts)]
+        attributes = ['.'.join(filter(None, (attr, p[4]))) for attr, p in zip(attributes, parts)]
         # TODO List duplicates; raise ALFError
     assert len(set(attributes)) == len(attributes), (
         f'multiple object {object} with the same attribute in {alfpath}, restrict parts/namespace')
@@ -501,8 +501,12 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # if there is other stuff in the dictionary, save it, otherwise disregard
             if meta:
                 out[att + 'metadata'] = meta
-    if 'table' in out.keys():  # Merge 'table' dataframe into bunch
-        out.update(AlfBunch.from_df(out.pop('table')))
+    # Merge 'table' dataframe into bunch
+    if table_key := next((x for x in out if x.split('.')[0] == 'table'), None):
+        table = out.pop(table_key)
+        if not short_keys and '.' in table_key:  # Add extra name parts to table columns
+            table.rename(columns=lambda x: f'{x}.{table_key.split(".", 1)[1]}', inplace=True)
+        out.update(AlfBunch.from_df(table))
     status = out.check_dimensions
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:

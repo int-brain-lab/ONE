@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.13.0]
+
+### Removed
+
+- Support for Python 3.7
+
+### Modified
+
+- Support for loading 'table' attribute as dataframe with extra ALF parts
+
+## [1.12.1]
 
 ### Modified
 
