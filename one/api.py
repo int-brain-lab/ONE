@@ -511,7 +511,7 @@ class One(ConversionMixin):
                 new_size = file.stat().st_size
                 size_mismatch = rec['file_size'] and new_size != rec['file_size']
                 if hash_mismatch or size_mismatch:
-                    full_relative_path = rec.session_path + rec.rel_path
+                    full_relative_path = PurePosixPath(rec.session_path, rec.rel_path)
                     _logger.warning(f'local md5 or size mismatch on dataset: {full_relative_path}')
                     # Mismatch: add this index to list of datasets that need downloading
                     indices_to_download.append(i)

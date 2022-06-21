@@ -121,7 +121,7 @@ def create_globus_client(client_name='default'):
         globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}', assert_present=False) or {}
     required_fields = {'refresh_token', 'GLOBUS_CLIENT_ID'}
     if not (globus_pars and required_fields.issubset(iopar.as_dict(globus_pars))):
-        raise ValueError('No token in client parameter file. Run one.globus.setup first')
+        raise ValueError('No token in client parameter file. Run one.remote.globus.setup first')
     client = globus_sdk.NativeAppAuthClient(globus_pars.GLOBUS_CLIENT_ID)
     client.oauth2_start_flow(refresh_tokens=True)
     authorizer = globus_sdk.RefreshTokenAuthorizer(globus_pars.refresh_token, client)
@@ -207,8 +207,7 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
 
 def as_globus_path(path):
     """
-    Convert a path into one suitable for the Globus TransferClient.  NB:
-
+    Convert a path into one suitable for the Globus TransferClient.
 
     Parameters
     ----------

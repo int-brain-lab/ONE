@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.1]
+
+### Modified
+
+- HOTFIX: default S3 repo set for get_s3_from_alyx
+
+## [1.12.0]
 
 ### Added
 
