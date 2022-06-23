@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.2]
+
+### Modified
+
+- HOTFIX: copy old REST cache only if new location does not exist
+
+## [1.12.1]
 
 ### Modified
 

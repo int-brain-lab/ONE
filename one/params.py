@@ -331,10 +331,12 @@ def _patch_params(par):
     scheme, loc, *_ = urlsplit(par.ALYX_URL)
     rest_dir /= Path(loc.replace(':', '_'), scheme)
     new_rest_dir = Path(par.CACHE_DIR, '.rest')
+
     if rest_dir.exists() and any(x for x in rest_dir.glob('*') if x.is_file()):
-        shutil.move(str(rest_dir), str(new_rest_dir))
-        from iblutil.io.params import set_hidden
-        set_hidden(new_rest_dir, True)
+        if not new_rest_dir.exists():
+            shutil.move(str(rest_dir), str(new_rest_dir))
+            from iblutil.io.params import set_hidden
+            set_hidden(new_rest_dir, True)
         shutil.rmtree(rest_dir.parent)
         if not any(get_params_dir().joinpath('.rest').glob('*')):
             get_params_dir().joinpath('.rest').rmdir()
