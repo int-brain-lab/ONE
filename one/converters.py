@@ -245,8 +245,6 @@ class ConversionMixin:
         rec = self._cache['sessions' if is_session else 'datasets']
         if rec.empty:
             return
-        # if (rec := self._cache['datasets']).empty:  # py 3.8
-        #     return
 
         if is_session_path(path):
             lab, subject, date, number = session_path_parts(path)
@@ -723,9 +721,7 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]
-    repo_path = fr['data_repository_path']
-    repo_path = repo_path[repo_path.startswith('/'):]  # remove starting / if any
-    # repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # py3.8 Remove slash at start
+    repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # remove slash at start
     file_path = PurePosixPath(repo_path, fr['relative_path'])
     if root_path:
         # NB: By checking for string we won't cast any PurePaths
