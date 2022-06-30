@@ -2,7 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
 ![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
 
-[Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.
+The Open Neurophysiology Environment is a scheme for sharing neurophysiology data in a standardized manner. For information on how to share data with ONE please [click here](https://github.com/int-brain-lab/ONE/blob/main/docs/Open_Neurophysiology_Environment_Filename_Convention.pdf). This github page contains an API for searching and loading ONE-standardized data, stored either on a user’s local machine or on a remote server. Please [Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.
 
 ## Requirements
 ONE runs on Python 3.7 or later, and is tested on the latest Ubuntu and Windows (3.7 and 3.8 only).
