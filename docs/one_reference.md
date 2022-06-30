@@ -7,6 +7,8 @@ ONE defines a simple set of conventions for how to store and share neurophysiolo
 
 ONE also provides an API to search and load datasets. The same API commands can be used to access a few files kept on a user's local machine, or large collections of files stored on a remote server. By releasing data in remote mode, large collaborations can release data covering all aspects of their experiments while allowing users to find and download only the specific data items that they need. Using the same interface to access small and large collections makes it easy for scientists to share data using ONE as a standard, and to scale up as their projects grow.
 
+The following documentation describes the ONE API, and how to use it to access data from the [International Brain Lab](https://www.internationalbrainlab.com/). 
+
 ## How the ONE API works
 
 The API comprises three simple methods to search, list and load data. 
