@@ -2,6 +2,12 @@ sphinx_rtd_theme
 nbsphinx
 nbsphinx-link
 myst_parser
-sphinx
+sphinx >=3.1.2
+sphinx-copybutton
 sphinx-gallery
 ipyevents
+# ibllib  # Required to execute the one_quickstart notebook
+# matplotlib  # Required to execute the data_sharing notebook
+
+# Also need to run
+# jupyter nbextension enable --py --sys-prefix ipyevents

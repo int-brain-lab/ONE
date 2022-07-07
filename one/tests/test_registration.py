@@ -1,3 +1,4 @@
+"""Unit tests for the one.registration module."""
 import logging
 import unittest
 import unittest.mock
@@ -6,6 +7,9 @@ import random
 import datetime
 import fnmatch
 from io import StringIO
+
+from iblutil.util import Bunch
+from requests.exceptions import HTTPError
 
 from one.api import ONE
 from one import registration
@@ -17,13 +21,14 @@ from one.tests import util
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestRegistrationClient(unittest.TestCase):
+    """Test class for RegistrationClient class"""
     one = None
     subject = None
     temp_dir = None
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.temp_dir = util.set_up_env(use_temp_cache=False)
+        cls.temp_dir = util.set_up_env()
         cls.one = ONE(**TEST_DB_1, cache_dir=cls.temp_dir.name)
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
@@ -39,6 +44,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.client = registration.RegistrationClient(one=self.one)
 
     def test_water_administration(self):
+        """Test for RegistrationClient.register_water_administration"""
         record = self.client.register_water_administration(self.subject, 35.10000000235)
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['water_administered'], 35.1)
@@ -61,8 +67,12 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_water_administration(self.subject, volume, session='NaN')
         with self.assertRaises(ValueError):
             self.client.register_water_administration(self.subject, .0)
+        with unittest.mock.patch.object(self.client.one, 'to_eid', return_value=None),\
+             self.assertRaises(ValueError):
+            self.client.register_water_administration(self.subject, 3.6, session=ses['url'])
 
     def test_register_weight(self):
+        """Test for RegistrationClient.register_weight"""
         record = self.client.register_weight(self.subject, 35.10000000235)
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['weight'], 35.1)
@@ -72,6 +82,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_weight(self.subject, 0.0)
 
     def test_ensure_ISO8601(self):
+        """Test for RegistrationClient.ensure_ISO8601"""
         date = datetime.datetime(2021, 7, 14, 15, 53, 15, 525119)
         self.assertEqual(self.client.ensure_ISO8601(date), '2021-07-14T15:53:15.525119')
         self.assertEqual(self.client.ensure_ISO8601(date.date()), '2021-07-14T00:00:00')
@@ -81,6 +92,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.ensure_ISO8601(f'{date:%D}')
 
     def test_exists(self):
+        """Test for RegistrationClient.assert_exists"""
         # Check user endpoint
         with self.assertRaises(alferr.AlyxSubjectNotFound):
             self.client.assert_exists('foobar', 'subjects')
@@ -89,8 +101,15 @@ class TestRegistrationClient(unittest.TestCase):
         with self.assertRaises(alferr.ALFError) as ex:
             self.client.assert_exists([self.one.alyx.user, 'foobar'], 'users')
         self.assertIn('foobar', str(ex.exception))
+        # Check raises non-404
+        err = HTTPError()
+        err.response = Bunch({'status_code': 500})
+        with unittest.mock.patch.object(self.one.alyx, 'get', side_effect=err),\
+                self.assertRaises(HTTPError):
+            self.client.assert_exists('foobar', 'subjects')
 
     def test_find_files(self):
+        """Test for RegistrationClient.find_files"""
         # Remove a dataset type from the client to check that the dataset(s) are ignored
         existing = (x['filename_pattern'] and any(self.session_path.rglob(x['filename_pattern']))
                     for x in self.client.dtypes)
@@ -102,6 +121,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
 
     def test_create_new_session(self):
+        """Test for RegistrationClient.create_new_session"""
         # Check register = True
         session_path, eid = self.client.create_new_session(self.subject, date='2020-01-01')
         expected = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001').as_posix()
@@ -115,8 +135,11 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertIsNone(eid)
 
     def test_register_session(self):
+        """Test for RegistrationClient.register_session"""
         datasets = self.one.list_datasets(self.one.search()[0])  # Some datasets to create
-        session_path = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001')
+        session_path = self.one.alyx.cache_dir.joinpath(
+            'mainenlab', 'Subjects', self.subject, '2020-01-01', '001'
+        )
         # Ensure session exists
         file_list = [session_path.joinpath(x) for x in datasets]
         # Create the files before registering
@@ -124,11 +147,25 @@ class TestRegistrationClient(unittest.TestCase):
             x.parent.mkdir(exist_ok=True, parents=True)
             x.touch()
 
-        ses, recs = self.client.register_session(str(session_path))
+        ses, recs = self.client.register_session(str(session_path),
+                                                 end_time='2020-01-02',
+                                                 procedures='Behavior training/tasks')
         self.assertTrue(len(ses['data_dataset_session_related']))
         self.assertEqual(len(ses['data_dataset_session_related']), len(recs))
+        self.assertTrue(isinstance(ses['procedures'], list) and len(ses['procedures']) == 1)
+        self.assertEqual(ses['end_time'], '2020-01-02T00:00:00')
+
+        # Check value error raised when provided lab name doesn't match
+        with self.assertRaises(ValueError):
+            self.client.register_session(str(session_path), lab='cortexlab')
+
+        # Check updating existing session
+        start_time = '2020-01-01T10:36:10'
+        ses, _ = self.client.register_session(str(session_path), start_time=start_time)
+        self.assertEqual(start_time, ses['start_time'])
 
     def test_create_sessions(self):
+        """Test for RegistrationClient.create_sessions"""
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
         session_path.mkdir(parents=True)
         session_path.joinpath('create_me.flag').touch()
@@ -147,6 +184,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(session_paths[0], session_path)
 
     def test_register_files(self):
+        """Test for RegistrationClient.register_files"""
         # Test a few things not checked in register_session
         session_path, eid = self.client.create_new_session(self.subject)
         # Check registering single file, dry run, default False
@@ -172,6 +210,13 @@ class TestRegistrationClient(unittest.TestCase):
             self.assertIn('foo.bar.npy: No matching dataset type', dbg.records[1].message)
             self.assertIn(f'{ambiguous}: Multiple matching', dbg.records[2].message)
         self.assertFalse(len(rec))
+
+    def test_instantiation(self):
+        """Test RegistrationClient.__init__ with no args"""
+        with unittest.mock.patch('one.registration.ONE') as mk:
+            client = registration.RegistrationClient()
+        self.assertIsInstance(client.one, unittest.mock.MagicMock)
+        mk.assert_called_with(cache_rest=None)
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -1,3 +1,4 @@
+"""Unit tests for the one.alf.cache module"""
 import unittest
 import tempfile
 from pathlib import Path
@@ -13,6 +14,7 @@ from one.tests.util import revisions_datasets_table
 
 
 class TestsONEParquet(unittest.TestCase):
+    """Tests for the make_parquet_db function and its helpers"""
     rel_ses_path = 'mylab/Subjects/mysub/2021-02-28/001/'
     ses_info = {
         'lab': 'mylab',
@@ -130,10 +132,9 @@ class TestsONEParquet(unittest.TestCase):
     def test_hash_ids(self):
         # Build and load caches with int UUIDs
         (ses, _), (dsets, _) = map(parquet.load, apt.make_parquet_db(self.tmpdir, hash_ids=True))
-        id_fields = ['id_0', 'id_1']
         # Check ID fields in both dataframes
-        self.assertTrue(all(x in y for x in id_fields for y in (ses, dsets)))
-        self.assertTrue(all(x in dsets for x in ('eid_0', 'eid_1')))
+        self.assertTrue(ses.index.nlevels == 1 and ses.index.name == 'id')
+        self.assertTrue(dsets.index.nlevels == 2 and tuple(dsets.index.names) == ('eid', 'id'))
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)

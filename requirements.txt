@@ -3,4 +3,5 @@ numpy>=1.18
 pandas>=1.2.4
 tqdm>=4.32.1
 requests>=2.22.0
-iblutil
+iblutil>=1.1.0
+packaging

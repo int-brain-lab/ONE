@@ -1,7 +1,9 @@
-"""I/O functions for ALyx Files
+"""I/O functions for ALyx Files.
+
 Provides support for time-series reading and interpolation as per the specifications
 For a full overview of the scope of the format, see:
-https://ibllib.readthedocs.io/en/develop/04_reference.html#alf  # FIXME Old link
+
+https://int-brain-lab.github.io/ONE/alf_intro.html
 """
 
 import json
@@ -27,9 +29,11 @@ _logger = logging.getLogger(__name__)
 
 
 class AlfBunch(Bunch):
+    """A dict-like object that supports dot indexing and conversion to DataFrame"""
 
     @property
     def check_dimensions(self):
+        """int: 0 for consistent dimensions, 1 for inconsistent dimensions"""
         return check_dimensions(self)
 
     def append(self, b, inplace=False):
@@ -45,7 +49,8 @@ class AlfBunch(Bunch):
 
         Returns
         -------
-        An ALFBunch
+        ALFBunch, None
+            An ALFBunch with the data appended, or None if inplace is True
         """
         # default is to return a copy
         if inplace:
@@ -56,11 +61,11 @@ class AlfBunch(Bunch):
         if b == {}:
             return a
         if a == {}:
-            return b
+            return AlfBunch(b)
         # right now supports only strictly matching keys. Will implement other cases as needed
         if set(a.keys()) != set(b.keys()):
-            raise NotImplementedError("Append bunches only works with strictly matching keys"
-                                      "For more complex merges, convert to pandas dataframe.")
+            raise NotImplementedError('Append bunches only works with strictly matching keys'
+                                      'For more complex merges, convert to pandas dataframe.')
         # do the merge; only concatenate lists and np arrays right now
         for k in a:
             if isinstance(a[k], np.ndarray):
@@ -68,19 +73,31 @@ class AlfBunch(Bunch):
             elif isinstance(a[k], list):
                 a[k].extend(b[k])
             else:
-                _logger.warning(f"bunch key '{k}' is a {a[k].__class__}. I don't know how to"
-                                f" handle that. Use pandas for advanced features")
-        check_dimensions(a)
+                _logger.warning(f'bunch key "{k}" is a {a[k].__class__}. I don\'t know how to'
+                                f' handle that. Use pandas for advanced features')
+        if a.check_dimensions != 0:
+            print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in a.items())
+            _logger.warning(f'Inconsistent dimensions for object: \n{print_sizes}')
+
         return a
 
-    def to_df(self):
+    def to_df(self) -> pd.DataFrame:
+        """Return DataFrame with data keys as columns"""
         return dataframe(self)
+
+    @staticmethod
+    def from_df(df) -> 'AlfBunch':
+        data = dict(zip(df.columns, df.values.T))
+        split_keys = sorted(x for x in data.keys() if re.match(r'.+?_[01]$', x))
+        for x1, x2 in zip(*[iter(split_keys)] * 2):
+            data[x1[:-2]] = np.c_[data.pop(x1), data.pop(x2)]
+        return AlfBunch(data)
 
 
 def dataframe(adict):
     """
-    Converts an Bunch conforming to size conventions into a pandas Dataframe
-    For 2-D arrays, stops at 10 columns per attribute
+    Converts an Bunch conforming to size conventions into a pandas DataFrame.
+    For 2-D arrays, stops at 10 columns per attribute.
 
     Parameters
     ----------
@@ -89,10 +106,11 @@ def dataframe(adict):
 
     Returns
     -------
-    A pandas DataFrame of data
+    pd.DataFrame
+        A pandas DataFrame of data
     """
     if check_dimensions(adict) != 0:
-        raise ValueError("Can only convert to Dataframe objects with consistent size")
+        raise ValueError('Can only convert to DataFrame objects with consistent size')
     # easy case where there are only vectors
     if all([len(adict[k].shape) == 1 for k in adict]):
         return pd.DataFrame(adict)
@@ -109,7 +127,7 @@ def dataframe(adict):
                 if i == 9:
                     break
         else:
-            _logger.warning(f"{k} attribute is 3D or more and won't convert to dataframe")
+            _logger.warning(f'{k} attribute is 3D or more and won\'t convert to dataframe')
             continue
     return df
 
@@ -125,13 +143,12 @@ def _find_metadata(file_alf) -> Path:
 
     Returns
     -------
-    Path of meta-data file if exists
+    pathlib.Path
+        Path of meta-data file if exists
     """
     file_alf = Path(file_alf)
     ns, obj = file_alf.name.split('.')[:2]
-    meta_data_file = list(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'))
-    if meta_data_file:
-        return meta_data_file[0]
+    return next(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'), None)
 
 
 def read_ts(filename):
@@ -145,11 +162,14 @@ def read_ts(filename):
 
     Returns
     -------
-    An array of timestamps and an array of values in filename
+    numpy.ndarray
+        An array of timestamps belonging to the ALF path object
+    numpy.ndarray
+         An array of values in filename
 
     Examples
     --------
-    t, d = alf.read_ts(filename)
+    >>> t, d = read_ts(filename)
     """
     if not isinstance(filename, Path):
         filename = Path(filename)
@@ -163,8 +183,7 @@ def read_ts(filename):
         assert time_file
     except (ValueError, AssertionError):
         name = spec.to_alf(obj, attr, ext)
-        _logger.error(name + ' not found! no time-scale for' + str(filename))
-        raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
+        raise FileNotFoundError(name + ' not found! No time-scale for ' + str(filename))
 
     ts = np.load(filename.parent / time_file)
     val = np.load(filename)
@@ -183,7 +202,8 @@ def _ensure_flat(arr):
 
     Returns
     -------
-    A vector with shape (n,)
+    numpy.ndarray
+        A vector with shape (n,)
     """
     return arr.flatten() if arr.ndim == 2 and arr.shape[1] == 1 else arr
 
@@ -201,7 +221,8 @@ def ts2vec(ts: np.ndarray, n_samples: int) -> np.ndarray:
 
     Returns
     -------
-    A vector of interpolated timestamps
+    numpy.ndarray
+        A vector of interpolated timestamps
     """
     if len(ts.shape) == 1:
         return ts
@@ -229,10 +250,12 @@ def check_dimensions(dico):
 
     Returns
     -------
-    Status 0 for consistent dimensions, 1 for inconsistent dimensions
+    int
+        Status 0 for consistent dimensions, 1 for inconsistent dimensions
     """
-    shapes = [dico[lab].shape for lab in dico if isinstance(dico[lab], np.ndarray) and
-              lab.split('.')[0] != 'timestamps']
+    supported = (np.ndarray, pd.DataFrame)  # Data types that have a shape attribute
+    shapes = [dico[lab].shape for lab in dico
+              if isinstance(dico[lab], supported) and lab.split('.')[0] != 'timestamps']
     first_shapes = [sh[0] for sh in shapes]
     # Continuous timeseries are permitted to be a (2, 2)
     timeseries = [k for k, v in dico.items() if 'timestamps' in k and isinstance(v, np.ndarray)]
@@ -251,7 +274,7 @@ def check_dimensions(dico):
 def load_file_content(fil):
     """
     Returns content of files. Designed for very generic file formats:
-    so far supported contents are `json`, `npy`, `csv`, `tsv`, `ssv`, `jsonable`
+    so far supported contents are `json`, `npy`, `csv`, `(h)tsv`, `ssv`, `jsonable`
 
     Parameters
     ----------
@@ -260,7 +283,8 @@ def load_file_content(fil):
 
     Returns
     -------
-    Array/json/pandas dataframe depending on format
+    any
+        Array/json/pandas dataframe depending on format
     """
     if not fil:
         return
@@ -284,12 +308,12 @@ def load_file_content(fil):
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
         return pd.read_csv(fil, delimiter=' ')
-    if fil.suffix == '.tsv':
+    if fil.suffix in ('.tsv', '.htsv'):
         return pd.read_csv(fil, delimiter='\t')
     return Path(fil)
 
 
-def _ls(alfpath, object=None, **kwargs):
+def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
     """
     Given a path, an object and a filter, returns all files and associated attributes
 
@@ -306,7 +330,15 @@ def _ls(alfpath, object=None, **kwargs):
 
     Returns
     -------
-    A list of ALF paths
+    list
+        A list of ALF paths
+    tuple
+        A tuple of ALF attributes corresponding to the file paths
+
+    Raises
+    ------
+    ALFObjectNotFound
+        No matching ALF object was found in the alfpath directory
     """
     alfpath = Path(alfpath)
     if not alfpath.exists():
@@ -339,16 +371,19 @@ def iter_sessions(root_dir):
     root_dir : str, pathlib.Path
         The folder to look for sessions
 
-    Returns
+    Yields
     -------
-    A generator of session paths
+    pathlib.Path
+        The next session path in lexicographical order
     """
+    if spec.is_session_path(root_dir):
+        yield root_dir
     for path in sorted(Path(root_dir).rglob('*')):
         if path.is_dir() and spec.is_session_path(path):
             yield path
 
 
-def exists(alfpath, object, attributes=None, **kwargs):
+def exists(alfpath, object, attributes=None, **kwargs) -> bool:
     """
     Test if ALF object and optionally specific attributes exist in the given path
 
@@ -367,7 +402,8 @@ def exists(alfpath, object, attributes=None, **kwargs):
 
     Returns
     -------
-    For multiple attributes, returns True only if all attributes are found
+    bool
+        For multiple attributes, returns True only if all attributes are found
     """
 
     # if the object is not found, return False
@@ -388,13 +424,14 @@ def exists(alfpath, object, attributes=None, **kwargs):
 
 
 def load_object(alfpath, object=None, short_keys=False, **kwargs):
-    """
-    Reads all files (ie. attributes) sharing the same object.
+    """Reads all files sharing the same object name.
+
     For example, if the file provided to the function is `spikes.times`, the function will
-    load `spikes.time`, `spikes.clusters`, `spikes.depths`, `spike.amps` in a dictionary
-    whose keys will be `time`, `clusters`, `depths`, `amps`
-    # TODO Change URL
-    Full Reference here: https://docs.internationalbrainlab.org/en/latest/04_reference.html#alf
+    load `spikes.times`, `spikes.clusters`, `spikes.depths`, `spike.amps` in a dictionary
+    whose keys will be `times`, `clusters`, `depths`, `amps`
+
+    Full Reference here: https://int-brain-lab.github.io/ONE/alf_intro.html
+
     Simplified example: _namespace_object.attribute_timescale.part1.part2.extension
 
     Parameters
@@ -415,15 +452,18 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
 
     Returns
     -------
-    A ALFBunch (dict-like) of all attributes pertaining to the object
+    AlfBunch
+        An ALFBunch (dict-like) of all attributes pertaining to the object
 
     Examples
     --------
-    # Load `spikes` object
-    spikes = ibllib.io.alf.load_object('/path/to/my/alffolder/', 'spikes')
+        Load 'spikes' object
 
-    # Load `trials` object under the `ibl` namespace
-    trials = ibllib.io.alf.load_object(session_path, 'trials', namespace='ibl')
+        >>> spikes = load_object('full/path/to/my/alffolder/', 'spikes')
+
+        Load 'trials' object under the 'ibl' namespace
+
+        >>> trials = load_object('/subject/2021-01-01/001', 'trials', namespace='ibl')
     """
     if isinstance(alfpath, (Path, str)):
         if Path(alfpath).is_dir() and object is None:
@@ -433,6 +473,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         files_alf = alfpath
         parts = [files.filename_parts(x.name) for x in files_alf]
         assert len(set(p[1] for p in parts)) == 1
+        object = next(x[1] for x in parts)
     # Take attribute and timescale from parts list
     attributes = [p[2] if not p[3] else '_'.join(p[2:4]) for p in parts]
     if not short_keys:  # Include extra parts in the keys
@@ -441,6 +482,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     assert len(set(attributes)) == len(attributes), (
         f'multiple object {object} with the same attribute in {alfpath}, restrict parts/namespace')
     out = AlfBunch({})
+
     # load content for each file
     for fil, att in zip(files_alf, attributes):
         # if there is a corresponding metadata file, read it:
@@ -459,7 +501,9 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # if there is other stuff in the dictionary, save it, otherwise disregard
             if meta:
                 out[att + 'metadata'] = meta
-    status = check_dimensions(out)
+    if 'table' in out.keys():  # Merge 'table' dataframe into bunch
+        out.update(AlfBunch.from_df(out.pop('table')))
+    status = out.check_dimensions
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
         # Get length of one of the other arrays
@@ -468,17 +512,17 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # Expand timeseries if necessary
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
-        print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
-        _logger.warning(f"Inconsistent dimensions for object: {object} \n{print_sizes}")
+        print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in out.items())
+        _logger.warning(f'Inconsistent dimensions for object: {object} \n{print_sizes}')
     return out
 
 
-def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale=None):
+def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale=None) -> list:
     """
-    Saves a dictionary in alf format using object as object name and dictionary keys as attribute
-    names. Dimensions have to be consistent.
-    Reference here: https://github.com/cortex-lab/ALF TODO Fix link
-    Simplified example: _namespace_object.attribute.part1.part2.extension
+    Saves a dictionary in `ALF format`_ using object as object name and dictionary keys as
+    attribute names. Dimensions have to be consistent.
+
+    Simplified ALF example: _namespace_object.attribute.part1.part2.extension
 
     Parameters
     ----------
@@ -497,11 +541,16 @@ def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale
 
     Returns
     -------
-    List of written files
+    list
+        List of written files
 
     Examples
     --------
-    save_object_npy('/path/to/my/alffolder/', spikes, 'spikes')
+    >>> spikes = {'times': np.arange(50), 'depths': np.random.random(50)}
+    >>> files = save_object_npy('/path/to/my/alffolder/', spikes, 'spikes')
+
+    .. _ALF format:
+        https://int-brain-lab.github.io/ONE/alf_intro.html
     """
     alfpath = Path(alfpath)
     status = check_dimensions(dico)
@@ -517,16 +566,16 @@ def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale
     return out_files
 
 
-def save_metadata(file_alf, dico):
-    """
-    Writes a meta data file matching a current alf file object.
-    For example given an alf file
-    `clusters.ccfLocation.ssv` this will write a dictionary in json format in
-    `clusters.ccfLocation.metadata.json`
+def save_metadata(file_alf, dico) -> None:
+    """Writes a meta data file matching a current ALF file object.
+
+    For example given an alf file `clusters.ccfLocation.ssv` this will write a dictionary in JSON
+    format in `clusters.ccfLocation.metadata.json`
+
     Reserved keywords:
-     - **columns**: column names for binary tables.
-     - **row**: row names for binary tables.
-     - **unit**
+        - **columns**: column names for binary tables.
+        - **row**: row names for binary tables.
+        - **unit**
 
     Parameters
     ----------
@@ -541,9 +590,9 @@ def save_metadata(file_alf, dico):
         fid.write(json.dumps(dico, indent=1))
 
 
-def remove_uuid_file(file_path, dry=False):
+def remove_uuid_file(file_path, dry=False) -> Path:
     """
-     Renames a file without the UUID and returns the new pathlib.Path object
+    Renames a file without the UUID and returns the new pathlib.Path object
     """
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -557,7 +606,7 @@ def remove_uuid_file(file_path, dry=False):
     return new_path
 
 
-def remove_uuid_recursive(folder, dry=False):
+def remove_uuid_recursive(folder, dry=False) -> None:
     """
     Within a folder, recursive renaming of all files to remove UUID
     """
@@ -624,24 +673,30 @@ def filter_by(alf_path, wildcards=True, **kwargs):
 
     Examples
     --------
-    # Filter files with universal timescale
-    filter_by(alf_path, timescale=None)
+    Filter files with universal timescale
 
-    # Filter files by a given ALF object
-    filter_by(alf_path, object='wheel')
+    >>> filter_by(alf_path, timescale=None)
 
-    # Filter using wildcard, e.g. 'wheel' and 'wheelMoves' ALF objects
-    filter_by(alf_path, object='wh*')
+    Filter files by a given ALF object
 
-    # Filter all intervals that are in bpod time
-    filter_by(alf_path, attribute='intervals', timescale='bpod')
+    >>> filter_by(alf_path, object='wheel')
 
-    # Filter all files containing either 'intervals' OR 'timestamps' attributes
-    filter_by(alf_path, attribute=['intervals', 'timestamps'])
+    Filter using wildcard, e.g. 'wheel' and 'wheelMoves' ALF objects
 
-    # Filter all files using a regular expression
-    filter_by(alf_path, object='^wheel.*', wildcards=False)
-    filter_by(alf_path, object=['^wheel$', '.*Moves'], wildcards=False)
+    >>> filter_by(alf_path, object='wh*')
+
+    Filter all intervals that are in bpod time
+
+    >>> filter_by(alf_path, attribute='intervals', timescale='bpod')
+
+    Filter all files containing either 'intervals' OR 'timestamps' attributes
+
+    >>> filter_by(alf_path, attribute=['intervals', 'timestamps'])
+
+    Filter all files using a regular expression
+
+    >>> filter_by(alf_path, object='^wheel.*', wildcards=False)
+    >>> filter_by(alf_path, object=['^wheel$', '.*Moves'], wildcards=False)
     """
     alf_files = [f for f in os.listdir(alf_path) if spec.is_valid(f)]
     attributes = [files.filename_parts(f, as_dict=True) for f in alf_files]
@@ -650,7 +705,7 @@ def filter_by(alf_path, wildcards=True, **kwargs):
         # Validate keyword arguments against regex group names
         invalid = kwargs.keys() - spec.regex(FILE_SPEC).groupindex.keys()
         if invalid:
-            raise TypeError("%s() got an unexpected keyword argument '%s'"
+            raise TypeError('%s() got an unexpected keyword argument "%s"'
                             % (__name__, set(invalid).pop()))
 
         # # Ensure 'extra' input is a list; if str split on dot

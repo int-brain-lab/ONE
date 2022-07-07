@@ -30,6 +30,7 @@ from one.alf.files import session_path_parts, get_session_path
 import one.alf.exceptions as alferr
 from one.api import ONE
 from one.util import ensure_list
+from one.webclient import no_cache
 
 _logger = logging.getLogger(__name__)
 
@@ -63,7 +64,10 @@ class RegistrationClient:
 
         Returns
         -------
-            Newly created session paths; Alyx session records
+        list of pathlib.Paths
+            Newly created session paths
+        list of dicts
+            Alyx session records
         """
         flag_files = list(Path(root_data_folder).glob(glob_pattern))
         records = []
@@ -87,7 +91,8 @@ class RegistrationClient:
 
         Returns
         -------
-        Newly created session record
+        dict
+            Newly created session record
         """
         return self.register_session(session_path, file_list=False)[0]
 
@@ -108,16 +113,24 @@ class RegistrationClient:
 
         Returns
         -------
-        New local session path; the experiment UUID if register is true
+        pathlib.Path
+            New local session path
+        str
+            The experiment UUID if register is True
 
         Examples
         --------
-        # Create a local session only
-        session_path, _ = RegistrationClient.create_new_session('Ian', register=False)
-        # Register a session on Alyx in a specific location
-        session_path, eid = RegistrationClient.create_new_session('Ian', '/data/mylab/Subjects')
-        # Create a session for a given date
-        session_path, eid = RegistrationClient.create_new_session('Ian', date='2020-01-01')
+        Create a local session only
+
+        >>> session_path, _ = RegistrationClient().create_new_session('Ian', register=False)
+
+        Register a session on Alyx in a specific location
+
+        >>> session_path, eid = RegistrationClient().create_new_session('Sy', '/data/lab/Subjects')
+
+        Create a session for a given date
+
+        >>> session_path, eid = RegistrationClient().create_new_session('Ian', date='2020-01-01')
         """
         assert not self.one.offline, 'ONE must be in online mode'
         date = self.ensure_ISO8601(date)  # Format, validate
@@ -140,7 +153,8 @@ class RegistrationClient:
 
         Returns
         -------
-        Iterable of file paths that match the dataset type patterns in Alyx
+        generator
+            Iterable of file paths that match the dataset type patterns in Alyx
         """
         session_path = Path(session_path)
         types = (x['filename_pattern'] for x in self.dtypes if x['filename_pattern'])
@@ -160,9 +174,9 @@ class RegistrationClient:
 
         Examples
         --------
-        client.assert_exists('ALK_036', 'subjects')
-        client.assert_exists('user_45', 'users')
-        client.assert_exists('local_server', 'repositories')
+        >>> client.assert_exists('ALK_036', 'subjects')
+        >>> client.assert_exists('user_45', 'users')
+        >>> client.assert_exists('local_server', 'repositories')
 
         Raises
         -------
@@ -198,7 +212,8 @@ class RegistrationClient:
 
         Returns
         -------
-        The datetime as an ISO 8601 str
+        str
+            The datetime as an ISO 8601 string
         """
         date = date or datetime.datetime.now()  # If None get current time
         if isinstance(date, str):
@@ -210,6 +225,9 @@ class RegistrationClient:
     def register_session(self, ses_path, users=None, file_list=True, **kwargs):
         """
         Register session in Alyx
+
+        NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
+        and date of the session path.
 
         Parameters
         ----------
@@ -236,10 +254,36 @@ class RegistrationClient:
             The experiment type, e.g. 'Experiment', 'Base'
         task_protocol : str
             The task protocol (optional)
+        lab : str
+            The name of the lab where the session took place.  If None the lab name will be
+            taken from the path.  If no lab name is found in the path (i.e. no <lab>/Subjects)
+            the default lab on Alyx will be used.
+        start_time : str, datetime.datetime
+            The precise start time of the session.  The date must match the date in the session
+            path.
+        end_time : str, datetime.datetime
+            The precise end time of the session.
 
         Returns
         -------
-        An Alyx session record and list of file records (or None if file_list is False)
+        dict
+            An Alyx session record
+        list, None
+            Alyx file records (or None if file_list is False)
+
+        Raises
+        ------
+        AssertionError
+            Subject does not exist on Alyx or provided start_time does not match date in
+            session path.
+        ValueError
+            The provided lab name does not match the one found in the session path or
+            start_time/end_time is not a valid ISO date time.
+        requests.HTTPError
+            A 400 status code means the submitted data was incorrect (e.g. task_protocol was an
+            int instead of a str); A 500 status code means there was a server error.
+        ConnectionError
+            Failed to connect to Alyx, most likely due to a bad internet connection.
         """
         if isinstance(ses_path, str):
             ses_path = Path(ses_path)
@@ -248,10 +292,11 @@ class RegistrationClient:
         self.assert_exists(details['subject'], 'subjects')
 
         # look for a session from the same subject, same number on the same day
-        session_id, session = self.one.search(subject=details['subject'],
-                                              date_range=details['date'],
-                                              number=details['number'],
-                                              details=True, query_type='remote')
+        with no_cache(self.one.alyx):
+            session_id, session = self.one.search(subject=details['subject'],
+                                                  date_range=details['date'],
+                                                  number=details['number'],
+                                                  details=True, query_type='remote')
         users = ensure_list(users or self.one.alyx.user)
         self.assert_exists(users, 'users')
 
@@ -269,6 +314,9 @@ class RegistrationClient:
         assert ('subject', 'number') not in kwargs
         if 'lab' not in kwargs and details['lab']:
             kwargs.update({'lab': details['lab']})
+        elif details['lab'] and kwargs.get('lab', details['lab']) != details['lab']:
+            names = (kwargs['lab'], details['lab'])
+            raise ValueError('lab kwarg "%s" does not match lab name in path ("%s")' % names)
         ses_.update(kwargs)
 
         if not session:  # Create from scratch
@@ -314,7 +362,8 @@ class RegistrationClient:
 
         Returns
         -------
-            A list of newly created Alyx dataset records or the registration data if dry == true
+        list of dicts, dict
+            A list of newly created Alyx dataset records or the registration data if dry
         """
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
@@ -404,7 +453,8 @@ class RegistrationClient:
 
         Returns
         -------
-        A water administration record
+        dict
+            A water administration record
 
         Raises
         ------
@@ -459,7 +509,8 @@ class RegistrationClient:
 
         Returns
         -------
-        An Alyx weight record
+        dict
+            An Alyx weight record
 
         Raises
         ------

@@ -2,10 +2,13 @@
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
 ![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
 
-**NB: This package is currently in beta**
+The Open Neurophysiology Environment is a scheme for sharing neurophysiology data in a standardized manner. For information on how to share data with ONE please [click here](https://github.com/int-brain-lab/ONE/blob/main/docs/Open_Neurophysiology_Environment_Filename_Convention.pdf). This github page contains an API for searching and loading ONE-standardized data, stored either on a user’s local machine or on a remote server. Please [Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.
+
+## Requirements
+ONE runs on Python 3.7 or later, and is tested on the latest Ubuntu and Windows (3.7 and 3.8 only).
 
 ## Installing
-For Python 3.8 or later, run
+Installing the package via pip typically takes a few seconds.  To install, run
 ```
 pip install ONE-api
 ```
@@ -38,7 +41,7 @@ one = ONE()
 To set up ONE for another database and make it the default:
 ```python
 from one.api import OneAlyx, ONE
-OneAlyx.setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
+OneAlyx.setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 one = ONE()  # Connected to https://test.alyx.internationalbrainlab.org
 ```
 
@@ -47,7 +50,7 @@ To search for sessions:
 ```python
 from one.api import ONE
 one = ONE()
-print(one.search_terms)  # A list of search keyword arguments
+print(one.search_terms())  # A list of search keyword arguments
 
 # Search session with wheel timestamps from January 2021 onward
 eids = one.search(date_range=['2021-01-01',], dataset='wheel.timestamps')
@@ -74,4 +77,4 @@ ts = one.load_dataset(eid, 'wheel.timestamps', collection='alf')
 filename = one.load_dataset(eid, 'wheel.timestamps', download_only=True)
 ```
 
-Further examples and tutorials can be found in `examples/`
+Further examples and tutorials can be found in the [documentation](https://int-brain-lab.github.io/ONE/).
