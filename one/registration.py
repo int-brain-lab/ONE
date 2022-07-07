@@ -81,22 +81,24 @@ class RegistrationClient:
             flag_file.unlink()
         return [ff.parent for ff in flag_files], records
 
-    def create_session(self, session_path) -> dict:
+    def create_session(self, session_path, **kwargs) -> dict:
         """Create a remote session on Alyx from a local session path, without registering files
 
         Parameters
         ----------
         session_path : str, pathlib.Path
-            The path ending with subject/date/number
+            The path ending with subject/date/number.
+        **kwargs
+            Optional arguments for RegistrationClient.register_session.
 
         Returns
         -------
         dict
-            Newly created session record
+            Newly created session record.
         """
-        return self.register_session(session_path, file_list=False)[0]
+        return self.register_session(session_path, file_list=False, **kwargs)[0]
 
-    def create_new_session(self, subject, session_root=None, date=None, register=True):
+    def create_new_session(self, subject, session_root=None, date=None, register=True, **kwargs):
         """Create a new local session folder and optionally create session record on Alyx
 
         Parameters
@@ -110,12 +112,14 @@ class RegistrationClient:
             An optional date for the session.  If None the current time is used.
         register : bool
             If true, create session record on Alyx database
+        **kwargs
+            Optional arguments for RegistrationClient.register_session.
 
         Returns
         -------
         pathlib.Path
             New local session path
-        str
+        uuid.UUID
             The experiment UUID if register is True
 
         Examples
@@ -139,7 +143,7 @@ class RegistrationClient:
         session_root = Path(session_root or self.one.alyx.cache_dir) / subject / date[:10]
         session_path = session_root / alfio.next_num_folder(session_root)
         session_path.mkdir(exist_ok=True, parents=True)  # Ensure folder exists on disk
-        eid = UUID(self.create_session(session_path)['url'][-36:]) if register else None
+        eid = UUID(self.create_session(session_path, **kwargs)['url'][-36:]) if register else None
         return session_path, eid
 
     def find_files(self, session_path):

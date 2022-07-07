@@ -7,6 +7,7 @@ import random
 import datetime
 import fnmatch
 from io import StringIO
+from pathlib import Path
 
 from iblutil.util import Bunch
 from requests.exceptions import HTTPError
@@ -116,7 +117,7 @@ class TestRegistrationClient(unittest.TestCase):
         removed = self.client.dtypes.pop(next(i for i, x in enumerate(existing) if x))
         files = list(self.client.find_files(self.session_path))
         self.assertEqual(6, len(files))
-        self.assertTrue(all(x.is_file() for x in files))
+        self.assertTrue(all(map(Path.is_file, files)))
         # Check removed file pattern not in file list
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
 

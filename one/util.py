@@ -45,11 +45,12 @@ def ses2records(ses: dict, int_id=False):
     eid = ses['url'][-36:]
     if int_id:
         eid = tuple(parquet.str2np(eid).flatten())
-    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'project')
+    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
     session = (
         pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
+    session['project'] = ','.join(session.pop('projects'))
     session['date'] = datetime.fromisoformat(session['date']).date()
 
     # Extract datasets table

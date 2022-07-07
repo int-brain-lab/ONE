@@ -54,10 +54,6 @@ class TestsONEParquet(unittest.TestCase):
         self.assertTrue(
             self.full_ses_path.as_posix().endswith(self.rel_ses_path[:-1]))
 
-    def test_walk_session(self):
-        ses_files = list(apt._iter_datasets(self.full_ses_path))
-        self.assertEqual(ses_files, self.rel_ses_files)
-
     def test_parquet(self):
         # Test data
         columns = ('colA', 'colB')

@@ -26,9 +26,8 @@ import pandas as pd
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
-from one.alf.io import iter_sessions
+from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
-from one.alf.spec import is_valid
 
 __all__ = ['make_parquet_db']
 
@@ -192,20 +191,13 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
         rows = []
-        for rel_dset_path in _iter_datasets(session_path):
+        for rel_dset_path in iter_datasets(session_path):
             file_info = _get_dataset_info(session_path, rel_dset_path, compute_hash=hash_files)
             assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
             rows.append(file_info)
         df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS)),
                        ignore_index=True, verify_integrity=True)
     return df
-
-
-def _iter_datasets(session_path):
-    """Iterate over all files in a session, and yield relative dataset paths."""
-    for p in sorted(Path(session_path).rglob('*.*')):
-        if not p.is_dir() and is_valid(p.name):
-            yield p.relative_to(session_path)
 
 
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):

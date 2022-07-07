@@ -221,7 +221,7 @@ class One(ConversionMixin):
         strict : bool
             If not True, the columns don't need to match.  Extra columns in input tables are
             dropped and missing columns are added and filled with np.nan.
-        kwargs
+        **kwargs
             pandas.DataFrame or pandas.Series to insert/update for each table
 
         Returns
@@ -869,7 +869,7 @@ class One(ConversionMixin):
         download_only : bool
             When true the data are downloaded and the file path is returned. NB: The order of the
             file path list is undefined.
-        kwargs : dict
+        **kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -1201,7 +1201,7 @@ class One(ConversionMixin):
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
             When true the data are downloaded and the file path is returned.
-        kwargs : dict
+        **kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -1268,6 +1268,9 @@ class One(ConversionMixin):
         silent : (False) bool
             when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
             when False will use cwd for cache_dir if cache_dir is None and use existing cache
+        **kwargs
+            Optional arguments to pass to one.alf.cache.make_parquet_db.
+
         Returns
         -------
         One
@@ -1665,10 +1668,10 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, update_exists=True, **kwargs) -> List[Path]:
+    def _download_aws(self, dsets, update_exists=True, **_) -> List[Path]:
         # Download datasets from AWS
         import one.remote.aws as aws
-        s3, bucket_name = aws.get_s3_from_alyx(self)
+        s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
         if self._index_type() is int:
             raise NotImplementedError('AWS download only supported for str index cache')
         assert self.mode != 'local'
@@ -1908,6 +1911,8 @@ class OneAlyx(One):
         ----------
         base_url : str
             An Alyx database URL.  If None, the current default database is used.
+        **kwargs
+            Optional arguments to pass to one.params.setup.
 
         Returns
         -------
