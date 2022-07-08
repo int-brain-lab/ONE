@@ -192,7 +192,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
         rows = []
-        for rel_dset_path in _iter_datasets(session_path):
+        for rel_dset_path in iter_datasets(session_path):
             file_info = _get_dataset_info(session_path, rel_dset_path, compute_hash=hash_files)
             assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
             rows.append(file_info)
@@ -202,6 +202,12 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
 
 
 def _iter_datasets(session_path):
+    """function alias set up to avoid accidentally breaking other's code"""
+    print("DEPRECATION WARNING: '_iter_datasets' function call should be updated to 'iter_datasets'")
+    return iter_datasets(session_path)
+
+
+def iter_datasets(session_path):
     """Iterate over all files in a session, and yield relative dataset paths."""
     for p in sorted(Path(session_path).rglob('*.*')):
         if not p.is_dir() and is_valid(p.name):

@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.3]
+
+### Modified
+
+- "iter_datasets" function made public
+  - created an alias function with the old name and a deprecation warning to avoid breaking code outside this repo
+
+## [1.12.2]
 
 ### Modified
 
