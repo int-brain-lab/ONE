@@ -577,8 +577,8 @@ class TestALFFolders(unittest.TestCase):
         cls.tempdir.cleanup()
 
     def tearDown(self) -> None:
-        for file in self.session_path.rglob('*.*'):
-            file.unlink()
+        for obj in reversed(sorted(Path(self.session_path).rglob('*'))):
+            obj.unlink() if obj.is_file() else obj.rmdir()
 
     def test_next_num_folder(self):
         """Test for one.alf.io.next_num_folder"""
