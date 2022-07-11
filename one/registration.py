@@ -252,7 +252,7 @@ class RegistrationClient:
             The total number of completed trials (optional)
         json : dict, str
             Optional JSON data
-        project: str, list
+        projects: str, list
             The project(s) to which the experiment belongs (optional)
         type : str
             The experiment type, e.g. 'Experiment', 'Base'
@@ -315,6 +315,8 @@ class RegistrationClient:
         assert start_time[:10] == details['date'], 'start_time doesn\'t match session path'
         if kwargs.get('procedures', False):
             ses_['procedures'] = ensure_list(kwargs.pop('procedures'))
+        if kwargs.get('projects', False):
+            ses_['projects'] = ensure_list(kwargs.pop('projects'))
         assert ('subject', 'number') not in kwargs
         if 'lab' not in kwargs and details['lab']:
             kwargs.update({'lab': details['lab']})

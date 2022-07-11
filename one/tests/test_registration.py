@@ -124,10 +124,15 @@ class TestRegistrationClient(unittest.TestCase):
     def test_create_new_session(self):
         """Test for RegistrationClient.create_new_session"""
         # Check register = True
-        session_path, eid = self.client.create_new_session(self.subject, date='2020-01-01')
+        session_path, eid = self.client.create_new_session(
+            self.subject, date='2020-01-01', projects='ibl_neuropixel_brainwide_01'
+        )
         expected = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001').as_posix()
         self.assertEqual(session_path.as_posix(), expected)
         self.assertIsNotNone(eid)
+        # Check projects added to Alyx session
+        projects = self.one.get_details(eid, full=True)['projects']
+        self.assertEqual(projects, ['ibl_neuropixel_brainwide_01'])
         # Check register = False
         session_path, eid = self.client.create_new_session(
             self.subject, date='2020-01-01', register=False)
