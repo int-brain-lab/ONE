@@ -12,7 +12,7 @@ from one.webclient import AlyxClient
 try:
     import one.remote.aws as aws
 except ModuleNotFoundError:
-    unittest.skip('boto3 module not installed')
+    raise unittest.SkipTest('boto3 module not installed')
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')

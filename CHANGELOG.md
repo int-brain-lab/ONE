@@ -5,6 +5,7 @@
 
 - one.remote.aws.get_s3_virtual_host constructs HTTPS Web address from bucket name and region
 - one.remote.aws.is_folder determines if an S3 Object is a folder
+- boto3 now a requirement
 
 ### Modified
 
