@@ -21,7 +21,7 @@ class TestsONEParquet(unittest.TestCase):
         'subject': 'mysub',
         'date': datetime.date.fromisoformat('2021-02-28'),
         'number': int('001'),
-        'project': '',
+        'projects': '',
         'task_protocol': '',
         'id': 'mylab/mysub/2021-02-28/001',
     }

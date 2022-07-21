@@ -1176,7 +1176,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertTrue(correct)
 
         # Check minimum set of keys present (these are present in One.search output)
-        expected = {'lab', 'subject', 'date', 'number', 'project'}
+        expected = {'lab', 'subject', 'date', 'number', 'projects'}
         self.assertTrue(det[0].keys() >= expected)
         # Test dataset search with Django
         eids = self.one.search(subject='SWC_043', dataset=['probes.description'], number=1,
@@ -1235,6 +1235,7 @@ class TestOneRemote(unittest.TestCase):
         det = self.one.get_details(self.eid, query_type='remote')
         self.assertIsInstance(det, dict)
         self.assertEqual('SWC_043', det['subject'])
+        self.assertEqual('ibl_neuropixel_brainwide_01', det['projects'])
         self.assertEqual('2020-09-21', str(det['date']))
         self.assertEqual(1, det['number'])
         self.assertNotIn('data_dataset_session_related', det)

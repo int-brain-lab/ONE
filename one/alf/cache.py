@@ -42,7 +42,7 @@ SESSIONS_COLUMNS = (
     'date',             # datetime.date
     'number',           # int
     'task_protocol',
-    'project',
+    'projects',
 )
 
 DATASETS_COLUMNS = (
@@ -72,7 +72,7 @@ def _get_session_info(rel_ses_path):
     out['date'] = pd.to_datetime(out['date']).date()
     out['number'] = int(out['number'])
     out['task_protocol'] = ''
-    out['project'] = ''
+    out['projects'] = ''
     return out
 
 

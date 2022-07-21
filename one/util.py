@@ -10,6 +10,7 @@ from datetime import datetime
 import pandas as pd
 from iblutil.io import parquet
 import numpy as np
+from packaging import version
 
 import one.alf.exceptions as alferr
 from one.alf.files import rel_path_parts, get_session_path, get_alf_path
@@ -50,7 +51,7 @@ def ses2records(ses: dict, int_id=False):
     session = (
         pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
-    session['project'] = ','.join(session.pop('projects'))
+    session['projects'] = ','.join(session.pop('projects'))
     session['date'] = datetime.fromisoformat(session['date']).date()
 
     # Extract datasets table
@@ -554,4 +555,25 @@ def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
     for i, name in zip(range(0, len(int_cols), 2), names):
         table[name] = parquet.np2str(table[int_cols[i:i + 2]])
     table = table.drop(int_cols, axis=1).set_index(names)
+    return table
+
+
+def patch_cache(table: pd.DataFrame, min_api_version=None) -> pd.DataFrame:
+    """Reformat older cache tables to comply with this version of ONE.
+
+    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'
+    column to 'projects'.
+
+    Parameters
+    ----------
+    table : pd.DataFrame
+        A cache table (from One._cache).
+    min_api_version : str
+        The minimum API version supported by this cache table.
+    """
+    min_version = version.parse(min_api_version or '0.0.0')
+    table = cache_int2str(table)
+    # Rename project column
+    if min_version < version.Version('1.13.0') and 'project' in table.columns:
+        table.rename(columns={'project': 'projects'}, inplace=True)
     return table

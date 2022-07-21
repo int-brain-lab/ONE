@@ -9,6 +9,7 @@
 
 ### Modified
 
+- cache 'project' field renamed to 'projects'
 - iter_datasets now public function in one.alf.io, moved from one.alf.cache
 - expose register_session kwargs in RegistrationClient.create_session method
 - one.remote.aws.get_aws_access_keys requires AlyxClient instance instead of OneAlyx, in line with one.remote.globus
