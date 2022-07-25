@@ -38,7 +38,7 @@ N_THREADS = 4
 class One(ConversionMixin):
     """An API for searching and loading data on a local filesystem"""
     _search_terms = (
-        'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
+        'dataset', 'date_range', 'laboratory', 'number', 'projects', 'subject', 'task_protocol'
     )
 
     def __init__(self, cache_dir=None, mode='auto', wildcards=True):
@@ -99,8 +99,8 @@ class One(ConversionMixin):
                 continue
             meta['loaded_time'] = datetime.now()
 
-            # Convert to str ids
-            cache = util.cache_int2str(cache)
+            # Patch older tables
+            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'))
 
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
@@ -221,7 +221,7 @@ class One(ConversionMixin):
         strict : bool
             If not True, the columns don't need to match.  Extra columns in input tables are
             dropped and missing columns are added and filled with np.nan.
-        kwargs
+        **kwargs
             pandas.DataFrame or pandas.Series to insert/update for each table
 
         Returns
@@ -385,8 +385,8 @@ class One(ConversionMixin):
         task_protocol : str
             The task protocol name (can be partial, i.e. any task protocol containing that str
             will be found)
-        project : str
-            The project name (can be partial, i.e. any task protocol containing that str
+        projects : str, list
+            The project name(s) (can be partial, i.e. any project containing that str
             will be found)
         details : bool
             If true also returns a dict of dataset details
@@ -424,7 +424,7 @@ class One(ConversionMixin):
             if sessions.size == 0:
                 return ([], None) if details else []
             # String fields
-            elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
+            elif key in ('subject', 'task_protocol', 'laboratory', 'projects'):
                 query = '|'.join(util.ensure_list(value))
                 key = 'lab' if key == 'laboratory' else key
                 mask = sessions[key].str.contains(query, regex=self.wildcards)
@@ -869,7 +869,7 @@ class One(ConversionMixin):
         download_only : bool
             When true the data are downloaded and the file path is returned. NB: The order of the
             file path list is undefined.
-        kwargs : dict
+        **kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -1201,7 +1201,7 @@ class One(ConversionMixin):
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
             When true the data are downloaded and the file path is returned.
-        kwargs : dict
+        **kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -1268,6 +1268,9 @@ class One(ConversionMixin):
         silent : (False) bool
             when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
             when False will use cwd for cache_dir if cache_dir is None and use existing cache
+        **kwargs
+            Optional arguments to pass to one.alf.cache.make_parquet_db.
+
         Returns
         -------
         One
@@ -1583,7 +1586,7 @@ class OneAlyx(One):
         task_protocol : str, list
             The task protocol name (can be partial, i.e. any task protocol containing that str
             will be found)
-        project : str, list
+        project(s) : str, list
             The project name (can be partial, i.e. any task protocol containing that str
             will be found)
         performance_lte / performance_gte : float
@@ -1665,10 +1668,10 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, update_exists=True, **kwargs) -> List[Path]:
+    def _download_aws(self, dsets, update_exists=True, **_) -> List[Path]:
         # Download datasets from AWS
         import one.remote.aws as aws
-        s3, bucket_name = aws.get_s3_from_alyx(self)
+        s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
         if self._index_type() is int:
             raise NotImplementedError('AWS download only supported for str index cache')
         assert self.mode != 'local'
@@ -1908,6 +1911,8 @@ class OneAlyx(One):
         ----------
         base_url : str
             An Alyx database URL.  If None, the current default database is used.
+        **kwargs
+            Optional arguments to pass to one.params.setup.
 
         Returns
         -------
@@ -2171,9 +2176,10 @@ class OneAlyx(One):
         if full:
             return dets
         # If it's not full return the normal output like from a one.search
-        det_fields = ['subject', 'start_time', 'number', 'lab', 'project',
+        det_fields = ['subject', 'start_time', 'number', 'lab', 'projects',
                       'url', 'task_protocol', 'local_path']
         out = {k: v for k, v in dets.items() if k in det_fields}
+        out['projects'] = ','.join(out['projects'])
         out.update({'local_path': self.eid2path(eid),
                     'date': datetime.fromisoformat(out['start_time']).date()})
         return out

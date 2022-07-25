@@ -7,6 +7,7 @@ import random
 import datetime
 import fnmatch
 from io import StringIO
+from pathlib import Path
 
 from iblutil.util import Bunch
 from requests.exceptions import HTTPError
@@ -116,17 +117,22 @@ class TestRegistrationClient(unittest.TestCase):
         removed = self.client.dtypes.pop(next(i for i, x in enumerate(existing) if x))
         files = list(self.client.find_files(self.session_path))
         self.assertEqual(6, len(files))
-        self.assertTrue(all(x.is_file() for x in files))
+        self.assertTrue(all(map(Path.is_file, files)))
         # Check removed file pattern not in file list
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
 
     def test_create_new_session(self):
         """Test for RegistrationClient.create_new_session"""
         # Check register = True
-        session_path, eid = self.client.create_new_session(self.subject, date='2020-01-01')
+        session_path, eid = self.client.create_new_session(
+            self.subject, date='2020-01-01', projects='ibl_neuropixel_brainwide_01'
+        )
         expected = self.one.alyx.cache_dir.joinpath(self.subject, '2020-01-01', '001').as_posix()
         self.assertEqual(session_path.as_posix(), expected)
         self.assertIsNotNone(eid)
+        # Check projects added to Alyx session
+        projects = self.one.get_details(eid, full=True)['projects']
+        self.assertEqual(projects, ['ibl_neuropixel_brainwide_01'])
         # Check register = False
         session_path, eid = self.client.create_new_session(
             self.subject, date='2020-01-01', register=False)
