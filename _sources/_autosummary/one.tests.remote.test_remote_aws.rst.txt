@@ -20,6 +20,7 @@ one.tests.remote.test\_remote\_aws
    
       TestAWS
       TestAWSPublic
+      TestUtils
    
    
 

@@ -83,7 +83,6 @@
 <li class="toctree-l3 current"><a class="reference internal" href="one.remote.html">one.remote</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">one.remote.aws</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.remote.base.html">one.remote.base</a></li>
-<li class="toctree-l4"><a class="reference internal" href="one.remote.globus.html">one.remote.globus</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
@@ -151,18 +150,17 @@
 <section id="module-one.remote.aws">
 <span id="one-remote-aws"></span><h1>one.remote.aws<a class="headerlink" href="#module-one.remote.aws" title="Permalink to this heading"></a></h1>
 <p>A backend to download IBL data from AWS Buckets.</p>
-<p class="rubric">Examples</p>
-<p>Without any credentials, to download a public file from the IBL public bucket:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">one.remote</span> <span class="kn">import</span> <span class="n">aws</span>
-<span class="gp">... </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span>
-<span class="gp">... </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/cache_info.json&#39;</span>
-<span class="gp">... </span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+<p>For example, without any credentials, to download a public file from the IBL public bucket:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">one.remote.aws</span> <span class="k">as</span> <span class="nn">aws</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/cache_info.json&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For a folder, the following:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test&#39;</span>
-<span class="gp">... </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/caches/unit_test&#39;</span>
-<span class="gp">... </span><span class="n">local_files</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">s3_download_folder</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/caches/unit_test&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">local_files</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">s3_download_folder</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Functions</p>
@@ -181,6 +179,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_public" title="one.remote.aws.get_s3_public"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_public</span></code></a></p></td>
 <td><p>Retrieve the IBL public S3 service resource.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_virtual_host" title="one.remote.aws.get_s3_virtual_host"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_virtual_host</span></code></a></p></td>
+<td><p>Convert a given bucket URI to a generic Amazon virtual host URL.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.is_folder" title="one.remote.aws.is_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_folder</span></code></a></p></td>
+<td><p>Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.s3_download_file" title="one.remote.aws.s3_download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s3_download_file</span></code></a></p></td>
 <td><p>Downloads a file from an S3 instance to a local folder.</p></td>
 </tr>
@@ -190,13 +194,51 @@
 </tbody>
 </table>
 <dl class="py function">
+<dt class="sig sig-object py" id="one.remote.aws.get_s3_virtual_host">
+<span class="sig-name descname"><span class="pre">get_s3_virtual_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_virtual_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_virtual_host" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a given bucket URI to a generic Amazon virtual host URL.
+URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uri</strong> (<em>str</em>) – The bucket name or full path URI.</p></li>
+<li><p><strong>region</strong> (<em>str</em>) – The region, e.g. eu-west-1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Web URL (virtual host name and https scheme).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.aws.is_folder">
+<span class="sig-name descname"><span class="pre">is_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_summery</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/one/remote/aws.html#is_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.is_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>obj_summery</strong> (<em>s3.ObjectSummery</em>) – An S3 ObjectSummery instance to test.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if object is a directory.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="one.remote.aws.get_aws_access_keys">
-<span class="sig-name descname"><span class="pre">get_aws_access_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aws_cortexlab'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_aws_access_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_aws_access_keys" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_aws_access_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aws_cortexlab'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_aws_access_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_aws_access_keys" title="Permalink to this definition"></a></dt>
 <dd><p>Query Alyx database to get credentials in the json field of an aws repository.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>one</strong> (<em>one.OneAlyx</em>) – An online instance of ONE.</p></li>
+<li><p><strong>alyx</strong> (<em>one.webclient.AlyxInstance</em>) – An instance of alyx.</p></li>
 <li><p><strong>repo_name</strong> (<em>str</em>) – The data repository name in Alyx from which to fetch the S3 access keys.</p></li>
 </ul>
 </dd>
@@ -227,11 +269,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.aws.get_s3_from_alyx">
-<span class="sig-name descname"><span class="pre">get_s3_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_from_alyx" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_s3_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aws_cortexlab'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_from_alyx" title="Permalink to this definition"></a></dt>
 <dd><p>Create an S3 resource instance using credentials from an Alyx data repository.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>one</strong> (<em>one.OneAlyx</em>) – An online instance of ONE.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alyx</strong> (<em>one.webclient.AlyxInstance</em>) – An instance of alyx.</p></li>
+<li><p><strong>repo_name</strong> (<em>str</em>) – The data repository name in Alyx from which to fetch the S3 access keys.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">

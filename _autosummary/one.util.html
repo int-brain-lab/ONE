@@ -179,13 +179,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.parse_id" title="one.util.parse_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_id</span></code></a></p></td>
 <td><p>Ensures the input experiment identifier is an experiment UUID string</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.util.refresh" title="one.util.refresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refresh</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.util.patch_cache" title="one.util.patch_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">patch_cache</span></code></a></p></td>
+<td><p>Reformat older cache tables to comply with this version of ONE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.util.refresh" title="one.util.refresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refresh</span></code></a></p></td>
 <td><p>Refresh cache depending of query_type kwarg</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.util.ses2records" title="one.util.ses2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ses2records</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.util.ses2records" title="one.util.ses2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ses2records</span></code></a></p></td>
 <td><p>Extract session cache record and datasets cache from a remote session data record.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.util.validate_date_range" title="one.util.validate_date_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_date_range</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.util.validate_date_range" title="one.util.validate_date_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_date_range</span></code></a></p></td>
 <td><p>Validates and arrange date range in a 2 elements list</p></td>
 </tr>
 </tbody>
@@ -449,6 +452,22 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>table</strong> (<em>pd.DataFrame</em>) – A cache table (from One._cache)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.util.patch_cache">
+<span class="sig-name descname"><span class="pre">patch_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_api_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/util.html#patch_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.patch_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Reformat older cache tables to comply with this version of ONE.</p>
+<p>Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the ‘project’
+column to ‘projects’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<em>pd.DataFrame</em>) – A cache table (from One._cache).</p></li>
+<li><p><strong>min_api_version</strong> (<em>str</em>) – The minimum API version supported by this cache table.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

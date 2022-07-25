@@ -466,23 +466,42 @@
 
 <div class="viewcode-block" id="iter_sessions"><a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.iter_sessions">[docs]</a><span class="k">def</span> <span class="nf">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Recursively iterate over session paths in a given directory</span>
+<span class="sd">    Recursively iterate over session paths in a given directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    root_dir : str, pathlib.Path</span>
-<span class="sd">        The folder to look for sessions</span>
+<span class="sd">        The folder to look for sessions.</span>
 
 <span class="sd">    Yields</span>
 <span class="sd">    -------</span>
 <span class="sd">    pathlib.Path</span>
-<span class="sd">        The next session path in lexicographical order</span>
+<span class="sd">        The next session path in lexicographical order.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
         <span class="k">yield</span> <span class="n">root_dir</span>
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">path</span></div>
+
+
+<div class="viewcode-block" id="iter_datasets"><a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.iter_datasets">[docs]</a><span class="k">def</span> <span class="nf">iter_datasets</span><span class="p">(</span><span class="n">session_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterate over all files in a session, and yield relative dataset paths.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    session_path : str, pathlib.Path</span>
+<span class="sd">        The folder to look for datasets.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The next dataset path (relative to the session path) in lexicographical order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.*&#39;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">p</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="exists"><a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.exists">[docs]</a><span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

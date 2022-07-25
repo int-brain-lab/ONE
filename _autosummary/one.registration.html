@@ -198,14 +198,17 @@ register_files - Register a list of files to their respective sessions on Alyx</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.create_session">
-<span class="sig-name descname"><span class="pre">create_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_session" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_session" title="Permalink to this definition"></a></dt>
 <dd><p>Create a remote session on Alyx from a local session path, without registering files</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The path ending with subject/date/number</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The path ending with subject/date/number.</p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments for RegistrationClient.register_session.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Newly created session record</p>
+<dd class="field-even"><p>Newly created session record.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
@@ -215,7 +218,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.create_new_session">
-<span class="sig-name descname"><span class="pre">create_new_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_new_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_new_session" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_new_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_new_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_new_session" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new local session folder and optionally create session record on Alyx</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -225,12 +228,13 @@ register_files - Register a list of files to their respective sessions on Alyx</
 cache directory.</p></li>
 <li><p><strong>date</strong> (<em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>str</em>) – An optional date for the session.  If None the current time is used.</p></li>
 <li><p><strong>register</strong> (<em>bool</em>) – If true, create session record on Alyx database</p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments for RegistrationClient.register_session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>pathlib.Path</em> – New local session path</p></li>
-<li><p><em>str</em> – The experiment UUID if register is True</p></li>
+<li><p><em>uuid.UUID</em> – The experiment UUID if register is True</p></li>
 </ul>
 </p>
 </dd>
@@ -331,7 +335,7 @@ session folder are registered.  If False, no files are registered</p></li>
 <li><p><strong>n_correct_trials</strong> (<em>int</em>) – The number of correct trials (optional)</p></li>
 <li><p><strong>n_trials</strong> (<em>int</em>) – The total number of completed trials (optional)</p></li>
 <li><p><strong>json</strong> (<em>dict</em><em>, </em><em>str</em>) – Optional JSON data</p></li>
-<li><p><strong>project</strong> (<em>str</em><em>, </em><em>list</em>) – The project(s) to which the experiment belongs (optional)</p></li>
+<li><p><strong>projects</strong> (<em>str</em><em>, </em><em>list</em>) – The project(s) to which the experiment belongs (optional)</p></li>
 <li><p><strong>type</strong> (<em>str</em>) – The experiment type, e.g. ‘Experiment’, ‘Base’</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em>) – The task protocol (optional)</p></li>
 <li><p><strong>lab</strong> (<em>str</em>) – The name of the lab where the session took place.  If None the lab name will be

@@ -273,7 +273,7 @@ define only the upper or lower date bound, set the other element to None.</p></l
 <li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
 will be found)</p></li>
-<li><p><strong>project</strong> (<em>str</em>) – The project name (can be partial, i.e. any task protocol containing that str
+<li><p><strong>projects</strong> (<em>str</em><em>, </em><em>list</em>) – The project name(s) (can be partial, i.e. any project containing that str
 will be found)</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details</p></li>
 <li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
@@ -498,7 +498,7 @@ permitted.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned. NB: The order of the
 file path list is undefined.</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional filters for datasets, including namespace and timescale. For full list
+<li><p><strong>**kwargs</strong> – Additional filters for datasets, including namespace and timescale. For full list
 see the one.alf.spec.describe function.</p></li>
 </ul>
 </dd>
@@ -644,7 +644,7 @@ returned (usually the most recent revision).  Regular expressions/wildcards not
 permitted.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional filters for datasets, including namespace and timescale. For full list
+<li><p><strong>**kwargs</strong> – Additional filters for datasets, including namespace and timescale. For full list
 see the one.alf.spec.describe function.</p></li>
 </ul>
 </dd>
@@ -681,6 +681,7 @@ see the one.alf.spec.describe function.</p></li>
 <li><p><strong>cache_dir</strong> (<em>pathlib.Path</em><em>, </em><em>str</em>) – A path to the ALF data directory</p></li>
 <li><p><strong>silent</strong> (<em>(</em><em>False</em><em>) </em><em>bool</em>) – when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
 when False will use cwd for cache_dir if cache_dir is None and use existing cache</p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments to pass to one.alf.cache.make_parquet_db.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -889,7 +890,7 @@ define only the upper or lower date bound, set the other element to None.</p></l
 <li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em><em>, </em><em>list</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
 will be found)</p></li>
-<li><p><strong>project</strong> (<em>str</em><em>, </em><em>list</em>) – The project name (can be partial, i.e. any task protocol containing that str
+<li><p><strong>project</strong><strong>(</strong><strong>s</strong><strong>)</strong> (<em>str</em><em>, </em><em>list</em>) – The project name (can be partial, i.e. any task protocol containing that str
 will be found)</p></li>
 <li><p><strong>performance_gte</strong> (<em>performance_lte /</em>) – Search only for sessions whose performance is less equal or greater equal than a
 pre-defined threshold as a percentage (0-100)</p></li>
@@ -919,7 +920,10 @@ matching session</p></li>
 <dd><p>Set up OneAlyx for a given database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>base_url</strong> (<em>str</em>) – An Alyx database URL.  If None, the current default database is used.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> (<em>str</em>) – An Alyx database URL.  If None, the current default database is used.</p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments to pass to one.params.setup.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>An instance of OneAlyx for the newly set up database URL</p>

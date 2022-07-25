@@ -175,37 +175,40 @@ For a full overview of the scope of the format, see:</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.filter_by" title="one.alf.io.filter_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_by</span></code></a></p></td>
 <td><p>Given a path and optional filters, returns all ALF files and their associated parts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.iter_sessions" title="one.alf.io.iter_sessions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_sessions</span></code></a></p></td>
-<td><p>Recursively iterate over session paths in a given directory</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.iter_datasets" title="one.alf.io.iter_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_datasets</span></code></a></p></td>
+<td><p>Iterate over all files in a session, and yield relative dataset paths.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.load_file_content" title="one.alf.io.load_file_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_file_content</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.iter_sessions" title="one.alf.io.iter_sessions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_sessions</span></code></a></p></td>
+<td><p>Recursively iterate over session paths in a given directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.load_file_content" title="one.alf.io.load_file_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_file_content</span></code></a></p></td>
 <td><p>Returns content of files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.load_object" title="one.alf.io.load_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_object</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.load_object" title="one.alf.io.load_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_object</span></code></a></p></td>
 <td><p>Reads all files sharing the same object name.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.next_num_folder" title="one.alf.io.next_num_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_num_folder</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.next_num_folder" title="one.alf.io.next_num_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_num_folder</span></code></a></p></td>
 <td><p>Return the next number for a session given a session_date_folder</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.read_ts" title="one.alf.io.read_ts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_ts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.read_ts" title="one.alf.io.read_ts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_ts</span></code></a></p></td>
 <td><p>Load time-series from ALF format</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_empty_folders" title="one.alf.io.remove_empty_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_folders</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_empty_folders" title="one.alf.io.remove_empty_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_folders</span></code></a></p></td>
 <td><p>Will iteratively remove any children empty folders</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
 <td><p>Renames a file without the UUID and returns the new pathlib.Path object</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_recursive" title="one.alf.io.remove_uuid_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_recursive</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_recursive" title="one.alf.io.remove_uuid_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_recursive</span></code></a></p></td>
 <td><p>Within a folder, recursive renaming of all files to remove UUID</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.save_metadata" title="one.alf.io.save_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_metadata</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.save_metadata" title="one.alf.io.save_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_metadata</span></code></a></p></td>
 <td><p>Writes a meta data file matching a current ALF file object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.save_object_npy" title="one.alf.io.save_object_npy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_object_npy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.save_object_npy" title="one.alf.io.save_object_npy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_object_npy</span></code></a></p></td>
 <td><p>Saves a dictionary in <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">ALF format</a> using object as object name and dictionary keys as attribute names.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.ts2vec" title="one.alf.io.ts2vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ts2vec</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.ts2vec" title="one.alf.io.ts2vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ts2vec</span></code></a></p></td>
 <td><p>Interpolate a continuous timeseries of the shape (2, 2)</p></td>
 </tr>
 </tbody>
@@ -372,13 +375,27 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.iter_sessions">
 <span class="sig-name descname"><span class="pre">iter_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#iter_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.iter_sessions" title="Permalink to this definition"></a></dt>
-<dd><p>Recursively iterate over session paths in a given directory</p>
+<dd><p>Recursively iterate over session paths in a given directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for sessions</p>
+<dd class="field-odd"><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for sessions.</p>
 </dd>
 <dt class="field-even">Yields</dt>
-<dd class="field-even"><p><em>pathlib.Path</em> – The next session path in lexicographical order</p>
+<dd class="field-even"><p><em>pathlib.Path</em> – The next session path in lexicographical order.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.io.iter_datasets">
+<span class="sig-name descname"><span class="pre">iter_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#iter_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.iter_datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all files in a session, and yield relative dataset paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for datasets.</p>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><em>pathlib.Path</em> – The next dataset path (relative to the session path) in lexicographical order.</p>
 </dd>
 </dl>
 </dd></dl>

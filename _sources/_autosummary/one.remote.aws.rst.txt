@@ -17,6 +17,8 @@ one.remote.aws
       get_aws_access_keys
       get_s3_from_alyx
       get_s3_public
+      get_s3_virtual_host
+      is_folder
       s3_download_file
       s3_download_folder
    
