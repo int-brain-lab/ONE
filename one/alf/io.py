@@ -364,23 +364,42 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
 
 def iter_sessions(root_dir):
     """
-    Recursively iterate over session paths in a given directory
+    Recursively iterate over session paths in a given directory.
 
     Parameters
     ----------
     root_dir : str, pathlib.Path
-        The folder to look for sessions
+        The folder to look for sessions.
 
     Yields
     -------
     pathlib.Path
-        The next session path in lexicographical order
+        The next session path in lexicographical order.
     """
     if spec.is_session_path(root_dir):
         yield root_dir
     for path in sorted(Path(root_dir).rglob('*')):
         if path.is_dir() and spec.is_session_path(path):
             yield path
+
+
+def iter_datasets(session_path):
+    """
+    Iterate over all files in a session, and yield relative dataset paths.
+
+    Parameters
+    ----------
+    session_path : str, pathlib.Path
+        The folder to look for datasets.
+
+    Yields
+    -------
+    pathlib.Path
+        The next dataset path (relative to the session path) in lexicographical order.
+    """
+    for p in sorted(Path(session_path).rglob('*.*')):
+        if not p.is_dir() and spec.is_valid(p.name):
+            yield p.relative_to(session_path)
 
 
 def exists(alfpath, object, attributes=None, **kwargs) -> bool:

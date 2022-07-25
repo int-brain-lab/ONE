@@ -563,6 +563,7 @@ class TestUUID_Files(unittest.TestCase):
 
 class TestALFFolders(unittest.TestCase):
     tempdir = None
+    session_path = None
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -575,7 +576,12 @@ class TestALFFolders(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
 
+    def tearDown(self) -> None:
+        for obj in reversed(sorted(Path(self.session_path).rglob('*'))):
+            obj.unlink() if obj.is_file() else obj.rmdir()
+
     def test_next_num_folder(self):
+        """Test for one.alf.io.next_num_folder"""
         self.session_path.rmdir()  # Remove '001' folder
         next_num = alfio.next_num_folder(self.session_path.parent)
         self.assertEqual('001', next_num)
@@ -601,6 +607,7 @@ class TestALFFolders(unittest.TestCase):
             alfio.next_num_folder(self.session_path.parent)
 
     def test_remove_empty_folders(self):
+        """Test for one.alf.io.remove_empty_folders"""
         root = Path(self.tempdir.name) / 'glob_dir'
         root.mkdir()
         root.joinpath('empty0').mkdir(exist_ok=True)
@@ -611,6 +618,7 @@ class TestALFFolders(unittest.TestCase):
         self.assertTrue(len(list(root.glob('*'))) == 1)
 
     def test_iter_sessions(self):
+        """Test for one.alf.io.iter_sessions"""
         # Create invalid session folder
         self.session_path.parent.parent.joinpath('bad_session').mkdir()
 
@@ -619,6 +627,18 @@ class TestALFFolders(unittest.TestCase):
         self.assertFalse(next(valid_sessions, False))
         # makes sure that the session path returns itself on the iterator
         self.assertEqual(self.session_path, next(alfio.iter_sessions(self.session_path)))
+
+    def test_iter_datasets(self):
+        """Test for one.alf.io.iter_datasets"""
+        # Create valid dataset
+        dset = self.session_path.joinpath('collection', 'object.attribute.ext')
+        dset.parent.mkdir()
+        dset.touch()
+        # Create invalid dataset
+        self.session_path.joinpath('somefile.txt').touch()
+
+        ses_files = list(alfio.iter_datasets(self.session_path))
+        self.assertEqual([Path(*dset.parts[-2:])], ses_files)
 
 
 if __name__ == "__main__":

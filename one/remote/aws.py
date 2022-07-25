@@ -12,13 +12,15 @@ Without any credentials, to download a public file from the IBL public bucket:
 For a folder, the following:
 
 >>> source = 'caches/unit_test'
-... destination = '/home/olivier/scratch/caches/unit_test'
-... local_files = aws.s3_download_folder(source, destination)
+>>> destination = '/home/olivier/scratch/caches/unit_test'
+>>> local_files = aws.s3_download_folder(source, destination)
 """
+import re
 from pathlib import Path
 import logging
-from tqdm import tqdm
+import urllib.parse
 
+from tqdm import tqdm
 import boto3
 
 from botocore import UNSIGNED
@@ -52,14 +54,59 @@ def _callback_hook(t):
     return inner
 
 
-def get_aws_access_keys(one, repo_name=REPO_DEFAULT):
+def get_s3_virtual_host(uri, region) -> str:
+    """
+    Convert a given bucket URI to a generic Amazon virtual host URL.
+    URI may be the bucket (+ path) or a full URI starting with 's3://'
+
+    .. _S3 documentation
+       https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html#virtual-host-style-url-ex
+
+    Parameters
+    ----------
+    uri : str
+        The bucket name or full path URI.
+    region : str
+        The region, e.g. eu-west-1.
+
+    Returns
+    -------
+    str
+        The Web URL (virtual host name and https scheme).
+    """
+    assert region and re.match(r'\w{2}-\w+-[1-3]', region), 'Invalid region'
+    parsed = urllib.parse.urlparse(uri)  # remove scheme if necessary
+    key = parsed.path.strip('/').split('/')
+    bucket = parsed.netloc or key.pop(0)
+    hostname = f"{bucket}.{parsed.scheme or 's3'}.{region}.amazonaws.com"
+    return 'https://' + '/'.join((hostname, *key))
+
+
+def is_folder(obj_summery) -> bool:
+    """
+    Given an S3 ObjectSummery instance, returns true if the associated object is a directory.
+
+    Parameters
+    ----------
+    obj_summery : s3.ObjectSummery
+        An S3 ObjectSummery instance to test.
+
+    Returns
+    -------
+    bool
+        True if object is a directory.
+    """
+    return obj_summery.key.endswith('/') and obj_summery.size == 0
+
+
+def get_aws_access_keys(alyx, repo_name=REPO_DEFAULT):
     """
     Query Alyx database to get credentials in the json field of an aws repository.
 
     Parameters
     ----------
-    one : one.OneAlyx
-        An online instance of ONE.
+    alyx : one.webclient.AlyxInstance
+        An instance of alyx.
     repo_name : str
         The data repository name in Alyx from which to fetch the S3 access keys.
 
@@ -70,7 +117,7 @@ def get_aws_access_keys(one, repo_name=REPO_DEFAULT):
     str
         The name of the S3 bucket associated with the Alyx data repository.
     """
-    repo_json = one.alyx.rest('data-repository', 'read', id=repo_name)['json']
+    repo_json = alyx.rest('data-repository', 'read', id=repo_name)['json']
     bucket_name = repo_json['bucket_name']
     session_keys = {
         'aws_access_key_id': repo_json.get('Access key ID', None),
@@ -96,14 +143,14 @@ def get_s3_public():
     return s3, S3_BUCKET_IBL
 
 
-def get_s3_from_alyx(one, repo_name=REPO_DEFAULT):
+def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
     """
     Create an S3 resource instance using credentials from an Alyx data repository.
 
     Parameters
     ----------
-    one : one.OneAlyx
-        An online instance of ONE.
+    alyx : one.webclient.AlyxInstance
+        An instance of alyx.
     repo_name : str
         The data repository name in Alyx from which to fetch the S3 access keys.
 
@@ -114,7 +161,7 @@ def get_s3_from_alyx(one, repo_name=REPO_DEFAULT):
     str
         The name of the S3 bucket.
     """
-    session_keys, bucket_name = get_aws_access_keys(one, repo_name)
+    session_keys, bucket_name = get_aws_access_keys(alyx, repo_name)
     session = boto3.Session(**session_keys)
     s3 = session.resource('s3')
     return s3, bucket_name
@@ -195,9 +242,8 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
     if s3 is None:
         s3, bucket_name = get_s3_public()
     local_files = []
-    for obj_summary in s3.Bucket(name=bucket_name).objects.filter(Prefix=source):
-        if obj_summary.key.endswith('/') and obj_summary.size == 0:  # skips folder
-            continue
+    objects = s3.Bucket(name=bucket_name).objects.filter(Prefix=source)
+    for obj_summary in filter(lambda x: not is_folder(x), objects):
         local_file = Path(destination).joinpath(Path(obj_summary.key).relative_to(source))
         lf = s3_download_file(obj_summary.key, local_file, s3=s3, bucket_name=bucket_name,
                               overwrite=overwrite)

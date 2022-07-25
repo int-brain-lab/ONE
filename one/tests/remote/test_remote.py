@@ -16,7 +16,7 @@ import random
 try:
     import globus_sdk
 except ModuleNotFoundError:
-    unittest.skip('globus_sdk module not installed')
+    raise unittest.skip('globus_sdk module not installed')
 from iblutil.io import params as iopar
 
 from one.tests.util import get_file, setup_rest_cache

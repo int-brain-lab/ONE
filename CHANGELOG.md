@@ -1,5 +1,26 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.12.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.13.0]
+
+### Added
+
+- one.remote.aws.get_s3_virtual_host constructs HTTPS Web address from bucket name and region
+- one.remote.aws.is_folder determines if an S3 Object is a folder
+- boto3 now a requirement
+
+### Modified
+
+- cache 'project' field renamed to 'projects'
+- iter_datasets now public function in one.alf.io, moved from one.alf.cache
+- expose register_session kwargs in RegistrationClient.create_session method
+- one.remote.aws.get_aws_access_keys requires AlyxClient instance instead of OneAlyx, in line with one.remote.globus
+
+## [1.12.2]
+
+### Modified
+
+- HOTFIX: copy old REST cache only if new location does not exist
+
+## [1.12.1]
 
 ### Modified
 
