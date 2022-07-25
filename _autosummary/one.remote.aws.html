@@ -83,6 +83,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="one.remote.html">one.remote</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">one.remote.aws</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.remote.base.html">one.remote.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.remote.globus.html">one.remote.globus</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
@@ -150,11 +151,12 @@
 <section id="module-one.remote.aws">
 <span id="one-remote-aws"></span><h1>one.remote.aws<a class="headerlink" href="#module-one.remote.aws" title="Permalink to this heading"></a></h1>
 <p>A backend to download IBL data from AWS Buckets.</p>
-<p>For example, without any credentials, to download a public file from the IBL public bucket:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">one.remote.aws</span> <span class="k">as</span> <span class="nn">aws</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/cache_info.json&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+<p class="rubric">Examples</p>
+<p>Without any credentials, to download a public file from the IBL public bucket:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">one.remote</span> <span class="kn">import</span> <span class="n">aws</span>
+<span class="gp">... </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span>
+<span class="gp">... </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/cache_info.json&#39;</span>
+<span class="gp">... </span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For a folder, the following:</p>

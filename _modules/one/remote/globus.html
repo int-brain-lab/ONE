@@ -223,7 +223,7 @@
         <span class="n">globus_pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">required_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">globus_pars</span> <span class="ow">and</span> <span class="n">required_fields</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">))):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No token in client parameter file. Run one.globus.setup first&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No token in client parameter file. Run one.remote.globus.setup first&#39;</span><span class="p">)</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">GLOBUS_CLIENT_ID</span><span class="p">)</span>
     <span class="n">client</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">authorizer</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">RefreshTokenAuthorizer</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
@@ -309,8 +309,7 @@
 
 <div class="viewcode-block" id="as_globus_path"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.as_globus_path">[docs]</a><span class="k">def</span> <span class="nf">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a path into one suitable for the Globus TransferClient.  NB:</span>
-
+<span class="sd">    Convert a path into one suitable for the Globus TransferClient.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
