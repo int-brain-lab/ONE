@@ -764,8 +764,8 @@ def session_record2path(session, root_dir=None):
     Path('/home/user/foo/Subjects/ALK01/2020-01-01/001')
     """
     rel_path = PurePosixPath(
-        session['lab'] if session['lab'] else '',
-        'Subjects' if session['lab'] else '',
+        session.get('lab') if session.get('lab') else '',
+        'Subjects' if session.get('lab') else '',
         session['subject'], str(session['date']), str(session['number']).zfill(3)
     )
     if not root_dir:

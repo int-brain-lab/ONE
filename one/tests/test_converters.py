@@ -382,6 +382,17 @@ class TestAlyx2Path(unittest.TestCase):
         testable = converters.path_from_filerecord(fr, root_path='C:\\', uuid=uuid)
         self.assertTrue(uuid in testable.as_posix())
 
+    def test_session_record2path(self):
+        """Test for one.converters.session_record2path"""
+        rec = {'subject': 'ALK01', 'date': '2020-01-01', 'number': 1}
+        path = converters.session_record2path(rec)
+        self.assertEqual(path, PurePosixPath('ALK01/2020-01-01/001'))
+
+        rec = {'date': datetime.datetime.fromisoformat('2020-01-01').date(),
+               'number': '001', 'lab': 'foo', 'subject': 'ALK01'}
+        path = converters.session_record2path(rec, str(Path.home()))
+        self.assertEqual(path, Path.home() / 'foo/Subjects/ALK01/2020-01-01/001')
+
 
 class TestWrappers(unittest.TestCase):
     def test_recurse(self):
