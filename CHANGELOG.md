@@ -11,6 +11,7 @@
 - bugfix: username now passed to parameter setup routine
 - in silent mode if token invalid the user is logged out to remove old token from param file
 - root_dir now optional input for session_record2path
+- do not check for recent cache upon instantiation in remote mode 
 
 ## [1.13.0]
 
