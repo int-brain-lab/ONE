@@ -8,6 +8,7 @@ sphinx-gallery
 ipyevents
 # ibllib  # Required to execute the one_quickstart notebook
 # matplotlib  # Required to execute the data_sharing notebook
+globus_sdk  # For Globus module
 
 # Also need to run
 # jupyter nbextension enable --py --sys-prefix ipyevents

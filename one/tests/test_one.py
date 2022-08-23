@@ -1139,7 +1139,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(122, len(dsets))
+        self.assertEqual(108, len(dsets))
 
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
@@ -1155,7 +1155,7 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(122, len(dsets))
+        self.assertEqual(108, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
@@ -1298,7 +1298,7 @@ class TestOneDownload(unittest.TestCase):
         fr = [{'url': f'files/{self.fid}', 'json': None}]
         with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
             self.one._download_dataset(rec, hash=file_hash)
-            args, kwargs = patched.call_args_list[-1]
+            args, kwargs = patched.call_args
             self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
@@ -1450,6 +1450,35 @@ class TestOneSetup(unittest.TestCase):
                 self.assertEqual(one_obj.alyx.base_url, TEST_DB_1['base_url'])
                 params_url = one.params.get(client=TEST_DB_1['base_url']).ALYX_URL
                 self.assertEqual(params_url, one_obj.alyx.base_url)
+
+    def test_setup_username(self):
+        """Test setting up parameters with a provided username.
+        - Mock getfile to return temp dir as param file location
+        - Mock input function as fail safe in case function erroneously prompts user for input
+        - Mock requests.post returns a fake user authentication response
+        """
+        credentials = {'username': 'foobar', 'password': '123'}
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
+                mock.patch('one.params.input', new=self.assertFalse),\
+                mock.patch('one.webclient.requests.post') as req_mock:
+            req_mock().json.return_value = {'token': 'shhh'}
+            # In remote mode the cache endpoint will not be queried
+            one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org',
+                          silent=True, mode='remote', **credentials)
+            params_username = one.params.get(client=TEST_DB_1['base_url']).ALYX_LOGIN
+            self.assertEqual(params_username, one_obj.alyx.user)
+            self.assertEqual(credentials['username'], one_obj.alyx.user)
+            _, kwargs = req_mock.call_args
+            self.assertEqual(kwargs.get('data', {}), credentials)
+
+            # Reinstantiate as a different user
+            one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org',
+                          username='baz', password='123', mode='remote')
+            self.assertEqual(one_obj.alyx.user, 'baz')
+            self.assertEqual(one_obj.alyx.user, one_obj.alyx._par.ALYX_LOGIN)
+            # After initial set up the username in the pars file should remain unchanged
+            params_username = one.params.get(client=TEST_DB_1['base_url']).ALYX_LOGIN
+            self.assertNotEqual(one_obj.alyx.user, params_username)
 
     @unittest.skipIf(OFFLINE_ONLY, 'online only test')
     def test_static_setup(self):

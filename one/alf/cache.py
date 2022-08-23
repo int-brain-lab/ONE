@@ -21,6 +21,7 @@ import uuid
 from functools import partial
 from pathlib import Path
 import warnings
+import logging
 
 import pandas as pd
 from iblutil.io import parquet
@@ -28,8 +29,10 @@ from iblutil.io.hashfile import md5
 
 from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
+from one.converters import session_record2path
 
-__all__ = ['make_parquet_db']
+__all__ = ['make_parquet_db', 'remove_missing_datasets']
+_logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
 # Global variables
@@ -263,3 +266,62 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
     parquet.save(fn_dsets, df_dsets, metadata)
 
     return fn_ses, fn_dsets
+
+
+def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, dry=True):
+    """
+    Remove dataset files and session folders that are not in the provided cache.
+
+    NB: This *does not* remove entries from the cache tables that are missing on disk.
+    Non-ALF files are not removed. Empty sessions that exist in the sessions table are not removed.
+
+    Parameters
+    ----------
+    cache_dir : str, pathlib.Path
+    tables : dict[str, pandas.DataFrame], optional
+        A dict with keys ('sessions', 'datasets'), containing the cache tables as DataFrames.
+    remove_empty_sessions : bool
+        Attempt to remove session folders that are empty and not in the sessions table.
+    dry : bool
+        If true, do not remove anything.
+
+    Returns
+    -------
+    list
+        A sorted list of paths to be removed.
+    """
+    cache_dir = Path(cache_dir)
+    if tables is None:
+        tables = {}
+        for name in ('datasets', 'sessions'):
+            tables[name], _ = parquet.load(cache_dir / f'{name}.pqt')
+    to_delete = []
+    gen_path = partial(session_record2path, root_dir=cache_dir)
+    sessions = sorted(map(lambda x: gen_path(x[1]), tables['sessions'].iterrows()))
+    for session_path in iter_sessions(cache_dir):
+        rel_session_path = session_path.relative_to(cache_dir).as_posix()
+        datasets = tables['datasets'][tables['datasets']['session_path'] == rel_session_path]
+        for dataset in iter_datasets(session_path):
+            if dataset.as_posix() not in datasets['rel_path']:
+                to_delete.append(session_path.joinpath(dataset))
+        if session_path not in sessions and remove_empty_sessions:
+            to_delete.append(session_path)
+
+    if dry:
+        print('The following session and datasets would be removed:', end='\n\t')
+        print('\n\t'.join(sorted(map(str, to_delete))))
+        return sorted(to_delete)
+
+    # Delete datasets
+    for path in to_delete:
+        if path.is_file():
+            _logger.debug(f'Removing {path}')
+            path.unlink()
+        else:
+            # Recursively remove empty folders
+            while path.parent != cache_dir and not next(path.rglob('*'), False):
+                _logger.debug(f'Removing {path}')
+                path.rmdir()
+                path = path.parent
+
+    return sorted(to_delete)

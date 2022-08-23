@@ -2,7 +2,7 @@
 
 All supported access protocols are defined in ALYX_JSON.
 
-Parameters:
+Remote parameters:
     - All parameters are stored in the .remote JSON file.
     - The base keys are access protocols (e.g. 'globus').
     - Each contains a map of ID to parameters (e.g. keys such as 'default', 'admin').

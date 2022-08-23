@@ -108,3 +108,7 @@ class Tests_REST(unittest.TestCase):
             })
         channels = one.alyx.rest('channels', 'create', data=channel_records)
         self.assertTrue(len(channels) == 3)
+
+
+if __name__ == "__main__":
+    unittest.main(exit=False)

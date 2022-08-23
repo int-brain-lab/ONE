@@ -21,7 +21,7 @@ Create a subject
 ...     'death_date': None,
 ...     'lab': 'cortexlab',
 ... }
-... new_subj = alyx.rest('subjects', 'create', data=record)
+>>> new_subj = alyx.rest('subjects', 'create', data=record)
 
 Download a remote file, given a local path
 
@@ -497,7 +497,7 @@ class AlyxClient():
             If true, auth token is cached
         """
         self.silent = silent
-        self._par = one.params.get(client=base_url, silent=self.silent)
+        self._par = one.params.get(client=base_url, silent=self.silent, username=username)
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
         if username or password:
@@ -566,7 +566,12 @@ class AlyxClient():
             return
         if r.status_code == 403 and '"Invalid token."' in r.text:
             _logger.debug('Token invalid; Attempting to re-authenticate...')
-            self.authenticate(username=self.user, force=True)
+            # Log out in order to flush stale token.  At this point we no longer have the password
+            # but if the user re-instantiates with a password arg it will request a new token.
+            username = self.user
+            if self.silent:  # no need to log out otherwise; user will be prompted for password
+                self.logout()
+            self.authenticate(username=username, force=True)
             return self._generic_request(reqfunction, rest_query, data=data, files=files)
         else:
             _logger.debug('Response text: ' + r.text)

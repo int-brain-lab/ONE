@@ -440,5 +440,5 @@ class TestGlobusClient(unittest.TestCase):
             self.assertEqual('ERROR', log.records[-1].levelname)
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    unittest.main(exit=False)
