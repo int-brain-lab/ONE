@@ -43,7 +43,7 @@ class TestAWSPublic(unittest.TestCase):
 
     def test_download_folder(self):
         """Test for one.remote.aws.s3_download_public_folder function."""
-        source = 'caches/openalyx'
+        source = 'caches/openalyx/2021_Q2_Varol_et_al'
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td).joinpath('caches/unit_test')
             local_files = aws.s3_download_folder(source, destination)
@@ -104,3 +104,7 @@ class TestUtils(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             aws.get_s3_virtual_host('s3://my-s3-bucket/path/to/file', 'wrong-foo-4')
+
+
+if __name__ == "__main__":
+    unittest.main(exit=False)

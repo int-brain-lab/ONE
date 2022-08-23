@@ -415,5 +415,5 @@ class TestWrappers(unittest.TestCase):
         self.assertIsInstance(wrapped([ref.copy(), expected], parse=True), list)
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    unittest.main(exit=False)

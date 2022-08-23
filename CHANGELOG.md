@@ -1,5 +1,18 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.13.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.14.0]
+
+### Added
+
+- function to remove cache files and folders that are not in datasets cache table
+
+### Modified
+
+- bugfix: load interpolate timestamps with timescale
+- bugfix: username now passed to parameter setup routine
+- in silent mode if token invalid the user is logged out to remove old token from param file
+- root_dir now optional input for session_record2path
+
+## [1.13.0]
 
 ### Added
 

@@ -255,10 +255,11 @@ def check_dimensions(dico):
     """
     supported = (np.ndarray, pd.DataFrame)  # Data types that have a shape attribute
     shapes = [dico[lab].shape for lab in dico
-              if isinstance(dico[lab], supported) and lab.split('.')[0] != 'timestamps']
+              if isinstance(dico[lab], supported) and not lab.startswith('timestamps')]
     first_shapes = [sh[0] for sh in shapes]
     # Continuous timeseries are permitted to be a (2, 2)
-    timeseries = [k for k, v in dico.items() if 'timestamps' in k and isinstance(v, np.ndarray)]
+    timeseries = [k for k, v in dico.items()
+                  if k.startswith('timestamps') and isinstance(v, np.ndarray)]
     if any(timeseries):
         for key in timeseries:
             if dico[key].ndim == 1 or (dico[key].ndim == 2 and dico[key].shape[1] == 1):
