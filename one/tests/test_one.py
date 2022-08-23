@@ -1298,7 +1298,7 @@ class TestOneDownload(unittest.TestCase):
         fr = [{'url': f'files/{self.fid}', 'json': None}]
         with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
             self.one._download_dataset(rec, hash=file_hash)
-            args, kwargs = patched.call_args_list[-1]
+            args, kwargs = patched.call_args
             self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
         # Check keep_uuid kwarg
@@ -1468,7 +1468,8 @@ class TestOneSetup(unittest.TestCase):
             params_username = one.params.get(client=TEST_DB_1['base_url']).ALYX_LOGIN
             self.assertEqual(params_username, one_obj.alyx.user)
             self.assertEqual(credentials['username'], one_obj.alyx.user)
-            self.assertEqual(req_mock.call_args.kwargs['data'], credentials)
+            _, kwargs = req_mock.call_args
+            self.assertEqual(kwargs.get('data', {}), credentials)
 
             # Reinstantiate as a different user
             one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org',
