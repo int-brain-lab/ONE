@@ -66,8 +66,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -577,6 +577,15 @@ This method is also tested in test_download_datasets.</p>
 <dd><p>Test setting up parameters with silent flag.
 - Mock getfile to return temp dir as param file location
 - Mock input function as fail safe in case function erroneously prompts user for input</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_setup_username">
+<span class="sig-name descname"><span class="pre">test_setup_username</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_setup_username"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_setup_username" title="Permalink to this definition"></a></dt>
+<dd><p>Test setting up parameters with a provided username.
+- Mock getfile to return temp dir as param file location
+- Mock input function as fail safe in case function erroneously prompts user for input
+- Mock requests.post returns a fake user authentication response</p>
 </dd></dl>
 
 <dl class="py method">

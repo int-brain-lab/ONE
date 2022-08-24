@@ -9,8 +9,8 @@
     }
    },
    "source": [
-    "# Listing Alyx Files\n",
-    "An ALyx File (ALF) is any file whose path matches a specific pattern.  We will use the following\n",
+    "# Listing Alyx Filenames\n",
+    "An ALyx Filename (ALF) is any file whose path matches a specific pattern.  We will use the following\n",
     "file structure as an example:\n",
     "\n",
     "    subject/\n",

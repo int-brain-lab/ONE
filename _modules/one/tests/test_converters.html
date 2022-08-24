@@ -63,8 +63,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -482,7 +482,18 @@
         <span class="c1"># Check uuid</span>
         <span class="n">uuid</span> <span class="o">=</span> <span class="s1">&#39;00059298-1b33-429c-a802-fa51bb662d72&#39;</span>
         <span class="n">testable</span> <span class="o">=</span> <span class="n">converters</span><span class="o">.</span><span class="n">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;C:</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">uuid</span> <span class="ow">in</span> <span class="n">testable</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">uuid</span> <span class="ow">in</span> <span class="n">testable</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="TestAlyx2Path.test_session_record2path"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestAlyx2Path.test_session_record2path">[docs]</a>    <span class="k">def</span> <span class="nf">test_session_record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test for one.converters.session_record2path&quot;&quot;&quot;</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;ALK01&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">converters</span><span class="o">.</span><span class="n">session_record2path</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;ALK01/2020-01-01/001&#39;</span><span class="p">))</span>
+
+        <span class="n">rec</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
+               <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;ALK01&#39;</span><span class="p">}</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">converters</span><span class="o">.</span><span class="n">session_record2path</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;foo/Subjects/ALK01/2020-01-01/001&#39;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TestWrappers"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestWrappers">[docs]</a><span class="k">class</span> <span class="nc">TestWrappers</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
@@ -517,8 +528,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">wrapped</span><span class="p">([</span><span class="n">ref</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">expected</span><span class="p">],</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="nb">list</span><span class="p">)</span></div></div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">exit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
            </div>

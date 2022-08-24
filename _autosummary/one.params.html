@@ -66,8 +66,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -222,7 +222,7 @@ caches file also sets the default client for when no url is provided.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.setup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.setup" title="Permalink to this definition"></a></dt>
 <dd><p>Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
 that instance will be set.  If silent, the user will be prompted to input each parameter
 value.  Pressing return will use either current parameter or the default.</p>
@@ -233,6 +233,7 @@ value.  Pressing return will use either current parameter or the default.</p>
 <li><p><strong>silent</strong> (<em>bool</em>) – If True, user is not prompted for any input.</p></li>
 <li><p><strong>make_default</strong> (<em>bool</em>) – If True, client is set as the default and will be returned when calling <cite>get</cite> with no
 arguments.</p></li>
+<li><p><strong>username</strong> (<em>str</em><em>, </em><em>optional</em>) – If present,</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -246,17 +247,18 @@ arguments.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the AlyxClient parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>silent</strong> (<em>bool</em>) – If true, defaults are chosen if no parameters found</p></li>
-<li><p><strong>client</strong> (<em>str</em>) – The database URL to retrieve parameters for.  If None, the default is loaded</p></li>
+<li><p><strong>silent</strong> (<em>bool</em>) – If true, defaults are chosen if no parameters found.</p></li>
+<li><p><strong>client</strong> (<em>str</em>) – The database URL to retrieve parameters for.  If None, the default is loaded.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – The username to use.  If None, the default is loaded.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A Params object for the AlyxClient</p>
+<dd class="field-even"><p>A Params object for the AlyxClient.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>IBLParams</p>

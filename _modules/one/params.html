@@ -63,8 +63,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -184,7 +184,7 @@
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-\s]+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>  <span class="c1"># Convert spaces to hyphens</span>
 
 
-<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for</span>
 <span class="sd">    that instance will be set.  If silent, the user will be prompted to input each parameter</span>
@@ -199,6 +199,8 @@
 <span class="sd">    make_default : bool</span>
 <span class="sd">        If True, client is set as the default and will be returned when calling `get` with no</span>
 <span class="sd">        arguments.</span>
+<span class="sd">    username : str, optional</span>
+<span class="sd">        If present,</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -212,6 +214,8 @@
     <span class="c1"># If a client URL has been provided, set it as the default URL</span>
     <span class="n">par_default</span> <span class="o">=</span> <span class="n">par_default</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_URL&#39;</span><span class="p">,</span> <span class="n">client</span> <span class="ow">or</span> <span class="n">par_default</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
     <span class="n">par_current</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">par_default</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">username</span><span class="p">:</span>
+        <span class="n">par_current</span> <span class="o">=</span> <span class="n">par_current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
 
     <span class="c1"># Load the db URL map</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()})</span>
@@ -291,28 +295,32 @@
     <span class="k">return</span> <span class="n">cache_map</span></div>
 
 
-<div class="viewcode-block" id="get"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the AlyxClient parameters</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    silent : bool</span>
-<span class="sd">        If true, defaults are chosen if no parameters found</span>
+<span class="sd">        If true, defaults are chosen if no parameters found.</span>
 <span class="sd">    client : str</span>
-<span class="sd">        The database URL to retrieve parameters for.  If None, the default is loaded</span>
+<span class="sd">        The database URL to retrieve parameters for.  If None, the default is loaded.</span>
+<span class="sd">    username : str</span>
+<span class="sd">        The username to use.  If None, the default is loaded.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    IBLParams</span>
-<span class="sd">        A Params object for the AlyxClient</span>
+<span class="sd">        A Params object for the AlyxClient.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{})</span>
     <span class="c1"># If there are no params for this client, run setup routine</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_map</span> <span class="ow">or</span> <span class="p">(</span><span class="n">client_key</span> <span class="ow">and</span> <span class="n">client_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">):</span>
-        <span class="n">cache_map</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
+        <span class="n">cache_map</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
     <span class="n">cache</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
     <span class="n">pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">username</span><span class="p">:</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="n">pars</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_patch_params</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span></div>
 
 

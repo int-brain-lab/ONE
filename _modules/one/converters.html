@@ -63,8 +63,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -282,10 +282,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">eid</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">),</span> <span class="s1">&#39;Duplicate eids in sessions table&#39;</span>
-            <span class="n">ses</span> <span class="o">=</span> <span class="n">ses</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span> <span class="k">if</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">session_record2path</span><span class="p">(</span><span class="n">ses</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span></div>
 
@@ -837,6 +834,47 @@
     <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">file_path</span></div>
+
+
+<div class="viewcode-block" id="session_record2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.session_record2path">[docs]</a><span class="k">def</span> <span class="nf">session_record2path</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a session record into a path.</span>
+
+<span class="sd">    If a lab key is present, the path will be in the form</span>
+<span class="sd">    root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm-dd/nnn.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    session : Mapping</span>
+<span class="sd">        A session record with keys (&#39;subject&#39;, &#39;date&#39;, &#39;number&#39;[, &#39;lab&#39;]).</span>
+<span class="sd">    root_dir : str, pathlib.Path, pathlib.PurePath</span>
+<span class="sd">        A root directory to prepend.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path, Pathlib.PurePath</span>
+<span class="sd">        A constructed path of the session.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; session_record2path({&#39;subject&#39;: &#39;ALK01&#39;, &#39;date&#39;: &#39;2020-01-01&#39;, &#39;number&#39;: 1})</span>
+<span class="sd">    PurePosixPath(&#39;ALK01/2020-01-01/001&#39;)</span>
+
+<span class="sd">    &gt;&gt;&gt; record = {&#39;date&#39;: datetime.datetime.fromisoformat(&#39;2020-01-01&#39;).date(),</span>
+<span class="sd">    ...           &#39;number&#39;: &#39;001&#39;, &#39;lab&#39;: &#39;foo&#39;, &#39;subject&#39;: &#39;ALK01&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; session_record2path(record, Path(&#39;/home/user&#39;))</span>
+<span class="sd">    Path(&#39;/home/user/foo/Subjects/ALK01/2020-01-01/001&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Subjects&#39;</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">root_dir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rel_path</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">rel_path</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

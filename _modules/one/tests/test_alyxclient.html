@@ -63,8 +63,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -582,8 +582,8 @@
 <div class="viewcode-block" id="TestDownloadHTTP.test_download_datasets"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_download_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">test_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># test downloading a single file</span>
         <span class="n">full_link_to_file</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">r</span><span class="s1">&#39;https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/&#39;</span>
-            <span class="s1">&#39;2020-09-21/001/alf/probes.trajectory.84116a5c-131e-40a2-92d4-62c4aaae5c52.json&#39;</span>
+            <span class="s1">&#39;https://ibl.flatironinstitute.org/public/mrsicflogellab/Subjects/SWC_038/&#39;</span>
+            <span class="s1">&#39;2020-07-29/001/alf/probes.description.f67570ac-1e54-4ce1-be5d-de2017a42116.json&#39;</span>
         <span class="p">)</span>
         <span class="n">file_name</span><span class="p">,</span> <span class="n">md5</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">http_download_file</span><span class="p">(</span><span class="n">full_link_to_file</span><span class="p">,</span>
                                                <span class="n">return_md5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

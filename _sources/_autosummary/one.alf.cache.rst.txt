@@ -15,6 +15,7 @@ one.alf.cache
       :nosignatures:
    
       make_parquet_db
+      remove_missing_datasets
    
    
 

@@ -63,8 +63,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -933,6 +933,8 @@
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.remove_empty_folders">remove_empty_folders() (in module one.alf.io)</a>
 </li>
+      <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.remove_missing_datasets">remove_missing_datasets() (in module one.alf.cache)</a>
+</li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.remove_uuid_file">remove_uuid_file() (in module one.alf.io)</a>
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.remove_uuid_recursive">remove_uuid_recursive() (in module one.alf.io)</a>
@@ -992,6 +994,8 @@
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.session_path">session_path (TestALFFolders attribute)</a>
 </li>
       <li><a href="_autosummary/one.alf.files.html#one.alf.files.session_path_parts">session_path_parts() (in module one.alf.files)</a>
+</li>
+      <li><a href="_autosummary/one.converters.html#one.converters.session_record2path">session_record2path() (in module one.converters)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.SESSION_SPEC.html#one.alf.spec.SESSION_SPEC">SESSION_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.SESSION_SPEC">[1]</a>
 </li>
@@ -1361,8 +1365,6 @@
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_load_datasets">test_load_datasets() (TestONECache method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.test_load_file_content">test_load_file_content() (TestsLoadFile method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_load_object">test_load_object() (TestONECache method)</a>
@@ -1373,6 +1375,8 @@
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_load_object">(TestsAlf method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_loads_cached">test_loads_cached() (TestRestCache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_local_cache_setup_prompt">test_local_cache_setup_prompt() (TestOneSetup method)</a>
@@ -1463,6 +1467,8 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_remove_empty_folders">test_remove_empty_folders() (TestALFFolders method)</a>
 </li>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_remove_missing_datasets">test_remove_missing_datasets() (TestsONEParquet method)</a>
+</li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid">test_remove_uuid() (TestUUID_Files method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid_recusive">test_remove_uuid_recusive() (TestUUID_Files method)</a>
@@ -1491,6 +1497,8 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_session_path_parts">test_session_path_parts() (TestAlfParse method)</a>
 </li>
+      <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestAlyx2Path.test_session_record2path">test_session_record2path() (TestAlyx2Path method)</a>
+</li>
       <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_sessions_df">test_sessions_df() (TestsONEParquet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_remote.html#one.tests.remote.test_remote.TestGlobus.test_setup">test_setup() (TestGlobus method)</a>
@@ -1502,6 +1510,8 @@
 </li>
       </ul></li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_setup_silent">test_setup_silent() (TestOneSetup method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_setup_username">test_setup_username() (TestOneSetup method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_static_setup">test_static_setup() (TestOneSetup method)</a>
 </li>

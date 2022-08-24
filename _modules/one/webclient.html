@@ -63,8 +63,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Files (ALF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -599,7 +599,7 @@
 <span class="sd">            If true, auth token is cached</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="n">silent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">ALYX_URL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">username</span> <span class="ow">or</span> <span class="n">password</span><span class="p">:</span>
@@ -668,7 +668,12 @@
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">403</span> <span class="ow">and</span> <span class="s1">&#39;&quot;Invalid token.&quot;&#39;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Token invalid; Attempting to re-authenticate...&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Log out in order to flush stale token.  At this point we no longer have the password</span>
+            <span class="c1"># but if the user re-instantiates with a password arg it will request a new token.</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>  <span class="c1"># no need to log out otherwise; user will be prompted for password</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Response text: &#39;</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
