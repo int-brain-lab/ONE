@@ -235,5 +235,5 @@ class TestRegistrationClient(unittest.TestCase):
         cls.temp_dir.cleanup()
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    unittest.main(exit=False)

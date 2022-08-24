@@ -1394,7 +1394,7 @@ class OneAlyx(One):
         cache_meta = self._cache['_meta']
         if not clobber:
             super(OneAlyx, self)._load_cache(self.cache_dir)  # Load any present cache
-            if (self._cache and not cache_meta['expired']) or self.mode == 'local':
+            if (self._cache and not cache_meta['expired']) or self.mode in ('local', 'remote'):
                 return
 
         # Warn user if expired

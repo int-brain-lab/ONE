@@ -6,9 +6,9 @@ sphinx >=3.1.2
 sphinx-copybutton
 sphinx-gallery
 ipyevents
+jupyter_contrib_nbextensions
 # ibllib  # Required to execute the one_quickstart notebook
 # matplotlib  # Required to execute the data_sharing notebook
-boto3  # For AWS module
 globus_sdk  # For Globus module
 
 # Also need to run

@@ -180,10 +180,7 @@ class ConversionMixin:
         try:
             ses = self._cache['sessions'].loc[eid].squeeze()
             assert isinstance(ses, pd.Series), 'Duplicate eids in sessions table'
-            ses = ses.to_dict()
-            return Path(self.cache_dir).joinpath(
-                ses['lab'] if ses['lab'] else '', 'Subjects' if ses['lab'] else '', ses['subject'],
-                str(ses['date']), str(ses['number']).zfill(3))
+            return session_record2path(ses.to_dict(), self.cache_dir)
         except KeyError:
             return
 
@@ -735,3 +732,44 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
     if uuid:
         file_path = add_uuid_string(file_path, uuid)
     return file_path
+
+
+def session_record2path(session, root_dir=None):
+    """
+    Convert a session record into a path.
+
+    If a lab key is present, the path will be in the form
+    root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm-dd/nnn.
+
+    Parameters
+    ----------
+    session : Mapping
+        A session record with keys ('subject', 'date', 'number'[, 'lab']).
+    root_dir : str, pathlib.Path, pathlib.PurePath
+        A root directory to prepend.
+
+    Returns
+    -------
+    pathlib.Path, Pathlib.PurePath
+        A constructed path of the session.
+
+    Examples
+    --------
+    >>> session_record2path({'subject': 'ALK01', 'date': '2020-01-01', 'number': 1})
+    PurePosixPath('ALK01/2020-01-01/001')
+
+    >>> record = {'date': datetime.datetime.fromisoformat('2020-01-01').date(),
+    ...           'number': '001', 'lab': 'foo', 'subject': 'ALK01'}
+    >>> session_record2path(record, Path('/home/user'))
+    Path('/home/user/foo/Subjects/ALK01/2020-01-01/001')
+    """
+    rel_path = PurePosixPath(
+        session.get('lab') if session.get('lab') else '',
+        'Subjects' if session.get('lab') else '',
+        session['subject'], str(session['date']), str(session['number']).zfill(3)
+    )
+    if not root_dir:
+        return rel_path
+    elif isinstance(root_dir, str):
+        root_dir = Path(root_dir)
+    return Path(root_dir).joinpath(rel_path)

@@ -82,7 +82,7 @@ def _key_from_url(url: str) -> str:
     return re.sub(r'[-\s]+', '-', url)  # Convert spaces to hyphens
 
 
-def setup(client=None, silent=False, make_default=None):
+def setup(client=None, silent=False, make_default=None, username=None):
     """
     Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
     that instance will be set.  If silent, the user will be prompted to input each parameter
@@ -97,6 +97,8 @@ def setup(client=None, silent=False, make_default=None):
     make_default : bool
         If True, client is set as the default and will be returned when calling `get` with no
         arguments.
+    username : str, optional
+        If present,
 
     Returns
     -------
@@ -110,6 +112,8 @@ def setup(client=None, silent=False, make_default=None):
     # If a client URL has been provided, set it as the default URL
     par_default = par_default.set('ALYX_URL', client or par_default.ALYX_URL)
     par_current = iopar.read(f'{_PAR_ID_STR}/{client_key}', par_default)
+    if username:
+        par_current = par_current.set('ALYX_LOGIN', username)
 
     # Load the db URL map
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {'CLIENT_MAP': dict()})
@@ -189,28 +193,32 @@ def setup(client=None, silent=False, make_default=None):
     return cache_map
 
 
-def get(client=None, silent=False):
+def get(client=None, silent=False, username=None):
     """Returns the AlyxClient parameters
 
     Parameters
     ----------
     silent : bool
-        If true, defaults are chosen if no parameters found
+        If true, defaults are chosen if no parameters found.
     client : str
-        The database URL to retrieve parameters for.  If None, the default is loaded
+        The database URL to retrieve parameters for.  If None, the default is loaded.
+    username : str
+        The username to use.  If None, the default is loaded.
 
     Returns
     -------
     IBLParams
-        A Params object for the AlyxClient
+        A Params object for the AlyxClient.
     """
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
     # If there are no params for this client, run setup routine
     if not cache_map or (client_key and client_key not in cache_map.CLIENT_MAP):
-        cache_map = setup(client=client, silent=silent)
+        cache_map = setup(client=client, silent=silent, username=username)
     cache = cache_map.CLIENT_MAP[client_key or cache_map.DEFAULT]
     pars = iopar.read(f'{_PAR_ID_STR}/{client_key or cache_map.DEFAULT}').set('CACHE_DIR', cache)
+    if username:
+        pars = pars.set('ALYX_LOGIN', username)
     return _patch_params(pars)
 
 

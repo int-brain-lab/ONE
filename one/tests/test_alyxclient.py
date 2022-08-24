@@ -480,8 +480,8 @@ class TestDownloadHTTP(unittest.TestCase):
     def test_download_datasets(self):
         # test downloading a single file
         full_link_to_file = (
-            r'https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
-            '2020-09-21/001/alf/probes.trajectory.84116a5c-131e-40a2-92d4-62c4aaae5c52.json'
+            'https://ibl.flatironinstitute.org/public/mrsicflogellab/Subjects/SWC_038/'
+            '2020-07-29/001/alf/probes.description.f67570ac-1e54-4ce1-be5d-de2017a42116.json'
         )
         file_name, md5 = wc.http_download_file(full_link_to_file,
                                                return_md5=True, clobber=True)
