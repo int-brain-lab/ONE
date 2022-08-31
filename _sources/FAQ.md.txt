@@ -87,3 +87,18 @@ To log in as someone else temporarily:
 ```python
 one.alyx.authenticate(username='other_user', cache_token=False, force=True)
 ```
+
+## What to do if I am seeing a certificate error?
+If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few 
+lines of the traceback should like this: 
+```powershell
+File "C:\Users\User\anaconda3\envs\ONE\lib\urllib\request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>
+```
+This has a relatively easy fix:
+* Open `Microsoft Edge` or `Internet Explorer` and navigate to the URL https://alyx.internationalbrainlab.org, or whichever alyx 
+site you are attempting to access with ONE (no need to log in)
+* Reattempt to run any ONE query or setup on the command line
+  * Simply visiting the website with a Microsoft web browser should be enough to get the site's certificate to be stored properly.
+This is a unique issue with the way that the Windows OS handles certificates.

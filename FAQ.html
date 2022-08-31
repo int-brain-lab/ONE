@@ -80,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-change-my-download-a-k-a-cache-directory">How do I change my download (a.k.a. cache) directory?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-check-who-i-m-logged-in-as">How do check who I’m logged in as?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-to-do-if-i-am-seeing-a-certificate-error">What to do if I am seeing a certificate error?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
@@ -232,6 +233,27 @@ called.  To avoid this, run the following command instead:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;other_user&#39;</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="what-to-do-if-i-am-seeing-a-certificate-error">
+<h2>What to do if I am seeing a certificate error?<a class="headerlink" href="#what-to-do-if-i-am-seeing-a-certificate-error" title="Permalink to this heading"></a></h2>
+<p>If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few
+lines of the traceback should like this:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">File</span> <span class="s2">&quot;C:\Users\User\anaconda3\envs\ONE\lib\urllib\request.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="n">1351</span><span class="p">,</span> <span class="k">in</span> <span class="n">do_open</span>
+    <span class="n">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+<span class="n">urllib</span><span class="p">.</span><span class="n">error</span><span class="p">.</span><span class="n">URLError</span><span class="p">:</span> <span class="p">&lt;</span><span class="n">urlopen</span> <span class="n">error</span> <span class="p">[</span><span class="n">SSL</span><span class="p">:</span> <span class="n">CERTIFICATE_VERIFY_FAILED</span><span class="p">]</span> <span class="n">certificate</span> <span class="n">verify</span> <span class="n">failed</span><span class="p">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">get</span> <span class="n">local</span> <span class="n">issuer</span> <span class="n">certificate</span> <span class="p">(</span><span class="n">_ssl</span><span class="p">.</span><span class="n">c</span><span class="p">:</span><span class="n">997</span><span class="p">)&gt;</span>
+</pre></div>
+</div>
+<p>This has a relatively easy fix:</p>
+<ul class="simple">
+<li><p>Open <code class="docutils literal notranslate"><span class="pre">Microsoft</span> <span class="pre">Edge</span></code> or <code class="docutils literal notranslate"><span class="pre">Internet</span> <span class="pre">Explorer</span></code> and navigate to the URL https://alyx.internationalbrainlab.org, or whichever alyx
+site you are attempting to access with ONE (no need to log in)</p></li>
+<li><p>Reattempt to run any ONE query or setup on the command line</p>
+<ul>
+<li><p>Simply visiting the website with a Microsoft web browser should be enough to get the site’s certificate to be stored properly.
+This is a unique issue with the way that the Windows OS handles certificates.</p></li>
+</ul>
+</li>
+</ul>
 </section>
 </section>
 
