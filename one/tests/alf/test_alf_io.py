@@ -497,7 +497,7 @@ class TestsLoadFile(unittest.TestCase):
         jsonable.write(self.json3, {'a': [1, 2, 3], 'b': [4, 5, 6]})
         self.yaml = Path(self.tmpdir.name) / 'foo.baz.yaml'
         with open(self.yaml, 'w') as f:
-            f.write('{"a": [1, 2, 3],"b": [4, 5 6]}')
+            yaml.dump({'a': [1, 2, 3], 'b': [4, 5, 6]}, f)
         self.xyz = Path(self.tmpdir.name) / 'foo.baz.xyz'
         with open(self.xyz, 'wb') as f:
             f.write(b'\x00\x00')
