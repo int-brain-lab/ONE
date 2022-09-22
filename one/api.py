@@ -320,7 +320,9 @@ class One(ConversionMixin):
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
-        Download several datasets given a set of datasets
+        Download several datasets given a set of datasets.
+
+        NB: This will not skip files that are already present.  Use check_filesystem instead.
 
         Parameters
         ----------
@@ -506,14 +508,15 @@ class One(ConversionMixin):
             file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
             if file.exists():
                 # Check if there's a hash mismatch
-                new_hash = hashfile.md5(file)
-                hash_mismatch = rec['hash'] and new_hash != rec['hash']
-                new_size = file.stat().st_size
-                size_mismatch = rec['file_size'] and new_size != rec['file_size']
-                if hash_mismatch or size_mismatch:
-                    full_relative_path = PurePosixPath(rec.session_path, rec.rel_path)
-                    _logger.warning(f'local md5 or size mismatch on dataset: {full_relative_path}')
-                    # Mismatch: add this index to list of datasets that need downloading
+                # If so, add this index to list of datasets that need downloading
+                if rec['hash'] is not None:
+                    if hashfile.md5(file) != rec['hash']:
+                        _logger.warning('local md5 mismatch on dataset: %s',
+                                        PurePosixPath(rec.session_path, rec.rel_path))
+                        indices_to_download.append(i)
+                elif rec['file_size'] and file.stat().st_size != rec['file_size']:
+                    _logger.warning('local file size mismatch on dataset: %s',
+                                    PurePosixPath(rec.session_path, rec.rel_path))
                     indices_to_download.append(i)
                 files.append(file)  # File exists so add to file list
             else:
@@ -522,11 +525,15 @@ class One(ConversionMixin):
                 # Add this index to list of datasets that need downloading
                 indices_to_download.append(i)
             if rec['exists'] != file.exists():
-                datasets.at[i, 'exists'] = not rec['exists']
-                if update_exists:
-                    _logger.debug('Updating exists field')
-                    self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
-                    self._cache['_meta']['modified_time'] = datetime.now()
+                with warnings.catch_warnings():
+                    # Suppress future warning: exist column should always be present
+                    msg = '.*indexing on a MultiIndex with a nested sequence of labels.*'
+                    warnings.filterwarnings('ignore', message=msg)
+                    datasets.at[i, 'exists'] = not rec['exists']
+                    if update_exists:
+                        _logger.debug('Updating exists field')
+                        self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
+                        self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
@@ -1647,7 +1654,9 @@ class OneAlyx(One):
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
          Download a single or multitude of datasets if stored on AWS, otherwise calls
-         OneAlyx._download_dataset
+         OneAlyx._download_dataset.
+
+         NB: This will not skip files that are already present.  Use check_filesystem instead.
 
          Parameters
          ----------
@@ -1767,7 +1776,9 @@ class OneAlyx(One):
 
     def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[Path]:
         """
-        Download a single or multitude of dataset from an Alyx REST dictionary
+        Download a single or multitude of dataset from an Alyx REST dictionary.
+
+        NB: This will not skip files that are already present.  Use check_filesystem instead.
 
         Parameters
         ----------

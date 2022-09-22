@@ -17,6 +17,7 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
+import yaml
 
 from iblutil.util import Bunch
 from iblutil.io import parquet
@@ -311,6 +312,9 @@ def load_file_content(fil):
         return pd.read_csv(fil, delimiter=' ')
     if fil.suffix in ('.tsv', '.htsv'):
         return pd.read_csv(fil, delimiter='\t')
+    if fil.suffix in ('.yml', '.yaml'):
+        with open(fil, 'r') as _fil:
+            return yaml.safe_load(_fil)
     return Path(fil)
 
 
@@ -527,7 +531,8 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
         # Get length of one of the other arrays
-        n_samples = next(v for k, v in out.items() if 'timestamps' not in k).shape[0]
+        ignore = ('timestamps', 'meta')
+        n_samples = next(v for k, v in out.items() if not any(x in k for x in ignore)).shape[0]
         for key in timeseries:
             # Expand timeseries if necessary
             out[key] = ts2vec(out[key], n_samples)

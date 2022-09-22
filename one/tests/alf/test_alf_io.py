@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 import shutil
 import json
+import yaml
 
 import numpy as np
 import numpy.testing
@@ -494,6 +495,9 @@ class TestsLoadFile(unittest.TestCase):
             f.write('{"a": [1, 2, 3],"b": [4, 5 6]}')
         self.json3 = Path(self.tmpdir.name) / 'foo.baz.jsonable'
         jsonable.write(self.json3, {'a': [1, 2, 3], 'b': [4, 5, 6]})
+        self.yaml = Path(self.tmpdir.name) / 'foo.baz.yaml'
+        with open(self.yaml, 'w') as f:
+            yaml.dump({'a': [1, 2, 3], 'b': [4, 5, 6]}, f)
         self.xyz = Path(self.tmpdir.name) / 'foo.baz.xyz'
         with open(self.xyz, 'wb') as f:
             f.write(b'\x00\x00')
@@ -520,6 +524,9 @@ class TestsLoadFile(unittest.TestCase):
         file = alfio.load_file_content(str(self.xyz))
         self.assertEqual(file, self.xyz)
         self.assertIsNone(alfio.load_file_content(None))
+        # Load YAML file
+        loaded = alfio.load_file_content(str(self.yaml))
+        self.assertCountEqual(loaded.keys(), ['a', 'b'])
 
     def tearDown(self) -> None:
         self.tmpdir.cleanup()

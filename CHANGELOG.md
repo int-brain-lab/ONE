@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.14.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.15.0]
+
+### Modified
+
+- suppress irrelevant pandas future warning
+- ignore meta attribute when getting array length for interpolating timestamps in one.alf.io
+- no longer check for sizes if hash present
+- added yaml support to one.alf.io.load_file_content
+- added note of caution in download_dataset docstring
+
+## [1.14.0]
 
 ### Added
 
