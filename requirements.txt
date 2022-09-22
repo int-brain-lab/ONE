@@ -6,4 +6,4 @@ requests>=2.22.0
 iblutil>=1.1.0
 packaging
 boto3
-yaml
+pyyaml
