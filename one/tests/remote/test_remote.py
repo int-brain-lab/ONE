@@ -435,7 +435,6 @@ class TestGlobusClient(unittest.TestCase):
             self.client.mv('local', 'local', source, destination)
             warnings = filter(lambda x: x.levelno == 30, log.records)
             self.assertEqual(default_n_retries, len(list(warnings)))
-            self.assertIn(log.records[-1].msg)
             self.assertRegex(log.records[-1].msg, 'Max retries')
             self.assertEqual('ERROR', log.records[-1].levelname)
 
