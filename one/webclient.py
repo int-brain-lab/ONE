@@ -752,7 +752,7 @@ class AlyxClient():
 
         Returns
         -------
-            List of parquet table file paths
+            List of parquet table file paths.
         """
         # query the database for the latest cache; expires=None overrides cached response
         self.cache_dir.mkdir(exist_ok=True)
