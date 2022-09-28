@@ -18,6 +18,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -83,13 +84,22 @@
 <li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">one.webclient</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">one.webclient</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.no_cache"><code class="docutils literal notranslate"><span class="pre">no_cache()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.update_url_params"><code class="docutils literal notranslate"><span class="pre">update_url_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.http_download_file_list"><code class="docutils literal notranslate"><span class="pre">http_download_file_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.http_download_file"><code class="docutils literal notranslate"><span class="pre">http_download_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.file_record_to_url"><code class="docutils literal notranslate"><span class="pre">file_record_to_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.dataset_record_to_url"><code class="docutils literal notranslate"><span class="pre">dataset_record_to_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.webclient.AlyxClient"><code class="docutils literal notranslate"><span class="pre">AlyxClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -295,14 +305,14 @@ Same options behaviour as http_download_file.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>full_link_to_file</strong> (<em>str</em>) – HTTP link to the file</p></li>
-<li><p><strong>chunks</strong> (<em>tuple of ints</em>) – Chunks to download</p></li>
+<li><p><strong>chunks</strong> (<em>tuple</em><em> of </em><em>ints</em>) – Chunks to download</p></li>
 <li><p><strong>clobber</strong> (<em>bool</em>) – If True, force overwrite the existing file</p></li>
 <li><p><strong>silent</strong> (<em>bool</em>) – If True, suppress download progress bar</p></li>
 <li><p><strong>username</strong> (<em>str</em>) – User authentication for password protected file server</p></li>
 <li><p><strong>password</strong> (<em>str</em>) – Password authentication for password protected file server</p></li>
 <li><p><strong>target_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Directory in which files are downloaded; defaults to user’s Download directory</p></li>
 <li><p><strong>return_md5</strong> (<em>bool</em>) – If True an MD5 hash of the file is additionally returned</p></li>
-<li><p><strong>headers</strong> (<em>list of dicts</em>) – Additional headers to add to the request (auth tokens etc.)</p></li>
+<li><p><strong>headers</strong> (<em>list</em><em> of </em><em>dicts</em>) – Additional headers to add to the request (auth tokens etc.)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -479,11 +489,18 @@ file record REST field URL</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.download_cache_tables">
-<span class="sig-name descname"><span class="pre">download_cache_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_cache_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_cache_tables" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">download_cache_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_cache_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_cache_tables" title="Permalink to this definition"></a></dt>
 <dd><p>Downloads the Alyx cache tables to the local data cache directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List of parquet table file paths</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The remote HTTP directory of the cache table (excluding the filename).
+Default: AlyxClient.base_url.</p></li>
+<li><p><strong>destination</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The target directory into to which the tables will be downloaded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List of parquet table file paths.</p>
 </dd>
 </dl>
 </dd></dl>

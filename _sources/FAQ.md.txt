@@ -102,3 +102,18 @@ site you are attempting to access with ONE (no need to log in)
 * Reattempt to run any ONE query or setup on the command line
   * Simply visiting the website with a Microsoft web browser should be enough to get the site's certificate to be stored properly.
 This is a unique issue with the way that the Windows OS handles certificates.
+
+## How do I download the datasets cache for a specific IBL paper release?
+With OpenAlyx you have the ability to download cache tables containing datasets with a specific release tag. 
+```python
+from one.api import ONE
+one = ONE(base_url='https://openalyx.internationalbrainlab.org', password='international', silent=True)
+TAG = '2021_Q1_IBL_et_al_Behaviour'  # Release tag to download cache for
+
+# Optionally provide a new location for downloading the cache tables so as not to overwrite the main tables
+cache_path = one.cache_dir.joinpath(TAG)
+cache_path.mkdir(exist_ok=True)
+
+# NB: The cache_dir arg only relates to the cache table location NOT the dataset download location
+one.load_cache(tag=TAG, cache_dir=cache_path)
+```

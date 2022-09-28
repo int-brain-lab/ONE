@@ -18,6 +18,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -81,6 +82,7 @@
 <li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">one.registration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#summary-of-methods">Summary of methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.registration.RegistrationClient"><code class="docutils literal notranslate"><span class="pre">RegistrationClient</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
@@ -92,7 +94,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -157,6 +159,7 @@ create_session - Create session record on Alyx from local path, without register
 create_sessions - Create sessions and register files for folder containing a given flag file
 register_session - Create a session on Alyx from local path and register any ALF datasets present
 register_files - Register a list of files to their respective sessions on Alyx</p>
+</section>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -378,7 +381,7 @@ path.</p></li>
 <li><p><strong>created_by</strong> (<em>str</em>) – Name of Alyx user (defaults to whoever is logged in to ONE instance)</p></li>
 <li><p><strong>repository</strong> (<em>str</em>) – Name of the repository in Alyx to register to</p></li>
 <li><p><strong>server_only</strong> (<em>bool</em>) – Will only create file records in the ‘online’ repositories and skips local repositories</p></li>
-<li><p><strong>versions</strong> (<em>list of str</em>) – Optional version tags</p></li>
+<li><p><strong>versions</strong> (<em>list</em><em> of </em><em>str</em>) – Optional version tags</p></li>
 <li><p><strong>default</strong> (<em>bool</em>) – Whether to set as default revision (defaults to True)</p></li>
 <li><p><strong>dry</strong> (<em>bool</em>) – When true returns POST data for registration endpoint without submitting the data</p></li>
 <li><p><strong>max_md5_size</strong> (<em>int</em>) – Maximum file in bytes to compute md5 sum (always compute if None)</p></li>
@@ -458,7 +461,6 @@ path.</p></li>
 
 </dd></dl>
 
-</section>
 </section>
 
 

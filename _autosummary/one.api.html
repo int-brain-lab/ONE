@@ -18,6 +18,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -76,7 +77,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">one.api</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">one.api</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#one.api.One"><code class="docutils literal notranslate"><span class="pre">One</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.api.ONE"><code class="docutils literal notranslate"><span class="pre">ONE()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.api.OneAlyx"><code class="docutils literal notranslate"><span class="pre">OneAlyx</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
@@ -89,7 +95,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -192,6 +198,17 @@
 <dt class="sig sig-object py" id="one.api.One.search_terms">
 <span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.search_terms" title="Permalink to this definition"></a></dt>
 <dd><p>List the search term keyword args for use in the search method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.One.load_cache">
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Load parquet cache files from a local directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An optional directory location of the parquet files, defaults to One.cache_dir.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -579,7 +596,7 @@ meta data Bunches.  If assert_present is false, missing data will be returned as
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>datasets</strong> (<em>list of strings</em>) – The ALF datasets to load.  May be a string or dict of ALF parts.  Supports asterisks
+<li><p><strong>datasets</strong> (<em>list</em><em> of </em><em>strings</em>) – The ALF datasets to load.  May be a string or dict of ALF parts.  Supports asterisks
 as wildcards.</p></li>
 <li><p><strong>collections</strong> (<em>str</em><em>, </em><em>list</em>) – The collection(s) to which the object(s) belong, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
@@ -652,7 +669,7 @@ see the one.alf.spec.describe function.</p></li>
 <dd class="field-even"><p>A Bunch of objects or if download_only is True, a list of Paths objects</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Bunch of one.alf.io.AlfBunch, list of pathlib.Path</p>
+<dd class="field-odd"><p>Bunch of <a class="reference internal" href="one.alf.io.html#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch">one.alf.io.AlfBunch</a>, list of pathlib.Path</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -731,6 +748,24 @@ location is used.</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneAlyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wildcards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#one.api.One" title="one.api.One"><code class="xref py py-class docutils literal notranslate"><span class="pre">One</span></code></a></p>
 <p>An API for searching and loading data through the Alyx database</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.load_cache">
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.load_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Load parquet cache files.  If the local cache is sufficiently old, this method will query
+the database for the location and creation date of the remote cache.  If newer, it will be
+download and loaded.</p>
+<p>Note: Unlike refresh_cache, this will always reload the local files at least once.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An optional directory location of the parquet files, defaults to One.cache_dir.</p></li>
+<li><p><strong>clobber</strong> (<em>bool</em>) – If True, query Alyx for a newer cache even if current (local) cache is recent.</p></li>
+<li><p><strong>tag</strong> (<em>str</em>) – An optional Alyx dataset tag for loading cache tables containing a subset of datasets.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="one.api.OneAlyx.alyx">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alyx</span></span><a class="headerlink" href="#one.api.OneAlyx.alyx" title="Permalink to this definition"></a></dt>

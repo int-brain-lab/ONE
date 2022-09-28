@@ -17,6 +17,7 @@
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -72,7 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -166,15 +167,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span> <span class="o">=</span> <span class="n">wildcards</span>  <span class="c1"># Flag indicating whether to use regex or wildcards</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">record_loaded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># init the cache file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># map of original table metadata</span>
-        <span class="p">}})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span> <span class="k">else</span> <span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">)&#39;</span>
@@ -189,7 +183,27 @@
         <span class="sd">&quot;&quot;&quot;List the search term keyword args for use in the search method&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span></div>
 
-    <span class="k">def</span> <span class="nf">_load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># map of original table metadata</span>
+        <span class="p">}})</span>
+
+<div class="viewcode-block" id="One.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load parquet cache files from a local directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cache_dir : str, pathlib.Path</span>
+<span class="sd">            An optional directory location of the parquet files, defaults to One.cache_dir.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_cache</span><span class="p">()</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
         <span class="n">INDEX_KEY</span> <span class="o">=</span> <span class="s1">&#39;.?id&#39;</span>
         <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.pqt&#39;</span><span class="p">):</span>
@@ -223,13 +237,13 @@
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
         <span class="n">created</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;date_created&#39;</span><span class="p">])</span>
                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;date_created&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;created_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">created</span><span class="p">)</span>
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">]</span> <span class="o">|=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;created_time&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_expiry</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="One.save_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_cache">[docs]</a>    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Save One._cache attribute into parquet tables if recently modified.</span>
@@ -306,10 +320,10 @@
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_expiry</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Cache expired, refreshing&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_cache</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;refresh&#39;</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Forcing reload of cache&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_load_cache</span><span class="p">(</span><span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown refresh type &quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
@@ -1499,11 +1513,35 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span> <span class="k">else</span> <span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">)&#39;</span>
 
-    <span class="k">def</span> <span class="nf">_load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_load_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Load any present cache</span>
-            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cache_meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">])</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="OneAlyx.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load parquet cache files.  If the local cache is sufficiently old, this method will query</span>
+<span class="sd">        the database for the location and creation date of the remote cache.  If newer, it will be</span>
+<span class="sd">        download and loaded.</span>
+
+<span class="sd">        Note: Unlike refresh_cache, this will always reload the local files at least once.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cache_dir : str, pathlib.Path</span>
+<span class="sd">            An optional directory location of the parquet files, defaults to One.cache_dir.</span>
+<span class="sd">        clobber : bool</span>
+<span class="sd">            If True, query Alyx for a newer cache even if current (local) cache is recent.</span>
+<span class="sd">        tag : str</span>
+<span class="sd">            An optional Alyx dataset tag for loading cache tables containing a subset of datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
+        <span class="c1"># If user provides tag that doesn&#39;t match current cache&#39;s tag, always download.</span>
+        <span class="c1"># NB: In the future &#39;database_tags&#39; may become a list.</span>
+        <span class="n">current_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cache_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[{}]]</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span> <span class="ow">or</span> <span class="n">current_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># For refreshes take the current tag as default</span>
+        <span class="n">different_tag</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">tag</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">current_tags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clobber</span> <span class="ow">or</span> <span class="n">different_tag</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Load any present cache</span>
+            <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="p">{})</span>  <span class="c1"># TODO Make walrus when we drop 3.7 support</span>
+            <span class="n">expired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="ow">and</span> <span class="n">cache_meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">expired</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">):</span>
                 <span class="k">return</span>
 
         <span class="c1"># Warn user if expired</span>
@@ -1520,7 +1558,8 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Determine whether a newer cache is available</span>
-            <span class="n">cache_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cache/info&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cache_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cache/info/</span><span class="si">{</span><span class="n">tag</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">tag</span> <span class="o">==</span> <span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span>
 
             <span class="c1"># Check version compatibility</span>
             <span class="n">min_version</span> <span class="o">=</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">,</span> <span class="s1">&#39;0.0.0&#39;</span><span class="p">))</span>
@@ -1537,9 +1576,9 @@
 
             <span class="c1"># Download the remote cache files</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading remote caches...&#39;</span><span class="p">)</span>
-            <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">))</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">),</span> <span class="n">cache_dir</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_load_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Reload cache after download</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Reload cache after download</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to load the remote cache file&#39;</span><span class="p">)</span>
@@ -1547,7 +1586,7 @@
         <span class="k">except</span> <span class="p">(</span><span class="ne">ConnectionError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to connect to Alyx&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

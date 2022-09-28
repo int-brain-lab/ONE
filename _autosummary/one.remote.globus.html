@@ -18,6 +18,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -94,7 +95,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -391,9 +392,9 @@ True, tuples of PurePosixPath objects and the corresponding file sizes.</p>
 <li><p><strong>source_endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus source endpoint. May be a UUID or a key in the Globus.endpoints attribute.</p></li>
 <li><p><strong>target_endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus destination endpoint. May be a UUID or a key in the Globus.endpoints
 attribute.</p></li>
-<li><p><strong>source_paths</strong> (<em>list of str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of source files to moves.  Note: if endpoint is
+<li><p><strong>source_paths</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of source files to moves.  Note: if endpoint is
 a UUID, the path must be absolute.</p></li>
-<li><p><strong>target_paths</strong> (<em>list of str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of destination files to moves.  Note: if endpoint
+<li><p><strong>target_paths</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of destination files to moves.  Note: if endpoint
 is a UUID, the path must be absolute.</p></li>
 <li><p><strong>timeout</strong> (<em>int</em>) – Maximum time in seconds to wait for the task to complete.</p></li>
 <li><p><strong>kwargs</strong> – Optional arguments for globus_sdk.TransferData.</p></li>

@@ -18,6 +18,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -82,14 +83,30 @@
 <li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">one.util</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">one.util</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.Listable"><code class="docutils literal notranslate"><span class="pre">Listable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.ses2records"><code class="docutils literal notranslate"><span class="pre">ses2records()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.datasets2records"><code class="docutils literal notranslate"><span class="pre">datasets2records()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.parse_id"><code class="docutils literal notranslate"><span class="pre">parse_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.refresh"><code class="docutils literal notranslate"><span class="pre">refresh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.validate_date_range"><code class="docutils literal notranslate"><span class="pre">validate_date_range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.filter_datasets"><code class="docutils literal notranslate"><span class="pre">filter_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.filter_revision_last_before"><code class="docutils literal notranslate"><span class="pre">filter_revision_last_before()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.index_last_before"><code class="docutils literal notranslate"><span class="pre">index_last_before()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.autocomplete"><code class="docutils literal notranslate"><span class="pre">autocomplete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.ensure_list"><code class="docutils literal notranslate"><span class="pre">ensure_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.LazyId"><code class="docutils literal notranslate"><span class="pre">LazyId</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.cache_int2str"><code class="docutils literal notranslate"><span class="pre">cache_int2str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.util.patch_cache"><code class="docutils literal notranslate"><span class="pre">patch_cache()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -393,7 +410,7 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>revisions</strong> (<em>list of strings</em>) – A list of revision strings</p></li>
+<li><p><strong>revisions</strong> (<em>list</em><em> of </em><em>strings</em>) – A list of revision strings</p></li>
 <li><p><strong>revision</strong> (<em>None</em><em>, </em><em>str</em>) – The revision string to match on</p></li>
 </ul>
 </dd>

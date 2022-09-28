@@ -18,6 +18,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -81,11 +82,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-check-who-i-m-logged-in-as">How do check who I’m logged in as?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-to-do-if-i-am-seeing-a-certificate-error">What to do if I am seeing a certificate error?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="genindex.html">Detailed Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -254,6 +256,22 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 </ul>
 </li>
 </ul>
+</section>
+<section id="how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">
+<h2>How do I download the datasets cache for a specific IBL paper release?<a class="headerlink" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release" title="Permalink to this heading"></a></h2>
+<p>With OpenAlyx you have the ability to download cache tables containing datasets with a specific release tag.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;international&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">TAG</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>  <span class="c1"># Release tag to download cache for</span>
+
+<span class="c1"># Optionally provide a new location for downloading the cache tables so as not to overwrite the main tables</span>
+<span class="n">cache_path</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">TAG</span><span class="p">)</span>
+<span class="n">cache_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># NB: The cache_dir arg only relates to the cache table location NOT the dataset download location</span>
+<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">TAG</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 
