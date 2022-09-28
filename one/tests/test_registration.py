@@ -142,7 +142,8 @@ class TestRegistrationClient(unittest.TestCase):
 
     def test_register_session(self):
         """Test for RegistrationClient.register_session"""
-        datasets = self.one.list_datasets(self.one.search()[0])  # Some datasets to create
+        # Find some datasets to create
+        datasets = self.one.list_datasets(self.one.search(dataset='raw')[0])
         session_path = self.one.alyx.cache_dir.joinpath(
             'mainenlab', 'Subjects', self.subject, '2020-01-01', '001'
         )
