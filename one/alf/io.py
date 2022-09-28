@@ -294,10 +294,7 @@ def load_file_content(fil):
     if fil.stat().st_size == 0:
         return
     if fil.suffix == '.csv':
-        df = pd.read_csv(fil)
-        if df.shape[-1] == 1:
-            df = df.squeeze()
-        return df
+        return pd.read_csv(fil).squeeze('columns')
     if fil.suffix == '.json':
         try:
             with open(fil) as _fil:
@@ -312,9 +309,9 @@ def load_file_content(fil):
     if fil.suffix == '.pqt':
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
-        return pd.read_csv(fil, delimiter=' ')
+        return pd.read_csv(fil, delimiter=' ').squeeze('columns')
     if fil.suffix in ('.tsv', '.htsv'):
-        return pd.read_csv(fil, delimiter='\t')
+        return pd.read_csv(fil, delimiter='\t').squeeze('columns')
     if fil.suffix in ('.yml', '.yaml'):
         with open(fil, 'r') as _fil:
             return yaml.safe_load(_fil)
