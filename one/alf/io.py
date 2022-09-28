@@ -294,7 +294,7 @@ def load_file_content(fil):
     if fil.stat().st_size == 0:
         return
     if fil.suffix == '.csv':
-        return pd.read_csv(fil)
+        return pd.read_csv(fil).squeeze()
     if fil.suffix == '.json':
         try:
             with open(fil) as _fil:
