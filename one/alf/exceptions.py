@@ -63,7 +63,8 @@ class ALFObjectNotFound(ALFError):
 
 class ALFMultipleObjectsFound(ALFError):
     """'Multiple objects found' error"""
-    explanation = ('The search object was not found.  ALF names have the pattern '
+    explanation = ('Dataset files belonging to more than one object found.  '
+                   'ALF names have the pattern '
                    '(_namespace_)object.attribute(_timescale).extension, e.g. for the file '
                    '"_ibl_trials.intervals.npy" the object is "trials"')
 

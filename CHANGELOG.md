@@ -7,6 +7,7 @@
 
 - squeeze pandas dataframe on csv_read
 - load_cache now public method; option to load specific remote cache with tag arg
+- fix incorrect error message in one.alf.exceptions.ALFMultipleObjectsFound
 
 ## [1.15.0]
 
