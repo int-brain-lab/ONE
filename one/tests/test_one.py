@@ -658,12 +658,12 @@ class TestONECache(unittest.TestCase):
         info = self.one._cache['_meta']['raw']['datasets']
         with tempfile.TemporaryDirectory() as tdir:
             # Loading from empty dir
-            self.one._load_cache(tdir)
+            self.one.load_cache(tdir)
             self.assertTrue(self.one._cache['_meta']['expired'])
             # Save unindexed
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             del self.one._cache['datasets']
-            self.one._load_cache(tdir)
+            self.one.load_cache(tdir)
             self.assertIsInstance(self.one._cache['datasets'].index, pd.MultiIndex)
             # Save shuffled
             id_keys = ['eid', 'id']
@@ -671,18 +671,18 @@ class TestONECache(unittest.TestCase):
             assert not df.set_index(id_keys).index.is_monotonic_increasing
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             del self.one._cache['datasets']
-            self.one._load_cache(tdir)
+            self.one.load_cache(tdir)
             self.assertTrue(self.one._cache['datasets'].index.is_monotonic_increasing)
             # Save a parasitic table that will not be loaded
             pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
             with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
-                self.one._load_cache(tdir)
+                self.one.load_cache(tdir)
                 self.assertTrue('gnagna.pqt' in log.output[0])
             # Save table with missing id columns
             df.drop(id_keys, axis=1, inplace=True)
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             with self.assertRaises(KeyError):
-                self.one._load_cache(tdir)
+                self.one.load_cache(tdir)
 
     def test_refresh_cache(self):
         """Test One.refresh_cache"""
@@ -1044,13 +1044,13 @@ class TestOneAlyx(unittest.TestCase):
         try:
             with self.assertLogs(logging.getLogger('one.api'), logging.INFO) as lg:
                 with mock.patch.object(self.one.alyx, 'get', side_effect=HTTPError()):
-                    self.one._load_cache(clobber=True)
+                    self.one.load_cache(clobber=True)
                 self.assertEqual('remote', self.one.mode)
                 self.assertRegex(lg.output[0], 'cache over .+ old')
                 self.assertTrue('Failed to load' in lg.output[1])
 
                 with mock.patch.object(self.one.alyx, 'get', side_effect=ConnectionError()):
-                    self.one._load_cache(clobber=True)
+                    self.one.load_cache(clobber=True)
                     self.assertEqual('local', self.one.mode)
                 self.assertTrue('Failed to connect' in lg.output[-1])
 
@@ -1058,7 +1058,7 @@ class TestOneAlyx(unittest.TestCase):
             # Check version verification
             with mock.patch.object(self.one.alyx, 'get', return_value=cache_info),\
                     self.assertWarns(UserWarning):
-                self.one._load_cache(clobber=True)
+                self.one.load_cache(clobber=True)
 
         finally:  # Restore properties
             self.one.mode = 'auto'
@@ -1135,7 +1135,7 @@ class TestOneRemote(unittest.TestCase):
         """Test OneAlyx.list_datasets"""
         # Test list for eid
         # Ensure remote by making local datasets table empty
-        self.addCleanup(self.one._load_cache)
+        self.addCleanup(self.one.load_cache)
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')

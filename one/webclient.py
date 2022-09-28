@@ -739,8 +739,16 @@ class AlyxClient():
             raise ex
         return files
 
-    def download_cache_tables(self, location=None):
+    def download_cache_tables(self, source=None, destination=None):
         """Downloads the Alyx cache tables to the local data cache directory
+
+        Parameters
+        ----------
+        source : str, pathlib.Path
+            The remote HTTP directory of the cache table (excluding the filename).
+            Default: AlyxClient.base_url.
+        destination : str, pathlib.Path
+            The target directory into to which the tables will be downloaded.
 
         Returns
         -------
@@ -750,19 +758,20 @@ class AlyxClient():
         self.cache_dir.mkdir(exist_ok=True)
         if not self.is_logged_in:
             self.authenticate()
-        location = location or f'{self.base_url}/cache.zip'
+        source = str(source) or f'{self.base_url}/cache.zip'
+        destination = destination or self.cache_dir
 
-        headers = self._headers if location.startswith(self.base_url) else None
-        with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
-            file = http_download_file(location,
+        headers = self._headers if source.startswith(self.base_url) else None
+        with tempfile.TemporaryDirectory(dir=destination) as tmp:
+            file = http_download_file(source,
                                       headers=headers,
                                       silent=self.silent,
                                       target_dir=tmp,
                                       clobber=True)
             with zipfile.ZipFile(file, 'r') as zipped:
                 files = zipped.namelist()
-                zipped.extractall(self.cache_dir)
-        return [Path(self.cache_dir, table) for table in files]
+                zipped.extractall(destination)
+        return [Path(destination, table) for table in files]
 
     def _validate_file_url(self, url):
         """Asserts that URL matches HTTP_DATA_SERVER parameter.

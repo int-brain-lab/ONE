@@ -64,15 +64,8 @@ class One(ConversionMixin):
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
         self.record_loaded = False
         # init the cache file
-        self._cache = Bunch({'_meta': {
-            'expired': False,
-            'created_time': None,
-            'loaded_time': None,
-            'modified_time': None,
-            'saved_time': None,
-            'raw': {}  # map of original table metadata
-        }})
-        self._load_cache()
+        self._reset_cache()
+        self.load_cache()
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.cache_dir})'
@@ -87,7 +80,27 @@ class One(ConversionMixin):
         """List the search term keyword args for use in the search method"""
         return self._search_terms
 
-    def _load_cache(self, cache_dir=None, **kwargs):
+    def _reset_cache(self):
+        """Replace the cache object with a Bunch that contains the right fields"""
+        self._cache = Bunch({'_meta': {
+            'expired': False,
+            'created_time': None,
+            'loaded_time': None,
+            'modified_time': None,
+            'saved_time': None,
+            'raw': {}  # map of original table metadata
+        }})
+
+    def load_cache(self, cache_dir=None, **kwargs):
+        """
+        Load parquet cache files from a local directory.
+
+        Parameters
+        ----------
+        cache_dir : str, pathlib.Path
+            An optional directory location of the parquet files, defaults to One.cache_dir.
+        """
+        self._reset_cache()
         meta = self._cache['_meta']
         INDEX_KEY = '.?id'
         for cache_file in Path(cache_dir or self.cache_dir).glob('*.pqt'):
@@ -121,12 +134,12 @@ class One(ConversionMixin):
             meta['expired'] = True
             meta['raw'] = {}
             self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
-        self._cache['_meta'] = meta
         created = [datetime.fromisoformat(x['date_created'])
                    for x in meta['raw'].values() if 'date_created' in x]
         if created:
             meta['created_time'] = min(created)
             meta['expired'] |= datetime.now() - meta['created_time'] > self.cache_expiry
+        self._cache['_meta'] = meta
         return self._cache['_meta']['loaded_time']
 
     def save_cache(self, save_dir=None, force=False):
@@ -204,10 +217,10 @@ class One(ConversionMixin):
         elif mode == 'auto':
             if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
-                self._load_cache()
+                self.load_cache()
         elif mode == 'refresh':
             _logger.debug('Forcing reload of cache')
-            self._load_cache(clobber=True)
+            self.load_cache(clobber=True)
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
@@ -1397,11 +1410,34 @@ class OneAlyx(One):
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
 
-    def _load_cache(self, cache_dir=None, clobber=False):
-        cache_meta = self._cache['_meta']
-        if not clobber:
-            super(OneAlyx, self)._load_cache(self.cache_dir)  # Load any present cache
-            if (self._cache and not cache_meta['expired']) or self.mode in ('local', 'remote'):
+    def load_cache(self, cache_dir=None, clobber=False, tag=None):
+        """
+        Load parquet cache files.  If the local cache is sufficiently old, this method will query
+        the database for the location and creation date of the remote cache.  If newer, it will be
+        download and loaded.
+
+        Note: Unlike refresh_cache, this will always reload the local files at least once.
+
+        Parameters
+        ----------
+        cache_dir : str, pathlib.Path
+            An optional directory location of the parquet files, defaults to One.cache_dir.
+        clobber : bool
+            If True, query Alyx for a newer cache even if current (local) cache is recent.
+        tag : str
+            An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
+        """
+        cache_meta = self._cache.get('_meta', {})
+        cache_dir = cache_dir or self.cache_dir
+        # If user provides tag that doesn't match current cache's tag, always download.
+        # NB: In the future 'database_tags' may become a list.
+        current_tags = [x.get('database_tags') for x in cache_meta.get('raw', {}).values() or [{}]]
+        tag = tag or current_tags[0]  # For refreshes take the current tag as default
+        different_tag = any(x != tag for x in current_tags)
+        if not clobber or different_tag:
+            super(OneAlyx, self).load_cache(cache_dir)  # Load any present cache
+            expired = self._cache and (cache_meta := self._cache.get('_meta', {}))['expired']
+            if not expired or self.mode in ('local', 'remote'):
                 return
 
         # Warn user if expired
@@ -1418,7 +1454,8 @@ class OneAlyx(One):
 
         try:
             # Determine whether a newer cache is available
-            cache_info = self.alyx.get('cache/info', expires=True)
+            cache_info = self.alyx.get(f'cache/info/{tag or ""}', expires=True)
+            assert tag == cache_info.get('database_tags')
 
             # Check version compatibility
             min_version = packaging.version.parse(cache_info.get('min_api_version', '0.0.0'))
@@ -1435,9 +1472,9 @@ class OneAlyx(One):
 
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
-            files = self.alyx.download_cache_tables(cache_info.get('location'))
+            files = self.alyx.download_cache_tables(cache_info.get('location'), cache_dir)
             assert any(files)
-            super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
+            super(OneAlyx, self).load_cache(cache_dir)  # Reload cache after download
         except (requests.exceptions.HTTPError, wc.HTTPError) as ex:
             _logger.debug(ex)
             _logger.error('Failed to load the remote cache file')
