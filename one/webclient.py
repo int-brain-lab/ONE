@@ -758,7 +758,7 @@ class AlyxClient():
         self.cache_dir.mkdir(exist_ok=True)
         if not self.is_logged_in:
             self.authenticate()
-        source = str(source) or f'{self.base_url}/cache.zip'
+        source = str(source or f'{self.base_url}/cache.zip')
         destination = destination or self.cache_dir
 
         headers = self._headers if source.startswith(self.base_url) else None
