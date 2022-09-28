@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 import shutil
 import json
+import uuid
 import yaml
 
 import numpy as np
@@ -479,8 +480,11 @@ class TestsLoadFile(unittest.TestCase):
         self.npy = Path(self.tmpdir.name) / 'foo.baz.npy'
         np.save(file=self.npy, arr=np.random.rand(5))
         self.csv = Path(self.tmpdir.name) / 'foo.baz.csv'
+        self.csvuids = Path(self.tmpdir.name) / 'uuids.csv'
         with open(self.csv, 'w') as f:
             f.write('a,b,c\n1,2,3')
+        with open(self.csvuids, 'w') as f:
+            f.write('\n'.join(['uuids'] + [str(uuid.uuid4()) for _ in range(6)]))
         self.ssv = Path(self.tmpdir.name) / 'foo.baz.ssv'
         with open(self.ssv, 'w') as f:
             f.write('a b c\n1 2 3')
@@ -505,12 +509,16 @@ class TestsLoadFile(unittest.TestCase):
     def test_load_file_content(self):
         """Test for one.alf.io.load_file_content"""
         self.assertIsNone(alfio.load_file_content(self.empty))
+        # csv / ssv / tsv files
         self.assertIsInstance(alfio.load_file_content(self.npy), np.ndarray)
         for file in (self.csv, self.ssv, self.tsv):
             with self.subTest('Loading text files', delim=file.suffix):
                 loaded = alfio.load_file_content(file)
                 self.assertEqual(3, loaded.size)
                 self.assertCountEqual(loaded.columns, ['a', 'b', 'c'])
+        # a single column file should be squeezed
+        loaded = alfio.load_file_content(self.csvuids)
+        self.assertEqual(loaded.shape, (6, ))
         loaded = alfio.load_file_content(self.json1)
         self.assertCountEqual(loaded.keys(), ['a', 'b'])
         self.assertIsNone(alfio.load_file_content(self.json2))

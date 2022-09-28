@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.15.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.15.1]
+
+## [1.15.1]
+### Modified
+- squeeze pandas dataframe on csv_read
+
+## [1.15.0]
 
 ### Modified
 

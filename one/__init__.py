@@ -1,2 +1,2 @@
 """The Open Neurophysiology Environment (ONE) API"""
-__version__ = '1.15.0'
+__version__ = '1.15.1'
