@@ -83,6 +83,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-to-do-if-i-am-seeing-a-certificate-error">What to do if I am seeing a certificate error?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-check-which-version-of-one-i-m-using-within-python">How do I check which version of ONE I’m using within Python?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
@@ -272,6 +273,12 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 <span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">TAG</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="how-do-i-check-which-version-of-one-i-m-using-within-python">
+<h2>How do I check which version of ONE I’m using within Python?<a class="headerlink" href="#how-do-i-check-which-version-of-one-i-m-using-within-python" title="Permalink to this heading"></a></h2>
+<p>You can check your version with the following: <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">one;</span> <span class="pre">print(one.__version__)</span></code>.<br />
+The latest version can be found in the CHANGELOG, <a class="reference external" href="https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md">here</a>. <br />
+To update to the latest available version run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">ONE-api</span></code>.</p>
 </section>
 </section>
 
