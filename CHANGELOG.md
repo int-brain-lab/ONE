@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.1]
+
+### Modified
+
+- HOTIFX: force aws download on md5sum mismatch
+
+## [1.16.0]
 
 ### Modified
 

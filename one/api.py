@@ -1743,8 +1743,8 @@ class OneAlyx(One):
             local_path = alfio.remove_uuid_file(
                 self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
             local_path.parent.mkdir(exist_ok=True, parents=True)
-            out_files.append(
-                aws.s3_download_file(source_path, local_path, s3=s3, bucket_name=bucket_name))
+            out_files.append(aws.s3_download_file(
+                source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
         return out_files
 
     def _dset2url(self, dset, update_cache=True):

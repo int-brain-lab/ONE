@@ -117,3 +117,8 @@ cache_path.mkdir(exist_ok=True)
 # NB: The cache_dir arg only relates to the cache table location NOT the dataset download location
 one.load_cache(tag=TAG, cache_dir=cache_path)
 ```
+
+## How do I check which version of ONE I'm using within Python?
+You can check your version with the following: `import one; print(one.__version__)`.\
+The latest version can be found in the CHANGELOG, [here](https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md). \
+To update to the latest available version run `pip install -U ONE-api`.
