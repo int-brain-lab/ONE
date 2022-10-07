@@ -3,7 +3,7 @@
 
 ### Modified
 
-- HOTIFX: force aws download on md5sum mismatch
+- HOTFIX: force aws download on md5sum mismatch
 
 ## [1.16.0]
 
