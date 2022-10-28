@@ -1561,7 +1561,7 @@ class OneAlyx(One):
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         session, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
         # Add to cache tables
-        self._update_cache_from_records(sessions=session, datasets=datasets)
+        self._update_cache_from_records(sessions=session, datasets=datasets.copy())
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         datasets = util.filter_datasets(
@@ -1708,7 +1708,7 @@ class OneAlyx(One):
          """
         # If all datasets exist on AWS, download from there.
         try:
-            if 'exists_aws' in dsets and dsets['exists_aws'].all():
+            if 'exists_aws' in dsets and np.all(np.equal(dsets['exists_aws'].values, True)):
                 _logger.info('Downloading from AWS')
                 return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
         except Exception as ex:

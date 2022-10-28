@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.2]
+
+### Modified
+
+- HOTFIX: bool test robust to NaNs in _download_aws; no datasets modification by _update_cache_from_records
+
+## [1.16.1]
 
 ### Modified
 
