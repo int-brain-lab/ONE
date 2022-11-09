@@ -206,7 +206,7 @@ class RegistrationClient:
                 self.assert_exists(x, endpoint)
 
     @staticmethod
-    def ensure_ISO8601(date) -> str:
+    def ensure_ISO8601(date=None) -> str:
         """Ensure provided date is ISO 8601 compliant
 
         Parameters
