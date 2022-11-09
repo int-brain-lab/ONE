@@ -172,7 +172,7 @@ class TestsONEParquet(unittest.TestCase):
         # Check without tables input
         apt.make_parquet_db(self.tmpdir, hash_ids=False)
         removed = apt.remove_missing_datasets(self.tmpdir, dry=False)
-        self.assertTrue(len(removed) == 0)
+        self.assertEqual(0, len(removed))
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
