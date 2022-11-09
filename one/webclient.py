@@ -21,12 +21,12 @@ Create a subject
 ...     'death_date': None,
 ...     'lab': 'cortexlab',
 ... }
-... new_subj = alyx.rest('subjects', 'create', data=record)
+>>> new_subj = alyx.rest('subjects', 'create', data=record)
 
 Download a remote file, given a local path
 
 >>> url = 'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'
->>> local_path = alyx.download_file(url)
+>>> local_path = alyx.download_file(url, target_dir='zadorlab/Subjects/flowers/2018-07-13/1/')
 """
 import json
 import logging
@@ -46,6 +46,7 @@ import hashlib
 import zipfile
 import tempfile
 from getpass import getpass
+from contextlib import contextmanager
 
 import requests
 from tqdm import tqdm
@@ -53,8 +54,9 @@ from tqdm import tqdm
 from pprint import pprint
 import one.params
 from iblutil.io import hashfile
+from iblutil.io.params import set_hidden
 from one.util import ensure_list
-
+import concurrent.futures
 _logger = logging.getLogger(__name__)
 
 
@@ -104,7 +106,7 @@ def _cache_response(method):
         if args[0].__name__ != mode and mode != '*':
             return method(alyx_client, *args, **kwargs)
         # Check cache
-        rest_cache = one.params.get_rest_dir(alyx_client.base_url)
+        rest_cache = alyx_client.cache_dir.joinpath('.rest')
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[1], 'utf-8'))
         name = sha1.hexdigest()
@@ -127,7 +129,10 @@ def _cache_response(method):
             raise ex  # No cache and can't connect to database; re-raise
 
         # Save response into cache
-        rest_cache.mkdir(exist_ok=True, parents=True)
+        if not rest_cache.exists():
+            rest_cache.mkdir(parents=True)
+            rest_cache = set_hidden(rest_cache, True)
+
         _logger.debug('caching REST response')
         expiry_datetime = datetime.now() + (timedelta() if expires is True else expires)
         with open(rest_cache / name, 'w') as f:
@@ -135,6 +140,37 @@ def _cache_response(method):
         return response
 
     return wrapper_decorator
+
+
+@contextmanager
+def no_cache(ac=None):
+    """Temporarily turn off the REST cache for a given Alyx instance.
+
+    This function is particularly useful when calling ONE methods in remote mode.
+
+    Parameters
+    ----------
+    ac : AlyxClient
+        An instance of the AlyxClient to modify.  If None, the a new object is instantiated
+
+    Returns
+    -------
+    AlyxClient
+        The instance of Alyx with cache disabled
+
+    Examples
+    --------
+    >>> from one.api import ONE
+    >>> with no_cache(ONE().alyx):
+    ...     eids = ONE().search(subject='foobar', query_type='remote')
+    """
+    ac = ac or AlyxClient()
+    cache_mode = ac.cache_mode
+    ac.cache_mode = None
+    try:
+        yield ac
+    finally:
+        ac.cache_mode = cache_mode
 
 
 class _PaginatedResponse(Mapping):
@@ -238,13 +274,14 @@ def update_url_params(url: str, params: dict) -> str:
 def http_download_file_list(links_to_file_list, **kwargs):
     """
     Downloads a list of files from a remote HTTP server from a list of links.
+    Generates up to 4 separate threads to handle downloads.
     Same options behaviour as http_download_file.
 
     Parameters
     ----------
     links_to_file_list : list
         List of http links to files
-    kwargs : any
+    kwargs
         Optional arguments to pass to http_download_file
 
     Returns
@@ -252,14 +289,33 @@ def http_download_file_list(links_to_file_list, **kwargs):
     list of pathlib.Path
         A list of the local full path of the downloaded files.
     """
-    file_names_list = []
-    for link_str in links_to_file_list:
-        file_names_list.append(http_download_file(link_str, **kwargs))
-    return file_names_list
+    links_to_file_list = list(links_to_file_list)  # In case generator was passed
+    n_threads = 4  # Max number of threads
+    outputs = []
+    target_dir = kwargs.pop('target_dir', None)
+    # Ensure target dir the length of url list
+    if target_dir is None or isinstance(target_dir, (str, Path)):
+        target_dir = [target_dir] * len(links_to_file_list)
+    assert len(target_dir) == len(links_to_file_list)
+    # using with statement to ensure threads are cleaned up promptly
+    zipped = zip(links_to_file_list, target_dir)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
+        # Multithreading load operations
+        futures = [executor.submit(
+            http_download_file, link, target_dir=target, **kwargs) for link, target in zipped]
+        zip(links_to_file_list, ensure_list(kwargs.pop('target_dir', None)))
+        # TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?
+        # timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000 ?
+        concurrent.futures.wait(futures, timeout=None)
+        # build return list
+        for future in futures:
+            outputs.append(future.result())
+    # if returning md5, separate list of tuples into two lists: (files, md5)
+    return list(zip(*outputs)) if kwargs.get('return_md5', False) else outputs
 
 
 def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=False,
-                       username='', password='', cache_dir='', return_md5=False, headers=None):
+                       username='', password='', target_dir='', return_md5=False, headers=None):
     """
     Download a file from a remote HTTP server.
 
@@ -277,8 +333,8 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
         User authentication for password protected file server
     password : str
         Password authentication for password protected file server
-    cache_dir : str, pathlib.Path
-        Directory in which files are cached; defaults to user's Download directory
+    target_dir : str, pathlib.Path
+        Directory in which files are downloaded; defaults to user's Download directory
     return_md5 : bool
         If True an MD5 hash of the file is additionally returned
     headers : list of dicts
@@ -290,18 +346,18 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
         The full file path of the downloaded file
     """
     if not full_link_to_file:
-        return ''
+        return (None, None) if return_md5 else None
 
     # makes sure special characters get encoded ('#' in file names for example)
     surl = urllib.parse.urlsplit(full_link_to_file, allow_fragments=False)
     full_link_to_file = surl._replace(path=urllib.parse.quote(surl.path)).geturl()
 
     # default cache directory is the home dir
-    if not cache_dir:
-        cache_dir = str(Path.home().joinpath('Downloads'))
+    if not target_dir:
+        target_dir = str(Path.home().joinpath('Downloads'))
 
     # This is the local file name
-    file_name = str(cache_dir) + os.sep + os.path.basename(full_link_to_file)
+    file_name = str(target_dir) + os.sep + os.path.basename(full_link_to_file)
 
     # do not overwrite an existing file unless specified
     if not clobber and os.path.exists(file_name):
@@ -343,21 +399,19 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     file_size = int(u.getheader('Content-length'))
     if not silent:
         print(f'Downloading: {file_name} Bytes: {file_size}')
-    file_size_dl = 0
     block_sz = 8192 * 64 * 8
 
     md5 = hashlib.md5()
     f = open(file_name, 'wb')
-    with tqdm(total=file_size, disable=silent) as pbar:
+    with tqdm(total=file_size / 1024 / 1024, disable=silent) as pbar:
         while True:
             buffer = u.read(block_sz)
             if not buffer:
                 break
-            file_size_dl += len(buffer)
             f.write(buffer)
             if return_md5:
                 md5.update(buffer)
-            pbar.update(file_size_dl)
+            pbar.update(len(buffer) / 1024 / 1024)
     f.close()
 
     return (file_name, md5.hexdigest()) if return_md5 else file_name
@@ -408,8 +462,8 @@ def dataset_record_to_url(dataset_record) -> list:
 
 class AlyxClient():
     """
-    Class that implements simple GET/POST wrappers for the Alyx REST API
-    http://alyx.readthedocs.io/en/latest/api.html  # FIXME old link
+    Class that implements simple GET/POST wrappers for the Alyx REST API.
+    See https://openalyx.internationalbrainlab.org/docs
     """
     _token = None
     _headers = None  # Headers for REST requests only
@@ -419,7 +473,7 @@ class AlyxClient():
     base_url = None
 
     def __init__(self, base_url=None, username=None, password=None,
-                 cache_dir=None, silent=False, cache_rest='GET', stay_logged_in=True):
+                 cache_dir=None, silent=False, cache_rest='GET'):
         """
         Create a client instance that allows to GET and POST to the Alyx server.
         For One, constructor attempts to authenticate with credentials in params.py.
@@ -434,7 +488,7 @@ class AlyxClient():
         password : str
             Alyx database password
         cache_dir : str, pathlib.Path
-            The default download location
+            The default root download location
         silent : bool
             If true, user prompts and progress bars are suppressed
         cache_rest : str
@@ -443,13 +497,14 @@ class AlyxClient():
             If true, auth token is cached
         """
         self.silent = silent
-        self._par = one.params.get(client=base_url, silent=self.silent)
+        self._par = one.params.get(client=base_url, silent=self.silent, username=username)
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
-        self.authenticate(username, password, cache_token=stay_logged_in)
+        if username or password:
+            self.authenticate(username, password)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers['Accept'] = 'application/json'
+        self._headers = {**(self._headers or {}), 'Accept': 'application/json'}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -471,13 +526,9 @@ class AlyxClient():
         """pathlib.Path: The location of the downloaded file cache"""
         return Path(self._par.CACHE_DIR)
 
+    @property
     def is_logged_in(self):
-        """Check if user logged into Alyx database
-
-        Returns
-        -------
-            True if user is authenticated
-        """
+        """bool: Check if user logged into Alyx database; True if user is authenticated"""
         return self._token and self.user and self._headers and 'Authorization' in self._headers
 
     def list_endpoints(self):
@@ -507,15 +558,27 @@ class AlyxClient():
         if rest_query.startswith('/docs'):
             # the mixed accept application may cause errors sometimes, only necessary for the docs
             headers['Accept'] = 'application/coreapi+json'
-        r = reqfunction(self.base_url + rest_query, stream=True, headers=headers,
-                        data=data, files=files)
+        r = reqfunction(self.base_url + rest_query,
+                        stream=True, headers=headers, data=data, files=files)
         if r and r.status_code in (200, 201):
             return json.loads(r.text)
         elif r and r.status_code == 204:
             return
+        if r.status_code == 403 and '"Invalid token."' in r.text:
+            _logger.debug('Token invalid; Attempting to re-authenticate...')
+            # Log out in order to flush stale token.  At this point we no longer have the password
+            # but if the user re-instantiates with a password arg it will request a new token.
+            username = self.user
+            if self.silent:  # no need to log out otherwise; user will be prompted for password
+                self.logout()
+            self.authenticate(username=username, force=True)
+            return self._generic_request(reqfunction, rest_query, data=data, files=files)
         else:
+            _logger.debug('Response text: ' + r.text)
             try:
-                message = json.loads(r.text).get('detail')
+                message = json.loads(r.text)
+                message.pop('status_code', None)  # Get status code from response object instead
+                message = message.get('detail') or message  # Get details if available
             except json.decoder.JSONDecodeError:
                 message = r.text
             raise requests.HTTPError(r.status_code, rest_query, message, response=r)
@@ -564,11 +627,19 @@ class AlyxClient():
                 f"Can't connect to {self.base_url}.\n" +
                 "Check your internet connections and Alyx database firewall"
             )
-        # Assign token or raise exception on internal server error
-        self._token = rep.json() if rep.ok else rep.raise_for_status()
-        if not (list(self._token.keys()) == ['token']):
-            _logger.error(rep)
-            raise Exception('Alyx authentication error. Check your credentials')
+        # Assign token or raise exception on auth error
+        if rep.ok:
+            self._token = rep.json()
+            assert list(self._token.keys()) == ['token']
+        else:
+            if rep.status_code == 400:  # Auth error; re-raise with details
+                redacted = '*' * len(credentials['password']) if credentials['password'] else None
+                message = ('Alyx authentication failed with credentials: '
+                           f'user = {credentials["username"]}, password = {redacted}')
+                raise requests.HTTPError(rep.status_code, rep.url, message, response=rep)
+            else:
+                rep.raise_for_status()
+
         self._headers = {
             'Authorization': 'Token {}'.format(list(self._token.values())[0]),
             'Accept': 'application/json'}
@@ -588,7 +659,7 @@ class AlyxClient():
         """Log out from Alyx
         Deletes the cached authentication token for the currently logged-in user
         """
-        if not self.is_logged_in():
+        if not self.is_logged_in:
             return
         par = one.params.get(client=self.base_url, silent=True)
         username = self.user
@@ -632,7 +703,8 @@ class AlyxClient():
 
     def download_file(self, url, **kwargs):
         """
-        Downloads a file on the Alyx server from a file record REST field URL
+        Downloads a single file or list of files on the Alyx server from a
+        file record REST field URL
 
         Parameters
         ----------
@@ -653,34 +725,53 @@ class AlyxClient():
             download_fcn = http_download_file_list
         pars = dict(
             silent=kwargs.pop('silent', self.silent),
-            cache_dir=kwargs.pop('cache_dir', self._par.CACHE_DIR),
+            target_dir=kwargs.pop('target_dir', self._par.CACHE_DIR),
             username=self._par.HTTP_DATA_SERVER_LOGIN,
             password=self._par.HTTP_DATA_SERVER_PWD,
             **kwargs
         )
-        return download_fcn(url, **pars)
+        try:
+            files = download_fcn(url, **pars)
+        except HTTPError as ex:
+            if ex.code == 401:
+                ex.msg += (' - please check your HTTP_DATA_SERVER_LOGIN and '
+                           'HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs')
+            raise ex
+        return files
 
-    def download_cache_tables(self):
+    def download_cache_tables(self, source=None, destination=None):
         """Downloads the Alyx cache tables to the local data cache directory
+
+        Parameters
+        ----------
+        source : str, pathlib.Path
+            The remote HTTP directory of the cache table (excluding the filename).
+            Default: AlyxClient.base_url.
+        destination : str, pathlib.Path
+            The target directory into to which the tables will be downloaded.
 
         Returns
         -------
-            List of parquet table file paths
+            List of parquet table file paths.
         """
         # query the database for the latest cache; expires=None overrides cached response
         self.cache_dir.mkdir(exist_ok=True)
-        if not self.is_logged_in():
+        if not self.is_logged_in:
             self.authenticate()
-        with tempfile.TemporaryDirectory(dir=self.cache_dir) as tmp:
-            file = http_download_file(f'{self.base_url}/cache.zip',
-                                      headers=self._headers,
+        source = str(source or f'{self.base_url}/cache.zip')
+        destination = destination or self.cache_dir
+
+        headers = self._headers if source.startswith(self.base_url) else None
+        with tempfile.TemporaryDirectory(dir=destination) as tmp:
+            file = http_download_file(source,
+                                      headers=headers,
                                       silent=self.silent,
-                                      cache_dir=tmp,
+                                      target_dir=tmp,
                                       clobber=True)
             with zipfile.ZipFile(file, 'r') as zipped:
                 files = zipped.namelist()
-                zipped.extractall(self.cache_dir)
-        return [Path(self.cache_dir, table) for table in files]
+                zipped.extractall(destination)
+        return [Path(destination, table) for table in files]
 
     def _validate_file_url(self, url):
         """Asserts that URL matches HTTP_DATA_SERVER parameter.
@@ -747,7 +838,6 @@ class AlyxClient():
         JSON interpreted dictionary from response
         """
         rep = self._generic_request(requests.get, rest_query, **kwargs)
-        _logger.debug(rest_query)
         if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
             if len(rep['results']) < rep['count']:
                 cache_args = {k: v for k, v in kwargs.items() if k in ('clobber', 'expires')}
@@ -852,8 +942,8 @@ class AlyxClient():
         files : dict, tuple
             Option file(s) to upload
         no_cache : bool
-            If true the `list` and `read` actions are performed without caching
-        kwargs : any
+            If true the `list` and `read` actions are performed without returning the cache
+        kwargs
             Filters as per the Alyx REST documentation
             cf. https://openalyx.internationalbrainlab.org/docs/
 
@@ -903,7 +993,7 @@ class AlyxClient():
             return
 
         # clobber=True means remote request always made, expires=True means response is not cached
-        cache_args = {'clobber': no_cache, 'expires': no_cache}
+        cache_args = {'clobber': no_cache, 'expires': kwargs.pop('expires', False) or no_cache}
         if action == 'list':
             # list doesn't require id nor
             assert endpoint_scheme[action]['action'] == 'get'
@@ -955,8 +1045,8 @@ class AlyxClient():
             field_name: str = None,
             data: dict = None
     ) -> dict:
-        """json_field_write [summary]
-        Write data to WILL NOT CHECK IF DATA EXISTS
+        """
+        Write data to JSON field.  WILL NOT CHECK IF DATA EXISTS
         NOTE: Destructive write!
 
         Parameters
@@ -989,11 +1079,11 @@ class AlyxClient():
             field_name: str = 'json',
             data: dict = None
     ) -> dict:
-        """json_field_update
-        Non destructive update of json field of endpoint for object
+        """
+        Non-destructive update of JSON field of endpoint for object
         Will update the field_name of the object with pk = uuid of given endpoint
         If data has keys with the same name of existing keys it will squash the old
-        values (uses the dict.update() method)
+        values (uses the dict.update() method).
 
         Parameters
         ----------
@@ -1043,8 +1133,8 @@ class AlyxClient():
             field_name: str = 'json',
             key: str = None
     ) -> Optional[dict]:
-        """json_field_remove_key
-        Will remove inputted key from json field dict and re-upload it to Alyx.
+        """
+        Remove inputted key from JSON field dict and re-upload it to Alyx.
         Needs endpoint, uuid and json field name
 
         Parameters
@@ -1095,5 +1185,5 @@ class AlyxClient():
 
     def clear_rest_cache(self):
         """Clear all REST response cache files for the base url"""
-        for file in one.params.get_rest_dir(self.base_url).glob('*'):
+        for file in self.cache_dir.joinpath('.rest').glob('*'):
             file.unlink()

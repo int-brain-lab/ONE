@@ -30,6 +30,7 @@ from one.alf.files import session_path_parts, get_session_path
 import one.alf.exceptions as alferr
 from one.api import ONE
 from one.util import ensure_list
+from one.webclient import no_cache
 
 _logger = logging.getLogger(__name__)
 
@@ -80,22 +81,24 @@ class RegistrationClient:
             flag_file.unlink()
         return [ff.parent for ff in flag_files], records
 
-    def create_session(self, session_path) -> dict:
+    def create_session(self, session_path, **kwargs) -> dict:
         """Create a remote session on Alyx from a local session path, without registering files
 
         Parameters
         ----------
         session_path : str, pathlib.Path
-            The path ending with subject/date/number
+            The path ending with subject/date/number.
+        **kwargs
+            Optional arguments for RegistrationClient.register_session.
 
         Returns
         -------
         dict
-            Newly created session record
+            Newly created session record.
         """
-        return self.register_session(session_path, file_list=False)[0]
+        return self.register_session(session_path, file_list=False, **kwargs)[0]
 
-    def create_new_session(self, subject, session_root=None, date=None, register=True):
+    def create_new_session(self, subject, session_root=None, date=None, register=True, **kwargs):
         """Create a new local session folder and optionally create session record on Alyx
 
         Parameters
@@ -109,12 +112,14 @@ class RegistrationClient:
             An optional date for the session.  If None the current time is used.
         register : bool
             If true, create session record on Alyx database
+        **kwargs
+            Optional arguments for RegistrationClient.register_session.
 
         Returns
         -------
         pathlib.Path
             New local session path
-        str
+        uuid.UUID
             The experiment UUID if register is True
 
         Examples
@@ -138,7 +143,7 @@ class RegistrationClient:
         session_root = Path(session_root or self.one.alyx.cache_dir) / subject / date[:10]
         session_path = session_root / alfio.next_num_folder(session_root)
         session_path.mkdir(exist_ok=True, parents=True)  # Ensure folder exists on disk
-        eid = UUID(self.create_session(session_path)['url'][-36:]) if register else None
+        eid = UUID(self.create_session(session_path, **kwargs)['url'][-36:]) if register else None
         return session_path, eid
 
     def find_files(self, session_path):
@@ -225,6 +230,9 @@ class RegistrationClient:
         """
         Register session in Alyx
 
+        NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
+        and date of the session path.
+
         Parameters
         ----------
         ses_path : str, pathlib.Path
@@ -244,12 +252,21 @@ class RegistrationClient:
             The total number of completed trials (optional)
         json : dict, str
             Optional JSON data
-        project: str, list
+        projects: str, list
             The project(s) to which the experiment belongs (optional)
         type : str
             The experiment type, e.g. 'Experiment', 'Base'
         task_protocol : str
             The task protocol (optional)
+        lab : str
+            The name of the lab where the session took place.  If None the lab name will be
+            taken from the path.  If no lab name is found in the path (i.e. no <lab>/Subjects)
+            the default lab on Alyx will be used.
+        start_time : str, datetime.datetime
+            The precise start time of the session.  The date must match the date in the session
+            path.
+        end_time : str, datetime.datetime
+            The precise end time of the session.
 
         Returns
         -------
@@ -257,6 +274,20 @@ class RegistrationClient:
             An Alyx session record
         list, None
             Alyx file records (or None if file_list is False)
+
+        Raises
+        ------
+        AssertionError
+            Subject does not exist on Alyx or provided start_time does not match date in
+            session path.
+        ValueError
+            The provided lab name does not match the one found in the session path or
+            start_time/end_time is not a valid ISO date time.
+        requests.HTTPError
+            A 400 status code means the submitted data was incorrect (e.g. task_protocol was an
+            int instead of a str); A 500 status code means there was a server error.
+        ConnectionError
+            Failed to connect to Alyx, most likely due to a bad internet connection.
         """
         if isinstance(ses_path, str):
             ses_path = Path(ses_path)
@@ -265,10 +296,11 @@ class RegistrationClient:
         self.assert_exists(details['subject'], 'subjects')
 
         # look for a session from the same subject, same number on the same day
-        session_id, session = self.one.search(subject=details['subject'],
-                                              date_range=details['date'],
-                                              number=details['number'],
-                                              details=True, query_type='remote')
+        with no_cache(self.one.alyx):
+            session_id, session = self.one.search(subject=details['subject'],
+                                                  date_range=details['date'],
+                                                  number=details['number'],
+                                                  details=True, query_type='remote')
         users = ensure_list(users or self.one.alyx.user)
         self.assert_exists(users, 'users')
 
@@ -283,9 +315,14 @@ class RegistrationClient:
         assert start_time[:10] == details['date'], 'start_time doesn\'t match session path'
         if kwargs.get('procedures', False):
             ses_['procedures'] = ensure_list(kwargs.pop('procedures'))
+        if kwargs.get('projects', False):
+            ses_['projects'] = ensure_list(kwargs.pop('projects'))
         assert ('subject', 'number') not in kwargs
         if 'lab' not in kwargs and details['lab']:
             kwargs.update({'lab': details['lab']})
+        elif details['lab'] and kwargs.get('lab', details['lab']) != details['lab']:
+            names = (kwargs['lab'], details['lab'])
+            raise ValueError('lab kwarg "%s" does not match lab name in path ("%s")' % names)
         ses_.update(kwargs)
 
         if not session:  # Create from scratch

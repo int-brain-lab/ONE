@@ -17,6 +17,7 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
+import yaml
 
 from iblutil.util import Bunch
 from iblutil.io import parquet
@@ -33,6 +34,7 @@ class AlfBunch(Bunch):
 
     @property
     def check_dimensions(self):
+        """int: 0 for consistent dimensions, 1 for inconsistent dimensions"""
         return check_dimensions(self)
 
     def append(self, b, inplace=False):
@@ -60,11 +62,11 @@ class AlfBunch(Bunch):
         if b == {}:
             return a
         if a == {}:
-            return b
+            return AlfBunch(b)
         # right now supports only strictly matching keys. Will implement other cases as needed
         if set(a.keys()) != set(b.keys()):
-            raise NotImplementedError("Append bunches only works with strictly matching keys"
-                                      "For more complex merges, convert to pandas dataframe.")
+            raise NotImplementedError('Append bunches only works with strictly matching keys'
+                                      'For more complex merges, convert to pandas dataframe.')
         # do the merge; only concatenate lists and np arrays right now
         for k in a:
             if isinstance(a[k], np.ndarray):
@@ -72,14 +74,25 @@ class AlfBunch(Bunch):
             elif isinstance(a[k], list):
                 a[k].extend(b[k])
             else:
-                _logger.warning(f"bunch key '{k}' is a {a[k].__class__}. I don't know how to"
-                                f" handle that. Use pandas for advanced features")
-        check_dimensions(a)
+                _logger.warning(f'bunch key "{k}" is a {a[k].__class__}. I don\'t know how to'
+                                f' handle that. Use pandas for advanced features')
+        if a.check_dimensions != 0:
+            print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in a.items())
+            _logger.warning(f'Inconsistent dimensions for object: \n{print_sizes}')
+
         return a
 
     def to_df(self) -> pd.DataFrame:
         """Return DataFrame with data keys as columns"""
         return dataframe(self)
+
+    @staticmethod
+    def from_df(df) -> 'AlfBunch':
+        data = dict(zip(df.columns, df.values.T))
+        split_keys = sorted(x for x in data.keys() if re.match(r'.+?_[01]$', x))
+        for x1, x2 in zip(*[iter(split_keys)] * 2):
+            data[x1[:-2]] = np.c_[data.pop(x1), data.pop(x2)]
+        return AlfBunch(data)
 
 
 def dataframe(adict):
@@ -98,7 +111,7 @@ def dataframe(adict):
         A pandas DataFrame of data
     """
     if check_dimensions(adict) != 0:
-        raise ValueError("Can only convert to Dataframe objects with consistent size")
+        raise ValueError('Can only convert to DataFrame objects with consistent size')
     # easy case where there are only vectors
     if all([len(adict[k].shape) == 1 for k in adict]):
         return pd.DataFrame(adict)
@@ -115,7 +128,7 @@ def dataframe(adict):
                 if i == 9:
                     break
         else:
-            _logger.warning(f"{k} attribute is 3D or more and won't convert to dataframe")
+            _logger.warning(f'{k} attribute is 3D or more and won\'t convert to dataframe')
             continue
     return df
 
@@ -136,9 +149,7 @@ def _find_metadata(file_alf) -> Path:
     """
     file_alf = Path(file_alf)
     ns, obj = file_alf.name.split('.')[:2]
-    meta_data_file = list(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'))
-    if meta_data_file:
-        return meta_data_file[0]
+    return next(file_alf.parent.glob(f'{ns}.{obj}*.metadata*.json'), None)
 
 
 def read_ts(filename):
@@ -173,8 +184,7 @@ def read_ts(filename):
         assert time_file
     except (ValueError, AssertionError):
         name = spec.to_alf(obj, attr, ext)
-        _logger.error(name + ' not found! no time-scale for' + str(filename))
-        raise FileNotFoundError(name + ' not found! no time-scale for' + str(filename))
+        raise FileNotFoundError(name + ' not found! No time-scale for ' + str(filename))
 
     ts = np.load(filename.parent / time_file)
     val = np.load(filename)
@@ -244,11 +254,13 @@ def check_dimensions(dico):
     int
         Status 0 for consistent dimensions, 1 for inconsistent dimensions
     """
-    shapes = [dico[lab].shape for lab in dico if isinstance(dico[lab], np.ndarray) and
-              lab.split('.')[0] != 'timestamps']
+    supported = (np.ndarray, pd.DataFrame)  # Data types that have a shape attribute
+    shapes = [dico[lab].shape for lab in dico
+              if isinstance(dico[lab], supported) and not lab.startswith('timestamps')]
     first_shapes = [sh[0] for sh in shapes]
     # Continuous timeseries are permitted to be a (2, 2)
-    timeseries = [k for k, v in dico.items() if 'timestamps' in k and isinstance(v, np.ndarray)]
+    timeseries = [k for k, v in dico.items()
+                  if k.startswith('timestamps') and isinstance(v, np.ndarray)]
     if any(timeseries):
         for key in timeseries:
             if dico[key].ndim == 1 or (dico[key].ndim == 2 and dico[key].shape[1] == 1):
@@ -264,7 +276,7 @@ def check_dimensions(dico):
 def load_file_content(fil):
     """
     Returns content of files. Designed for very generic file formats:
-    so far supported contents are `json`, `npy`, `csv`, `tsv`, `ssv`, `jsonable`
+    so far supported contents are `json`, `npy`, `csv`, `(h)tsv`, `ssv`, `jsonable`
 
     Parameters
     ----------
@@ -282,7 +294,7 @@ def load_file_content(fil):
     if fil.stat().st_size == 0:
         return
     if fil.suffix == '.csv':
-        return pd.read_csv(fil)
+        return pd.read_csv(fil).squeeze('columns')
     if fil.suffix == '.json':
         try:
             with open(fil) as _fil:
@@ -297,9 +309,12 @@ def load_file_content(fil):
     if fil.suffix == '.pqt':
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':
-        return pd.read_csv(fil, delimiter=' ')
-    if fil.suffix == '.tsv':
-        return pd.read_csv(fil, delimiter='\t')
+        return pd.read_csv(fil, delimiter=' ').squeeze('columns')
+    if fil.suffix in ('.tsv', '.htsv'):
+        return pd.read_csv(fil, delimiter='\t').squeeze('columns')
+    if fil.suffix in ('.yml', '.yaml'):
+        with open(fil, 'r') as _fil:
+            return yaml.safe_load(_fil)
     return Path(fil)
 
 
@@ -354,21 +369,42 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
 
 def iter_sessions(root_dir):
     """
-    Recursively iterate over session paths in a given directory
+    Recursively iterate over session paths in a given directory.
 
     Parameters
     ----------
     root_dir : str, pathlib.Path
-        The folder to look for sessions
+        The folder to look for sessions.
 
     Yields
     -------
     pathlib.Path
-        The next session path in lexicographical order
+        The next session path in lexicographical order.
     """
+    if spec.is_session_path(root_dir):
+        yield root_dir
     for path in sorted(Path(root_dir).rglob('*')):
         if path.is_dir() and spec.is_session_path(path):
             yield path
+
+
+def iter_datasets(session_path):
+    """
+    Iterate over all files in a session, and yield relative dataset paths.
+
+    Parameters
+    ----------
+    session_path : str, pathlib.Path
+        The folder to look for datasets.
+
+    Yields
+    -------
+    pathlib.Path
+        The next dataset path (relative to the session path) in lexicographical order.
+    """
+    for p in sorted(Path(session_path).rglob('*.*')):
+        if not p.is_dir() and spec.is_valid(p.name):
+            yield p.relative_to(session_path)
 
 
 def exists(alfpath, object, attributes=None, **kwargs) -> bool:
@@ -412,7 +448,7 @@ def exists(alfpath, object, attributes=None, **kwargs) -> bool:
 
 
 def load_object(alfpath, object=None, short_keys=False, **kwargs):
-    """Reads all files (i.e. attributes) sharing the same object.
+    """Reads all files sharing the same object name.
 
     For example, if the file provided to the function is `spikes.times`, the function will
     load `spikes.times`, `spikes.clusters`, `spikes.depths`, `spike.amps` in a dictionary
@@ -441,7 +477,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     Returns
     -------
     AlfBunch
-        A ALFBunch (dict-like) of all attributes pertaining to the object
+        An ALFBunch (dict-like) of all attributes pertaining to the object
 
     Examples
     --------
@@ -461,6 +497,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         files_alf = alfpath
         parts = [files.filename_parts(x.name) for x in files_alf]
         assert len(set(p[1] for p in parts)) == 1
+        object = next(x[1] for x in parts)
     # Take attribute and timescale from parts list
     attributes = [p[2] if not p[3] else '_'.join(p[2:4]) for p in parts]
     if not short_keys:  # Include extra parts in the keys
@@ -469,6 +506,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     assert len(set(attributes)) == len(attributes), (
         f'multiple object {object} with the same attribute in {alfpath}, restrict parts/namespace')
     out = AlfBunch({})
+
     # load content for each file
     for fil, att in zip(files_alf, attributes):
         # if there is a corresponding metadata file, read it:
@@ -487,17 +525,20 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # if there is other stuff in the dictionary, save it, otherwise disregard
             if meta:
                 out[att + 'metadata'] = meta
-    status = check_dimensions(out)
+    if 'table' in out.keys():  # Merge 'table' dataframe into bunch
+        out.update(AlfBunch.from_df(out.pop('table')))
+    status = out.check_dimensions
     timeseries = [k for k in out.keys() if 'timestamps' in k]
     if any(timeseries) and len(out.keys()) > len(timeseries) and status == 0:
         # Get length of one of the other arrays
-        n_samples = next(v for k, v in out.items() if 'timestamps' not in k).shape[0]
+        ignore = ('timestamps', 'meta')
+        n_samples = next(v for k, v in out.items() if not any(x in k for x in ignore)).shape[0]
         for key in timeseries:
             # Expand timeseries if necessary
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
-        print_sizes = '\n'.join([f'{v.shape},    {k}' for k, v in out.items()])
-        _logger.warning(f"Inconsistent dimensions for object: {object} \n{print_sizes}")
+        print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in out.items())
+        _logger.warning(f'Inconsistent dimensions for object: {object} \n{print_sizes}')
     return out
 
 
@@ -689,7 +730,7 @@ def filter_by(alf_path, wildcards=True, **kwargs):
         # Validate keyword arguments against regex group names
         invalid = kwargs.keys() - spec.regex(FILE_SPEC).groupindex.keys()
         if invalid:
-            raise TypeError("%s() got an unexpected keyword argument '%s'"
+            raise TypeError('%s() got an unexpected keyword argument "%s"'
                             % (__name__, set(invalid).pop()))
 
         # # Ensure 'extra' input is a list; if str split on dot

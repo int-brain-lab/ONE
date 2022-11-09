@@ -21,7 +21,7 @@ class TestsONEParquet(unittest.TestCase):
         'subject': 'mysub',
         'date': datetime.date.fromisoformat('2021-02-28'),
         'number': int('001'),
-        'project': '',
+        'projects': '',
         'task_protocol': '',
         'id': 'mylab/mysub/2021-02-28/001',
     }
@@ -53,10 +53,6 @@ class TestsONEParquet(unittest.TestCase):
         self.assertEqual(apt._get_session_info(self.rel_ses_path), self.ses_info)
         self.assertTrue(
             self.full_ses_path.as_posix().endswith(self.rel_ses_path[:-1]))
-
-    def test_walk_session(self):
-        ses_files = list(apt._iter_datasets(self.full_ses_path))
-        self.assertEqual(ses_files, self.rel_ses_files)
 
     def test_parquet(self):
         # Test data
@@ -132,10 +128,51 @@ class TestsONEParquet(unittest.TestCase):
     def test_hash_ids(self):
         # Build and load caches with int UUIDs
         (ses, _), (dsets, _) = map(parquet.load, apt.make_parquet_db(self.tmpdir, hash_ids=True))
-        id_fields = ['id_0', 'id_1']
         # Check ID fields in both dataframes
-        self.assertTrue(all(x in y for x in id_fields for y in (ses, dsets)))
-        self.assertTrue(all(x in dsets for x in ('eid_0', 'eid_1')))
+        self.assertTrue(ses.index.nlevels == 1 and ses.index.name == 'id')
+        self.assertTrue(dsets.index.nlevels == 2 and tuple(dsets.index.names) == ('eid', 'id'))
+
+    def test_remove_missing_datasets(self):
+        # Add a session that will only contains missing datasets
+        ghost_session = self.tmpdir.joinpath('lab', 'Subjects', 'sub', '2021-01-30', '001')
+        ghost_session.mkdir(parents=True)
+
+        tables = {
+            'sessions': apt._make_sessions_df(self.tmpdir),
+            'datasets': apt._make_datasets_df(self.tmpdir)
+        }
+
+        # Touch some files and folders for deletion
+        empty_missing_session = self.tmpdir.joinpath(self.rel_ses_path).parent.joinpath('003')
+        empty_missing_session.mkdir()
+        missing_dataset = self.tmpdir.joinpath(self.rel_ses_path).joinpath('foo.bar.npy')
+        missing_dataset.touch()
+        ghost_dataset = ghost_session.joinpath('foo.bar.npy')
+        ghost_dataset.touch()
+
+        # Test dry
+        to_remove = apt.remove_missing_datasets(
+            self.tmpdir, tables=tables, dry=True, remove_empty_sessions=False
+        )
+        self.assertTrue(all(map(Path.exists, to_remove)), 'Removed files during dry run!')
+        self.assertTrue(all(map(Path.is_file, to_remove)), 'Failed to ignore empty folders')
+        self.assertNotIn(empty_missing_session, to_remove, 'Failed to ignore empty folders')
+        self.assertNotIn(next(self.tmpdir.rglob('.invalid')), to_remove, 'Removed non-ALF file')
+
+        # Test removal of files and folders
+        removed = apt.remove_missing_datasets(
+            self.tmpdir, tables=tables, dry=False, remove_empty_sessions=True
+        )
+        self.assertTrue(sum(map(Path.exists, to_remove)) == 0, 'Failed to remove all files')
+        self.assertIn(empty_missing_session, removed, 'Failed to remove empty session folder')
+        self.assertIn(missing_dataset, removed, 'Failed to remove missing dataset')
+        self.assertIn(ghost_dataset, removed, 'Failed to remove missing dataset')
+        self.assertNotIn(ghost_session, removed, 'Removed empty session that was in session table')
+
+        # Check without tables input
+        apt.make_parquet_db(self.tmpdir, hash_ids=False)
+        removed = apt.remove_missing_datasets(self.tmpdir, dry=False)
+        self.assertTrue(len(removed) == 0)
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)

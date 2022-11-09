@@ -40,11 +40,13 @@ class ALFError(Exception):
             else:
                 self.message = '"' + '", "'.join(map(str, args)) + '"'
         else:
-            self.message = None
+            self.message = ''
         self.terse = terse
 
     def __str__(self):
-        return self.message if self.terse else f"{self.message} \n {self.explanation} "
+        if not self.message and not self.explanation:
+            return ''
+        return self.message if self.terse else f'{self.message} \n {self.explanation} '
 
 
 class AlyxSubjectNotFound(ALFError):
@@ -61,7 +63,8 @@ class ALFObjectNotFound(ALFError):
 
 class ALFMultipleObjectsFound(ALFError):
     """'Multiple objects found' error"""
-    explanation = ('The search object was not found.  ALF names have the pattern '
+    explanation = ('Dataset files belonging to more than one object found.  '
+                   'ALF names have the pattern '
                    '(_namespace_)object.attribute(_timescale).extension, e.g. for the file '
                    '"_ibl_trials.intervals.npy" the object is "trials"')
 
@@ -77,5 +80,5 @@ class ALFMultipleCollectionsFound(ALFError):
 class ALFMultipleRevisionsFound(ALFError):
     """'Multiple objects found' error"""
     explanation = ('The matching object/file(s) belong to more than one revision.  '
-                   'Multiple datasets in different revision folders were found with no default'
+                   'Multiple datasets in different revision folders were found with no default '
                    'specified.')

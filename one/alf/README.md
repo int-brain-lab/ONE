@@ -1,4 +1,4 @@
-# ALyx Files (ALF)
+# ALyx Filenames (ALF)
 This package is concerned with parsing and loading files that follow the Alyx file name specification.
 Files should be organized in folders by subject name, date and session number, for example:
 ```text

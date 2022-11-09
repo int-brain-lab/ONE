@@ -1,5 +1,8 @@
 """Construct Parquet database from local file system.
 
+NB: If using a remote Alyx instance it is advisable to generate the cache via the Alyx one_cache
+management command, otherwise the resulting cache UUIDs will not match those on the database.
+
 Examples
 --------
 >>> from one.api import One
@@ -18,16 +21,18 @@ import uuid
 from functools import partial
 from pathlib import Path
 import warnings
+import logging
 
 import pandas as pd
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
-from one.alf.io import iter_sessions
+from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
-from one.alf.spec import is_valid
+from one.converters import session_record2path
 
-__all__ = ['make_parquet_db']
+__all__ = ['make_parquet_db', 'remove_missing_datasets']
+_logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
 # Global variables
@@ -40,7 +45,7 @@ SESSIONS_COLUMNS = (
     'date',             # datetime.date
     'number',           # int
     'task_protocol',
-    'project',
+    'projects',
 )
 
 DATASETS_COLUMNS = (
@@ -70,7 +75,7 @@ def _get_session_info(rel_ses_path):
     out['date'] = pd.to_datetime(out['date']).date()
     out['number'] = int(out['number'])
     out['task_protocol'] = ''
-    out['project'] = ''
+    out['projects'] = ''
     return out
 
 
@@ -90,40 +95,38 @@ def _get_dataset_info(full_ses_path, rel_dset_path, ses_eid=None, compute_hash=F
     }
 
 
-def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, drop_key=False):
+def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, keep_old=False):
     base_id = base_id or uuid.uuid1()  # Base hash based on system by default
     toUUID = partial(uuid.uuid3, base_id)  # MD5 hash from base uuid and rel session path string
-    uuids = df[id_key].map(toUUID)
-    assert len(uuids.unique()) == uuids.size  # WARNING This fails :(
-    npuuid = parquet.uuid2np(uuids)
-    df[f"{id_key}_0"] = npuuid[:, 0]
-    df[f"{id_key}_1"] = npuuid[:, 1]
-    if drop_key:
-        df.drop(id_key, axis=1, inplace=True)
+    if keep_old:
+        df[f'{id_key}_'] = df[id_key].copy()
+    df[id_key] = df[id_key].apply(lambda x: str(toUUID(x)))
+    assert len(df[id_key].unique()) == len(df[id_key])  # WARNING This fails :(
+    return df
 
 
-def _ids_to_int(df_ses, df_dsets, drop_id=False):
+def _ids_to_uuid(df_ses, df_dsets):
     ns = uuid.uuid1()
-    _rel_path_to_uuid(df_dsets, id_key='id', base_id=ns, drop_key=drop_id)
-    _rel_path_to_uuid(df_ses, id_key='id', base_id=ns, drop_key=False)
-    # Copy int eids into datasets frame
-    eid_cols = ['eid_0', 'eid_1']
-    df_dsets[eid_cols] = (df_ses
-                          .set_index('id')
-                          .loc[df_dsets['eid'], ['id_0', 'id_1']]
-                          .values)
+    df_dsets = _rel_path_to_uuid(df_dsets, id_key='id', base_id=ns)
+    df_ses = _rel_path_to_uuid(df_ses, id_key='id', base_id=ns, keep_old=True)
+    # Copy new eids into datasets frame
+    df_dsets['eid_'] = df_dsets['eid'].copy()
+    df_dsets['eid'] = (df_ses
+                       .set_index('id_')
+                       .loc[df_dsets['eid'], 'id']
+                       .values)
     # Check that the session int IDs in both frames match
-    ses_int_id_set = (df_ses
-                      .set_index('id')[['id_0', 'id_1']]
-                      .rename(columns=lambda x: f'e{x}'))
+    ses_id_set = df_ses.set_index('id_')['id']
     assert (df_dsets
-            .set_index('eid')[eid_cols]
+            .set_index('eid_')['eid']
             .drop_duplicates()
-            .equals(ses_int_id_set)), 'session int ID mismatch between frames'
-    # Drop original id fields
-    if drop_id:
-        df_ses.drop('id', axis=1, inplace=True)
-        df_dsets.drop('eid', axis=1, inplace=True)
+            .equals(ses_id_set)), 'session int ID mismatch between frames'
+
+    # Set index
+    df_ses = df_ses.set_index('id').drop('id_', axis=1).sort_index()
+    df_dsets = df_dsets.set_index(['eid', 'id']).drop('eid_', axis=1).sort_index()
+
+    return df_ses, df_dsets
 
 
 # -------------------------------------------------------------------------------------------------
@@ -191,19 +194,13 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
         rows = []
-        for rel_dset_path in _iter_datasets(session_path):
+        for rel_dset_path in iter_datasets(session_path):
             file_info = _get_dataset_info(session_path, rel_dset_path, compute_hash=hash_files)
             assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
             rows.append(file_info)
-        df = df.append(rows, ignore_index=True, verify_integrity=True)
+        df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS)),
+                       ignore_index=True, verify_integrity=True)
     return df
-
-
-def _iter_datasets(session_path):
-    """Iterate over all files in a session, and yield relative dataset paths."""
-    for p in sorted(Path(session_path).rglob('*.*')):
-        if not p.is_dir() and is_valid(p.name):
-            yield p.relative_to(session_path)
 
 
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):
@@ -219,7 +216,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
         root directory.
     hash_ids : bool
         If True, experiment and dataset IDs will be UUIDs generated from the system and relative
-        paths.
+        paths (required for use with ONE API)
     hash_files : bool
         If True, an MD5 hash is computed for each dataset and stored in the datasets table.
         This will substantially increase cache generation time.
@@ -242,7 +239,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
 
     # Add integer id columns
     if hash_ids and len(df_ses) > 0:
-        _ids_to_int(df_ses, df_dsets, drop_id=True)
+        df_ses, df_dsets = _ids_to_uuid(df_ses, df_dsets)
 
     if lab:  # Fill in lab name field
         assert not df_ses['lab'].any() or (df_ses['lab'] == 'lab').all(), 'lab name conflict'
@@ -269,3 +266,62 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
     parquet.save(fn_dsets, df_dsets, metadata)
 
     return fn_ses, fn_dsets
+
+
+def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, dry=True):
+    """
+    Remove dataset files and session folders that are not in the provided cache.
+
+    NB: This *does not* remove entries from the cache tables that are missing on disk.
+    Non-ALF files are not removed. Empty sessions that exist in the sessions table are not removed.
+
+    Parameters
+    ----------
+    cache_dir : str, pathlib.Path
+    tables : dict[str, pandas.DataFrame], optional
+        A dict with keys ('sessions', 'datasets'), containing the cache tables as DataFrames.
+    remove_empty_sessions : bool
+        Attempt to remove session folders that are empty and not in the sessions table.
+    dry : bool
+        If true, do not remove anything.
+
+    Returns
+    -------
+    list
+        A sorted list of paths to be removed.
+    """
+    cache_dir = Path(cache_dir)
+    if tables is None:
+        tables = {}
+        for name in ('datasets', 'sessions'):
+            tables[name], _ = parquet.load(cache_dir / f'{name}.pqt')
+    to_delete = []
+    gen_path = partial(session_record2path, root_dir=cache_dir)
+    sessions = sorted(map(lambda x: gen_path(x[1]), tables['sessions'].iterrows()))
+    for session_path in iter_sessions(cache_dir):
+        rel_session_path = session_path.relative_to(cache_dir).as_posix()
+        datasets = tables['datasets'][tables['datasets']['session_path'] == rel_session_path]
+        for dataset in iter_datasets(session_path):
+            if dataset.as_posix() not in datasets['rel_path']:
+                to_delete.append(session_path.joinpath(dataset))
+        if session_path not in sessions and remove_empty_sessions:
+            to_delete.append(session_path)
+
+    if dry:
+        print('The following session and datasets would be removed:', end='\n\t')
+        print('\n\t'.join(sorted(map(str, to_delete))))
+        return sorted(to_delete)
+
+    # Delete datasets
+    for path in to_delete:
+        if path.is_file():
+            _logger.debug(f'Removing {path}')
+            path.unlink()
+        else:
+            # Recursively remove empty folders
+            while path.parent != cache_dir and not next(path.rglob('*'), False):
+                _logger.debug(f'Removing {path}')
+                path.rmdir()
+                path = path.parent
+
+    return sorted(to_delete)

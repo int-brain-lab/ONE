@@ -5,13 +5,15 @@ from functools import wraps
 from typing import Sequence, Union, Iterable, Optional, List
 from collections.abc import Mapping
 import fnmatch
+from datetime import datetime
 
 import pandas as pd
 from iblutil.io import parquet
 import numpy as np
+from packaging import version
 
 import one.alf.exceptions as alferr
-from one.alf.files import rel_path_parts, get_session_path
+from one.alf.files import rel_path_parts, get_session_path, get_alf_path
 from one.alf.spec import FILE_SPEC, regex as alf_regex
 import one.alf.io as alfio
 
@@ -23,15 +25,15 @@ def Listable(t):
     return Union[t, Sequence[t]]
 
 
-def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
+def ses2records(ses: dict, int_id=False):
     """Extract session cache record and datasets cache from a remote session data record.
-
-    TODO Fix for new tables; use to update caches from remote queries
 
     Parameters
     ----------
     ses : dict
         Session dictionary from Alyx REST endpoint
+    int_id : bool
+        If True, the UUIDs are converted to two int64s
 
     Returns
     -------
@@ -41,35 +43,42 @@ def ses2records(ses: dict) -> [pd.Series, pd.DataFrame]:
         Datasets frame
     """
     # Extract session record
-    eid = parquet.str2np(ses['url'][-36:])
-    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'project')
+    eid = ses['url'][-36:]
+    if int_id:
+        eid = tuple(parquet.str2np(eid).flatten())
+    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
-    # session_data['id_0'], session_data['id_1'] = eid.flatten().tolist()
     session = (
-        (pd.Series(data=session_data, name=tuple(eid.flatten()))
-            .rename({'start_time': 'date'}, axis=1))
+        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )
-    session['date'] = session['date'][:10]
+    session['projects'] = ','.join(session.pop('projects'))
+    session['date'] = datetime.fromisoformat(session['date']).date()
 
     # Extract datasets table
     def _to_record(d):
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
-        rec['eid_0'], rec['eid_1'] = session.name
+        if int_id:
+            rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
+            rec['eid_0'], rec['eid_1'] = session.name
+        else:
+            rec['id'] = d['id']
+            rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
-        if 'default_revision' in d:
-            rec['default_revision'] = d['default_revision'] == 'True'
+        rec['default_revision'] = d['default_revision'] == 'True'
         return rec
 
+    if not ses.get('data_dataset_session_related'):
+        return session, None
     records = map(_to_record, ses['data_dataset_session_related'])
-    datasets = pd.DataFrame(records).set_index(['id_0', 'id_1']).sort_index()
+    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    datasets = pd.DataFrame(records).set_index(index).sort_index()
     return session, datasets
 
 
-def datasets2records(datasets) -> pd.DataFrame:
+def datasets2records(datasets, int_id=False) -> pd.DataFrame:
     """Extract datasets DataFrame from one or more Alyx dataset records
 
     Parameters
@@ -81,6 +90,8 @@ def datasets2records(datasets) -> pd.DataFrame:
     -------
     pd.DataFrame
         Datasets frame
+    int_id : bool
+        If True, the UUIDs are converted to two int64s
 
     Examples
     --------
@@ -94,21 +105,25 @@ def datasets2records(datasets) -> pd.DataFrame:
         if not file_record:
             continue  # Ignore files that are not accessible
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
-        rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
+        if int_id:
+            rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
+            rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
+        else:
+            rec['id'] = d['url'][-36:]
+            rec['eid'] = d['session'][-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
-        file_path = data_url.path.strip('/')
+        file_path = get_alf_path(data_url.path.strip('/'))
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_dataset']
         records.append(rec)
 
+    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
     if not records:
-        keys = ('id_0', 'id_1', 'eid_0', 'eid_1', 'file_size', 'hash', 'session_path',
-                'rel_path', 'default_revision')
-        return pd.DataFrame(columns=keys).set_index(['id_0', 'id_1'])
-    return pd.DataFrame(records).set_index(['id_0', 'id_1']).sort_index()
+        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision')
+        return pd.DataFrame(columns=keys).set_index(index)
+    return pd.DataFrame(records).set_index(index).sort_index()
 
 
 def parse_id(method):
@@ -241,6 +256,42 @@ def _collection_spec(collection=None, revision=None) -> str:
     return spec
 
 
+def _file_spec(**kwargs):
+    """
+    Return a template string for a ALF dataset regular expression.  Because 'namespace',
+    'timescale', and 'extra' are optional None will match any (including absent).  This function
+    removes the regex flags from the file spec string that make certain parts optional.
+
+    TODO an empty string should only match absent; this could be achieved by removing parts from
+     spec string
+
+    Parameters
+    ----------
+    namespace : None, str
+        If namespace is not None, the namespace section of the returned file spec will not be
+        optional.
+    timescale : None, str
+        If timescale is not None, the namespace section of the returned file spec will not be
+        optional.
+    extra : None, str
+        If extra is not None, the namespace section of the returned file spec will not be
+        optional.
+
+    Returns
+    -------
+    str
+        A string format for matching an ALF dataset
+    """
+    OPTIONAL = {'namespace': '?', 'timescale': '?', 'extra': '*'}
+    filespec = FILE_SPEC
+    for k, v in kwargs.items():
+        if k in OPTIONAL and v is not None:
+            i = filespec.find(k) + len(k)
+            i += filespec[i:].find(OPTIONAL[k])
+            filespec = filespec[:i] + filespec[i:].replace(OPTIONAL[k], '', 1)
+    return filespec
+
+
 def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
                     revision_last_before=True, assert_unique=True, wildcards=False):
     """
@@ -276,16 +327,20 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Examples
     --------
     Filter by dataset name and collection
-    >>> datasets = filter_datasets(all_datasets, '*.spikes.times.*', 'alf/probe00')
+
+    >>> datasets = filter_datasets(all_datasets, '.*spikes.times.*', 'alf/probe00')
 
     Filter datasets not in a collection
+
     >>> datasets = filter_datasets(all_datasets, collection='')
 
     Filter by matching revision
+
     >>> datasets = filter_datasets(all_datasets, 'spikes.times.npy',
-    ...                        revision='2020-01-12', revision_last_before=False)
+    ...                            revision='2020-01-12', revision_last_before=False)
 
     Filter by filename parts
+
     >>> datasets = filter_datasets(all_datasets, dict(object='spikes', attribute='times'))
     """
     # Create a regular expression string to match relative path against
@@ -294,11 +349,12 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     spec_str = _collection_spec(collection, None if revision_last_before else revision)
 
     if isinstance(filename, dict):
-        spec_str += FILE_SPEC
+        spec_str += _file_spec(**filename)
         regex_args.update(**filename)
     else:
         # Convert to regex is necessary and assert end of string
-        spec_str += fnmatch.translate(filename) if wildcards else filename + '$'
+        filename = [fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename)]
+        spec_str += '|'.join(filename)
 
     # If matching revision name, add to regex string
     if not revision_last_before:
@@ -325,15 +381,18 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         if len(collections) > 1:
             _list = '"' + '", "'.join(collections) + '"'
             raise alferr.ALFMultipleCollectionsFound(_list)
-        if filename and len(match) > 1:
-            _list = '"' + '", "'.join(match['rel_path']) + '"'
-            raise alferr.ALFMultipleObjectsFound(_list)
         if not revision_last_before:
+            if filename and len(match) > 1:
+                _list = '"' + '", "'.join(match['rel_path']) + '"'
+                raise alferr.ALFMultipleObjectsFound(_list)
             if len(set(revisions)) > 1:
                 _list = '"' + '", "'.join(set(revisions)) + '"'
                 raise alferr.ALFMultipleRevisionsFound(_list)
             else:
                 return match
+        elif filename and len(set(revisions)) != len(revisions):
+            _list = '"' + '", "'.join(match['rel_path']) + '"'
+            raise alferr.ALFMultipleObjectsFound(_list)
 
     return filter_revision_last_before(match, revision, assert_unique=assert_unique)
 
@@ -475,3 +534,46 @@ class LazyId(Mapping):
             return [LazyId.ses2eid(x) for x in ses]
         else:
             return ses.get('id', None) or ses['url'].split('/').pop()
+
+
+def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
+    """Convert int ids to str ids for cache table.
+
+    Parameters
+    ----------
+    table : pd.DataFrame
+        A cache table (from One._cache)
+
+    """
+    # Convert integer uuids to str uuids
+    if table.index.nlevels < 2 or not any(x.endswith('_0') for x in table.index.names):
+        return table
+    table = table.reset_index()
+    int_cols = table.filter(regex=r'_\d{1}$').columns.sort_values()
+    assert not len(int_cols) % 2, 'expected even number of columns ending in _0 or _1'
+    names = sorted(set(c.rsplit('_', 1)[0] for c in int_cols.values))
+    for i, name in zip(range(0, len(int_cols), 2), names):
+        table[name] = parquet.np2str(table[int_cols[i:i + 2]])
+    table = table.drop(int_cols, axis=1).set_index(names)
+    return table
+
+
+def patch_cache(table: pd.DataFrame, min_api_version=None) -> pd.DataFrame:
+    """Reformat older cache tables to comply with this version of ONE.
+
+    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'
+    column to 'projects'.
+
+    Parameters
+    ----------
+    table : pd.DataFrame
+        A cache table (from One._cache).
+    min_api_version : str
+        The minimum API version supported by this cache table.
+    """
+    min_version = version.parse(min_api_version or '0.0.0')
+    table = cache_int2str(table)
+    # Rename project column
+    if min_version < version.Version('1.13.0') and 'project' in table.columns:
+        table.rename(columns={'project': 'projects'}, inplace=True)
+    return table

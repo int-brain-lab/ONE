@@ -39,15 +39,13 @@ from one.api import ONE
 one = ONE(base_url='https://alyx.internationalbrainlab.org')
 ```
 ```{note}
-When connecting to the IBL internal database you will be prompted to enter credentials.
+When connecting to the IBL internal database you will be prompted to enter credentials. See the IBL Welcome Guide for more information.
 ```
 
 ```{Warning}
 The internal IBL database is only open to IBL members, please connect to our public database to access our publically
 available datasets
 ```
-If you are interested in accessing these publicly available datasets,
-please visit this [section](notebooks/public_one) for instructions.
 
 ## 3. Post setup
 Once you've setup the server you can initialise ONE in the following way and it will automatically connect to the
@@ -57,9 +55,7 @@ from one.api import ONE
 one = ONE()
 ```
 
-To change your default database, you can use the following
+To change your default database, or re-run the setup for a given database, you can use the following
 ```python
-from one.api import OneAlyx, ONE
-OneAlyx.setup(client='https://test.alyx.internationalbrainlab.org', make_default=True)
-one = ONE()  # Connected to https://test.alyx.internationalbrainlab.org
+one = ONE().setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 ```

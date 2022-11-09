@@ -1,37 +1,30 @@
-"""Classes for searching, listing and (down)loading ALyx Files.
-
-Things left to complete:
-
-    - TODO Add sig to ONE Light uuids.
-    - TODO Save changes to cache.
-    - TODO Fix update cache in AlyxONE - save parquet table.
-    - TODO save parquet in update_filesystem.
-"""
+"""Classes for searching, listing and (down)loading ALyx Files."""
 import collections.abc
-import concurrent.futures
 import warnings
 import logging
-import os
+import packaging.version
 from datetime import datetime, timedelta
-from functools import lru_cache, reduce
+from functools import lru_cache, partial
 from inspect import unwrap
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
 from uuid import UUID
+import time
+import threading
 
 import pandas as pd
 import numpy as np
 import requests.exceptions
+
 from iblutil.io import parquet, hashfile
-from iblutil.util import Bunch
-from iblutil.numerical import ismember2d
+from iblutil.util import Bunch, flatten
 
 import one.params
 import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import rel_path_parts, get_session_path, get_alf_path
+from .alf.files import rel_path_parts, get_session_path, get_alf_path, add_uuid_string
 from .alf.spec import is_uuid_string
 from one.converters import ConversionMixin
 import one.util as util
@@ -45,7 +38,7 @@ N_THREADS = 4
 class One(ConversionMixin):
     """An API for searching and loading data on a local filesystem"""
     _search_terms = (
-        'dataset', 'date_range', 'laboratory', 'number', 'project', 'subject', 'task_protocol'
+        'dataset', 'date_range', 'laboratory', 'number', 'projects', 'subject', 'task_protocol'
     )
 
     def __init__(self, cache_dir=None, mode='auto', wildcards=True):
@@ -69,14 +62,10 @@ class One(ConversionMixin):
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
+        self.record_loaded = False
         # init the cache file
-        self._cache = Bunch({'_meta': {
-            'expired': False,
-            'created_time': None,
-            'loaded_time': None,
-            'raw': {}  # map of original table metadata
-        }})
-        self._load_cache()
+        self._reset_cache()
+        self.load_cache()
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.cache_dir})'
@@ -91,9 +80,29 @@ class One(ConversionMixin):
         """List the search term keyword args for use in the search method"""
         return self._search_terms
 
-    def _load_cache(self, cache_dir=None, **kwargs):
+    def _reset_cache(self):
+        """Replace the cache object with a Bunch that contains the right fields"""
+        self._cache = Bunch({'_meta': {
+            'expired': False,
+            'created_time': None,
+            'loaded_time': None,
+            'modified_time': None,
+            'saved_time': None,
+            'raw': {}  # map of original table metadata
+        }})
+
+    def load_cache(self, cache_dir=None, **kwargs):
+        """
+        Load parquet cache files from a local directory.
+
+        Parameters
+        ----------
+        cache_dir : str, pathlib.Path
+            An optional directory location of the parquet files, defaults to One.cache_dir.
+        """
+        self._reset_cache()
         meta = self._cache['_meta']
-        INDEX_KEY = 'id'
+        INDEX_KEY = '.?id'
         for cache_file in Path(cache_dir or self.cache_dir).glob('*.pqt'):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
@@ -101,26 +110,21 @@ class One(ConversionMixin):
             if 'date_created' not in meta['raw'][table]:
                 _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
                 continue
-            created = datetime.fromisoformat(meta['raw'][table]['date_created'])
-            meta['created_time'] = min([meta['created_time'] or datetime.max, created])
             meta['loaded_time'] = datetime.now()
-            meta['expired'] |= datetime.now() - created > self.cache_expiry
+
+            # Patch older tables
+            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'))
 
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
-                num_index = [f'{INDEX_KEY}_{n}' for n in range(2)]
-                try:
-                    int_eids = cache[num_index].any(axis=None)
-                except KeyError:
-                    int_eids = False
-                cache.set_index(num_index if int_eids else INDEX_KEY, inplace=True)
+                idx_columns = cache.filter(regex=INDEX_KEY).columns.tolist()
+                if len(idx_columns) == 0:
+                    raise KeyError('Failed to set index')
+                cache.set_index(idx_columns, inplace=True)
 
             # Check sorted
-            is_sorted = (cache.index.is_monotonic_increasing
-                         if isinstance(cache.index, pd.MultiIndex)
-                         else True)
             # Sorting makes MultiIndex indexing O(N) -> O(1)
-            if table == 'datasets' and not is_sorted:
+            if not cache.index.is_monotonic_increasing:
                 cache.sort_index(inplace=True)
 
             self._cache[table] = cache
@@ -128,9 +132,67 @@ class One(ConversionMixin):
         if len(self._cache) == 1:
             # No tables present
             meta['expired'] = True
+            meta['raw'] = {}
             self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
+        created = [datetime.fromisoformat(x['date_created'])
+                   for x in meta['raw'].values() if 'date_created' in x]
+        if created:
+            meta['created_time'] = min(created)
+            meta['expired'] |= datetime.now() - meta['created_time'] > self.cache_expiry
         self._cache['_meta'] = meta
         return self._cache['_meta']['loaded_time']
+
+    def save_cache(self, save_dir=None, force=False):
+        """Save One._cache attribute into parquet tables if recently modified.
+
+        Parameters
+        ----------
+        save_dir : str, pathlib.Path
+            The directory path into which the tables are saved.  Defaults to cache directory.
+        force : bool
+            If True, the cache is saved regardless of modification time.
+        """
+        threading.Thread(target=lambda: self._save_cache(save_dir=save_dir, force=force)).start()
+
+    def _save_cache(self, save_dir=None, force=False):
+        """
+        Checks if another process is writing to file, if so waits before saving.
+
+        Parameters
+        ----------
+        save_dir : str, pathlib.Path
+            The directory path into which the tables are saved.  Defaults to cache directory.
+        force : bool
+            If True, the cache is saved regardless of modification time.
+        """
+        TIMEOUT = 30  # Delete lock file this many seconds after creation/modification or waiting
+        lock_file = Path(self.cache_dir).joinpath('.cache.lock')
+        save_dir = Path(save_dir or self.cache_dir)
+        meta = self._cache['_meta']
+        modified = meta.get('modified_time') or datetime.min
+        update_time = max(meta.get(x) or datetime.min for x in ('loaded_time', 'saved_time'))
+        if modified < update_time and not force:
+            return  # Not recently modified; return
+
+        # Check if in use by another process
+        while lock_file.exists():
+            if time.time() - lock_file.stat().st_ctime > TIMEOUT:
+                lock_file.unlink(missing_ok=True)
+            else:
+                time.sleep(.1)
+
+        _logger.info('Saving cache tables...')
+        lock_file.touch()
+        try:
+            for table in filter(lambda x: not x[0] == '_', self._cache.keys()):
+                metadata = meta['raw'][table]
+                metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
+                filename = save_dir.joinpath(f'{table}.pqt')
+                parquet.save(filename, self._cache[table], metadata)
+                _logger.debug(f'Saved {filename}')
+            meta['saved_time'] = datetime.now()
+        finally:
+            lock_file.unlink()
 
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables
@@ -146,22 +208,134 @@ class One(ConversionMixin):
         datetime.datetime
             Loaded timestamp
         """
+        # NB: Currently modified table will be lost if called with 'refresh';
+        # May be instances where modified cache is saved then immediately replaced with a new
+        # remote cache. Also it's too slow :(
+        # self.save_cache()  # Save cache if modified
         if mode in ('local', 'remote'):
             pass
         elif mode == 'auto':
             if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
                 _logger.info('Cache expired, refreshing')
-                self._load_cache()
+                self.load_cache()
         elif mode == 'refresh':
             _logger.debug('Forcing reload of cache')
-            self._load_cache(clobber=True)
+            self.load_cache(clobber=True)
         else:
             raise ValueError(f'Unknown refresh type "{mode}"')
         return self._cache['_meta']['loaded_time']
 
+    def _update_cache_from_records(self, strict=False, **kwargs):
+        """
+        Update the cache tables with new records.
+
+        Parameters
+        ----------
+        strict : bool
+            If not True, the columns don't need to match.  Extra columns in input tables are
+            dropped and missing columns are added and filled with np.nan.
+        **kwargs
+            pandas.DataFrame or pandas.Series to insert/update for each table
+
+        Returns
+        -------
+        datetime.datetime:
+            A timestamp of when the cache was updated
+
+        Example
+        -------
+        >>> session, datasets = util.ses2records(self.get_details(eid, full=True))
+        ... self._update_cache_from_records(sessions=session, datasets=datasets)
+
+        Raises
+        ------
+        AssertionError
+            When strict is True the input columns must exactly match those oo the cache table,
+            including the order.
+        KeyError
+            One or more of the keyword arguments does not match a table in One._cache
+        """
+        updated = None
+        for table, records in kwargs.items():
+            if records is None or records.empty:
+                continue
+            if table not in self._cache:
+                raise KeyError(f'Table "{table}" not in cache')
+            if isinstance(records, pd.Series):
+                records = pd.DataFrame([records])
+            if not strict:
+                # Deal with case where there are extra columns in the cache
+                extra_columns = set(self._cache[table].columns) - set(records.columns)
+                for col in extra_columns:
+                    n = list(self._cache[table].columns).index(col)
+                    records.insert(n, col, np.nan)
+                # Drop any extra columns in the records that aren't in cache table
+                to_drop = set(records.columns) - set(self._cache[table].columns)
+                records.drop(to_drop, axis=1, inplace=True)
+                records = records.reindex(columns=self._cache[table].columns)
+            assert all(self._cache[table].columns == records.columns)
+            # Update existing rows
+            to_update = records.index.isin(self._cache[table].index)
+            self._cache[table].loc[records.index[to_update], :] = records[to_update]
+            # Assign new rows
+            to_assign = records[~to_update]
+            if isinstance(self._cache[table].index, pd.MultiIndex) and not to_assign.empty:
+                # Concatenate and sort (no other way for non-unique index within MultiIndex)
+                self._cache[table] = pd.concat([self._cache[table], to_assign]).sort_index()
+            else:
+                for index, record in to_assign.iterrows():
+                    self._cache[table].loc[index, :] = record[self._cache[table].columns].values
+            updated = datetime.now()
+        self._cache['_meta']['modified_time'] = updated
+        return updated
+
+    def save_loaded_ids(self, sessions_only=False, clear_list=True):
+        """
+        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.
+
+        Parameters
+        ----------
+        sessions_only : bool
+            If true, save list of experiment IDs, otherwise the full list of dataset IDs.
+        clear_list : bool
+            If true, clear the current list of loaded dataset IDs after saving.
+
+        Returns
+        -------
+        list of str
+            List of UUIDs.
+        pathlib.Path
+            The file path of the saved list.
+        """
+        if '_loaded_datasets' not in self._cache or self._cache['_loaded_datasets'].size == 0:
+            warnings.warn('No datasets loaded; check "record_datasets" attribute is True')
+            return [], None
+        if sessions_only:
+            name = 'session_uuid'
+            if self._cache['_loaded_datasets'].dtype == 'int64' or self._index_type() is int:
+                # We're unlikely to return to int IDs and all caches should be cast to str on load
+                raise NotImplementedError('Saving integer session IDs not supported')
+            else:
+                idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
+                ids = self._cache['datasets'][idx].index.unique('eid').values
+        else:
+            name = 'dataset_uuid'
+            ids = self._cache['_loaded_datasets']
+            if ids.dtype != '<U36':
+                ids = parquet.np2str(ids)
+
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
+        filename = Path(self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
+        pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
+        if clear_list:
+            self._cache['_loaded_datasets'] = np.array([])
+        return ids, filename
+
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
-        Download several datasets given a set of datasets
+        Download several datasets given a set of datasets.
+
+        NB: This will not skip files that are already present.  Use check_filesystem instead.
 
         Parameters
         ----------
@@ -173,19 +347,8 @@ class One(ConversionMixin):
         list of pathlib.Path
             A local file path list
         """
-        out_files = []
-        if hasattr(dsets, 'iterrows'):
-            dsets = list(map(lambda x: x[1], dsets.iterrows()))
-        # Timeout based a download speed of 5 Mb/s
-        timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000
-        with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
-            # TODO Subclass can just call web client method directly, no need to pass hash, etc.
-            futures = [executor.submit(self._download_dataset, dset, file_size=dset['file_size'],
-                                       hash=dset['hash'], **kwargs) for dset in dsets]
-            concurrent.futures.wait(futures, timeout=np.ceil(timeout) + 10)
-            for future in futures:
-                out_files.append(future.result())
-        return out_files
+        # Looking to entirely remove method
+        pass
 
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
         """
@@ -237,8 +400,8 @@ class One(ConversionMixin):
         task_protocol : str
             The task protocol name (can be partial, i.e. any task protocol containing that str
             will be found)
-        project : str
-            The project name (can be partial, i.e. any task protocol containing that str
+        projects : str, list
+            The project name(s) (can be partial, i.e. any project containing that str
             will be found)
         details : bool
             If true also returns a dict of dataset details
@@ -276,7 +439,7 @@ class One(ConversionMixin):
             if sessions.size == 0:
                 return ([], None) if details else []
             # String fields
-            elif key in ('subject', 'task_protocol', 'laboratory', 'project'):
+            elif key in ('subject', 'task_protocol', 'laboratory', 'projects'):
                 query = '|'.join(util.ensure_list(value))
                 key = 'lab' if key == 'laboratory' else key
                 mask = sessions[key].str.contains(query, regex=self.wildcards)
@@ -294,13 +457,13 @@ class One(ConversionMixin):
                 query = util.ensure_list(value)
                 datasets = self._cache['datasets']
                 if self._index_type() is int:
-                    isin, _ = ismember2d(datasets[['eid_0', 'eid_1']].values,
-                                         np.array(sessions.index.values.tolist()))
+                    idx = np.array(sessions.index.tolist())
+                    datasets = datasets.loc[(idx[:, 0], idx[:, 1], ), ]
                 else:
-                    isin = datasets['eid'].isin(sessions.index.values)
+                    datasets = datasets.loc[(sessions.index.values, ), :]
                 # For each session check any dataset both contains query and exists
                 mask = (
-                    (datasets[isin]
+                    (datasets
                         .groupby(index, sort=False)
                         .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
                 )
@@ -313,25 +476,24 @@ class One(ConversionMixin):
         # Return results
         if sessions.size == 0:
             return ([], None) if details else []
+        sessions = sessions.sort_values(['date', 'subject', 'number'], ascending=False)
         eids = sessions.index.to_list()
         if self._index_type() is int:
             eids = parquet.np2str(np.array(eids))
 
         if details:
-            return eids, sessions.reset_index().iloc[:, 2:].to_dict('records', Bunch)
+            return eids, sessions.reset_index(drop=True).to_dict('records', Bunch)
         else:
             return eids
 
-    def _update_filesystem(self, datasets, offline=None, update_exists=True, clobber=False):
-        """Update the local filesystem for the given datasets
+    def _check_filesystem(self, datasets, offline=None, update_exists=True):
+        """Update the local filesystem for the given datasets.
+
         Given a set of datasets, check whether records correctly reflect the filesystem.
         Called by load methods, this returns a list of file paths to load and return.
-        TODO This needs changing; overlaod for downloading?
-        TODO change name to check_files, check_present, present_datasets, check_local_files?
-         check_filesystem?
+        TODO This needs changing; overload for downloading?
          This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
          update and save tables.  Download_datasets can also call this function.
-        TODO Remove clobber
 
         Parameters
         ----------
@@ -342,46 +504,69 @@ class One(ConversionMixin):
             repository
         update_exists : bool
             If true, the cache is updated to reflect the filesystem
-        clobber : bool
-            If true and not offline, datasets are re-downloaded regardless of local filesystem
 
         Returns
         -------
         A list of file paths for the datasets (None elements for non-existent datasets)
         """
-        if offline or self.offline:
-            files = []
-            if isinstance(datasets, pd.Series):
-                datasets = pd.DataFrame([datasets])
-            elif not isinstance(datasets, pd.DataFrame):
-                # Cast set of dicts (i.e. from REST datasets endpoint)
-                datasets = pd.DataFrame(list(datasets))
-            for i, rec in datasets.iterrows():
-                file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
-                if file.exists():
-                    # TODO Factor out; hash & file size also checked in _download_file;
-                    #  see _update_cache - we need to save changed cache
-                    files.append(file)
-                    new_hash = hashfile.md5(file)
-                    new_size = file.stat().st_size
-                    hash_mismatch = rec['hash'] and new_hash != rec['hash']
-                    size_mismatch = rec['file_size'] and new_size != rec['file_size']
-                    # TODO clobber and tag mismatched
-                    if hash_mismatch or size_mismatch:
-                        # the local file hash doesn't match the dataset table cached hash
-                        # datasets.at[i, ['hash', 'file_size']] = new_hash, new_size
-                        # Raise warning if size changed or hash changed and wasn't empty
-                        if size_mismatch or (hash_mismatch and rec['hash']):
-                            _logger.warning('local md5 or size mismatch')
-                else:
-                    files.append(None)
-                if rec['exists'] != file.exists():
+        if isinstance(datasets, pd.Series):
+            datasets = pd.DataFrame([datasets])
+        elif not isinstance(datasets, pd.DataFrame):
+            # Cast set of dicts (i.e. from REST datasets endpoint)
+            datasets = util.datasets2records(list(datasets))
+        indices_to_download = []  # indices of datasets that need (re)downloading
+        files = []  # file path list to return
+        # First go through datasets and check if file exists and hash matches
+        for i, rec in datasets.iterrows():
+            file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
+            if file.exists():
+                # Check if there's a hash mismatch
+                # If so, add this index to list of datasets that need downloading
+                if rec['hash'] is not None:
+                    if hashfile.md5(file) != rec['hash']:
+                        _logger.warning('local md5 mismatch on dataset: %s',
+                                        PurePosixPath(rec.session_path, rec.rel_path))
+                        indices_to_download.append(i)
+                elif rec['file_size'] and file.stat().st_size != rec['file_size']:
+                    _logger.warning('local file size mismatch on dataset: %s',
+                                    PurePosixPath(rec.session_path, rec.rel_path))
+                    indices_to_download.append(i)
+                files.append(file)  # File exists so add to file list
+            else:
+                # File doesn't exist so add None to output file list
+                files.append(None)
+                # Add this index to list of datasets that need downloading
+                indices_to_download.append(i)
+            if rec['exists'] != file.exists():
+                with warnings.catch_warnings():
+                    # Suppress future warning: exist column should always be present
+                    msg = '.*indexing on a MultiIndex with a nested sequence of labels.*'
+                    warnings.filterwarnings('ignore', message=msg)
                     datasets.at[i, 'exists'] = not rec['exists']
                     if update_exists:
-                        self._cache['datasets'].loc[i, 'exists'] = rec['exists']
-        else:
-            # TODO deal with clobber and exists here?
-            files = self._download_datasets(datasets, update_cache=update_exists, clobber=clobber)
+                        _logger.debug('Updating exists field')
+                        self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
+                        self._cache['_meta']['modified_time'] = datetime.now()
+
+        # If online and we have datasets to download, call download_datasets with these datasets
+        if not (offline or self.offline) and indices_to_download:
+            dsets_to_download = datasets.loc[indices_to_download]
+            # Returns list of local file paths and set to variable
+            new_files = self._download_datasets(dsets_to_download, update_cache=update_exists)
+            # Add each downloaded file to the output list of files
+            for i, file in zip(indices_to_download, new_files):
+                files[datasets.index.get_loc(i)] = file
+
+        if self.record_loaded:
+            loaded = np.fromiter(map(bool, files), bool)
+            loaded_ids = np.array(datasets.index.to_list())[loaded]
+            if '_loaded_datasets' not in self._cache:
+                self._cache['_loaded_datasets'] = np.unique(loaded_ids)
+            else:
+                loaded_set = np.hstack([self._cache['_loaded_datasets'], loaded_ids])
+                self._cache['_loaded_datasets'] = np.unique(loaded_set, axis=0)
+
+        # Return full list of file paths
         return files
 
     def _index_type(self, table='sessions'):
@@ -389,7 +574,7 @@ class One(ConversionMixin):
 
         Parameters
         ----------
-        table : str
+        table : str, pd.DataFrame
             The cache table to check
 
         Returns
@@ -402,10 +587,11 @@ class One(ConversionMixin):
         IndexError
             Unable to determine the index type of the cache table
         """
-        idx_0 = self._cache[table].index.values[0]
-        if len(self._cache[table].index.names) == 2 and all(isinstance(x, int) for x in idx_0):
+        table = self._cache[table] if isinstance(table, str) else table
+        idx_0 = table.index.values[0]
+        if len(table.index.names) % 2 == 0 and all(isinstance(x, int) for x in idx_0):
             return int
-        elif len(self._cache[table].index.names) == 1 and isinstance(idx_0, str):
+        elif all(isinstance(x, str) for x in util.ensure_list(idx_0)):
             return str
         else:
             raise IndexError
@@ -440,8 +626,7 @@ class One(ConversionMixin):
             raise alferr.ALFMultipleObjectsFound(f'Multiple sessions in cache for eid {eid}')
         if not full:
             return det.iloc[0]
-        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']
-        # det = det.drop(to_drop, axis=1)
+        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']  # .reset_index(to_drop, drop=True)
         column = ['eid_0', 'eid_1'] if int_ids else 'eid'
         return self._cache['datasets'].join(det, on=column, how='right')
 
@@ -458,9 +643,8 @@ class One(ConversionMixin):
         return self._cache['sessions']['subject'].sort_values().unique().tolist()
 
     @util.refresh
-    def list_datasets(self, eid=None, collection=None, revision=None, filename=None,
+    def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
-
         """
         Given an eid, return the datasets for those sessions.  If no eid is provided,
         a list of all datasets is returned.  When details is false, a sorted array of unique
@@ -471,13 +655,13 @@ class One(ConversionMixin):
         eid : str, UUID, pathlib.Path, dict
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
-        collection : str
+        filename : str, dict, list
+            Filters datasets and returns only the ones matching the filename
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        collection : str, list
             The collection to which the object belongs, e.g. 'alf/probe01'.
             This is the relative path of the file from the session root.
             Supports asterisks as wildcards.
-        filename : str
-            Filters datasets and returns only the ones matching the filename
-            Supports asterisks as wildcards
         revision : str
             Filters datasets and returns only the ones matching the revision
             Supports asterisks as wildcards
@@ -491,6 +675,28 @@ class One(ConversionMixin):
         -------
         np.ndarray, pd.DataFrame
             Slice of datasets table or numpy array if details is False
+
+        Examples
+        --------
+        List all unique datasets in ONE cache
+
+        >>> datasets = one.list_datasets()
+
+        List all datasets for a given experiment
+
+        >>> datasets = one.list_datasets(eid)
+
+        List all datasets for an experiment that match a collection name
+
+        >>> probe_datasets = one.list_datasets(eid, collection='*probe*')
+
+        List datasets for an experiment that have 'wheel' in the filename
+
+        >>> datasets = one.list_datasets(eid, filename='*wheel*')
+
+        List datasets for an experiment that are part of a 'wheel' or 'trial(s)' object
+
+        >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
         """
         datasets = self._cache['datasets']
         filter_args = dict(collection=collection, filename=filename, wildcards=self.wildcards,
@@ -501,25 +707,24 @@ class One(ConversionMixin):
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return datasets.iloc[0:0]  # Return empty
-        if self._index_type() is int:
-            eid_num = parquet.str2np(eid)
-            index = ['eid_0', 'eid_1']
-            isin, _ = ismember2d(datasets[index].to_numpy(), eid_num)
-            datasets = datasets[isin]
-        else:
-            session_match = datasets['eid'] == eid
-            datasets = datasets[session_match]
+        try:
+            if self._index_type() is int:
+                eid_num, = parquet.str2np(eid)
+                datasets = datasets.loc[pd.IndexSlice[eid_num, ], :]
+            else:
+                datasets = datasets.loc[(eid,), :]
+        except KeyError:
+            return datasets.iloc[0:0]  # Return empty
 
         datasets = util.filter_datasets(datasets, **filter_args)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
     @util.refresh
-    def list_collections(self, eid=None, details=False, collection=None,
-                         filename=None, revision=None,
-                         query_type=None) -> Union[np.ndarray, dict]:
+    def list_collections(self, eid=None, filename=None, collection=None, revision=None,
+                         details=False, query_type=None) -> Union[np.ndarray, dict]:
         """
-        List the collections for a given experiment.  If no experiment id is given,
+        List the collections for a given experiment.  If no experiment ID is given,
         all collections are returned.
 
         Parameters
@@ -527,14 +732,50 @@ class One(ConversionMixin):
         eid : [str, UUID, Path, dict]
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path
+        filename : str, dict, list
+            Filters datasets and returns only the collections containing matching datasets.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        collection : str, list
+            Filter by a given pattern. Supports asterisks as wildcards.
+        revision : str
+            Filters collections and returns only the ones with the matching revision.
+            Supports asterisks as wildcards
         details : bool
             If true a dict of pandas datasets tables is returned with collections as keys,
             otherwise a numpy array of unique collections
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
 
         Returns
         -------
         list, dict
             A list of unique collections or dict of datasets tables
+
+        Examples
+        --------
+        List all unique collections in ONE cache
+
+        >>> collections = one.list_collections()
+
+        List all collections for a given experiment
+
+        >>> collections = one.list_collections(eid)
+
+        List all collections for a given experiment and revision
+
+        >>> revised = one.list_collections(eid, revision='2020-01-01')
+
+        List all collections that have 'probe' in the name.
+
+        >>> collections = one.list_collections(eid, collection='*probe*')
+
+        List collections for an experiment that have datasets with 'wheel' in the name
+
+        >>> collections = one.list_collections(eid, filename='*wheel*')
+
+        List collections for an experiment that contain numpy datasets
+
+        >>> collections = one.list_collections(eid, {'extension': 'npy'})
         """
         filter_kwargs = dict(eid=eid, collection=collection, filename=filename,
                              revision=revision, query_type=query_type)
@@ -550,29 +791,60 @@ class One(ConversionMixin):
             return datasets['collection'].unique().tolist()
 
     @util.refresh
-    def list_revisions(self, eid=None, dataset=None, collection=None, details=False):
+    def list_revisions(self, eid=None, filename=None, collection=None, revision=None,
+                       details=False, query_type=None):
         """
         List the revisions for a given experiment.  If no experiment id is given,
         all collections are returned.
 
         Parameters
         ----------
-        eid : [str, UUID, Path, dict]
+        eid : str, UUID, Path, dict
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path
+        filename : str, dict, list
+            Filters datasets and returns only the revisions containing matching datasets.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        collection : str, list
+            Filter by a given collection. Supports asterisks as wildcards.
+        revision : str, list
+            Filter by a given pattern. Supports asterisks as wildcards.
         details : bool
             If true a dict of pandas datasets tables is returned with collections as keys,
             otherwise a numpy array of unique collections
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
 
         Returns
         -------
         list, dict
             A list of unique collections or dict of datasets tables
+
+        Examples
+        --------
+        List all revisions in ONE cache
+
+        >>> revisions = one.list_revisions()
+
+        List all revisions for a given experiment
+
+        >>> revisions = one.list_revisions(eid)
+
+        List all revisions for a given experiment that contain the trials object
+
+        >>> revisions = one.list_revisions(eid, filename={'object': 'trials'})
+
+        List all revisions for a given experiment that start with 2020 or 2021
+
+        >>> revisions = one.list_revisions(eid, revision=['202[01]*'])
+
         """
-        datasets = self.list_datasets(eid, collection, details=True).copy()
-        if dataset:
-            match = datasets.rel_path.apply(lambda x: x.split('/')[-1]).str.match(dataset)
-            datasets = datasets[match]
+        datasets = self.list_datasets(eid=eid, details=True, query_type=query_type).copy()
+
+        # Call filter util ourselves with the revision_last_before set to False
+        kwargs = dict(collection=collection, filename=filename, revision=revision,
+                      revision_last_before=False, wildcards=self.wildcards, assert_unique=False)
+        datasets = util.filter_datasets(datasets, **kwargs)
         datasets['revision'] = datasets.rel_path.apply(
             lambda x: (rel_path_parts(x, assert_valid=False)[1] or '').strip('#')
         )
@@ -615,8 +887,9 @@ class One(ConversionMixin):
         query_type : str
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
-            When true the data are downloaded and the file path is returned.
-        kwargs : dict
+            When true the data are downloaded and the file path is returned. NB: The order of the
+            file path list is undefined.
+        **kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -661,7 +934,7 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
-        files = self._update_filesystem(datasets, offline=offline)
+        files = self._check_filesystem(datasets, offline=offline)
         files = [x for x in files if x]
         if not files:
             raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
@@ -736,7 +1009,7 @@ class One(ConversionMixin):
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
         # Check files exist / download remote files
-        file, = self._update_filesystem(datasets, **kwargs)
+        file, = self._check_filesystem(datasets, **kwargs)
 
         if not file:
             raise alferr.ALFObjectNotFound('Dataset not found')
@@ -841,7 +1114,7 @@ class One(ConversionMixin):
                 _logger.warning(message)
 
         # Check files exist / download remote files
-        files = self._update_filesystem(present_datasets, **kwargs)
+        files = self._check_filesystem(present_datasets, **kwargs)
 
         if any(x is None for x in files):
             missing_list = ', '.join(x for x, y in zip(present_datasets.rel_path, files) if not y)
@@ -854,12 +1127,12 @@ class One(ConversionMixin):
         # Make list of metadata Bunches out of the table
         records = (present_datasets
                    .reset_index()
-                   .drop(['eid_0', 'eid_1'], axis=1)
                    .to_dict('records', Bunch))
 
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]
-        records = [None if not here else records.pop(0) for here in files]
+        # Replace missing file records with None
+        records = [None if not here else records.pop(0) for here in present]
         if download_only:
             return files, records
         return [alfio.load_file_content(x) for x in files], records
@@ -891,18 +1164,21 @@ class One(ConversionMixin):
             dset_id = parquet.str2np(dset_id)
         elif isinstance(dset_id, UUID):
             dset_id = parquet.uuid2np([dset_id]) if int_idx else str(dset_id)
+        elif not int_idx and not isinstance(dset_id, str):
+            dset_id, = parquet.np2str(dset_id)
         try:
             if int_idx:
-                dataset = self._cache['datasets'].loc[dset_id.tolist()].iloc[0]
+                idx = (slice(None), slice(None), *dset_id.tolist())
+                dataset = self._cache['datasets'].loc[idx, :].squeeze()
             else:
-                dataset = self._cache['datasets'].loc[[dset_id]]
+                dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
+            if dataset.empty:
+                raise alferr.ALFObjectNotFound('Dataset not found')
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
-        except KeyError:
-            raise alferr.ALFObjectNotFound('Dataset not found')
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
 
-        filepath, = self._update_filesystem(dataset)
+        filepath, = self._check_filesystem(dataset)
         if not filepath:
             raise alferr.ALFObjectNotFound('Dataset not found')
         output = filepath if download_only else alfio.load_file_content(filepath)
@@ -913,17 +1189,107 @@ class One(ConversionMixin):
 
     @util.refresh
     @util.parse_id
-    def load_collection(self, eid, collection):
-        raise NotImplementedError()
+    def load_collection(self,
+                        eid: Union[str, Path, UUID],
+                        collection: str,
+                        object: Optional[str] = None,
+                        revision: Optional[str] = None,
+                        query_type: Optional[str] = None,
+                        download_only: bool = False,
+                        **kwargs) -> Union[Bunch, List[Path]]:
+        """
+        Load all objects in an ALF collection from a Session ID.  Any datasets with matching object
+        name(s) will be loaded.  Returns a bunch of objects.
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        collection : str
+            The collection to which the object belongs, e.g. 'alf/probe01'.
+            This is the relative path of the file from the session root.
+            Supports asterisks as wildcards.
+        object : str
+            The ALF object to load.  Supports asterisks as wildcards.
+        revision : str
+            The dataset revision (typically an ISO date).  If no exact match, the previous
+            revision (ordered lexicographically) is returned.  If None, the default revision is
+            returned (usually the most recent revision).  Regular expressions/wildcards not
+            permitted.
+        query_type : str
+            Query cache ('local') or Alyx database ('remote')
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+        **kwargs
+            Additional filters for datasets, including namespace and timescale. For full list
+            see the one.alf.spec.describe function.
+
+        Returns
+        -------
+        Bunch of one.alf.io.AlfBunch, list of pathlib.Path
+            A Bunch of objects or if download_only is True, a list of Paths objects
+
+        Examples
+        --------
+        >>> alf_collection = load_collection(eid, 'alf')
+        >>> load_collection(eid, '*probe01', object=['spikes', 'clusters'])  # wildcards is True
+        >>> files = load_collection(eid, '', download_only=True)  # Base session dir
+
+        Raises
+        ------
+        alferr.ALFError
+            No datasets exist for the provided session collection
+        alferr.ALFObjectNotFound
+            No datasets match the object, attribute or revision filters for this collection
+        """
+        query_type = query_type or self.mode
+        datasets = self.list_datasets(eid, details=True, collection=collection,
+                                      query_type=query_type)
+
+        if len(datasets) == 0:
+            raise alferr.ALFError(f'{collection} not found for session {eid}')
+
+        dataset = {'object': object, **kwargs}
+        datasets = util.filter_datasets(datasets, dataset, revision,
+                                        assert_unique=False, wildcards=self.wildcards)
+
+        # Validate result before loading
+        if len(datasets) == 0:
+            raise alferr.ALFObjectNotFound(object or '')
+        parts = [rel_path_parts(x) for x in datasets.rel_path]
+        unique_objects = set(x[3] or '' for x in parts)
+
+        # For those that don't exist, download them
+        offline = None if query_type == 'auto' else self.mode == 'local'
+        files = self._check_filesystem(datasets, offline=offline)
+        files = [x for x in files if x]
+        if not files:
+            raise alferr.ALFObjectNotFound(f'ALF collection "{collection}" not found on disk')
+
+        if download_only:
+            return files
+
+        kwargs.update(wildcards=self.wildcards)
+        collection = {
+            obj: alfio.load_object([x for x, y in zip(files, parts) if y[3] == obj], **kwargs)
+            for obj in unique_objects
+        }
+        return Bunch(collection)
 
     @staticmethod
-    def setup(cache_dir=None, **kwargs):
+    def setup(cache_dir=None, silent=False, **kwargs):
         """Set up One cache tables for a given data directory.
 
         Parameters
         ----------
         cache_dir : pathlib.Path, str
             A path to the ALF data directory
+        silent : (False) bool
+            when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
+            when False will use cwd for cache_dir if cache_dir is None and use existing cache
+        **kwargs
+            Optional arguments to pass to one.alf.cache.make_parquet_db.
 
         Returns
         -------
@@ -931,15 +1297,19 @@ class One(ConversionMixin):
             An instance of One for the provided cache directory
         """
         if not cache_dir:
-            cache_dir = input(f'Select a directory from which to build cache ({Path.cwd()})')
+            if not silent:
+                cache_dir = input(f'Select a directory from which to build cache ({Path.cwd()})')
             cache_dir = cache_dir or Path.cwd()
         cache_dir = Path(cache_dir)
         assert cache_dir.exists(), f'{cache_dir} does not exist'
 
         # Check if cache already exists
         if next(cache_dir.glob('sessions.pqt'), False):
-            answer = input(f'Cache tables exist for {cache_dir}, overwrite? [y/N]')
-            if (answer or 'n').lower() == 'n':
+            generate_cache = False
+            if not silent:
+                answer = input(f'Cache tables exist for {cache_dir}, overwrite? [y/N]')
+                generate_cache = True if answer == 'y' else False
+            if not generate_cache:
                 return One(cache_dir, mode='local')
 
         # Build cache tables
@@ -1040,11 +1410,35 @@ class OneAlyx(One):
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
 
-    def _load_cache(self, cache_dir=None, clobber=False):
-        cache_meta = self._cache['_meta']
-        if not clobber:
-            super(OneAlyx, self)._load_cache(self.cache_dir)  # Load any present cache
-            if (self._cache and not cache_meta['expired']) or self.mode == 'local':
+    def load_cache(self, cache_dir=None, clobber=False, tag=None):
+        """
+        Load parquet cache files.  If the local cache is sufficiently old, this method will query
+        the database for the location and creation date of the remote cache.  If newer, it will be
+        download and loaded.
+
+        Note: Unlike refresh_cache, this will always reload the local files at least once.
+
+        Parameters
+        ----------
+        cache_dir : str, pathlib.Path
+            An optional directory location of the parquet files, defaults to One.cache_dir.
+        clobber : bool
+            If True, query Alyx for a newer cache even if current (local) cache is recent.
+        tag : str
+            An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
+        """
+        cache_meta = self._cache.get('_meta', {})
+        cache_dir = cache_dir or self.cache_dir
+        # If user provides tag that doesn't match current cache's tag, always download.
+        # NB: In the future 'database_tags' may become a list.
+        current_tags = [x.get('database_tags') for x in cache_meta.get('raw', {}).values() or [{}]]
+        tag = tag or current_tags[0]  # For refreshes take the current tag as default
+        different_tag = any(x != tag for x in current_tags)
+        if not clobber or different_tag:
+            super(OneAlyx, self).load_cache(cache_dir)  # Load any present cache
+            cache_meta = self._cache.get('_meta', {})  # TODO Make walrus when we drop 3.7 support
+            expired = self._cache and cache_meta['expired']
+            if not expired or self.mode in ('local', 'remote'):
                 return
 
         # Warn user if expired
@@ -1061,7 +1455,16 @@ class OneAlyx(One):
 
         try:
             # Determine whether a newer cache is available
-            cache_info = self.alyx.get('cache/info', expires=True)
+            cache_info = self.alyx.get(f'cache/info/{tag or ""}'.strip('/'), expires=True)
+            assert tag == cache_info.get('database_tags')
+
+            # Check version compatibility
+            min_version = packaging.version.parse(cache_info.get('min_api_version', '0.0.0'))
+            if packaging.version.parse(one.__version__) < min_version:
+                warnings.warn(f'Newer cache tables require ONE version {min_version} or greater')
+                return
+
+            # Check whether remote cache more recent
             remote_created = datetime.fromisoformat(cache_info['date_created'])
             local_created = cache_meta.get('created_time', None)
             if local_created and (remote_created - local_created) < timedelta(minutes=1):
@@ -1070,13 +1473,15 @@ class OneAlyx(One):
 
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
-            files = self.alyx.download_cache_tables()
+            files = self.alyx.download_cache_tables(cache_info.get('location'), cache_dir)
             assert any(files)
-            super(OneAlyx, self)._load_cache(self.cache_dir)  # Reload cache after download
-        except requests.exceptions.HTTPError:
+            super(OneAlyx, self).load_cache(cache_dir)  # Reload cache after download
+        except (requests.exceptions.HTTPError, wc.HTTPError) as ex:
+            _logger.debug(ex)
             _logger.error('Failed to load the remote cache file')
             self.mode = 'remote'
-        except (ConnectionError, requests.exceptions.ConnectionError):
+        except (ConnectionError, requests.exceptions.ConnectionError) as ex:
+            _logger.debug(ex)
             _logger.error('Failed to connect to Alyx')
             self.mode = 'local'
 
@@ -1143,19 +1548,24 @@ class OneAlyx(One):
         return out
 
     @util.refresh
-    def list_datasets(self, eid=None, collection=None, filename=None, revision=None,
+    def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
                       details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
-        filter_kwargs = dict(eid=eid, collection=collection, filename=filename, revision=revision,
-                             details=details, query_type=query_type)
+        filters = dict(collection=collection, filename=filename, revision=revision)
         if (query_type or self.mode) != 'remote':
-            return super().list_datasets(**filter_kwargs)
+            return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         elif not eid:
             warnings.warn('Unable to list all remote datasets')
-            return super().list_datasets(**filter_kwargs)
+            return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
-            return self._cache['datasets'].iloc[0:0]  # Return empty
-        _, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
+        session, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        # Add to cache tables
+        self._update_cache_from_records(sessions=session, datasets=datasets.copy())
+        if datasets is None or datasets.empty:
+            return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
+        datasets = util.filter_datasets(
+            datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
@@ -1221,7 +1631,7 @@ class OneAlyx(One):
         task_protocol : str, list
             The task protocol name (can be partial, i.e. any task protocol containing that str
             will be found)
-        project : str, list
+        project(s) : str, list
             The project name (can be partial, i.e. any task protocol containing that str
             will be found)
         performance_lte / performance_gte : float
@@ -1272,18 +1682,146 @@ class OneAlyx(One):
 
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+        # Add date field for compatibility with One.search output
+        for s in ses:
+            s['date'] = str(datetime.fromisoformat(s['start_time']).date())
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         return (eids, ses) if details else eids
 
-    def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs):
+    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
-        Download a dataset from an Alyx REST dictionary
+         Download a single or multitude of datasets if stored on AWS, otherwise calls
+         OneAlyx._download_dataset.
+
+         NB: This will not skip files that are already present.  Use check_filesystem instead.
+
+         Parameters
+         ----------
+         dset : dict, str, pd.Series
+             A single or multitude of dataset dictionaries
+
+         Returns
+         -------
+         pathlib.Path
+             A local file path or list of paths
+         """
+        # If all datasets exist on AWS, download from there.
+        try:
+            if 'exists_aws' in dsets and np.all(np.equal(dsets['exists_aws'].values, True)):
+                _logger.info('Downloading from AWS')
+                return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+        except Exception as ex:
+            _logger.debug(ex)
+        return self._download_dataset(dsets, **kwargs)
+
+    def _download_aws(self, dsets, update_exists=True, **_) -> List[Path]:
+        # Download datasets from AWS
+        import one.remote.aws as aws
+        s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
+        if self._index_type() is int:
+            raise NotImplementedError('AWS download only supported for str index cache')
+        assert self.mode != 'local'
+        # Get all dataset URLs
+        dsets = list(dsets)  # Ensure not generator
+        uuids = [util.ensure_list(x.name)[-1] for x in dsets]
+        remote_records = self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids}')
+        remote_records = sorted(remote_records, key=lambda x: uuids.index(x['url'].split('/')[-1]))
+        out_files = []
+        for dset, uuid, record in zip(dsets, uuids, remote_records):
+            # Fetch file record path
+            record = next((x for x in record['file_records']
+                           if x['data_repository'].startswith('aws') and x['exists']), None)
+            if not record and update_exists and 'exists_aws' in self._cache['datasets']:
+                _logger.debug('Updating exists field')
+                self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
+                self._cache['_meta']['modified_time'] = datetime.now()
+                out_files.append(None)
+                continue
+            source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
+            source_path = add_uuid_string(source_path, uuid)
+            local_path = alfio.remove_uuid_file(
+                self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
+            local_path.parent.mkdir(exist_ok=True, parents=True)
+            out_files.append(aws.s3_download_file(
+                source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
+        return out_files
+
+    def _dset2url(self, dset, update_cache=True):
+        """
+        Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the
+        following: a dict from returned by the sessions endpoint or dataset endpoint, a record
+        from the datasets cache table, or a file path.  Unlike record2url, this method can convert
+        dicts and paths to URLs.
 
         Parameters
         ----------
-        dset : dict, str
-            A single dataset dictionary from an Alyx REST query OR URL string
+        dset : dict, str, pd.Series, pd.DataFrame, list
+            A single or multitude of dataset dictionary from an Alyx REST query OR URL string
+        update_cache : bool
+            If True (default) and the dataset is from Alyx and cannot be converted to a URL,
+            'exists' will be set to False in the corresponding entry in the cache table.
+
+        Returns
+        -------
+        str
+            The remote URL of the dataset
+        """
+        did = None
+        if isinstance(dset, str) and dset.startswith('http'):
+            url = dset
+        elif isinstance(dset, (str, Path)):
+            url = self.path2url(dset)
+            if not url:
+                _logger.warning(f'Dataset {dset} not found in cache')
+                return
+        elif isinstance(dset, (list, tuple)):
+            dset2url = partial(self._dset2url, update_cache=update_cache)
+            return list(flatten(map(dset2url, dset)))
+        else:
+            # check if dset is dataframe, iterate over rows
+            if hasattr(dset, 'iterrows'):
+                dset2url = partial(self._dset2url, update_cache=update_cache)
+                url = list(map(lambda x: dset2url(x[1]), dset.iterrows()))
+            elif 'data_url' in dset:  # data_dataset_session_related dict
+                url = dset['data_url']
+                did = dset['id']
+            elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
+                url = self.record2url(dset)  # NB: URL will always be returned but may not exist
+                is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
+                did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
+            else:  # from datasets endpoint
+                repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
+                url = next(
+                    (fr['data_url'] for fr in dset['file_records']
+                     if fr['data_url'] and fr['exists'] and
+                     fr['data_url'].startswith(repo or fr['data_url'])), None)
+                did = dset['url'][-36:]
+
+        # Update cache if url not found
+        if did is not None and not url and update_cache:
+            _logger.debug('Updating cache')
+            if isinstance(did, str) and self._index_type('datasets') is int:
+                did, = parquet.str2np(did).tolist()
+            elif self._index_type('datasets') is str and not isinstance(did, str):
+                did = parquet.np2str(did)
+            # NB: This will be considerably easier when IndexSlice supports Ellipsis
+            idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
+            self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
+            self._cache['_meta']['modified_time'] = datetime.now()
+
+        return url
+
+    def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[Path]:
+        """
+        Download a single or multitude of dataset from an Alyx REST dictionary.
+
+        NB: This will not skip files that are already present.  Use check_filesystem instead.
+
+        Parameters
+        ----------
+        dset : dict, str, pd.Series, pd.DataFrame, list
+            A single or multitude of dataset dictionary from an Alyx REST query OR URL string
         cache_dir : str, pathlib.Path
             The root directory to save the data to (default taken from ONE parameters)
         update_cache : bool
@@ -1291,43 +1829,24 @@ class OneAlyx(One):
 
         Returns
         -------
-        pathlib.Path
-            A local file path
+        pathlib.Path, list
+            A local file path or list of paths
         """
-        if isinstance(dset, str) and dset.startswith('http'):
-            url = dset
-        elif isinstance(dset, (str, Path)):
-            url = self.path2url(dset)
-            if not url:
-                _logger.warning('Dataset not found in cache')
-                return
-        else:
-            if 'data_url' in dset:  # data_dataset_session_related dict
-                url = dset['data_url']
-                did = dset['id']
-            elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
-                url = self.record2url(dset)
-                did = dset.index
-            else:  # from datasets endpoint
-                url = next((fr['data_url'] for fr in dset['file_records']
-                            if fr['data_url'] and fr['exists']), None)
-                did = dset['url'][-36:]
-
+        cache_dir = cache_dir or self.cache_dir
+        url = self._dset2url(dset, update_cache=update_cache)
         if not url:
-            dset_str = f"{dset['session'][-36:]}: {dset['collection']} / {dset['name']}"
-            _logger.warning(f"{dset_str} Dataset not found")
-            if update_cache:
-                if isinstance(did, str) and self._index_type('datasets') is int:
-                    did = parquet.str2np(did)
-                elif self._index_type('datasets') is str and not isinstance(did, str):
-                    did = parquet.np2str(did)
-                try:
-                    self._cache['datasets'].loc[did, 'exists'] = False
-                except KeyError as e:
-                    _logger.warning(f"{dset_str} couldn't update exist status in cache. {e}")
             return
-        target_dir = Path(cache_dir or self.cache_dir, get_alf_path(url)).parent
-        return self._download_file(url=url, target_dir=target_dir, **kwargs)
+        if isinstance(url, str):
+            target_dir = str(Path(cache_dir, get_alf_path(url)).parent)
+            return self._download_file(url, target_dir, **kwargs)
+        # must be list of URLs
+        valid_urls = list(filter(None, url))
+        if not valid_urls:
+            return [None] * len(url)
+        target_dir = [str(Path(cache_dir, get_alf_path(x)).parent) for x in valid_urls]
+        files = self._download_file(valid_urls, target_dir, **kwargs)
+        # Return list of file paths or None if we failed to extract URL from dataset
+        return [None if not x else files.pop(0) for x in url]
 
     def _tag_mismatched_file_record(self, url):
         fr = self.alyx.rest('files', 'list',
@@ -1340,70 +1859,97 @@ class OneAlyx(One):
                 json_field = {'mismatch_hash': True}
             else:
                 json_field.update({'mismatch_hash': True})
-            self.alyx.rest('files', 'partial_update',
-                           id=fr[0]['url'][-36:], data={'json': json_field})
+            try:
+                self.alyx.rest('files', 'partial_update',
+                               id=fr[0]['url'][-36:], data={'json': json_field})
+            except requests.exceptions.HTTPError as ex:
+                warnings.warn(
+                    f'Failed to tag remote file record mismatch: {ex}\n'
+                    'Please contact the database administrator.')
 
-    def _download_file(self, url, target_dir,
-                       clobber=False, offline=None, keep_uuid=False, file_size=None, hash=None):
+    def _download_file(self, url, target_dir, keep_uuid=False, file_size=None, hash=None):
         """
-        Downloads a single file from an HTTP webserver.  The webserver in question is set by the
-        AlyxClient object.
+        Downloads a single file or multitude of files from an HTTP webserver.
+        The webserver in question is set by the AlyxClient object.
 
         Parameters
         ----------
-        url : str
+        url : str, list
             An absolute or relative URL for a remote dataset
-        target_dir : str, pathlib.Path
-            The root directory to download file to
-        clobber : bool
-            If true, overwrites local dataset if any
-        offline : bool, None
-            If true, the file path is returned only if the file exists.  No download will take
-            place
+        target_dir : str, list
+            Absolute path of directory to download file to (including alf path)
         keep_uuid : bool
             If true, the UUID is not removed from the file name (default is False)
-        file_size : int
-            The expected file size to compare with downloaded file
-        hash : str
-            The expected file hash to compare with downloaded file
+        file_size : int, list
+            The expected file size or list of file sizes to compare with downloaded file
+        hash : str, list
+            The expected file hash or list of file hashes to compare with downloaded file
 
         Returns
         -------
         pathlib.Path
-            The file path of the downloaded file
+            The file path of the downloaded file or files.
+
+        Example
+        -------
+        >>> file_path = OneAlyx._download_file(
+        ...    'https://example.com/data.file.npy', '/home/Downloads/subj/1900-01-01/001/alf')
         """
-        if offline is None:
-            offline = self.mode == 'local'
-        Path(target_dir).mkdir(parents=True, exist_ok=True)
-        local_path = target_dir / os.path.basename(url)
-        if not keep_uuid:
-            local_path = alfio.remove_uuid_file(local_path, dry=True)
-        if Path(local_path).exists():
-            # the local file hash doesn't match the dataset table cached hash
-            hash_mismatch = hash and hashfile.md5(Path(local_path)) != hash
-            file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-            if (hash_mismatch or file_size_mismatch) and not offline:
-                clobber = True
-                if not self.alyx.silent:
-                    _logger.warning(f'local md5 or size mismatch, re-downloading {local_path}')
-        # if there is no cached file, download
-        else:
-            clobber = True
-        if clobber and not offline:
-            local_path, md5 = self.alyx.download_file(
-                url, cache_dir=str(target_dir), clobber=clobber, return_md5=True)
-            # TODO If 404 update JSON on Alyx for data record
-            # post download, if there is a mismatch between Alyx and the newly downloaded file size
-            # or hash flag the offending file record in Alyx for database maintenance
-            hash_mismatch = hash and md5 != hash
-            file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
-            if hash_mismatch or file_size_mismatch:
-                self._tag_mismatched_file_record(url)
-                # TODO Update cache here
+        assert not self.offline
+        # Ensure all target directories exist
+        [Path(x).mkdir(parents=True, exist_ok=True) for x in set(util.ensure_list(target_dir))]
+
+        # download file(s) from url(s), returns file path(s) with UUID
+        local_path, md5 = self.alyx.download_file(url, target_dir=target_dir, return_md5=True)
+
+        # check if url, hash, and file_size are lists
+        if isinstance(url, (tuple, list)):
+            assert (file_size is None) or len(file_size) == len(url)
+            assert (hash is None) or len(hash) == len(url)
+        for args in zip(*map(util.ensure_list, (file_size, md5, hash, local_path, url))):
+            self._check_hash_and_file_size_mismatch(*args)
+
+        # check if we are keeping the uuid on the list of file names
         if keep_uuid:
             return local_path
+
+        # remove uuids from list of file names
+        if isinstance(local_path, (list, tuple)):
+            return [alfio.remove_uuid_file(x) for x in local_path]
         else:
             return alfio.remove_uuid_file(local_path)
+
+    def _check_hash_and_file_size_mismatch(self, file_size, hash, expected_hash, local_path, url):
+        """
+        Check to ensure the hash and file size of a downloaded file matches what is on disk
+
+        Parameters
+        ----------
+        file_size : int
+            The expected file size to compare with downloaded file
+        hash : str
+            The expected file hash to compare with downloaded file
+        local_path: str
+            The path of the downloaded file
+        url : str
+            An absolute or relative URL for a remote dataset
+        """
+        # verify hash size
+        hash = hash or hashfile.md5(local_path)
+        hash_mismatch = hash and hash != expected_hash
+        # verify file size
+        file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+        # check if there is a mismatch in hash or file_size
+        if hash_mismatch or file_size_mismatch:
+            # post download, if there is a mismatch between Alyx and the newly downloaded file size
+            # or hash, flag the offending file record in Alyx for database for maintenance
+            hash_mismatch = expected_hash and expected_hash != hash
+            file_size_mismatch = file_size and Path(local_path).stat().st_size != file_size
+            if hash_mismatch or file_size_mismatch:
+                url = url or self.path2url(local_path)
+                _logger.debug(f'Tagging mismatch for {url}')
+                # tag the mismatched file records
+                self._tag_mismatched_file_record(url)
 
     @staticmethod
     def setup(base_url=None, **kwargs):
@@ -1414,6 +1960,8 @@ class OneAlyx(One):
         ----------
         base_url : str
             An Alyx database URL.  If None, the current default database is used.
+        **kwargs
+            Optional arguments to pass to one.params.setup.
 
         Returns
         -------
@@ -1426,13 +1974,13 @@ class OneAlyx(One):
 
     @util.refresh
     @util.parse_id
-    def eid2path(self, eid: str, query_type=None) -> util.Listable(Path):
+    def eid2path(self, eid, query_type=None) -> util.Listable(Path):
         """
         From an experiment ID gets the local session path
 
         Parameters
         ----------
-        eid : str, UUID, pathlib.Path, dict
+        eid : str, UUID, pathlib.Path, dict, list
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         query_type : str
@@ -1449,6 +1997,11 @@ class OneAlyx(One):
             cache_path = super().eid2path(eid)
             if cache_path or mode == 'local':
                 return cache_path
+
+        # If eid is a list recurse through it and return a list
+        if isinstance(eid, list):
+            unwrapped = unwrap(self.path2eid)
+            return [unwrapped(self, e, query_type='remote') for e in eid]
 
         # if it wasn't successful, query Alyx
         ses = self.alyx.rest('sessions', 'list', django=f'pk,{eid}')
@@ -1626,7 +2179,7 @@ class OneAlyx(One):
         # Get ID of fist matching dset
         for idx, rel_path in datasets['rel_path'].items():
             if rel_path.endswith(dset_name):
-                return idx
+                return idx[-1]  # (eid, did)
         raise ValueError(f'Dataset {dset_name} not found in cache')
 
     @util.refresh
@@ -1636,7 +2189,7 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        eid : str, UUID, pathlib.Path, dict
+        eid : str, UUID, pathlib.Path, dict, list
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         full : bool
@@ -1651,6 +2204,13 @@ class OneAlyx(One):
         pd.Series, pd.DataFrame, dict
             in local mode - a session record or full DataFrame with dataset information if full is
             True; in remote mode - a full or partial session dict
+
+        Raises
+        ------
+        ValueError
+            Invalid experiment ID (failed to parse into eid string)
+        requests.exceptions.HTTPError
+            [Errno 404] Remote session not found on Alyx
         """
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)
@@ -1660,61 +2220,15 @@ class OneAlyx(One):
             for p in eid:
                 details_list.append(self.get_details(p, full=full))
             return details_list
-        # If not valid return None
-        if not is_uuid_string(eid):
-            print(eid, ' is not a valid eID/UUID string')
-            return
         # load all details
         dets = self.alyx.rest('sessions', 'read', eid)
         if full:
             return dets
         # If it's not full return the normal output like from a one.search
-        det_fields = ['subject', 'start_time', 'number', 'lab', 'project',
+        det_fields = ['subject', 'start_time', 'number', 'lab', 'projects',
                       'url', 'task_protocol', 'local_path']
         out = {k: v for k, v in dets.items() if k in det_fields}
+        out['projects'] = ','.join(out['projects'])
         out.update({'local_path': self.eid2path(eid),
                     'date': datetime.fromisoformat(out['start_time']).date()})
         return out
-
-    # def _update_cache(self, ses, dataset_types):
-    #     """
-    #     TODO move to One; currently unused
-    #     :param ses: session details dictionary as per Alyx response
-    #     :param dataset_types:
-    #     :return: is_updated (bool): if the cache was updated or not
-    #     """
-    #     save = False
-    #     pqt_dsets = _ses2pandas(ses, dtypes=dataset_types)
-    #     # if the dataframe is empty, return
-    #     if pqt_dsets.size == 0:
-    #         return
-    #     # if the cache is empty create the cache variable
-    #     elif self._cache.size == 0:
-    #         self._cache = pqt_dsets
-    #         save = True
-    #     # the cache is not empty and there are datasets in the query
-    #     else:
-    #         isin, icache = ismember2d(pqt_dsets[['id_0', 'id_1']].to_numpy(),
-    #                                   self._cache[['id_0', 'id_1']].to_numpy())
-    #         # check if the hash / filesize fields have changed on patching
-    #         heq = (self._cache['hash'].iloc[icache].to_numpy() ==
-    #                pqt_dsets['hash'].iloc[isin].to_numpy())
-    #         feq = np.isclose(self._cache['file_size'].iloc[icache].to_numpy(),
-    #                          pqt_dsets['file_size'].iloc[isin].to_numpy(),
-    #                          rtol=0, atol=0, equal_nan=True)
-    #         eq = np.logical_and(heq, feq)
-    #         # update new hash / filesizes
-    #         if not np.all(eq):
-    #             self._cache.iloc[icache, 4:6] = pqt_dsets.iloc[np.where(isin)[0], 4:6].to_numpy()
-    #             save = True
-    #         # append datasets that haven't been found
-    #         if not np.all(isin):
-    #             self._cache = self._cache.append(pqt_dsets.iloc[np.where(~isin)[0]])
-    #             self._cache = self._cache.reindex()
-    #             save = True
-    #     if save:
-    #         # before saving makes sure pandas did not cast uuids in float
-    #         typs = [t for t, k in zip(self._cache.dtypes, self._cache.keys()) if 'id_' in k]
-    #         assert (all(map(lambda t: t == np.int64, typs)))
-    #         # if this gets too big, look into saving only when destroying the ONE object
-    #         parquet.save(self._cache_file, self._cache)
