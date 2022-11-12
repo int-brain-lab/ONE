@@ -206,20 +206,12 @@ called.  To avoid this, run the following command instead:</p>
 </section>
 <section id="how-do-i-change-my-download-a-k-a-cache-directory">
 <h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Permalink to this heading"></a></h2>
-<p>To <strong>permanently</strong> change the directory, simply re-run the setup routine:</p>
+<p>For one-time changes, simply re-run the setup routine:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">new_one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Re-run setup for default database</span>
 </pre></div>
 </div>
 <p>When prompted (‘Enter the location of the download cache’) enter the absolute path of the new download location.</p>
-<p>To <strong>temporarily</strong> change the download directory you can change the AlyxClient cache_dir attribute:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
-<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;new_download_dir&#39;</span>
-</pre></div>
-</div>
 </section>
 <section id="how-do-check-who-i-m-logged-in-as">
 <h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Permalink to this heading"></a></h2>
