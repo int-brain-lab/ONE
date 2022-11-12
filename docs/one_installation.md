@@ -22,6 +22,8 @@ from one.api import ONE
 one = ONE(silent=True)
 ```
 
+If you are having an issue at this stage, or need to re-configure ONE, please see [this FAQ page](/FAQ.md#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it).
+
 ### Using local folder structure
 ONE can also be used independently of a database by using a local cache directory. This can be setup in the following way 
 
