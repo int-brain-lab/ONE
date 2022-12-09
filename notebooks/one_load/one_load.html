@@ -229,10 +229,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -402,21 +403,21 @@ div.rendered_html tbody tr:hover {
 one_load.ipynb"><button id="github">Github link</button></a><section id="Loading-with-ONE">
 <h1>Loading with ONE<a class="headerlink" href="#Loading-with-ONE" title="Permalink to this heading"></a></h1>
 <p>The datasets are organized into directory trees by subject, date and session number. For a given session there are data files grouped by object (e.g. ‘trials’), each with a specific attribute (e.g. ‘rewardVolume’). The dataset name follows the pattern ‘object.attribute’, for example ‘trials.rewardVolume’. For more information, see the <a class="reference external" href="../alyx_files.html">ALF documentation</a>.</p>
-<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span>:nbsphinx-math:<a href="#id1"><span class="problematic" id="id2">`</span></a>KS`0232019-12-10001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
+<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span><span class="math">\KS023</span>\2019-12-10001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
 <p>If the data don’t exist locally, they will be downloaded, then loaded.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from pprint import pprint
+from one.api import ONE
+import one.alf.io as alfio
 
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+one = ONE(base_url=&#39;https://openalyx.internationalbrainlab.org&#39;, silent=True)
 
-<span class="c1"># To load all the data for a given object, use the load_object method:</span>
-<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>  <span class="c1"># subject/date/number</span>
-<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>  <span class="c1"># Returns a dict-like object of numpy arrays</span>
+# To load all the data for a given object, use the load_object method:
+eid = &#39;KS023/2019-12-10/001&#39;  # subject/date/number
+trials = one.load_object(eid, &#39;trials&#39;)  # Returns a dict-like object of numpy arrays
 </pre></div>
 </div>
 </div>
@@ -425,11 +426,11 @@ one_load.ipynb"><button id="github">Github link</button></a><section id="Loading
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="c1"># The data can be accessed with dot syntax</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">rewardVolume</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
-<span class="c1"># ... or dictionary syntax</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="p">[</span><span class="s1">&#39;rewardVolume&#39;</span><span class="p">][:</span><span class="mi">5</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(trials.keys())
+# The data can be accessed with dot syntax
+print(trials.rewardVolume[:5])
+# ... or dictionary syntax
+print(trials[&#39;rewardVolume&#39;][:5])
 </pre></div>
 </div>
 </div>
@@ -448,10 +449,10 @@ dict_keys([&#39;contrastLeft&#39;, &#39;intervals&#39;, &#39;response_times&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trials</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>trials.to_df().head()
 
-<span class="c1"># For analysis you can assert that the dimensions match using the check_dimensions property:</span>
-<span class="k">assert</span> <span class="n">trials</span><span class="o">.</span><span class="n">check_dimensions</span> <span class="o">==</span> <span class="mi">0</span>
+# For analysis you can assert that the dimensions match using the check_dimensions property:
+assert trials.check_dimensions == 0
 </pre></div>
 </div>
 </div>
@@ -460,8 +461,8 @@ dict_keys([&#39;contrastLeft&#39;, &#39;intervals&#39;, &#39;response_times&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">,</span> <span class="s1">&#39;rewardVolume&#39;</span><span class="p">,</span> <span class="s1">&#39;probabilityLeft&#39;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>trials = one.load_object(eid, &#39;trials&#39;, attribute=[&#39;intervals&#39;, &#39;rewardVolume&#39;, &#39;probabilityLeft&#39;])
+print(trials.keys())
 </pre></div>
 </div>
 </div>
@@ -478,7 +479,7 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reward_volume</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">)</span>  <span class="c1"># c.f. load_object, above</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>reward_volume = one.load_dataset(eid, &#39;_ibl_trials.rewardVolume.npy&#39;)  # c.f. load_object, above
 </pre></div>
 </div>
 </div>
@@ -491,9 +492,9 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;_ibl_trials.probabilityLeft.npy&#39;</span><span class="p">])</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data, info = one.load_datasets(eid, datasets=[&#39;_ibl_trials.rewardVolume.npy&#39;,
+                                              &#39;_ibl_trials.probabilityLeft.npy&#39;])
+pprint(info[0])
 </pre></div>
 </div>
 </div>
@@ -520,7 +521,7 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>probe1_spikes = one.load_dataset(eid, &#39;spikes.times.npy&#39;, collection=&#39;alf/probe01&#39;)
 </pre></div>
 </div>
 </div>
@@ -529,8 +530,8 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_ibl_trials.rewardVolume.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters.waveforms.npy&#39;</span><span class="p">],</span>
-                               <span class="n">collections</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;alf&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe01&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data, info = one.load_datasets(eid, datasets=[&#39;_ibl_trials.rewardVolume.npy&#39;, &#39;clusters.waveforms.npy&#39;],
+                               collections=[&#39;alf&#39;, &#39;alf/probe01&#39;])
 </pre></div>
 </div>
 </div>
@@ -549,7 +550,7 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>files = one.load_object(eid, &#39;trials&#39;, download_only=True)
 </pre></div>
 </div>
 </div>
@@ -558,8 +559,8 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
-<span class="n">contrast_left</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>trials = one.load_object(files[0], &#39;trials&#39;)
+contrast_left = one.load_dataset(files[0], files[0].name)
 </pre></div>
 </div>
 </div>
@@ -630,8 +631,8 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time*&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
-<span class="k">assert</span> <span class="s1">&#39;amps&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spikes</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>spikes = one.load_object(eid, &#39;spikes&#39;, collection=&#39;alf/probe01&#39;, attribute=[&#39;time*&#39;, &#39;clusters&#39;])
+assert &#39;amps&#39; not in spikes
 </pre></div>
 </div>
 </div>
@@ -647,8 +648,8 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;npy&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">])</span>
-<span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = dict(object=&#39;spikes&#39;, attribute=&#39;times&#39;, extension=[&#39;npy&#39;, &#39;bin&#39;])
+probe1_spikes = one.load_dataset(eid, dataset, collection=&#39;alf/probe01&#39;)
 </pre></div>
 </div>
 </div>
@@ -697,8 +698,8 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">ts</span><span class="p">,</span> <span class="n">clusters</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">read_ts</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>files = one.load_object(eid, &#39;spikes&#39;, collection=&#39;alf/probe01&#39;, download_only=True)
+ts, clusters = alfio.read_ts(files[1])
 </pre></div>
 </div>
 </div>
@@ -710,8 +711,8 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">probe01</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;*probe01&#39;</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
-<span class="n">probe01</span><span class="o">.</span><span class="n">spikes</span><span class="o">.</span><span class="n">times</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>probe01 = one.load_collection(eid, &#39;*probe01&#39;, object=[&#39;spikes&#39;, &#39;clusters&#39;])
+probe01.spikes.times[:5]
 </pre></div>
 </div>
 </div>
@@ -724,7 +725,7 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>help(one.load_dataset)
 </pre></div>
 </div>
 </div>

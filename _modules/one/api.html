@@ -215,15 +215,15 @@
                 <span class="k">continue</span>
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
-            <span class="c1"># Patch older tables</span>
-            <span class="n">cache</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">patch_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">))</span>
-
             <span class="c1"># Set the appropriate index if none already set</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">):</span>
                 <span class="n">idx_columns</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">INDEX_KEY</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Failed to set index&#39;</span><span class="p">)</span>
                 <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Patch older tables</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">patch_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">))</span>
 
             <span class="c1"># Check sorted</span>
             <span class="c1"># Sorting makes MultiIndex indexing O(N) -&gt; O(1)</span>

@@ -219,10 +219,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -397,11 +398,11 @@ one_list.ipynb"><button id="github">Github link</button></a><section id="Listing
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from one.api import ONE
+one = ONE(base_url=&#39;https://openalyx.internationalbrainlab.org&#39;)
 
-<span class="c1"># All datasets in the database</span>
-<span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
+# All datasets in the database
+dsets = one.list_datasets()
 </pre></div>
 </div>
 </div>
@@ -414,7 +415,7 @@ one_list.ipynb"><button id="github">Github link</button></a><section id="Listing
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">describe_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.describe_dataset(dsets[3])
 </pre></div>
 </div>
 </div>
@@ -444,10 +445,10 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>eid = &#39;KS023/2019-12-10/001&#39;
 
-<span class="c1"># All datasets for specific session</span>
-<span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+# All datasets for specific session
+one.list_datasets(eid)
 </pre></div>
 </div>
 </div>
@@ -559,11 +560,11 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All collections in database</span>
-<span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">()</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span># All collections in database
+collections = one.list_collections()
 
-<span class="c1"># All collections for specific session</span>
-<span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+# All collections for specific session
+one.list_collections(eid)
 </pre></div>
 </div>
 </div>
@@ -587,11 +588,11 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All revisions in database</span>
-<span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">()</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span># All revisions in database
+revisions = one.list_revisions()
 
-<span class="c1"># All revisions for specific session</span>
-<span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+# All revisions for specific session
+revisions = one.list_revisions(eid)
 </pre></div>
 </div>
 </div>
@@ -600,8 +601,8 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All subjects in the database</span>
-<span class="n">subjects</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_subjects</span><span class="p">()</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span># All subjects in the database
+subjects = one.list_subjects()
 </pre></div>
 </div>
 </div>
@@ -614,17 +615,17 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All datasets for specific session in alf/probe01 collection:</span>
-<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span># All datasets for specific session in alf/probe01 collection:
+datasets = one.list_datasets(eid, collection=&#39;alf/probe01&#39;)
 
-<span class="c1"># All datasets for a specific session in any probe collection:</span>
-<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+# All datasets for a specific session in any probe collection:
+datasets = one.list_datasets(eid, collection=&#39;*probe*&#39;)
 
-<span class="c1"># All collections that contain datasets with &#39;spikes&#39; in the name:</span>
-<span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">)</span>
+# All collections that contain datasets with &#39;spikes&#39; in the name:
+collections = one.list_collections(eid, filename=&#39;*spikes*&#39;)
 
-<span class="c1"># All datasets with &#39;raw&#39; in the name:</span>
-<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;*raw*&#39;</span><span class="p">)</span>
+# All datasets with &#39;raw&#39; in the name:
+datasets = one.list_datasets(eid, &#39;*raw*&#39;)
 <br/></pre></div>
 </div>
 </div>
@@ -636,7 +637,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;raw*&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, collection=&#39;raw*&#39;, revision=&#39;2020-01-01&#39;)
 </pre></div>
 </div>
 </div>
@@ -646,7 +647,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;202[01]&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>revisions = one.list_revisions(eid, revision=&#39;202[01]&#39;)
 </pre></div>
 </div>
 </div>
@@ -655,7 +656,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(eid, [&#39;*spikes*&#39;, &#39;*clusters*&#39;])
 </pre></div>
 </div>
 </div>
@@ -692,7 +693,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;attribute&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;timestamps&#39;</span><span class="p">,</span> <span class="s1">&#39;intervals&#39;</span><span class="p">],</span> <span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">})</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(eid, filename={&#39;attribute&#39;: [&#39;timestamps&#39;, &#39;intervals&#39;], &#39;extension&#39;: &#39;npy&#39;})
 </pre></div>
 </div>
 </div>
@@ -718,8 +719,8 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
-<span class="n">data</span><span class="p">,</span> <span class="n">records</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>datasets = one.list_datasets(eid, [&#39;*spikes*&#39;, &#39;*clusters*&#39;])
+data, records = one.load_datasets(eid, datasets)
 </pre></div>
 </div>
 </div>
@@ -736,12 +737,12 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe*&#39;</span><span class="p">)</span>
-<span class="c1"># Build a dictionary of collections containing bunches of objects</span>
-<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">one</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">}</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, collection=&#39;alf/probe*&#39;)
+# Build a dictionary of collections containing bunches of objects
+data = {key: one.load_collection(eid, key) for key in collections}
 
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+print(data.keys())
+print(data[&#39;alf/probe01&#39;].keys())
 </pre></div>
 </div>
 </div>
@@ -767,8 +768,8 @@ dict_keys([&#39;spikes&#39;, &#39;channels&#39;, &#39;whitening&#39;, &#39;clust
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;clusters*&#39;</span><span class="p">)</span>
-<span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, filename=&#39;clusters*&#39;)
+spikes = one.load_object(eid, &#39;spikes&#39;, collection=collections[0])
 </pre></div>
 </div>
 </div>

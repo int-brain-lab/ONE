@@ -222,10 +222,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -402,16 +403,16 @@ one_modes.ipynb"><button id="github">Github link</button></a><section id="ONE-AP
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">one.webclient</span> <span class="k">as</span> <span class="nn">webclient</span>
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>import one.webclient as webclient
+from one.api import ONE
 
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">one</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># online, &#39;auto&#39; mode</span>
-<span class="k">assert</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>
+one = ONE()
+print(one, one.mode)  # online, &#39;auto&#39; mode
+assert not one.offline
 
-<span class="n">one_offline</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;C:\data&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">one_offline</span><span class="p">,</span> <span class="n">one_offline</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># offline, &#39;local&#39; mode</span>
-<span class="k">assert</span> <span class="n">one_offline</span><span class="o">.</span><span class="n">offline</span>
+one_offline = ONE(cache_dir=r&#39;C:\data&#39;)
+print(one_offline, one_offline.mode)  # offline, &#39;local&#39; mode
+assert one_offline.offline
 </pre></div>
 </div>
 </div>
@@ -437,7 +438,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>  <span class="c1"># Search Alyx instead of the local cache</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>eids = one.search(lab=&#39;cortexlab&#39;, query_type=&#39;remote&#39;)  # Search Alyx instead of the local cache
 </pre></div>
 </div>
 </div>
@@ -449,8 +450,8 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
-<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Cache results for up to 20 days</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from datetime import timedelta
+one.alyx.default_expiry = timedelta(days=20)  # Cache results for up to 20 days
 </pre></div>
 </div>
 </div>
@@ -459,8 +460,8 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">webclient</span><span class="o">.</span><span class="n">no_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
-    <span class="n">eids</span><span class="p">,</span> <span class="n">det</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>with webclient.no_cache(one.alyx):
+    eids, det = one.search(lab=&#39;cortexlab&#39;, query_type=&#39;remote&#39;)
 </pre></div>
 </div>
 </div>
@@ -469,7 +470,7 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>ses = one.alyx.rest(&#39;sessions&#39;, &#39;list&#39;, lab=&#39;cortexlab&#39;, no_cache=True)
 </pre></div>
 </div>
 </div>
@@ -482,11 +483,11 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
-<span class="n">one</span><span class="o">.</span><span class="n">cache_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Check for new remote cache every hour</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from datetime import timedelta
+one.cache_expiry = timedelta(hours=1)  # Check for new remote cache every hour
 
-<span class="c1"># The time when the cache was generated can be found in the cache metadata:</span>
-<span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">_meta</span>
+# The time when the cache was generated can be found in the cache metadata:
+one._cache._meta
 </pre></div>
 </div>
 </div>
@@ -508,8 +509,8 @@ One (offline, C:\data) local
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">loaded_time</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">refresh_cache</span><span class="p">(</span><span class="s1">&#39;refresh&#39;</span><span class="p">)</span>  <span class="c1"># Explicitly refresh the cache</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;refresh&#39;</span><span class="p">)</span>  <span class="c1"># Calls `refresh_cache` before searching</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>loaded_time = one.refresh_cache(&#39;refresh&#39;)  # Explicitly refresh the cache
+eids = one.search(lab=&#39;cortexlab&#39;, query_type=&#39;refresh&#39;)  # Calls `refresh_cache` before searching
 </pre></div>
 </div>
 </div>
