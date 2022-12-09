@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.3]
+
+### Modified
+
+- HOTFIX: set cache index before updating older tables
+
+## [1.16.2]
 
 ### Modified
 

@@ -112,15 +112,15 @@ class One(ConversionMixin):
                 continue
             meta['loaded_time'] = datetime.now()
 
-            # Patch older tables
-            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'))
-
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
                 idx_columns = cache.filter(regex=INDEX_KEY).columns.tolist()
                 if len(idx_columns) == 0:
                     raise KeyError('Failed to set index')
                 cache.set_index(idx_columns, inplace=True)
+
+            # Patch older tables
+            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'))
 
             # Check sorted
             # Sorting makes MultiIndex indexing O(N) -> O(1)
