@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.17.0]
+
+### Added
+
+- registration client checks for protected datasets and moves them to new revision when registering files 
+
+### Modified
+
+- local SSL config error causes ONE to fall back to local mode (as with other connection errors)
+
+## [1.16.3]
 
 ### Modified
 

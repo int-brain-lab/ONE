@@ -1,4 +1,5 @@
 """Unit tests for the one.registration module."""
+import json
 import logging
 import unittest
 import unittest.mock
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from iblutil.util import Bunch
 from requests.exceptions import HTTPError
+from requests.models import Response
 
 from one.api import ONE
 from one import registration
@@ -26,6 +28,7 @@ class TestRegistrationClient(unittest.TestCase):
     one = None
     subject = None
     temp_dir = None
+    tag = None
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -33,6 +36,9 @@ class TestRegistrationClient(unittest.TestCase):
         cls.one = ONE(**TEST_DB_1, cache_dir=cls.temp_dir.name)
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
+        # Create a tag if doesn't already exist
+        tag = ''.join(random.choices(string.ascii_letters, k=5))
+        cls.tag = cls.one.alyx.rest('tags', 'create', data={'name': tag, 'protected': True})
         # Create some files for this subject
         session_path = cls.one.alyx.cache_dir / cls.subject / str(datetime.date.today()) / '001'
         cls.session_path = session_path
@@ -194,6 +200,7 @@ class TestRegistrationClient(unittest.TestCase):
         """Test for RegistrationClient.register_files"""
         # Test a few things not checked in register_session
         session_path, eid = self.client.create_new_session(self.subject)
+
         # Check registering single file, dry run, default False
         file_name = session_path.joinpath('wheel.position.npy')
         file_name.touch()
@@ -201,9 +208,11 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertIsInstance(rec, dict)
         self.assertFalse(rec['default'])
         self.assertNotIn('id', rec)
+
         # Add ambiguous dataset type to types list
         self.client.dtypes.append(self.client.dtypes[-1].copy())
         self.client.dtypes[-1]['name'] += '1'
+
         # Try registering ambiguous / invalid datasets
         ambiguous = self.client.dtypes[-1]['filename_pattern'].replace('*', 'npy')
         files = [session_path.joinpath('wheel.position.xxx'),  # Unknown ext
@@ -218,6 +227,123 @@ class TestRegistrationClient(unittest.TestCase):
             self.assertIn(f'{ambiguous}: Multiple matching', dbg.records[2].message)
         self.assertFalse(len(rec))
 
+        # Check the handling of revisions
+        rec, = self.client.register_files(str(file_name))
+        # Add a protected tag to all the datasets
+        tag = self.tag['name']
+        self.one.alyx.rest('datasets', 'partial_update', id=rec['id'], data={'tags': [tag]})
+
+        # Test registering with a revision already in the file path,
+        # should use this rather than create one with today's date
+        rev = self.one.alyx.rest('revisions', 'create', data={'name': f'{tag}1'})
+        self.addCleanup(self.one.alyx.rest, 'revisions', 'delete', id=rev['name'])
+        file = file_name.parent.joinpath(f'#{rev["name"]}#', file_name.name)
+        file.parent.mkdir(), file.touch()  # Create file in new revision folder
+        r, = self.client.register_files(file_list=[file])
+        self.assertEqual(r['revision'], rev['name'])
+        self.assertTrue(r['default'])
+        self.assertEqual(r['collection'], '')
+
+        # Register exact dataset revision again - it should append an 'a'
+        # When we re-register the original it should move them into revision with today's date
+        self.one.alyx.rest('datasets', 'partial_update', id=r['id'], data={'tags': [tag]})
+        files = [file,
+                 session_path.joinpath('wheel.position.npy'),
+                 session_path.joinpath('wheel.position.ssv')]  # Last dataset unprotected
+        files[-1].touch()
+        r1, r2, r3 = self.client.register_files(file_list=files)
+        self.assertEqual(r1['revision'], rev['name'] + 'a')
+        self.assertTrue(file.parents[1].joinpath(f'#{r1["revision"]}#', file.name).exists())
+        self.assertFalse(file.exists(), 'failed to move protected dataset to new revision')
+
+        self.assertEqual(r2['revision'], str(datetime.date.today()))
+        self.assertFalse(files[1].exists(), 'failed to move protected dataset to new revision')
+        file = files[1].parent.joinpath(f'#{r2["revision"]}#', file.name)
+        self.assertTrue(file.exists())
+
+        self.assertIsNone(r3['revision'])
+        self.assertTrue(files[2].exists())
+
+        # Protect the latest datasets
+        self.one.alyx.rest('datasets', 'partial_update', id=r2['id'], data={'tags': [tag]})
+        # Same day revision
+        r, = self.client.register_files(file_list=[file])
+        self.assertEqual(r['revision'], str(datetime.date.today()) + 'a')
+        self.assertTrue(file.parents[1].joinpath(f'#{r["revision"]}#', file.name).exists())
+        self.assertFalse(file.exists(), 'failed to move protected dataset to new revision')
+
+        # Re-register a protected date; given original and revision a are protected
+        # we expect to create revision b
+        file = session_path.joinpath(f'#{datetime.date.today()}#', file_name.name)
+        file.touch()
+        self.one.alyx.rest('datasets', 'partial_update', id=r['id'], data={'tags': [tag]})
+        r, = self.client.register_files(file_list=[file])
+        self.assertEqual(r['revision'], str(datetime.date.today()) + 'b')
+
+        # For this logic it's simpler to spoof the response from Alyx
+        with unittest.mock.patch.object(self.one.alyx, 'post') as alyx_mock:
+            mock_resp = Response()
+            mock_resp.status_code = 403
+            response = {'status_code': 403, 'error': 'One or more datasets is protected',
+                        'details': [
+                            # Dataset protected but latest (blank) revision is unprotected
+                            {'wheel.position.ssv': [
+                                {'': False},
+                                {'puHIt1': True}]},
+                            # Dataset protected but latest (date) revision is unprotected
+                            {'wheel.position.npy': [
+                                {'2023-01-10': False},
+                                {'puHIt1': True}]},
+                            # Dataset protected and latest (date) revision is today
+                            {'wheel.timestamps.npy': [
+                                {str(datetime.date.today()): True},
+                                {'puHIt1': True}]},
+                            # Dataset protected and latest (date) revision was updated twice
+                            {'wheel.timestamps.ssv': [
+                                {f'{datetime.date.today()}a': True},
+                                {str(datetime.date.today()): True}]},
+                            # Dataset protected but latest (misc) revision not protected
+                            {'wheel.velocity.ssv': [
+                                {'puHIt1': False},
+                                {'foo': True}]},
+                            # Dataset protected and latest (date) revision end with a different
+                            # character
+                            {'wheel.velocity.npy': [
+                                {f'{datetime.date.today()}A': True},
+                                {str(datetime.date.today()): True}]},
+                        ]}
+            mock_resp._content = bytes(json.dumps(response), 'utf-8')
+            alyx_mock.side_effect = [HTTPError(response=mock_resp), [{}]]
+            files = [session_path.joinpath(next(iter(x.keys()))) for x in response['details']]
+            [x.touch() for x in files]
+            self.client.register_files(file_list=files)
+            self.assertEqual(2, alyx_mock.call_count)
+            actual = alyx_mock.call_args.kwargs.get('data', {}).get('filenames', [])
+            expected = [
+                'wheel.position.ssv',
+                f'#{datetime.date.today()}#/wheel.position.npy',
+                f'#{datetime.date.today()}a#/wheel.timestamps.npy',
+                f'#{datetime.date.today()}b#/wheel.timestamps.ssv',
+                f'#{datetime.date.today()}#/wheel.velocity.ssv',
+                f'#{datetime.date.today()}B#/wheel.velocity.npy']
+            self.assertEqual(expected, actual)
+
+            # Finally, simply check that the exception is re-raised for non-revision related errors
+            # NB Unfortunately this passes even if the exception isn't re-raised after being caught
+            response['status_code'] = 404
+            mock_resp._content = bytes(json.dumps(response), 'utf-8')
+            alyx_mock.side_effect = HTTPError(response=mock_resp)
+            self.assertRaises(HTTPError, self.client.register_files, file_list=[file])
+
+    def test_next_revision(self):
+        """Test RegistrationClient._next_revision method"""
+        self.assertEqual('2020-01-01a', self.client._next_revision('2020-01-01'))
+        reserved = ['2020-01-01a', '2020-01-01b']
+        self.assertEqual('2020-01-01c', self.client._next_revision('2020-01-01', reserved))
+        new_revision = self.client._next_revision('2020-01-01', alpha=chr(945))
+        self.assertEqual(945, ord(new_revision[-1]))
+        self.assertRaises(TypeError, self.client._next_revision, '2020-01-01', alpha='do')
+
     def test_instantiation(self):
         """Test RegistrationClient.__init__ with no args"""
         with unittest.mock.patch('one.registration.ONE') as mk:
@@ -230,9 +356,11 @@ class TestRegistrationClient(unittest.TestCase):
         for admin in cls.one.alyx.rest('water-administrations', 'list',
                                        django='subject__nickname,' + cls.subject, no_cache=True):
             cls.one.alyx.rest('water-administrations', 'delete', id=admin['url'][-36:])
+        # Note: datasets deleted in cascade
         for ses in cls.one.alyx.rest('sessions', 'list', subject=cls.subject, no_cache=True):
             cls.one.alyx.rest('sessions', 'delete', id=ses['url'][-36:])
         cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
+        cls.one.alyx.rest('tags', 'delete', id=cls.tag['id'])
         cls.temp_dir.cleanup()
 
 
