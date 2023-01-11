@@ -274,22 +274,6 @@ class TestOnlineConverters(unittest.TestCase):
         path = self.one.record2path(rec[idx])
         self.assertEqual(expected, path)
 
-    def test_ref2dj(self):
-        """Test for ConversionMixin.ref2dj"""
-        try:
-            ref = '2020-09-21_1_SWC_043'
-            restriction = self.one.ref2dj(ref)
-        except ModuleNotFoundError:
-            self.skipTest('requires ibl_pipeline')
-        self.assertTrue(hasattr(restriction, 'fetch'))
-        expected = {
-            'subject_uuid': UUID('70bf8cbd-d312-4654-a4ea-3a21ea2f541b'),
-            'session_start_time': datetime.datetime(2020, 9, 21, 19, 2, 17),
-            'session_number': 1,
-            'session_date': datetime.date(2020, 9, 21),
-            'subject_nickname': 'SWC_043'}
-        self.assertEqual(restriction.fetch1(), expected)
-
     def test_eid2path(self):
         """Test for OneAlyx.eid2path"""
         verifiable = self.one.eid2path(self.eid, query_type='remote')

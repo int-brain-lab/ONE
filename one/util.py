@@ -71,7 +71,7 @@ def ses2records(ses: dict, int_id=False):
         return rec
 
     if not ses.get('data_dataset_session_related'):
-        return session, None
+        return session, pd.DataFrame()
     records = map(_to_record, ses['data_dataset_session_related'])
     index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
     datasets = pd.DataFrame(records).set_index(index).sort_index()

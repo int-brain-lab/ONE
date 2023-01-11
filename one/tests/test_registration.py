@@ -267,14 +267,15 @@ class TestRegistrationClient(unittest.TestCase):
         # Protect the latest datasets
         self.one.alyx.rest('datasets', 'partial_update', id=r2['id'], data={'tags': [tag]})
         # Same day revision
+        today = datetime.date.today()
         r, = self.client.register_files(file_list=[file])
-        self.assertEqual(r['revision'], str(datetime.date.today()) + 'a')
+        self.assertEqual(r['revision'], f'{today}a')
         self.assertTrue(file.parents[1].joinpath(f'#{r["revision"]}#', file.name).exists())
         self.assertFalse(file.exists(), 'failed to move protected dataset to new revision')
 
         # Re-register a protected date; given original and revision a are protected
         # we expect to create revision b
-        file = session_path.joinpath(f'#{datetime.date.today()}#', file_name.name)
+        file = session_path.joinpath(f'#{today}#', file_name.name)
         file.touch()
         self.one.alyx.rest('datasets', 'partial_update', id=r['id'], data={'tags': [tag]})
         r, = self.client.register_files(file_list=[file])
@@ -292,16 +293,16 @@ class TestRegistrationClient(unittest.TestCase):
                                 {'puHIt1': True}]},
                             # Dataset protected but latest (date) revision is unprotected
                             {'wheel.position.npy': [
-                                {'2023-01-10': False},
+                                {f'{today}': False},
                                 {'puHIt1': True}]},
                             # Dataset protected and latest (date) revision is today
                             {'wheel.timestamps.npy': [
-                                {str(datetime.date.today()): True},
+                                {str(today): True},
                                 {'puHIt1': True}]},
                             # Dataset protected and latest (date) revision was updated twice
                             {'wheel.timestamps.ssv': [
-                                {f'{datetime.date.today()}a': True},
-                                {str(datetime.date.today()): True}]},
+                                {f'{today}a': True},
+                                {str(today): True}]},
                             # Dataset protected but latest (misc) revision not protected
                             {'wheel.velocity.ssv': [
                                 {'puHIt1': False},
@@ -309,8 +310,8 @@ class TestRegistrationClient(unittest.TestCase):
                             # Dataset protected and latest (date) revision end with a different
                             # character
                             {'wheel.velocity.npy': [
-                                {f'{datetime.date.today()}A': True},
-                                {str(datetime.date.today()): True}]},
+                                {f'{today}A': True},
+                                {str(today): True}]},
                         ]}
             mock_resp._content = bytes(json.dumps(response), 'utf-8')
             alyx_mock.side_effect = [HTTPError(response=mock_resp), [{}]]
@@ -321,11 +322,11 @@ class TestRegistrationClient(unittest.TestCase):
             actual = alyx_mock.call_args.kwargs.get('data', {}).get('filenames', [])
             expected = [
                 'wheel.position.ssv',
-                f'#{datetime.date.today()}#/wheel.position.npy',
-                f'#{datetime.date.today()}a#/wheel.timestamps.npy',
-                f'#{datetime.date.today()}b#/wheel.timestamps.ssv',
-                f'#{datetime.date.today()}#/wheel.velocity.ssv',
-                f'#{datetime.date.today()}B#/wheel.velocity.npy']
+                f'#{today}#/wheel.position.npy',
+                f'#{today}a#/wheel.timestamps.npy',
+                f'#{today}b#/wheel.timestamps.ssv',
+                f'#{today}#/wheel.velocity.ssv',
+                f'#{today}B#/wheel.velocity.npy']
             self.assertEqual(expected, actual)
 
             # Finally, simply check that the exception is re-raised for non-revision related errors

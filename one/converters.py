@@ -504,53 +504,6 @@ class ConversionMixin:
             ref = match.groupdict()
             return Bunch(ref) if as_dict else '{date:s}_{sequence:s}_{subject:s}'.format(**ref)
 
-    def ref2dj(self, ref: Union[str, Mapping, Iter]):
-        """
-        Return an ibl-pipeline sessions table, restricted by experiment reference(s)
-
-        Parameters
-        ----------
-        ref : str, list, dict
-            One or more objects with keys ('subject', 'date', 'sequence'), or strings with
-            the form yyyy-mm-dd_n_subject
-
-        Returns
-        -------
-        acquisition.Session
-            An acquisition.Session table corresponding to the ref
-
-        Examples
-        --------
-        >>> ref2dj('2020-06-20_2_CSHL046').fetch1()
-        Connecting...
-        {'subject_uuid': UUID('dffc24bc-bd97-4c2a-bef3-3e9320dc3dd7'),
-         'session_start_time': datetime.datetime(2020, 6, 20, 13, 31, 47),
-         'session_number': 2,
-         'session_date': datetime.date(2020, 6, 20),
-         'subject_nickname': 'CSHL046'}
-        >>> len(ref2dj({'date':'2020-06-20', 'sequence':'002', 'subject':'CSHL046'}))
-        1
-        >>> len(ref2dj(['2020-06-20_2_CSHL046', '2019-11-01_1_ibl_witten_13']))
-        2
-        """
-        from ibl_pipeline import subject, acquisition
-        sessions = acquisition.Session.proj('session_number',
-                                            session_date='date(session_start_time)')
-        sessions = sessions * subject.Subject.proj('subject_nickname')
-
-        ref = self.ref2dict(ref)  # Ensure dict-like
-
-        @recurse
-        def restrict(r):
-            date, sequence, subject = dict(sorted(r.items())).values()  # Unpack sorted
-            restriction = {
-                'subject_nickname': subject,
-                'session_number': sequence,
-                'session_date': date}
-            return restriction
-
-        return sessions & restrict(ref)
-
     @staticmethod
     def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
         """
