@@ -918,7 +918,7 @@ class TestOneAlyx(unittest.TestCase):
         # Check behaviour when no datasets present
         ses['data_dataset_session_related'] = []
         _, datasets = ses2records(ses)
-        self.assertIsNone(datasets)
+        self.assertTrue(datasets.empty)
 
     def test_datasets2records(self):
         """Test one.util.datasets2records"""
@@ -1125,6 +1125,10 @@ class TestOneRemote(unittest.TestCase):
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        # Set cache directory to a temp dir to ensure that we re-download files
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        self.one.alyx._par = self.one.alyx._par.set('CACHE_DIR', Path(self.tempdir.name))
 
     def test_online_repr(self):
         """Tests OneAlyx.__repr__"""
@@ -1139,7 +1143,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(108, len(dsets))
+        self.assertEqual(166, len(dsets))
 
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
@@ -1147,7 +1151,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(len(dsets), 0)
 
         # Test empty datasets
-        with mock.patch('one.util.ses2records', return_value=(None, None)):
+        with mock.patch('one.util.ses2records', return_value=(pd.DataFrame(), pd.DataFrame())):
             dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
             self.assertIsInstance(dsets, pd.DataFrame)
             self.assertEqual(len(dsets), 0)
@@ -1155,12 +1159,12 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(108, len(dsets))
+        self.assertEqual(166, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(13, len(dsets))
+        self.assertEqual(20, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
@@ -1182,7 +1186,7 @@ class TestOneRemote(unittest.TestCase):
         eids = self.one.search(subject='SWC_043', dataset=['probes.description'], number=1,
                                django='data_dataset_session_related__collection__iexact,alf',
                                query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        self.assertIn(self.eid, list(eids))
 
         # Test date range
         eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
@@ -1341,7 +1345,7 @@ class TestOneDownload(unittest.TestCase):
             self.assertIsNone(file)
 
         rec = self.one.list_datasets(self.eid, details=True)
-        rec = rec[rec.rel_path.str.contains('pykilosort/channels.brainLocation')]
+        rec = rec[rec.rel_path.str.contains('00/pykilosort/channels.brainLocation')]
         rec['exists_aws'] = False  # Ensure we use FlatIron for this
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)

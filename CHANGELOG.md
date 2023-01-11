@@ -1,5 +1,18 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.16.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.17.0]
+
+### Added
+
+- registration client checks for protected datasets and moves them to new revision when registering files 
+
+### Modified
+
+- local SSL config error causes ONE to fall back to local mode (as with other connection errors)
+- removed ref2dj method
+- one.util.ses2records now returns empty pandas DataFrame instead of None
+- fix download bug from OpenAlyx in remote mode
+
+## [1.16.3]
 
 ### Modified
 

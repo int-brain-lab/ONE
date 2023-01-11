@@ -9,6 +9,7 @@ from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
 from uuid import UUID
+from urllib.error import URLError
 import time
 import threading
 
@@ -212,7 +213,7 @@ class One(ConversionMixin):
         # May be instances where modified cache is saved then immediately replaced with a new
         # remote cache. Also it's too slow :(
         # self.save_cache()  # Save cache if modified
-        if mode in ('local', 'remote'):
+        if mode in {'local', 'remote'}:
             pass
         elif mode == 'auto':
             if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
@@ -1438,7 +1439,7 @@ class OneAlyx(One):
             super(OneAlyx, self).load_cache(cache_dir)  # Load any present cache
             cache_meta = self._cache.get('_meta', {})  # TODO Make walrus when we drop 3.7 support
             expired = self._cache and cache_meta['expired']
-            if not expired or self.mode in ('local', 'remote'):
+            if not expired or self.mode in {'local', 'remote'}:
                 return
 
         # Warn user if expired
@@ -1476,13 +1477,14 @@ class OneAlyx(One):
             files = self.alyx.download_cache_tables(cache_info.get('location'), cache_dir)
             assert any(files)
             super(OneAlyx, self).load_cache(cache_dir)  # Reload cache after download
-        except (requests.exceptions.HTTPError, wc.HTTPError) as ex:
+        except (requests.exceptions.HTTPError, wc.HTTPError, requests.exceptions.SSLError) as ex:
             _logger.debug(ex)
-            _logger.error('Failed to load the remote cache file')
+            _logger.error(f'{type(ex).__name__}: Failed to load the remote cache file')
             self.mode = 'remote'
-        except (ConnectionError, requests.exceptions.ConnectionError) as ex:
+        except (ConnectionError, requests.exceptions.ConnectionError, URLError) as ex:
+            # NB: URLError may be raised when client SSL configuration is bad
             _logger.debug(ex)
-            _logger.error('Failed to connect to Alyx')
+            _logger.error(f'{type(ex).__name__}: Failed to connect to Alyx')
             self.mode = 'local'
 
     @property

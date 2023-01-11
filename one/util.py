@@ -64,14 +64,14 @@ def ses2records(ses: dict, int_id=False):
             rec['id'] = d['id']
             rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
-        file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
+        file_path = get_alf_path(alfio.remove_uuid_file(file_path, dry=True))
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_revision'] == 'True'
         return rec
 
     if not ses.get('data_dataset_session_related'):
-        return session, None
+        return session, pd.DataFrame()
     records = map(_to_record, ses['data_dataset_session_related'])
     index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
     datasets = pd.DataFrame(records).set_index(index).sort_index()

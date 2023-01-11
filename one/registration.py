@@ -1,4 +1,4 @@
-"""Session creation and datasets registration
+"""Session creation and datasets registration.
 
 The RegistrationClient provides an high-level API for creating experimentation sessions on Alyx
 and registering associated datasets.
@@ -12,21 +12,21 @@ register_session - Create a session on Alyx from local path and register any ALF
 register_files - Register a list of files to their respective sessions on Alyx
 """
 import pathlib
-import uuid
+from uuid import UUID
 from pathlib import Path, PurePosixPath
 import datetime
 import logging
-from uuid import UUID
 import itertools
 from collections import defaultdict
 from fnmatch import fnmatch
+import shutil
 
 import requests.exceptions
 
 from iblutil.io import hashfile
 
 import one.alf.io as alfio
-from one.alf.files import session_path_parts, get_session_path
+from one.alf.files import session_path_parts, get_session_path, folder_parts
 import one.alf.exceptions as alferr
 from one.api import ONE
 from one.util import ensure_list
@@ -191,7 +191,7 @@ class RegistrationClient:
         requests.exceptions.HTTPError
             Failed to connect to Alyx database or endpoint not found
         """
-        if isinstance(member, (str, uuid.UUID)):
+        if isinstance(member, (str, UUID)):
             try:
                 self.one.alyx.rest(endpoint, 'read', id=str(member), no_cache=True)
             except requests.exceptions.HTTPError as ex:
@@ -345,7 +345,7 @@ class RegistrationClient:
     def register_files(self, file_list, versions=None, default=True, created_by=None,
                        server_only=False, repository=None, dry=False, max_md5_size=None):
         """
-        Registers a set of files belonging to a session only on the server
+        Registers a set of files belonging to a session only on the server.
 
         Parameters
         ----------
@@ -370,6 +370,21 @@ class RegistrationClient:
         -------
         list of dicts, dict
             A list of newly created Alyx dataset records or the registration data if dry
+
+        Notes
+        -----
+        - The registered files may be automatically moved to new revision folders if they are
+         protected on Alyx, therefore it's important to check the relative paths of the output.
+        - Protected datasets are not checked in dry mode.
+        - In most circumstances a new revision will be added automatically, however if this fails
+         a 403 HTTP status may be returned.
+
+        Raises
+        ------
+        requests.exceptions.HTTPError
+            Submitted data not valid (400 status code)
+            Server side database error (500 status code)
+            Revision protected (403 status code)
         """
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
@@ -422,19 +437,164 @@ class RegistrationClient:
                   'name': repository,
                   'server_only': server_only,
                   'default': default,
-                  'versions': V[session_path]}
+                  'versions': V[session_path],
+                  'check_protected': True
+                  }
 
             # Add optional field
             if details['lab']:
                 r_['labs'] = details['lab']
             # If dry, store POST data, otherwise store resulting file records
-            records.append(r_ if dry else self.one.alyx.post('/register-file', data=r_))
+            try:
+                records.append(r_ if dry else self.one.alyx.post('/register-file', data=r_))
+            except requests.exceptions.HTTPError as err:
+                # 403 response when datasets already registered and protected by tags
+                err_message = err.response.json()
+                if not (err_message.get('status_code') == 403 and
+                   err_message.get('error') == 'One or more datasets is protected'):
+                    raise err  # Some other error occurred; re-raise
+                response = err_message['details']
+                today_revision = datetime.datetime.today().strftime('%Y-%m-%d')
+                new_file_list = []
+
+                for fl, res in zip(files, response):
+                    (name, prot_info), = res.items()
+                    # Dataset has not yet been registered
+                    if not prot_info:
+                        new_file_list.append(fl)
+                        continue
+
+                    # Check to see if the file path already has a revision in it
+                    file_revision = folder_parts(rel_path / fl, as_dict=True)['revision']
+                    # Find existing protected revisions
+                    existing_revisions = [k for pr in prot_info for k, v in pr.items() if v]
+
+                    if file_revision:
+                        # If the revision explicitly defined by the user doesn't exist or
+                        # is not protected, register as is
+                        if file_revision not in existing_revisions:
+                            revision_path = fl.parent
+                        else:
+                            # Find the next sub-revision that isn't protected
+                            new_revision = self._next_revision(file_revision, existing_revisions)
+                            revision_path = fl.parent.parent.joinpath(f'#{new_revision}#')
+
+                        if revision_path != fl.parent:
+                            session_path.joinpath(revision_path).mkdir(exist_ok=True)
+                            _logger.info('Moving %s -> %s', fl, revision_path.joinpath(fl.name))
+                            shutil.move(session_path / fl, session_path / revision_path / fl.name)
+                        new_file_list.append(revision_path.joinpath(fl.name))
+                        continue
+
+                    # The file wasn't in a revision folder but is protected
+                    fl_path = fl.parent
+                    assert name == fl_path.joinpath(fl.name).as_posix()
+
+                    # Find info about the latest revision
+                    # N.B on django side prot_info is sorted by latest revisions first
+                    (latest_revision, protected), = prot_info[0].items()
+
+                    # If the latest revision is the original and it is unprotected
+                    # no need for revision e.g {'clusters.amp.npy': [{'': False}]}
+                    if latest_revision == '' and not protected:
+                        # Use original path
+                        revision_path = fl_path
+
+                    # If there already is a revision but it is unprotected,
+                    # move into this revision folder e.g
+                    # {'clusters.amp.npy':
+                    #   [{'2022-10-31': False}, {'2022-05-31': True}, {'': True}]}
+                    elif not protected:
+                        # Check that the latest_revision has the date naming convention we expect
+                        # i.e. 'YYYY-MM-DD'
+                        try:
+                            _ = datetime.datetime.strptime(latest_revision[:10], '%Y-%m-%d')
+                            revision_path = fl_path.joinpath(f'#{latest_revision}#')
+                        # If it doesn't it probably has been made manually so we don't want to
+                        # overwrite this and instead use today's date
+                        except ValueError:
+                            # NB: It's possible that today's date revision is also protected but is
+                            # not the most recent revision. In this case it's safer to let fail.
+                            revision_path = fl_path.joinpath(f'#{today_revision}#')
+
+                    # If protected and the latest protected revision is from today we need to make
+                    # a sub-revision
+                    elif protected and today_revision in latest_revision:
+                        if latest_revision == today_revision:  # iterate from appending 'a'
+                            new_revision = self._next_revision(today_revision, existing_revisions)
+                        else:  # assume the revision is date + character, e.g. '2020-01-01c'
+                            alpha = latest_revision[-1]  # iterate from this character
+                            new_revision = self._next_revision(
+                                today_revision, existing_revisions, alpha)
+                        revision_path = fl_path.joinpath(f'#{new_revision}#')
+
+                    # Otherwise cases move into revision from today
+                    # e.g {'clusters.amp.npy': [{'': True}]}
+                    # e.g {'clusters.amp.npy': [{'2022-10-31': True}, {'': True}]}
+                    else:
+                        revision_path = fl_path.joinpath(f'#{today_revision}#')
+
+                    # Only move for the cases where a revision folder has been made
+                    if revision_path != fl_path:
+                        session_path.joinpath(revision_path).mkdir(exist_ok=True)
+                        _logger.info('Moving %s -> %s', fl, revision_path.joinpath(fl.name))
+                        shutil.move(session_path / fl, session_path / revision_path / fl.name)
+                    new_file_list.append(revision_path.joinpath(fl.name))
+
+                assert len(new_file_list) == len(files)
+                r_['filenames'] = [p.as_posix() for p in new_file_list]
+                r_['filesizes'] = [session_path.joinpath(p).stat().st_size for p in new_file_list]
+                r_['check_protected'] = False  # Speed things up by ignoring server-side checks
+
+                records.append(self.one.alyx.post('/register-file', data=r_))
+                files = new_file_list
+
             # Log file names
             _logger.info(f'ALYX REGISTERED DATA {"!DRY!" if dry else ""}: {rel_path}')
             for p in files:
-                _logger.info(f"ALYX REGISTERED DATA: {p}")
+                _logger.info(f'ALYX REGISTERED DATA: {p}')
 
         return records[0] if len(F.keys()) == 1 else records
+
+    @staticmethod
+    def _next_revision(revision: str, reserved: list = None, alpha: str = 'a') -> str:
+        """
+        Return the next logical revision that is not already in the provided list.
+        Revisions will increment by appending a letter to a date or other identifier.
+
+        Parameters
+        ----------
+        revision : str
+            The revision on which to base the new revision.
+        reserved : list of str
+            A list of reserved (i.e. already existing) revision strings.
+        alpha : str
+            The starting character as an integer, defaults to 'a'.
+
+        Returns
+        -------
+        str
+            The next logical revision string that's not in the reserved list.
+
+        Examples
+        --------
+        >>> RegistrationClient._next_revision('2020-01-01')
+        '2020-01-01a'
+        >>> RegistrationClient._next_revision('2020-01-01', ['2020-01-01a', '2020-01-01b'])
+        '2020-01-01c'
+        >>> RegistrationClient._next_revision('2020-01-01', ['2020-01-01a', '2020-01-01b'])
+        '2020-01-01c'
+        """
+        if len(alpha) != 1:
+            raise TypeError(
+                f'`alpha` must be a character; received a string of length {len(alpha)}'
+            )
+        i = ord(alpha)
+        new_revision = revision + chr(i)
+        while new_revision in (reserved or []):
+            i += 1
+            new_revision = revision + chr(i)
+        return new_revision
 
     def register_water_administration(self, subject, volume, **kwargs):
         """
