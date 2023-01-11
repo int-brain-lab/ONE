@@ -116,7 +116,7 @@
 
 
 <div class="viewcode-block" id="set_up_env"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.set_up_env">[docs]</a><span class="k">def</span> <span class="nf">set_up_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a temporary directory and copy cache fixtures over.</span>
 
 <span class="sd">    Returns</span>
@@ -139,7 +139,7 @@
 
 
 <div class="viewcode-block" id="setup_rest_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_rest_cache">[docs]</a><span class="k">def</span> <span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -161,7 +161,7 @@
 
 
 <div class="viewcode-block" id="create_file_tree"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_file_tree">[docs]</a><span class="k">def</span> <span class="nf">create_file_tree</span><span class="p">(</span><span class="n">one</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Touch all the files in the datasets table.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Touch all the files in the datasets table.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -177,7 +177,7 @@
 
 
 <div class="viewcode-block" id="setup_test_params"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_test_params">[docs]</a><span class="k">def</span> <span class="nf">setup_test_params</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Copies cache parameter fixture to .one directory.</span>
 
 <span class="sd">    Parameters</span>
@@ -219,7 +219,7 @@
                              <span class="n">revisions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-08&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-07-06&#39;</span><span class="p">),</span>
                              <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
                              <span class="n">attributes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;waveforems&#39;</span><span class="p">)):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a datasets cache DataFrame containing datasets with revision folders.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a datasets cache DataFrame containing datasets with revision folders.</span>
 
 <span class="sd">    As there are no revised datasets on the test databases, this function acts as a fixture for</span>
 <span class="sd">    testing the filtering of datasets by a revision.</span>
@@ -259,7 +259,7 @@
 
 
 <div class="viewcode-block" id="create_schema_cache"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_schema_cache">[docs]</a><span class="k">def</span> <span class="nf">create_schema_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Save REST cache file for docs/ endpoint.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save REST cache file for docs/ endpoint.</span>
 
 <span class="sd">    Ensures the database isn&#39;t hit when the rest_schemas property is accessed.</span>
 
@@ -278,7 +278,7 @@
 
 
 <div class="viewcode-block" id="get_file"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.get_file">[docs]</a><span class="k">def</span> <span class="nf">get_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">str_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.</span>
 
 <span class="sd">    Parameters</span>
@@ -300,7 +300,7 @@
 
 
 <div class="viewcode-block" id="caches_str2int"><a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.caches_str2int">[docs]</a><span class="k">def</span> <span class="nf">caches_str2int</span><span class="p">(</span><span class="n">caches</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert str ids to int ids for cache tables.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert str ids to int ids for cache tables.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

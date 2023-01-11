@@ -128,7 +128,7 @@
 
 
 <div class="viewcode-block" id="default"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.default">[docs]</a><span class="k">def</span> <span class="nf">default</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Default Web client parameters&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default Web client parameters&quot;&quot;&quot;</span>
     <span class="n">par</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ALYX_URL&quot;</span><span class="p">:</span> <span class="s2">&quot;https://openalyx.internationalbrainlab.org&quot;</span><span class="p">,</span>
            <span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">:</span> <span class="s2">&quot;intbrainlab&quot;</span><span class="p">,</span>
            <span class="s2">&quot;HTTP_DATA_SERVER&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ibl.flatironinstitute.org/public&quot;</span><span class="p">,</span>
@@ -138,7 +138,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_current_par</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">par_current</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the current parameter value or the default.</span>
 
 <span class="sd">    Parameters</span>
@@ -160,7 +160,7 @@
 
 
 <span class="k">def</span> <span class="nf">_key_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a URL str to one valid for use as a file name or dict key.  URL Protocols are</span>
 <span class="sd">    removed entirely.  The returned string will have characters in the set [a-zA-Z.-_].</span>
 
@@ -186,7 +186,7 @@
 
 
 <div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for</span>
 <span class="sd">    that instance will be set.  If silent, the user will be prompted to input each parameter</span>
 <span class="sd">    value.  Pressing return will use either current parameter or the default.</span>
@@ -297,7 +297,7 @@
 
 
 <div class="viewcode-block" id="get"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the AlyxClient parameters</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the AlyxClient parameters</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -319,14 +319,14 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_map</span> <span class="ow">or</span> <span class="p">(</span><span class="n">client_key</span> <span class="ow">and</span> <span class="n">client_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">):</span>
         <span class="n">cache_map</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
     <span class="n">cache</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
-    <span class="n">pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">username</span><span class="p">:</span>
         <span class="n">pars</span> <span class="o">=</span> <span class="n">pars</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_patch_params</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_default_client"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_default_client">[docs]</a><span class="k">def</span> <span class="nf">get_default_client</span><span class="p">(</span><span class="n">include_schema</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Returns the default AlyxClient URL, or None if no default is set</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the default AlyxClient URL, or None if no default is set</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -347,7 +347,7 @@
 
 
 <div class="viewcode-block" id="save"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.save">[docs]</a><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a set of parameters for a given client.</span>
 
 <span class="sd">    Parameters</span>
@@ -363,7 +363,7 @@
 
 
 <div class="viewcode-block" id="get_cache_dir"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_cache_dir">[docs]</a><span class="k">def</span> <span class="nf">get_cache_dir</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Return the download directory for a given client.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the download directory for a given client.</span>
 
 <span class="sd">    If no client is set up, the default download location is returned.</span>
 
@@ -385,7 +385,7 @@
 
 
 <div class="viewcode-block" id="get_params_dir"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.get_params_dir">[docs]</a><span class="k">def</span> <span class="nf">get_params_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Return the path to the root ONE parameters directory</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path to the root ONE parameters directory</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -396,7 +396,7 @@
 
 
 <div class="viewcode-block" id="check_cache_conflict"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.check_cache_conflict">[docs]</a><span class="k">def</span> <span class="nf">check_cache_conflict</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Asserts that a given directory is not currently used as a cache directory.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asserts that a given directory is not currently used as a cache directory.</span>
 <span class="sd">    This function checks whether a given directory is used as a cache directory for an Alyx</span>
 <span class="sd">    Web client.  This function is called by the ONE factory to determine whether to return an</span>
 <span class="sd">    OneAlyx object or not.  It is also used when setting up params for a new client.</span>
@@ -417,7 +417,7 @@
 
 
 <span class="k">def</span> <span class="nf">_patch_params</span><span class="p">(</span><span class="n">par</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Patch previous version of parameters, if required.</span>
 
 <span class="sd">    Parameters</span>

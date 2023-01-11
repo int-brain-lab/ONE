@@ -112,6 +112,7 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">URLError</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 
@@ -139,13 +140,13 @@
 
 
 <div class="viewcode-block" id="One"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One">[docs]</a><span class="k">class</span> <span class="nc">One</span><span class="p">(</span><span class="n">ConversionMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem&quot;&quot;&quot;</span>
     <span class="n">_search_terms</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span>
     <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -171,20 +172,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span> <span class="k">else</span> <span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">)&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">offline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;bool: True if mode is local or no Web client set&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: True if mode is local or no Web client set&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_web_client&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="One.search_terms"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search_terms">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;List the search term keyword args for use in the search method&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List the search term keyword args for use in the search method&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span></div>
 
     <span class="k">def</span> <span class="nf">_reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -195,7 +196,7 @@
         <span class="p">}})</span>
 
 <div class="viewcode-block" id="One.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load parquet cache files from a local directory.</span>
 
 <span class="sd">        Parameters</span>
@@ -246,7 +247,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="One.save_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_cache">[docs]</a>    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Save One._cache attribute into parquet tables if recently modified.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save One._cache attribute into parquet tables if recently modified.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -258,7 +259,7 @@
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">))</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if another process is writing to file, if so waits before saving.</span>
 
 <span class="sd">        Parameters</span>
@@ -298,7 +299,7 @@
             <span class="n">lock_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
 <div class="viewcode-block" id="One.refresh_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.refresh_cache">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check and reload cache tables</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check and reload cache tables</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -315,7 +316,7 @@
         <span class="c1"># May be instances where modified cache is saved then immediately replaced with a new</span>
         <span class="c1"># remote cache. Also it&#39;s too slow :(</span>
         <span class="c1"># self.save_cache()  # Save cache if modified</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">}:</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_expiry</span><span class="p">:</span>
@@ -329,7 +330,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">_update_cache_from_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the cache tables with new records.</span>
 
 <span class="sd">        Parameters</span>
@@ -393,7 +394,7 @@
         <span class="k">return</span> <span class="n">updated</span>
 
 <div class="viewcode-block" id="One.save_loaded_ids"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_loaded_ids">[docs]</a>    <span class="k">def</span> <span class="nf">save_loaded_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clear_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.</span>
 
 <span class="sd">        Parameters</span>
@@ -435,7 +436,7 @@
         <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">filename</span></div>
 
     <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download several datasets given a set of datasets.</span>
 
 <span class="sd">        NB: This will not skip files that are already present.  Use check_filesystem instead.</span>
@@ -454,7 +455,7 @@
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download a dataset from an Alyx REST dictionary</span>
 
 <span class="sd">        Parameters</span>
@@ -472,7 +473,7 @@
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span>
 
 <div class="viewcode-block" id="One.search"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches sessions matching the given criteria and returns a list of matching eids</span>
 
 <span class="sd">        For a list of search terms, use the method</span>
@@ -521,7 +522,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">all_present</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Returns true if all datasets present in Series&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Returns true if all datasets present in Series&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">exists</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">)</span>
 
         <span class="c1"># Iterate over search filters, reducing the sessions table</span>
@@ -590,7 +591,7 @@
             <span class="k">return</span> <span class="n">eids</span></div>
 
     <span class="k">def</span> <span class="nf">_check_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update the local filesystem for the given datasets.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the local filesystem for the given datasets.</span>
 
 <span class="sd">        Given a set of datasets, check whether records correctly reflect the filesystem.</span>
 <span class="sd">        Called by load methods, this returns a list of file paths to load and return.</span>
@@ -673,7 +674,7 @@
         <span class="k">return</span> <span class="n">files</span>
 
     <span class="k">def</span> <span class="nf">_index_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s1">&#39;sessions&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;For a given table return the index type.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;For a given table return the index type.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -702,7 +703,7 @@
 <div class="viewcode-block" id="One.get_details"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.get_details">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">get_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return session details for a given session ID</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return session details for a given session ID</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -735,7 +736,7 @@
 
 <div class="viewcode-block" id="One.list_subjects"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_subjects">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_subjects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List all subjects in database</span>
 
 <span class="sd">        Returns</span>
@@ -748,7 +749,7 @@
 <div class="viewcode-block" id="One.list_datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an eid, return the datasets for those sessions.  If no eid is provided,</span>
 <span class="sd">        a list of all datasets is returned.  When details is false, a sorted array of unique</span>
 <span class="sd">        datasets is returned (their relative paths).</span>
@@ -826,7 +827,7 @@
 <div class="viewcode-block" id="One.list_collections"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_collections">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List the collections for a given experiment.  If no experiment ID is given,</span>
 <span class="sd">        all collections are returned.</span>
 
@@ -896,7 +897,7 @@
 <div class="viewcode-block" id="One.list_revisions"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_revisions">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_revisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List the revisions for a given experiment.  If no experiment id is given,</span>
 <span class="sd">        all collections are returned.</span>
 
@@ -967,7 +968,7 @@
                     <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all attributes of an ALF object from a Session ID and an object name.  Any datasets</span>
 <span class="sd">        with matching object name will be loaded.</span>
 
@@ -1057,7 +1058,7 @@
                      <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a single dataset for a given session id and dataset name</span>
 
 <span class="sd">        Parameters</span>
@@ -1131,7 +1132,7 @@
                       <span class="n">assert_present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                       <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load datasets for a given session id.  Returns two lists the length of datasets.  The</span>
 <span class="sd">        first is the data (or file paths if download_data is false), the second is a list of</span>
 <span class="sd">        meta data Bunches.  If assert_present is false, missing data will be returned as None.</span>
@@ -1169,7 +1170,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_verify_specifiers</span><span class="p">(</span><span class="n">specifiers</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Ensure specifiers lists matching datasets length&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Ensure specifiers lists matching datasets length&quot;&quot;&quot;</span>
             <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specifiers</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -1245,7 +1246,7 @@
                              <span class="n">dset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
                              <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                              <span class="n">details</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a dataset given a dataset UUID</span>
 
 <span class="sd">        Parameters</span>
@@ -1300,7 +1301,7 @@
                         <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all objects in an ALF collection from a Session ID.  Any datasets with matching object</span>
 <span class="sd">        name(s) will be loaded.  Returns a bunch of objects.</span>
 
@@ -1382,7 +1383,7 @@
 
 <div class="viewcode-block" id="One.setup"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.setup">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set up One cache tables for a given data directory.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up One cache tables for a given data directory.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1422,7 +1423,7 @@
 
 <div class="viewcode-block" id="ONE"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.ONE">[docs]</a><span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">ONE</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;ONE API factory</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ONE API factory</span>
 <span class="sd">    Determine which class to instantiate depending on parameters passed.</span>
 
 <span class="sd">    Parameters</span>
@@ -1472,10 +1473,10 @@
 
 
 <div class="viewcode-block" id="OneAlyx"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx">[docs]</a><span class="k">class</span> <span class="nc">OneAlyx</span><span class="p">(</span><span class="n">One</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1511,10 +1512,10 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="n">wildcards</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span> <span class="k">else</span> <span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">)&#39;</span>
 
 <div class="viewcode-block" id="OneAlyx.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load parquet cache files.  If the local cache is sufficiently old, this method will query</span>
 <span class="sd">        the database for the location and creation date of the remote cache.  If newer, it will be</span>
 <span class="sd">        download and loaded.</span>
@@ -1541,7 +1542,7 @@
             <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Load any present cache</span>
             <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="p">{})</span>  <span class="c1"># TODO Make walrus when we drop 3.7 support</span>
             <span class="n">expired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="ow">and</span> <span class="n">cache_meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">expired</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">expired</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">}:</span>
                 <span class="k">return</span>
 
         <span class="c1"># Warn user if expired</span>
@@ -1553,12 +1554,12 @@
             <span class="n">age</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">cache_meta</span><span class="p">[</span><span class="s1">&#39;created_time&#39;</span><span class="p">]</span>
             <span class="n">t_str</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">age</span><span class="o">.</span><span class="n">days</span><span class="si">}</span><span class="s1"> day(s)&#39;</span>
                      <span class="k">if</span> <span class="n">age</span><span class="o">.</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-                     <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">age</span><span class="o">.</span><span class="n">seconds</span> <span class="o">/</span> <span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s1"> hour(s)&#39;</span><span class="p">)</span>
+                     <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">age</span><span class="o">.</span><span class="n">seconds</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s1"> hour(s)&#39;</span><span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cache over </span><span class="si">{</span><span class="n">t_str</span><span class="si">}</span><span class="s1"> old&#39;</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Determine whether a newer cache is available</span>
-            <span class="n">cache_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cache/info/</span><span class="si">{</span><span class="n">tag</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cache_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cache/info/</span><span class="si">{</span><span class="n">tag</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">expires</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">tag</span> <span class="o">==</span> <span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span>
 
             <span class="c1"># Check version compatibility</span>
@@ -1579,28 +1580,29 @@
             <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">),</span> <span class="n">cache_dir</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Reload cache after download</span>
-        <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">SSLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to load the remote cache file&#39;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">: Failed to load the remote cache file&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;remote&#39;</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">ConnectionError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ConnectionError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">,</span> <span class="n">URLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="c1"># NB: URLError may be raised when client SSL configuration is bad</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to connect to Alyx&#39;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">: Failed to connect to Alyx&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;one.webclient.AlyxClient: The Alyx Web client&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;one.webclient.AlyxClient: The Alyx Web client&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span><span class="o">.</span><span class="n">cache_dir</span>
 
 <div class="viewcode-block" id="OneAlyx.search_terms"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_terms">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of search terms to be passed as kwargs to the search method</span>
 
 <span class="sd">        Parameters</span>
@@ -1621,7 +1623,7 @@
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">({</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excl</span><span class="p">)})</span></div>
 
 <div class="viewcode-block" id="OneAlyx.describe_dataset"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">describe_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Print a dataset type description.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print a dataset type description.</span>
 
 <span class="sd">        NB: This requires an Alyx database connection.</span>
 
@@ -1674,7 +1676,7 @@
 
 <div class="viewcode-block" id="OneAlyx.pid2eid"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.pid2eid">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">pid2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an Alyx probe UUID string, returns the session id string and the probe label</span>
 <span class="sd">        (i.e. the ALF collection).</span>
 
@@ -1703,7 +1705,7 @@
         <span class="k">return</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="OneAlyx.search"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches sessions matching the given criteria and returns a list of matching eids</span>
 
 <span class="sd">        For a list of search terms, use the method</span>
@@ -1793,7 +1795,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">eids</span><span class="p">,</span> <span class="n">ses</span><span class="p">)</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">eids</span></div>
 
     <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">         Download a single or multitude of datasets if stored on AWS, otherwise calls</span>
 <span class="sd">         OneAlyx._download_dataset.</span>
 
@@ -1851,7 +1853,7 @@
         <span class="k">return</span> <span class="n">out_files</span>
 
     <span class="k">def</span> <span class="nf">_dset2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the</span>
 <span class="sd">        following: a dict from returned by the sessions endpoint or dataset endpoint, a record</span>
 <span class="sd">        from the datasets cache table, or a file path.  Unlike record2url, this method can convert</span>
@@ -1916,7 +1918,7 @@
         <span class="k">return</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download a single or multitude of dataset from an Alyx REST dictionary.</span>
 
 <span class="sd">        NB: This will not skip files that are already present.  Use check_filesystem instead.</span>
@@ -1971,7 +1973,7 @@
                     <span class="s1">&#39;Please contact the database administrator.&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="n">keep_uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">hash</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downloads a single file or multitude of files from an HTTP webserver.</span>
 <span class="sd">        The webserver in question is set by the AlyxClient object.</span>
 
@@ -2023,7 +2025,7 @@
             <span class="k">return</span> <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_hash_and_file_size_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_size</span><span class="p">,</span> <span class="nb">hash</span><span class="p">,</span> <span class="n">expected_hash</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check to ensure the hash and file size of a downloaded file matches what is on disk</span>
 
 <span class="sd">        Parameters</span>
@@ -2056,7 +2058,7 @@
 
 <div class="viewcode-block" id="OneAlyx.setup"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.setup">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set up OneAlyx for a given database</span>
 
 <span class="sd">        Parameters</span>
@@ -2078,7 +2080,7 @@
 <div class="viewcode-block" id="OneAlyx.eid2path"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2path">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">util</span><span class="o">.</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From an experiment ID gets the local session path</span>
 
 <span class="sd">        Parameters</span>
@@ -2117,7 +2119,7 @@
 
 <div class="viewcode-block" id="OneAlyx.path2eid"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2eid">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">util</span><span class="o">.</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From a local path, gets the experiment ID</span>
 
 <span class="sd">        Parameters</span>
@@ -2167,7 +2169,7 @@
 
 <div class="viewcode-block" id="OneAlyx.path2url"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2url">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">path2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a local file path, returns the URL of the remote file.</span>
 
 <span class="sd">        Parameters</span>
@@ -2195,7 +2197,7 @@
 
 <div class="viewcode-block" id="OneAlyx.type2datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.type2datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">type2datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get list of datasets belonging to a given dataset type for a given session</span>
 
 <span class="sd">        Parameters</span>
@@ -2224,7 +2226,7 @@
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span></div>
 
 <div class="viewcode-block" id="OneAlyx.dataset2type"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.dataset2type">[docs]</a>    <span class="k">def</span> <span class="nf">dataset2type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return dataset type from dataset.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dataset type from dataset.</span>
 
 <span class="sd">        NB: Requires an Alyx database connection</span>
 
@@ -2251,7 +2253,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">dset</span><span class="p">)[</span><span class="s1">&#39;dataset_type&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="OneAlyx.describe_revision"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_revision">[docs]</a>    <span class="k">def</span> <span class="nf">describe_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Print description of a revision</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print description of a revision</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2288,7 +2290,7 @@
 <div class="viewcode-block" id="OneAlyx.get_details"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.get_details">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">get_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return session details for a given session</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return session details for a given session</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>

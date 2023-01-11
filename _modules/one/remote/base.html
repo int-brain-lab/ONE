@@ -140,7 +140,7 @@
 
 
 <div class="viewcode-block" id="load_client_params"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.load_client_params">[docs]</a><span class="k">def</span> <span class="nf">load_client_params</span><span class="p">(</span><span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load the parameters from the remote params file.  If a client key is provided, only those</span>
 <span class="sd">    client parameters are returned.  NB: Remote param values are expected to all be dicts.</span>
 
@@ -191,7 +191,7 @@
 
 
 <div class="viewcode-block" id="save_client_params"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.save_client_params">[docs]</a><span class="k">def</span> <span class="nf">save_client_params</span><span class="p">(</span><span class="n">new_pars</span><span class="p">,</span> <span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save parameters into the remote params file.  If a client key is provided, parameters are</span>
 <span class="sd">    saved into this field.</span>
 
@@ -218,18 +218,18 @@
 
 
 <div class="viewcode-block" id="DownloadClient"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient">[docs]</a><span class="k">class</span> <span class="nc">DownloadClient</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Data download handler base class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data download handler base class&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="DownloadClient.to_address"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.to_address">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the remote data URL for a given ALF path&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the remote data URL for a given ALF path&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="DownloadClient.download_file"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.download_file">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Download an ALF dataset given its address&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download an ALF dataset given its address&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="DownloadClient.setup"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.setup">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -239,7 +239,7 @@
 
 <div class="viewcode-block" id="DownloadClient.repo_from_alyx"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.repo_from_alyx">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">repo_from_alyx</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alyx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the data repository information for a given data repository&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data repository information for a given data repository&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
 </pre></div>
 

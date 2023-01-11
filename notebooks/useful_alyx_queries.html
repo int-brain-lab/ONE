@@ -455,11 +455,11 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from pprint import pprint
-from one.api import ONE, OneAlyx
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">OneAlyx</span>
 
-one = ONE(base_url=&#39;https://openalyx.internationalbrainlab.org&#39;)
-assert isinstance(one, OneAlyx) and not one.offline
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">OneAlyx</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>
 </pre></div>
 </div>
 </div>
@@ -471,7 +471,7 @@ assert isinstance(one, OneAlyx) and not one.offline
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>print(one.alyx.list_endpoints())  # Can also be done with `one.alyx.rest()`
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">())</span>  <span class="c1"># Can also be done with `one.alyx.rest()`</span>
 </pre></div>
 </div>
 </div>
@@ -488,7 +488,7 @@ assert isinstance(one, OneAlyx) and not one.offline
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>print(one.alyx.rest_schemes[&#39;sessions&#39;][&#39;list&#39;][&#39;description&#39;])
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -654,8 +654,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>ses = one.alyx.rest(&#39;sessions&#39;, &#39;read&#39;, id=&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;)
-pprint(ses[&#39;extended_qc&#39;])
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;extended_qc&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>

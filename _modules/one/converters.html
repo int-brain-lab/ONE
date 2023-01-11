@@ -131,7 +131,7 @@
 
 
 <div class="viewcode-block" id="recurse"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.recurse">[docs]</a><span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decorator to call decorated function recursively if first arg is non-string iterable.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to call decorated function recursively if first arg is non-string iterable.</span>
 
 <span class="sd">    Allows decorated methods to accept both single values, and lists/tuples of values.  When</span>
 <span class="sd">    given the latter, a list is returned.  This decorator is intended to work on class methods,</span>
@@ -162,7 +162,7 @@
 
 
 <div class="viewcode-block" id="parse_values"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.parse_values">[docs]</a><span class="k">def</span> <span class="nf">parse_values</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert str values in reference dict to appropriate type.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert str values in reference dict to appropriate type.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -193,7 +193,7 @@
 
 
 <div class="viewcode-block" id="ConversionMixin"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin">[docs]</a><span class="k">class</span> <span class="nc">ConversionMixin</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;A mixin providing methods to interconvert experiment identifiers&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mixin providing methods to interconvert experiment identifiers&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">None</span>
@@ -203,7 +203,7 @@
     <span class="k">def</span> <span class="nf">to_eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="nb">id</span><span class="p">:</span> <span class="n">Listable</span><span class="p">(</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Listable</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Given any kind of experiment identifier, return a corresponding eid string.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given any kind of experiment identifier, return a corresponding eid string.</span>
 
 <span class="sd">        NB: Currently does not support integer IDs.</span>
 
@@ -258,7 +258,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.eid2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2path">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">)]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From an experiment id or a list of experiment ids, gets the local cache path</span>
 
 <span class="sd">        Parameters</span>
@@ -289,7 +289,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.path2eid"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2eid">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From a local path, gets the experiment id</span>
 
 <span class="sd">        Parameters</span>
@@ -327,7 +327,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.path2record"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2record">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">path2record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Convert a file or session path to a dataset or session cache record.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a file or session path to a dataset or session cache record.</span>
 
 <span class="sd">        NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pattern</span>
 
@@ -378,7 +378,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.path2url"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2url">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">path2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a local file path, constructs the URL of the remote file.</span>
 
 <span class="sd">        Parameters</span>
@@ -397,7 +397,7 @@
         <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record2url</span><span class="p">)(</span><span class="n">record</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConversionMixin.record2url"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2url">[docs]</a>    <span class="k">def</span> <span class="nf">record2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Convert a session or dataset record to a remote URL</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a session or dataset record to a remote URL</span>
 
 <span class="sd">        NB: Requires online instance</span>
 
@@ -433,7 +433,7 @@
         <span class="k">return</span> <span class="n">webclient</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ConversionMixin.record2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2path">[docs]</a>    <span class="k">def</span> <span class="nf">record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a set of dataset records, checks the corresponding exists flag in the cache</span>
 <span class="sd">        correctly reflects the files system</span>
 
@@ -455,7 +455,7 @@
 <div class="viewcode-block" id="ConversionMixin.eid2ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2ref">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">eid2ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> \
             <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get human-readable session ref from path</span>
 
 <span class="sd">        Parameters</span>
@@ -502,7 +502,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.ref2eid"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2eid">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">ref2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns experiment uuid, given one or more experiment references</span>
 
 <span class="sd">        Parameters</span>
@@ -538,7 +538,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.ref2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2path">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">ref2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert one or more experiment references to session path(s)</span>
 
 <span class="sd">        Parameters</span>
@@ -571,7 +571,7 @@
 <div class="viewcode-block" id="ConversionMixin.path2ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2ref">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="nd">@parse_values</span>
     <span class="k">def</span> <span class="nf">path2ref</span><span class="p">(</span><span class="n">path_str</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a human readable experiment reference, given a session path.</span>
 <span class="sd">        The path need not exist.</span>
 
@@ -607,56 +607,9 @@
             <span class="n">ref</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.ref2dj"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2dj">[docs]</a>    <span class="k">def</span> <span class="nf">ref2dj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return an ibl-pipeline sessions table, restricted by experiment reference(s)</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ref : str, list, dict</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
-<span class="sd">            the form yyyy-mm-dd_n_subject</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        acquisition.Session</span>
-<span class="sd">            An acquisition.Session table corresponding to the ref</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; ref2dj(&#39;2020-06-20_2_CSHL046&#39;).fetch1()</span>
-<span class="sd">        Connecting...</span>
-<span class="sd">        {&#39;subject_uuid&#39;: UUID(&#39;dffc24bc-bd97-4c2a-bef3-3e9320dc3dd7&#39;),</span>
-<span class="sd">         &#39;session_start_time&#39;: datetime.datetime(2020, 6, 20, 13, 31, 47),</span>
-<span class="sd">         &#39;session_number&#39;: 2,</span>
-<span class="sd">         &#39;session_date&#39;: datetime.date(2020, 6, 20),</span>
-<span class="sd">         &#39;subject_nickname&#39;: &#39;CSHL046&#39;}</span>
-<span class="sd">        &gt;&gt;&gt; len(ref2dj({&#39;date&#39;:&#39;2020-06-20&#39;, &#39;sequence&#39;:&#39;002&#39;, &#39;subject&#39;:&#39;CSHL046&#39;}))</span>
-<span class="sd">        1</span>
-<span class="sd">        &gt;&gt;&gt; len(ref2dj([&#39;2020-06-20_2_CSHL046&#39;, &#39;2019-11-01_1_ibl_witten_13&#39;]))</span>
-<span class="sd">        2</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">ibl_pipeline</span> <span class="kn">import</span> <span class="n">subject</span><span class="p">,</span> <span class="n">acquisition</span>
-        <span class="n">sessions</span> <span class="o">=</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="s1">&#39;session_number&#39;</span><span class="p">,</span>
-                                            <span class="n">session_date</span><span class="o">=</span><span class="s1">&#39;date(session_start_time)&#39;</span><span class="p">)</span>
-        <span class="n">sessions</span> <span class="o">=</span> <span class="n">sessions</span> <span class="o">*</span> <span class="n">subject</span><span class="o">.</span><span class="n">Subject</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="s1">&#39;subject_nickname&#39;</span><span class="p">)</span>
-
-        <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref2dict</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>  <span class="c1"># Ensure dict-like</span>
-
-        <span class="nd">@recurse</span>
-        <span class="k">def</span> <span class="nf">restrict</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-            <span class="n">date</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">subject</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>  <span class="c1"># Unpack sorted</span>
-            <span class="n">restriction</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;subject_nickname&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
-                <span class="s1">&#39;session_number&#39;</span><span class="p">:</span> <span class="n">sequence</span><span class="p">,</span>
-                <span class="s1">&#39;session_date&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">}</span>
-            <span class="k">return</span> <span class="n">restriction</span>
-
-        <span class="k">return</span> <span class="n">sessions</span> <span class="o">&amp;</span> <span class="n">restrict</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="ConversionMixin.is_exp_ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.is_exp_ref">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_exp_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True is ref is a valid experiment reference</span>
 
 <span class="sd">        Parameters</span>
@@ -693,7 +646,7 @@
 <div class="viewcode-block" id="ConversionMixin.ref2dict"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2dict">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="nd">@parse_values</span>
     <span class="k">def</span> <span class="nf">ref2dict</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a Bunch (dict-like) from a reference string (or list thereof)</span>
 
 <span class="sd">        Parameters</span>
@@ -725,7 +678,7 @@
 
 <div class="viewcode-block" id="ConversionMixin.dict2ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.dict2ref">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">dict2ref</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Parameters</span>
@@ -750,7 +703,7 @@
 
 
 <div class="viewcode-block" id="one_path_from_dataset"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.one_path_from_dataset">[docs]</a><span class="k">def</span> <span class="nf">one_path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">one_cache</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns local one file path from a dset record or a list of dsets records from REST.</span>
 <span class="sd">    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.</span>
 
@@ -770,7 +723,7 @@
 
 
 <div class="viewcode-block" id="path_from_dataset"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_dataset">[docs]</a><span class="k">def</span> <span class="nf">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the local file path from a dset record from a REST query.</span>
 <span class="sd">    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.</span>
 
@@ -802,7 +755,7 @@
 
 
 <div class="viewcode-block" id="path_from_filerecord"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_filerecord">[docs]</a><span class="k">def</span> <span class="nf">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a data file Path constructed from an Alyx file record.  The Path type returned</span>
 <span class="sd">    depends on the type of root_path: If root_path is a string a Path object is returned,</span>
 <span class="sd">    otherwise if the root_path is a PurePath, the same path type is returned.</span>
@@ -838,7 +791,7 @@
 
 
 <div class="viewcode-block" id="session_record2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.session_record2path">[docs]</a><span class="k">def</span> <span class="nf">session_record2path</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a session record into a path.</span>
 
 <span class="sd">    If a lab key is present, the path will be in the form</span>

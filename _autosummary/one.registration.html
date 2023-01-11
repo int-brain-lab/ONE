@@ -149,7 +149,7 @@
 </style>
 <section id="module-one.registration">
 <span id="one-registration"></span><h1>one.registration<a class="headerlink" href="#module-one.registration" title="Permalink to this heading"></a></h1>
-<p>Session creation and datasets registration</p>
+<p>Session creation and datasets registration.</p>
 <p>The RegistrationClient provides an high-level API for creating experimentation sessions on Alyx
 and registering associated datasets.</p>
 <section id="summary-of-methods">
@@ -373,7 +373,7 @@ path.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.register_files">
 <span class="sig-name descname"><span class="pre">register_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_md5_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_files" title="Permalink to this definition"></a></dt>
-<dd><p>Registers a set of files belonging to a session only on the server</p>
+<dd><p>Registers a set of files belonging to a session only on the server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -392,6 +392,27 @@ path.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>list of dicts, dict</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The registered files may be automatically moved to new revision folders if they are</p></li>
+</ul>
+<blockquote>
+<div><p>protected on Alyx, therefore it’s important to check the relative paths of the output.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Protected datasets are not checked in dry mode.</p></li>
+<li><p>In most circumstances a new revision will be added automatically, however if this fails</p></li>
+</ul>
+<blockquote>
+<div><p>a 403 HTTP status may be returned.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>requests.exceptions.HTTPError</strong> – Submitted data not valid (400 status code)
+    Server side database error (500 status code)
+    Revision protected (403 status code)</p>
 </dd>
 </dl>
 </dd></dl>

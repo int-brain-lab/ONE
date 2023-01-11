@@ -101,7 +101,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.registration</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Session creation and datasets registration</span>
+<span></span><span class="sd">&quot;&quot;&quot;Session creation and datasets registration.</span>
 
 <span class="sd">The RegistrationClient provides an high-level API for creating experimentation sessions on Alyx</span>
 <span class="sd">and registering associated datasets.</span>
@@ -115,21 +115,21 @@
 <span class="sd">register_files - Register a list of files to their respective sessions on Alyx</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 
 <span class="kn">import</span> <span class="nn">requests.exceptions</span>
 
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">hashfile</span>
 
 <span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
-<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">session_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span>
+<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">session_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">folder_parts</span>
 <span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
@@ -139,7 +139,7 @@
 
 
 <div class="viewcode-block" id="RegistrationClient"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient">[docs]</a><span class="k">class</span> <span class="nc">RegistrationClient</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object that keeps the ONE instance and provides method to create sessions and register data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">one</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -153,7 +153,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-formats&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
 
 <div class="viewcode-block" id="RegistrationClient.create_sessions"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_data_folder</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;**/create_me.flag&#39;</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create sessions looking recursively for flag files</span>
 
 <span class="sd">        Parameters</span>
@@ -185,7 +185,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">ff</span><span class="o">.</span><span class="n">parent</span> <span class="k">for</span> <span class="n">ff</span> <span class="ow">in</span> <span class="n">flag_files</span><span class="p">],</span> <span class="n">records</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.create_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Create a remote session on Alyx from a local session path, without registering files</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a remote session on Alyx from a local session path, without registering files</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -202,7 +202,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.create_new_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_new_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">session_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new local session folder and optionally create session record on Alyx</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new local session folder and optionally create session record on Alyx</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -250,7 +250,7 @@
         <span class="k">return</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.find_files"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.find_files">[docs]</a>    <span class="k">def</span> <span class="nf">find_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an generator of file names that match one of the dataset type patterns in Alyx</span>
 
 <span class="sd">        Parameters</span>
@@ -270,7 +270,7 @@
                 <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.assert_exists"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.assert_exists">[docs]</a>    <span class="k">def</span> <span class="nf">assert_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Raise an error if a given member doesn&#39;t exist on Alyx database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise an error if a given member doesn&#39;t exist on Alyx database</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -294,7 +294,7 @@
 <span class="sd">        requests.exceptions.HTTPError</span>
 <span class="sd">            Failed to connect to Alyx database or endpoint not found</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">member</span><span class="p">),</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
@@ -310,7 +310,7 @@
 
 <div class="viewcode-block" id="RegistrationClient.ensure_ISO8601"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.ensure_ISO8601">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Ensure provided date is ISO 8601 compliant</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure provided date is ISO 8601 compliant</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -330,7 +330,7 @@
         <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">date</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.register_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_session">[docs]</a>    <span class="k">def</span> <span class="nf">register_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ses_path</span><span class="p">,</span> <span class="n">users</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register session in Alyx</span>
 
 <span class="sd">        NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)</span>
@@ -447,8 +447,8 @@
 
 <div class="viewcode-block" id="RegistrationClient.register_files"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_files">[docs]</a>    <span class="k">def</span> <span class="nf">register_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">created_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">server_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_md5_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Registers a set of files belonging to a session only on the server</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers a set of files belonging to a session only on the server.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -473,6 +473,21 @@
 <span class="sd">        -------</span>
 <span class="sd">        list of dicts, dict</span>
 <span class="sd">            A list of newly created Alyx dataset records or the registration data if dry</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The registered files may be automatically moved to new revision folders if they are</span>
+<span class="sd">         protected on Alyx, therefore it&#39;s important to check the relative paths of the output.</span>
+<span class="sd">        - Protected datasets are not checked in dry mode.</span>
+<span class="sd">        - In most circumstances a new revision will be added automatically, however if this fails</span>
+<span class="sd">         a 403 HTTP status may be returned.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        requests.exceptions.HTTPError</span>
+<span class="sd">            Submitted data not valid (400 status code)</span>
+<span class="sd">            Server side database error (500 status code)</span>
+<span class="sd">            Revision protected (403 status code)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">F</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map whose keys will be session paths</span>
         <span class="n">V</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map for versions</span>
@@ -525,22 +540,167 @@
                   <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">repository</span><span class="p">,</span>
                   <span class="s1">&#39;server_only&#39;</span><span class="p">:</span> <span class="n">server_only</span><span class="p">,</span>
                   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span>
-                  <span class="s1">&#39;versions&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">]}</span>
+                  <span class="s1">&#39;versions&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">],</span>
+                  <span class="s1">&#39;check_protected&#39;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">}</span>
 
             <span class="c1"># Add optional field</span>
             <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
                 <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;labs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span>
             <span class="c1"># If dry, store POST data, otherwise store resulting file records</span>
-            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_</span> <span class="k">if</span> <span class="n">dry</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/register-file&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_</span> <span class="k">if</span> <span class="n">dry</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/register-file&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="c1"># 403 response when datasets already registered and protected by tags</span>
+                <span class="n">err_message</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">err_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">403</span> <span class="ow">and</span>
+                   <span class="n">err_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;One or more datasets is protected&#39;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">err</span>  <span class="c1"># Some other error occurred; re-raise</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">err_message</span><span class="p">[</span><span class="s1">&#39;details&#39;</span><span class="p">]</span>
+                <span class="n">today_revision</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">new_file_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">for</span> <span class="n">fl</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">prot_info</span><span class="p">),</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="c1"># Dataset has not yet been registered</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">prot_info</span><span class="p">:</span>
+                        <span class="n">new_file_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fl</span><span class="p">)</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># Check to see if the file path already has a revision in it</span>
+                    <span class="n">file_revision</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="n">rel_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">&#39;revision&#39;</span><span class="p">]</span>
+                    <span class="c1"># Find existing protected revisions</span>
+                    <span class="n">existing_revisions</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">prot_info</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">file_revision</span><span class="p">:</span>
+                        <span class="c1"># If the revision explicitly defined by the user doesn&#39;t exist or</span>
+                        <span class="c1"># is not protected, register as is</span>
+                        <span class="k">if</span> <span class="n">file_revision</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_revisions</span><span class="p">:</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># Find the next sub-revision that isn&#39;t protected</span>
+                            <span class="n">new_revision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span><span class="n">file_revision</span><span class="p">,</span> <span class="n">existing_revisions</span><span class="p">)</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">new_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">revision_path</span> <span class="o">!=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                            <span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">revision_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Moving </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fl</span><span class="p">,</span> <span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">session_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">session_path</span> <span class="o">/</span> <span class="n">revision_path</span> <span class="o">/</span> <span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">new_file_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># The file wasn&#39;t in a revision folder but is protected</span>
+                    <span class="n">fl_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span>
+                    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+
+                    <span class="c1"># Find info about the latest revision</span>
+                    <span class="c1"># N.B on django side prot_info is sorted by latest revisions first</span>
+                    <span class="p">(</span><span class="n">latest_revision</span><span class="p">,</span> <span class="n">protected</span><span class="p">),</span> <span class="o">=</span> <span class="n">prot_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
+                    <span class="c1"># If the latest revision is the original and it is unprotected</span>
+                    <span class="c1"># no need for revision e.g {&#39;clusters.amp.npy&#39;: [{&#39;&#39;: False}]}</span>
+                    <span class="k">if</span> <span class="n">latest_revision</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">protected</span><span class="p">:</span>
+                        <span class="c1"># Use original path</span>
+                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span>
+
+                    <span class="c1"># If there already is a revision but it is unprotected,</span>
+                    <span class="c1"># move into this revision folder e.g</span>
+                    <span class="c1"># {&#39;clusters.amp.npy&#39;:</span>
+                    <span class="c1">#   [{&#39;2022-10-31&#39;: False}, {&#39;2022-05-31&#39;: True}, {&#39;&#39;: True}]}</span>
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">protected</span><span class="p">:</span>
+                        <span class="c1"># Check that the latest_revision has the date naming convention we expect</span>
+                        <span class="c1"># i.e. &#39;YYYY-MM-DD&#39;</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">_</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">latest_revision</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">latest_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+                        <span class="c1"># If it doesn&#39;t it probably has been made manually so we don&#39;t want to</span>
+                        <span class="c1"># overwrite this and instead use today&#39;s date</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="c1"># NB: It&#39;s possible that today&#39;s date revision is also protected but is</span>
+                            <span class="c1"># not the most recent revision. In this case it&#39;s safer to let fail.</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">today_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+
+                    <span class="c1"># If protected and the latest protected revision is from today we need to make</span>
+                    <span class="c1"># a sub-revision</span>
+                    <span class="k">elif</span> <span class="n">protected</span> <span class="ow">and</span> <span class="n">today_revision</span> <span class="ow">in</span> <span class="n">latest_revision</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">latest_revision</span> <span class="o">==</span> <span class="n">today_revision</span><span class="p">:</span>  <span class="c1"># iterate from appending &#39;a&#39;</span>
+                            <span class="n">new_revision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span><span class="n">today_revision</span><span class="p">,</span> <span class="n">existing_revisions</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>  <span class="c1"># assume the revision is date + character, e.g. &#39;2020-01-01c&#39;</span>
+                            <span class="n">alpha</span> <span class="o">=</span> <span class="n">latest_revision</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># iterate from this character</span>
+                            <span class="n">new_revision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span>
+                                <span class="n">today_revision</span><span class="p">,</span> <span class="n">existing_revisions</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">new_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+
+                    <span class="c1"># Otherwise cases move into revision from today</span>
+                    <span class="c1"># e.g {&#39;clusters.amp.npy&#39;: [{&#39;&#39;: True}]}</span>
+                    <span class="c1"># e.g {&#39;clusters.amp.npy&#39;: [{&#39;2022-10-31&#39;: True}, {&#39;&#39;: True}]}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">today_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+
+                    <span class="c1"># Only move for the cases where a revision folder has been made</span>
+                    <span class="k">if</span> <span class="n">revision_path</span> <span class="o">!=</span> <span class="n">fl_path</span><span class="p">:</span>
+                        <span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">revision_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Moving </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fl</span><span class="p">,</span> <span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">session_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">session_path</span> <span class="o">/</span> <span class="n">revision_path</span> <span class="o">/</span> <span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">new_file_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_file_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;filenames&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">new_file_list</span><span class="p">]</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;filesizes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">new_file_list</span><span class="p">]</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;check_protected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Speed things up by ignoring server-side checks</span>
+
+                <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/register-file&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">))</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="n">new_file_list</span>
+
             <span class="c1"># Log file names</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALYX REGISTERED DATA </span><span class="si">{</span><span class="s2">&quot;!DRY!&quot;</span> <span class="k">if</span> <span class="n">dry</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">rel_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALYX REGISTERED DATA </span><span class="si">{</span><span class="s2">&quot;!DRY!&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dry</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">rel_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALYX REGISTERED DATA: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALYX REGISTERED DATA: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">records</span></div>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_next_revision</span><span class="p">(</span><span class="n">revision</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reserved</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the next logical revision that is not already in the provided list.</span>
+<span class="sd">        Revisions will increment by appending a letter to a date or other identifier.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        revision : str</span>
+<span class="sd">            The revision on which to base the new revision.</span>
+<span class="sd">        reserved : list of str</span>
+<span class="sd">            A list of reserved (i.e. already existing) revision strings.</span>
+<span class="sd">        alpha : str</span>
+<span class="sd">            The starting character as an integer, defaults to &#39;a&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The next logical revision string that&#39;s not in the reserved list.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision(&#39;2020-01-01&#39;)</span>
+<span class="sd">        &#39;2020-01-01a&#39;</span>
+<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision(&#39;2020-01-01&#39;, [&#39;2020-01-01a&#39;, &#39;2020-01-01b&#39;])</span>
+<span class="sd">        &#39;2020-01-01c&#39;</span>
+<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision(&#39;2020-01-01&#39;, [&#39;2020-01-01a&#39;, &#39;2020-01-01b&#39;])</span>
+<span class="sd">        &#39;2020-01-01c&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;`alpha` must be a character; received a string of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">new_revision</span> <span class="o">=</span> <span class="n">revision</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">new_revision</span> <span class="ow">in</span> <span class="p">(</span><span class="n">reserved</span> <span class="ow">or</span> <span class="p">[]):</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">new_revision</span> <span class="o">=</span> <span class="n">revision</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_revision</span>
+
 <div class="viewcode-block" id="RegistrationClient.register_water_administration"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_water_administration">[docs]</a>    <span class="k">def</span> <span class="nf">register_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a water administration to Alyx for a given subject</span>
 
 <span class="sd">        Parameters</span>
@@ -602,7 +762,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;water-administrations&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wa_</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.register_weight"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_weight">[docs]</a>    <span class="k">def</span> <span class="nf">register_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">date_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a subject weight to Alyx</span>
 
 <span class="sd">        Parameters</span>

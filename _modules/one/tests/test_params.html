@@ -118,7 +118,7 @@
 
 
 <div class="viewcode-block" id="TestParamSetup"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestParamSetup">[docs]</a><span class="k">class</span> <span class="nc">TestParamSetup</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Test for one.params.setup function&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test for one.params.setup function&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TestParamSetup.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestParamSetup.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">par_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
@@ -130,7 +130,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_file_mock</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_mock_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Stub function for builtins.input&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stub function for builtins.input&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">prompt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;warning&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39;n&#39;</span>
         <span class="k">elif</span> <span class="s1">&#39;url&#39;</span> <span class="ow">in</span> <span class="n">prompt</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
@@ -143,7 +143,7 @@
 
 <div class="viewcode-block" id="TestParamSetup.test_setup"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestParamSetup.test_setup">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.params.getpass&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="s1">&#39;mock_pwd&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">test_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test fresh setup with default args&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test fresh setup with default args&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.params.input&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mock_input</span><span class="p">):</span>
             <span class="n">cache</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="c1"># Check client map contains our url sans schema</span>
@@ -170,12 +170,12 @@
 
 
 <div class="viewcode-block" id="TestONEParamUtil"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil">[docs]</a><span class="k">class</span> <span class="nc">TestONEParamUtil</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Test class for one.params utility functions&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test class for one.params utility functions&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TestONEParamUtil.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="TestONEParamUtil.test_key_from_url"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_key_from_url">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_from_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.params._key_from_url&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.params._key_from_url&quot;&quot;&quot;</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">_key_from_url</span><span class="p">(</span><span class="s1">&#39;https://sub.domain.org/&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;sub.domain.org&#39;</span><span class="p">)</span>
 
@@ -183,7 +183,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;www.domain.org_db__rest_true&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestONEParamUtil.test_get_params_dir"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_get_params_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_params_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.params.get_params_dir&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.params.get_params_dir&quot;&quot;&quot;</span>
         <span class="n">par_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;iblutil.io.params.getfile&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_file</span><span class="p">,</span> <span class="n">par_dir</span><span class="p">)):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">()</span>
@@ -191,7 +191,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;path/to/params/.one&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="TestONEParamUtil.test_get_default_client"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_get_default_client">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_default_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.params.get_default_client&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.params.get_default_client&quot;&quot;&quot;</span>
         <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">set_up_env</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;iblutil.io.params.getfile&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_file</span><span class="p">,</span> <span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)):</span>
@@ -205,7 +205,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s1">&#39;openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestONEParamUtil.test_get_cache_dir"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_get_cache_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.params.get_cache_dir&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.params.get_cache_dir&quot;&quot;&quot;</span>
         <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">set_up_env</span><span class="p">()</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;download_cache&#39;</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>

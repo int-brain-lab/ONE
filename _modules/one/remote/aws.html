@@ -138,7 +138,7 @@
 
 
 <span class="k">def</span> <span class="nf">_callback_hook</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A callback hook for boto3.download_file to update the progress bar.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A callback hook for boto3.download_file to update the progress bar.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -158,7 +158,7 @@
 
 
 <div class="viewcode-block" id="get_s3_virtual_host"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_virtual_host">[docs]</a><span class="k">def</span> <span class="nf">get_s3_virtual_host</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a given bucket URI to a generic Amazon virtual host URL.</span>
 <span class="sd">    URI may be the bucket (+ path) or a full URI starting with &#39;s3://&#39;</span>
 
@@ -181,12 +181,12 @@
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>  <span class="c1"># remove scheme if necessary</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">hostname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">or</span> <span class="s1">&#39;s3&#39;</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.amazonaws.com&quot;</span>
+    <span class="n">hostname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;s3&#39;</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.amazonaws.com&quot;</span>
     <span class="k">return</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">hostname</span><span class="p">,</span> <span class="o">*</span><span class="n">key</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="is_folder"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.is_folder">[docs]</a><span class="k">def</span> <span class="nf">is_folder</span><span class="p">(</span><span class="n">obj_summery</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</span>
 
 <span class="sd">    Parameters</span>
@@ -203,7 +203,7 @@
 
 
 <div class="viewcode-block" id="get_aws_access_keys"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_aws_access_keys">[docs]</a><span class="k">def</span> <span class="nf">get_aws_access_keys</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">REPO_DEFAULT</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Query Alyx database to get credentials in the json field of an aws repository.</span>
 
 <span class="sd">    Parameters</span>
@@ -231,7 +231,7 @@
 
 
 <div class="viewcode-block" id="get_s3_public"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_public">[docs]</a><span class="k">def</span> <span class="nf">get_s3_public</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Retrieve the IBL public S3 service resource.</span>
 
 <span class="sd">    Returns</span>
@@ -247,7 +247,7 @@
 
 
 <div class="viewcode-block" id="get_s3_from_alyx"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_from_alyx">[docs]</a><span class="k">def</span> <span class="nf">get_s3_from_alyx</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">REPO_DEFAULT</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an S3 resource instance using credentials from an Alyx data repository.</span>
 
 <span class="sd">    Parameters</span>
@@ -271,7 +271,7 @@
 
 
 <div class="viewcode-block" id="s3_download_file"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.s3_download_file">[docs]</a><span class="k">def</span> <span class="nf">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Downloads a file from an S3 instance to a local folder.</span>
 
 <span class="sd">    Parameters</span>
@@ -317,7 +317,7 @@
 
 
 <div class="viewcode-block" id="s3_download_folder"><a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.s3_download_folder">[docs]</a><span class="k">def</span> <span class="nf">s3_download_folder</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="n">S3_BUCKET_IBL</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Downloads S3 folder content to a local folder.</span>
 
 <span class="sd">    Parameters</span>

@@ -167,12 +167,12 @@
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
 
 <span class="k">def</span> <span class="nf">_ses_str_id</span><span class="p">(</span><span class="n">session_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a str id from a session path in the form &#39;(lab/)subject/date/number&#39;&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a str id from a session path in the form &#39;(lab/)subject/date/number&#39;&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">_get_session_info</span><span class="p">(</span><span class="n">rel_ses_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Parse a relative session path.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a relative session path.&quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">rel_ses_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">out</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_ses_str_id</span><span class="p">(</span><span class="n">rel_ses_path</span><span class="p">)</span>
     <span class="n">out</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
@@ -237,7 +237,7 @@
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
 
 <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="n">origin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Metadata dictionary for Parquet files.</span>
 
 <span class="sd">    Parameters</span>
@@ -252,7 +252,7 @@
 
 
 <span class="k">def</span> <span class="nf">_make_sessions_df</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a root directory, recursively finds all sessions and returns a sessions DataFrame</span>
 
 <span class="sd">    Parameters</span>
@@ -278,7 +278,7 @@
 
 
 <span class="k">def</span> <span class="nf">_make_datasets_df</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a root directory, recursively finds all datasets and returns a datasets DataFrame</span>
 
 <span class="sd">    Parameters</span>
@@ -307,7 +307,7 @@
 
 
 <div class="viewcode-block" id="make_parquet_db"><a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.make_parquet_db">[docs]</a><span class="k">def</span> <span class="nf">make_parquet_db</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a data directory, index the ALF datasets and save the generated cache tables.</span>
 
 <span class="sd">    Parameters</span>
@@ -350,7 +350,7 @@
 
     <span class="c1"># Check any files were found</span>
     <span class="k">if</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="s2">&quot;sessions&quot;</span> <span class="k">if</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="s2">&quot;datasets&quot;</span><span class="si">}</span><span class="s1"> found&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="s2">&quot;sessions&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">df_ses</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;datasets&quot;</span><span class="si">}</span><span class="s1"> found&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
 
     <span class="c1"># Output directory.</span>
     <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span> <span class="ow">or</span> <span class="n">root_dir</span><span class="p">)</span>
@@ -372,7 +372,7 @@
 
 
 <div class="viewcode-block" id="remove_missing_datasets"><a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.remove_missing_datasets">[docs]</a><span class="k">def</span> <span class="nf">remove_missing_datasets</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_empty_sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove dataset files and session folders that are not in the provided cache.</span>
 
 <span class="sd">    NB: This *does not* remove entries from the cache tables that are missing on disk.</span>

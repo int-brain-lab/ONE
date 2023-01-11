@@ -113,9 +113,9 @@
 
 
 <div class="viewcode-block" id="TestALFSpec"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec">[docs]</a><span class="k">class</span> <span class="nc">TestALFSpec</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tests for ALF specification&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for ALF specification&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TestALFSpec.test_regex"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_regex">[docs]</a>    <span class="k">def</span> <span class="nf">test_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.regex&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.regex&quot;&quot;&quot;</span>
         <span class="c1"># Should return the full regex with named capture groups by default</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="n">alf_spec</span><span class="o">.</span><span class="n">regex</span><span class="p">()</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;((?P&lt;lab&gt;</span><span class="se">\\</span><span class="s1">w+)/Subjects/)?&#39;</span>
@@ -142,12 +142,12 @@
             <span class="n">alf_spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">foo</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;[bar]+&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_named_group"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_named_group">[docs]</a>    <span class="k">def</span> <span class="nf">test_named_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec._named&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec._named&quot;&quot;&quot;</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="n">alf_spec</span><span class="o">.</span><span class="n">_named</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[bar]+&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">verifiable</span><span class="p">,</span> <span class="s1">&#39;(?P&lt;foo&gt;[bar]+)&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_patterns"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_patterns">[docs]</a>    <span class="k">def</span> <span class="nf">test_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Tests for various spec strings&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for various spec strings&quot;&quot;&quot;</span>
         <span class="c1"># Test matching of some real paths</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;_ibl_passivePeriods.intervalsTable_bpod.csv&#39;</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
@@ -224,7 +224,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">verifiable</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_dromedary"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_dromedary">[docs]</a>    <span class="k">def</span> <span class="nf">test_dromedary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec._dromedary&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec._dromedary&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;Hello world&#39;</span><span class="p">),</span> <span class="s1">&#39;helloWorld&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;motion_energy&#39;</span><span class="p">),</span> <span class="s1">&#39;motionEnergy&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;FooBarBaz&#39;</span><span class="p">),</span> <span class="s1">&#39;fooBarBaz&#39;</span><span class="p">)</span>
@@ -232,7 +232,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;ROI Motion Energy&#39;</span><span class="p">),</span> <span class="s1">&#39;ROIMotionEnergy&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_is_session_folder"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_session_folder">[docs]</a>    <span class="k">def</span> <span class="nf">test_is_session_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_session_folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_session_folder&quot;&quot;&quot;</span>
         <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04&#39;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
                <span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ibl_witten_14/2019-12-04/001&#39;</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>
@@ -242,7 +242,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_is_uuid_string"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_uuid_string">[docs]</a>    <span class="k">def</span> <span class="nf">test_is_uuid_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_uuid_string&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_uuid_string&quot;&quot;&quot;</span>
         <span class="n">testins</span> <span class="o">=</span> <span class="p">[</span>
             <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;some_string&#39;</span><span class="p">,</span>
@@ -253,7 +253,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_is_uuid"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_uuid">[docs]</a>    <span class="k">def</span> <span class="nf">test_is_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_uuid&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_uuid&quot;&quot;&quot;</span>
         <span class="n">hex_uuid</span> <span class="o">=</span> <span class="s1">&#39;f6ffe25827-06-425aaa-f5-919f70025835&#39;</span>
         <span class="n">uuid_obj</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">hex_uuid</span><span class="p">)</span>
         <span class="c1"># Check valid inputs</span>
@@ -264,7 +264,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">is_uuid</span><span class="p">(</span><span class="n">fake</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fake</span><span class="si">}</span><span class="s1"> is not a valid uuid&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_is_valid"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">test_is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_valid&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_valid&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="s1">&#39;trials.feedbackType.npy&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span>
             <span class="s1">&#39;_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.metadata.json&#39;</span><span class="p">))</span>
@@ -272,7 +272,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="s1">&#39;channels._phy_ids.csv&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_to_alf"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_to_alf">[docs]</a>    <span class="k">def</span> <span class="nf">test_to_alf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.to_alf&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.to_alf&quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">alf_spec</span><span class="o">.</span><span class="n">to_alf</span><span class="p">(</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;ssv&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;spikes.times.ssv&#39;</span><span class="p">)</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">alf_spec</span><span class="o">.</span><span class="n">to_alf</span><span class="p">(</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;ssv&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;ibl&#39;</span><span class="p">)</span>
@@ -298,7 +298,7 @@
             <span class="n">alf_spec</span><span class="o">.</span><span class="n">to_alf</span><span class="p">(</span><span class="s1">&#39;_usr_spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;npy&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_path_pattern"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_path_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">test_path_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.path_pattern&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.path_pattern&quot;&quot;&quot;</span>
         <span class="n">pattern</span> <span class="o">=</span> <span class="n">alf_spec</span><span class="o">.</span><span class="n">path_pattern</span><span class="p">()</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="n">alf_spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">FULL_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">groupindex</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">pattern</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">))</span>
@@ -306,7 +306,7 @@
 
 <div class="viewcode-block" id="TestALFSpec.test_describe"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_describe">[docs]</a>    <span class="nd">@unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">test_describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sysout</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.spec.describe&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.describe&quot;&quot;&quot;</span>
         <span class="n">alf_spec</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s1">&#39;object&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;Every</span><span class="se">\n</span><span class="s1">file </span><span class="se">\n</span><span class="s1">descr&#39;</span> <span class="ow">in</span> <span class="n">sysout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39;^&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39;object&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">sysout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
@@ -318,9 +318,9 @@
 
 
 <div class="viewcode-block" id="TestALFErr"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFErr">[docs]</a><span class="k">class</span> <span class="nc">TestALFErr</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tests for one.alf.exceptions&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.alf.exceptions&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TestALFErr.test_ALFError"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFErr.test_ALFError">[docs]</a>    <span class="k">def</span> <span class="nf">test_ALFError</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test for one.alf.exceptions.ALFError&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.exceptions.ALFError&quot;&quot;&quot;</span>
         <span class="c1"># Check message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ALFError</span><span class="p">()),</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">ALFError</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)))</span>

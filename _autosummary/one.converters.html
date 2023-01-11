@@ -502,38 +502,6 @@ The path need not exist.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.converters.ConversionMixin.ref2dj">
-<span class="sig-name descname"><span class="pre">ref2dj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.ref2dj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.ref2dj" title="Permalink to this definition"></a></dt>
-<dd><p>Return an ibl-pipeline sessions table, restricted by experiment reference(s)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>dict</em>) – One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with
-the form yyyy-mm-dd_n_subject</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An acquisition.Session table corresponding to the ref</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>acquisition.Session</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dj</span><span class="p">(</span><span class="s1">&#39;2020-06-20_2_CSHL046&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fetch1</span><span class="p">()</span>
-<span class="go">Connecting...</span>
-<span class="go">{&#39;subject_uuid&#39;: UUID(&#39;dffc24bc-bd97-4c2a-bef3-3e9320dc3dd7&#39;),</span>
-<span class="go"> &#39;session_start_time&#39;: datetime.datetime(2020, 6, 20, 13, 31, 47),</span>
-<span class="go"> &#39;session_number&#39;: 2,</span>
-<span class="go"> &#39;session_date&#39;: datetime.date(2020, 6, 20),</span>
-<span class="go"> &#39;subject_nickname&#39;: &#39;CSHL046&#39;}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ref2dj</span><span class="p">({</span><span class="s1">&#39;date&#39;</span><span class="p">:</span><span class="s1">&#39;2020-06-20&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span><span class="s1">&#39;002&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span><span class="s1">&#39;CSHL046&#39;</span><span class="p">}))</span>
-<span class="go">1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ref2dj</span><span class="p">([</span><span class="s1">&#39;2020-06-20_2_CSHL046&#39;</span><span class="p">,</span> <span class="s1">&#39;2019-11-01_1_ibl_witten_13&#39;</span><span class="p">]))</span>
-<span class="go">2</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.is_exp_ref">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_exp_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.is_exp_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.is_exp_ref" title="Permalink to this definition"></a></dt>
 <dd><p>Returns True is ref is a valid experiment reference</p>

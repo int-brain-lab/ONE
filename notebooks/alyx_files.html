@@ -410,27 +410,27 @@ alyx_files.ipynb"><button id="github">Github link</button></a><section id="Listi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from tempfile import TemporaryDirectory
-from pathlib import Path
-from one.alf.cache import make_parquet_db
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">one.alf.cache</span> <span class="kn">import</span> <span class="n">make_parquet_db</span>
 
-files = [
-    &#39;subject/2021-06-01/001/probes.description.json&#39;,
-    &#39;subject/2021-06-01/001/alf/probe00/spikes.times.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe00/spikes.clusters.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/spikes.times.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/spikes.clusters.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.times.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.clusters.npy&#39;
-]
+<span class="n">files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;subject/2021-06-01/001/probes.description.json&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subject/2021-06-01/001/alf/probe00/spikes.times.npy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subject/2021-06-01/001/alf/probe00/spikes.clusters.npy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subject/2021-06-01/001/alf/probe01/spikes.times.npy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subject/2021-06-01/001/alf/probe01/spikes.clusters.npy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.times.npy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.clusters.npy&#39;</span>
+<span class="p">]</span>
 
-temp_dir = TemporaryDirectory()  # Create a temporary directory in which to place Alyx files
-for file in files:
-    file_path = Path(temp_dir.name).joinpath(file)  # Create full path
-    file_path.parent.mkdir(parents=True, exist_ok=True)  # Create directories
-    file_path.touch()  # Create empty file
+<span class="n">temp_dir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>  <span class="c1"># Create a temporary directory in which to place Alyx files</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>  <span class="c1"># Create full path</span>
+    <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Create directories</span>
+    <span class="n">file_path</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>  <span class="c1"># Create empty file</span>
 
-make_parquet_db(temp_dir.name)  # Generate cache tables
+<span class="n">make_parquet_db</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># Generate cache tables</span>
 </pre></div>
 </div>
 </div>
@@ -449,10 +449,10 @@ make_parquet_db(temp_dir.name)  # Generate cache tables
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>import one.alf.spec as alf_spec
-from one.api import ONE
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">one.alf.spec</span> <span class="k">as</span> <span class="nn">alf_spec</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 
-one = ONE(cache_dir=temp_dir.name)
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -461,7 +461,7 @@ one = ONE(cache_dir=temp_dir.name)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>print(alf_spec.path_pattern())
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">path_pattern</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -478,7 +478,7 @@ one = ONE(cache_dir=temp_dir.name)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>alf_spec.describe(&#39;collection&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">alf_spec</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -502,7 +502,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(&#39;subject/2021-06-01/001&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -526,7 +526,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(&#39;subject/2021-06-01/001&#39;, collection=&#39;alf/probe01&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -535,7 +535,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(&#39;subject/2021-06-01/001&#39;, collection=&#39;&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -553,8 +553,8 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>revisions = one.list_revisions(&#39;subject/2021-06-01/001&#39;)
-[x or None for x in revisions]
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
+<span class="p">[</span><span class="n">x</span> <span class="ow">or</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">revisions</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -572,8 +572,8 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(&#39;subject/2021-06-01/001&#39;)
-[x or None for x in collections]
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">)</span>
+<span class="p">[</span><span class="n">x</span> <span class="ow">or</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>

@@ -133,7 +133,7 @@
 
 
 <div class="viewcode-block" id="rel_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.rel_path_parts">[docs]</a><span class="k">def</span> <span class="nf">rel_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Parse a relative path into the relevant parts.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a relative path into the relevant parts.</span>
 
 <span class="sd">    A relative path follows the pattern</span>
 <span class="sd">        (collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension</span>
@@ -158,7 +158,7 @@
 
 
 <div class="viewcode-block" id="session_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.session_path_parts">[docs]</a><span class="k">def</span> <span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Parse a session path into the relevant parts.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a session path into the relevant parts.</span>
 
 <span class="sd">    Return keys:</span>
 <span class="sd">        - lab</span>
@@ -191,7 +191,7 @@
 
 
 <span class="k">def</span> <span class="nf">_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Given a ALF and a spec string, parse into parts</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a ALF and a spec string, parse into parts</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -229,7 +229,7 @@
 
 
 <div class="viewcode-block" id="filename_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.filename_parts">[docs]</a><span class="k">def</span> <span class="nf">filename_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the parsed elements of a given ALF filename.</span>
 
 <span class="sd">    Parameters</span>
@@ -287,7 +287,7 @@
 
 
 <div class="viewcode-block" id="full_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.full_path_parts">[docs]</a><span class="k">def</span> <span class="nf">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Parse all filename and folder parts.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse all filename and folder parts.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -349,7 +349,7 @@
 
 
 <div class="viewcode-block" id="folder_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.folder_parts">[docs]</a><span class="k">def</span> <span class="nf">folder_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Parse all folder parts, including session, collection and revision.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse all folder parts, including session, collection and revision.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -391,7 +391,7 @@
 
 
 <span class="k">def</span> <span class="nf">_isdatetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Returns True if input is valid ISO date string&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if input is valid ISO date string&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -400,7 +400,7 @@
 
 
 <div class="viewcode-block" id="get_session_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_session_path">[docs]</a><span class="k">def</span> <span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the session path from any filepath if the date/number pattern is found,</span>
 <span class="sd">    including the root directory</span>
 
@@ -430,7 +430,7 @@
 
 
 <div class="viewcode-block" id="get_alf_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_alf_path">[docs]</a><span class="k">def</span> <span class="nf">get_alf_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Returns the ALF part of a path or filename.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the ALF part of a path or filename.</span>
 <span class="sd">    Attempts to return the first valid part of the path, first searching for a session path,</span>
 <span class="sd">    then relative path (collection/revision/filename), then just the filename.  If all invalid,</span>
 <span class="sd">    None is returned.</span>
@@ -473,7 +473,7 @@
 
 
 <div class="viewcode-block" id="add_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.add_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a UUID and an extra part to the filename of an ALF path</span>
 
 <span class="sd">    Parameters</span>
