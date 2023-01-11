@@ -319,7 +319,8 @@ class TestRegistrationClient(unittest.TestCase):
             [x.touch() for x in files]
             self.client.register_files(file_list=files)
             self.assertEqual(2, alyx_mock.call_count)
-            actual = alyx_mock.call_args.kwargs.get('data', {}).get('filenames', [])
+            _, kwargs = alyx_mock.call_args
+            actual = kwargs.get('data', {}).get('filenames', [])
             expected = [
                 'wheel.position.ssv',
                 f'#{today}#/wheel.position.npy',
