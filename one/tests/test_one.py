@@ -1125,6 +1125,10 @@ class TestOneRemote(unittest.TestCase):
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        # Set cache directory to a temp dir to ensure that we re-download files
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        self.one.alyx._par = self.one.alyx._par.set('CACHE_DIR', Path(self.tempdir.name))
 
     def test_online_repr(self):
         """Tests OneAlyx.__repr__"""

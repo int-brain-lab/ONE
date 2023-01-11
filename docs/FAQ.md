@@ -65,13 +65,12 @@ new_one = ONE().setup()  # Re-run setup for default database
 ```
 When prompted ('Enter the location of the download cache') enter the absolute path of the new download location.
 
-To **temporarily** change the download directory you can change the AlyxClient cache_dir attribute:
+To **temporarily** change the download directory, use the cache_dir arg:
 ```python
 from pathlib import Path
 from one.api import ONE
 
-one = ONE(base_url='https://alyx.example.com')
-one.alyx.cache_dir = Path.home() / 'new_download_dir'
+one = ONE(base_url='https://alyx.example.com', cache_dir=Path.home() / 'new_download_dir')
 ```
 
 ## How do check who I'm logged in as?

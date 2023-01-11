@@ -10,6 +10,7 @@
 - local SSL config error causes ONE to fall back to local mode (as with other connection errors)
 - removed ref2dj method
 - one.util.ses2records now returns empty pandas DataFrame instead of None
+- fix download bug from OpenAlyx in remote mode
 
 ## [1.16.3]
 
