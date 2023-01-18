@@ -203,7 +203,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=F
                   unit_scale=True, desc=str(destination)) as t:
             file_object.download_file(Filename=str(destination), Callback=_callback_hook(t))
     except (NoCredentialsError, PartialCredentialsError) as ex:
-        raise ex  # Credentials need updating in Alyx
+        raise ex  # Credentials need updating in Alyx # pragma: no cover
     except ClientError as ex:
         if ex.response.get('Error', {}).get('Code', None) == '404':
             _logger.error(f'File {source} not found on {bucket_name}')

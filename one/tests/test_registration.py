@@ -22,9 +22,35 @@ from . import TEST_DB_1, OFFLINE_ONLY
 from one.tests import util
 
 
+class TestDatasetTypes(unittest.TestCase):
+    """Tests for dataset type validation."""
+    def test_get_dataset_type(self):
+        """Test one.registration.get_dataset_type function."""
+        dtypes = [
+            {'name': 'obj.attr', 'filename_pattern': ''},
+            {'name': 'foo.bar', 'filename_pattern': '*FOO.b?r*'},
+            {'name': 'bar.baz', 'filename_pattern': ''},
+            {'name': 'some_file', 'filename_pattern': 'some_file.*'}
+        ]
+        dtypes = list(map(Bunch, dtypes))
+        filename_typename = (
+            ('foo.bar.npy', 'foo.bar'), ('foo.bir.npy', 'foo.bar'),
+            ('_ns_obj.attr_clock.extra.npy', 'obj.attr'),
+            ('bar.baz.ext', 'bar.baz'), ('some_file.ext', 'some_file'))
+        for filename, dataname in filename_typename:
+            with self.subTest(filename=filename):
+                dtype = registration.get_dataset_type(filename, dtypes)
+                self.assertEqual(dtype.name, dataname)
+
+        self.assertRaises(ValueError, registration.get_dataset_type, 'no_match', dtypes)
+        # Add an ambiguous dataset type pattern
+        dtypes.append(Bunch({'name': 'foo.bor', 'filename_pattern': 'foo.bor*'}))
+        self.assertRaises(ValueError, registration.get_dataset_type, 'foo.bor', dtypes)
+
+
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestRegistrationClient(unittest.TestCase):
-    """Test class for RegistrationClient class"""
+    """Test class for RegistrationClient class."""
     one = None
     subject = None
     temp_dir = None
@@ -366,5 +392,5 @@ class TestRegistrationClient(unittest.TestCase):
         cls.temp_dir.cleanup()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False)

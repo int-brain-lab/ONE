@@ -40,6 +40,12 @@ class TestAWSPublic(unittest.TestCase):
             with self.assertLogs('one.remote.aws', logging.ERROR) as lg:
                 self.assertIsNone(aws.s3_download_file('foo/bar/baz.BAT', destination))
                 self.assertIn('not found', lg.output[-1])
+            # Test other client errors re-raised
+            with mock.patch('one.remote.aws.get_s3_public') as s3_mock:
+                m = mock.MagicMock()
+                s3_mock.return_value = (m, m)
+                m.Object.side_effect = aws.ClientError(mock.MagicMock(), mock.MagicMock())
+                self.assertRaises(aws.ClientError, aws.s3_download_file, '', destination)
 
     def test_download_folder(self):
         """Test for one.remote.aws.s3_download_public_folder function."""

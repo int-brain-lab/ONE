@@ -1457,7 +1457,7 @@ class OneAlyx(One):
         try:
             # Determine whether a newer cache is available
             cache_info = self.alyx.get(f'cache/info/{tag or ""}'.strip('/'), expires=True)
-            assert tag == cache_info.get('database_tags')
+            assert tag is None or tag in cache_info.get('database_tags', [])
 
             # Check version compatibility
             min_version = packaging.version.parse(cache_info.get('min_api_version', '0.0.0'))

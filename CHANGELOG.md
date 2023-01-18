@@ -1,5 +1,18 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.17.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.18.0]
+
+### Added
+
+- one.registration.get_dataset_type function for validating a dataset type
+
+### Modified
+
+- RegistrationClient.find_files is now itself a generator method (previously returned a generator)
+- exists kwarg in RegistrationClient.register_files
+- Support for loading 'table' attribute as dataframe with extra ALF parts
+- bugfix: tag assertion should expect list of tags in cache info
+
+## [1.17.0]
 
 ### Added
 

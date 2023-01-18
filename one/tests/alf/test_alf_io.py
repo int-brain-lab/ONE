@@ -382,6 +382,13 @@ class TestsAlf(unittest.TestCase):
         self.assertNotIn('table', new_obj)
         np.testing.assert_array_equal(new_obj['baz'], obj['baz'],
                                       'Table attribute should take precedent')
+        # Check behaviour loading table with long keys / extra ALF parts
+        table_file = next(self.tmpdir.glob('*table*'))
+        new_name = table_file.stem + '_clock.extra' + table_file.suffix
+        table_file.rename(table_file.parent.joinpath(new_name))
+        new_obj = alfio.load_object(self.tmpdir, 'obj')
+        expected = ['baz', 'baz_clock.extra', 'bar_clock.extra', 'foo_clock.extra']
+        self.assertCountEqual(expected, new_obj.keys())
 
     def test_ls(self):
         """Test for one.alf.io._ls"""

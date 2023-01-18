@@ -273,14 +273,14 @@ class Globus(DownloadClient):
         self.endpoints['local']['root_path'] = self.pars.local_path
 
     def to_address(self, data_path, endpoint):
-        pass
+        pass  # pragma: no cover
 
     def download_file(self, file_address):
-        pass
+        pass  # pragma: no cover
 
     @staticmethod
     def setup(*args, **kwargs):
-        pass
+        pass  # pragma: no cover
 
     def add_endpoint(self, endpoint, label=None, root_path=None, overwrite=False, alyx=None):
         """

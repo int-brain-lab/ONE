@@ -460,7 +460,7 @@ def dataset_record_to_url(dataset_record) -> list:
     return urls
 
 
-class AlyxClient():
+class AlyxClient:
     """
     Class that implements simple GET/POST wrappers for the Alyx REST API.
     See https://openalyx.internationalbrainlab.org/docs

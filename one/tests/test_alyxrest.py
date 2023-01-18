@@ -110,5 +110,5 @@ class Tests_REST(unittest.TestCase):
         self.assertTrue(len(channels) == 3)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False)
