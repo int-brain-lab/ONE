@@ -82,6 +82,7 @@
 <li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">one.registration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#summary-of-methods">Summary of methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.registration.get_dataset_type"><code class="docutils literal notranslate"><span class="pre">get_dataset_type()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.registration.RegistrationClient"><code class="docutils literal notranslate"><span class="pre">RegistrationClient</span></code></a></li>
 </ul>
 </li>
@@ -160,6 +161,18 @@ create_sessions - Create sessions and register files for folder containing a giv
 register_session - Create a session on Alyx from local path and register any ALF datasets present
 register_files - Register a list of files to their respective sessions on Alyx</p>
 </section>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.registration.get_dataset_type" title="one.registration.get_dataset_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dataset_type</span></code></a></p></td>
+<td><p>Get the dataset type from a given filename.</p></td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -172,6 +185,34 @@ register_files - Register a list of files to their respective sessions on Alyx</
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt class="sig sig-object py" id="one.registration.get_dataset_type">
+<span class="sig-name descname"><span class="pre">get_dataset_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtypes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#get_dataset_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.get_dataset_type" title="Permalink to this definition"></a></dt>
+<dd><p>Get the dataset type from a given filename.</p>
+<p>A dataset type is matched one of two ways:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>the filename matches the dataset type filename_pattern;</p></li>
+<li><p>if filename_pattern is empty, the filename object.attribute matches the dataset type name.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The filename or filepath.</p></li>
+<li><p><strong>dtypes</strong> (<em>iterable</em>) – An iterable of dataset type objects with the attributes (‘name’, ‘filename_pattern’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>The matching dataset type object for filename.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – filename doesn’t match any of the dataset types
+    filename matches multiple dataset types</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RegistrationClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient" title="Permalink to this definition"></a></dt>
@@ -180,19 +221,19 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.create_sessions">
 <span class="sig-name descname"><span class="pre">create_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_data_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glob_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'**/create_me.flag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_sessions" title="Permalink to this definition"></a></dt>
-<dd><p>Create sessions looking recursively for flag files</p>
+<dd><p>Create sessions looking recursively for flag files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>root_data_folder</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Folder to look for sessions</p></li>
-<li><p><strong>glob_pattern</strong> (<em>str</em>) – Register valid sessions that contain this pattern</p></li>
-<li><p><strong>dry</strong> (<em>bool</em>) – If true returns list of sessions without creating them on Alyx</p></li>
+<li><p><strong>root_data_folder</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Folder to look for sessions.</p></li>
+<li><p><strong>glob_pattern</strong> (<em>str</em>) – Register valid sessions that contain this pattern.</p></li>
+<li><p><strong>dry</strong> (<em>bool</em>) – If true returns list of sessions without creating them on Alyx.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>list of pathlib.Paths</em> – Newly created session paths</p></li>
-<li><p><em>list of dicts</em> – Alyx session records</p></li>
+<li><p><em>list of pathlib.Paths</em> – Newly created session paths.</p></li>
+<li><p><em>list of dicts</em> – Alyx session records.</p></li>
 </ul>
 </p>
 </dd>
@@ -202,7 +243,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.create_session">
 <span class="sig-name descname"><span class="pre">create_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_session" title="Permalink to this definition"></a></dt>
-<dd><p>Create a remote session on Alyx from a local session path, without registering files</p>
+<dd><p>Create a remote session on Alyx from a local session path, without registering files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -222,7 +263,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.create_new_session">
 <span class="sig-name descname"><span class="pre">create_new_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_new_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_new_session" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new local session folder and optionally create session record on Alyx</p>
+<dd><p>Create a new local session folder and optionally create session record on Alyx.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -230,14 +271,14 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <li><p><strong>session_root</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The root folder in which to create the subject/date/number folder.  Defaults to ONE
 cache directory.</p></li>
 <li><p><strong>date</strong> (<em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>str</em>) – An optional date for the session.  If None the current time is used.</p></li>
-<li><p><strong>register</strong> (<em>bool</em>) – If true, create session record on Alyx database</p></li>
+<li><p><strong>register</strong> (<em>bool</em>) – If true, create session record on Alyx database.</p></li>
 <li><p><strong>**kwargs</strong> – Optional arguments for RegistrationClient.register_session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>pathlib.Path</em> – New local session path</p></li>
-<li><p><em>uuid.UUID</em> – The experiment UUID if register is True</p></li>
+<li><p><em>pathlib.Path</em> – New local session path.</p></li>
+<li><p><em>uuid.UUID</em> – The experiment UUID if register is True.</p></li>
 </ul>
 </p>
 </dd>
@@ -265,11 +306,8 @@ cache directory.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The session path to search</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Iterable of file paths that match the dataset type patterns in Alyx</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>generator</p>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><em>pathlib.Path</em> – File paths that match the dataset type patterns in Alyx</p>
 </dd>
 </dl>
 </dd></dl>
@@ -277,7 +315,7 @@ cache directory.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.assert_exists">
 <span class="sig-name descname"><span class="pre">assert_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">member</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.assert_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.assert_exists" title="Permalink to this definition"></a></dt>
-<dd><p>Raise an error if a given member doesn’t exist on Alyx database</p>
+<dd><p>Raise an error if a given member doesn’t exist on Alyx database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -299,6 +337,12 @@ cache directory.</p></li>
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><strong>one.alf.exceptions.ALFError</strong></a> – Member does not exist on Alyx</p></li>
 <li><p><strong>requests.exceptions.HTTPError</strong> – Failed to connect to Alyx database or endpoint not found</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The endpoint data if member exists.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict, list of dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -323,7 +367,7 @@ cache directory.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.register_session">
 <span class="sig-name descname"><span class="pre">register_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">users</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_session" title="Permalink to this definition"></a></dt>
-<dd><p>Register session in Alyx</p>
+<dd><p>Register session in Alyx.</p>
 <p>NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
 and date of the session path.</p>
 <dl class="field-list simple">
@@ -372,23 +416,26 @@ path.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.register_files">
-<span class="sig-name descname"><span class="pre">register_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_md5_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_files" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">register_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_md5_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_files" title="Permalink to this definition"></a></dt>
 <dd><p>Registers a set of files belonging to a session only on the server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_list</strong> (<em>list</em><em>, </em><em>str</em><em>, </em><em>pathlib.Path</em>) – A filepath (or list thereof) of ALF datasets to register to Alyx</p></li>
-<li><p><strong>created_by</strong> (<em>str</em>) – Name of Alyx user (defaults to whoever is logged in to ONE instance)</p></li>
-<li><p><strong>repository</strong> (<em>str</em>) – Name of the repository in Alyx to register to</p></li>
+<li><p><strong>file_list</strong> (<em>list</em><em>, </em><em>str</em><em>, </em><em>pathlib.Path</em>) – A filepath (or list thereof) of ALF datasets to register to Alyx.</p></li>
+<li><p><strong>versions</strong> (<em>str</em><em>, </em><em>list</em><em> of </em><em>str</em>) – Optional version tags.</p></li>
+<li><p><strong>default</strong> (<em>bool</em>) – Whether to set as default revision (defaults to True).</p></li>
+<li><p><strong>created_by</strong> (<em>str</em>) – Name of Alyx user (defaults to whoever is logged in to ONE instance).</p></li>
 <li><p><strong>server_only</strong> (<em>bool</em>) – Will only create file records in the ‘online’ repositories and skips local repositories</p></li>
-<li><p><strong>versions</strong> (<em>list</em><em> of </em><em>str</em>) – Optional version tags</p></li>
-<li><p><strong>default</strong> (<em>bool</em>) – Whether to set as default revision (defaults to True)</p></li>
-<li><p><strong>dry</strong> (<em>bool</em>) – When true returns POST data for registration endpoint without submitting the data</p></li>
-<li><p><strong>max_md5_size</strong> (<em>int</em>) – Maximum file in bytes to compute md5 sum (always compute if None)</p></li>
+<li><p><strong>repository</strong> (<em>str</em>) – Name of the repository in Alyx to register to.</p></li>
+<li><p><strong>exists</strong> (<em>bool</em>) – Whether the files exist on the repository (defaults to True).</p></li>
+<li><p><strong>dry</strong> (<em>bool</em>) – When true returns POST data for registration endpoint without submitting the data.</p></li>
+<li><p><strong>max_md5_size</strong> (<em>int</em>) – Maximum file in bytes to compute md5 sum (always compute if None).</p></li>
+<li><p><strong>exists</strong> – Whether files exist in the repository. May be set to False when registering files
+before copying to the repository.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of newly created Alyx dataset records or the registration data if dry</p>
+<dd class="field-even"><p>A list of newly created Alyx dataset records or the registration data if dry.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>list of dicts, dict</p>
@@ -453,12 +500,12 @@ path.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.register_weight">
 <span class="sig-name descname"><span class="pre">register_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_weight" title="Permalink to this definition"></a></dt>
-<dd><p>Register a subject weight to Alyx</p>
+<dd><p>Register a subject weight to Alyx.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>subject</strong> (<em>str</em>) – A subject nickname that exists on Alyx</p></li>
-<li><p><strong>weight</strong> (<em>float</em>) – The subject weight in grams</p></li>
+<li><p><strong>subject</strong> (<em>str</em>) – A subject nickname that exists on Alyx.</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – The subject weight in grams.</p></li>
 <li><p><strong>date_time</strong> (<em>str</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em>) – The time of weighing.  If None, the current time is used.</p></li>
 <li><p><strong>user</strong> (<em>str</em>) – The user who performed the weighing.  Currently logged-in user is the default.</p></li>
 </ul>

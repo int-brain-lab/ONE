@@ -125,9 +125,35 @@
 <span class="kn">from</span> <span class="nn">one.tests</span> <span class="kn">import</span> <span class="n">util</span>
 
 
+<div class="viewcode-block" id="TestDatasetTypes"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes">[docs]</a><span class="k">class</span> <span class="nc">TestDatasetTypes</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for dataset type validation.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestDatasetTypes.test_get_dataset_type"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes.test_get_dataset_type">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_dataset_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test one.registration.get_dataset_type function.&quot;&quot;&quot;</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;obj.attr&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;*FOO.b?r*&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;bar.baz&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;some_file&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;some_file.*&#39;</span><span class="p">}</span>
+        <span class="p">]</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">))</span>
+        <span class="n">filename_typename</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;foo.bar.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;foo.bir.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;_ns_obj.attr_clock.extra.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;obj.attr&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;bar.baz.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;bar.baz&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;some_file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;some_file&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dataname</span> <span class="ow">in</span> <span class="n">filename_typename</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">):</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">registration</span><span class="o">.</span><span class="n">get_dataset_type</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dataname</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">registration</span><span class="o">.</span><span class="n">get_dataset_type</span><span class="p">,</span> <span class="s1">&#39;no_match&#39;</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)</span>
+        <span class="c1"># Add an ambiguous dataset type pattern</span>
+        <span class="n">dtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo.bor&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;foo.bor*&#39;</span><span class="p">}))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">registration</span><span class="o">.</span><span class="n">get_dataset_type</span><span class="p">,</span> <span class="s1">&#39;foo.bor&#39;</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="TestRegistrationClient"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TestRegistrationClient</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test class for RegistrationClient class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test class for RegistrationClient class.&quot;&quot;&quot;</span>
     <span class="n">one</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">subject</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">temp_dir</span> <span class="o">=</span> <span class="kc">None</span>
@@ -469,7 +495,7 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div></div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">exit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 

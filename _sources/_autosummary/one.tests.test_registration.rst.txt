@@ -18,6 +18,7 @@ one.tests.test\_registration
    .. autosummary::
       :nosignatures:
    
+      TestDatasetTypes
       TestRegistrationClient
    
    
