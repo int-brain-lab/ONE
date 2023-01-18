@@ -10,6 +10,7 @@
 - RegistrationClient.find_files is now itself a generator method (previously returned a generator)
 - exists kwarg in RegistrationClient.register_files
 - Support for loading 'table' attribute as dataframe with extra ALF parts
+- bugfix: tag assertion should expect list of tags in cache info
 
 ## [1.17.0]
 
