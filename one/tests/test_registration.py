@@ -9,7 +9,6 @@ import datetime
 import fnmatch
 from io import StringIO
 from pathlib import Path
-from functools import partial
 
 from iblutil.util import Bunch
 from requests.exceptions import HTTPError

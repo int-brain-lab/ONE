@@ -418,7 +418,7 @@ class RegistrationClient:
         created_by : str
             Name of Alyx user (defaults to whoever is logged in to ONE instance).
         server_only : bool
-            Will only create file records in the 'online' repositories and skips local repositories.
+            Will only create file records in the 'online' repositories and skips local repositories
         repository : str
             Name of the repository in Alyx to register to.
         exists : bool

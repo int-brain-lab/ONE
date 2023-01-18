@@ -9,6 +9,7 @@
 
 - RegistrationClient.find_files is now itself a generator method (previously returned a generator)
 - exists kwarg in RegistrationClient.register_files
+- Support for loading 'table' attribute as dataframe with extra ALF parts
 
 ## [1.17.0]
 
