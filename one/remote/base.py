@@ -122,17 +122,17 @@ class DownloadClient:
     @abstractmethod
     def to_address(self, data_path, *args, **kwargs):
         """Returns the remote data URL for a given ALF path"""
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def download_file(self, file_address):
         """Download an ALF dataset given its address"""
-        pass
+        pass  # pragma: no cover
 
     @staticmethod
     @abstractmethod
     def setup(*args, **kwargs):
-        pass
+        pass  # pragma: no cover
 
     @staticmethod
     def repo_from_alyx(name, alyx):

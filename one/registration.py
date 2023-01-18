@@ -24,15 +24,67 @@ import shutil
 import requests.exceptions
 
 from iblutil.io import hashfile
+from iblutil.util import Bunch
 
 import one.alf.io as alfio
-from one.alf.files import session_path_parts, get_session_path, folder_parts
+from one.alf.files import session_path_parts, get_session_path, folder_parts, filename_parts
+from one.alf.spec import is_valid
 import one.alf.exceptions as alferr
 from one.api import ONE
 from one.util import ensure_list
 from one.webclient import no_cache
 
 _logger = logging.getLogger(__name__)
+
+
+def get_dataset_type(filename, dtypes):
+    """Get the dataset type from a given filename.
+
+    A dataset type is matched one of two ways:
+
+     1. the filename matches the dataset type filename_pattern;
+     2. if filename_pattern is empty, the filename object.attribute matches the dataset type name.
+
+    Parameters
+    ----------
+    filename : str, pathlib.Path
+        The filename or filepath.
+    dtypes : iterable
+        An iterable of dataset type objects with the attributes ('name', 'filename_pattern').
+
+    Returns
+    -------
+    The matching dataset type object for filename.
+
+    Raises
+    ------
+    ValueError
+        filename doesn't match any of the dataset types
+        filename matches multiple dataset types
+    """
+    dataset_types = []
+    if isinstance(filename, str):
+        filename = PurePosixPath(filename)
+    for dt in dtypes:
+        if not dt.filename_pattern.strip():
+            # If the filename pattern is null, check whether the filename object.attribute matches
+            # the dataset type name.
+            if is_valid(filename.name):
+                obj_attr = '.'.join(filename_parts(filename.name)[1:3])
+            else:  # will match name against filename sans extension
+                obj_attr = filename.stem
+            if dt.name == obj_attr:
+                dataset_types.append(dt)
+        # Check whether pattern matches filename
+        elif fnmatch(filename.name.lower(), dt.filename_pattern.lower()):
+            dataset_types.append(dt)
+    n = len(dataset_types)
+    if n == 0:
+        raise ValueError(f'No dataset type found for filename "{filename}"')
+    elif n >= 2:
+        raise ValueError('Multiple matching dataset types found for filename '
+                         f'"{filename}": {", ".join(map(str, dataset_types))}')
+    return dataset_types[0]
 
 
 class RegistrationClient:
@@ -43,7 +95,7 @@ class RegistrationClient:
         self.one = one
         if not one:
             self.one = ONE(cache_rest=None)
-        self.dtypes = self.one.alyx.rest('dataset-types', 'list')
+        self.dtypes = list(map(Bunch, self.one.alyx.rest('dataset-types', 'list')))
         self.registration_patterns = [
             dt['filename_pattern'] for dt in self.dtypes if dt['filename_pattern']]
         self.file_extensions = [df['file_extension'] for df in
@@ -51,23 +103,23 @@ class RegistrationClient:
 
     def create_sessions(self, root_data_folder, glob_pattern='**/create_me.flag', dry=False):
         """
-        Create sessions looking recursively for flag files
+        Create sessions looking recursively for flag files.
 
         Parameters
         ----------
         root_data_folder : str, pathlib.Path
-            Folder to look for sessions
+            Folder to look for sessions.
         glob_pattern : str
-            Register valid sessions that contain this pattern
+            Register valid sessions that contain this pattern.
         dry : bool
-            If true returns list of sessions without creating them on Alyx
+            If true returns list of sessions without creating them on Alyx.
 
         Returns
         -------
         list of pathlib.Paths
-            Newly created session paths
+            Newly created session paths.
         list of dicts
-            Alyx session records
+            Alyx session records.
         """
         flag_files = list(Path(root_data_folder).glob(glob_pattern))
         records = []
@@ -82,7 +134,7 @@ class RegistrationClient:
         return [ff.parent for ff in flag_files], records
 
     def create_session(self, session_path, **kwargs) -> dict:
-        """Create a remote session on Alyx from a local session path, without registering files
+        """Create a remote session on Alyx from a local session path, without registering files.
 
         Parameters
         ----------
@@ -99,7 +151,7 @@ class RegistrationClient:
         return self.register_session(session_path, file_list=False, **kwargs)[0]
 
     def create_new_session(self, subject, session_root=None, date=None, register=True, **kwargs):
-        """Create a new local session folder and optionally create session record on Alyx
+        """Create a new local session folder and optionally create session record on Alyx.
 
         Parameters
         ----------
@@ -111,16 +163,16 @@ class RegistrationClient:
         date : datetime.datetime, datetime.date, str
             An optional date for the session.  If None the current time is used.
         register : bool
-            If true, create session record on Alyx database
+            If true, create session record on Alyx database.
         **kwargs
             Optional arguments for RegistrationClient.register_session.
 
         Returns
         -------
         pathlib.Path
-            New local session path
+            New local session path.
         uuid.UUID
-            The experiment UUID if register is True
+            The experiment UUID if register is True.
 
         Examples
         --------
@@ -155,19 +207,22 @@ class RegistrationClient:
         session_path : str, pathlib.Path
             The session path to search
 
-        Returns
+        Yields
         -------
-        generator
-            Iterable of file paths that match the dataset type patterns in Alyx
+        pathlib.Path
+            File paths that match the dataset type patterns in Alyx
         """
         session_path = Path(session_path)
-        types = (x['filename_pattern'] for x in self.dtypes if x['filename_pattern'])
-        dsets = itertools.chain.from_iterable(session_path.rglob(x) for x in types)
-        return (x for x in dsets if x.is_file() and
-                any(x.name.endswith(y) for y in self.file_extensions))
+        for p in session_path.rglob('*.*.*'):
+            if p.is_file() and any(p.name.endswith(ext) for ext in self.file_extensions):
+                try:
+                    get_dataset_type(p, self.dtypes)
+                    yield p
+                except ValueError as ex:
+                    _logger.debug('%s', ex.args[0])
 
     def assert_exists(self, member, endpoint):
-        """Raise an error if a given member doesn't exist on Alyx database
+        """Raise an error if a given member doesn't exist on Alyx database.
 
         Parameters
         ----------
@@ -190,20 +245,24 @@ class RegistrationClient:
             Member does not exist on Alyx
         requests.exceptions.HTTPError
             Failed to connect to Alyx database or endpoint not found
+
+        Returns
+        -------
+        dict, list of dict
+            The endpoint data if member exists.
         """
         if isinstance(member, (str, UUID)):
             try:
-                self.one.alyx.rest(endpoint, 'read', id=str(member), no_cache=True)
+                return self.one.alyx.rest(endpoint, 'read', id=str(member), no_cache=True)
             except requests.exceptions.HTTPError as ex:
                 if ex.response.status_code != 404:
                     raise ex
                 elif endpoint == 'subjects':
                     raise alferr.AlyxSubjectNotFound(member)
                 else:
-                    raise alferr.ALFError(f'Member "{member}" doesn\'t exist in Alyx')
+                    raise alferr.ALFError(f'Member "{member}" doesn\'t exist in {endpoint}')
         else:
-            for x in member:
-                self.assert_exists(x, endpoint)
+            return [self.assert_exists(x, endpoint) for x in member]
 
     @staticmethod
     def ensure_ISO8601(date) -> str:
@@ -228,7 +287,7 @@ class RegistrationClient:
 
     def register_session(self, ses_path, users=None, file_list=True, **kwargs):
         """
-        Register session in Alyx
+        Register session in Alyx.
 
         NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
         and date of the session path.
@@ -342,34 +401,40 @@ class RegistrationClient:
             session['data_dataset_session_related'] = ensure_list(recs)
         return session, recs
 
-    def register_files(self, file_list, versions=None, default=True, created_by=None,
-                       server_only=False, repository=None, dry=False, max_md5_size=None):
+    def register_files(self, file_list,
+                       versions=None, default=True, created_by=None, server_only=False,
+                       repository=None, exists=True, dry=False, max_md5_size=None):
         """
         Registers a set of files belonging to a session only on the server.
 
         Parameters
         ----------
         file_list : list, str, pathlib.Path
-            A filepath (or list thereof) of ALF datasets to register to Alyx
-        created_by : str
-            Name of Alyx user (defaults to whoever is logged in to ONE instance)
-        repository : str
-            Name of the repository in Alyx to register to
-        server_only : bool
-            Will only create file records in the 'online' repositories and skips local repositories
-        versions : list of str
-            Optional version tags
+            A filepath (or list thereof) of ALF datasets to register to Alyx.
+        versions : str, list of str
+            Optional version tags.
         default : bool
-            Whether to set as default revision (defaults to True)
+            Whether to set as default revision (defaults to True).
+        created_by : str
+            Name of Alyx user (defaults to whoever is logged in to ONE instance).
+        server_only : bool
+            Will only create file records in the 'online' repositories and skips local repositories.
+        repository : str
+            Name of the repository in Alyx to register to.
+        exists : bool
+            Whether the files exist on the repository (defaults to True).
         dry : bool
-            When true returns POST data for registration endpoint without submitting the data
+            When true returns POST data for registration endpoint without submitting the data.
         max_md5_size : int
-            Maximum file in bytes to compute md5 sum (always compute if None)
+            Maximum file in bytes to compute md5 sum (always compute if None).
+        exists : bool
+            Whether files exist in the repository. May be set to False when registering files
+            before copying to the repository.
 
         Returns
         -------
         list of dicts, dict
-            A list of newly created Alyx dataset records or the registration data if dry
+            A list of newly created Alyx dataset records or the registration data if dry.
 
         Notes
         -----
@@ -435,6 +500,7 @@ class RegistrationClient:
                   'hashes': md5s,
                   'filesizes': file_sizes,
                   'name': repository,
+                  'exists': exists,
                   'server_only': server_only,
                   'default': default,
                   'versions': V[session_path],
@@ -636,7 +702,7 @@ class RegistrationClient:
         # Ensure subject exists
         self.assert_exists(subject, 'subjects')
         # Ensure user(s) exist
-        user = ensure_list(kwargs.pop('user', [])) or self.one.alyx.user
+        user = kwargs.pop('user', self.one.alyx.user)
         self.assert_exists(user, 'users')
         # Ensure volume not zero
         if volume == 0:
@@ -660,14 +726,14 @@ class RegistrationClient:
 
     def register_weight(self, subject, weight, date_time=None, user=None):
         """
-        Register a subject weight to Alyx
+        Register a subject weight to Alyx.
 
         Parameters
         ----------
         subject : str
-            A subject nickname that exists on Alyx
+            A subject nickname that exists on Alyx.
         weight : float
-            The subject weight in grams
+            The subject weight in grams.
         date_time : str, datetime.datetime, datetime.date
             The time of weighing.  If None, the current time is used.
         user : str
