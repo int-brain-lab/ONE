@@ -6,7 +6,6 @@ and registering associated datasets.
 Summary of methods
 ------------------
 create_new_session - Create a new local session folder and optionally create session record on Alyx
-create_session - Create session record on Alyx from local path, without registering files
 create_sessions - Create sessions and register files for folder containing a given flag file
 register_session - Create a session on Alyx from local path and register any ALF datasets present
 register_files - Register a list of files to their respective sessions on Alyx
@@ -101,7 +100,8 @@ class RegistrationClient:
         self.file_extensions = [df['file_extension'] for df in
                                 self.one.alyx.rest('data-formats', 'list', no_cache=True)]
 
-    def create_sessions(self, root_data_folder, glob_pattern='**/create_me.flag', dry=False):
+    def create_sessions(self, root_data_folder, glob_pattern='**/create_me.flag',
+                        register_files=False, dry=False):
         """
         Create sessions looking recursively for flag files.
 
@@ -111,6 +111,8 @@ class RegistrationClient:
             Folder to look for sessions.
         glob_pattern : str
             Register valid sessions that contain this pattern.
+        register_files : bool
+            If true, register all valid datasets within the session folder.
         dry : bool
             If true returns list of sessions without creating them on Alyx.
 
@@ -129,26 +131,10 @@ class RegistrationClient:
                 continue
             _logger.info('creating session for ' + str(flag_file.parent))
             # providing a false flag stops the registration after session creation
-            records.append(self.create_session(flag_file.parent))
+            session_info, _ = self.register_session(flag_file.parent, file_list=register_files)
+            records.append(session_info)
             flag_file.unlink()
         return [ff.parent for ff in flag_files], records
-
-    def create_session(self, session_path, **kwargs) -> dict:
-        """Create a remote session on Alyx from a local session path, without registering files.
-
-        Parameters
-        ----------
-        session_path : str, pathlib.Path
-            The path ending with subject/date/number.
-        **kwargs
-            Optional arguments for RegistrationClient.register_session.
-
-        Returns
-        -------
-        dict
-            Newly created session record.
-        """
-        return self.register_session(session_path, file_list=False, **kwargs)[0]
 
     def create_new_session(self, subject, session_root=None, date=None, register=True, **kwargs):
         """Create a new local session folder and optionally create session record on Alyx.
@@ -195,7 +181,11 @@ class RegistrationClient:
         session_root = Path(session_root or self.one.alyx.cache_dir) / subject / date[:10]
         session_path = session_root / alfio.next_num_folder(session_root)
         session_path.mkdir(exist_ok=True, parents=True)  # Ensure folder exists on disk
-        eid = UUID(self.create_session(session_path, **kwargs)['url'][-36:]) if register else None
+        if register:
+            session_info, _ = self.register_session(session_path, **kwargs)
+            eid = UUID(session_info['url'][-36:])
+        else:
+            eid = None
         return session_path, eid
 
     def find_files(self, session_path):
