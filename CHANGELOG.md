@@ -1,5 +1,19 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.18.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) []
+
+### Added
+
+- one.registration.get_dataset_type function for validating a dataset type
+
+### Removed
+
+- removed RegistrationClient.create_session, use register_session method instead
+
+### Modified
+
+- ensure AlyxClient.is_logged_in returns boolean
+
+## [1.18.0]
 
 ### Added
 
@@ -9,7 +23,7 @@
 
 - RegistrationClient.find_files is now itself a generator method (previously returned a generator)
 - exists kwarg in RegistrationClient.register_files
-- Support for loading 'table' attribute as dataframe with extra ALF parts
+- support for loading 'table' attribute as dataframe with extra ALF parts
 - bugfix: tag assertion should expect list of tags in cache info
 
 ## [1.17.0]
@@ -18,10 +32,13 @@
 
 - registration client checks for protected datasets and moves them to new revision when registering files 
 
+### Removed
+
+- removed ref2dj method
+
 ### Modified
 
 - local SSL config error causes ONE to fall back to local mode (as with other connection errors)
-- removed ref2dj method
 - one.util.ses2records now returns empty pandas DataFrame instead of None
 - fix download bug from OpenAlyx in remote mode
 
@@ -325,8 +342,11 @@
 
 ## [1.0.0]
 
-### Modified
+### Removed
+
 - removed deprecated `_from_` converters
+
+### Modified
 - removed walrus from test
 - raise warning when fails to set dataset exists to False
 
@@ -368,12 +388,15 @@
 - function to convert datasets list endpoint to DataFrame
 - added logout method; 'authenticate' now prompts for Alyx password if none provided and no token
 
+### Removed
+
+- ALYX_PWD field removed from setup
+
 ### Modified
 
 - fully adopted Numpy docstrings
 - revisions now filtered using <= instead of <
 - datasets_from_type now type2datasets; returns similar output to list_ methods
-- removed ALYX_PWD from setup
 - webclient functions sdsc_globus_path_from_dataset, sdsc_path_from_dataset and globus_path_from_dataset moved to ibllib
 
 ## [0.2.3]
@@ -438,13 +461,13 @@
 
 - refactored load methods to use the same filter functions
 
-## 0.1.3
+## [0.1.3]
 
 ### Added
 
 - a load_datasets method for loading multiple datasets at once
 
-## 0.1.2
+## [0.1.2]
 
 ### Modified
 
@@ -452,14 +475,14 @@
  - fix to download_dataset error with alyx record; tests added
  - api utils moved to new module
 
-## 0.1.1
+## [0.1.1]
 
 ### Modified
 
  - fix setting default ALYX_URL in setup
  - fix for updating missing records in cache
 
-## 0.1.0
+## [0.1.0]
 
 ### Added
 
@@ -468,10 +491,13 @@
  - silent mode now suppresses print statements
  - rest GET requests are now cached for 24 hours
  - alf.spec module for constructing, documenting, and validating ALyx Files
+
+### Removed
+
+ - removed load method
  
 ### Modified
 
- - removed load method
  - support for multiple configured databases in params
  - Alyx web token now cached between sessions
  - delayed loading of rest schemes

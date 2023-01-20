@@ -466,7 +466,7 @@ class AlyxClient:
     See https://openalyx.internationalbrainlab.org/docs
     """
     _token = None
-    _headers = None  # Headers for REST requests only
+    _headers = {}  # Headers for REST requests only
     """str: The Alyx username"""
     user = None
     """str: The Alyx database URL"""
@@ -504,7 +504,7 @@ class AlyxClient:
             self.authenticate(username, password)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers = {**(self._headers or {}), 'Accept': 'application/json'}
+        self._headers = {**self._headers, 'Accept': 'application/json'}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -529,7 +529,7 @@ class AlyxClient:
     @property
     def is_logged_in(self):
         """bool: Check if user logged into Alyx database; True if user is authenticated"""
-        return self._token and self.user and self._headers and 'Authorization' in self._headers
+        return bool(self.user and self._token and 'Authorization' in self._headers)
 
     def list_endpoints(self):
         """
