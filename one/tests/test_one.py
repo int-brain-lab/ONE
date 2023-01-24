@@ -958,8 +958,9 @@ class TestOneAlyx(unittest.TestCase):
     def test_describe_revision(self, mock_stdout):
         """Test OneAlyx.describe_revision"""
         self.one.mode = 'remote'
+        # Choose a date in the past so as to not conflict with registration tests
         record = {
-            'name': str(datetime.date.today()) + 'a',
+            'name': str(datetime.date.today() - datetime.timedelta(days=5)) + 'a',
             'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
         }
         try:
