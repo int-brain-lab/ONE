@@ -1061,8 +1061,9 @@
     <span class="k">def</span> <span class="nf">test_describe_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_stdout</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test OneAlyx.describe_revision&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;remote&#39;</span>
+        <span class="c1"># Choose a date in the past so as to not conflict with registration tests</span>
         <span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span> <span class="o">+</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span>
             <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Lorem ipsum dolor sit amet, consectetur adipiscing elit.&#39;</span>
         <span class="p">}</span>
         <span class="k">try</span><span class="p">:</span>
