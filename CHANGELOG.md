@@ -1,9 +1,5 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) []
-
-### Added
-
-- one.registration.get_dataset_type function for validating a dataset type
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.19.0]
 
 ### Removed
 
@@ -12,6 +8,7 @@
 ### Modified
 
 - ensure AlyxClient.is_logged_in returns boolean
+- bugfix: RegistrationClient.register_files uses get_dataset_type for validating input file list
 
 ## [1.18.0]
 

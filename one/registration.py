@@ -79,10 +79,10 @@ def get_dataset_type(filename, dtypes):
             dataset_types.append(dt)
     n = len(dataset_types)
     if n == 0:
-        raise ValueError(f'No dataset type found for filename "{filename}"')
+        raise ValueError(f'No dataset type found for filename "{filename.name}"')
     elif n >= 2:
         raise ValueError('Multiple matching dataset types found for filename '
-                         f'"{filename}": {", ".join(map(str, dataset_types))}')
+                         f'"{filename.name}": \n{", ".join(map(str, dataset_types))}')
     return dataset_types[0]
 
 
@@ -457,14 +457,10 @@ class RegistrationClient:
             if fn.suffix not in self.file_extensions:
                 _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
                 continue
-            type_match = [x['name'] for x in self.dtypes
-                          if fnmatch(fn.name, x['filename_pattern'] or '')]
-            if len(type_match) == 0:
-                _logger.debug(f'{fn}: No matching dataset type in database')
-                continue
-            elif len(type_match) != 1:
-                _logger.debug(f'{fn}: Multiple matching dataset types in database\n'
-                              '"' + '", "'.join(type_match) + '"')
+            try:
+                get_dataset_type(fn, self.dtypes)
+            except ValueError as ex:
+                _logger.debug('%s', ex.args[0])
                 continue
             F[session_path].append(fn.relative_to(session_path))
             V[session_path].append(ver)

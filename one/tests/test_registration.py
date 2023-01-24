@@ -249,8 +249,8 @@ class TestRegistrationClient(unittest.TestCase):
         with self.assertLogs('one.registration', logging.DEBUG) as dbg:
             rec = self.client.register_files(files, versions=version)
             self.assertIn('wheel.position.xxx: No matching extension', dbg.records[0].message)
-            self.assertIn('foo.bar.npy: No matching dataset type', dbg.records[1].message)
-            self.assertIn(f'{ambiguous}: Multiple matching', dbg.records[2].message)
+            self.assertRegex(dbg.records[1].message, 'No dataset type .* "foo.bar.npy"')
+            self.assertRegex(dbg.records[2].message, f'Multiple matching .* "{ambiguous}"')
         self.assertFalse(len(rec))
 
         # Check the handling of revisions
