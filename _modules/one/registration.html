@@ -109,7 +109,6 @@
 <span class="sd">Summary of methods</span>
 <span class="sd">------------------</span>
 <span class="sd">create_new_session - Create a new local session folder and optionally create session record on Alyx</span>
-<span class="sd">create_session - Create session record on Alyx from local path, without registering files</span>
 <span class="sd">create_sessions - Create sessions and register files for folder containing a given flag file</span>
 <span class="sd">register_session - Create a session on Alyx from local path and register any ALF datasets present</span>
 <span class="sd">register_files - Register a list of files to their respective sessions on Alyx</span>
@@ -183,10 +182,10 @@
             <span class="n">dataset_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_types</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No dataset type found for filename &quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No dataset type found for filename &quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Multiple matching dataset types found for filename &#39;</span>
-                         <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&quot;: </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">dataset_types</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                         <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;: </span><span class="se">\n</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">dataset_types</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
@@ -204,7 +203,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;file_extension&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-formats&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
 
-<div class="viewcode-block" id="RegistrationClient.create_sessions"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_data_folder</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;**/create_me.flag&#39;</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="RegistrationClient.create_sessions"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_data_folder</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;**/create_me.flag&#39;</span><span class="p">,</span>
+                        <span class="n">register_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create sessions looking recursively for flag files.</span>
 
@@ -214,6 +214,8 @@
 <span class="sd">            Folder to look for sessions.</span>
 <span class="sd">        glob_pattern : str</span>
 <span class="sd">            Register valid sessions that contain this pattern.</span>
+<span class="sd">        register_files : bool</span>
+<span class="sd">            If true, register all valid datasets within the session folder.</span>
 <span class="sd">        dry : bool</span>
 <span class="sd">            If true returns list of sessions without creating them on Alyx.</span>
 
@@ -232,26 +234,10 @@
                 <span class="k">continue</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;creating session for &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">flag_file</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
             <span class="c1"># providing a false flag stops the registration after session creation</span>
-            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_session</span><span class="p">(</span><span class="n">flag_file</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+            <span class="n">session_info</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">flag_file</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="n">register_files</span><span class="p">)</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session_info</span><span class="p">)</span>
             <span class="n">flag_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">ff</span><span class="o">.</span><span class="n">parent</span> <span class="k">for</span> <span class="n">ff</span> <span class="ow">in</span> <span class="n">flag_files</span><span class="p">],</span> <span class="n">records</span></div>
-
-<div class="viewcode-block" id="RegistrationClient.create_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a remote session on Alyx from a local session path, without registering files.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        session_path : str, pathlib.Path</span>
-<span class="sd">            The path ending with subject/date/number.</span>
-<span class="sd">        **kwargs</span>
-<span class="sd">            Optional arguments for RegistrationClient.register_session.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
-<span class="sd">            Newly created session record.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.create_new_session"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_new_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">session_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new local session folder and optionally create session record on Alyx.</span>
@@ -298,7 +284,11 @@
         <span class="n">session_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">session_root</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">subject</span> <span class="o">/</span> <span class="n">date</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_root</span> <span class="o">/</span> <span class="n">alfio</span><span class="o">.</span><span class="n">next_num_folder</span><span class="p">(</span><span class="n">session_root</span><span class="p">)</span>
         <span class="n">session_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Ensure folder exists on disk</span>
-        <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span> <span class="k">if</span> <span class="n">register</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">register</span><span class="p">:</span>
+            <span class="n">session_info</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">session_info</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span></div>
 
 <div class="viewcode-block" id="RegistrationClient.find_files"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.find_files">[docs]</a>    <span class="k">def</span> <span class="nf">find_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">):</span>
@@ -570,14 +560,10 @@
             <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: No matching extension &quot;</span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&quot; in database&#39;</span><span class="p">)</span>
                 <span class="k">continue</span>
-            <span class="n">type_match</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span>
-                          <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: No matching dataset type in database&#39;</span><span class="p">)</span>
-                <span class="k">continue</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_match</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: Multiple matching dataset types in database</span><span class="se">\n</span><span class="s1">&#39;</span>
-                              <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">type_match</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">get_dataset_type</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="k">continue</span>
             <span class="n">F</span><span class="p">[</span><span class="n">session_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
             <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span>

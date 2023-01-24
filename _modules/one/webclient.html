@@ -569,7 +569,7 @@
 <span class="sd">    See https://openalyx.internationalbrainlab.org/docs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_token</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_headers</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Headers for REST requests only</span>
+    <span class="n">_headers</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Headers for REST requests only</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The Alyx username&quot;&quot;&quot;</span>
     <span class="n">user</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The Alyx database URL&quot;&quot;&quot;</span>
@@ -607,7 +607,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># the mixed accept application may cause errors sometimes, only necessary for the docs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span> <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
         <span class="c1"># REST cache parameters</span>
         <span class="c1"># The default length of time that cache file is valid for,</span>
         <span class="c1"># The default expiry is overridden by the `expires` kwarg.  If False, the caching is</span>
@@ -632,7 +632,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if user logged into Alyx database; True if user is authenticated&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="ow">and</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="ow">and</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AlyxClient.list_endpoints"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.list_endpoints">[docs]</a>    <span class="k">def</span> <span class="nf">list_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

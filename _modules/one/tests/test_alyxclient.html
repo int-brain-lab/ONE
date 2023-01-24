@@ -189,7 +189,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test behaviour when calling AlyxClient._generic_request when logged out&quot;&quot;&quot;</span>
         <span class="c1"># Check that authentication happens when making a logged out request</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span> <span class="ow">is</span> <span class="kc">False</span>
         <span class="c1"># Set pars for auto login</span>
         <span class="n">login_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="s1">&#39;ALYX_PWD&#39;</span><span class="p">}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">login_keys</span><span class="p">:</span>
@@ -208,7 +208,7 @@
 
         <span class="c1"># Test download cache tables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">)</span>
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cache/info&#39;</span><span class="p">)[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">)</span></div>
