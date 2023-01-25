@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.19.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.19.1]
+
+### Modified
+
+- HOTFIX: allow kwargs in RegistrationClient.register_files to explicitly pass in lab name(s)
+
+## [1.19.0]
 
 ### Removed
 

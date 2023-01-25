@@ -230,10 +230,12 @@ class TestRegistrationClient(unittest.TestCase):
         # Check registering single file, dry run, default False
         file_name = session_path.joinpath('wheel.position.npy')
         file_name.touch()
-        rec = self.client.register_files(str(file_name), default=False, dry=True)
+        labs = 'mainenlab,cortexlab'
+        rec = self.client.register_files(str(file_name), default=False, dry=True, labs=labs)
         self.assertIsInstance(rec, dict)
         self.assertFalse(rec['default'])
         self.assertNotIn('id', rec)
+        self.assertEqual(labs, rec['labs'], 'failed to include optional kwargs in request')
 
         # Add ambiguous dataset type to types list
         self.client.dtypes.append(self.client.dtypes[-1].copy())
