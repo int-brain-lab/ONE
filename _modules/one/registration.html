@@ -496,7 +496,7 @@
 
 <div class="viewcode-block" id="RegistrationClient.register_files"><a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_files">[docs]</a>    <span class="k">def</span> <span class="nf">register_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span>
                        <span class="n">versions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">created_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                       <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_md5_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                       <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_md5_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Registers a set of files belonging to a session only on the server.</span>
 
@@ -523,6 +523,8 @@
 <span class="sd">        exists : bool</span>
 <span class="sd">            Whether files exist in the repository. May be set to False when registering files</span>
 <span class="sd">            before copying to the repository.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Extra arguments directly passed as REST request data to /register-files endpoint.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -593,11 +595,12 @@
                   <span class="s1">&#39;server_only&#39;</span><span class="p">:</span> <span class="n">server_only</span><span class="p">,</span>
                   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span>
                   <span class="s1">&#39;versions&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">],</span>
-                  <span class="s1">&#39;check_protected&#39;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="s1">&#39;check_protected&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">kwargs</span>
                   <span class="p">}</span>
 
             <span class="c1"># Add optional field</span>
-            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">):</span>
                 <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;labs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span>
             <span class="c1"># If dry, store POST data, otherwise store resulting file records</span>
             <span class="k">try</span><span class="p">:</span>
