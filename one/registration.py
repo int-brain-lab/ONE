@@ -393,7 +393,7 @@ class RegistrationClient:
 
     def register_files(self, file_list,
                        versions=None, default=True, created_by=None, server_only=False,
-                       repository=None, exists=True, dry=False, max_md5_size=None):
+                       repository=None, exists=True, dry=False, max_md5_size=None, **kwargs):
         """
         Registers a set of files belonging to a session only on the server.
 
@@ -420,6 +420,8 @@ class RegistrationClient:
         exists : bool
             Whether files exist in the repository. May be set to False when registering files
             before copying to the repository.
+        **kwargs
+            Extra arguments directly passed as REST request data to /register-files endpoint.
 
         Returns
         -------
@@ -490,11 +492,12 @@ class RegistrationClient:
                   'server_only': server_only,
                   'default': default,
                   'versions': V[session_path],
-                  'check_protected': True
+                  'check_protected': True,
+                  **kwargs
                   }
 
             # Add optional field
-            if details['lab']:
+            if details['lab'] and not kwargs.get('labs'):
                 r_['labs'] = details['lab']
             # If dry, store POST data, otherwise store resulting file records
             try:
