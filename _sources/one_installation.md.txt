@@ -61,3 +61,9 @@ To change your default database, or re-run the setup for a given database, you c
 ```python
 one = ONE().setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 ```
+
+## 4. Update
+To update, open a shell terminal, activate the environment `iblenv` and launch the command:
+```python
+pip install -U ONE-api
+```

@@ -56,6 +56,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#post-setup">3. Post setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update">4. Update</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/one_quickstart.html">ONE Quick Start</a></li>
@@ -201,6 +202,13 @@ default database configured in your settings,</p>
 </div>
 <p>To change your default database, or re-run the setup for a given database, you can use the following</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="update">
+<h2>4. Update<a class="headerlink" href="#update" title="Permalink to this heading"></a></h2>
+<p>To update, open a shell terminal, activate the environment <code class="docutils literal notranslate"><span class="pre">iblenv</span></code> and launch the command:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">ONE</span><span class="o">-</span><span class="n">api</span>
 </pre></div>
 </div>
 </section>
