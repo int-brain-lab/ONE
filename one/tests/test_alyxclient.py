@@ -86,7 +86,7 @@ class TestAuthentication(unittest.TestCase):
         """Test behaviour when calling AlyxClient._generic_request when logged out"""
         # Check that authentication happens when making a logged out request
         self.ac.logout()
-        assert not self.ac.is_logged_in
+        assert self.ac.is_logged_in is False
         # Set pars for auto login
         login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
         if not set(self.ac._par.as_dict().keys()) >= login_keys:
@@ -105,7 +105,7 @@ class TestAuthentication(unittest.TestCase):
 
         # Test download cache tables
         self.ac.logout()
-        assert not self.ac.is_logged_in
+        self.assertFalse(self.ac.is_logged_in)
         url = self.ac.get('cache/info')['location']
         self.ac.download_cache_tables(url)
         self.assertTrue(self.ac.is_logged_in)
