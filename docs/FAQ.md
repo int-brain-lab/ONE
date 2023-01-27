@@ -130,3 +130,19 @@ one.load_cache(tag=TAG, cache_dir=cache_path)
 You can check your version with the following: `import one; print(one.__version__)`.\
 The latest version can be found in the CHANGELOG, [here](https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md). \
 To update to the latest available version run `pip install -U ONE-api`.
+
+## How do I use ONE in a read-only environment? 
+To use ONE without any write access or internet access, simply instantiate in local mode:
+```python
+from one.api import ONE
+one = ONE(cache_dir='/path/to/data/dir', mode='local')
+assert one.offline
+```
+
+If you wish to make Alyx database REST requests in a read-only environment, provide a database URL
+and set `cache_rest=None` to avoid saving REST responses on disk:
+```python
+from one.api import ONE
+one = ONE(base_url='https://openalyx.internationalbrainlab.org', cache_rest=None, mode='local')
+assert one.offline and one.alyx.cache_mode is None
+```
