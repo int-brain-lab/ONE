@@ -1104,17 +1104,17 @@ class AlyxClient:
         Examples
         --------
         >>> client = AlyxClient()
-        >>> client.json_field_update("sessions", "eid_str", "extended_qc", {"key": "value"})
+        >>> client.json_field_update('sessions', 'eid_str', 'extended_qc', {'key': 'value'})
         """
         self._check_inputs(endpoint)
         # Load current json field contents
-        current = self.rest(endpoint, "read", id=uuid)[field_name]
+        current = self.rest(endpoint, 'read', id=uuid)[field_name]
         if current is None:
             current = {}
 
         if not isinstance(current, dict):
             _logger.warning(
-                f"Current json field {field_name} does not contains a dict, aborting update"
+                f'Current json field {field_name} does not contains a dict, aborting update'
             )
             return current
 
@@ -1123,7 +1123,7 @@ class AlyxClient:
         # Prepare data to patch
         patch_dict = {field_name: current}
         # Upload new extended_qc to session
-        ret = self.rest(endpoint, "partial_update", id=uuid, data=patch_dict)
+        ret = self.rest(endpoint, 'partial_update', id=uuid, data=patch_dict)
         return ret[field_name]
 
     def json_field_remove_key(
@@ -1154,18 +1154,18 @@ class AlyxClient:
             New content of json field
         """
         self._check_inputs(endpoint)
-        current = self.rest(endpoint, "read", id=uuid)[field_name]
+        current = self.rest(endpoint, 'read', id=uuid)[field_name]
         # If no contents, cannot remove key, return
         if current is None:
             return current
         # if contents are not dict, cannot remove key, return contents
         if isinstance(current, str):
-            _logger.warning(f"Cannot remove key {key} content of json field is of type str")
+            _logger.warning(f'Cannot remove key {key} content of json field is of type str')
             return None
         # If key not present in contents of json field cannot remove key, return contents
         if current.get(key, None) is None:
             _logger.warning(
-                f"{key}: Key not found in endpoint {endpoint} field {field_name}"
+                f'{key}: Key not found in endpoint {endpoint} field {field_name}'
             )
             return current
         _logger.info(f"Removing key from dict: '{key}'")
@@ -1180,7 +1180,7 @@ class AlyxClient:
             self, endpoint: str = None, uuid: str = None, field_name: str = None
     ) -> None:
         self._check_inputs(endpoint)
-        _ = self.rest(endpoint, "partial_update", id=uuid, data={field_name: None})
+        _ = self.rest(endpoint, 'partial_update', id=uuid, data={field_name: None})
         return _[field_name]
 
     def clear_rest_cache(self):

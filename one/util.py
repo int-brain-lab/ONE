@@ -342,6 +342,12 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Filter by filename parts
 
     >>> datasets = filter_datasets(all_datasets, dict(object='spikes', attribute='times'))
+
+    Notes
+    -----
+    - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
+     e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
+     must use two separate queries.
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}

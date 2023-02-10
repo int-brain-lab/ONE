@@ -1193,9 +1193,11 @@ class TestOneRemote(unittest.TestCase):
         eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
         self.assertCountEqual(eids, [self.eid])
 
-        eids = self.one.search(date=[datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)],
-                               lab='hoferlab', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
+        date_range = [datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)]
+        eids = self.one.search(date=date_range, lab='hoferlab', query_type='remote')
+        self.assertIn(self.eid, list(eids))
+        dates = set(map(lambda x: self.one.get_details(x)['date'], eids))
+        self.assertTrue(dates <= set(date_range))
 
         # Test limit arg and LazyId
         eids = self.one.search(date='2020-03-23', limit=2, query_type='remote')
@@ -1207,6 +1209,17 @@ class TestOneRemote(unittest.TestCase):
         self.assertIn(self.eid, list(eids))
 
         eids = self.one.search(lab='hoferlab', query_type='remote')
+        self.assertIn(self.eid, list(eids))
+
+        # Test dataset and dataset_types kwargs
+        eids = self.one.search(dataset='trials.table.pqt', query_type='remote')
+        self.assertIn(self.eid, list(eids))
+        eids = self.one.search(dataset='trials.intervals.npy', query_type='remote')
+        self.assertNotIn(self.eid, list(eids))
+
+        eids = self.one.search(dataset_type='trials.table.pqt', query_type='remote')
+        self.assertEqual(0, len(eids))
+        eids = self.one.search(dataset_type='trials.table', date='2020-09-21', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
     def test_load_dataset(self):

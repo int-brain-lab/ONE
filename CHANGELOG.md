@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.19.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.19.2]
+
+### Modified
+
+- HOTFIX: OneAlyx.search dataset kwarg in remote mode now matches dataset name instead of dataset type name 
+
+## [1.19.1]
 
 ### Modified
 

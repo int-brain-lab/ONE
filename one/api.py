@@ -1674,7 +1674,7 @@ class OneAlyx(One):
             if field == 'date_range':
                 params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
             elif field == 'dataset':
-                query = ('data_dataset_session_related__dataset_type__name__icontains,' +
+                query = ('data_dataset_session_related__name__icontains,' +
                          ','.join(util.ensure_list(value)))
                 params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
