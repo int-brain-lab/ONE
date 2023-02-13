@@ -238,6 +238,11 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
 
 
+class TestEndpointsValidation(unittest.TestCase):
+    def test_print_info(self):
+        ac.rest('sessions')
+
+
 class TestRestCache(unittest.TestCase):
     """Tests for REST caching system, the cache decorator and cache flags"""
     def setUp(self):

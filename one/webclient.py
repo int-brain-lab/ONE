@@ -542,6 +542,19 @@ class AlyxClient:
         EXCLUDE = ('_type', '_meta', '', 'auth-token')
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
 
+    def print_endpoint_info(self, endpoint):
+        rs = self.rest_schemes
+        for action in rs[endpoint]:
+            doc = []
+            print(action)
+            for f in rs['sessions'][action]['fields']:
+                required = '(required)' if f.get('required', False) else ''
+                doc.append(f"        \"{f['name']}\",{required} {f['schema']['_type']}"
+                           f", {f['schema']['description']}")
+            doc.sort()
+            [print(d) for d in doc if '(required)' in d]
+            [print(d) for d in doc if '(required)' not in d]
+
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
         if not self._token and (not self._headers or 'Authorization' not in self._headers):
@@ -973,6 +986,7 @@ class AlyxClient:
         # if action is None, list available actions for the required endpoint
         if not action:
             pprint(list(endpoint_scheme.keys()))
+            self.print_endpoint_info(endpoint)
             return
         # make sure the the desired action exists, if not throw an informative error
         if action not in endpoint_scheme:
