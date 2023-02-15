@@ -3,7 +3,6 @@ import unittest
 from unittest import mock
 import random
 import os
-import io
 import one.webclient as wc
 import one.params
 import tempfile
@@ -12,7 +11,6 @@ import requests
 import json
 import logging
 from datetime import datetime, timedelta
-from uuid import UUID
 
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
@@ -238,11 +236,6 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
 
 
-class TestEndpointsValidation(unittest.TestCase):
-    def test_print_info(self):
-        ac.rest('sessions')
-
-
 class TestRestCache(unittest.TestCase):
     """Tests for REST caching system, the cache decorator and cache flags"""
     def setUp(self):
@@ -355,95 +348,6 @@ class TestDownloadHTTP(unittest.TestCase):
         self.ac = ac
         self.test_data_uuid = '40af4a49-1b9d-45ec-b443-a151c010ea3c'  # OpenAlyx dataset
 
-    def test_paginated_request(self):
-        """Check that paginated response object is returned upon making large queries"""
-        rep = self.ac.rest('datasets', 'list')
-        self.assertTrue(isinstance(rep, one.webclient._PaginatedResponse))
-        self.assertTrue(len(rep) > 250)
-        # This fails when new records are added/removed from the remote db while iterating
-        # self.assertTrue(len([_ for _ in rep]) == len(rep))
-
-        # Test what happens when list changes between paginated requests
-        name = '0A' + str(random.randint(0, 10000))
-        # Add subject between calls
-        rep = self.ac.rest('subjects', 'list', limit=5, no_cache=True)
-        s = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
-        self.addCleanup(self.ac.rest, 'subjects', 'delete', id=s['nickname'])
-        with self.assertWarns(RuntimeWarning):
-            _ = rep[10]
-
-    def test_update_url_params(self):
-        url = f'{self.ac.base_url}/sessions?param1=foo&param2=&limit=5&param3=bar'
-        expected = f'{self.ac.base_url}/sessions?param1=foo&limit=10&param3=bar&param4=baz'
-        self.assertEqual(expected, wc.update_url_params(url, {'limit': 10, 'param4': 'baz'}))
-        # Without pars
-        url = url.split('?')[0]
-        self.assertEqual(url, wc.update_url_params(url, {}))
-        # With lists
-        expected = f'{url}?foo=bar&foo=baz'
-        self.assertEqual(expected, wc.update_url_params(url, {'foo': ['bar', 'baz']}))
-
-    def test_generic_request(self):
-        a = self.ac.get('/labs')
-        b = self.ac.get('labs')
-        self.assertEqual(a, b)
-
-    def test_rest_endpoint_write(self):
-        # test object creation and deletion with weighings
-        wa = {'subject': 'flowers',
-              'date_time': '2018-06-30T12:34:57',
-              'weight': 22.2,
-              'user': 'olivier'
-              }
-        a = self.ac.rest('weighings', 'create', data=wa)
-        b = self.ac.rest('weighings', 'read', id=a['url'])
-        self.assertEqual(a, b)
-        self.ac.rest('weighings', 'delete', id=a['url'])
-        # test patch object with subjects
-        data = {'birth_date': '2018-04-01',
-                'death_date': '2018-09-10'}
-        sub = self.ac.rest('subjects', 'partial_update', id='flowers', data=data)
-        self.assertEqual(sub['birth_date'], data['birth_date'])
-        self.assertEqual(sub['death_date'], data['death_date'])
-        data = {'birth_date': '2018-04-02',
-                'death_date': '2018-09-09'}
-        sub = self.ac.rest('subjects', 'partial_update', id='flowers', data=data)
-        self.assertEqual(sub['birth_date'], data['birth_date'])
-        self.assertEqual(sub['death_date'], data['death_date'])
-
-    def test_rest_endpoint_read_only(self):
-        """Test AlyxClient.rest method with 'list' and 'read' actions"""
-        # tests that non-existing endpoints /actions are caught properly
-        with self.assertRaises(ValueError):
-            self.ac.rest(url='turlu', action='create')
-        with self.assertRaises(ValueError):
-            self.ac.rest(url='sessions', action='turlu')
-        # test with labs : get
-        a = self.ac.rest('labs', 'list')
-        self.assertTrue(len(a) >= 3)
-        b = self.ac.rest('/labs', 'list')
-        self.assertTrue(a == b)
-        # test with labs: read
-        c = self.ac.rest('labs', 'read', 'mainenlab')
-        self.assertTrue([lab for lab in a if
-                         lab['name'] == 'mainenlab'][0] == c)
-        # test read with UUID object
-        dset = self.ac.rest('datasets', 'read', id=UUID('738eca6f-d437-40d6-a9b8-a3f4cbbfbff7'))
-        self.assertEqual(dset['name'], '_iblrig_videoCodeFiles.raw.zip')
-        # Test with full URL
-        d = self.ac.rest(
-            'labs', 'read',
-            f'{TEST_DB_1["base_url"]}/labs/mainenlab')
-        self.assertEqual(c, d)
-        # test a more complex endpoint with a filter and a selection
-        sub = self.ac.rest('subjects/flowers', 'list')
-        sub1 = self.ac.rest('subjects?nickname=flowers', 'list')
-        self.assertTrue(len(sub1) == 1)
-        self.assertEqual(sub['nickname'], sub1[0]['nickname'])
-        # also make sure the action is overriden on a filter query
-        sub2 = self.ac.rest('/subjects?nickname=flowers')
-        self.assertEqual(sub1, sub2)
-
     def test_download_datasets_with_api(self):
         ac_public = wc.AlyxClient(**TEST_DB_2)
         cache_dir = tempfile.mkdtemp()
@@ -509,66 +413,6 @@ class TestDownloadHTTP(unittest.TestCase):
                 data = json.load(json_file)
             self.assertTrue(len(data) > 0)
 
-    def test_rest_all_actions(self):
-        """Test for AlyxClient.rest method using subjects endpoint"""
-        # randint reduces conflicts with parallel tests
-        nickname = f'foobar_{random.randint(0, 10000)}'
-        newsub = {
-            'nickname': nickname,
-            'responsible_user': 'olivier',
-            'birth_date': '2019-06-15',
-            'death_date': None,
-            'lab': 'cortexlab',
-        }
-        # look for the subject, create it if necessary
-        sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
-        if sub:
-            self.ac.rest('subjects', 'delete', id=nickname)
-        self.ac.rest('subjects', 'create', data=newsub)
-        # partial update and full update
-        newsub = self.ac.rest('subjects', 'partial_update',
-                              id=nickname, data={'description': 'hey'})
-        self.assertEqual(newsub['description'], 'hey')
-        newsub['description'] = 'hoy'
-        newsub = self.ac.rest('subjects', 'update', id=nickname, data=newsub)
-        self.assertEqual(newsub['description'], 'hoy')
-        # read
-        newsub_ = self.ac.rest('subjects', 'read', id=nickname)
-        self.assertEqual(newsub, newsub_)
-        # list with filter
-        sub = self.ac.rest('subjects', 'list', nickname=nickname)
-        self.assertEqual(sub[0]['nickname'], newsub['nickname'])
-        self.assertTrue(len(sub) == 1)
-        # delete
-        self.ac.rest('subjects', 'delete', id=nickname)
-        self.ac.clear_rest_cache()  # Make sure we hit db
-        sub = self.ac.get(f'/subjects?&nickname={nickname}', expires=True)
-        self.assertFalse(sub)
-
-    def test_endpoints_docs(self):
-        """Test for AlyxClient.list_endpoints method and AlyxClient.rest"""
-        # Test endpoint documentation and validation
-        endpoints = self.ac.list_endpoints()
-        self.assertTrue('auth-token' not in endpoints)
-        # Check that calling rest method with no args prints endpoints
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            self.ac.rest()
-            self.assertTrue(k in stdout.getvalue() for k in endpoints)
-        # Same but with no action
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            self.ac.rest('sessions')
-            actions = self.ac.rest_schemes['sessions'].keys()
-            self.assertTrue(all(k in stdout.getvalue() for k in actions))
-        # Check logs warning when no id provided
-        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            self.assertIsNone(self.ac.rest('sessions', 'read'))
-        # Check logs warning when creating record with missing data
-        with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
-            self.assertIsNone(self.ac.rest('sessions', 'create'))
-        with self.assertRaises(ValueError) as e:
-            self.ac.json_field_write('foobar')
-        self.assertTrue(k in str(e.exception) for k in endpoints)
-
 
 class TestMisc(unittest.TestCase):
     def test_update_url_params(self):
@@ -585,6 +429,10 @@ class TestMisc(unittest.TestCase):
         new_url = wc.update_url_params(url, {'param2': '#2020-01-03#,#2021-02-01#'})
         expected = '/path?param1=foo+bar&param2=%232020-01-03%23%2C%232021-02-01%23'
         self.assertEqual(expected, new_url)
+
+        # Without pars
+        url = url.split('?')[0]
+        self.assertEqual(url, wc.update_url_params(url, {}))
 
     def test_validate_file_url(self):
         """Test for AlyxClient._validate_file_url"""

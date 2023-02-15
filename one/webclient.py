@@ -543,17 +543,29 @@ class AlyxClient:
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
 
     def print_endpoint_info(self, endpoint):
+        """
+        Print the available actions and query parameteres for a given REST endpoint.
+
+        Parameters
+        ----------
+        endpoint : str
+            An Alyx REST endpoint to query.
+        """
         rs = self.rest_schemes
+        if endpoint not in rs:
+            return print(f'Endpoint "{endpoint}" does not exist')
+
         for action in rs[endpoint]:
             doc = []
-            print(action)
-            for f in rs['sessions'][action]['fields']:
-                required = '(required)' if f.get('required', False) else ''
-                doc.append(f"        \"{f['name']}\",{required} {f['schema']['_type']}"
+            pprint(action)
+            for f in rs[endpoint][action]['fields']:
+                required = ' (required): ' if f.get('required', False) else ': '
+                doc.append(f"\t\"{f['name']}\"{required}{f['schema']['_type']}"
                            f", {f['schema']['description']}")
             doc.sort()
             [print(d) for d in doc if '(required)' in d]
             [print(d) for d in doc if '(required)' not in d]
+        return rs[endpoint]
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
