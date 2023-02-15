@@ -1765,7 +1765,13 @@ class OneAlyx(One):
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
         uuids = [util.ensure_list(x.name)[-1] for x in dsets]
-        remote_records = self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids}')
+        # If number of UUIDs is too high, fetch in loop to avoid 414 HTTP status code
+        remote_records = []
+        N = 100  # Number of UUIDs per query
+        for i in range(0, len(uuids), N):
+            remote_records.extend(
+                self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids[i:i + N]}')
+            )
         remote_records = sorted(remote_records, key=lambda x: uuids.index(x['url'].split('/')[-1]))
         out_files = []
         for dset, uuid, record in zip(dsets, uuids, remote_records):

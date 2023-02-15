@@ -678,7 +678,7 @@ class TestONECache(unittest.TestCase):
             pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
             with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
                 self.one.load_cache(tdir)
-                self.assertTrue('gnagna.pqt' in log.output[0])
+                self.assertIn('gnagna.pqt', log.output[0])
             # Save table with missing id columns
             df.drop(id_keys, axis=1, inplace=True)
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
@@ -1180,7 +1180,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(166, len(dsets))
 
         # Test missing eid
-        dsets = self.one.list_datasets('FMR019/2021-03-18/002', details=True, query_type='remote')
+        dsets = self.one.list_datasets('FMR019/2021-03-18/008', details=True, query_type='remote')
         self.assertIsInstance(dsets, pd.DataFrame)
         self.assertEqual(len(dsets), 0)
 
@@ -1415,6 +1415,42 @@ class TestOneDownload(unittest.TestCase):
         exists, = self.one._cache.datasets.loc[(slice(None), slice(None), *int_id), 'exists']
         self.assertFalse(exists, 'failed to update dataset cache with str index')
 
+    def test_download_aws(self):
+        """Test for OneAlyx._download_aws method."""
+        # Test download datasets via AWS
+        dsets = self.one.list_datasets(self.eid, details=True)
+        file = self.one.cache_dir / dsets['rel_path'].values[0]
+        with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
+                mock.patch('one.remote.aws.s3_download_file', return_value=file) as method:
+            self.one._download_datasets(dsets)
+            self.assertEqual(len(dsets), method.call_count)
+
+        # Test behaviour when dataset not remotely accessible
+        dsets = dsets[:1].copy()
+        rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0])
+        rec['file_records'][-1]['exists'] = False  # Set AWS file record to non-existent
+        with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
+                mock.patch.object(self.one.alyx, 'rest', return_value=[rec]), \
+                self.assertLogs('one.api', logging.DEBUG) as log:
+            self.assertEqual([None], self.one._download_datasets(dsets))
+            self.assertRegex(log.output[-1], 'Updating exists field')
+            datasets = self.one._cache['datasets']
+            self.assertFalse(
+                datasets.loc[pd.IndexSlice[:, dsets.index[0]], 'exists_aws'].any()
+            )
+
+        # When using integer IDs we should fallback to HTTP downloads
+        util.caches_str2int(self.one._cache)  # Convert to integer IDs
+        dsets = self.one.list_datasets(self.eid, details=True)
+        dsets.loc[:, 'exists_aws'] = True
+        with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
+                mock.patch.object(self.one, '_download_dataset') as method, \
+                self.assertLogs('one.api', logging.DEBUG) as log:
+            self.one._download_datasets(dsets)
+            method.assert_called()
+            self.assertRegex(log.output[0], 'Downloading from AWS')
+            self.assertRegex(log.output[1], 'AWS download only supported for str index cache')
+
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.
         This method is also tested in test_download_datasets.
@@ -1608,10 +1644,13 @@ class TestOneSetup(unittest.TestCase):
             self.assertIsInstance(one_obj, One)
 
             # The offline param was given, raise deprecation warning (via log)
-            # with self.assertLogs(logging.getLogger('ibllib'), logging.WARNING):
-            #     ONE(offline=True, cache_dir=self.tempdir.name)
             with self.assertWarns(DeprecationWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
+
+            # Test setup with virtual ONE method
+            assert ONE.cache_info().currsize > 0
+            ONE.setup(silent=True, make_default=True)
+            self.assertFalse(ONE.cache_info().currsize, 'failed to reset LRU cache')
 
             with self.subTest('ONE setup with database URL'):
                 if OFFLINE_ONLY:

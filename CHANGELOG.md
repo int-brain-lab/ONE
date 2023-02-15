@@ -14,6 +14,7 @@
 - warns user if downloading cache tables from a different database to the current cache tables
 - possible to set the cache_dir attribute in AlyxClient
 - function to print REST schemas in AlyxClient
+- batched REST queries in OneAlyx._download_aws to avoid 414 HTTP status code
 
 ## [1.19.1]
 
