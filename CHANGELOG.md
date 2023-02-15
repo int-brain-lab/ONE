@@ -13,6 +13,7 @@
 - bugfix: OneAlyx.search dataset kwarg in remote mode now matches dataset name instead of dataset type name
 - warns user if downloading cache tables from a different database to the current cache tables
 - possible to set the cache_dir attribute in AlyxClient
+- function to print REST schemas in AlyxClient
 
 ## [1.19.1]
 

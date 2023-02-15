@@ -452,6 +452,16 @@ class TestMisc(unittest.TestCase):
             self.assertIsNone(ac.cache_mode)
         self.assertIsNotNone(ac.cache_mode)
 
+    def test_cache_dir_setter(self):
+        """Tests setter for AlyxClient.cache_dir attribute."""
+        prev_path = ac.cache_dir
+        try:
+            ac.cache_dir = prev_path / 'foobar'
+            self.assertEqual(ac.cache_dir, ac._par.CACHE_DIR)
+            self.assertTrue(str(ac.cache_dir).endswith('foobar'))
+        finally:
+            ac._par = ac._par.set('CACHE_DIR', prev_path)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)
