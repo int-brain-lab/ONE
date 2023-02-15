@@ -44,6 +44,7 @@ from requests.exceptions import HTTPError
 from iblutil.io import parquet
 from iblutil.util import Bunch
 
+from one import __version__
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
@@ -1060,6 +1061,38 @@ class TestOneAlyx(unittest.TestCase):
             with mock.patch.object(self.one.alyx, 'get', return_value=cache_info),\
                     self.assertWarns(UserWarning):
                 self.one.load_cache(clobber=True)
+
+            # Check cache tags
+            raw_meta = self.one._cache._meta['raw']
+            raw_meta['sessions']['database_tags'] = 'Q3-2020-TAG'
+            raw_meta['datasets']['database_tags'] = 'ANOTHER_TAG'
+            cache_info['database_tags'] = ['ANOTHER_TAG']
+            with mock.patch.object(self.one.alyx, 'get', return_value=cache_info):
+                self.assertRaises(NotImplementedError, self.one.load_cache)
+
+            # Check for warning when origins are mixed
+            raw_meta['sessions']['origin'] = raw_meta['datasets']['origin'] = 'alyx'
+            cache_info['origin'] = 'public'
+            cache_info['min_api_version'] = __version__
+            cache_info['date_created'] = datetime.datetime.now().isoformat()
+            raw_meta['datasets']['database_tags'] = 'Q3-2020-TAG'
+            files = list(self.one.cache_dir.glob('*.pqt'))
+            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files), \
+                    mock.patch.object(self.one.alyx, 'get', return_value=cache_info), \
+                    self.assertWarns(UserWarning, msg='another origin'):
+                self.one.load_cache(tag='ANOTHER_TAG')
+            self.assertTrue(str(self.one._tables_dir).endswith('ANOTHER_TAG'))
+            self.assertTrue(self.one._tables_dir.exists(), 'failed to create tag dir')
+
+            # Check table_dir behaviour
+            prev_loc = self.one._tables_dir  # should be same location as previous
+            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files):
+                self.one.load_cache(clobber=True)
+            self.assertEqual(prev_loc, self.one._tables_dir)
+            new_loc = prev_loc.parent  # user input should override default
+            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files):
+                self.one.load_cache(tables_dir=new_loc, clobber=True)
+            self.assertEqual(new_loc, self.one._tables_dir)
 
         finally:  # Restore properties
             self.one.mode = 'auto'

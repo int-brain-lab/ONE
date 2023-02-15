@@ -526,6 +526,12 @@ class AlyxClient:
         """pathlib.Path: The location of the downloaded file cache"""
         return Path(self._par.CACHE_DIR)
 
+    @cache_dir.setter
+    def cache_dir(self, cache_dir):
+        cache_dir = Path(cache_dir)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        self._par = self._par.set('CACHE_DIR', cache_dir)
+
     @property
     def is_logged_in(self):
         """bool: Check if user logged into Alyx database; True if user is authenticated"""
@@ -533,11 +539,11 @@ class AlyxClient:
 
     def list_endpoints(self):
         """
-        Return a list of available REST endpoints
+        Return a list of available REST endpoints.
 
         Returns
         -------
-            List of REST endpoint strings
+            List of REST endpoint strings.
         """
         EXCLUDE = ('_type', '_meta', '', 'auth-token')
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
@@ -586,7 +592,7 @@ class AlyxClient:
     def authenticate(self, username=None, password=None, cache_token=True, force=False):
         """
         Gets a security token from the Alyx REST API to create requests headers.
-        Credentials are loaded via one.params
+        Credentials are loaded via one.params.
 
         Parameters
         ----------
@@ -595,9 +601,9 @@ class AlyxClient:
         password : str
             Alyx password.  If None, token not cached and not silent, user is prompted.
         cache_token : bool
-            If true, the token is cached for subsequent auto-logins
+            If true, the token is cached for subsequent auto-logins.
         force : bool
-            If true, any cached token is ignored
+            If true, any cached token is ignored.
         """
         # Get username
         if username is None:
@@ -653,11 +659,11 @@ class AlyxClient:
             self._par = self._par.set('TOKEN', tokens)
         self.user = username
         if not self.silent:
-            print(f"Connected to {self.base_url} as {self.user}")
+            print(f'Connected to {self.base_url} as user "{self.user}"')
 
     def logout(self):
-        """Log out from Alyx
-        Deletes the cached authentication token for the currently logged-in user
+        """Log out from Alyx.
+        Deletes the cached authentication token for the currently logged-in user.
         """
         if not self.is_logged_in:
             return

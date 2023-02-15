@@ -302,7 +302,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Parameters
     ----------
     all_datasets : pandas.DataFrame
-        A datasets cache table
+        A datasets cache table.
     filename : str, dict, None
         A filename str or a dict of alf parts.  Regular expressions permitted.
     collection : str, None
@@ -315,14 +315,14 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         instead.  When false the revision string is matched like collection and filename,
         with regular expressions permitted.
     assert_unique : bool
-        When true an error is raised if multiple collections or datasets are found
+        When true an error is raised if multiple collections or datasets are found.
     wildcards : bool
-        If true, use unix shell style matching instead of regular expressions
+        If true, use unix shell style matching instead of regular expressions.
 
     Returns
     -------
     pd.DataFrame
-        A slice of all_datasets that match the filters
+        A slice of all_datasets that match the filters.
 
     Examples
     --------
