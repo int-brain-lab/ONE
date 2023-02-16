@@ -1620,24 +1620,63 @@ class OneAlyx(One):
         Parameters
         ----------
         pid : str, uuid.UUID
-            A probe UUID
+            A probe UUID.
         query_type : str
-            Query mode - options include 'remote', and 'refresh'
+            Query mode - options include 'remote', and 'refresh'.
 
         Returns
         -------
         str
-            Experiment ID (eid)
+            Experiment ID (eid).
         str
-            Probe label
+            Probe label.
         """
         query_type = query_type or self.mode
-        if query_type != 'remote':
-            self.refresh_cache(query_type)
         if query_type == 'local' and 'insertions' not in self._cache.keys():
             raise NotImplementedError('Converting probe IDs required remote connection')
         rec = self.alyx.rest('insertions', 'read', id=str(pid))
         return rec['session'], rec['name']
+
+    @util.refresh
+    def eid2pid(self, eid, query_type=None, details=False):
+        """
+        Given an experiment UUID (eID), returns the probe IDs and the probe labels
+        (i.e. the ALF collection).
+
+        NB: Requires a connection to the Alyx database.
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        query_type : str
+            Query mode - options include 'remote', and 'refresh'.
+        details : bool
+            Additionally return the complete Alyx records from insertions endpoint.
+
+        Returns
+        -------
+        list of str
+            Probe UUIDs (pID).
+        list of str
+            Probe labels, e.g. 'probe00'.
+        list of dict (optional)
+            If details is true, returns the Alyx records from insertions endpoint.
+        """
+        query_type = query_type or self.mode
+        if query_type == 'local' and 'insertions' not in self._cache.keys():
+            raise NotImplementedError('Converting probe IDs required remote connection')
+        eid = self.to_eid(eid)  # Ensure we have a UUID str
+        if not eid:
+            return (None,) * (3 if details else 2)
+        recs = self.alyx.rest('insertions', 'list', session=eid)
+        pids = [x['id'] for x in recs]
+        labels = [x['name'] for x in recs]
+        if details:
+            return pids, labels, recs
+        else:
+            return pids, labels
 
     def search(self, details=False, query_type=None, **kwargs):
         """

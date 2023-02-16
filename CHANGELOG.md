@@ -5,6 +5,7 @@
 
 - setup method added to ONE function, allowing setup without instantiation
 - version attribute added to ONE function
+- an OneAlyx.eid2pid method
 
 ### Modified
 
