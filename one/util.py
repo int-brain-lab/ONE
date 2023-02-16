@@ -510,31 +510,32 @@ class LazyId(Mapping):
     """
     Using a paginated response object or list of session records, extracts eid string when required
     """
-    def __init__(self, pg):
+    def __init__(self, pg, func=None):
         self._pg = pg
+        self.func = func or self.ses2eid
 
     def __getitem__(self, item):
-        return self.ses2eid(self._pg.__getitem__(item))
+        return self.func(self._pg.__getitem__(item))
 
     def __len__(self):
         return self._pg.__len__()
 
     def __iter__(self):
-        return map(self.ses2eid, self._pg.__iter__())
+        return map(self.func, self._pg.__iter__())
 
     @staticmethod
     def ses2eid(ses):
-        """
+        """Given one or more session dictionaries, extract and return the session UUID.
 
         Parameters
         ----------
         ses : one.webclient._PaginatedResponse, dict, list
-            A collection of Alyx REST sessions endpoint records
+            A collection of Alyx REST sessions endpoint records.
 
         Returns
         -------
         str, list
-            One or more experiment ID strings
+            One or more experiment ID strings.
         """
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]

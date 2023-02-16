@@ -16,6 +16,9 @@
 - possible to set the cache_dir attribute in AlyxClient
 - function to print REST schemas in AlyxClient
 - batched REST queries in OneAlyx._download_aws to avoid 414 HTTP status code
+- bugfix: solved infinite loop when sliceing paginated response
+- improved performance of remote search
+- lazy fetch of session details in OneAlyx.search 
 
 ## [1.19.1]
 

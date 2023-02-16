@@ -1758,15 +1758,22 @@ class OneAlyx(One):
                 params['lab'] = value
             else:
                 params[field] = value
-
+        if not params['django']:
+            params.pop('django')
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
-        # Add date field for compatibility with One.search output
-        for s in ses:
-            s['date'] = str(datetime.fromisoformat(s['start_time']).date())
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
-        return (eids, ses) if details else eids
+        if not details:
+            return eids
+
+        def _add_date(records):
+            """Add date field for compatibility with One.search output"""
+            for s in util.ensure_list(records):
+                s['date'] = str(datetime.fromisoformat(s['start_time']).date())
+            return records
+
+        return eids, util.LazyId(ses, func=_add_date)
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """

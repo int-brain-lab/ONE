@@ -1205,7 +1205,7 @@ class TestOneRemote(unittest.TestCase):
             self.one.list_datasets(query_type='remote')
 
     def test_search(self):
-        """Test OneAlyx.search"""
+        """Test OneAlyx.search method in remote mode."""
         eids = self.one.search(subject='SWC_043', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
