@@ -548,30 +548,38 @@ class AlyxClient:
         EXCLUDE = ('_type', '_meta', '', 'auth-token')
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
 
-    def print_endpoint_info(self, endpoint):
+    def print_endpoint_info(self, endpoint, action=None):
         """
-        Print the available actions and query parameteres for a given REST endpoint.
+        Print the available actions and query parameters for a given REST endpoint.
 
         Parameters
         ----------
         endpoint : str
             An Alyx REST endpoint to query.
+        action : str
+            An optional action (e.g. 'list') to print. If None, all actions are printed.
+
+        Returns
+        -------
+        dict, list
+            A dictionary of endpoint query parameter details or a list of parameter details if
+            action is not None.
         """
         rs = self.rest_schemes
         if endpoint not in rs:
             return print(f'Endpoint "{endpoint}" does not exist')
 
-        for action in rs[endpoint]:
+        for _action in (rs[endpoint] if action is None else [action]):
             doc = []
-            pprint(action)
-            for f in rs[endpoint][action]['fields']:
+            pprint(_action)
+            for f in rs[endpoint][_action]['fields']:
                 required = ' (required): ' if f.get('required', False) else ': '
-                doc.append(f"\t\"{f['name']}\"{required}{f['schema']['_type']}"
-                           f", {f['schema']['description']}")
+                doc.append(f'\t"{f["name"]}"{required}{f["schema"]["_type"]}'
+                           f', {f["schema"]["description"]}')
             doc.sort()
             [print(d) for d in doc if '(required)' in d]
             [print(d) for d in doc if '(required)' not in d]
-        return rs[endpoint]
+        return (rs[endpoint] if action is None else rs[endpoint][action]).copy()
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):

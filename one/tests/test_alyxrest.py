@@ -180,7 +180,15 @@ class TestREST(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             info = self.alyx.print_endpoint_info(endpoint)
             self.assertEqual(self.alyx.rest_schemes[endpoint], info)
+            self.assertIsNot(self.alyx.rest_schemes[endpoint], info)  # Ensure copy returned
             self.assertTrue(stdout.getvalue().strip(), 'failed to print endpoint info')
+        # Check action input
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            info = self.alyx.print_endpoint_info(endpoint, 'create')
+            self.assertEqual(self.alyx.rest_schemes[endpoint]['create'], info)
+            self.assertIsNot(self.alyx.rest_schemes[endpoint]['create'], info)  # Ensure copy
+            self.assertTrue(stdout.getvalue().strip(), 'failed to print endpoint info')
+            self.assertEqual("'create'\n\t", stdout.getvalue().strip()[:10])
 
     """Specific Alyx REST endpoint tests"""
     def test_water_restriction(self):
