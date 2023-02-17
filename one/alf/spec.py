@@ -1,4 +1,4 @@
-"""The complete ALF specification descriptors and validators"""
+"""The complete ALF specification descriptors and validators."""
 import re
 import textwrap
 from uuid import UUID
@@ -193,6 +193,10 @@ def _dromedary(string) -> str:
     >>> _dromedary('motion_energy') == 'motionEnergy'
     >>> _dromedary('passive_RFM') == 'passive RFM'
     >>> _dromedary('FooBarBaz') == 'fooBarBaz'
+
+    See Also
+    --------
+    readableALF
     """
     def _capitalize(x):
         return x if x.isupper() else x.capitalize()
@@ -390,3 +394,42 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
              *extra,
              extension)
     return '.'.join(parts)
+
+
+def readableALF(name: str, capitalize: bool = False) -> str:
+    """Convert camel case string to space separated string.
+
+    Given an ALF object name or attribute, return a string where the camel case words are space
+    separated.  Acronyms/initialisms are preserved.
+
+    Parameters
+    ----------
+    name : str
+        The ALF part to format (e.g. object name or attribute).
+    capitalize : bool
+        If true, return with the first letter capitalized.
+
+    Returns
+    -------
+    str
+        The name formatted for display, with spaces and capitalization.
+
+    Examples
+    --------
+    >>> readableALF('sparseNoise') == 'sparse noise'
+    >>> readableALF('someROIDataset') == 'some ROI dataset'
+    >>> readableALF('someROIDataset', capitalize=True) == 'Some ROI dataset'
+
+    See Also
+    --------
+    _dromedary
+    """
+    words = []
+    i = 0
+    matches = re.finditer(r'[A-Z](?=[a-z0-9])|(?<=[a-z0-9])[A-Z]', name)
+    for j in map(re.Match.start, matches):
+        words.append(name[i:j])
+        i = j
+    words.append(name[i:])
+    display_str = ' '.join(map(lambda s: s if s.isupper() else s.lower(), words))
+    return display_str[0].upper() + display_str[1:] if capitalize else display_str

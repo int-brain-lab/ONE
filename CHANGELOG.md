@@ -6,6 +6,7 @@
 - setup method added to ONE function, allowing setup without instantiation
 - version attribute added to ONE function
 - an OneAlyx.eid2pid method
+- one.alf.spec.readableALF converts an ALF object name to a whitespace separated string
 
 ### Modified
 
@@ -18,7 +19,7 @@
 - batched REST queries in OneAlyx._download_aws to avoid 414 HTTP status code
 - bugfix: solved infinite loop when sliceing paginated response
 - improved performance of remote search
-- lazy fetch of session details in OneAlyx.search 
+- lazy fetch of session details in OneAlyx.search
 
 ## [1.19.1]
 
