@@ -2059,6 +2059,10 @@ class OneAlyx(One):
         -------
         OneAlyx
             An instance of OneAlyx for the newly set up database URL
+
+        See Also
+        --------
+        one.params.setup
         """
         base_url = base_url or one.params.get_default_client()
         cache_map = one.params.setup(client=base_url, **kwargs)

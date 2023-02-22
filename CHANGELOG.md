@@ -20,6 +20,7 @@
 - bugfix: solved infinite loop when sliceing paginated response
 - improved performance of remote search
 - lazy fetch of session details in OneAlyx.search
+- one.params.setup allows cache_dir as input
 
 ## [1.19.1]
 
