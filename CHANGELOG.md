@@ -1,5 +1,28 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.19.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.20.0]
+
+### Added
+
+- setup method added to ONE function, allowing setup without instantiation
+- version attribute added to ONE function
+- an OneAlyx.eid2pid method
+- one.alf.spec.readableALF converts an ALF object name to a whitespace separated string
+
+### Modified
+
+- private tables_dir attribute allows one to separate cache tables location from data location
+- when proving a tag to OneAlyx.load_cache, the default location will be <cache_dir>/<tag>
+- bugfix: OneAlyx.search dataset kwarg in remote mode now matches dataset name instead of dataset type name
+- warns user if downloading cache tables from a different database to the current cache tables
+- possible to set the cache_dir attribute in AlyxClient
+- function to print REST schemas in AlyxClient
+- batched REST queries in OneAlyx._download_aws to avoid 414 HTTP status code
+- bugfix: solved infinite loop when sliceing paginated response
+- improved performance of remote search
+- lazy fetch of session details in OneAlyx.search
+- one.params.setup allows cache_dir as input
+
+## [1.19.1]
 
 ### Modified
 

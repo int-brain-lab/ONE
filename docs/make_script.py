@@ -31,17 +31,17 @@ def make_documentation(execute, force, documentation, clean, specific):
         for nb_path_ext in nb_path_external:
             status += process_notebooks(nb_path_ext, execute=True, force=force,
                                         link=True, filename_pattern='docs')
-        _logger.info("Finished processing notebooks")
+        _logger.info('Finished processing notebooks')
 
         if status != 0:
             # One or more examples returned an error
             sys.exit(1)
         else:
             # If no errors make the documentation
-            _logger.info("Cleaning up previous documentation")
-            os.system("make clean")
-            _logger.info("Making documentation")
-            os.system("make html")
+            _logger.info('Cleaning up previous documentation')
+            os.system('make clean')
+            _logger.info('Making documentation')
+            os.system('make html')
             sys.exit(0)
 
     # Case where we only want to build specific examples
@@ -51,7 +51,7 @@ def make_documentation(execute, force, documentation, clean, specific):
                 status += process_notebooks(nb, execute=True, force=force)
             else:
                 status += process_notebooks(nb, execute=True, force=force, link=True)
-            _logger.info("Finished processing notebooks")
+            _logger.info('Finished processing notebooks')
 
         # Create the link files for the other notebooks in external paths that we haven't
         # executed. N.B this must be run after the above commands
@@ -63,25 +63,25 @@ def make_documentation(execute, force, documentation, clean, specific):
             sys.exit(1)
         else:
             # If no errors make the documentation
-            _logger.info("Cleaning up previous documentation")
-            os.system("make clean")
-            _logger.info("Making documentation")
-            os.system("make html")
+            _logger.info('Cleaning up previous documentation')
+            os.system('make clean')
+            _logger.info('Making documentation')
+            os.system('make html')
             sys.exit(0)
 
     if documentation:
         for nb_path_ext in nb_path_external:
             process_notebooks(nb_path_ext, execute=False, link=True, filename_pattern='docs')
 
-        _logger.info("Cleaning up previous documentation")
-        os.system("make clean")
-        _logger.info("Making documentation")
-        os.system("make html")
+        _logger.info('Cleaning up previous documentation')
+        os.system('make clean')
+        _logger.info('Making documentation')
+        os.system('make html')
         sys.exit(0)
 
     # Clean up notebooks in directory if also specified
     if clean:
-        _logger.info("Cleaning up notebooks")
+        _logger.info('Cleaning up notebooks')
         process_notebooks(nb_path, execute=False, cleanup=True)
         for nb_path_ext in nb_path_external:
             process_notebooks(nb_path_ext, execute=False, cleanup=True,
@@ -105,7 +105,7 @@ def make_documentation(execute, force, documentation, clean, specific):
                           ' delete manually')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make IBL documentation')
 
     parser.add_argument('-e', '--execute', default=False, action='store_true',

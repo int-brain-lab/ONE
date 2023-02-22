@@ -121,12 +121,21 @@ class TestALFSpec(unittest.TestCase):
         self.assertCountEqual(verifiable, expected)
 
     def test_dromedary(self):
-        """Test for one.alf.spec._dromedary"""
+        """Test for one.alf.spec._dromedary function."""
         self.assertEqual(alf_spec._dromedary('Hello world'), 'helloWorld')
         self.assertEqual(alf_spec._dromedary('motion_energy'), 'motionEnergy')
         self.assertEqual(alf_spec._dromedary('FooBarBaz'), 'fooBarBaz')
         self.assertEqual(alf_spec._dromedary('passive_RFM'), 'passiveRFM')
         self.assertEqual(alf_spec._dromedary('ROI Motion Energy'), 'ROIMotionEnergy')
+
+    def test_readable_ALF(self):
+        """Test for one.alf.spec.readableALF function."""
+        self.assertEqual(alf_spec.readableALF('DAQData'), 'DAQ data')
+        self.assertEqual(alf_spec.readableALF('ROIMotion'), 'ROI motion')
+        self.assertEqual(alf_spec.readableALF('blueChipTime'), 'blue chip time')
+        self.assertEqual(alf_spec.readableALF('someROIDataset'), 'some ROI dataset')
+        self.assertEqual(alf_spec.readableALF('fooBAR'), 'foo BAR')
+        self.assertEqual(alf_spec.readableALF('fooBAR', capitalize=True), 'Foo BAR')
 
     def test_is_session_folder(self):
         """Test for one.alf.spec.is_session_folder"""

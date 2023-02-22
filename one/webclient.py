@@ -214,7 +214,7 @@ class _PaginatedResponse(Mapping):
     def __getitem__(self, item):
         if isinstance(item, slice):
             while None in self._cache[item]:
-                self.populate(self._cache[item].index(None))
+                self.populate(item.start + self._cache[item].index(None))
         elif self._cache[item] is None:
             self.populate(item)
         return self._cache[item]
@@ -526,6 +526,12 @@ class AlyxClient:
         """pathlib.Path: The location of the downloaded file cache"""
         return Path(self._par.CACHE_DIR)
 
+    @cache_dir.setter
+    def cache_dir(self, cache_dir):
+        cache_dir = Path(cache_dir)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        self._par = self._par.set('CACHE_DIR', cache_dir)
+
     @property
     def is_logged_in(self):
         """bool: Check if user logged into Alyx database; True if user is authenticated"""
@@ -533,14 +539,47 @@ class AlyxClient:
 
     def list_endpoints(self):
         """
-        Return a list of available REST endpoints
+        Return a list of available REST endpoints.
 
         Returns
         -------
-            List of REST endpoint strings
+            List of REST endpoint strings.
         """
         EXCLUDE = ('_type', '_meta', '', 'auth-token')
         return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
+
+    def print_endpoint_info(self, endpoint, action=None):
+        """
+        Print the available actions and query parameters for a given REST endpoint.
+
+        Parameters
+        ----------
+        endpoint : str
+            An Alyx REST endpoint to query.
+        action : str
+            An optional action (e.g. 'list') to print. If None, all actions are printed.
+
+        Returns
+        -------
+        dict, list
+            A dictionary of endpoint query parameter details or a list of parameter details if
+            action is not None.
+        """
+        rs = self.rest_schemes
+        if endpoint not in rs:
+            return print(f'Endpoint "{endpoint}" does not exist')
+
+        for _action in (rs[endpoint] if action is None else [action]):
+            doc = []
+            pprint(_action)
+            for f in rs[endpoint][_action]['fields']:
+                required = ' (required): ' if f.get('required', False) else ': '
+                doc.append(f'\t"{f["name"]}"{required}{f["schema"]["_type"]}'
+                           f', {f["schema"]["description"]}')
+            doc.sort()
+            [print(d) for d in doc if '(required)' in d]
+            [print(d) for d in doc if '(required)' not in d]
+        return (rs[endpoint] if action is None else rs[endpoint][action]).copy()
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
@@ -586,7 +625,7 @@ class AlyxClient:
     def authenticate(self, username=None, password=None, cache_token=True, force=False):
         """
         Gets a security token from the Alyx REST API to create requests headers.
-        Credentials are loaded via one.params
+        Credentials are loaded via one.params.
 
         Parameters
         ----------
@@ -595,9 +634,9 @@ class AlyxClient:
         password : str
             Alyx password.  If None, token not cached and not silent, user is prompted.
         cache_token : bool
-            If true, the token is cached for subsequent auto-logins
+            If true, the token is cached for subsequent auto-logins.
         force : bool
-            If true, any cached token is ignored
+            If true, any cached token is ignored.
         """
         # Get username
         if username is None:
@@ -653,11 +692,11 @@ class AlyxClient:
             self._par = self._par.set('TOKEN', tokens)
         self.user = username
         if not self.silent:
-            print(f"Connected to {self.base_url} as {self.user}")
+            print(f'Connected to {self.base_url} as user "{self.user}"')
 
     def logout(self):
-        """Log out from Alyx
-        Deletes the cached authentication token for the currently logged-in user
+        """Log out from Alyx.
+        Deletes the cached authentication token for the currently logged-in user.
         """
         if not self.is_logged_in:
             return
@@ -973,6 +1012,7 @@ class AlyxClient:
         # if action is None, list available actions for the required endpoint
         if not action:
             pprint(list(endpoint_scheme.keys()))
+            self.print_endpoint_info(endpoint)
             return
         # make sure the the desired action exists, if not throw an informative error
         if action not in endpoint_scheme:
@@ -1104,17 +1144,17 @@ class AlyxClient:
         Examples
         --------
         >>> client = AlyxClient()
-        >>> client.json_field_update("sessions", "eid_str", "extended_qc", {"key": "value"})
+        >>> client.json_field_update('sessions', 'eid_str', 'extended_qc', {'key': 'value'})
         """
         self._check_inputs(endpoint)
         # Load current json field contents
-        current = self.rest(endpoint, "read", id=uuid)[field_name]
+        current = self.rest(endpoint, 'read', id=uuid)[field_name]
         if current is None:
             current = {}
 
         if not isinstance(current, dict):
             _logger.warning(
-                f"Current json field {field_name} does not contains a dict, aborting update"
+                f'Current json field {field_name} does not contains a dict, aborting update'
             )
             return current
 
@@ -1123,7 +1163,7 @@ class AlyxClient:
         # Prepare data to patch
         patch_dict = {field_name: current}
         # Upload new extended_qc to session
-        ret = self.rest(endpoint, "partial_update", id=uuid, data=patch_dict)
+        ret = self.rest(endpoint, 'partial_update', id=uuid, data=patch_dict)
         return ret[field_name]
 
     def json_field_remove_key(
@@ -1154,18 +1194,18 @@ class AlyxClient:
             New content of json field
         """
         self._check_inputs(endpoint)
-        current = self.rest(endpoint, "read", id=uuid)[field_name]
+        current = self.rest(endpoint, 'read', id=uuid)[field_name]
         # If no contents, cannot remove key, return
         if current is None:
             return current
         # if contents are not dict, cannot remove key, return contents
         if isinstance(current, str):
-            _logger.warning(f"Cannot remove key {key} content of json field is of type str")
+            _logger.warning(f'Cannot remove key {key} content of json field is of type str')
             return None
         # If key not present in contents of json field cannot remove key, return contents
         if current.get(key, None) is None:
             _logger.warning(
-                f"{key}: Key not found in endpoint {endpoint} field {field_name}"
+                f'{key}: Key not found in endpoint {endpoint} field {field_name}'
             )
             return current
         _logger.info(f"Removing key from dict: '{key}'")
@@ -1180,7 +1220,7 @@ class AlyxClient:
             self, endpoint: str = None, uuid: str = None, field_name: str = None
     ) -> None:
         self._check_inputs(endpoint)
-        _ = self.rest(endpoint, "partial_update", id=uuid, data={field_name: None})
+        _ = self.rest(endpoint, 'partial_update', id=uuid, data={field_name: None})
         return _[field_name]
 
     def clear_rest_cache(self):

@@ -232,6 +232,7 @@ class TestOnlineConverters(unittest.TestCase):
         # Create ONE object with temp cache dir
         cls.one = ONE(**TEST_DB_2)
         cls.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        cls.pid = 'da8dfec1-d265-44e8-84ce-6ae9c109b8bd'
         cls.session_record = cls.one.get_details(cls.eid)
 
     def test_to_eid(self):
@@ -291,7 +292,7 @@ class TestOnlineConverters(unittest.TestCase):
         self.assertTrue(len(verifiable) == 2)
 
     def test_path2eid(self):
-        """Test for OneAlyx.path2eid"""
+        """Test for OneAlyx.path2eid method."""
         test_path = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
                                                       '2020-09-21', '001',)
         verifiable = self.one.path2eid(test_path, query_type='remote')
@@ -299,6 +300,26 @@ class TestOnlineConverters(unittest.TestCase):
         # Check works with list
         verifiable = self.one.path2eid([test_path, test_path], query_type='remote')
         self.assertEqual([self.eid, self.eid], verifiable)
+
+    def test_pid2eid(self):
+        """Test for OneAlyx.pid2eid method."""
+        self.assertRaises(NotImplementedError, self.one.pid2eid, self.pid, query_type='local')
+        self.assertEqual((self.eid, 'probe00'), self.one.pid2eid(self.pid))
+
+    def test_eid2pid(self):
+        """Test for OneAlyx.eid2pid method."""
+        self.assertRaises(NotImplementedError, self.one.eid2pid, self.eid, query_type='local')
+        # Check invalid eid
+        self.assertEqual((None, None), self.one.eid2pid(None))
+        self.assertEqual((None, None, None), self.one.eid2pid(None, details=True))
+        # Check valid eid
+        expected = ([self.pid, '6638cfb3-3831-4fc2-9327-194b76cf22e1'], ['probe00', 'probe01'])
+        self.assertEqual(expected, self.one.eid2pid(self.eid))
+        *_, det = self.one.eid2pid(self.eid, details=True)
+        self.assertEqual(2, len(det))
+        expected_keys = {'id', 'name', 'model', 'serial'}
+        for d in det:
+            self.assertTrue(set(d.keys()) >= expected_keys)
 
 
 class TestAlyx2Path(unittest.TestCase):

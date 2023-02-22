@@ -11,6 +11,7 @@ caches file also sets the default client for when no url is provided.
 """
 import re
 import shutil
+import warnings
 
 from iblutil.io import params as iopar
 from getpass import getpass
@@ -20,17 +21,17 @@ import unicodedata
 
 _PAR_ID_STR = 'one'
 _CLIENT_ID_STR = 'caches'
-CACHE_DIR_DEFAULT = str(Path.home() / "Downloads" / "ONE")
+CACHE_DIR_DEFAULT = str(Path.home() / 'Downloads' / 'ONE')
 """str: The default data download location"""
 
 
 def default():
     """Default Web client parameters"""
-    par = {"ALYX_URL": "https://openalyx.internationalbrainlab.org",
-           "ALYX_LOGIN": "intbrainlab",
-           "HTTP_DATA_SERVER": "https://ibl.flatironinstitute.org/public",
-           "HTTP_DATA_SERVER_LOGIN": None,
-           "HTTP_DATA_SERVER_PWD": None}
+    par = {'ALYX_URL': 'https://openalyx.internationalbrainlab.org',
+           'ALYX_LOGIN': 'intbrainlab',
+           'HTTP_DATA_SERVER': 'https://ibl.flatironinstitute.org/public',
+           'HTTP_DATA_SERVER_LOGIN': None,
+           'HTTP_DATA_SERVER_PWD': None}
     return iopar.from_dict(par)
 
 
@@ -82,7 +83,7 @@ def _key_from_url(url: str) -> str:
     return re.sub(r'[-\s]+', '-', url)  # Convert spaces to hyphens
 
 
-def setup(client=None, silent=False, make_default=None, username=None):
+def setup(client=None, silent=False, make_default=None, username=None, cache_dir=None):
     """
     Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
     that instance will be set.  If silent, the user will be prompted to input each parameter
@@ -98,7 +99,9 @@ def setup(client=None, silent=False, make_default=None, username=None):
         If True, client is set as the default and will be returned when calling `get` with no
         arguments.
     username : str, optional
-        If present,
+        The Alyx username to store in the params.
+    cache_dir : str, pathlib.Path
+        The default cache directory to store in the params.
 
     Returns
     -------
@@ -117,7 +120,6 @@ def setup(client=None, silent=False, make_default=None, username=None):
 
     # Load the db URL map
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {'CLIENT_MAP': dict()})
-    cache_dir = cache_map.CLIENT_MAP.get(client_key, Path(CACHE_DIR_DEFAULT, client_key))
 
     if not silent:
         par = iopar.as_dict(par_default)
@@ -151,9 +153,9 @@ def setup(client=None, silent=False, make_default=None, username=None):
 
         par = iopar.from_dict(par)
 
-        # Prompt for cache directory
+        # Prompt for cache directory (default may have changed after prompt)
         client_key = _key_from_url(par.ALYX_URL)
-        cache_dir = Path(CACHE_DIR_DEFAULT, client_key)
+        cache_dir = cache_dir or Path(CACHE_DIR_DEFAULT, client_key)
         prompt = f'Enter the location of the download cache, current value is ["{cache_dir}"]:'
         cache_dir = input(prompt) or cache_dir
 
@@ -178,6 +180,11 @@ def setup(client=None, silent=False, make_default=None, username=None):
             return par_current
     else:
         par = par_current
+        if any(v for k, v in cache_map.CLIENT_MAP.items() if k != client_key):
+            warnings.warn('Warning: the directory provided is already a cache for another URL.')
+        # Precedence: user provided cache_dir; previously defined; the default location
+        default_cache_dir = Path(CACHE_DIR_DEFAULT, client_key)
+        cache_dir = cache_dir or cache_map.CLIENT_MAP.get(client_key, default_cache_dir)
 
     # Update and save parameters
     Path(cache_dir).mkdir(exist_ok=True, parents=True)
@@ -320,12 +327,12 @@ def _patch_params(par):
     Parameters
     ----------
     par : IBLParams
-        The old parameters object
+        The old parameters object.
 
     Returns
     -------
     IBLParams
-        New parameters object containing the previous parameters
+        New parameters object containing the previous parameters.
 
     """
     # Patch the URL of data server, if database is OpenAlyx.

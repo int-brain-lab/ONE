@@ -27,11 +27,12 @@ import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
 from .alf.files import rel_path_parts, get_session_path, get_alf_path, add_uuid_string
 from .alf.spec import is_uuid_string
+from . import __version__
 from one.converters import ConversionMixin
 import one.util as util
 
 _logger = logging.getLogger(__name__)
-
+__all__ = ['ONE', 'One', 'OneAlyx']
 """int: The number of download threads"""
 N_THREADS = 4
 
@@ -42,7 +43,7 @@ class One(ConversionMixin):
         'dataset', 'date_range', 'laboratory', 'number', 'projects', 'subject', 'task_protocol'
     )
 
-    def __init__(self, cache_dir=None, mode='auto', wildcards=True):
+    def __init__(self, cache_dir=None, mode='auto', wildcards=True, tables_dir=None):
         """An API for searching and loading data on a local filesystem
 
         Parameters
@@ -55,11 +56,17 @@ class One(ConversionMixin):
             Query mode, options include 'auto' (reload cache daily), 'local' (offline) and
             'refresh' (always reload cache tables).  Most methods have a `query_type` parameter
             that can override the class mode.
+        wildcards : bool
+            If true, use unix shell style matching instead of regular expressions.
+        tables_dir : str, pathlib.Path
+            An optional location of the cache tables.  If None, the tables are assumed to be in the
+            cache_dir.
         """
         # get parameters override if inputs provided
         super().__init__()
         if not getattr(self, 'cache_dir', None):  # May already be set by subclass
             self.cache_dir = cache_dir or one.params.get_cache_dir()
+        self._tables_dir = tables_dir or self.cache_dir
         self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
@@ -92,19 +99,20 @@ class One(ConversionMixin):
             'raw': {}  # map of original table metadata
         }})
 
-    def load_cache(self, cache_dir=None, **kwargs):
+    def load_cache(self, tables_dir=None, **kwargs):
         """
         Load parquet cache files from a local directory.
 
         Parameters
         ----------
-        cache_dir : str, pathlib.Path
-            An optional directory location of the parquet files, defaults to One.cache_dir.
+        tables_dir : str, pathlib.Path
+            An optional directory location of the parquet files, defaults to One._tables_dir.
         """
         self._reset_cache()
         meta = self._cache['_meta']
         INDEX_KEY = '.?id'
-        for cache_file in Path(cache_dir or self.cache_dir).glob('*.pqt'):
+        self._tables_dir = Path(tables_dir or self._tables_dir or self.cache_dir)
+        for cache_file in self._tables_dir.glob('*.pqt'):
             table = cache_file.stem
             # we need to keep this part fast enough for transient objects
             cache, meta['raw'][table] = parquet.load(cache_file)
@@ -326,7 +334,7 @@ class One(ConversionMixin):
                 ids = parquet.np2str(ids)
 
         timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
-        filename = Path(self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
+        filename = Path(self._tables_dir or self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
         pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
         if clear_list:
             self._cache['_loaded_datasets'] = np.array([])
@@ -1285,17 +1293,17 @@ class One(ConversionMixin):
         Parameters
         ----------
         cache_dir : pathlib.Path, str
-            A path to the ALF data directory
+            A path to the ALF data directory.
         silent : (False) bool
-            when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any
-            when False will use cwd for cache_dir if cache_dir is None and use existing cache
+            When True will prompt for cache_dir, if cache_dir is None, and overwrite cache if any.
+            When False will use cwd for cache_dir, if cache_dir is None, and use existing cache.
         **kwargs
             Optional arguments to pass to one.alf.cache.make_parquet_db.
 
         Returns
         -------
         One
-            An instance of One for the provided cache directory
+            An instance of One for the provided cache directory.
         """
         if not cache_dir:
             if not silent:
@@ -1329,12 +1337,15 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
         Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
         methods have a `query_type` parameter that can override the class mode.
     wildcards : bool
-        If true all mathods use unix shell style pattern matching, otherwise regular expressions
+        If true all methods use unix shell style pattern matching, otherwise regular expressions
         are used.
-    cache_dir : str, Path
+    cache_dir : str, pathlib.Path
         Path to the data files.  If Alyx parameters have been set up for this location,
         an OneAlyx instance is returned.  If data_dir and base_url are None, the default
         location is used.
+    tables_dir : str, pathlib.Path
+        An optional location of the cache tables.  If None, the tables are assumed to be in the
+        cache_dir.
     base_url : str
         An Alyx database URL.  The URL must start with 'http'.
     username : str
@@ -1372,7 +1383,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 class OneAlyx(One):
     """An API for searching and loading data through the Alyx database"""
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
-                 mode='auto', wildcards=True, **kwargs):
+                 mode='auto', wildcards=True, tables_dir=None, **kwargs):
         """An API for searching and loading data through the Alyx database
 
         Parameters
@@ -1383,10 +1394,13 @@ class OneAlyx(One):
         wildcards : bool
             If true, methods allow unix shell style pattern matching, otherwise regular
             expressions are supported
-        cache_dir : str, Path
+        cache_dir : str, pathlib.Path
             Path to the data files.  If Alyx parameters have been set up for this location,
             an OneAlyx instance is returned.  If data_dir and base_url are None, the default
             location is used.
+        tables_dir : str, pathlib.Path
+            An optional location of the cache tables.  If None, the tables are assumed to be in the
+            cache_dir.
         base_url : str
             An Alyx database URL.  The URL must start with 'http'.
         username : str
@@ -1406,12 +1420,13 @@ class OneAlyx(One):
                                          **kwargs)
         self._search_endpoint = 'sessions'
         # get parameters override if inputs provided
-        super(OneAlyx, self).__init__(mode=mode, wildcards=wildcards, cache_dir=cache_dir)
+        super(OneAlyx, self).__init__(
+            mode=mode, wildcards=wildcards, tables_dir=tables_dir, cache_dir=cache_dir)
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
 
-    def load_cache(self, cache_dir=None, clobber=False, tag=None):
+    def load_cache(self, tables_dir=None, clobber=False, tag=None):
         """
         Load parquet cache files.  If the local cache is sufficiently old, this method will query
         the database for the location and creation date of the remote cache.  If newer, it will be
@@ -1421,22 +1436,26 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        cache_dir : str, pathlib.Path
-            An optional directory location of the parquet files, defaults to One.cache_dir.
+        tables_dir : str, pathlib.Path
+            An optional directory location of the parquet files, defaults to One._tables_dir.
         clobber : bool
             If True, query Alyx for a newer cache even if current (local) cache is recent.
         tag : str
             An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
         """
         cache_meta = self._cache.get('_meta', {})
-        cache_dir = cache_dir or self.cache_dir
+        raw_meta = cache_meta.get('raw', {}).values() or [{}]
         # If user provides tag that doesn't match current cache's tag, always download.
         # NB: In the future 'database_tags' may become a list.
-        current_tags = [x.get('database_tags') for x in cache_meta.get('raw', {}).values() or [{}]]
+        current_tags = [x.get('database_tags') for x in raw_meta]
+        if len(set(filter(None, current_tags))) > 1:
+            raise NotImplementedError(
+                'Loading cache tables with multiple tags is not currently supported'
+            )
         tag = tag or current_tags[0]  # For refreshes take the current tag as default
         different_tag = any(x != tag for x in current_tags)
-        if not clobber or different_tag:
-            super(OneAlyx, self).load_cache(cache_dir)  # Load any present cache
+        if not (clobber or different_tag):
+            super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
             cache_meta = self._cache.get('_meta', {})  # TODO Make walrus when we drop 3.7 support
             expired = self._cache and cache_meta['expired']
             if not expired or self.mode in {'local', 'remote'}:
@@ -1468,15 +1487,34 @@ class OneAlyx(One):
             # Check whether remote cache more recent
             remote_created = datetime.fromisoformat(cache_info['date_created'])
             local_created = cache_meta.get('created_time', None)
-            if local_created and (remote_created - local_created) < timedelta(minutes=1):
+            fresh = local_created and (remote_created - local_created) < timedelta(minutes=1)
+            if fresh and not different_tag:
                 _logger.info('No newer cache available')
                 return
 
+            # Set the cache table directory location
+            if tables_dir:  # If tables directory specified, use that
+                self._tables_dir = Path(tables_dir)
+            elif different_tag:  # Otherwise use a subdirectory for a given tag
+                self._tables_dir = self.cache_dir / tag
+                self._tables_dir.mkdir(exist_ok=True)
+            else:  # Otherwise use the previous location (default is the data cache directory)
+                self._tables_dir = self._tables_dir or self.cache_dir
+
+            # Check if the origin has changed. This is to warn users if downloading from a
+            # different database to the one currently loaded.
+            prev_origin = list(set(filter(None, (x.get('origin') for x in raw_meta))))
+            origin = cache_info.get('origin', 'unknown')
+            if prev_origin and origin not in prev_origin:
+                warnings.warn(
+                    'Downloading cache tables from another origin '
+                    f'("{origin}" instead of "{", ".join(prev_origin)}")')
+
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
-            files = self.alyx.download_cache_tables(cache_info.get('location'), cache_dir)
+            files = self.alyx.download_cache_tables(cache_info.get('location'), self._tables_dir)
             assert any(files)
-            super(OneAlyx, self).load_cache(cache_dir)  # Reload cache after download
+            super(OneAlyx, self).load_cache(self._tables_dir)  # Reload cache after download
         except (requests.exceptions.HTTPError, wc.HTTPError, requests.exceptions.SSLError) as ex:
             _logger.debug(ex)
             _logger.error(f'{type(ex).__name__}: Failed to load the remote cache file')
@@ -1582,24 +1620,63 @@ class OneAlyx(One):
         Parameters
         ----------
         pid : str, uuid.UUID
-            A probe UUID
+            A probe UUID.
         query_type : str
-            Query mode - options include 'remote', and 'refresh'
+            Query mode - options include 'remote', and 'refresh'.
 
         Returns
         -------
         str
-            Experiment ID (eid)
+            Experiment ID (eid).
         str
-            Probe label
+            Probe label.
         """
         query_type = query_type or self.mode
-        if query_type != 'remote':
-            self.refresh_cache(query_type)
         if query_type == 'local' and 'insertions' not in self._cache.keys():
             raise NotImplementedError('Converting probe IDs required remote connection')
         rec = self.alyx.rest('insertions', 'read', id=str(pid))
         return rec['session'], rec['name']
+
+    @util.refresh
+    def eid2pid(self, eid, query_type=None, details=False):
+        """
+        Given an experiment UUID (eID), returns the probe IDs and the probe labels
+        (i.e. the ALF collection).
+
+        NB: Requires a connection to the Alyx database.
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict
+            Experiment session identifier; may be a UUID, URL, experiment reference string
+            details dict or Path.
+        query_type : str
+            Query mode - options include 'remote', and 'refresh'.
+        details : bool
+            Additionally return the complete Alyx records from insertions endpoint.
+
+        Returns
+        -------
+        list of str
+            Probe UUIDs (pID).
+        list of str
+            Probe labels, e.g. 'probe00'.
+        list of dict (optional)
+            If details is true, returns the Alyx records from insertions endpoint.
+        """
+        query_type = query_type or self.mode
+        if query_type == 'local' and 'insertions' not in self._cache.keys():
+            raise NotImplementedError('Converting probe IDs required remote connection')
+        eid = self.to_eid(eid)  # Ensure we have a UUID str
+        if not eid:
+            return (None,) * (3 if details else 2)
+        recs = self.alyx.rest('insertions', 'list', session=eid)
+        pids = [x['id'] for x in recs]
+        labels = [x['name'] for x in recs]
+        if details:
+            return pids, labels, recs
+        else:
+            return pids, labels
 
     def search(self, details=False, query_type=None, **kwargs):
         """
@@ -1674,22 +1751,29 @@ class OneAlyx(One):
             if field == 'date_range':
                 params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
             elif field == 'dataset':
-                query = ('data_dataset_session_related__dataset_type__name__icontains,' +
+                query = ('data_dataset_session_related__name__icontains,' +
                          ','.join(util.ensure_list(value)))
                 params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
                 params['lab'] = value
             else:
                 params[field] = value
-
+        if not params['django']:
+            params.pop('django')
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
-        # Add date field for compatibility with One.search output
-        for s in ses:
-            s['date'] = str(datetime.fromisoformat(s['start_time']).date())
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
-        return (eids, ses) if details else eids
+        if not details:
+            return eids
+
+        def _add_date(records):
+            """Add date field for compatibility with One.search output"""
+            for s in util.ensure_list(records):
+                s['date'] = str(datetime.fromisoformat(s['start_time']).date())
+            return records
+
+        return eids, util.LazyId(ses, func=_add_date)
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
@@ -1727,7 +1811,13 @@ class OneAlyx(One):
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
         uuids = [util.ensure_list(x.name)[-1] for x in dsets]
-        remote_records = self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids}')
+        # If number of UUIDs is too high, fetch in loop to avoid 414 HTTP status code
+        remote_records = []
+        N = 100  # Number of UUIDs per query
+        for i in range(0, len(uuids), N):
+            remote_records.extend(
+                self.alyx.rest('datasets', 'list', exists=True, django=f'id__in,{uuids[i:i + N]}')
+            )
         remote_records = sorted(remote_records, key=lambda x: uuids.index(x['url'].split('/')[-1]))
         out_files = []
         for dset, uuid, record in zip(dsets, uuids, remote_records):
@@ -1969,6 +2059,10 @@ class OneAlyx(One):
         -------
         OneAlyx
             An instance of OneAlyx for the newly set up database URL
+
+        See Also
+        --------
+        one.params.setup
         """
         base_url = base_url or one.params.get_default_client()
         cache_map = one.params.setup(client=base_url, **kwargs)
@@ -2234,3 +2328,29 @@ class OneAlyx(One):
         out.update({'local_path': self.eid2path(eid),
                     'date': datetime.fromisoformat(out['start_time']).date()})
         return out
+
+
+def _setup(**kwargs):
+    """A setup method for the main ONE function.
+
+    Clears the ONE LRU cache before running setup, which ensures ONE is re-instantiated after
+    modifying parameter defaults.  NB: This docstring is overwritten by the one.params.setup
+    docstring upon module init.
+
+    Parameters
+    ----------
+    **kwargs
+        See one.params.setup.
+
+    Returns
+    -------
+    IBLParams
+        An updated cache map.
+    """
+    ONE.cache_clear()
+    return one.params.setup(**kwargs)
+
+
+ONE.setup = _setup
+ONE.setup.__doc__ = one.params.setup.__doc__
+ONE.version = __version__

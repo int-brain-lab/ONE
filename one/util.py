@@ -302,7 +302,7 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Parameters
     ----------
     all_datasets : pandas.DataFrame
-        A datasets cache table
+        A datasets cache table.
     filename : str, dict, None
         A filename str or a dict of alf parts.  Regular expressions permitted.
     collection : str, None
@@ -315,14 +315,14 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         instead.  When false the revision string is matched like collection and filename,
         with regular expressions permitted.
     assert_unique : bool
-        When true an error is raised if multiple collections or datasets are found
+        When true an error is raised if multiple collections or datasets are found.
     wildcards : bool
-        If true, use unix shell style matching instead of regular expressions
+        If true, use unix shell style matching instead of regular expressions.
 
     Returns
     -------
     pd.DataFrame
-        A slice of all_datasets that match the filters
+        A slice of all_datasets that match the filters.
 
     Examples
     --------
@@ -342,6 +342,12 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Filter by filename parts
 
     >>> datasets = filter_datasets(all_datasets, dict(object='spikes', attribute='times'))
+
+    Notes
+    -----
+    - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
+     e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
+     must use two separate queries.
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}
@@ -504,31 +510,32 @@ class LazyId(Mapping):
     """
     Using a paginated response object or list of session records, extracts eid string when required
     """
-    def __init__(self, pg):
+    def __init__(self, pg, func=None):
         self._pg = pg
+        self.func = func or self.ses2eid
 
     def __getitem__(self, item):
-        return self.ses2eid(self._pg.__getitem__(item))
+        return self.func(self._pg.__getitem__(item))
 
     def __len__(self):
         return self._pg.__len__()
 
     def __iter__(self):
-        return map(self.ses2eid, self._pg.__iter__())
+        return map(self.func, self._pg.__iter__())
 
     @staticmethod
     def ses2eid(ses):
-        """
+        """Given one or more session dictionaries, extract and return the session UUID.
 
         Parameters
         ----------
         ses : one.webclient._PaginatedResponse, dict, list
-            A collection of Alyx REST sessions endpoint records
+            A collection of Alyx REST sessions endpoint records.
 
         Returns
         -------
         str, list
-            One or more experiment ID strings
+            One or more experiment ID strings.
         """
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]

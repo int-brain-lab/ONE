@@ -65,6 +65,19 @@ class TestParamSetup(unittest.TestCase):
         with self.assertRaises(ValueError), mock.patch('one.params.input', new=self._mock_input):
             one.params.setup()
 
+        # Check uses cache_dir arg in cache map
+        location = str(Path(self.par_dir.name) / 'data')
+        # Check with user prompts
+        self.url = ''  # User selects default
+        with mock.patch('one.params.input', new=self._mock_input):
+            cache = one.params.setup(cache_dir=location)
+            self.assertIn(location, cache.CLIENT_MAP.values())
+
+        # Check warns when cache_dir conflicts in silent mode
+        with self.assertWarns(UserWarning):
+            cache = one.params.setup(TEST_DB_1['base_url'][8:], cache_dir=location, silent=True)
+        self.assertEqual(location, cache.CLIENT_MAP[cache.DEFAULT])
+
 
 class TestONEParamUtil(unittest.TestCase):
     """Test class for one.params utility functions"""
@@ -114,5 +127,5 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertTrue(cache_dir.exists())
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)
