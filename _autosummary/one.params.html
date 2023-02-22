@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.params &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -118,7 +122,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
       <li class="breadcrumb-item active">one.params</li>
@@ -170,10 +174,6 @@ directories, and a separate parameter file for each url containing the client pa
 caches file also sets the default client for when no url is provided.</p>
 <p class="rubric">Module attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="one.params.CACHE_DIR_DEFAULT.html#one.params.CACHE_DIR_DEFAULT" title="one.params.CACHE_DIR_DEFAULT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CACHE_DIR_DEFAULT</span></code></a></p></td>
 <td><p>The default data download location</p></td>
@@ -182,10 +182,6 @@ caches file also sets the default client for when no url is provided.</p>
 </table>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.params.check_cache_conflict" title="one.params.check_cache_conflict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_cache_conflict</span></code></a></p></td>
 <td><p>Asserts that a given directory is not currently used as a cache directory.</p></td>
@@ -218,7 +214,7 @@ caches file also sets the default client for when no url is provided.</p>
 <span class="sig-name descname"><span class="pre">CACHE_DIR_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/home/runner/Downloads/ONE'</span></em><a class="headerlink" href="#one.params.CACHE_DIR_DEFAULT" title="Permalink to this definition"></a></dt>
 <dd><p>The default data download location</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -232,24 +228,25 @@ caches file also sets the default client for when no url is provided.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.setup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.setup" title="Permalink to this definition"></a></dt>
 <dd><p>Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
 that instance will be set.  If silent, the user will be prompted to input each parameter
 value.  Pressing return will use either current parameter or the default.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>client</strong> (<em>str</em>) – An Alyx database URL. If None, the user will be prompted to input one.</p></li>
 <li><p><strong>silent</strong> (<em>bool</em>) – If True, user is not prompted for any input.</p></li>
 <li><p><strong>make_default</strong> (<em>bool</em>) – If True, client is set as the default and will be returned when calling <cite>get</cite> with no
 arguments.</p></li>
-<li><p><strong>username</strong> (<em>str</em><em>, </em><em>optional</em>) – If present,</p></li>
+<li><p><strong>username</strong> (<em>str</em><em>, </em><em>optional</em>) – The Alyx username to store in the params.</p></li>
+<li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The default cache directory to store in the params.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An updated cache map.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>IBLParams</p>
 </dd>
 </dl>
@@ -260,17 +257,17 @@ arguments.</p></li>
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the AlyxClient parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>silent</strong> (<em>bool</em>) – If true, defaults are chosen if no parameters found.</p></li>
 <li><p><strong>client</strong> (<em>str</em>) – The database URL to retrieve parameters for.  If None, the default is loaded.</p></li>
 <li><p><strong>username</strong> (<em>str</em>) – The username to use.  If None, the default is loaded.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A Params object for the AlyxClient.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>IBLParams</p>
 </dd>
 </dl>
@@ -281,14 +278,14 @@ arguments.</p></li>
 <span class="sig-name descname"><span class="pre">get_default_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/params.html#get_default_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get_default_client" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the default AlyxClient URL, or None if no default is set</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>include_schema</strong> (<em>bool</em>) – When True, the URL schema is included (i.e. http(s)://).  Set to False to return the URL
 as a client key.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The default database URL with or without the schema, or None if no default is set</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -299,7 +296,7 @@ as a client key.</p>
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.save" title="Permalink to this definition"></a></dt>
 <dd><p>Save a set of parameters for a given client.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>par</strong> (<em>dict</em><em>, </em><em>IBLParams</em>) – A set of Web client parameters to save</p></li>
 <li><p><strong>client</strong> (<em>str</em>) – The Alyx URL that corresponds to these parameters</p></li>
@@ -314,13 +311,13 @@ as a client key.</p>
 <dd><p>Return the download directory for a given client.</p>
 <p>If no client is set up, the default download location is returned.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>client</strong> (<em>str</em>) – The client to return cache dir from.  If None, the default client is used.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The download cache path</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
@@ -331,10 +328,10 @@ as a client key.</p>
 <span class="sig-name descname"><span class="pre">get_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/one/params.html#get_params_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get_params_dir" title="Permalink to this definition"></a></dt>
 <dd><p>Return the path to the root ONE parameters directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The root ONE parameters directory</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>pathlib.Path</p>
 </dd>
 </dl>
@@ -348,10 +345,10 @@ This function checks whether a given directory is used as a cache directory for 
 Web client.  This function is called by the ONE factory to determine whether to return an
 OneAlyx object or not.  It is also used when setting up params for a new client.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A directory to check.</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>AssertionError</strong> – The directory is set as a cache for a Web client</p>
 </dd>
 </dl>

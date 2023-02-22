@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.alf.spec</li>
       <li class="wy-breadcrumbs-aside">
@@ -101,7 +105,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.alf.spec</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The complete ALF specification descriptors and validators&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;The complete ALF specification descriptors and validators.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
@@ -296,6 +300,10 @@
 <span class="sd">    &gt;&gt;&gt; _dromedary(&#39;motion_energy&#39;) == &#39;motionEnergy&#39;</span>
 <span class="sd">    &gt;&gt;&gt; _dromedary(&#39;passive_RFM&#39;) == &#39;passive RFM&#39;</span>
 <span class="sd">    &gt;&gt;&gt; _dromedary(&#39;FooBarBaz&#39;) == &#39;fooBarBaz&#39;</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    readableALF</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_capitalize</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
@@ -493,6 +501,45 @@
              <span class="o">*</span><span class="n">extra</span><span class="p">,</span>
              <span class="n">extension</span><span class="p">)</span>
     <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="readableALF"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.readableALF">[docs]</a><span class="k">def</span> <span class="nf">readableALF</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">capitalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert camel case string to space separated string.</span>
+
+<span class="sd">    Given an ALF object name or attribute, return a string where the camel case words are space</span>
+<span class="sd">    separated.  Acronyms/initialisms are preserved.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The ALF part to format (e.g. object name or attribute).</span>
+<span class="sd">    capitalize : bool</span>
+<span class="sd">        If true, return with the first letter capitalized.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The name formatted for display, with spaces and capitalization.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; readableALF(&#39;sparseNoise&#39;) == &#39;sparse noise&#39;</span>
+<span class="sd">    &gt;&gt;&gt; readableALF(&#39;someROIDataset&#39;) == &#39;some ROI dataset&#39;</span>
+<span class="sd">    &gt;&gt;&gt; readableALF(&#39;someROIDataset&#39;, capitalize=True) == &#39;Some ROI dataset&#39;</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    _dromedary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[A-Z](?=[a-z0-9])|(?&lt;=[a-z0-9])[A-Z]&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">matches</span><span class="p">):</span>
+        <span class="n">words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">])</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">j</span>
+    <span class="n">words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
+    <span class="n">display_str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">words</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">display_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">display_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">capitalize</span> <span class="k">else</span> <span class="n">display_str</span></div>
 </pre></div>
 
            </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FAQ &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -79,6 +83,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx">Why are my recent data missing from my cache but present on Alyx?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it">I made a mistake during setup and now can’t call setup, how do I fix it?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-change-my-download-a-k-a-cache-directory">How do I change my download (a.k.a. cache) directory?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-load-cache-tables-from-a-different-location">How do I load cache tables from a different location?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-check-who-i-m-logged-in-as">How do check who I’m logged in as?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-to-do-if-i-am-seeing-a-certificate-error">What to do if I am seeing a certificate error?</a></li>
@@ -105,7 +110,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">FAQ</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/FAQ.md.txt" rel="nofollow"> View page source</a>
@@ -195,13 +200,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 <h2>I made a mistake during setup and now can’t call setup, how do I fix it?<a class="headerlink" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it" title="Permalink to this heading"></a></h2>
 <p>Usually you can re-run your setup with the following command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">new_one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Sometimes if the settings are wrong, the call to `ONE()’ raises an error before the setup method is
-called.  To avoid this, run the following command instead:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">OneAlyx</span>
-<span class="n">new_one</span> <span class="o">=</span> <span class="n">OneAlyx</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
+<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -209,7 +208,7 @@ called.  To avoid this, run the following command instead:</p>
 <h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Permalink to this heading"></a></h2>
 <p>To <strong>permanently</strong> change the directory, simply re-run the setup routine:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">new_one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Re-run setup for default database</span>
+<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Re-run setup for default database (takes effect next time you instantiate ONE)</span>
 </pre></div>
 </div>
 <p>When prompted (‘Enter the location of the download cache’) enter the absolute path of the new download location.</p>
@@ -220,6 +219,21 @@ called.  To avoid this, run the following command instead:</p>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;new_download_dir&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><strong>NB</strong>: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the <code class="docutils literal notranslate"><span class="pre">tables_dir</span></code> kwarg.</p>
+</section>
+<section id="how-do-i-load-cache-tables-from-a-different-location">
+<h2>How do I load cache tables from a different location?<a class="headerlink" href="#how-do-i-load-cache-tables-from-a-different-location" title="Permalink to this heading"></a></h2>
+<p>By default, the cache tables are in the cache_dir root.  You can load cache tables in a different location in the following two ways:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+
+<span class="c1"># 1. Specify location upon instantiation</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">tables_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;tables_dir&#39;</span><span class="p">)</span>
+<span class="c1"># 2. Specify location after instantiation</span>
+<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;tables_dir&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>NB</strong>: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set <code class="docutils literal notranslate"><span class="pre">mode='local'</span></code>.</p>
 </section>
 <section id="how-do-check-who-i-m-logged-in-as">
 <h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Permalink to this heading"></a></h2>
@@ -270,15 +284,10 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 <h2>How do I download the datasets cache for a specific IBL paper release?<a class="headerlink" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release" title="Permalink to this heading"></a></h2>
 <p>With OpenAlyx you have the ability to download cache tables containing datasets with a specific release tag.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;international&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">TAG</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>  <span class="c1"># Release tag to download cache for</span>
-
-<span class="c1"># Optionally provide a new location for downloading the cache tables so as not to overwrite the main tables</span>
-<span class="n">cache_path</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">TAG</span><span class="p">)</span>
-<span class="n">cache_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># NB: The cache_dir arg only relates to the cache table location NOT the dataset download location</span>
-<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">TAG</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">TAG</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

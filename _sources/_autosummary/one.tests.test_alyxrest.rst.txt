@@ -18,7 +18,7 @@ one.tests.test\_alyxrest
    .. autosummary::
       :nosignatures:
    
-      Tests_REST
+      TestREST
    
    
 

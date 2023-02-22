@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.remote.base &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -111,7 +115,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.remote.html">one.remote</a></li>
@@ -173,10 +177,6 @@ AlyxClient.download_file.</p>
 TODO Release changes to alyx repo first</p>
 <p class="rubric">Module attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="one.remote.base.ALYX_JSON.html#one.remote.base.ALYX_JSON" title="one.remote.base.ALYX_JSON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALYX_JSON</span></code></a></p></td>
 <td><p>Location of the remote download client parameters</p></td>
@@ -185,10 +185,6 @@ TODO Release changes to alyx repo first</p>
 </table>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.base.load_client_params" title="one.remote.base.load_client_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_client_params</span></code></a></p></td>
 <td><p>Load the parameters from the remote params file.</p></td>
@@ -200,10 +196,6 @@ TODO Release changes to alyx repo first</p>
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.base.DownloadClient" title="one.remote.base.DownloadClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DownloadClient</span></code></a></p></td>
 <td><p>Data download handler base class</p></td>
@@ -215,7 +207,7 @@ TODO Release changes to alyx repo first</p>
 <span class="sig-name descname"><span class="pre">ALYX_JSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'access_protocol':</span> <span class="pre">{('aws',</span> <span class="pre">'http',</span> <span class="pre">'kachary',</span> <span class="pre">'globus')}}</span></em><a class="headerlink" href="#one.remote.base.ALYX_JSON" title="Permalink to this definition"></a></dt>
 <dd><p>Location of the remote download client parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -227,19 +219,19 @@ TODO Release changes to alyx repo first</p>
 <dd><p>Load the parameters from the remote params file.  If a client key is provided, only those
 client parameters are returned.  NB: Remote param values are expected to all be dicts.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>client_key</strong> (<em>str</em>) – An optional, specific client whose parameters to return.</p></li>
 <li><p><strong>assert_present</strong> (<em>bool</em>) – If True, raise error if client parameters not found.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Download client parameters or None if assert_present is False and no parameters found.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>IBLParams, None</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>FileNotFoundError</strong> – No one/remote JSON file found</p></li>
 <li><p><strong>AttributeError</strong> – Provided client key not present in one/remote params</p></li>
@@ -267,13 +259,13 @@ client parameters are returned.  NB: Remote param values are expected to all be 
 <dd><p>Save parameters into the remote params file.  If a client key is provided, parameters are
 saved into this field.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>new_pars</strong> (<em>dict</em><em>, </em><em>IBLParams</em>) – A set or subset or parameters to save</p></li>
 <li><p><strong>client_key</strong> (<em>str</em>) – An optional, specific client whose parameters to save.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If client_key is None, all parameter fields must hold dicts</p>
 </dd>
 </dl>

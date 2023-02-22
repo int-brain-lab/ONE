@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.remote.aws &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -111,7 +115,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.remote.html">one.remote</a></li>
@@ -168,10 +172,6 @@
 </div>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.get_aws_access_keys" title="one.remote.aws.get_aws_access_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_aws_access_keys</span></code></a></p></td>
 <td><p>Query Alyx database to get credentials in the json field of an aws repository.</p></td>
@@ -202,16 +202,16 @@
 <dd><p>Convert a given bucket URI to a generic Amazon virtual host URL.
 URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>uri</strong> (<em>str</em>) – The bucket name or full path URI.</p></li>
 <li><p><strong>region</strong> (<em>str</em>) – The region, e.g. eu-west-1.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The Web URL (virtual host name and https scheme).</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -222,13 +222,13 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <span class="sig-name descname"><span class="pre">is_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_summery</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/one/remote/aws.html#is_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.is_folder" title="Permalink to this definition"></a></dt>
 <dd><p>Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>obj_summery</strong> (<em>s3.ObjectSummery</em>) – An S3 ObjectSummery instance to test.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if object is a directory.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
@@ -239,13 +239,13 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <span class="sig-name descname"><span class="pre">get_aws_access_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aws_cortexlab'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_aws_access_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_aws_access_keys" title="Permalink to this definition"></a></dt>
 <dd><p>Query Alyx database to get credentials in the json field of an aws repository.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alyx</strong> (<em>one.webclient.AlyxInstance</em>) – An instance of alyx.</p></li>
 <li><p><strong>repo_name</strong> (<em>str</em>) – The data repository name in Alyx from which to fetch the S3 access keys.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>dict</em> – The API access keys and region name to use with boto3.</p></li>
 <li><p><em>str</em> – The name of the S3 bucket associated with the Alyx data repository.</p></li>
@@ -260,7 +260,7 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <span class="sig-name descname"><span class="pre">get_s3_public</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_public"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_public" title="Permalink to this definition"></a></dt>
 <dd><p>Retrieve the IBL public S3 service resource.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>s3.ServiceResource</em> – An S3 ServiceResource instance with the provided.</p></li>
 <li><p><em>str</em> – The name of the S3 bucket.</p></li>
@@ -275,13 +275,13 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <span class="sig-name descname"><span class="pre">get_s3_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'aws_cortexlab'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_from_alyx" title="Permalink to this definition"></a></dt>
 <dd><p>Create an S3 resource instance using credentials from an Alyx data repository.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alyx</strong> (<em>one.webclient.AlyxInstance</em>) – An instance of alyx.</p></li>
 <li><p><strong>repo_name</strong> (<em>str</em>) – The data repository name in Alyx from which to fetch the S3 access keys.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>s3.ServiceResource</em> – An S3 ServiceResource instance with the provided.</p></li>
 <li><p><em>str</em> – The name of the S3 bucket.</p></li>
@@ -296,7 +296,7 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <span class="sig-name descname"><span class="pre">s3_download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#s3_download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.s3_download_file" title="Permalink to this definition"></a></dt>
 <dd><p>Downloads a file from an S3 instance to a local folder.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePosixPath</em>) – Relative path (key) within the bucket, for example: ‘atlas/dorsal_cortex_50.nrrd’.</p></li>
 <li><p><strong>destination</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The full file path on local machine.</p></li>
@@ -305,10 +305,10 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <li><p><strong>overwrite</strong> (<em>bool</em>) – If True, will re-download files even if the file sizes match.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The local file path of the downloaded file.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
@@ -319,7 +319,7 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <span class="sig-name descname"><span class="pre">s3_download_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ibl-brain-wide-map-public'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#s3_download_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.s3_download_folder" title="Permalink to this definition"></a></dt>
 <dd><p>Downloads S3 folder content to a local folder.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> (<em>str</em>) – Relative path (key) within the bucket, for example: ‘spikesorting/benchmark’.</p></li>
 <li><p><strong>destination</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Local folder path.  Note: The contents of the source folder will be downloaded to
@@ -329,10 +329,10 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <li><p><strong>overwrite</strong> (<em>bool</em>) – If True, will re-download files even if the file sizes match.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The local file paths.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of pathlib.Path</p>
 </dd>
 </dl>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.alf.io &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -113,7 +117,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.alf.html">one.alf</a></li>
@@ -159,10 +163,6 @@ For a full overview of the scope of the format, see:</p>
 <p><a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">https://int-brain-lab.github.io/ONE/alf_intro.html</a></p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.check_dimensions" title="one.alf.io.check_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dimensions</span></code></a></p></td>
 <td><p>Test for consistency of dimensions as per ALF specs in a dictionary.</p></td>
@@ -216,10 +216,6 @@ For a full overview of the scope of the format, see:</p>
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlfBunch</span></code></a></p></td>
 <td><p>A dict-like object that supports dot indexing and conversion to DataFrame</p></td>
@@ -236,7 +232,7 @@ For a full overview of the scope of the format, see:</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_dimensions</span></span><a class="headerlink" href="#one.alf.io.AlfBunch.check_dimensions" title="Permalink to this definition"></a></dt>
 <dd><p>0 for consistent dimensions, 1 for inconsistent dimensions</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
@@ -247,16 +243,16 @@ For a full overview of the scope of the format, see:</p>
 <span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch.append" title="Permalink to this definition"></a></dt>
 <dd><p>Appends one bunch to another, key by key</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>b</strong> (<em>Bunch</em><em>, </em><em>dict</em>) – A Bunch of data to append</p></li>
 <li><p><strong>inplace</strong> (<em>bool</em>) – If true, the data are appended in place, otherwise a copy is returned</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An ALFBunch with the data appended, or None if inplace is True</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ALFBunch, None</p>
 </dd>
 </dl>
@@ -281,13 +277,13 @@ For a full overview of the scope of the format, see:</p>
 <dd><p>Converts an Bunch conforming to size conventions into a pandas DataFrame.
 For 2-D arrays, stops at 10 columns per attribute.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>adict</strong> (<em>dict</em><em>, </em><em>Bunch</em>) – A dict-like object of data to convert to DataFrame</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A pandas DataFrame of data</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -298,10 +294,10 @@ For 2-D arrays, stops at 10 columns per attribute.</p>
 <span class="sig-name descname"><span class="pre">read_ts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#read_ts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.read_ts" title="Permalink to this definition"></a></dt>
 <dd><p>Load time-series from ALF format</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An ALF path whose values to load</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>numpy.ndarray</em> – An array of timestamps belonging to the ALF path object</p></li>
 <li><p><em>numpy.ndarray</em> – An array of values in filename</p></li>
@@ -320,16 +316,16 @@ For 2-D arrays, stops at 10 columns per attribute.</p>
 <span class="sig-name descname"><span class="pre">ts2vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#ts2vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.ts2vec" title="Permalink to this definition"></a></dt>
 <dd><p>Interpolate a continuous timeseries of the shape (2, 2)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ts</strong> (<em>numpy.array</em>) – a 2x2 numpy array of the form (sample, ts)</p></li>
 <li><p><strong>n_samples</strong> (<em>int</em>) – Number of samples; i.e. the size of the resulting vector</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A vector of interpolated timestamps</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy.ndarray</p>
 </dd>
 </dl>
@@ -343,13 +339,13 @@ For 2-D arrays, stops at 10 columns per attribute.</p>
 a dimension is consistent with another if it’s empty, 1, or equal to the other arrays
 dims [a, 1],  [1, b] and [a, b] are all consistent, [c, 1] is not</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dico</strong> (<em>ALFBunch</em><em>, </em><em>dict</em>) – Dictionary containing data</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Status 0 for consistent dimensions, 1 for inconsistent dimensions</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
@@ -361,13 +357,13 @@ dims [a, 1],  [1, b] and [a, b] are all consistent, [c, 1] is not</p>
 <dd><p>Returns content of files. Designed for very generic file formats:
 so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</cite>, <cite>(h)tsv</cite>, <cite>ssv</cite>, <cite>jsonable</cite></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fil</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – File to read</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Array/json/pandas dataframe depending on format</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>any</p>
 </dd>
 </dl>
@@ -378,10 +374,10 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <span class="sig-name descname"><span class="pre">iter_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#iter_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.iter_sessions" title="Permalink to this definition"></a></dt>
 <dd><p>Recursively iterate over session paths in a given directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for sessions.</p>
 </dd>
-<dt class="field-even">Yields</dt>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>pathlib.Path</em> – The next session path in lexicographical order.</p>
 </dd>
 </dl>
@@ -392,10 +388,10 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <span class="sig-name descname"><span class="pre">iter_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#iter_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.iter_datasets" title="Permalink to this definition"></a></dt>
 <dd><p>Iterate over all files in a session, and yield relative dataset paths.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for datasets.</p>
 </dd>
-<dt class="field-even">Yields</dt>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>pathlib.Path</em> – The next dataset path (relative to the session path) in lexicographical order.</p>
 </dd>
 </dl>
@@ -406,7 +402,7 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alfpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.exists" title="Permalink to this definition"></a></dt>
 <dd><p>Test if ALF object and optionally specific attributes exist in the given path</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look into</p></li>
 <li><p><strong>object</strong> (<em>str</em>) – ALF object name</p></li>
@@ -415,10 +411,10 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <li><p><strong>kwargs</strong> (<em>dict</em>) – Other ALF parts to filter by</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>For multiple attributes, returns True only if all attributes are found</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
@@ -434,7 +430,7 @@ whose keys will be <cite>times</cite>, <cite>clusters</cite>, <cite>depths</cite
 <p>Full Reference here: <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">https://int-brain-lab.github.io/ONE/alf_intro.html</a></p>
 <p>Simplified example: _namespace_object.attribute_timescale.part1.part2.extension</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>list</em>) – Any ALF path pertaining to the object OR directory containing ALFs OR list of paths</p></li>
 <li><p><strong>object</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>None</em>) – The ALF object(s) to filter by.  If a directory is provided and object is None, all valid
@@ -446,10 +442,10 @@ and timescale</p></li>
 <li><p><strong>kwargs</strong> (<em>dict</em>) – Other ALF parts to filter by</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An ALFBunch (dict-like) of all attributes pertaining to the object</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch">AlfBunch</a></p>
 </dd>
 </dl>
@@ -471,7 +467,7 @@ and timescale</p></li>
 attribute names. Dimensions have to be consistent.</p>
 <p>Simplified ALF example: _namespace_object.attribute.part1.part2.extension</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Path of the folder to save data to</p></li>
 <li><p><strong>dico</strong> (<em>dict</em>) – Dictionary to save to npy; keys correspond to ALF attributes</p></li>
@@ -481,10 +477,10 @@ attribute names. Dimensions have to be consistent.</p>
 <li><p><strong>timescale</strong> (<em>str</em><em>, </em><em>None</em>) – The optional timescale of the object</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of written files</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
 </dd>
 </dl>
@@ -510,7 +506,7 @@ format in <cite>clusters.ccfLocation.metadata.json</cite></p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_alf</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Full path to the alf object</p></li>
 <li><p><strong>dico</strong> (<em>dict</em><em>, </em><em>ALFBunch</em>) – Dictionary containing meta-data</p></li>
@@ -550,7 +546,7 @@ format in <cite>clusters.ccfLocation.metadata.json</cite></p>
 filters constitute a logical AND.  For all but <cite>extra</cite>, if a list is provided, one or more
 elements must match (a logical OR).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alf_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to a folder containing ALF datasets</p></li>
 <li><p><strong>wildcards</strong> (<em>bool</em>) – If true, kwargs are matched as unix-style patterns, otherwise as regular expressions</p></li>
@@ -563,7 +559,7 @@ elements must match (a logical OR).</p>
 NB: Wild cards not permitted here.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>alf_files</strong> (<em>str</em>) – A Path to a directory containing ALF files</p></li>
 <li><p><strong>attributes</strong> (<em>list of dicts</em>) – A list of parsed file parts</p></li>

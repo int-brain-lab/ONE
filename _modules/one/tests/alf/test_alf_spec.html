@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.tests.alf.test_alf_spec</li>
       <li class="wy-breadcrumbs-aside">
@@ -224,12 +228,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">verifiable</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_dromedary"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_dromedary">[docs]</a>    <span class="k">def</span> <span class="nf">test_dromedary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec._dromedary&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec._dromedary function.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;Hello world&#39;</span><span class="p">),</span> <span class="s1">&#39;helloWorld&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;motion_energy&#39;</span><span class="p">),</span> <span class="s1">&#39;motionEnergy&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;FooBarBaz&#39;</span><span class="p">),</span> <span class="s1">&#39;fooBarBaz&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;passive_RFM&#39;</span><span class="p">),</span> <span class="s1">&#39;passiveRFM&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">_dromedary</span><span class="p">(</span><span class="s1">&#39;ROI Motion Energy&#39;</span><span class="p">),</span> <span class="s1">&#39;ROIMotionEnergy&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestALFSpec.test_readable_ALF"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_readable_ALF">[docs]</a>    <span class="k">def</span> <span class="nf">test_readable_ALF</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.readableALF function.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">readableALF</span><span class="p">(</span><span class="s1">&#39;DAQData&#39;</span><span class="p">),</span> <span class="s1">&#39;DAQ data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">readableALF</span><span class="p">(</span><span class="s1">&#39;ROIMotion&#39;</span><span class="p">),</span> <span class="s1">&#39;ROI motion&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">readableALF</span><span class="p">(</span><span class="s1">&#39;blueChipTime&#39;</span><span class="p">),</span> <span class="s1">&#39;blue chip time&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">readableALF</span><span class="p">(</span><span class="s1">&#39;someROIDataset&#39;</span><span class="p">),</span> <span class="s1">&#39;some ROI dataset&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">readableALF</span><span class="p">(</span><span class="s1">&#39;fooBAR&#39;</span><span class="p">),</span> <span class="s1">&#39;foo BAR&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_spec</span><span class="o">.</span><span class="n">readableALF</span><span class="p">(</span><span class="s1">&#39;fooBAR&#39;</span><span class="p">,</span> <span class="n">capitalize</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;Foo BAR&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestALFSpec.test_is_session_folder"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_session_folder">[docs]</a>    <span class="k">def</span> <span class="nf">test_is_session_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.spec.is_session_folder&quot;&quot;&quot;</span>

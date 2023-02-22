@@ -32,6 +32,7 @@ one.alf.spec
       is_uuid_string
       is_valid
       path_pattern
+      readableALF
       regex
       to_alf
    

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.test_alyxrest &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -117,7 +121,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.tests.html">one.tests</a></li>
@@ -157,35 +161,94 @@
 </style>
 <section id="module-one.tests.test_alyxrest">
 <span id="one-tests-test-alyxrest"></span><h1>one.tests.test_alyxrest<a class="headerlink" href="#module-one.tests.test_alyxrest" title="Permalink to this heading"></a></h1>
-<p>Unit tests for Alyx REST queries using the AlyxClient.rest method</p>
+<p>Unit tests for Alyx REST queries using the AlyxClient.rest method.</p>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxrest.Tests_REST" title="one.tests.test_alyxrest.Tests_REST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tests_REST</span></code></a></p></td>
-<td><p>Specific Alyx REST endpoint tests</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxrest.TestREST" title="one.tests.test_alyxrest.TestREST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestREST</span></code></a></p></td>
+<td><p>Tests for AlyxClient.rest method and remote Alyx REST interations.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tests_REST</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestREST</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Specific Alyx REST endpoint tests</p>
+<p>Tests for AlyxClient.rest method and remote Alyx REST interations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.EID">
+<span class="sig-name descname"><span class="pre">EID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cf264653-2deb-44cb-aa84-89b82507028a'</span></em><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.EID" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.EID_EPHYS">
+<span class="sig-name descname"><span class="pre">EID_EPHYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'</span></em><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.EID_EPHYS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.alyx">
+<span class="sig-name descname"><span class="pre">alyx</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.alyx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_water_restriction">
-<span class="sig-name descname"><span class="pre">test_water_restriction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_water_restriction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_water_restriction" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.setUpClass" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_paginated_request">
+<span class="sig-name descname"><span class="pre">test_paginated_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_paginated_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_paginated_request" title="Permalink to this definition"></a></dt>
+<dd><p>Check that paginated response object is returned upon making large queries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_generic_request">
+<span class="sig-name descname"><span class="pre">test_generic_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_generic_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_generic_request" title="Permalink to this definition"></a></dt>
+<dd><p>Test AlyxClient.get method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_rest_endpoint_write">
+<span class="sig-name descname"><span class="pre">test_rest_endpoint_write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_rest_endpoint_write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_rest_endpoint_write" title="Permalink to this definition"></a></dt>
+<dd><p>Test create and delete actions in AlyxClient.rest method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_rest_endpoint_read_only">
+<span class="sig-name descname"><span class="pre">test_rest_endpoint_read_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_rest_endpoint_read_only"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_rest_endpoint_read_only" title="Permalink to this definition"></a></dt>
+<dd><p>Test list and read actions in AlyxClient.rest method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_rest_all_actions">
+<span class="sig-name descname"><span class="pre">test_rest_all_actions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_rest_all_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_rest_all_actions" title="Permalink to this definition"></a></dt>
+<dd><p>Test for AlyxClient.rest method using subjects endpoint</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_endpoints_docs">
+<span class="sig-name descname"><span class="pre">test_endpoints_docs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_endpoints_docs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_endpoints_docs" title="Permalink to this definition"></a></dt>
+<dd><p>Test for AlyxClient.list_endpoints method and AlyxClient.rest</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_print_endpoint_info">
+<span class="sig-name descname"><span class="pre">test_print_endpoint_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_print_endpoint_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_print_endpoint_info" title="Permalink to this definition"></a></dt>
+<dd><p>Test endpoint query params are printed when calling AlyxClient.rest without action.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_water_restriction">
+<span class="sig-name descname"><span class="pre">test_water_restriction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_water_restriction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_water_restriction" title="Permalink to this definition"></a></dt>
 <dd><p>Test listing water-restriction endpoint.</p>
 <p>Examples of how to list all water restrictions and water-restriction for a given
 subject.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_list_pk_query">
-<span class="sig-name descname"><span class="pre">test_list_pk_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_list_pk_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_list_pk_query" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_list_pk_query">
+<span class="sig-name descname"><span class="pre">test_list_pk_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_list_pk_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_list_pk_query" title="Permalink to this definition"></a></dt>
 <dd><p>Test REST list with id keyword argument.</p>
 <p>It’s a bit stupid but the REST endpoint can’t forward a direct query of the uuid via
 the pk keyword. The AlyxClient has already an id parameter, which on the list method
@@ -193,15 +256,15 @@ is used as a pk identifier. This special case is tested here.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload">
-<span class="sig-name descname"><span class="pre">test_note_with_picture_upload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_note_with_picture_upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_note_with_picture_upload" title="Permalink to this definition"></a></dt>
-<dd><p>Test adding session note with attached picture</p>
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_note_with_picture_upload">
+<span class="sig-name descname"><span class="pre">test_note_with_picture_upload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_note_with_picture_upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_note_with_picture_upload" title="Permalink to this definition"></a></dt>
+<dd><p>Test adding session note with attached picture.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.Tests_REST.test_channels">
-<span class="sig-name descname"><span class="pre">test_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#Tests_REST.test_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.Tests_REST.test_channels" title="Permalink to this definition"></a></dt>
-<dd><p>Test creation of insertion, trajectory and channels</p>
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_channels">
+<span class="sig-name descname"><span class="pre">test_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_channels" title="Permalink to this definition"></a></dt>
+<dd><p>Test creation of insertion, trajectory and channels.</p>
 </dd></dl>
 
 </dd></dl>

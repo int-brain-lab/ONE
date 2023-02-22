@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.api</li>
       <li class="wy-breadcrumbs-aside">
@@ -130,11 +134,12 @@
 <span class="kn">from</span> <span class="nn">.alf.cache</span> <span class="kn">import</span> <span class="n">make_parquet_db</span>
 <span class="kn">from</span> <span class="nn">.alf.files</span> <span class="kn">import</span> <span class="n">rel_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">get_alf_path</span><span class="p">,</span> <span class="n">add_uuid_string</span>
 <span class="kn">from</span> <span class="nn">.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid_string</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">one.converters</span> <span class="kn">import</span> <span class="n">ConversionMixin</span>
 <span class="kn">import</span> <span class="nn">one.util</span> <span class="k">as</span> <span class="nn">util</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ONE&#39;</span><span class="p">,</span> <span class="s1">&#39;One&#39;</span><span class="p">,</span> <span class="s1">&#39;OneAlyx&#39;</span><span class="p">]</span>
 <span class="sd">&quot;&quot;&quot;int: The number of download threads&quot;&quot;&quot;</span>
 <span class="n">N_THREADS</span> <span class="o">=</span> <span class="mi">4</span>
 
@@ -145,7 +150,7 @@
         <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem</span>
 
 <span class="sd">        Parameters</span>
@@ -158,11 +163,17 @@
 <span class="sd">            Query mode, options include &#39;auto&#39; (reload cache daily), &#39;local&#39; (offline) and</span>
 <span class="sd">            &#39;refresh&#39; (always reload cache tables).  Most methods have a `query_type` parameter</span>
 <span class="sd">            that can override the class mode.</span>
+<span class="sd">        wildcards : bool</span>
+<span class="sd">            If true, use unix shell style matching instead of regular expressions.</span>
+<span class="sd">        tables_dir : str, pathlib.Path</span>
+<span class="sd">            An optional location of the cache tables.  If None, the tables are assumed to be in the</span>
+<span class="sd">            cache_dir.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># get parameters override if inputs provided</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;cache_dir&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># May already be set by subclass</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_cache_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="o">=</span> <span class="n">tables_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span> <span class="o">=</span> <span class="n">wildcards</span>  <span class="c1"># Flag indicating whether to use regex or wildcards</span>
@@ -195,19 +206,20 @@
             <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># map of original table metadata</span>
         <span class="p">}})</span>
 
-<div class="viewcode-block" id="One.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="One.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load parquet cache files from a local directory.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        cache_dir : str, pathlib.Path</span>
-<span class="sd">            An optional directory location of the parquet files, defaults to One.cache_dir.</span>
+<span class="sd">        tables_dir : str, pathlib.Path</span>
+<span class="sd">            An optional directory location of the parquet files, defaults to One._tables_dir.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset_cache</span><span class="p">()</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
         <span class="n">INDEX_KEY</span> <span class="o">=</span> <span class="s1">&#39;.?id&#39;</span>
-        <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.pqt&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tables_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.pqt&#39;</span><span class="p">):</span>
             <span class="n">table</span> <span class="o">=</span> <span class="n">cache_file</span><span class="o">.</span><span class="n">stem</span>
             <span class="c1"># we need to keep this part fast enough for transient objects</span>
             <span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
@@ -429,7 +441,7 @@
                 <span class="n">ids</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
 
         <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H-%M-%S%z&quot;</span><span class="p">)</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s1">_loaded_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">s.csv&#39;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s1">_loaded_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">s.csv&#39;</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">name</span><span class="p">])</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">clear_list</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_loaded_datasets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
@@ -1388,17 +1400,17 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        cache_dir : pathlib.Path, str</span>
-<span class="sd">            A path to the ALF data directory</span>
+<span class="sd">            A path to the ALF data directory.</span>
 <span class="sd">        silent : (False) bool</span>
-<span class="sd">            when True will prompt for cache_dir if cache_dir is None, and overwrite cache if any</span>
-<span class="sd">            when False will use cwd for cache_dir if cache_dir is None and use existing cache</span>
+<span class="sd">            When True will prompt for cache_dir, if cache_dir is None, and overwrite cache if any.</span>
+<span class="sd">            When False will use cwd for cache_dir, if cache_dir is None, and use existing cache.</span>
 <span class="sd">        **kwargs</span>
 <span class="sd">            Optional arguments to pass to one.alf.cache.make_parquet_db.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        One</span>
-<span class="sd">            An instance of One for the provided cache directory</span>
+<span class="sd">            An instance of One for the provided cache directory.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_dir</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
@@ -1432,12 +1444,15 @@
 <span class="sd">        Query mode, options include &#39;auto&#39;, &#39;local&#39; (offline) and &#39;remote&#39; (online only).  Most</span>
 <span class="sd">        methods have a `query_type` parameter that can override the class mode.</span>
 <span class="sd">    wildcards : bool</span>
-<span class="sd">        If true all mathods use unix shell style pattern matching, otherwise regular expressions</span>
+<span class="sd">        If true all methods use unix shell style pattern matching, otherwise regular expressions</span>
 <span class="sd">        are used.</span>
-<span class="sd">    cache_dir : str, Path</span>
+<span class="sd">    cache_dir : str, pathlib.Path</span>
 <span class="sd">        Path to the data files.  If Alyx parameters have been set up for this location,</span>
 <span class="sd">        an OneAlyx instance is returned.  If data_dir and base_url are None, the default</span>
 <span class="sd">        location is used.</span>
+<span class="sd">    tables_dir : str, pathlib.Path</span>
+<span class="sd">        An optional location of the cache tables.  If None, the tables are assumed to be in the</span>
+<span class="sd">        cache_dir.</span>
 <span class="sd">    base_url : str</span>
 <span class="sd">        An Alyx database URL.  The URL must start with &#39;http&#39;.</span>
 <span class="sd">    username : str</span>
@@ -1475,7 +1490,7 @@
 <div class="viewcode-block" id="OneAlyx"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx">[docs]</a><span class="k">class</span> <span class="nc">OneAlyx</span><span class="p">(</span><span class="n">One</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database</span>
 
 <span class="sd">        Parameters</span>
@@ -1486,10 +1501,13 @@
 <span class="sd">        wildcards : bool</span>
 <span class="sd">            If true, methods allow unix shell style pattern matching, otherwise regular</span>
 <span class="sd">            expressions are supported</span>
-<span class="sd">        cache_dir : str, Path</span>
+<span class="sd">        cache_dir : str, pathlib.Path</span>
 <span class="sd">            Path to the data files.  If Alyx parameters have been set up for this location,</span>
 <span class="sd">            an OneAlyx instance is returned.  If data_dir and base_url are None, the default</span>
 <span class="sd">            location is used.</span>
+<span class="sd">        tables_dir : str, pathlib.Path</span>
+<span class="sd">            An optional location of the cache tables.  If None, the tables are assumed to be in the</span>
+<span class="sd">            cache_dir.</span>
 <span class="sd">        base_url : str</span>
 <span class="sd">            An Alyx database URL.  The URL must start with &#39;http&#39;.</span>
 <span class="sd">        username : str</span>
@@ -1509,12 +1527,13 @@
                                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_search_endpoint</span> <span class="o">=</span> <span class="s1">&#39;sessions&#39;</span>
         <span class="c1"># get parameters override if inputs provided</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="n">wildcards</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="n">wildcards</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="n">tables_dir</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">)&#39;</span>
 
-<div class="viewcode-block" id="OneAlyx.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OneAlyx.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load parquet cache files.  If the local cache is sufficiently old, this method will query</span>
 <span class="sd">        the database for the location and creation date of the remote cache.  If newer, it will be</span>
@@ -1524,22 +1543,26 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        cache_dir : str, pathlib.Path</span>
-<span class="sd">            An optional directory location of the parquet files, defaults to One.cache_dir.</span>
+<span class="sd">        tables_dir : str, pathlib.Path</span>
+<span class="sd">            An optional directory location of the parquet files, defaults to One._tables_dir.</span>
 <span class="sd">        clobber : bool</span>
 <span class="sd">            If True, query Alyx for a newer cache even if current (local) cache is recent.</span>
 <span class="sd">        tag : str</span>
 <span class="sd">            An optional Alyx dataset tag for loading cache tables containing a subset of datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
+        <span class="n">raw_meta</span> <span class="o">=</span> <span class="n">cache_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[{}]</span>
         <span class="c1"># If user provides tag that doesn&#39;t match current cache&#39;s tag, always download.</span>
         <span class="c1"># NB: In the future &#39;database_tags&#39; may become a list.</span>
-        <span class="n">current_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cache_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[{}]]</span>
+        <span class="n">current_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">raw_meta</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_tags</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s1">&#39;Loading cache tables with multiple tags is not currently supported&#39;</span>
+            <span class="p">)</span>
         <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span> <span class="ow">or</span> <span class="n">current_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># For refreshes take the current tag as default</span>
         <span class="n">different_tag</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">tag</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">current_tags</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">clobber</span> <span class="ow">or</span> <span class="n">different_tag</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Load any present cache</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">clobber</span> <span class="ow">or</span> <span class="n">different_tag</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tables_dir</span><span class="p">)</span>  <span class="c1"># Load any present cache</span>
             <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="p">{})</span>  <span class="c1"># TODO Make walrus when we drop 3.7 support</span>
             <span class="n">expired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="ow">and</span> <span class="n">cache_meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">expired</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">}:</span>
@@ -1571,15 +1594,34 @@
             <span class="c1"># Check whether remote cache more recent</span>
             <span class="n">remote_created</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">cache_info</span><span class="p">[</span><span class="s1">&#39;date_created&#39;</span><span class="p">])</span>
             <span class="n">local_created</span> <span class="o">=</span> <span class="n">cache_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created_time&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">local_created</span> <span class="ow">and</span> <span class="p">(</span><span class="n">remote_created</span> <span class="o">-</span> <span class="n">local_created</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">fresh</span> <span class="o">=</span> <span class="n">local_created</span> <span class="ow">and</span> <span class="p">(</span><span class="n">remote_created</span> <span class="o">-</span> <span class="n">local_created</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fresh</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">different_tag</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No newer cache available&#39;</span><span class="p">)</span>
                 <span class="k">return</span>
 
+            <span class="c1"># Set the cache table directory location</span>
+            <span class="k">if</span> <span class="n">tables_dir</span><span class="p">:</span>  <span class="c1"># If tables directory specified, use that</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tables_dir</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">different_tag</span><span class="p">:</span>  <span class="c1"># Otherwise use a subdirectory for a given tag</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="n">tag</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Otherwise use the previous location (default is the data cache directory)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
+
+            <span class="c1"># Check if the origin has changed. This is to warn users if downloading from a</span>
+            <span class="c1"># different database to the one currently loaded.</span>
+            <span class="n">prev_origin</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">raw_meta</span><span class="p">))))</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prev_origin</span> <span class="ow">and</span> <span class="n">origin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prev_origin</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s1">&#39;Downloading cache tables from another origin &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;(&quot;</span><span class="si">{</span><span class="n">origin</span><span class="si">}</span><span class="s1">&quot; instead of &quot;</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_origin</span><span class="p">)</span><span class="si">}</span><span class="s1">&quot;)&#39;</span><span class="p">)</span>
+
             <span class="c1"># Download the remote cache files</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading remote caches...&#39;</span><span class="p">)</span>
-            <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">),</span> <span class="n">cache_dir</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="n">cache_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Reload cache after download</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">OneAlyx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span><span class="p">)</span>  <span class="c1"># Reload cache after download</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">SSLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">: Failed to load the remote cache file&#39;</span><span class="p">)</span>
@@ -1685,24 +1727,63 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        pid : str, uuid.UUID</span>
-<span class="sd">            A probe UUID</span>
+<span class="sd">            A probe UUID.</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            Query mode - options include &#39;remote&#39;, and &#39;refresh&#39;</span>
+<span class="sd">            Query mode - options include &#39;remote&#39;, and &#39;refresh&#39;.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
-<span class="sd">            Experiment ID (eid)</span>
+<span class="sd">            Experiment ID (eid).</span>
 <span class="sd">        str</span>
-<span class="sd">            Probe label</span>
+<span class="sd">            Probe label.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
-        <span class="k">if</span> <span class="n">query_type</span> <span class="o">!=</span> <span class="s1">&#39;remote&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_cache</span><span class="p">(</span><span class="n">query_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">and</span> <span class="s1">&#39;insertions&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Converting probe IDs required remote connection&#39;</span><span class="p">)</span>
         <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OneAlyx.eid2pid"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2pid">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+    <span class="k">def</span> <span class="nf">eid2pid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an experiment UUID (eID), returns the probe IDs and the probe labels</span>
+<span class="sd">        (i.e. the ALF collection).</span>
+
+<span class="sd">        NB: Requires a connection to the Alyx database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        eid : str, UUID, pathlib.Path, dict</span>
+<span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
+<span class="sd">            details dict or Path.</span>
+<span class="sd">        query_type : str</span>
+<span class="sd">            Query mode - options include &#39;remote&#39;, and &#39;refresh&#39;.</span>
+<span class="sd">        details : bool</span>
+<span class="sd">            Additionally return the complete Alyx records from insertions endpoint.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            Probe UUIDs (pID).</span>
+<span class="sd">        list of str</span>
+<span class="sd">            Probe labels, e.g. &#39;probe00&#39;.</span>
+<span class="sd">        list of dict (optional)</span>
+<span class="sd">            If details is true, returns the Alyx records from insertions endpoint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">and</span> <span class="s1">&#39;insertions&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Converting probe IDs required remote connection&#39;</span><span class="p">)</span>
+        <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>  <span class="c1"># Ensure we have a UUID str</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">recs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">eid</span><span class="p">)</span>
+        <span class="n">pids</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pids</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">recs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pids</span><span class="p">,</span> <span class="n">labels</span></div>
 
 <div class="viewcode-block" id="OneAlyx.search"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1777,22 +1858,29 @@
             <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;date_range&#39;</span><span class="p">:</span>
                 <span class="n">params</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">validate_date_range</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
             <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;data_dataset_session_related__dataset_type__name__icontains,&#39;</span> <span class="o">+</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;data_dataset_session_related__name__icontains,&#39;</span> <span class="o">+</span>
                          <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
                 <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">query</span>
             <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">:</span>
                 <span class="n">params</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">params</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;django&#39;</span><span class="p">)</span>
         <span class="c1"># Make GET request</span>
         <span class="n">ses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_endpoint</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
-        <span class="c1"># Add date field for compatibility with One.search output</span>
-        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ses</span><span class="p">:</span>
-            <span class="n">s</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
         <span class="c1"># LazyId only transforms records when indexed</span>
         <span class="n">eids</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">eids</span><span class="p">,</span> <span class="n">ses</span><span class="p">)</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">eids</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">eids</span>
+
+        <span class="k">def</span> <span class="nf">_add_date</span><span class="p">(</span><span class="n">records</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add date field for compatibility with One.search output&quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">records</span><span class="p">):</span>
+                <span class="n">s</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">records</span>
+
+        <span class="k">return</span> <span class="n">eids</span><span class="p">,</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">_add_date</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1830,7 +1918,13 @@
         <span class="c1"># Get all dataset URLs</span>
         <span class="n">dsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsets</span><span class="p">)</span>  <span class="c1"># Ensure not generator</span>
         <span class="n">uuids</span> <span class="o">=</span> <span class="p">[</span><span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">]</span>
-        <span class="n">remote_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;id__in,</span><span class="si">{</span><span class="n">uuids</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># If number of UUIDs is too high, fetch in loop to avoid 414 HTTP status code</span>
+        <span class="n">remote_records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># Number of UUIDs per query</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">uuids</span><span class="p">),</span> <span class="n">N</span><span class="p">):</span>
+            <span class="n">remote_records</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;id__in,</span><span class="si">{</span><span class="n">uuids</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">N</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="n">remote_records</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">remote_records</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">uuids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="n">out_files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">dset</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="n">uuids</span><span class="p">,</span> <span class="n">remote_records</span><span class="p">):</span>
@@ -2072,6 +2166,10 @@
 <span class="sd">        -------</span>
 <span class="sd">        OneAlyx</span>
 <span class="sd">            An instance of OneAlyx for the newly set up database URL</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        one.params.setup</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_default_client</span><span class="p">()</span>
         <span class="n">cache_map</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -2337,6 +2435,32 @@
         <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">),</span>
                     <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()})</span>
         <span class="k">return</span> <span class="n">out</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A setup method for the main ONE function.</span>
+
+<span class="sd">    Clears the ONE LRU cache before running setup, which ensures ONE is re-instantiated after</span>
+<span class="sd">    modifying parameter defaults.  NB: This docstring is overwritten by the one.params.setup</span>
+<span class="sd">    docstring upon module init.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        See one.params.setup.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    IBLParams</span>
+<span class="sd">        An updated cache map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ONE</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span> <span class="o">=</span> <span class="n">_setup</span>
+<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">ONE</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">__version__</span>
 </pre></div>
 
            </div>

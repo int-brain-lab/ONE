@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.tests.test_converters</li>
       <li class="wy-breadcrumbs-aside">
@@ -335,6 +339,7 @@
         <span class="c1"># Create ONE object with temp cache dir</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_2</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="s1">&#39;da8dfec1-d265-44e8-84ce-6ae9c109b8bd&#39;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">session_record</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">eid</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOnlineConverters.test_to_eid"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_to_eid">[docs]</a>    <span class="k">def</span> <span class="nf">test_to_eid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -394,14 +399,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">verifiable</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestOnlineConverters.test_path2eid"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_path2eid">[docs]</a>    <span class="k">def</span> <span class="nf">test_path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for OneAlyx.path2eid&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for OneAlyx.path2eid method.&quot;&quot;&quot;</span>
         <span class="n">test_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;hoferlab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;SWC_043&#39;</span><span class="p">,</span>
                                                       <span class="s1">&#39;2020-09-21&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">,)</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">path2eid</span><span class="p">(</span><span class="n">test_path</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
         <span class="c1"># Check works with list</span>
         <span class="n">verifiable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">path2eid</span><span class="p">([</span><span class="n">test_path</span><span class="p">,</span> <span class="n">test_path</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">],</span> <span class="n">verifiable</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">],</span> <span class="n">verifiable</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestOnlineConverters.test_pid2eid"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_pid2eid">[docs]</a>    <span class="k">def</span> <span class="nf">test_pid2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for OneAlyx.pid2eid method.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;probe00&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TestOnlineConverters.test_eid2pid"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_eid2pid">[docs]</a>    <span class="k">def</span> <span class="nf">test_eid2pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for OneAlyx.eid2pid method.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="c1"># Check invalid eid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="c1"># Check valid eid</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="s1">&#39;6638cfb3-3831-4fc2-9327-194b76cf22e1&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;probe00&#39;</span><span class="p">,</span> <span class="s1">&#39;probe01&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">))</span>
+        <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">det</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">det</span><span class="p">))</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;serial&#39;</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">det</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">expected_keys</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TestAlyx2Path"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestAlyx2Path">[docs]</a><span class="k">class</span> <span class="nc">TestAlyx2Path</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>

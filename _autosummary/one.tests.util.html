@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.util &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -117,7 +121,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.tests.html">one.tests</a></li>
@@ -160,10 +164,6 @@
 <p>Utilities functions for setting up test fixtures.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.caches_str2int" title="one.tests.util.caches_str2int"><code class="xref py py-obj docutils literal notranslate"><span class="pre">caches_str2int</span></code></a></p></td>
 <td><p>Convert str ids to int ids for cache tables.</p></td>
@@ -196,10 +196,10 @@
 <span class="sig-name descname"><span class="pre">set_up_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TemporaryDirectory</span></span></span><a class="reference internal" href="../_modules/one/tests/util.html#set_up_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.set_up_env" title="Permalink to this definition"></a></dt>
 <dd><p>Create a temporary directory and copy cache fixtures over.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The temporary directory containing the test ONE caches</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>tempfile.TemporaryDirectory</p>
 </dd>
 </dl>
@@ -210,7 +210,7 @@
 <span class="sig-name descname"><span class="pre">setup_rest_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_rest_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_rest_cache" title="Permalink to this definition"></a></dt>
 <dd><p>Copy REST cache fixtures to the .one parameter directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The location of the ONE cache directory (e.g. ~/Downloads/ONE/alyx.example.com)</p>
 </dd>
 </dl>
@@ -221,7 +221,7 @@
 <span class="sig-name descname"><span class="pre">create_file_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#create_file_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.create_file_tree" title="Permalink to this definition"></a></dt>
 <dd><p>Touch all the files in the datasets table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>one</strong> (<a class="reference internal" href="one.api.html#one.api.One" title="one.api.One"><em>one.api.One</em></a>) – An instance of One containing cache tables to use.</p>
 </dd>
 </dl>
@@ -232,7 +232,7 @@
 <span class="sig-name descname"><span class="pre">setup_test_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#setup_test_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.setup_test_params" title="Permalink to this definition"></a></dt>
 <dd><p>Copies cache parameter fixture to .one directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>token</strong> (<em>bool</em>) – If true, save a token file so that client doesn’t hit auth endpoint</p></li>
 <li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The cache_dir to save</p></li>
@@ -248,7 +248,7 @@
 <p>As there are no revised datasets on the test databases, this function acts as a fixture for
 testing the filtering of datasets by a revision.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>collections</strong> (<em>tuple</em>) – A list of collections</p></li>
 <li><p><strong>revisions</strong> (<em>tuple</em>) – A list of revisions</p></li>
@@ -256,10 +256,10 @@ testing the filtering of datasets by a revision.</p>
 <li><p><strong>attributes</strong> (<em>tuple</em>) – A list of ALF attributes</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A datasets cache table containing datasets made from the input names</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -271,7 +271,7 @@ testing the filtering of datasets by a revision.</p>
 <dd><p>Save REST cache file for docs/ endpoint.</p>
 <p>Ensures the database isn’t hit when the rest_schemas property is accessed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>param_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The location of the parameter directory.  If None, the default one is used.</p>
 </dd>
 </dl>
@@ -282,16 +282,16 @@ testing the filtering of datasets by a revision.</p>
 <span class="sig-name descname"><span class="pre">get_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/tests/util.html#get_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.get_file" title="Permalink to this definition"></a></dt>
 <dd><p>A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>root</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The root directory of the new parameters</p></li>
 <li><p><strong>str_id</strong> (<em>str</em>) – The parameter string identifier</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The parameter file path</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -302,7 +302,7 @@ testing the filtering of datasets by a revision.</p>
 <span class="sig-name descname"><span class="pre">caches_str2int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">caches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#caches_str2int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.caches_str2int" title="Permalink to this definition"></a></dt>
 <dd><p>Convert str ids to int ids for cache tables.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>caches</strong> (<em>Bunch</em>) – A bunch of cache tables (from One._cache)</p>
 </dd>
 </dl>

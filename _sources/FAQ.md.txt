@@ -46,22 +46,14 @@ A problem can arise if something on the Alyx database changes in between the sam
 Usually you can re-run your setup with the following command:
 ```python
 from one.api import ONE
-new_one = ONE().setup(base_url='https://alyx.example.com')
-```
-
-Sometimes if the settings are wrong, the call to `ONE()' raises an error before the setup method is
-called.  To avoid this, run the following command instead:
-
-```python
-from one.api import OneAlyx
-new_one = OneAlyx.setup(base_url='https://alyx.example.com')
+ONE.setup(base_url='https://alyx.example.com')
 ```
 
 ## How do I change my download (a.k.a. cache) directory?
 To **permanently** change the directory, simply re-run the setup routine:
 ```python
 from one.api import ONE
-new_one = ONE().setup()  # Re-run setup for default database
+ONE.setup()  # Re-run setup for default database (takes effect next time you instantiate ONE)
 ```
 When prompted ('Enter the location of the download cache') enter the absolute path of the new download location.
 
@@ -72,6 +64,20 @@ from one.api import ONE
 
 one = ONE(base_url='https://alyx.example.com', cache_dir=Path.home() / 'new_download_dir')
 ```
+**NB**: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the `tables_dir` kwarg.
+
+## How do I load cache tables from a different location?
+By default, the cache tables are in the cache_dir root.  You can load cache tables in a different location in the following two ways:
+```python
+from pathlib import Path
+from one.api import ONE
+
+# 1. Specify location upon instantiation
+one = ONE(tables_dir=Path.home() / 'tables_dir')
+# 2. Specify location after instantiation
+one.load_cache(Path.home() / 'tables_dir')
+```
+**NB**: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set `mode='local'`.
 
 ## How do check who I'm logged in as?
 ```python
@@ -112,18 +118,14 @@ site you are attempting to access with ONE (no need to log in)
 This is a unique issue with the way that the Windows OS handles certificates.
 
 ## How do I download the datasets cache for a specific IBL paper release?
-With OpenAlyx you have the ability to download cache tables containing datasets with a specific release tag. 
+With OpenAlyx you have the ability to download cache tables containing datasets with a specific release tag.
+
 ```python
 from one.api import ONE
+
 one = ONE(base_url='https://openalyx.internationalbrainlab.org', password='international', silent=True)
 TAG = '2021_Q1_IBL_et_al_Behaviour'  # Release tag to download cache for
-
-# Optionally provide a new location for downloading the cache tables so as not to overwrite the main tables
-cache_path = one.cache_dir.joinpath(TAG)
-cache_path.mkdir(exist_ok=True)
-
-# NB: The cache_dir arg only relates to the cache table location NOT the dataset download location
-one.load_cache(tag=TAG, cache_dir=cache_path)
+one.load_cache(tag=TAG)
 ```
 
 ## How do I check which version of ONE I'm using within Python?

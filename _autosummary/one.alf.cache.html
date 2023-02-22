@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.alf.cache &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -113,7 +117,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.alf.html">one.alf</a></li>
@@ -165,10 +169,6 @@ management command, otherwise the resulting cache UUIDs will not match those on 
 </div>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.cache.make_parquet_db" title="one.alf.cache.make_parquet_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_parquet_db</span></code></a></p></td>
 <td><p>Given a data directory, index the ALF datasets and save the generated cache tables.</p></td>
@@ -183,7 +183,7 @@ management command, otherwise the resulting cache UUIDs will not match those on 
 <span class="sig-name descname"><span class="pre">make_parquet_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/cache.html#make_parquet_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.cache.make_parquet_db" title="Permalink to this definition"></a></dt>
 <dd><p>Given a data directory, index the ALF datasets and save the generated cache tables.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The file directory to index.</p></li>
 <li><p><strong>out_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Optional output directory to save cache tables.  If None, the files are saved into the
@@ -196,7 +196,7 @@ This will substantially increase cache generation time.</p></li>
 contains ‘lab/Subjects’, the lab name will be taken from the folder name.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>pathlib.Path</em> – The full path of the saved sessions parquet table</p></li>
 <li><p><em>pathlib.Path</em> – The full path of the saved datasets parquet table</p></li>
@@ -213,7 +213,7 @@ contains ‘lab/Subjects’, the lab name will be taken from the folder name.</p
 <p>NB: This <em>does not</em> remove entries from the cache tables that are missing on disk.
 Non-ALF files are not removed. Empty sessions that exist in the sessions table are not removed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – </p></li>
 <li><p><strong>tables</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>pandas.DataFrame</em><em>]</em><em>, </em><em>optional</em>) – A dict with keys (‘sessions’, ‘datasets’), containing the cache tables as DataFrames.</p></li>
@@ -221,10 +221,10 @@ Non-ALF files are not removed. Empty sessions that exist in the sessions table a
 <li><p><strong>dry</strong> (<em>bool</em>) – If true, do not remove anything.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A sorted list of paths to be removed.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
 </dd>
 </dl>

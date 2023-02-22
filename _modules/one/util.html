@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.util</li>
       <li class="wy-breadcrumbs-aside">
@@ -405,7 +409,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    all_datasets : pandas.DataFrame</span>
-<span class="sd">        A datasets cache table</span>
+<span class="sd">        A datasets cache table.</span>
 <span class="sd">    filename : str, dict, None</span>
 <span class="sd">        A filename str or a dict of alf parts.  Regular expressions permitted.</span>
 <span class="sd">    collection : str, None</span>
@@ -418,14 +422,14 @@
 <span class="sd">        instead.  When false the revision string is matched like collection and filename,</span>
 <span class="sd">        with regular expressions permitted.</span>
 <span class="sd">    assert_unique : bool</span>
-<span class="sd">        When true an error is raised if multiple collections or datasets are found</span>
+<span class="sd">        When true an error is raised if multiple collections or datasets are found.</span>
 <span class="sd">    wildcards : bool</span>
-<span class="sd">        If true, use unix shell style matching instead of regular expressions</span>
+<span class="sd">        If true, use unix shell style matching instead of regular expressions.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
-<span class="sd">        A slice of all_datasets that match the filters</span>
+<span class="sd">        A slice of all_datasets that match the filters.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -445,6 +449,12 @@
 <span class="sd">    Filter by filename parts</span>
 
 <span class="sd">    &gt;&gt;&gt; datasets = filter_datasets(all_datasets, dict(object=&#39;spikes&#39;, attribute=&#39;times&#39;))</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.</span>
+<span class="sd">     e.g. filter_datasets(dsets, collection=[&#39;alf&#39;, &#39;&#39;]) will not match the latter. For this you</span>
+<span class="sd">     must use two separate queries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create a regular expression string to match relative path against</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -607,31 +617,32 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Using a paginated response object or list of session records, extracts eid string when required</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pg</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pg</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span> <span class="o">=</span> <span class="n">pg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses2eid</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses2eid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ses2eid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">())</span>
 
 <div class="viewcode-block" id="LazyId.ses2eid"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId.ses2eid">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">ses2eid</span><span class="p">(</span><span class="n">ses</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given one or more session dictionaries, extract and return the session UUID.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ses : one.webclient._PaginatedResponse, dict, list</span>
-<span class="sd">            A collection of Alyx REST sessions endpoint records</span>
+<span class="sd">            A collection of Alyx REST sessions endpoint records.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str, list</span>
-<span class="sd">            One or more experiment ID strings</span>
+<span class="sd">            One or more experiment ID strings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">LazyId</span><span class="o">.</span><span class="n">ses2eid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ses</span><span class="p">]</span>

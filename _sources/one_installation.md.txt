@@ -19,7 +19,8 @@ use a local file system
 By default ONE is configured to connect to the public IBL database, this can be setup by typing the following
 ```python
 from one.api import ONE
-one = ONE(silent=True)
+ONE.setup(silent=True)  # silent means use default parameters for the IBL public database
+one = ONE()
 ```
 
 If you are having an issue at this stage, or need to re-configure ONE, please see [this FAQ page](/FAQ.md#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it).
@@ -59,7 +60,7 @@ one = ONE()
 
 To change your default database, or re-run the setup for a given database, you can use the following
 ```python
-one = ONE().setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
+ONE.setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 ```
 
 ## 4. Update

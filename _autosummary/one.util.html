@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.util &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -122,7 +126,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
       <li class="breadcrumb-item active">one.util</li>
@@ -164,10 +168,6 @@
 <p>Decorators and small standalone functions for api module</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.Listable" title="one.util.Listable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Listable</span></code></a></p></td>
 <td><p>Return a typing.Union if the input and sequence of input</p></td>
@@ -212,10 +212,6 @@
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.LazyId" title="one.util.LazyId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LazyId</span></code></a></p></td>
 <td><p>Using a paginated response object or list of session records, extracts eid string when required</p></td>
@@ -233,13 +229,13 @@
 <span class="sig-name descname"><span class="pre">ses2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.ses2records" title="Permalink to this definition"></a></dt>
 <dd><p>Extract session cache record and datasets cache from a remote session data record.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ses</strong> (<em>dict</em>) – Session dictionary from Alyx REST endpoint</p></li>
 <li><p><strong>int_id</strong> (<em>bool</em>) – If True, the UUIDs are converted to two int64s</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>pd.Series</em> – Session record</p></li>
 <li><p><em>pd.DataFrame</em> – Datasets frame</p></li>
@@ -254,10 +250,10 @@
 <span class="sig-name descname"><span class="pre">datasets2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/util.html#datasets2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.datasets2records" title="Permalink to this definition"></a></dt>
 <dd><p>Extract datasets DataFrame from one or more Alyx dataset records</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>datasets</strong> (<em>dict</em><em>, </em><em>list</em>) – One or more records from the Alyx ‘datasets’ endpoint</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>pd.DataFrame</em> – Datasets frame</p></li>
 <li><p><strong>int_id</strong> (<em>bool</em>) – If True, the UUIDs are converted to two int64s</p></li>
@@ -277,16 +273,16 @@
 <span class="sig-name descname"><span class="pre">parse_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#parse_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.parse_id" title="Permalink to this definition"></a></dt>
 <dd><p>Ensures the input experiment identifier is an experiment UUID string</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>method</strong> (<em>function</em>) – An ONE method whose second arg is an experiment ID</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A wrapper function that parses the ID to the expected string</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>function</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – Unable to convert input to a valid experiment ID</p>
 </dd>
 </dl>
@@ -303,13 +299,13 @@
 <span class="sig-name descname"><span class="pre">validate_date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_range)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'pandas._libs.tslibs.timestamps.Timestamp'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'pandas._libs.tslibs.timestamps.Timestamp'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#validate_date_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.validate_date_range" title="Permalink to this definition"></a></dt>
 <dd><p>Validates and arrange date range in a 2 elements list</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>date_range</strong> (<em>str</em><em>, </em><em>datetime.date</em><em>, </em><em>datetime.datetime</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>np.datetime64</em><em>, </em><em>list</em><em>, </em><em>None</em>) – A single date or tuple/list of two dates.  None represents no bound.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The start and end timestamps</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple of pd.Timestamp</p>
 </dd>
 </dl>
@@ -325,7 +321,7 @@
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – Size of date range tuple must be 1 or 2</p>
 </dd>
 </dl>
@@ -338,9 +334,9 @@
 When None is passed, all values will match.  To match on empty parts, use an empty string.
 When revision_last_before is true, None means return latest revision.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>all_datasets</strong> (<em>pandas.DataFrame</em>) – A datasets cache table</p></li>
+<li><p><strong>all_datasets</strong> (<em>pandas.DataFrame</em>) – A datasets cache table.</p></li>
 <li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>None</em>) – A filename str or a dict of alf parts.  Regular expressions permitted.</p></li>
 <li><p><strong>collection</strong> (<em>str</em><em>, </em><em>None</em>) – A collection string.  Regular expressions permitted.</p></li>
 <li><p><strong>revision</strong> (<em>str</em><em>, </em><em>None</em>) – A revision string to match.  If revision_last_before is true, regular expressions are
@@ -348,14 +344,14 @@ not permitted.</p></li>
 <li><p><strong>revision_last_before</strong> (<em>bool</em>) – When true and no exact match exists, the (lexicographically) previous revision is used
 instead.  When false the revision string is matched like collection and filename,
 with regular expressions permitted.</p></li>
-<li><p><strong>assert_unique</strong> (<em>bool</em>) – When true an error is raised if multiple collections or datasets are found</p></li>
-<li><p><strong>wildcards</strong> (<em>bool</em>) – If true, use unix shell style matching instead of regular expressions</p></li>
+<li><p><strong>assert_unique</strong> (<em>bool</em>) – When true an error is raised if multiple collections or datasets are found.</p></li>
+<li><p><strong>wildcards</strong> (<em>bool</em>) – If true, use unix shell style matching instead of regular expressions.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A slice of all_datasets that match the filters</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A slice of all_datasets that match the filters.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -377,6 +373,14 @@ with regular expressions permitted.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>It is not possible to match datasets that are in a given collection OR NOT in ANY collection.</p></li>
+</ul>
+<blockquote>
+<div><p>e.g. filter_datasets(dsets, collection=[‘alf’, ‘’]) will not match the latter. For this you
+must use two separate queries.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
@@ -385,7 +389,7 @@ with regular expressions permitted.</p></li>
 <dd><p>Filter datasets by revision, returning previous revision in ordered list if revision
 doesn’t exactly match.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>datasets</strong> (<em>pandas.DataFrame</em>) – A datasets cache table</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – A revision string to match (regular expressions not permitted)</p></li>
@@ -393,10 +397,10 @@ doesn’t exactly match.</p>
 default revisions are found; an alferr.ALFError when no default revision is found</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A datasets DataFrame with 0 or 1 row per unique dataset</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -408,16 +412,16 @@ default revisions are found; an alferr.ALFError when no default revision is foun
 <dd><p>Returns the index of string that occurs directly before the provided revision string when
 lexicographic sorted.  If revision is None, the index of the most recent revision is returned.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>revisions</strong> (<em>list</em><em> of </em><em>strings</em>) – A list of revision strings</p></li>
 <li><p><strong>revision</strong> (<em>None</em><em>, </em><em>str</em>) – The revision string to match on</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Index of revision before matching string in sorted list or None</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int, None</p>
 </dd>
 </dl>
@@ -441,20 +445,21 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.util.LazyId">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LazyId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#LazyId"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.LazyId" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LazyId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#LazyId"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.LazyId" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></p>
 <p>Using a paginated response object or list of session records, extracts eid string when required</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.util.LazyId.ses2eid">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ses2eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#LazyId.ses2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.LazyId.ses2eid" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ses</strong> (<em>one.webclient._PaginatedResponse</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – A collection of Alyx REST sessions endpoint records</p>
+<dd><p>Given one or more session dictionaries, extract and return the session UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ses</strong> (<em>one.webclient._PaginatedResponse</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – A collection of Alyx REST sessions endpoint records.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>One or more experiment ID strings</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One or more experiment ID strings.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str, list</p>
 </dd>
 </dl>
@@ -467,7 +472,7 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <span class="sig-name descname"><span class="pre">cache_int2str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/util.html#cache_int2str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.cache_int2str" title="Permalink to this definition"></a></dt>
 <dd><p>Convert int ids to str ids for cache table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>table</strong> (<em>pd.DataFrame</em>) – A cache table (from One._cache)</p>
 </dd>
 </dl>
@@ -480,7 +485,7 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <p>Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the ‘project’
 column to ‘projects’.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>table</strong> (<em>pd.DataFrame</em>) – A cache table (from One._cache).</p></li>
 <li><p><strong>min_api_version</strong> (<em>str</em>) – The minimum API version supported by this cache table.</p></li>

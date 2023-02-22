@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.webclient</li>
       <li class="wy-breadcrumbs-aside">
@@ -317,7 +321,7 @@
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="k">while</span> <span class="kc">None</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
@@ -629,6 +633,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
 
+    <span class="nd">@cache_dir</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">):</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;CACHE_DIR&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if user logged into Alyx database; True if user is authenticated&quot;&quot;&quot;</span>
@@ -636,14 +646,47 @@
 
 <div class="viewcode-block" id="AlyxClient.list_endpoints"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.list_endpoints">[docs]</a>    <span class="k">def</span> <span class="nf">list_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a list of available REST endpoints</span>
+<span class="sd">        Return a list of available REST endpoints.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">            List of REST endpoint strings</span>
+<span class="sd">            List of REST endpoint strings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">EXCLUDE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_type&#39;</span><span class="p">,</span> <span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EXCLUDE</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlyxClient.print_endpoint_info"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.print_endpoint_info">[docs]</a>    <span class="k">def</span> <span class="nf">print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the available actions and query parameters for a given REST endpoint.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            An Alyx REST endpoint to query.</span>
+<span class="sd">        action : str</span>
+<span class="sd">            An optional action (e.g. &#39;list&#39;) to print. If None, all actions are printed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict, list</span>
+<span class="sd">            A dictionary of endpoint query parameter details or a list of parameter details if</span>
+<span class="sd">            action is not None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Endpoint &quot;</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&quot; does not exist&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_action</span> <span class="ow">in</span> <span class="p">(</span><span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span> <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">action</span><span class="p">]):</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="n">_action</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">_action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
+                <span class="n">required</span> <span class="o">=</span> <span class="s1">&#39; (required): &#39;</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;: &#39;</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">required</span><span class="si">}{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;_type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                           <span class="sa">f</span><span class="s1">&#39;, </span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="s1">&#39;(required)&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="s1">&#39;(required)&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span> <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">action</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
     <span class="nd">@_cache_response</span>
     <span class="k">def</span> <span class="nf">_generic_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -689,7 +732,7 @@
 <div class="viewcode-block" id="AlyxClient.authenticate"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets a security token from the Alyx REST API to create requests headers.</span>
-<span class="sd">        Credentials are loaded via one.params</span>
+<span class="sd">        Credentials are loaded via one.params.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -698,9 +741,9 @@
 <span class="sd">        password : str</span>
 <span class="sd">            Alyx password.  If None, token not cached and not silent, user is prompted.</span>
 <span class="sd">        cache_token : bool</span>
-<span class="sd">            If true, the token is cached for subsequent auto-logins</span>
+<span class="sd">            If true, the token is cached for subsequent auto-logins.</span>
 <span class="sd">        force : bool</span>
-<span class="sd">            If true, any cached token is ignored</span>
+<span class="sd">            If true, any cached token is ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get username</span>
         <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -756,11 +799,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">username</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2"> as </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Connected to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1"> as user &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AlyxClient.logout"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.logout">[docs]</a>    <span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log out from Alyx</span>
-<span class="sd">        Deletes the cached authentication token for the currently logged-in user</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log out from Alyx.</span>
+<span class="sd">        Deletes the cached authentication token for the currently logged-in user.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1076,6 +1119,7 @@
         <span class="c1"># if action is None, list available actions for the required endpoint</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="p">:</span>
             <span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="c1"># make sure the the desired action exists, if not throw an informative error</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">:</span>
@@ -1207,17 +1251,17 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; client = AlyxClient()</span>
-<span class="sd">        &gt;&gt;&gt; client.json_field_update(&quot;sessions&quot;, &quot;eid_str&quot;, &quot;extended_qc&quot;, {&quot;key&quot;: &quot;value&quot;})</span>
+<span class="sd">        &gt;&gt;&gt; client.json_field_update(&#39;sessions&#39;, &#39;eid_str&#39;, &#39;extended_qc&#39;, {&#39;key&#39;: &#39;value&#39;})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="c1"># Load current json field contents</span>
-        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">current</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Current json field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> does not contains a dict, aborting update&quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;Current json field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> does not contains a dict, aborting update&#39;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">current</span>
 
@@ -1226,7 +1270,7 @@
         <span class="c1"># Prepare data to patch</span>
         <span class="n">patch_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="n">current</span><span class="p">}</span>
         <span class="c1"># Upload new extended_qc to session</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">patch_dict</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">patch_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="AlyxClient.json_field_remove_key"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_remove_key">[docs]</a>    <span class="k">def</span> <span class="nf">json_field_remove_key</span><span class="p">(</span>
@@ -1257,18 +1301,18 @@
 <span class="sd">            New content of json field</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
-        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
         <span class="c1"># If no contents, cannot remove key, return</span>
         <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">current</span>
         <span class="c1"># if contents are not dict, cannot remove key, return contents</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot remove key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> content of json field is of type str&quot;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot remove key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> content of json field is of type str&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="c1"># If key not present in contents of json field cannot remove key, return contents</span>
         <span class="k">if</span> <span class="n">current</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: Key not found in endpoint </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2"> field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: Key not found in endpoint </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1"> field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">current</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing key from dict: &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
@@ -1283,7 +1327,7 @@
             <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">_</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="AlyxClient.clear_rest_cache"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_rest_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.registration &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -111,7 +115,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
       <li class="breadcrumb-item active">one.registration</li>
@@ -162,10 +166,6 @@ register_files - Register a list of files to their respective sessions on Alyx</
 </section>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.registration.get_dataset_type" title="one.registration.get_dataset_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dataset_type</span></code></a></p></td>
 <td><p>Get the dataset type from a given filename.</p></td>
@@ -174,10 +174,6 @@ register_files - Register a list of files to their respective sessions on Alyx</
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.registration.RegistrationClient" title="one.registration.RegistrationClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegistrationClient</span></code></a></p></td>
 <td><p>Object that keeps the ONE instance and provides method to create sessions and register data.</p></td>
@@ -196,16 +192,16 @@ register_files - Register a list of files to their respective sessions on Alyx</
 </ol>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The filename or filepath.</p></li>
 <li><p><strong>dtypes</strong> (<em>iterable</em>) – An iterable of dataset type objects with the attributes (‘name’, ‘filename_pattern’).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>The matching dataset type object for filename.</p>
 </dd>
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – filename doesn’t match any of the dataset types
     filename matches multiple dataset types</p>
 </dd>
@@ -222,7 +218,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <span class="sig-name descname"><span class="pre">create_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_data_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glob_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'**/create_me.flag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_sessions" title="Permalink to this definition"></a></dt>
 <dd><p>Create sessions looking recursively for flag files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>root_data_folder</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Folder to look for sessions.</p></li>
 <li><p><strong>glob_pattern</strong> (<em>str</em>) – Register valid sessions that contain this pattern.</p></li>
@@ -230,7 +226,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <li><p><strong>dry</strong> (<em>bool</em>) – If true returns list of sessions without creating them on Alyx.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>list of pathlib.Paths</em> – Newly created session paths.</p></li>
 <li><p><em>list of dicts</em> – Alyx session records.</p></li>
@@ -245,7 +241,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <span class="sig-name descname"><span class="pre">create_new_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_new_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_new_session" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new local session folder and optionally create session record on Alyx.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subject</strong> (<em>str</em>) – The subject name.  Must exist on Alyx.</p></li>
 <li><p><strong>session_root</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The root folder in which to create the subject/date/number folder.  Defaults to ONE
@@ -255,7 +251,7 @@ cache directory.</p></li>
 <li><p><strong>**kwargs</strong> – Optional arguments for RegistrationClient.register_session.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>pathlib.Path</em> – New local session path.</p></li>
 <li><p><em>uuid.UUID</em> – The experiment UUID if register is True.</p></li>
@@ -283,10 +279,10 @@ cache directory.</p></li>
 <span class="sig-name descname"><span class="pre">find_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.find_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.find_files" title="Permalink to this definition"></a></dt>
 <dd><p>Returns an generator of file names that match one of the dataset type patterns in Alyx</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The session path to search</p>
 </dd>
-<dt class="field-even">Yields</dt>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>pathlib.Path</em> – File paths that match the dataset type patterns in Alyx</p>
 </dd>
 </dl>
@@ -297,7 +293,7 @@ cache directory.</p></li>
 <span class="sig-name descname"><span class="pre">assert_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">member</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.assert_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.assert_exists" title="Permalink to this definition"></a></dt>
 <dd><p>Raise an error if a given member doesn’t exist on Alyx database.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>member</strong> (<em>str</em><em>, </em><em>uuid.UUID</em><em>, </em><em>list</em>) – The member ID(s) to verify</p></li>
 <li><p><strong>endpoint</strong> (<em>str</em>) – The endpoint at which to look it up</p></li>
@@ -311,17 +307,17 @@ cache directory.</p></li>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><strong>one.alf.exceptions.AlyxSubjectNotFound</strong></a> – Subject does not exist on Alyx</p></li>
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><strong>one.alf.exceptions.ALFError</strong></a> – Member does not exist on Alyx</p></li>
 <li><p><strong>requests.exceptions.HTTPError</strong> – Failed to connect to Alyx database or endpoint not found</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The endpoint data if member exists.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict, list of dict</p>
 </dd>
 </dl>
@@ -332,13 +328,13 @@ cache directory.</p></li>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensure_ISO8601</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.ensure_ISO8601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.ensure_ISO8601" title="Permalink to this definition"></a></dt>
 <dd><p>Ensure provided date is ISO 8601 compliant</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>date</strong> (<em>str</em><em>, </em><em>None</em><em>, </em><em>datetime.date</em><em>, </em><em>datetime.datetime</em>) – An optional date to convert to ISO string.  If None, the current datetime is used.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The datetime as an ISO 8601 string</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -351,7 +347,7 @@ cache directory.</p></li>
 <p>NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
 and date of the session path.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ses_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The local session path</p></li>
 <li><p><strong>users</strong> (<em>str</em><em>, </em><em>list</em>) – The user(s) to attribute to the session</p></li>
@@ -373,14 +369,14 @@ path.</p></li>
 <li><p><strong>end_time</strong> (<em>str</em><em>, </em><em>datetime.datetime</em>) – The precise end time of the session.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>dict</em> – An Alyx session record</p></li>
 <li><p><em>list, None</em> – Alyx file records (or None if file_list is False)</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>AssertionError</strong> – Subject does not exist on Alyx or provided start_time does not match date in
     session path.</p></li>
@@ -399,7 +395,7 @@ path.</p></li>
 <span class="sig-name descname"><span class="pre">register_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_md5_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_files" title="Permalink to this definition"></a></dt>
 <dd><p>Registers a set of files belonging to a session only on the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_list</strong> (<em>list</em><em>, </em><em>str</em><em>, </em><em>pathlib.Path</em>) – A filepath (or list thereof) of ALF datasets to register to Alyx.</p></li>
 <li><p><strong>versions</strong> (<em>str</em><em>, </em><em>list</em><em> of </em><em>str</em>) – Optional version tags.</p></li>
@@ -415,10 +411,10 @@ before copying to the repository.</p></li>
 <li><p><strong>**kwargs</strong> – Extra arguments directly passed as REST request data to /register-files endpoint.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of newly created Alyx dataset records or the registration data if dry.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of dicts, dict</p>
 </dd>
 </dl>
@@ -437,7 +433,7 @@ before copying to the repository.</p></li>
 <div><p>a 403 HTTP status may be returned.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>requests.exceptions.HTTPError</strong> – Submitted data not valid (400 status code)
     Server side database error (500 status code)
     Revision protected (403 status code)</p>
@@ -450,7 +446,7 @@ before copying to the repository.</p></li>
 <span class="sig-name descname"><span class="pre">register_water_administration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_water_administration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_water_administration" title="Permalink to this definition"></a></dt>
 <dd><p>Register a water administration to Alyx for a given subject</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subject</strong> (<em>str</em>) – A subject nickname that exists on Alyx</p></li>
 <li><p><strong>volume</strong> (<em>float</em>) – The total volume administrated in ml</p></li>
@@ -461,13 +457,13 @@ before copying to the repository.</p></li>
 <li><p><strong>adlib</strong> (<em>bool</em>) – If true, indicates that the subject was given water ad libitum</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A water administration record</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><strong>one.alf.exceptions.AlyxSubjectNotFound</strong></a> – Subject does not exist on Alyx</p></li>
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><strong>one.alf.exceptions.ALFError</strong></a> – User does not exist on Alyx</p></li>
@@ -483,7 +479,7 @@ before copying to the repository.</p></li>
 <span class="sig-name descname"><span class="pre">register_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_weight" title="Permalink to this definition"></a></dt>
 <dd><p>Register a subject weight to Alyx.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subject</strong> (<em>str</em>) – A subject nickname that exists on Alyx.</p></li>
 <li><p><strong>weight</strong> (<em>float</em>) – The subject weight in grams.</p></li>
@@ -491,13 +487,13 @@ before copying to the repository.</p></li>
 <li><p><strong>user</strong> (<em>str</em>) – The user who performed the weighing.  Currently logged-in user is the default.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An Alyx weight record</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><strong>one.alf.exceptions.AlyxSubjectNotFound</strong></a> – Subject does not exist on Alyx</p></li>
 <li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><strong>one.alf.exceptions.ALFError</strong></a> – User does not exist on Alyx</p></li>

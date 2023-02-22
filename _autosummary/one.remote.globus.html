@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.remote.globus &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -111,7 +115,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
           <li class="breadcrumb-item"><a href="one.remote.html">one.remote</a></li>
@@ -154,10 +158,6 @@
 <p>A module for handling file operations through the Globus SDK</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.as_globus_path" title="one.remote.globus.as_globus_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_globus_path</span></code></a></p></td>
 <td><p>Convert a path into one suitable for the Globus TransferClient.</p></td>
@@ -181,10 +181,6 @@
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.Globus" title="one.remote.globus.Globus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Globus</span></code></a></p></td>
 <td><p>Wrapper for managing files on Globus endpoints.</p></td>
@@ -203,7 +199,7 @@ In order to use this function you need:</p>
 <li><p>Register your local device as an Endpoint in your Globus Client (<a class="reference external" href="https://app.globus.org/">https://app.globus.org/</a>).</p></li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>par_id</strong> (<em>str</em>) – Parameter profile name to set up e.g. ‘default’, ‘admin’.</p>
 </dd>
 </dl>
@@ -214,13 +210,13 @@ In order to use this function you need:</p>
 <span class="sig-name descname"><span class="pre">create_globus_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#create_globus_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.create_globus_client" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a Globus transfer client based on existing parameter file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>client_name</strong> (<em>str</em>) – Defines the parameter name to use (globus.client_name), e.g. ‘default’, ‘admin’.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Globus transfer client instance</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>globus_sdk.TransferClient</p>
 </dd>
 </dl>
@@ -231,10 +227,10 @@ In order to use this function you need:</p>
 <span class="sig-name descname"><span class="pre">get_local_endpoint_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_id" title="Permalink to this definition"></a></dt>
 <dd><p>Extracts the ID of the local Globus Connect endpoint.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The local Globus endpoint ID</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str</p>
 </dd>
 </dl>
@@ -246,10 +242,10 @@ In order to use this function you need:</p>
 <dd><p>Extracts the local endpoint paths accessible by Globus Connect.  NB: This is only supported
 on Linux.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Local endpoint paths set in Globus Connect.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of pathlib.Path</p>
 </dd>
 </dl>
@@ -261,16 +257,16 @@ on Linux.</p>
 <dd><p>Extracts lab name given an endpoint id root path given a repository name that is registered in
 the database accessed by ONE.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – Endpoint UUID, optional if not given will get attempt to find local endpoint UUID.</p></li>
 <li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>one.webclient.AlyxClient</em></a>) – An instance of AlyxClient to use</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Lab name associated with the endpoint UUID</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -281,13 +277,13 @@ the database accessed by ONE.</p>
 <span class="sig-name descname"><span class="pre">as_globus_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#as_globus_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.as_globus_path" title="Permalink to this definition"></a></dt>
 <dd><p>Convert a path into one suitable for the Globus TransferClient.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em><em>, </em><em>str</em>) – A path to convert to a Globus-complient path string</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A formatted path string</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -343,7 +339,7 @@ the OS home dir.</p></li>
 <span class="sig-name descname"><span class="pre">add_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.add_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.add_endpoint" title="Permalink to this definition"></a></dt>
 <dd><p>Add an endpoint to the Globus instance to be used by other functions.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The endpoint UUID or database repository name of the endpoint.</p></li>
 <li><p><strong>label</strong> (<em>str</em>) – Label to access the endpoint. If endpoint is UUID this has to be set, otherwise is
@@ -363,7 +359,7 @@ optional.</p></li>
 NB: If you’re using ls routinely when transferring or deleting files you’re probably doing
 something wrong!</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus endpoint. May be a UUID or a key in the Globus.endpoints attribute.</p></li>
 <li><p><strong>path</strong> (<em>Path</em><em>, </em><em>PurePath</em><em>, </em><em>str</em>) – The absolute or relative Globus path to list.  Note: if endpoint is a UUID, the path
@@ -372,11 +368,11 @@ must be absolute.</p></li>
 <li><p><strong>return_size</strong> (<em>bool</em>) – If True, return the size of each listed file in bytes.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of PurePosixPath objects of the files and folders listed, or if return_size is
 True, tuples of PurePosixPath objects and the corresponding file sizes.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
 </dd>
 </dl>
@@ -387,7 +383,7 @@ True, tuples of PurePosixPath objects and the corresponding file sizes.</p>
 <span class="sig-name descname"><span class="pre">mv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.mv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.mv" title="Permalink to this definition"></a></dt>
 <dd><p>Move files from one endpoint to another.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source_endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus source endpoint. May be a UUID or a key in the Globus.endpoints attribute.</p></li>
 <li><p><strong>target_endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – The Globus destination endpoint. May be a UUID or a key in the Globus.endpoints
@@ -400,10 +396,10 @@ is a UUID, the path must be absolute.</p></li>
 <li><p><strong>kwargs</strong> – Optional arguments for globus_sdk.TransferData.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A Globus task ID.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
@@ -415,20 +411,20 @@ is a UUID, the path must be absolute.</p></li>
 <dd><p>Block until a Globus task finishes and retry upon Network or REST Errors.
 globus_func needs to submit a task to the client and return a task_id.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>globus_func</strong> (<em>function</em>) – A function that returns a Globus task ID, typically it will submit a transfer.</p></li>
 <li><p><strong>retries</strong> (<em>int</em>) – The number of times to call globus_func if it raises a Globus error.</p></li>
 <li><p><strong>timeout</strong> (<em>int</em>) – Maximum time in seconds to wait for the task to complete.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Globus task ID.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>IOError</strong> – Timed out waiting for task to complete.</p>
 </dd>
 </dl>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.webclient &mdash; ONE  documentation</title>
@@ -34,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -115,7 +119,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="one.html">one</a></li>
       <li class="breadcrumb-item active">one.webclient</li>
@@ -185,10 +189,6 @@ files through Alyx.</p>
 </div>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.dataset_record_to_url" title="one.webclient.dataset_record_to_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset_record_to_url</span></code></a></p></td>
 <td><p>Extracts a list of files urls from a list of dataset queries.</p></td>
@@ -212,10 +212,6 @@ files through Alyx.</p>
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlyxClient</span></code></a></p></td>
 <td><p>Class that implements simple GET/POST wrappers for the Alyx REST API.</p></td>
@@ -228,13 +224,13 @@ files through Alyx.</p>
 <dd><p>Temporarily turn off the REST cache for a given Alyx instance.</p>
 <p>This function is particularly useful when calling ONE methods in remote mode.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ac</strong> (<a class="reference internal" href="#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>AlyxClient</em></a>) – An instance of the AlyxClient to modify.  If None, the a new object is instantiated</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The instance of Alyx with cache disabled</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#one.webclient.AlyxClient" title="one.webclient.AlyxClient">AlyxClient</a></p>
 </dd>
 </dl>
@@ -251,16 +247,16 @@ files through Alyx.</p>
 <span class="sig-name descname"><span class="pre">update_url_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#update_url_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.update_url_params" title="Permalink to this definition"></a></dt>
 <dd><p>Add/update the query parameters of a URL and make url safe</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>) – A URL string with which to update the query parameters</p></li>
 <li><p><strong>params</strong> (<em>dict</em>) – A dict of new parameters.  For multiple values for the same query, use a list (see example)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A new URL with said parameters updated</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -282,16 +278,16 @@ files through Alyx.</p>
 Generates up to 4 separate threads to handle downloads.
 Same options behaviour as http_download_file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>links_to_file_list</strong> (<em>list</em>) – List of http links to files</p></li>
 <li><p><strong>kwargs</strong> – Optional arguments to pass to http_download_file</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of the local full path of the downloaded files.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of pathlib.Path</p>
 </dd>
 </dl>
@@ -302,7 +298,7 @@ Same options behaviour as http_download_file.</p>
 <span class="sig-name descname"><span class="pre">http_download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_link_to_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_md5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#http_download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.http_download_file" title="Permalink to this definition"></a></dt>
 <dd><p>Download a file from a remote HTTP server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>full_link_to_file</strong> (<em>str</em>) – HTTP link to the file</p></li>
 <li><p><strong>chunks</strong> (<em>tuple</em><em> of </em><em>ints</em>) – Chunks to download</p></li>
@@ -315,10 +311,10 @@ Same options behaviour as http_download_file.</p>
 <li><p><strong>headers</strong> (<em>list</em><em> of </em><em>dicts</em>) – Additional headers to add to the request (auth tokens etc.)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The full file path of the downloaded file</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
@@ -329,13 +325,13 @@ Same options behaviour as http_download_file.</p>
 <span class="sig-name descname"><span class="pre">file_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_records</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#file_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.file_record_to_url" title="Permalink to this definition"></a></dt>
 <dd><p>Translate a Json dictionary to an usable http url for downloading files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file_records</strong> (<em>dict</em>) – JSON containing a ‘data_url’ field</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of full data urls</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of str</p>
 </dd>
 </dl>
@@ -346,13 +342,13 @@ Same options behaviour as http_download_file.</p>
 <span class="sig-name descname"><span class="pre">dataset_record_to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_record</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#dataset_record_to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.dataset_record_to_url" title="Permalink to this definition"></a></dt>
 <dd><p>Extracts a list of files urls from a list of dataset queries.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dataset_record</strong> (<em>list</em><em>, </em><em>dict</em>) – Dataset JSON from a REST request</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of file urls corresponding to the datasets records</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of str</p>
 </dd>
 </dl>
@@ -369,7 +365,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.webclient.AlyxClient.user" title="Permalink to this definition"></a></dt>
 <dd><p>The Alyx database URL</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -385,7 +381,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rest_schemes</span></span><a class="headerlink" href="#one.webclient.AlyxClient.rest_schemes" title="Permalink to this definition"></a></dt>
 <dd><p>The REST endpoints and their parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -396,7 +392,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cache_dir</span></span><a class="headerlink" href="#one.webclient.AlyxClient.cache_dir" title="Permalink to this definition"></a></dt>
 <dd><p>The location of the downloaded file cache</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
 </dd>
 </dl>
@@ -407,7 +403,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_logged_in</span></span><a class="headerlink" href="#one.webclient.AlyxClient.is_logged_in" title="Permalink to this definition"></a></dt>
 <dd><p>Check if user logged into Alyx database; True if user is authenticated</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
@@ -416,10 +412,31 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.list_endpoints">
 <span class="sig-name descname"><span class="pre">list_endpoints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.list_endpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.list_endpoints" title="Permalink to this definition"></a></dt>
-<dd><p>Return a list of available REST endpoints</p>
+<dd><p>Return a list of available REST endpoints.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List of REST endpoint strings</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of REST endpoint strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.print_endpoint_info">
+<span class="sig-name descname"><span class="pre">print_endpoint_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.print_endpoint_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.print_endpoint_info" title="Permalink to this definition"></a></dt>
+<dd><p>Print the available actions and query parameters for a given REST endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>str</em>) – An Alyx REST endpoint to query.</p></li>
+<li><p><strong>action</strong> (<em>str</em>) – An optional action (e.g. ‘list’) to print. If None, all actions are printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary of endpoint query parameter details or a list of parameter details if
+action is not None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict, list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -428,14 +445,14 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.authenticate">
 <span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.authenticate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.authenticate" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a security token from the Alyx REST API to create requests headers.
-Credentials are loaded via one.params</p>
+Credentials are loaded via one.params.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>username</strong> (<em>str</em>) – Alyx username.  If None, token not cached and not silent, user is prompted.</p></li>
 <li><p><strong>password</strong> (<em>str</em>) – Alyx password.  If None, token not cached and not silent, user is prompted.</p></li>
-<li><p><strong>cache_token</strong> (<em>bool</em>) – If true, the token is cached for subsequent auto-logins</p></li>
-<li><p><strong>force</strong> (<em>bool</em>) – If true, any cached token is ignored</p></li>
+<li><p><strong>cache_token</strong> (<em>bool</em>) – If true, the token is cached for subsequent auto-logins.</p></li>
+<li><p><strong>force</strong> (<em>bool</em>) – If true, any cached token is ignored.</p></li>
 </ul>
 </dd>
 </dl>
@@ -444,8 +461,8 @@ Credentials are loaded via one.params</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.logout">
 <span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.logout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.logout" title="Permalink to this definition"></a></dt>
-<dd><p>Log out from Alyx
-Deletes the cached authentication token for the currently logged-in user</p>
+<dd><p>Log out from Alyx.
+Deletes the cached authentication token for the currently logged-in user.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -454,10 +471,10 @@ Deletes the cached authentication token for the currently logged-in user</p>
 <dd><p>Sends a DELETE request to the Alyx server. Will raise an exception on any status_code
 other than 200, 201.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – A REST query string either as a relative URL path complete URL</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>JSON interpreted dictionary from response</p>
 </dd>
 </dl>
@@ -475,13 +492,13 @@ other than 200, 201.</p>
 <dd><p>Downloads a single file or list of files on the Alyx server from a
 file record REST field URL</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em><em>, </em><em>list</em>) – Full url(s) of the file(s)</p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – WebClient.http_download_file parameters</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Local path(s) of downloaded file(s)</p>
 </dd>
 </dl>
@@ -492,14 +509,14 @@ file record REST field URL</p>
 <span class="sig-name descname"><span class="pre">download_cache_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_cache_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_cache_tables" title="Permalink to this definition"></a></dt>
 <dd><p>Downloads the Alyx cache tables to the local data cache directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The remote HTTP directory of the cache table (excluding the filename).
 Default: AlyxClient.base_url.</p></li>
 <li><p><strong>destination</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The target directory into to which the tables will be downloaded.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of parquet table file paths.</p>
 </dd>
 </dl>
@@ -511,10 +528,10 @@ Default: AlyxClient.base_url.</p></li>
 <dd><p>Given a relative file path, return the remote HTTP server URL.
 It is expected that the remote HTTP server has the same file tree as the local system.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative ALF path (subject/date/number/etc.)</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>A URL string</p>
 </dd>
 </dl>
@@ -528,13 +545,13 @@ other than 200, 201.
 For the dictionary contents and list of endpoints, refer to:
 <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rest_query</strong> (<em>str</em>) – A REST URL path, e.g. ‘/sessions?user=Hamish’</p></li>
 <li><p><strong>kwargs</strong> (<em>any</em>) – Optional arguments to pass to _generic_request and _cache_response decorator</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>JSON interpreted dictionary from response</p>
 </dd>
 </dl>
@@ -547,14 +564,14 @@ For the dictionary contents and list of endpoints, refer to:
 For the dictionary contents, refer to:
 <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
 <li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Response object</p>
 </dd>
 </dl>
@@ -567,14 +584,14 @@ For the dictionary contents, refer to:
 For the dictionary contents, refer to:
 <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
 <li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Response object</p>
 </dd>
 </dl>
@@ -587,17 +604,17 @@ For the dictionary contents, refer to:
 For the dictionary contents, refer to:
 <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
 <li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Response object</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>requests.Response</p>
 </dd>
 </dl>
@@ -622,7 +639,7 @@ alyx_client.rest(endpoint, action): lists fields and URL</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>) – Endpoint name</p></li>
 <li><p><strong>action</strong> (<em>str</em>) – One of ‘list’, ‘create’, ‘read’, ‘update’, ‘partial_update’, ‘delete’</p></li>
@@ -634,10 +651,10 @@ alyx_client.rest(endpoint, action): lists fields and URL</p>
 cf. <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/">https://openalyx.internationalbrainlab.org/docs/</a></p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of queried dicts (‘list’) or dict (other actions)</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list, dict</p>
 </dd>
 </dl>
@@ -649,7 +666,7 @@ cf. <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dd><p>Write data to JSON field.  WILL NOT CHECK IF DATA EXISTS
 NOTE: Destructive write!</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>None</em>) – Valid alyx endpoint, defaults to None</p></li>
 <li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em><em>, </em><em>None</em>) – UUID or lookup name for endpoint</p></li>
@@ -657,10 +674,10 @@ NOTE: Destructive write!</p>
 <li><p><strong>data</strong> (<em>dict</em><em>, </em><em>None</em>) – Data to write to json field, defaults to None</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Written data dict</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -674,7 +691,7 @@ Will update the field_name of the object with pk = uuid of given endpoint
 If data has keys with the same name of existing keys it will squash the old
 values (uses the dict.update() method).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>str</em>) – Alyx REST endpoint to hit</p></li>
 <li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – UUID or lookup name of object</p></li>
@@ -682,16 +699,16 @@ values (uses the dict.update() method).</p>
 <li><p><strong>data</strong> (<em>dict</em>) – A dictionary with fields to be updated</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>New patched json field contents as dict</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="s2">&quot;sessions&quot;</span><span class="p">,</span> <span class="s2">&quot;eid_str&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_qc&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;eid_str&#39;</span><span class="p">,</span> <span class="s1">&#39;extended_qc&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -702,7 +719,7 @@ values (uses the dict.update() method).</p>
 <dd><p>Remove inputted key from JSON field dict and re-upload it to Alyx.
 Needs endpoint, uuid and json field name</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint to hit, defaults to None</p></li>
 <li><p><strong>uuid</strong> (<em>str</em>) – UUID or lookup name for endpoint</p></li>
@@ -710,10 +727,10 @@ Needs endpoint, uuid and json field name</p>
 <li><p><strong>key</strong> (<em>str</em>) – Key name of dictionary inside object, defaults to None</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>New content of json field</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>

@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> ONE
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ONE
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">one.params</li>
       <li class="wy-breadcrumbs-aside">
@@ -114,6 +118,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
 <span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
@@ -123,17 +128,17 @@
 
 <span class="n">_PAR_ID_STR</span> <span class="o">=</span> <span class="s1">&#39;one&#39;</span>
 <span class="n">_CLIENT_ID_STR</span> <span class="o">=</span> <span class="s1">&#39;caches&#39;</span>
-<span class="n">CACHE_DIR_DEFAULT</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;Downloads&quot;</span> <span class="o">/</span> <span class="s2">&quot;ONE&quot;</span><span class="p">)</span>
+<span class="n">CACHE_DIR_DEFAULT</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;Downloads&#39;</span> <span class="o">/</span> <span class="s1">&#39;ONE&#39;</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;str: The default data download location&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="default"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.default">[docs]</a><span class="k">def</span> <span class="nf">default</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Default Web client parameters&quot;&quot;&quot;</span>
-    <span class="n">par</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ALYX_URL&quot;</span><span class="p">:</span> <span class="s2">&quot;https://openalyx.internationalbrainlab.org&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;ALYX_LOGIN&quot;</span><span class="p">:</span> <span class="s2">&quot;intbrainlab&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;HTTP_DATA_SERVER&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ibl.flatironinstitute.org/public&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;HTTP_DATA_SERVER_LOGIN&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-           <span class="s2">&quot;HTTP_DATA_SERVER_PWD&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ALYX_URL&#39;</span><span class="p">:</span> <span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">:</span> <span class="s1">&#39;intbrainlab&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;HTTP_DATA_SERVER&#39;</span><span class="p">:</span> <span class="s1">&#39;https://ibl.flatironinstitute.org/public&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;HTTP_DATA_SERVER_LOGIN&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="s1">&#39;HTTP_DATA_SERVER_PWD&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span></div>
 
 
@@ -185,7 +190,7 @@
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-\s]+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>  <span class="c1"># Convert spaces to hyphens</span>
 
 
-<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for</span>
 <span class="sd">    that instance will be set.  If silent, the user will be prompted to input each parameter</span>
@@ -201,7 +206,9 @@
 <span class="sd">        If True, client is set as the default and will be returned when calling `get` with no</span>
 <span class="sd">        arguments.</span>
 <span class="sd">    username : str, optional</span>
-<span class="sd">        If present,</span>
+<span class="sd">        The Alyx username to store in the params.</span>
+<span class="sd">    cache_dir : str, pathlib.Path</span>
+<span class="sd">        The default cache directory to store in the params.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -220,7 +227,6 @@
 
     <span class="c1"># Load the db URL map</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()})</span>
-    <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_key</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
         <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">par_default</span><span class="p">)</span>
@@ -254,9 +260,9 @@
 
         <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
 
-        <span class="c1"># Prompt for cache directory</span>
+        <span class="c1"># Prompt for cache directory (default may have changed after prompt)</span>
         <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
         <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the location of the download cache, current value is [&quot;</span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">&quot;]:&#39;</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cache_dir</span>
 
@@ -281,6 +287,11 @@
             <span class="k">return</span> <span class="n">par_current</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">par</span> <span class="o">=</span> <span class="n">par_current</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">client_key</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Warning: the directory provided is already a cache for another URL.&#39;</span><span class="p">)</span>
+        <span class="c1"># Precedence: user provided cache_dir; previously defined; the default location</span>
+        <span class="n">default_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_key</span><span class="p">,</span> <span class="n">default_cache_dir</span><span class="p">)</span>
 
     <span class="c1"># Update and save parameters</span>
     <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -423,12 +434,12 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    par : IBLParams</span>
-<span class="sd">        The old parameters object</span>
+<span class="sd">        The old parameters object.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    IBLParams</span>
-<span class="sd">        New parameters object containing the previous parameters</span>
+<span class="sd">        New parameters object containing the previous parameters.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Patch the URL of data server, if database is OpenAlyx.</span>
