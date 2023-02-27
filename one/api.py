@@ -1536,7 +1536,7 @@ class OneAlyx(One):
         return self._web_client.cache_dir
 
     @util.refresh
-    def search_terms(self, query_type=None):
+    def search_terms(self, query_type=None, endpoint=None):
         """
         Returns a list of search terms to be passed as kwargs to the search method
 
@@ -1544,6 +1544,8 @@ class OneAlyx(One):
         ----------
         query_type : str
             If 'remote', the search terms are largely determined by the REST endpoint used
+        endpoint: str
+            If 'remote', specify the endpoint to search terms for
 
         Returns
         -------
@@ -1551,11 +1553,19 @@ class OneAlyx(One):
             Tuple of search strings
         """
         if (query_type or self.mode) != 'remote':
-            return self._search_terms
+            if endpoint is None or endpoint == self._search_endpoint:
+                return self._search_terms
+            else:
+                return
+
+        endpoint = endpoint or self._search_endpoint
         # Return search terms from REST schema
-        fields = self.alyx.rest_schemes[self._search_endpoint]['list']['fields']
+        fields = self.alyx.rest_schemes[endpoint]['list']['fields']
         excl = ('lab',)  # 'laboratory' already in search terms
-        return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
+        if endpoint != 'sessions':
+            return tuple(x['name'] for x in fields)
+        else:
+            return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
 
     def describe_dataset(self, dataset_type=None):
         """Print a dataset type description.
@@ -1677,6 +1687,83 @@ class OneAlyx(One):
             return pids, labels, recs
         else:
             return pids, labels
+
+    def search_insertions(self, details=False, query_type=None, **kwargs):
+        """
+        Searches insertions matching the given criteria and returns a list of matching pids
+
+        For a list of search terms, use the method
+
+            one.search_terms(query_type='remote', endpoint='insertions')
+
+        All of the search parameters, apart from dataset and dataset type require a single value.
+        For dataset and dataset type, a single value or a list can be provided. Insertions
+        returned will contain all listed datasets.
+
+        Parameters
+        ----------
+        session : str
+            A session eid, returns insertions associated with the session
+        name: str
+            An insertion label, returns insertions with specified name
+        lab : str
+            A lab name, returns insertions associated with the lab
+        subject : str
+            A subject nickname, returns insertions associated with the subject
+        task_protocol : str
+            A task protocol name (can be partial, i.e. any task protocol containing that str
+            will be found)
+        project(s) : str
+            The project name (can be partial, i.e. any task protocol containing that str
+            will be found)
+        datasets : str, list
+            List of dataset names. Returns insertions containing all these datasets.
+            A dataset matches if it contains the search string e.g. 'spikes.times' matches
+            'spikes.times.npy'
+        dataset_types : str, list
+            One or more of dataset_types
+        details : bool
+            If true also returns a dict of dataset details
+        query_type : str, None
+            Query cache ('local') or Alyx database ('remote')
+        limit : int
+            The number of results to fetch in one go (if pagination enabled on server)
+
+        Returns
+        -------
+        list
+            List of pids
+        (list of dicts)
+            If details is True, also returns a list of dictionaries, each entry corresponding to a
+            matching insertion
+        """
+
+        query_type = query_type or self.mode
+        if query_type == 'local' and 'insertions' not in self._cache.keys():
+            raise NotImplementedError('Searching on insertions required remote connection')
+
+        search_terms = self.search_terms(query_type=query_type, endpoint='insertions')
+        params = {'django': kwargs.pop('django', '')}
+        for key, value in sorted(kwargs.items()):
+            field = util.autocomplete(key, search_terms)  # Validate and get full name
+            # check that the input matches one of the defined filters
+            if field == 'dataset':
+                params[key] = util.ensure_list(value)
+            elif field == 'laboratory':
+                params['lab'] = value
+            elif field == 'number':
+                params['experiment_number'] = value
+            else:
+                params[field] = value
+        if not params['django']:
+            params.pop('django')
+
+        ses = self.alyx.rest('insertions', 'list', **params)
+        pids = util.LazyId(ses)
+        if not details:
+            return pids
+
+        return pids, ses
 
     def search(self, details=False, query_type=None, **kwargs):
         """

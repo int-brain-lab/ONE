@@ -1159,6 +1159,7 @@ class TestOneRemote(unittest.TestCase):
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
+        self.pid = 'da8dfec1-d265-44e8-84ce-6ae9c109b8bd'
         # Set cache directory to a temp dir to ensure that we re-download files
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
@@ -1254,6 +1255,48 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(0, len(eids))
         eids = self.one.search(dataset_type='trials.table', date='2020-09-21', query_type='remote')
         self.assertIn(self.eid, list(eids))
+
+    def test_search_insertions(self):
+        """Test OneAlyx.search_insertion method in remote mode."""
+
+        # Test search on subject
+        pids = self.one.search_insertions(subject='SWC_043', query_type='remote')
+        self.assertIn(self.pid, list(pids))
+
+        # Test search on session with details
+        pids, det = self.one.search_insertions(session=self.eid, query_type='remote', details=True)
+        self.assertIn(self.pid, list(pids))
+        correct = len(det) == len(pids) and 'id' in det[0] and det[0]['id'] == self.pid
+        self.assertTrue(correct)
+
+        # Test search on session and insertion name
+        pids = self.one.search_insertions(session=self.eid, name='probe00', query_type='remote')
+        self.assertEqual(pids[0], self.pid)
+
+        # Test search with acronym
+        pids = self.one.search_insertions(atlas_acronym='STR', query_type='remote')
+        self.assertIn(self.pid, list(pids))
+
+        # Test list of acronyms returns nothing
+        pids = self.one.search_insertions(atlas_acronym=['STR', 'CA3'], query_type='remote')
+        self.assertEqual(0, len(pids))
+
+    def test_search_terms(self):
+        """Test OneAlyx.search_terms"""
+        search1 = self.one.search_terms()
+        self.assertIn('dataset', search1)
+
+        search2 = self.one.search_terms(endpoint='sessions')
+        self.assertEqual(search1, search2)
+
+        search3 = self.one.search_terms(query_type='remote', endpoint='sessions')
+        self.assertIn('django', search3)
+
+        search4 = self.one.search_terms(endpoint='insertions')
+        self.assertIsNone(search4)
+
+        search5 = self.one.search_terms(query_type='remote', endpoint='insertions')
+        self.assertIn('model', search5)
 
     def test_load_dataset(self):
         """Test OneAlyx.load_dataset"""
