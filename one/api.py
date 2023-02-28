@@ -1564,8 +1564,7 @@ class OneAlyx(One):
         excl = ('lab',)  # 'laboratory' already in search terms
         if endpoint != 'sessions':
             return tuple(x['name'] for x in fields)
-        else:
-            return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
+        return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
 
     def describe_dataset(self, dataset_type=None):
         """Print a dataset type description.
