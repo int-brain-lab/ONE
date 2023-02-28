@@ -55,7 +55,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../one_installation.html">ONE installation and setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../one_quickstart.html">ONE Quick Start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Searching with ONE</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Searching with ONE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Searching-insertions">Searching insertions</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../one_list/one_list.html">Listing with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../experiment_ids.html">Experiment IDs</a></li>
@@ -573,6 +576,49 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
 
 </pre></div></div>
 </div>
+<section id="Searching-insertions">
+<h2>Searching insertions<a class="headerlink" href="#Searching-insertions" title="Permalink to this heading"></a></h2>
+<p>A session may contain multiple insertions recording different brain areas. To find data associated with a specific brain area, it is useful to search by insertion instead of by session.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">OneAlyx.search_insertions</span></code> method takes similar arguments to the remote search method, and returns a list of probe UUIDs (pIDs), which can be interconverted with session IDs (eIDs) for <a class="reference external" href="../one_load/one_load.html#Load-spike-times-from-a-probe-UUID">loading data</a>.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>The search_insertions method is only available in <a class="reference external" href="../one_modes">remote mode</a>.</p>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">,</span> <span class="s1">&#39;insertions&#39;</span><span class="p">)</span>
+<span class="n">pids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">atlas_acronym</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;STR&#39;</span><span class="p">,</span> <span class="s1">&#39;CA3&#39;</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">performance_gte</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
 </section>
 
 

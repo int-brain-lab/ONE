@@ -309,27 +309,27 @@ number and date_range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – list of dataset names. Returns sessions containing all these datasets.
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – One or more dataset names. Returns sessions containing all these datasets.
 A dataset matches if it contains the search string e.g. ‘wheel.position’ matches
-‘_ibl_wheel.position.npy’</p></li>
+‘_ibl_wheel.position.npy’.</p></li>
 <li><p><strong>date_range</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>pandas.timestamp</em>) – A single date to search or a list of 2 dates that define the range (inclusive).  To
 define only the upper or lower date bound, set the other element to None.</p></li>
-<li><p><strong>lab</strong> (<em>str</em>) – A str or list of lab names, returns sessions from any of these labs</p></li>
-<li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date</p></li>
-<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects</p></li>
+<li><p><strong>lab</strong> (<em>str</em>) – A str or list of lab names, returns sessions from any of these labs.</p></li>
+<li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date.</p></li>
+<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects.</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
-will be found)</p></li>
+will be found).</p></li>
 <li><p><strong>projects</strong> (<em>str</em><em>, </em><em>list</em>) – The project name(s) (can be partial, i.e. any project containing that str
-will be found)</p></li>
-<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details</p></li>
-<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+will be found).</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>list</em> – A list of eids</p></li>
+<li><p><em>list</em> – A list of eids.</p></li>
 <li><p><em>(list)</em> – (If details is True) a list of dictionaries, each entry corresponding to a matching
-session</p></li>
+session.</p></li>
 </ul>
 </p>
 </dd>
@@ -788,14 +788,17 @@ download and loaded.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.search_terms">
-<span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search_terms" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a list of search terms to be passed as kwargs to the search method</p>
+<span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search_terms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of search terms to be passed as kwargs to the search method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>query_type</strong> (<em>str</em>) – If ‘remote’, the search terms are largely determined by the REST endpoint used</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_type</strong> (<em>str</em>) – If ‘remote’, the search terms are largely determined by the REST endpoint used.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – If ‘remote’, specify the endpoint to search terms for.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple of search strings</p>
+<dd class="field-even"><p>Tuple of search strings.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple</p>
@@ -810,10 +813,10 @@ download and loaded.</p>
 <p>NB: This requires an Alyx database connection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset_type</strong> (<em>str</em>) – A dataset type or dataset name</p>
+<dd class="field-odd"><p><strong>dataset_type</strong> (<em>str</em>) – A dataset type or dataset name.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The Alyx dataset type record</p>
+<dd class="field-even"><p>The Alyx dataset type record.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -924,9 +927,52 @@ details dict or Path.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.search_insertions">
+<span class="sig-name descname"><span class="pre">search_insertions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search_insertions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search_insertions" title="Permalink to this definition"></a></dt>
+<dd><p>Searches insertions matching the given criteria and returns a list of matching probe IDs.</p>
+<p>For a list of search terms, use the method</p>
+<blockquote>
+<div><p>one.search_terms(query_type=’remote’, endpoint=’insertions’)</p>
+</div></blockquote>
+<p>All of the search parameters, apart from dataset and dataset type require a single value.
+For dataset and dataset type, a single value or a list can be provided. Insertions
+returned will contain all listed datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<em>str</em>) – A session eid, returns insertions associated with the session.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – An insertion label, returns insertions with specified name.</p></li>
+<li><p><strong>lab</strong> (<em>str</em>) – A lab name, returns insertions associated with the lab.</p></li>
+<li><p><strong>subject</strong> (<em>str</em>) – A subject nickname, returns insertions associated with the subject.</p></li>
+<li><p><strong>task_protocol</strong> (<em>str</em>) – A task protocol name (can be partial, i.e. any task protocol containing that str
+will be found).</p></li>
+<li><p><strong>project</strong><strong>(</strong><strong>s</strong><strong>)</strong> (<em>str</em>) – The project name (can be partial, i.e. any task protocol containing that str
+will be found).</p></li>
+<li><p><strong>dataset</strong> (<em>str</em>) – A (partial) dataset name. Returns sessions containing matching datasets.
+A dataset matches if it contains the search string e.g. ‘wheel.position’ matches
+‘_ibl_wheel.position.npy’. C.f. <cite>datasets</cite> argument.</p></li>
+<li><p><strong>datasets</strong> (<em>str</em><em>, </em><em>list</em>) – One or more exact dataset names. Returns insertions containing all these datasets.</p></li>
+<li><p><strong>dataset_types</strong> (<em>str</em><em>, </em><em>list</em>) – One or more dataset_types (exact matching).</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’).</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – The number of results to fetch in one go (if pagination enabled on server).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>list</em> – List of probe IDs (pids).</p></li>
+<li><p><em>(list of dicts)</em> – If details is True, also returns a list of dictionaries, each entry corresponding to a
+matching insertion.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.search">
 <span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.search" title="Permalink to this definition"></a></dt>
-<dd><p>Searches sessions matching the given criteria and returns a list of matching eids</p>
+<dd><p>Searches sessions matching the given criteria and returns a list of matching eids.</p>
 <p>For a list of search terms, use the method</p>
 <blockquote>
 <div><p>one.search_terms(query_type=’remote’)</p>
@@ -939,34 +985,35 @@ number and date_range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>list</em>) – List of dataset names. Returns sessions containing all these datasets.
+<li><p><strong>dataset</strong> (<em>str</em>) – A (partial) dataset name. Returns sessions containing matching datasets.
 A dataset matches if it contains the search string e.g. ‘wheel.position’ matches
-‘_ibl_wheel.position.npy’</p></li>
+‘_ibl_wheel.position.npy’. C.f. <cite>datasets</cite> argument.</p></li>
 <li><p><strong>date_range</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>pandas.timestamp</em>) – A single date to search or a list of 2 dates that define the range (inclusive).  To
 define only the upper or lower date bound, set the other element to None.</p></li>
-<li><p><strong>lab</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab names, returns sessions from any of these labs</p></li>
-<li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date</p></li>
-<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects</p></li>
+<li><p><strong>lab</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab names, returns sessions from any of these labs.</p></li>
+<li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date.</p></li>
+<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects.</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em><em>, </em><em>list</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
-will be found)</p></li>
+will be found).</p></li>
 <li><p><strong>project</strong><strong>(</strong><strong>s</strong><strong>)</strong> (<em>str</em><em>, </em><em>list</em>) – The project name (can be partial, i.e. any task protocol containing that str
-will be found)</p></li>
+will be found).</p></li>
 <li><p><strong>performance_gte</strong> (<em>performance_lte /</em>) – Search only for sessions whose performance is less equal or greater equal than a
-pre-defined threshold as a percentage (0-100)</p></li>
-<li><p><strong>users</strong> (<em>str</em><em>, </em><em>list</em>) – A list of users</p></li>
-<li><p><strong>location</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab location (as per Alyx definition) name
-Note: this corresponds to the specific rig, not the lab geographical location per se</p></li>
-<li><p><strong>dataset_types</strong> (<em>str</em><em>, </em><em>list</em>) – One or more of dataset_types</p></li>
-<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details</p></li>
-<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
-<li><p><strong>limit</strong> (<em>int</em>) – The number of results to fetch in one go (if pagination enabled on server)</p></li>
+pre-defined threshold as a percentage (0-100).</p></li>
+<li><p><strong>users</strong> (<em>str</em><em>, </em><em>list</em>) – A list of users.</p></li>
+<li><p><strong>location</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab location (as per Alyx definition) name.
+Note: this corresponds to the specific rig, not the lab geographical location per se.</p></li>
+<li><p><strong>dataset_types</strong> (<em>str</em><em>, </em><em>list</em>) – One or more of dataset_types.</p></li>
+<li><p><strong>datasets</strong> (<em>str</em><em>, </em><em>list</em>) – One or more (exact) dataset names. Returns insertions containing all of these datasets.</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true also returns a dict of dataset details.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em><em>, </em><em>None</em>) – Query cache (‘local’) or Alyx database (‘remote’).</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – The number of results to fetch in one go (if pagination enabled on server).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>list</em> – List of eids</p></li>
+<li><p><em>list</em> – List of eids.</p></li>
 <li><p><em>(list of dicts)</em> – If details is True, also returns a list of dictionaries, each entry corresponding to a
-matching session</p></li>
+matching session.</p></li>
 </ul>
 </p>
 </dd>

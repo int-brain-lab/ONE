@@ -604,7 +604,7 @@
                   <span class="p">}</span>
 
             <span class="c1"># Add optional field</span>
-            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">&#39;labs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;labs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span>
             <span class="c1"># If dry, store POST data, otherwise store resulting file records</span>
             <span class="k">try</span><span class="p">:</span>

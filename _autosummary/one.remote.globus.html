@@ -166,7 +166,7 @@
 <td><p>Creates a Globus transfer client based on existing parameter file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.globus.get_lab_from_endpoint_id" title="one.remote.globus.get_lab_from_endpoint_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lab_from_endpoint_id</span></code></a></p></td>
-<td><p>Extracts lab name given an endpoint id root path given a repository name that is registered in the database accessed by ONE.</p></td>
+<td><p>Extracts lab names associated with a given an endpoint UUID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.remote.globus.get_local_endpoint_id" title="one.remote.globus.get_local_endpoint_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_local_endpoint_id</span></code></a></p></td>
 <td><p>Extracts the ID of the local Globus Connect endpoint.</p></td>
@@ -254,20 +254,21 @@ on Linux.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.get_lab_from_endpoint_id">
 <span class="sig-name descname"><span class="pre">get_lab_from_endpoint_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_lab_from_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_lab_from_endpoint_id" title="Permalink to this definition"></a></dt>
-<dd><p>Extracts lab name given an endpoint id root path given a repository name that is registered in
-the database accessed by ONE.</p>
+<dd><p>Extracts lab names associated with a given an endpoint UUID.</p>
+<p>Finds the lab names that are associated to data repositories with the provided Globus endpoint
+UUID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – Endpoint UUID, optional if not given will get attempt to find local endpoint UUID.</p></li>
-<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>one.webclient.AlyxClient</em></a>) – An instance of AlyxClient to use</p></li>
+<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>one.webclient.AlyxClient</em></a>) – An instance of AlyxClient to use.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Lab name associated with the endpoint UUID</p>
+<dd class="field-even"><p>The lab names associated with the endpoint UUID.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>

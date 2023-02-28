@@ -501,36 +501,36 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset : str, list</span>
-<span class="sd">            list of dataset names. Returns sessions containing all these datasets.</span>
+<span class="sd">            One or more dataset names. Returns sessions containing all these datasets.</span>
 <span class="sd">            A dataset matches if it contains the search string e.g. &#39;wheel.position&#39; matches</span>
-<span class="sd">            &#39;_ibl_wheel.position.npy&#39;</span>
+<span class="sd">            &#39;_ibl_wheel.position.npy&#39;.</span>
 <span class="sd">        date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp</span>
 <span class="sd">            A single date to search or a list of 2 dates that define the range (inclusive).  To</span>
 <span class="sd">            define only the upper or lower date bound, set the other element to None.</span>
 <span class="sd">        lab : str</span>
-<span class="sd">            A str or list of lab names, returns sessions from any of these labs</span>
+<span class="sd">            A str or list of lab names, returns sessions from any of these labs.</span>
 <span class="sd">        number : str, int</span>
-<span class="sd">            Number of session to be returned, i.e. number in sequence for a given date</span>
+<span class="sd">            Number of session to be returned, i.e. number in sequence for a given date.</span>
 <span class="sd">        subject : str, list</span>
-<span class="sd">            A list of subject nicknames, returns sessions for any of these subjects</span>
+<span class="sd">            A list of subject nicknames, returns sessions for any of these subjects.</span>
 <span class="sd">        task_protocol : str</span>
 <span class="sd">            The task protocol name (can be partial, i.e. any task protocol containing that str</span>
-<span class="sd">            will be found)</span>
+<span class="sd">            will be found).</span>
 <span class="sd">        projects : str, list</span>
 <span class="sd">            The project name(s) (can be partial, i.e. any project containing that str</span>
-<span class="sd">            will be found)</span>
+<span class="sd">            will be found).</span>
 <span class="sd">        details : bool</span>
-<span class="sd">            If true also returns a dict of dataset details</span>
+<span class="sd">            If true also returns a dict of dataset details.</span>
 <span class="sd">        query_type : str, None</span>
-<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list</span>
-<span class="sd">            A list of eids</span>
+<span class="sd">            A list of eids.</span>
 <span class="sd">        (list)</span>
 <span class="sd">            (If details is True) a list of dictionaries, each entry corresponding to a matching</span>
-<span class="sd">            session</span>
+<span class="sd">            session.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">all_present</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -1643,25 +1643,34 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span><span class="o">.</span><span class="n">cache_dir</span>
 
 <div class="viewcode-block" id="OneAlyx.search_terms"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_terms">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a list of search terms to be passed as kwargs to the search method</span>
+<span class="sd">        Returns a list of search terms to be passed as kwargs to the search method.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            If &#39;remote&#39;, the search terms are largely determined by the REST endpoint used</span>
+<span class="sd">            If &#39;remote&#39;, the search terms are largely determined by the REST endpoint used.</span>
+<span class="sd">        endpoint: str</span>
+<span class="sd">            If &#39;remote&#39;, specify the endpoint to search terms for.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        tuple</span>
-<span class="sd">            Tuple of search strings</span>
+<span class="sd">            Tuple of search strings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;remote&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span>
+            <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">endpoint</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_endpoint</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoint</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_endpoint</span>
         <span class="c1"># Return search terms from REST schema</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_endpoint</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
         <span class="n">excl</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">,)</span>  <span class="c1"># &#39;laboratory&#39; already in search terms</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="o">!=</span> <span class="s1">&#39;sessions&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">({</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excl</span><span class="p">)})</span></div>
 
 <div class="viewcode-block" id="OneAlyx.describe_dataset"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">describe_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1672,12 +1681,12 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset_type : str</span>
-<span class="sd">            A dataset type or dataset name</span>
+<span class="sd">            A dataset type or dataset name.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
-<span class="sd">            The Alyx dataset type record</span>
+<span class="sd">            The Alyx dataset type record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;local&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;Unable to connect to Alyx in local mode&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dataset_type</span><span class="p">:</span>
@@ -1785,9 +1794,93 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pids</span><span class="p">,</span> <span class="n">labels</span></div>
 
+<div class="viewcode-block" id="OneAlyx.search_insertions"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_insertions">[docs]</a>    <span class="k">def</span> <span class="nf">search_insertions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Searches insertions matching the given criteria and returns a list of matching probe IDs.</span>
+
+<span class="sd">        For a list of search terms, use the method</span>
+
+<span class="sd">            one.search_terms(query_type=&#39;remote&#39;, endpoint=&#39;insertions&#39;)</span>
+
+<span class="sd">        All of the search parameters, apart from dataset and dataset type require a single value.</span>
+<span class="sd">        For dataset and dataset type, a single value or a list can be provided. Insertions</span>
+<span class="sd">        returned will contain all listed datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        session : str</span>
+<span class="sd">            A session eid, returns insertions associated with the session.</span>
+<span class="sd">        name: str</span>
+<span class="sd">            An insertion label, returns insertions with specified name.</span>
+<span class="sd">        lab : str</span>
+<span class="sd">            A lab name, returns insertions associated with the lab.</span>
+<span class="sd">        subject : str</span>
+<span class="sd">            A subject nickname, returns insertions associated with the subject.</span>
+<span class="sd">        task_protocol : str</span>
+<span class="sd">            A task protocol name (can be partial, i.e. any task protocol containing that str</span>
+<span class="sd">            will be found).</span>
+<span class="sd">        project(s) : str</span>
+<span class="sd">            The project name (can be partial, i.e. any task protocol containing that str</span>
+<span class="sd">            will be found).</span>
+<span class="sd">        dataset : str</span>
+<span class="sd">            A (partial) dataset name. Returns sessions containing matching datasets.</span>
+<span class="sd">            A dataset matches if it contains the search string e.g. &#39;wheel.position&#39; matches</span>
+<span class="sd">            &#39;_ibl_wheel.position.npy&#39;. C.f. `datasets` argument.</span>
+<span class="sd">        datasets : str, list</span>
+<span class="sd">            One or more exact dataset names. Returns insertions containing all these datasets.</span>
+<span class="sd">        dataset_types : str, list</span>
+<span class="sd">            One or more dataset_types (exact matching).</span>
+<span class="sd">        details : bool</span>
+<span class="sd">            If true also returns a dict of dataset details.</span>
+<span class="sd">        query_type : str, None</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).</span>
+<span class="sd">        limit : int</span>
+<span class="sd">            The number of results to fetch in one go (if pagination enabled on server).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of probe IDs (pids).</span>
+<span class="sd">        (list of dicts)</span>
+<span class="sd">            If details is True, also returns a list of dictionaries, each entry corresponding to a</span>
+<span class="sd">            matching insertion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">and</span> <span class="s1">&#39;insertions&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Searching on insertions required remote connection&#39;</span><span class="p">)</span>
+        <span class="c1"># Get remote query params from REST endpoint</span>
+        <span class="n">search_terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;insertions&#39;</span><span class="p">)</span>
+        <span class="c1"># Add some extra fields to keep compatibility with the search method</span>
+        <span class="n">search_terms</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;django&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;django&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span>  <span class="c1"># Validate and get full name</span>
+            <span class="c1"># check that the input matches one of the defined filters</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s1">&#39;&quot;dataset&quot; parameter must be a string. For lists use &quot;datasets&quot;&#39;</span><span class="p">)</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;datasets__name__icontains,</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">query</span>
+            <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;experiment_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;django&#39;</span><span class="p">)</span>
+
+        <span class="n">ins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">pids</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pids</span>
+
+        <span class="k">return</span> <span class="n">pids</span><span class="p">,</span> <span class="n">ins</span></div>
+
 <div class="viewcode-block" id="OneAlyx.search"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Searches sessions matching the given criteria and returns a list of matching eids</span>
+<span class="sd">        Searches sessions matching the given criteria and returns a list of matching eids.</span>
 
 <span class="sd">        For a list of search terms, use the method</span>
 
@@ -1801,49 +1894,51 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset : str, list</span>
-<span class="sd">            List of dataset names. Returns sessions containing all these datasets.</span>
+<span class="sd">        dataset : str</span>
+<span class="sd">            A (partial) dataset name. Returns sessions containing matching datasets.</span>
 <span class="sd">            A dataset matches if it contains the search string e.g. &#39;wheel.position&#39; matches</span>
-<span class="sd">            &#39;_ibl_wheel.position.npy&#39;</span>
+<span class="sd">            &#39;_ibl_wheel.position.npy&#39;. C.f. `datasets` argument.</span>
 <span class="sd">        date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp</span>
 <span class="sd">            A single date to search or a list of 2 dates that define the range (inclusive).  To</span>
 <span class="sd">            define only the upper or lower date bound, set the other element to None.</span>
 <span class="sd">        lab : str, list</span>
-<span class="sd">            A str or list of lab names, returns sessions from any of these labs</span>
+<span class="sd">            A str or list of lab names, returns sessions from any of these labs.</span>
 <span class="sd">        number : str, int</span>
-<span class="sd">            Number of session to be returned, i.e. number in sequence for a given date</span>
+<span class="sd">            Number of session to be returned, i.e. number in sequence for a given date.</span>
 <span class="sd">        subject : str, list</span>
-<span class="sd">            A list of subject nicknames, returns sessions for any of these subjects</span>
+<span class="sd">            A list of subject nicknames, returns sessions for any of these subjects.</span>
 <span class="sd">        task_protocol : str, list</span>
 <span class="sd">            The task protocol name (can be partial, i.e. any task protocol containing that str</span>
-<span class="sd">            will be found)</span>
+<span class="sd">            will be found).</span>
 <span class="sd">        project(s) : str, list</span>
 <span class="sd">            The project name (can be partial, i.e. any task protocol containing that str</span>
-<span class="sd">            will be found)</span>
+<span class="sd">            will be found).</span>
 <span class="sd">        performance_lte / performance_gte : float</span>
 <span class="sd">            Search only for sessions whose performance is less equal or greater equal than a</span>
-<span class="sd">            pre-defined threshold as a percentage (0-100)</span>
+<span class="sd">            pre-defined threshold as a percentage (0-100).</span>
 <span class="sd">        users : str, list</span>
-<span class="sd">            A list of users</span>
+<span class="sd">            A list of users.</span>
 <span class="sd">        location : str, list</span>
-<span class="sd">            A str or list of lab location (as per Alyx definition) name</span>
-<span class="sd">            Note: this corresponds to the specific rig, not the lab geographical location per se</span>
+<span class="sd">            A str or list of lab location (as per Alyx definition) name.</span>
+<span class="sd">            Note: this corresponds to the specific rig, not the lab geographical location per se.</span>
 <span class="sd">        dataset_types : str, list</span>
-<span class="sd">            One or more of dataset_types</span>
+<span class="sd">            One or more of dataset_types.</span>
+<span class="sd">        datasets : str, list</span>
+<span class="sd">            One or more (exact) dataset names. Returns insertions containing all of these datasets.</span>
 <span class="sd">        details : bool</span>
-<span class="sd">            If true also returns a dict of dataset details</span>
+<span class="sd">            If true also returns a dict of dataset details.</span>
 <span class="sd">        query_type : str, None</span>
-<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).</span>
 <span class="sd">        limit : int</span>
-<span class="sd">            The number of results to fetch in one go (if pagination enabled on server)</span>
+<span class="sd">            The number of results to fetch in one go (if pagination enabled on server).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list</span>
-<span class="sd">            List of eids</span>
+<span class="sd">            List of eids.</span>
 <span class="sd">        (list of dicts)</span>
 <span class="sd">            If details is True, also returns a list of dictionaries, each entry corresponding to a</span>
-<span class="sd">            matching session</span>
+<span class="sd">            matching session.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
         <span class="k">if</span> <span class="n">query_type</span> <span class="o">!=</span> <span class="s1">&#39;remote&#39;</span><span class="p">:</span>
@@ -1858,8 +1953,10 @@
             <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;date_range&#39;</span><span class="p">:</span>
                 <span class="n">params</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">validate_date_range</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
             <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;data_dataset_session_related__name__icontains,&#39;</span> <span class="o">+</span>
-                         <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s1">&#39;&quot;dataset&quot; parameter must be a string. For lists use &quot;datasets&quot;&#39;</span><span class="p">)</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;data_dataset_session_related__name__icontains,</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">query</span>
             <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">:</span>
                 <span class="n">params</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -1875,7 +1972,7 @@
             <span class="k">return</span> <span class="n">eids</span>
 
         <span class="k">def</span> <span class="nf">_add_date</span><span class="p">(</span><span class="n">records</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add date field for compatibility with One.search output&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add date field for compatibility with One.search output.&quot;&quot;&quot;</span>
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">records</span><span class="p">):</span>
                 <span class="n">s</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
             <span class="k">return</span> <span class="n">records</span>
@@ -1892,12 +1989,12 @@
 <span class="sd">         Parameters</span>
 <span class="sd">         ----------</span>
 <span class="sd">         dset : dict, str, pd.Series</span>
-<span class="sd">             A single or multitude of dataset dictionaries</span>
+<span class="sd">             A single or multitude of dataset dictionaries.</span>
 
 <span class="sd">         Returns</span>
 <span class="sd">         -------</span>
 <span class="sd">         pathlib.Path</span>
-<span class="sd">             A local file path or list of paths</span>
+<span class="sd">             A local file path or list of paths.</span>
 <span class="sd">         &quot;&quot;&quot;</span>
         <span class="c1"># If all datasets exist on AWS, download from there.</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1956,7 +2053,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dset : dict, str, pd.Series, pd.DataFrame, list</span>
-<span class="sd">            A single or multitude of dataset dictionary from an Alyx REST query OR URL string</span>
+<span class="sd">            A single or multitude of dataset dictionary from an Alyx REST query OR URL string.</span>
 <span class="sd">        update_cache : bool</span>
 <span class="sd">            If True (default) and the dataset is from Alyx and cannot be converted to a URL,</span>
 <span class="sd">            &#39;exists&#39; will be set to False in the corresponding entry in the cache table.</span>
@@ -1964,7 +2061,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
-<span class="sd">            The remote URL of the dataset</span>
+<span class="sd">            The remote URL of the dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">did</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dset</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>
@@ -2020,16 +2117,16 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dset : dict, str, pd.Series, pd.DataFrame, list</span>
-<span class="sd">            A single or multitude of dataset dictionary from an Alyx REST query OR URL string</span>
+<span class="sd">            A single or multitude of dataset dictionary from an Alyx REST query OR URL string.</span>
 <span class="sd">        cache_dir : str, pathlib.Path</span>
-<span class="sd">            The root directory to save the data to (default taken from ONE parameters)</span>
+<span class="sd">            The root directory to save the data to (default taken from ONE parameters).</span>
 <span class="sd">        update_cache : bool</span>
-<span class="sd">            If true, the cache is updated when filesystem discrepancies are encountered</span>
+<span class="sd">            If true, the cache is updated when filesystem discrepancies are encountered.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        pathlib.Path, list</span>
-<span class="sd">            A local file path or list of paths</span>
+<span class="sd">            A local file path or list of paths.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dset2url</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="n">update_cache</span><span class="p">)</span>
@@ -2074,15 +2171,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        url : str, list</span>
-<span class="sd">            An absolute or relative URL for a remote dataset</span>
+<span class="sd">            An absolute or relative URL for a remote dataset.</span>
 <span class="sd">        target_dir : str, list</span>
-<span class="sd">            Absolute path of directory to download file to (including alf path)</span>
+<span class="sd">            Absolute path of directory to download file to (including alf path).</span>
 <span class="sd">        keep_uuid : bool</span>
-<span class="sd">            If true, the UUID is not removed from the file name (default is False)</span>
+<span class="sd">            If true, the UUID is not removed from the file name (default is False).</span>
 <span class="sd">        file_size : int, list</span>
-<span class="sd">            The expected file size or list of file sizes to compare with downloaded file</span>
+<span class="sd">            The expected file size or list of file sizes to compare with downloaded file.</span>
 <span class="sd">        hash : str, list</span>
-<span class="sd">            The expected file hash or list of file hashes to compare with downloaded file</span>
+<span class="sd">            The expected file hash or list of file hashes to compare with downloaded file.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
