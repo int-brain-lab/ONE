@@ -394,36 +394,36 @@ class One(ConversionMixin):
         Parameters
         ----------
         dataset : str, list
-            list of dataset names. Returns sessions containing all these datasets.
+            One or more dataset names. Returns sessions containing all these datasets.
             A dataset matches if it contains the search string e.g. 'wheel.position' matches
-            '_ibl_wheel.position.npy'
+            '_ibl_wheel.position.npy'.
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
         lab : str
-            A str or list of lab names, returns sessions from any of these labs
+            A str or list of lab names, returns sessions from any of these labs.
         number : str, int
-            Number of session to be returned, i.e. number in sequence for a given date
+            Number of session to be returned, i.e. number in sequence for a given date.
         subject : str, list
-            A list of subject nicknames, returns sessions for any of these subjects
+            A list of subject nicknames, returns sessions for any of these subjects.
         task_protocol : str
             The task protocol name (can be partial, i.e. any task protocol containing that str
-            will be found)
+            will be found).
         projects : str, list
             The project name(s) (can be partial, i.e. any project containing that str
-            will be found)
+            will be found).
         details : bool
-            If true also returns a dict of dataset details
+            If true also returns a dict of dataset details.
         query_type : str, None
-            Query cache ('local') or Alyx database ('remote')
+            Query cache ('local') or Alyx database ('remote').
 
         Returns
         -------
         list
-            A list of eids
+            A list of eids.
         (list)
             (If details is True) a list of dictionaries, each entry corresponding to a matching
-            session
+            session.
         """
 
         def all_present(x, dsets, exists=True):
@@ -1715,12 +1715,14 @@ class OneAlyx(One):
         project(s) : str
             The project name (can be partial, i.e. any task protocol containing that str
             will be found).
+        dataset : str
+            A (partial) dataset name. Returns sessions containing matching datasets.
+            A dataset matches if it contains the search string e.g. 'wheel.position' matches
+            '_ibl_wheel.position.npy'. C.f. `datasets` argument.
         datasets : str, list
-            List of dataset names. Returns insertions containing all these datasets.
-            A dataset matches if it contains the search string e.g. 'spikes.times' matches
-            'spikes.times.npy'.
+            One or more exact dataset names. Returns insertions containing all these datasets.
         dataset_types : str, list
-            One or more of dataset_types.
+            One or more dataset_types (exact matching).
         details : bool
             If true also returns a dict of dataset details.
         query_type : str, None
@@ -1736,18 +1738,23 @@ class OneAlyx(One):
             If details is True, also returns a list of dictionaries, each entry corresponding to a
             matching insertion.
         """
-
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
             raise NotImplementedError('Searching on insertions required remote connection')
-
+        # Get remote query params from REST endpoint
         search_terms = self.search_terms(query_type=query_type, endpoint='insertions')
+        # Add some extra fields to keep compatibility with the search method
+        search_terms += ('dataset', 'laboratory', 'number')
         params = {'django': kwargs.pop('django', '')}
         for key, value in sorted(kwargs.items()):
             field = util.autocomplete(key, search_terms)  # Validate and get full name
             # check that the input matches one of the defined filters
             if field == 'dataset':
-                params[key] = util.ensure_list(value)
+                if not isinstance(value, str):
+                    raise TypeError(
+                        '"dataset" parameter must be a string. For lists use "datasets"')
+                query = f'datasets__name__icontains,{value}'
+                params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
                 params['lab'] = value
             elif field == 'number':
@@ -1780,10 +1787,10 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        dataset : str, list
-            List of dataset names. Returns sessions containing all these datasets.
+        dataset : str
+            A (partial) dataset name. Returns sessions containing matching datasets.
             A dataset matches if it contains the search string e.g. 'wheel.position' matches
-            '_ibl_wheel.position.npy'.
+            '_ibl_wheel.position.npy'. C.f. `datasets` argument.
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
@@ -1805,10 +1812,12 @@ class OneAlyx(One):
         users : str, list
             A list of users.
         location : str, list
-            A str or list of lab location (as per Alyx definition) name
+            A str or list of lab location (as per Alyx definition) name.
             Note: this corresponds to the specific rig, not the lab geographical location per se.
         dataset_types : str, list
             One or more of dataset_types.
+        datasets : str, list
+            One or more (exact) dataset names. Returns insertions containing all of these datasets.
         details : bool
             If true also returns a dict of dataset details.
         query_type : str, None
@@ -1837,8 +1846,10 @@ class OneAlyx(One):
             if field == 'date_range':
                 params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
             elif field == 'dataset':
-                query = ('data_dataset_session_related__name__icontains,' +
-                         ','.join(util.ensure_list(value)))
+                if not isinstance(value, str):
+                    raise TypeError(
+                        '"dataset" parameter must be a string. For lists use "datasets"')
+                query = f'data_dataset_session_related__name__icontains,{value}'
                 params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
                 params['lab'] = value

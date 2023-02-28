@@ -8,6 +8,7 @@
 ### Modified
 
 - lab name inferred from session path in RegistrationClient only if labs kwarg is not present
+- bugfix: dataset arg in remote mode search was not supported; now a clear TypeError is raised
 
 ## [1.20.0]
 

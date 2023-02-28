@@ -1218,7 +1218,7 @@ class TestOneRemote(unittest.TestCase):
         expected = {'lab', 'subject', 'date', 'number', 'projects'}
         self.assertTrue(det[0].keys() >= expected)
         # Test dataset search with Django
-        eids = self.one.search(subject='SWC_043', dataset=['probes.description'], number=1,
+        eids = self.one.search(subject='SWC_043', dataset='probes.description', number=1,
                                django='data_dataset_session_related__collection__iexact,alf',
                                query_type='remote')
         self.assertIn(self.eid, list(eids))
@@ -1250,6 +1250,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertIn(self.eid, list(eids))
         eids = self.one.search(dataset='trials.intervals.npy', query_type='remote')
         self.assertNotIn(self.eid, list(eids))
+        self.assertRaises(TypeError, self.one.search, dataset=['wheel.times'], query_type='remote')
 
         eids = self.one.search(dataset_type='trials.table.pqt', query_type='remote')
         self.assertEqual(0, len(eids))
@@ -1277,9 +1278,25 @@ class TestOneRemote(unittest.TestCase):
         pids = self.one.search_insertions(atlas_acronym='STR', query_type='remote')
         self.assertIn(self.pid, list(pids))
 
-        # Test list of acronyms returns nothing
+        # Expect this list of acronyms to return nothing
         pids = self.one.search_insertions(atlas_acronym=['STR', 'CA3'], query_type='remote')
         self.assertEqual(0, len(pids))
+
+        # Test 'special' params (these have different names on the REST side)
+        # - full 'laboratory' word
+        # - 'dataset' as singular with fuzzy match
+        # - 'number' -> 'experiment_number'
+        lab = 'cortexlab'
+        _, det = self.one.search_insertions(
+            laboratory=lab, number=1, dataset='_ibl_log.info',
+            atlas_acronym='STR', query_type='remote', details=True)
+        self.assertEqual(14, len(det))
+        self.assertEqual({lab}, {x['session_info']['lab'] for x in det})
+
+        # Test mode and field validation
+        self.assertRaises(NotImplementedError, self.one.search_insertions, query_type='local')
+        self.assertRaises(TypeError, self.one.search_insertions,
+                          dataset=['wheel.times'], query_type='remote')
 
     def test_search_terms(self):
         """Test OneAlyx.search_terms"""
