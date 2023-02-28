@@ -180,20 +180,22 @@ def get_local_endpoint_paths():
 
 def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     """
-    Extracts lab name given an endpoint id root path given a repository name that is registered in
-    the database accessed by ONE.
+    Extracts lab names associated with a given an endpoint UUID.
+
+    Finds the lab names that are associated to data repositories with the provided Globus endpoint
+    UUID.
 
     Parameters
     ----------
     endpoint : uuid.UUID, str
         Endpoint UUID, optional if not given will get attempt to find local endpoint UUID.
     alyx : one.webclient.AlyxClient
-        An instance of AlyxClient to use
+        An instance of AlyxClient to use.
 
     Returns
     -------
-    str
-        Lab name associated with the endpoint UUID
+    list
+        The lab names associated with the endpoint UUID.
     """
 
     alyx = alyx or AlyxClient(silent=True)

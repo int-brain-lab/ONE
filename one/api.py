@@ -394,36 +394,36 @@ class One(ConversionMixin):
         Parameters
         ----------
         dataset : str, list
-            list of dataset names. Returns sessions containing all these datasets.
+            One or more dataset names. Returns sessions containing all these datasets.
             A dataset matches if it contains the search string e.g. 'wheel.position' matches
-            '_ibl_wheel.position.npy'
+            '_ibl_wheel.position.npy'.
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
         lab : str
-            A str or list of lab names, returns sessions from any of these labs
+            A str or list of lab names, returns sessions from any of these labs.
         number : str, int
-            Number of session to be returned, i.e. number in sequence for a given date
+            Number of session to be returned, i.e. number in sequence for a given date.
         subject : str, list
-            A list of subject nicknames, returns sessions for any of these subjects
+            A list of subject nicknames, returns sessions for any of these subjects.
         task_protocol : str
             The task protocol name (can be partial, i.e. any task protocol containing that str
-            will be found)
+            will be found).
         projects : str, list
             The project name(s) (can be partial, i.e. any project containing that str
-            will be found)
+            will be found).
         details : bool
-            If true also returns a dict of dataset details
+            If true also returns a dict of dataset details.
         query_type : str, None
-            Query cache ('local') or Alyx database ('remote')
+            Query cache ('local') or Alyx database ('remote').
 
         Returns
         -------
         list
-            A list of eids
+            A list of eids.
         (list)
             (If details is True) a list of dictionaries, each entry corresponding to a matching
-            session
+            session.
         """
 
         def all_present(x, dsets, exists=True):
@@ -1536,25 +1536,34 @@ class OneAlyx(One):
         return self._web_client.cache_dir
 
     @util.refresh
-    def search_terms(self, query_type=None):
+    def search_terms(self, query_type=None, endpoint=None):
         """
-        Returns a list of search terms to be passed as kwargs to the search method
+        Returns a list of search terms to be passed as kwargs to the search method.
 
         Parameters
         ----------
         query_type : str
-            If 'remote', the search terms are largely determined by the REST endpoint used
+            If 'remote', the search terms are largely determined by the REST endpoint used.
+        endpoint: str
+            If 'remote', specify the endpoint to search terms for.
 
         Returns
         -------
         tuple
-            Tuple of search strings
+            Tuple of search strings.
         """
         if (query_type or self.mode) != 'remote':
-            return self._search_terms
+            if endpoint is None or endpoint == self._search_endpoint:
+                return self._search_terms
+            else:
+                return
+
+        endpoint = endpoint or self._search_endpoint
         # Return search terms from REST schema
-        fields = self.alyx.rest_schemes[self._search_endpoint]['list']['fields']
+        fields = self.alyx.rest_schemes[endpoint]['list']['fields']
         excl = ('lab',)  # 'laboratory' already in search terms
+        if endpoint != 'sessions':
+            return tuple(x['name'] for x in fields)
         return tuple({*self._search_terms, *(x['name'] for x in fields if x['name'] not in excl)})
 
     def describe_dataset(self, dataset_type=None):
@@ -1565,12 +1574,12 @@ class OneAlyx(One):
         Parameters
         ----------
         dataset_type : str
-            A dataset type or dataset name
+            A dataset type or dataset name.
 
         Returns
         -------
         dict
-            The Alyx dataset type record
+            The Alyx dataset type record.
         """
         assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         if not dataset_type:
@@ -1678,9 +1687,93 @@ class OneAlyx(One):
         else:
             return pids, labels
 
+    def search_insertions(self, details=False, query_type=None, **kwargs):
+        """
+        Searches insertions matching the given criteria and returns a list of matching probe IDs.
+
+        For a list of search terms, use the method
+
+            one.search_terms(query_type='remote', endpoint='insertions')
+
+        All of the search parameters, apart from dataset and dataset type require a single value.
+        For dataset and dataset type, a single value or a list can be provided. Insertions
+        returned will contain all listed datasets.
+
+        Parameters
+        ----------
+        session : str
+            A session eid, returns insertions associated with the session.
+        name: str
+            An insertion label, returns insertions with specified name.
+        lab : str
+            A lab name, returns insertions associated with the lab.
+        subject : str
+            A subject nickname, returns insertions associated with the subject.
+        task_protocol : str
+            A task protocol name (can be partial, i.e. any task protocol containing that str
+            will be found).
+        project(s) : str
+            The project name (can be partial, i.e. any task protocol containing that str
+            will be found).
+        dataset : str
+            A (partial) dataset name. Returns sessions containing matching datasets.
+            A dataset matches if it contains the search string e.g. 'wheel.position' matches
+            '_ibl_wheel.position.npy'. C.f. `datasets` argument.
+        datasets : str, list
+            One or more exact dataset names. Returns insertions containing all these datasets.
+        dataset_types : str, list
+            One or more dataset_types (exact matching).
+        details : bool
+            If true also returns a dict of dataset details.
+        query_type : str, None
+            Query cache ('local') or Alyx database ('remote').
+        limit : int
+            The number of results to fetch in one go (if pagination enabled on server).
+
+        Returns
+        -------
+        list
+            List of probe IDs (pids).
+        (list of dicts)
+            If details is True, also returns a list of dictionaries, each entry corresponding to a
+            matching insertion.
+        """
+        query_type = query_type or self.mode
+        if query_type == 'local' and 'insertions' not in self._cache.keys():
+            raise NotImplementedError('Searching on insertions required remote connection')
+        # Get remote query params from REST endpoint
+        search_terms = self.search_terms(query_type=query_type, endpoint='insertions')
+        # Add some extra fields to keep compatibility with the search method
+        search_terms += ('dataset', 'laboratory', 'number')
+        params = {'django': kwargs.pop('django', '')}
+        for key, value in sorted(kwargs.items()):
+            field = util.autocomplete(key, search_terms)  # Validate and get full name
+            # check that the input matches one of the defined filters
+            if field == 'dataset':
+                if not isinstance(value, str):
+                    raise TypeError(
+                        '"dataset" parameter must be a string. For lists use "datasets"')
+                query = f'datasets__name__icontains,{value}'
+                params['django'] += (',' if params['django'] else '') + query
+            elif field == 'laboratory':
+                params['lab'] = value
+            elif field == 'number':
+                params['experiment_number'] = value
+            else:
+                params[field] = value
+        if not params['django']:
+            params.pop('django')
+
+        ins = self.alyx.rest('insertions', 'list', **params)
+        pids = util.LazyId(ins)
+        if not details:
+            return pids
+
+        return pids, ins
+
     def search(self, details=False, query_type=None, **kwargs):
         """
-        Searches sessions matching the given criteria and returns a list of matching eids
+        Searches sessions matching the given criteria and returns a list of matching eids.
 
         For a list of search terms, use the method
 
@@ -1694,49 +1787,51 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        dataset : str, list
-            List of dataset names. Returns sessions containing all these datasets.
+        dataset : str
+            A (partial) dataset name. Returns sessions containing matching datasets.
             A dataset matches if it contains the search string e.g. 'wheel.position' matches
-            '_ibl_wheel.position.npy'
+            '_ibl_wheel.position.npy'. C.f. `datasets` argument.
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
         lab : str, list
-            A str or list of lab names, returns sessions from any of these labs
+            A str or list of lab names, returns sessions from any of these labs.
         number : str, int
-            Number of session to be returned, i.e. number in sequence for a given date
+            Number of session to be returned, i.e. number in sequence for a given date.
         subject : str, list
-            A list of subject nicknames, returns sessions for any of these subjects
+            A list of subject nicknames, returns sessions for any of these subjects.
         task_protocol : str, list
             The task protocol name (can be partial, i.e. any task protocol containing that str
-            will be found)
+            will be found).
         project(s) : str, list
             The project name (can be partial, i.e. any task protocol containing that str
-            will be found)
+            will be found).
         performance_lte / performance_gte : float
             Search only for sessions whose performance is less equal or greater equal than a
-            pre-defined threshold as a percentage (0-100)
+            pre-defined threshold as a percentage (0-100).
         users : str, list
-            A list of users
+            A list of users.
         location : str, list
-            A str or list of lab location (as per Alyx definition) name
-            Note: this corresponds to the specific rig, not the lab geographical location per se
+            A str or list of lab location (as per Alyx definition) name.
+            Note: this corresponds to the specific rig, not the lab geographical location per se.
         dataset_types : str, list
-            One or more of dataset_types
+            One or more of dataset_types.
+        datasets : str, list
+            One or more (exact) dataset names. Returns insertions containing all of these datasets.
         details : bool
-            If true also returns a dict of dataset details
+            If true also returns a dict of dataset details.
         query_type : str, None
-            Query cache ('local') or Alyx database ('remote')
+            Query cache ('local') or Alyx database ('remote').
         limit : int
-            The number of results to fetch in one go (if pagination enabled on server)
+            The number of results to fetch in one go (if pagination enabled on server).
 
         Returns
         -------
         list
-            List of eids
+            List of eids.
         (list of dicts)
             If details is True, also returns a list of dictionaries, each entry corresponding to a
-            matching session
+            matching session.
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -1751,8 +1846,10 @@ class OneAlyx(One):
             if field == 'date_range':
                 params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
             elif field == 'dataset':
-                query = ('data_dataset_session_related__name__icontains,' +
-                         ','.join(util.ensure_list(value)))
+                if not isinstance(value, str):
+                    raise TypeError(
+                        '"dataset" parameter must be a string. For lists use "datasets"')
+                query = f'data_dataset_session_related__name__icontains,{value}'
                 params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
                 params['lab'] = value
@@ -1768,7 +1865,7 @@ class OneAlyx(One):
             return eids
 
         def _add_date(records):
-            """Add date field for compatibility with One.search output"""
+            """Add date field for compatibility with One.search output."""
             for s in util.ensure_list(records):
                 s['date'] = str(datetime.fromisoformat(s['start_time']).date())
             return records
@@ -1785,12 +1882,12 @@ class OneAlyx(One):
          Parameters
          ----------
          dset : dict, str, pd.Series
-             A single or multitude of dataset dictionaries
+             A single or multitude of dataset dictionaries.
 
          Returns
          -------
          pathlib.Path
-             A local file path or list of paths
+             A local file path or list of paths.
          """
         # If all datasets exist on AWS, download from there.
         try:
@@ -1849,7 +1946,7 @@ class OneAlyx(One):
         Parameters
         ----------
         dset : dict, str, pd.Series, pd.DataFrame, list
-            A single or multitude of dataset dictionary from an Alyx REST query OR URL string
+            A single or multitude of dataset dictionary from an Alyx REST query OR URL string.
         update_cache : bool
             If True (default) and the dataset is from Alyx and cannot be converted to a URL,
             'exists' will be set to False in the corresponding entry in the cache table.
@@ -1857,7 +1954,7 @@ class OneAlyx(One):
         Returns
         -------
         str
-            The remote URL of the dataset
+            The remote URL of the dataset.
         """
         did = None
         if isinstance(dset, str) and dset.startswith('http'):
@@ -1913,16 +2010,16 @@ class OneAlyx(One):
         Parameters
         ----------
         dset : dict, str, pd.Series, pd.DataFrame, list
-            A single or multitude of dataset dictionary from an Alyx REST query OR URL string
+            A single or multitude of dataset dictionary from an Alyx REST query OR URL string.
         cache_dir : str, pathlib.Path
-            The root directory to save the data to (default taken from ONE parameters)
+            The root directory to save the data to (default taken from ONE parameters).
         update_cache : bool
-            If true, the cache is updated when filesystem discrepancies are encountered
+            If true, the cache is updated when filesystem discrepancies are encountered.
 
         Returns
         -------
         pathlib.Path, list
-            A local file path or list of paths
+            A local file path or list of paths.
         """
         cache_dir = cache_dir or self.cache_dir
         url = self._dset2url(dset, update_cache=update_cache)
@@ -1967,15 +2064,15 @@ class OneAlyx(One):
         Parameters
         ----------
         url : str, list
-            An absolute or relative URL for a remote dataset
+            An absolute or relative URL for a remote dataset.
         target_dir : str, list
-            Absolute path of directory to download file to (including alf path)
+            Absolute path of directory to download file to (including alf path).
         keep_uuid : bool
-            If true, the UUID is not removed from the file name (default is False)
+            If true, the UUID is not removed from the file name (default is False).
         file_size : int, list
-            The expected file size or list of file sizes to compare with downloaded file
+            The expected file size or list of file sizes to compare with downloaded file.
         hash : str, list
-            The expected file hash or list of file hashes to compare with downloaded file
+            The expected file hash or list of file hashes to compare with downloaded file.
 
         Returns
         -------
