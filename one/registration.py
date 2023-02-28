@@ -497,7 +497,7 @@ class RegistrationClient:
                   }
 
             # Add optional field
-            if details['lab'] and not kwargs.get('labs'):
+            if details['lab'] and 'labs' not in kwargs:
                 r_['labs'] = details['lab']
             # If dry, store POST data, otherwise store resulting file records
             try:

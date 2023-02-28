@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.20.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.0]
+
+### Added
+
+- search_insertions ONE method
+
+### Modified
+
+- lab name inferred from session path in RegistrationClient only if labs kwarg is not present
+
+## [1.20.0]
 
 ### Added
 
@@ -17,7 +27,7 @@
 - possible to set the cache_dir attribute in AlyxClient
 - function to print REST schemas in AlyxClient
 - batched REST queries in OneAlyx._download_aws to avoid 414 HTTP status code
-- bugfix: solved infinite loop when sliceing paginated response
+- bugfix: solved infinite loop when slicing paginated response
 - improved performance of remote search
 - lazy fetch of session details in OneAlyx.search
 - one.params.setup allows cache_dir as input
