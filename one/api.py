@@ -2445,6 +2445,7 @@ def _setup(**kwargs):
         An updated cache map.
     """
     ONE.cache_clear()
+    kwargs['client'] = kwargs.pop('base_url', None)
     return one.params.setup(**kwargs)
 
 
