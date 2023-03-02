@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.1]
+
+### Modified
+
+- HOTFIX: allow base_url kwarg in ONE.setup
+
+## [1.21.0]
 
 ### Added
 
