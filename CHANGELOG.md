@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.2]
+
+### Modified
+
+- HOTFIX: allow OneAlyx.search_insertions to work in 'auto' mode
+
+## [1.21.1]
 
 ### Modified
 

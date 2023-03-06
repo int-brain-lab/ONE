@@ -1741,6 +1741,9 @@ class OneAlyx(One):
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
             raise NotImplementedError('Searching on insertions required remote connection')
+        elif query_type == 'auto':
+            _logger.debug('OneAlyx.search_insertions only supports remote queries')
+            query_type = 'remote'
         # Get remote query params from REST endpoint
         search_terms = self.search_terms(query_type=query_type, endpoint='insertions')
         # Add some extra fields to keep compatibility with the search method
