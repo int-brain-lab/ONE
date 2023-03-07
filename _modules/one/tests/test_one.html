@@ -1380,7 +1380,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">pids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
 
         <span class="c1"># Test search with acronym</span>
-        <span class="n">pids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">atlas_acronym</span><span class="o">=</span><span class="s1">&#39;STR&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+        <span class="c1"># Should work in auto mode but with debug message</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="s1">&#39;one.api&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="n">pids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">atlas_acronym</span><span class="o">=</span><span class="s1">&#39;STR&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">pids</span><span class="p">))</span>
 
         <span class="c1"># Expect this list of acronyms to return nothing</span>
