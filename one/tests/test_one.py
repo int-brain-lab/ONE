@@ -1275,7 +1275,9 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(pids[0], self.pid)
 
         # Test search with acronym
-        pids = self.one.search_insertions(atlas_acronym='STR', query_type='remote')
+        # Should work in auto mode but with debug message
+        with self.assertLogs('one.api', 10):
+            pids = self.one.search_insertions(atlas_acronym='STR', query_type='auto')
         self.assertIn(self.pid, list(pids))
 
         # Expect this list of acronyms to return nothing
