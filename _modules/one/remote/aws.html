@@ -12,7 +12,6 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
@@ -265,10 +264,22 @@
 <span class="sd">        An S3 ServiceResource instance with the provided.</span>
 <span class="sd">    str</span>
 <span class="sd">        The name of the S3 bucket.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If no credentials are present in the database, boto3 will use environment config or default</span>
+<span class="sd">     AWS profile settings instead.</span>
+<span class="sd">    - If there are no credentials for the bucket and the bucket has &#39;public&#39; in the name, the</span>
+<span class="sd">     returned resource will use an unsigned signature.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session_keys</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">get_aws_access_keys</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">)</span>
+    <span class="n">no_creds</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;key&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">())))</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">session_keys</span><span class="p">)</span>
-    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">no_creds</span> <span class="ow">and</span> <span class="s1">&#39;public&#39;</span> <span class="ow">in</span> <span class="n">bucket_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span></div>
 
 

@@ -8,12 +8,12 @@
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
@@ -121,291 +121,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<a href="one_load.ipynb"><button id="download">Download tutorial notebook</button></a>
+  <a href="one_load.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/one_load/
 one_load.ipynb"><button id="github">Github link</button></a><section id="Loading-with-ONE">
 <h1>Loading with ONE<a class="headerlink" href="#Loading-with-ONE" title="Permalink to this heading"></a></h1>
-<p>The datasets are organized into directory trees by subject, date and session number. For a given session there are data files grouped by object (e.g. ‘trials’), each with a specific attribute (e.g. ‘rewardVolume’). The dataset name follows the pattern ‘object.attribute’, for example ‘trials.rewardVolume’. For more information, see the <a class="reference external" href="../alyx_files.html">ALF documentation</a>.</p>
-<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span><span class="math">\KS023</span>\2019-12-10001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
+<p>The datasets are organized into directory trees by subject, date and session number. For a given session there are data files grouped by object (e.g. ‘trials’), each with a specific attribute (e.g. ‘rewardVolume’). The dataset name follows the pattern ‘object.attribute’, for example ‘trials.rewardVolume’. For more information, see the <a class="reference external" href="../alyx_files.html">ALF documentation</a>.</p>
+<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span><span class="math">\KS023</span>\2019-12-10001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
 <p>If the data don’t exist locally, they will be downloaded, then loaded.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
@@ -540,7 +261,7 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 </section>
 <section id="Revisions">
 <h2>Revisions<a class="headerlink" href="#Revisions" title="Permalink to this heading"></a></h2>
-<p>Revisions provide an optional way to organize data by version. The version label is arbitrary, however the folder must start and end with pound signs and is typically an ISO date, e.g. “#2021-01-01#”. Unlike collections, if a specified revision is not found, the previous revision will be returned. The revisions are ordered lexicographically.</p>
+<p>Revisions provide an optional way to organize data by version. The version label is arbitrary, however the folder must start and end with pound signs and is typically an ISO date, e.g. “#2021-01-01#”. Unlike collections, if a specified revision is not found, the previous revision will be returned. The revisions are ordered lexicographically.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2021-03-15a&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -570,8 +291,8 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <section id="Advanced-loading">
 <h2>Advanced loading<a class="headerlink" href="#Advanced-loading" title="Permalink to this heading"></a></h2>
 <p>The load methods typically require an exact match, therefore when loading ‘_ibl_wheel.position .npy’ <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'wheel.position.npy')</span></code> will raise an exception because the namespace is missing. Likewise <code class="docutils literal notranslate"><span class="pre">one.load_object(eid,</span> <span class="pre">'trial')</span></code> will fail because ‘trial’ != ‘trials’.</p>
-<p>Loading can be done using unix shell style wildcards, allowing you to load objects and datasets that match a particular pattern, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'*wheel.position.npy')</span></code>.</p>
-<p>By default wildcard mode is on. In this mode, the extension may be omitted, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'spikes.times')</span></code>. This is equivalent to ‘spikes.times.*’. Note that an exception will be raised if datasets with more than one extension are found (such as ‘spikes.times.npy’ and ‘spikes.times.csv’). When loading a dataset with extra parts, the extension (or wildcard) is explicitly required: ’spikes.times.part1.*’.</p>
+<p>Loading can be done using unix shell style wildcards, allowing you to load objects and datasets that match a particular pattern, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'*wheel.position.npy')</span></code>.</p>
+<p>By default wildcard mode is on. In this mode, the extension may be omitted, e.g. <code class="docutils literal notranslate"><span class="pre">one.load_dataset(eid,</span> <span class="pre">'spikes.times')</span></code>. This is equivalent to ‘spikes.times.*’. Note that an exception will be raised if datasets with more than one extension are found (such as ‘spikes.times.npy’ and ‘spikes.times.csv’). When loading a dataset with extra parts, the extension (or wildcard) is explicitly required: ‘spikes.times.part1.*’.</p>
 <p>If you set the wildcards property of One to False, loading will be done using regular expressions, allowing for more powerful pattern matching.</p>
 <p>Below is table showing how to express unix style wildcards as a regular expression:</p>
 <table class="docutils align-default">
@@ -668,7 +389,7 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe[0-9]*&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Load object attributes that are not delimited text files (i.e. tsv, ssv, csv, etc.)</p>
+<p>Load object attributes that are not delimited text files (i.e. tsv, ssv, csv, etc.)</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">files</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;[^sv]*&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
 </pre></div>
