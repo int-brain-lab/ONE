@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.3]
+
+### Modified
+
+- HOTFIX: AWS S3 resource returned unsigned if 'public' in bucket name and no credentials on Alyx 
+
+## [1.21.2]
 
 ### Modified
 
