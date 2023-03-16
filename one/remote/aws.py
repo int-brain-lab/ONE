@@ -160,10 +160,22 @@ def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
         An S3 ServiceResource instance with the provided.
     str
         The name of the S3 bucket.
+
+    Notes
+    -----
+    - If no credentials are present in the database, boto3 will use environment config or default
+     AWS profile settings instead.
+    - If there are no credentials for the bucket and the bucket has 'public' in the name, the
+     returned resource will use an unsigned signature.
     """
     session_keys, bucket_name = get_aws_access_keys(alyx, repo_name)
+    no_creds = not any(filter(None, (v for k, v in session_keys.items() if 'key' in k.lower())))
     session = boto3.Session(**session_keys)
-    s3 = session.resource('s3')
+    if no_creds and 'public' in bucket_name.lower():
+        config = Config(signature_version=UNSIGNED)
+    else:
+        config = None
+    s3 = session.resource('s3', config=config)
     return s3, bucket_name
 
 

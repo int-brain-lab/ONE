@@ -11,6 +11,7 @@ from one.tests import TEST_DB_1, OFFLINE_ONLY, util
 from one.webclient import AlyxClient
 try:
     import one.remote.aws as aws
+    from botocore import UNSIGNED
 except ModuleNotFoundError:
     raise unittest.SkipTest('boto3 module not installed')
 
@@ -68,11 +69,14 @@ class TestAWS(unittest.TestCase):
     repo = None
 
     tempdir = None
-    one = None
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.tempdir = util.set_up_env()
+        cls.expected_credentials = {
+            'aws_access_key_id': 'ABCDEF',
+            'aws_secret_access_key': 'shhh',
+            'region_name': None}
         with mock.patch('one.params.iopar.getfile', new=partial(util.get_file, cls.tempdir.name)):
             # util.setup_test_params(token=True)
             cls.alyx = AlyxClient(
@@ -83,13 +87,33 @@ class TestAWS(unittest.TestCase):
     def test_credentials(self):
         """Test for one.remote.aws.get_aws_access_keys function."""
         cred, bucket_name = aws.get_aws_access_keys(self.alyx, 'aws_cortexlab')
-        expected = {
-            'aws_access_key_id': 'ABCDEF',
-            'aws_secret_access_key': 'shhh',
-            'region_name': None
-        }
-        self.assertDictEqual(cred, expected)
+        self.assertDictEqual(cred, self.expected_credentials)
         self.assertEqual(bucket_name, 's3_bucket')
+
+    @mock.patch('boto3.Session')
+    def test_get_s3_from_alyx(self, session_mock):
+        """Tests for one.remote.aws.get_s3_from_alyx function"""
+        s3, bucket_name = aws.get_s3_from_alyx(self.alyx, 'aws_cortexlab')
+        self.assertEqual(bucket_name, 's3_bucket')
+        session_mock.assert_called_once_with(**self.expected_credentials)
+        resource = session_mock().resource
+        resource.assert_called_once_with('s3', config=None)
+        self.assertIs(s3, resource())
+
+        # Assert that resource is unsigned when no credentials are returned
+        session_mock.reset_mock()
+        repo_json = {'json': {'bucket_name': 'public_foo'}}
+        with mock.patch.object(self.alyx, 'rest', return_value=repo_json):
+            s3, _ = aws.get_s3_from_alyx(self.alyx)
+        _, kwargs = resource.call_args
+        self.assertIs(kwargs['config'].signature_version, UNSIGNED)
+        # If the bucket does not have 'public' in the name, no assumptions should be made about
+        # the credentials
+        session_mock.reset_mock()
+        repo_json['json']['bucket_name'] = 'private_foo'
+        with mock.patch.object(self.alyx, 'rest', return_value=repo_json):
+            s3, _ = aws.get_s3_from_alyx(self.alyx)
+        resource.assert_called_once_with('s3', config=None)
 
 
 class TestUtils(unittest.TestCase):
@@ -112,5 +136,5 @@ class TestUtils(unittest.TestCase):
             aws.get_s3_virtual_host('s3://my-s3-bucket/path/to/file', 'wrong-foo-4')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False)
