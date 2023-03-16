@@ -105,7 +105,8 @@ class TestAWS(unittest.TestCase):
         repo_json = {'json': {'bucket_name': 'public_foo'}}
         with mock.patch.object(self.alyx, 'rest', return_value=repo_json):
             s3, _ = aws.get_s3_from_alyx(self.alyx)
-        self.assertIs(resource.call_args.kwargs['config'].signature_version, UNSIGNED)
+        _, kwargs = resource.call_args
+        self.assertIs(kwargs['config'].signature_version, UNSIGNED)
         # If the bucket does not have 'public' in the name, no assumptions should be made about
         # the credentials
         session_mock.reset_mock()
