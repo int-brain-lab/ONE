@@ -1,11 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.4]
 
 ### Modified
 
 - HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.3]
+## [1.21.3]
 
 ### Modified
 
