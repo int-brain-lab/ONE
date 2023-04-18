@@ -321,12 +321,8 @@ class One(ConversionMixin):
             return [], None
         if sessions_only:
             name = 'session_uuid'
-            if self._cache['_loaded_datasets'].dtype == 'int64' or self._index_type() is int:
-                # We're unlikely to return to int IDs and all caches should be cast to str on load
-                raise NotImplementedError('Saving integer session IDs not supported')
-            else:
-                idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
-                ids = self._cache['datasets'][idx].index.unique('eid').values
+            idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
+            ids = self._cache['datasets'][idx].index.unique('eid').values
         else:
             name = 'dataset_uuid'
             ids = self._cache['_loaded_datasets']
@@ -462,18 +458,14 @@ class One(ConversionMixin):
                 sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset check is biggest so this should be done last
             elif key == 'dataset':
-                index = ['eid_0', 'eid_1'] if self._index_type('datasets') is int else 'eid'
                 query = util.ensure_list(value)
                 datasets = self._cache['datasets']
-                if self._index_type() is int:
-                    idx = np.array(sessions.index.tolist())
-                    datasets = datasets.loc[(idx[:, 0], idx[:, 1], ), ]
-                else:
-                    datasets = datasets.loc[(sessions.index.values, ), :]
+                has_dset = sessions.index.isin(datasets.index.get_level_values('eid'))
+                datasets = datasets.loc[(sessions.index.values[has_dset], ), :]
                 # For each session check any dataset both contains query and exists
                 mask = (
                     (datasets
-                        .groupby(index, sort=False)
+                        .groupby('eid', sort=False)
                         .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
                 )
                 # eids of matching dataset records
@@ -487,8 +479,6 @@ class One(ConversionMixin):
             return ([], None) if details else []
         sessions = sessions.sort_values(['date', 'subject', 'number'], ascending=False)
         eids = sessions.index.to_list()
-        if self._index_type() is int:
-            eids = parquet.np2str(np.array(eids))
 
         if details:
             return eids, sessions.reset_index(drop=True).to_dict('records', Bunch)
@@ -554,7 +544,11 @@ class One(ConversionMixin):
                     datasets.at[i, 'exists'] = not rec['exists']
                     if update_exists:
                         _logger.debug('Updating exists field')
-                        self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
+                        if isinstance(i, tuple):
+                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
+                        else:  # eid index level missing in datasets input
+                            i = pd.IndexSlice[:, i]
+                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
                         self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
@@ -578,33 +572,6 @@ class One(ConversionMixin):
         # Return full list of file paths
         return files
 
-    def _index_type(self, table='sessions'):
-        """For a given table return the index type.
-
-        Parameters
-        ----------
-        table : str, pd.DataFrame
-            The cache table to check
-
-        Returns
-        -------
-        type
-            The type of the table index, either str or int
-
-        Raises
-        ------
-        IndexError
-            Unable to determine the index type of the cache table
-        """
-        table = self._cache[table] if isinstance(table, str) else table
-        idx_0 = table.index.values[0]
-        if len(table.index.names) % 2 == 0 and all(isinstance(x, int) for x in idx_0):
-            return int
-        elif all(isinstance(x, str) for x in util.ensure_list(idx_0)):
-            return str
-        else:
-            raise IndexError
-
     @util.refresh
     @util.parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
@@ -624,10 +591,8 @@ class One(ConversionMixin):
             A session record or full DataFrame with dataset information if full is True
         """
         # Int ids return DataFrame, making str eid a list ensures Series not returned
-        int_ids = self._index_type() is int
-        idx = parquet.str2np(eid).tolist() if int_ids else [eid]
         try:
-            det = self._cache['sessions'].loc[idx]
+            det = self._cache['sessions'].loc[[eid]]
             assert len(det) == 1
         except KeyError:
             raise alferr.ALFObjectNotFound(eid)
@@ -635,9 +600,8 @@ class One(ConversionMixin):
             raise alferr.ALFMultipleObjectsFound(f'Multiple sessions in cache for eid {eid}')
         if not full:
             return det.iloc[0]
-        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']  # .reset_index(to_drop, drop=True)
-        column = ['eid_0', 'eid_1'] if int_ids else 'eid'
-        return self._cache['datasets'].join(det, on=column, how='right')
+        # .reset_index('eid', drop=True)
+        return self._cache['datasets'].join(det, on='eid', how='right')
 
     @util.refresh
     def list_subjects(self) -> List[str]:
@@ -717,11 +681,7 @@ class One(ConversionMixin):
         if not eid:
             return datasets.iloc[0:0]  # Return empty
         try:
-            if self._index_type() is int:
-                eid_num, = parquet.str2np(eid)
-                datasets = datasets.loc[pd.IndexSlice[eid_num, ], :]
-            else:
-                datasets = datasets.loc[(eid,), :]
+            datasets = datasets.loc[(eid,), :]
         except KeyError:
             return datasets.iloc[0:0]  # Return empty
 
@@ -1135,7 +1095,7 @@ class One(ConversionMixin):
 
         # Make list of metadata Bunches out of the table
         records = (present_datasets
-                   .reset_index()
+                   .reset_index(names='id')
                    .to_dict('records', Bunch))
 
         # Ensure result same length as input datasets list
@@ -1168,24 +1128,19 @@ class One(ConversionMixin):
         np.ndarray, pathlib.Path
             Dataset data (or filepath if download_only) and dataset record if details is True
         """
-        int_idx = self._index_type('datasets') is int
-        if isinstance(dset_id, str) and int_idx:
-            dset_id = parquet.str2np(dset_id)
-        elif isinstance(dset_id, UUID):
-            dset_id = parquet.uuid2np([dset_id]) if int_idx else str(dset_id)
-        elif not int_idx and not isinstance(dset_id, str):
+        if isinstance(dset_id, UUID):
+            dset_id = str(dset_id)
+        elif not isinstance(dset_id, str):
             dset_id, = parquet.np2str(dset_id)
         try:
-            if int_idx:
-                idx = (slice(None), slice(None), *dset_id.tolist())
-                dataset = self._cache['datasets'].loc[idx, :].squeeze()
-            else:
-                dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
+            dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
             if dataset.empty:
                 raise alferr.ALFObjectNotFound('Dataset not found')
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
+        except KeyError:
+            raise alferr.ALFObjectNotFound('Dataset not found')
 
         filepath, = self._check_filesystem(dataset)
         if not filepath:
@@ -1905,8 +1860,6 @@ class OneAlyx(One):
         # Download datasets from AWS
         import one.remote.aws as aws
         s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
-        if self._index_type() is int:
-            raise NotImplementedError('AWS download only supported for str index cache')
         assert self.mode != 'local'
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
@@ -1980,8 +1933,7 @@ class OneAlyx(One):
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)  # NB: URL will always be returned but may not exist
-                is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
-                did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
+                did = util.ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
                 repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
                 url = next(
@@ -1993,10 +1945,6 @@ class OneAlyx(One):
         # Update cache if url not found
         if did is not None and not url and update_cache:
             _logger.debug('Updating cache')
-            if isinstance(did, str) and self._index_type('datasets') is int:
-                did, = parquet.str2np(did).tolist()
-            elif self._index_type('datasets') is str and not isinstance(did, str):
-                did = parquet.np2str(did)
             # NB: This will be considerably easier when IndexSlice supports Ellipsis
             idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
             self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False

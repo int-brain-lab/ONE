@@ -1,8 +1,10 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.4]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.0.0]
 
 ### Modified
 
+- Removed support for integer UUIDs in cache tables
+- Support for pandas versions 1.5 - 2.0
 - HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
 
 ## [1.21.3]

@@ -178,5 +178,5 @@ class TestsONEParquet(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False)
