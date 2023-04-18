@@ -148,6 +148,7 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         'session_path': 'subject/1900-01-01/001',
         'file_size': None,
         'hash': None,
+        'exists': True,
         'eid': str(uuid4()),
         'id': map(str, (uuid4() for _ in rel_path))
     }
