@@ -28,7 +28,7 @@ from .alf.cache import make_parquet_db
 from .alf.files import rel_path_parts, get_session_path, get_alf_path, add_uuid_string
 from .alf.spec import is_uuid_string
 from . import __version__
-from one.converters import ConversionMixin
+from one.converters import ConversionMixin, session_record2path
 import one.util as util
 
 _logger = logging.getLogger(__name__)
@@ -515,6 +515,24 @@ class One(ConversionMixin):
             datasets = util.datasets2records(list(datasets))
         indices_to_download = []  # indices of datasets that need (re)downloading
         files = []  # file path list to return
+        # If the session_path field is missing from the datasets table, fetch from sessions table
+        if 'session_path' not in datasets.columns:
+            if 'eid' not in datasets.index.names:
+                # Get slice of full frame with eid in index
+                _dsets = self._cache['datasets'][
+                    self._cache['datasets'].index.get_level_values(1).isin(datasets.index)
+                ]
+                idx =_dsets.index.get_level_values(1)
+            else:
+                _dsets = datasets
+                idx = pd.IndexSlice[:, _dsets.index.get_level_values(1)]
+            # Ugly but works over unique sessions, which should be quicker
+            session_path = (self._cache['sessions']
+                            .loc[_dsets.index.get_level_values(0).unique()]
+                            .apply(session_record2path, axis=1))
+            datasets.loc[idx, 'session_path'] = \
+                pd.Series(_dsets.index.get_level_values(0)).map(session_path).values
+
         # First go through datasets and check if file exists and hash matches
         for i, rec in datasets.iterrows():
             file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])

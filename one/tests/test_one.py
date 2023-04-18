@@ -428,6 +428,26 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             self.one.get_details(eid)
 
+    def test_check_filesystem(self):
+        """Test for One._check_filesystem.
+        Most is already covered by other tests, this checks that it can deal with dataset frame
+        without eid index and without a session_path column.
+        """
+        # Get two eids to test
+        eids = self.one._cache['datasets'].index.get_level_values(0)[[0, -1]]
+        datasets = self.one._cache['datasets'].loc[eids].drop('session_path', axis=1)
+        files = self.one._check_filesystem(datasets)
+        self.assertEqual(53, len(files))
+        # Expect same number of unique session paths as eids
+        session_paths = set(map(lambda p: p.parents[1], files))
+        self.assertEqual(len(eids), len(session_paths))
+        expected = map(lambda x: '/'.join(x.parts[-3:]), session_paths)
+        session_parts = self.one._cache['sessions'].loc[eids, ['subject', 'date', 'number']].values
+        self.assertCountEqual(expected, map(lambda x: f'{x[0]}/{x[1]}/{x[2]:03}', session_parts))
+        # Attempt the same with the eid index missing
+        datasets = datasets.droplevel(0).drop('session_path', axis=1)
+        self.assertEqual(files, self.one._check_filesystem(datasets))
+
     def test_load_dataset(self):
         """Test One.load_dataset"""
         eid = 'KS005/2019-04-02/001'
