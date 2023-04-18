@@ -1825,7 +1825,7 @@ class OneAlyx(One):
         def _add_date(records):
             """Add date field for compatibility with One.search output."""
             for s in util.ensure_list(records):
-                s['date'] = str(datetime.fromisoformat(s['start_time']).date())
+                s['date'] = datetime.fromisoformat(s['start_time']).date()
             return records
 
         return eids, util.LazyId(ses, func=_add_date)
