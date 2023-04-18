@@ -8,6 +8,7 @@
 - HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
 - date field of session details a datetime.date object in remote mode (now consistent with local mode)
 - support datasets table without session_path field
+- clearer error message cache directory not available
 
 ## [1.21.3]
 

@@ -648,7 +648,8 @@ class TestONECache(unittest.TestCase):
         info = self.one._cache['_meta']['raw']['datasets']
         with tempfile.TemporaryDirectory() as tdir:
             # Loading from empty dir
-            self.one.load_cache(tdir)
+            # In offline mode, load_cache will not raise, but should warn when no tables found
+            self.assertWarns(UserWarning, self.one.load_cache, tdir)
             self.assertTrue(self.one._cache['_meta']['expired'])
             # Save unindexed
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
@@ -1038,6 +1039,12 @@ class TestOneAlyx(unittest.TestCase):
                     self.one.load_cache(clobber=True)
                     self.assertEqual('local', self.one.mode)
                 self.assertTrue('Failed to connect' in lg.output[-1])
+
+                # In online mode, the error cause should suggest re-running setup
+                with mock.patch.object(self.one.alyx, 'get', side_effect=FileNotFoundError), \
+                        self.assertRaises(FileNotFoundError) as cm:
+                    self.one.load_cache(clobber=True)
+                self.assertIn('run ONE.setup', str(cm.exception.__cause__))
 
             cache_info = {'min_api_version': '200.0.0'}
             # Check version verification

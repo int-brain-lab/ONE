@@ -143,6 +143,8 @@ class One(ConversionMixin):
             meta['expired'] = True
             meta['raw'] = {}
             self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
+            if self.offline:  # In online mode, the cache tables should be downloaded later
+                warnings.warn(f'No cache tables found in {self._tables_dir}')
         created = [datetime.fromisoformat(x['date_created'])
                    for x in meta['raw'].values() if 'date_created' in x]
         if created:
@@ -1497,6 +1499,13 @@ class OneAlyx(One):
             _logger.debug(ex)
             _logger.error(f'{type(ex).__name__}: Failed to connect to Alyx')
             self.mode = 'local'
+        except FileNotFoundError as ex:
+            # NB: this error is only raised in online mode
+            raise ex from FileNotFoundError(
+                f'Cache directory not accessible: {tables_dir or self.cache_dir}\n'
+                'Please provide valid tables_dir / cache_dir kwargs '
+                'or run ONE.setup to update the default directory.'
+            )
 
     @property
     def alyx(self):
