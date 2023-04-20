@@ -25,15 +25,13 @@ def Listable(t):
     return Union[t, Sequence[t]]
 
 
-def ses2records(ses: dict, int_id=False):
+def ses2records(ses: dict):
     """Extract session cache record and datasets cache from a remote session data record.
 
     Parameters
     ----------
     ses : dict
         Session dictionary from Alyx REST endpoint
-    int_id : bool
-        If True, the UUIDs are converted to two int64s
 
     Returns
     -------
@@ -44,8 +42,6 @@ def ses2records(ses: dict, int_id=False):
     """
     # Extract session record
     eid = ses['url'][-36:]
-    if int_id:
-        eid = tuple(parquet.str2np(eid).flatten())
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
     session = (
@@ -57,12 +53,8 @@ def ses2records(ses: dict, int_id=False):
     # Extract datasets table
     def _to_record(d):
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        if int_id:
-            rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
-            rec['eid_0'], rec['eid_1'] = session.name
-        else:
-            rec['id'] = d['id']
-            rec['eid'] = session.name
+        rec['id'] = d['id']
+        rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = get_alf_path(alfio.remove_uuid_file(file_path, dry=True))
         rec['session_path'] = get_session_path(file_path).as_posix()
@@ -73,12 +65,12 @@ def ses2records(ses: dict, int_id=False):
     if not ses.get('data_dataset_session_related'):
         return session, pd.DataFrame()
     records = map(_to_record, ses['data_dataset_session_related'])
-    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    index = ['eid', 'id']
     datasets = pd.DataFrame(records).set_index(index).sort_index()
     return session, datasets
 
 
-def datasets2records(datasets, int_id=False) -> pd.DataFrame:
+def datasets2records(datasets) -> pd.DataFrame:
     """Extract datasets DataFrame from one or more Alyx dataset records
 
     Parameters
@@ -90,8 +82,6 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
     -------
     pd.DataFrame
         Datasets frame
-    int_id : bool
-        If True, the UUIDs are converted to two int64s
 
     Examples
     --------
@@ -105,12 +95,8 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
         if not file_record:
             continue  # Ignore files that are not accessible
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        if int_id:
-            rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
-            rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
-        else:
-            rec['id'] = d['url'][-36:]
-            rec['eid'] = d['session'][-36:]
+        rec['id'] = d['url'][-36:]
+        rec['eid'] = d['session'][-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = get_alf_path(data_url.path.strip('/'))
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
@@ -119,7 +105,7 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
         rec['default_revision'] = d['default_dataset']
         records.append(rec)
 
-    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    index = ['eid', 'id']
     if not records:
         keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision')
         return pd.DataFrame(columns=keys).set_index(index)
