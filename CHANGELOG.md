@@ -5,12 +5,13 @@
 
 - removed support for integer UUIDs in cache tables
 - support for pandas versions 1.5 - 2.0
-- HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- bugfix: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
 - date field of session details a datetime.date object in remote mode (now consistent with local mode)
 - support datasets table without session_path field
 - clearer error message cache directory not available
 - official support of relative path inputs for One.load_dataset(s)
 - support hyphens in ALF collection spec
+- bugfix: one.webclient.http_download_file returns Path as documented, instead of str
 
 ## [1.21.3]
 
