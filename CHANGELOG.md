@@ -10,6 +10,7 @@
 - support datasets table without session_path field
 - clearer error message cache directory not available
 - official support of relative path inputs for One.load_dataset(s)
+- support hyphens in ALF collection spec
 
 ## [1.21.3]
 
