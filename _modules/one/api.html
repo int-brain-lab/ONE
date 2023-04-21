@@ -769,25 +769,25 @@
 <span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
 <span class="sd">            details dict or Path.</span>
 <span class="sd">        filename : str, dict, list</span>
-<span class="sd">            Filters datasets and returns only the ones matching the filename</span>
+<span class="sd">            Filters datasets and returns only the ones matching the filename.</span>
 <span class="sd">            Supports lists asterisks as wildcards.  May be a dict of ALF parts.</span>
 <span class="sd">        collection : str, list</span>
 <span class="sd">            The collection to which the object belongs, e.g. &#39;alf/probe01&#39;.</span>
 <span class="sd">            This is the relative path of the file from the session root.</span>
 <span class="sd">            Supports asterisks as wildcards.</span>
 <span class="sd">        revision : str</span>
-<span class="sd">            Filters datasets and returns only the ones matching the revision</span>
-<span class="sd">            Supports asterisks as wildcards</span>
+<span class="sd">            Filters datasets and returns only the ones matching the revision.</span>
+<span class="sd">            Supports asterisks as wildcards.</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            When true, a pandas DataFrame is returned, otherwise a numpy array of</span>
 <span class="sd">            relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        np.ndarray, pd.DataFrame</span>
-<span class="sd">            Slice of datasets table or numpy array if details is False</span>
+<span class="sd">            Slice of datasets table or numpy array if details is False.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1551,7 +1551,7 @@
         <span class="n">raw_meta</span> <span class="o">=</span> <span class="n">cache_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[{}]</span>
         <span class="c1"># If user provides tag that doesn&#39;t match current cache&#39;s tag, always download.</span>
         <span class="c1"># NB: In the future &#39;database_tags&#39; may become a list.</span>
-        <span class="n">current_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">raw_meta</span><span class="p">]</span>
+        <span class="n">current_tags</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database_tags&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">raw_meta</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_tags</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s1">&#39;Loading cache tables with multiple tags is not currently supported&#39;</span>
@@ -1841,6 +1841,16 @@
 <span class="sd">        (list of dicts)</span>
 <span class="sd">            If details is True, also returns a list of dictionaries, each entry corresponding to a</span>
 <span class="sd">            matching insertion.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - This method does not use the local cache and therefore can not work in &#39;local&#39; mode.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        List the insertions associated with a given data release</span>
+<span class="sd">        &gt;&gt;&gt; tag = &#39;2022_Q2_IBL_et_al_RepeatedSite&#39;</span>
+<span class="sd">        ... ins = one.search_insertions(django=&#39;datasets__tags__name,&#39; + tag)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
         <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">and</span> <span class="s1">&#39;insertions&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>

@@ -355,20 +355,20 @@ datasets is returned (their relative paths).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename.
 Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
 <li><p><strong>collection</strong> (<em>str</em><em>, </em><em>list</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
-<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision
-Supports asterisks as wildcards</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision.
+Supports asterisks as wildcards.</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
 relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</p></li>
-<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Slice of datasets table or numpy array if details is False</p>
+<dd class="field-even"><p>Slice of datasets table or numpy array if details is False.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray, pd.DataFrame</p>
@@ -808,20 +808,20 @@ datasets is returned (their relative paths).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename.
 Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
 <li><p><strong>collection</strong> (<em>str</em><em>, </em><em>list</em>) – The collection to which the object belongs, e.g. ‘alf/probe01’.
 This is the relative path of the file from the session root.
 Supports asterisks as wildcards.</p></li>
-<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision
-Supports asterisks as wildcards</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision.
+Supports asterisks as wildcards.</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – When true, a pandas DataFrame is returned, otherwise a numpy array of
 relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</p></li>
-<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Slice of datasets table or numpy array if details is False</p>
+<dd class="field-even"><p>Slice of datasets table or numpy array if details is False.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray, pd.DataFrame</p>
@@ -940,6 +940,14 @@ matching insertion.</p></li>
 </p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This method does not use the local cache and therefore can not work in ‘local’ mode.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p>List the insertions associated with a given data release
+&gt;&gt;&gt; tag = ‘2022_Q2_IBL_et_al_RepeatedSite’
+… ins = one.search_insertions(django=’datasets__tags__name,’ + tag)</p>
 </dd></dl>
 
 <dl class="py method">
