@@ -78,13 +78,15 @@ def ses2records(ses: dict, int_id=False):
     return session, datasets
 
 
-def datasets2records(datasets, int_id=False) -> pd.DataFrame:
+def datasets2records(datasets, additional=None) -> pd.DataFrame:
     """Extract datasets DataFrame from one or more Alyx dataset records
 
     Parameters
     ----------
     datasets : dict, list
         One or more records from the Alyx 'datasets' endpoint
+    additional : list of str
+        A set of optional fields to extract from dataset records.
 
     Returns
     -------
@@ -105,21 +107,21 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
         if not file_record:
             continue  # Ignore files that are not accessible
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        if int_id:
-            rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
-            rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
-        else:
-            rec['id'] = d['url'][-36:]
-            rec['eid'] = d['session'][-36:]
+        rec['id'] = d['url'][-36:]
+        rec['eid'] = (d['session'] or '')[-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = get_alf_path(data_url.path.strip('/'))
         file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
-        rec['session_path'] = get_session_path(file_path).as_posix()
+        rec['session_path'] = get_session_path(file_path) or ''
+        if rec['session_path']:
+            rec['session_path'] = rec['session_path'].as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_dataset']
+        for field in additional or []:
+            rec[field] = d.get(field)
         records.append(rec)
 
-    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    index = ['eid', 'id']
     if not records:
         keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision')
         return pd.DataFrame(columns=keys).set_index(index)
