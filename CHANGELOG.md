@@ -4,6 +4,8 @@
 ### Modified
 
 - HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- HOTFIX: fix error in load_cache when switching from tagged cache
+- frozen pandas below 2.0
 
 ## [1.21.3]
 
