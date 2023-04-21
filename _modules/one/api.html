@@ -1546,6 +1546,15 @@
 <span class="sd">            If True, query Alyx for a newer cache even if current (local) cache is recent.</span>
 <span class="sd">        tag : str</span>
 <span class="sd">            An optional Alyx dataset tag for loading cache tables containing a subset of datasets.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To load the cache tables for a given release tag</span>
+<span class="sd">        &gt;&gt;&gt; one.load_cache(tag=&#39;2022_Q2_IBL_et_al_RepeatedSite&#39;)</span>
+
+<span class="sd">        To reset the cache tables after loading a tag</span>
+<span class="sd">        &gt;&gt;&gt; ONE.cache_clear()</span>
+<span class="sd">        ... one = ONE()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">raw_meta</span> <span class="o">=</span> <span class="n">cache_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[{}]</span>
