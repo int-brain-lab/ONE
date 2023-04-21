@@ -1417,6 +1417,15 @@ class OneAlyx(One):
             If True, query Alyx for a newer cache even if current (local) cache is recent.
         tag : str
             An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
+
+        Examples
+        --------
+        To load the cache tables for a given release tag
+        >>> one.load_cache(tag='2022_Q2_IBL_et_al_RepeatedSite')
+
+        To reset the cache tables after loading a tag
+        >>> ONE.cache_clear()
+        ... one = ONE()
         """
         cache_meta = self._cache.get('_meta', {})
         raw_meta = cache_meta.get('raw', {}).values() or [{}]
