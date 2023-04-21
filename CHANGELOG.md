@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.3]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.4]
+
+### Modified
+
+- HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- HOTFIX: fix error in load_cache when switching from tagged cache
+- frozen pandas below 2.0
+
+## [1.21.3]
 
 ### Modified
 
