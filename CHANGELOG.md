@@ -4,11 +4,18 @@
 ### Modified
 
 - removed support for integer UUIDs in cache tables
-- support for pandas versions 1.5 - 2.0
-- HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- support for pandas versions 1.5 - 2.0; dropped support for Python 3.7
 - date field of session details a datetime.date object in remote mode (now consistent with local mode)
 - support datasets table without session_path field
 - clearer error message cache directory not available
+
+## [1.21.4]
+
+### Modified
+
+- HOTFIX: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- HOTFIX: fix error in load_cache when switching from tagged cache
+- frozen pandas below 2.0
 
 ## [1.21.3]
 
