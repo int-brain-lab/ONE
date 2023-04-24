@@ -649,25 +649,25 @@ class One(ConversionMixin):
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         filename : str, dict, list
-            Filters datasets and returns only the ones matching the filename
+            Filters datasets and returns only the ones matching the filename.
             Supports lists asterisks as wildcards.  May be a dict of ALF parts.
         collection : str, list
             The collection to which the object belongs, e.g. 'alf/probe01'.
             This is the relative path of the file from the session root.
             Supports asterisks as wildcards.
         revision : str
-            Filters datasets and returns only the ones matching the revision
-            Supports asterisks as wildcards
+            Filters datasets and returns only the ones matching the revision.
+            Supports asterisks as wildcards.
         details : bool
             When true, a pandas DataFrame is returned, otherwise a numpy array of
             relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
         query_type : str
-            Query cache ('local') or Alyx database ('remote')
+            Query cache ('local') or Alyx database ('remote').
 
         Returns
         -------
         np.ndarray, pd.DataFrame
-            Slice of datasets table or numpy array if details is False
+            Slice of datasets table or numpy array if details is False.
 
         Examples
         --------
@@ -1417,12 +1417,21 @@ class OneAlyx(One):
             If True, query Alyx for a newer cache even if current (local) cache is recent.
         tag : str
             An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
+
+        Examples
+        --------
+        To load the cache tables for a given release tag
+        >>> one.load_cache(tag='2022_Q2_IBL_et_al_RepeatedSite')
+
+        To reset the cache tables after loading a tag
+        >>> ONE.cache_clear()
+        ... one = ONE()
         """
         cache_meta = self._cache.get('_meta', {})
         raw_meta = cache_meta.get('raw', {}).values() or [{}]
         # If user provides tag that doesn't match current cache's tag, always download.
         # NB: In the future 'database_tags' may become a list.
-        current_tags = [x.get('database_tags') for x in raw_meta]
+        current_tags = flatten(x.get('database_tags') for x in raw_meta)
         if len(set(filter(None, current_tags))) > 1:
             raise NotImplementedError(
                 'Loading cache tables with multiple tags is not currently supported'
@@ -1431,8 +1440,7 @@ class OneAlyx(One):
         different_tag = any(x != tag for x in current_tags)
         if not (clobber or different_tag):
             super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
-            cache_meta = self._cache.get('_meta', {})  # TODO Make walrus when we drop 3.7 support
-            expired = self._cache and cache_meta['expired']
+            expired = self._cache and (cache_meta := self._cache.get('_meta', {}))['expired']
             if not expired or self.mode in {'local', 'remote'}:
                 return
 
@@ -1719,6 +1727,16 @@ class OneAlyx(One):
         (list of dicts)
             If details is True, also returns a list of dictionaries, each entry corresponding to a
             matching insertion.
+
+        Notes
+        -----
+        - This method does not use the local cache and therefore can not work in 'local' mode.
+
+        Examples
+        --------
+        List the insertions associated with a given data release
+        >>> tag = '2022_Q2_IBL_et_al_RepeatedSite'
+        ... ins = one.search_insertions(django='datasets__tags__name,' + tag)
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
