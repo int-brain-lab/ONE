@@ -1440,8 +1440,7 @@ class OneAlyx(One):
         different_tag = any(x != tag for x in current_tags)
         if not (clobber or different_tag):
             super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
-            cache_meta = self._cache.get('_meta', {})  # TODO Make walrus when we drop 3.7 support
-            expired = self._cache and cache_meta['expired']
+            expired = self._cache and (cache_meta := self._cache.get('_meta', {}))['expired']
             if not expired or self.mode in {'local', 'remote'}:
                 return
 

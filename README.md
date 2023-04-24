@@ -7,7 +7,7 @@ The Open Neurophysiology Environment is a scheme for sharing neurophysiology dat
 **NB**: The API and backend database are still under active development, for the best experience please regularly update the package by running `pip install -U ONE-api`. 
 
 ## Requirements
-ONE runs on Python 3.7 or later, and is tested on the latest Ubuntu and Windows (3.7 and 3.8 only).
+ONE runs on Python 3.8 or later, and is tested on the latest Ubuntu and Windows (3.8 and 3.11 only).
 
 ## Installing
 Installing the package via pip typically takes a few seconds.  To install, run
