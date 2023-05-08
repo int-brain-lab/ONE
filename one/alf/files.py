@@ -396,3 +396,25 @@ def add_uuid_string(file_path, uuid):
         _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
         return file_path
     return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
+
+
+def remove_uuid_string(file_path):
+    """
+    Remove UUID from a filename of an ALF path
+
+    Parameters
+    ----------
+    file_path : str, pathlib.Path, pathlib.PurePath
+        An ALF path to add the UUID to
+
+    Returns
+    -------
+    pathlib.Path
+        A new Path object without an UUID in the filename
+    """
+    file_path = Path(file_path)
+    name_parts = file_path.stem.split('.')
+
+    if spec.is_uuid_string(name_parts[-1]):
+        file_path = file_path.with_stem('.'.join(name_parts[:-1]))
+    return file_path

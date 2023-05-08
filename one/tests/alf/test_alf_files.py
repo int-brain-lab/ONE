@@ -163,6 +163,20 @@ class TestAlfParse(unittest.TestCase):
         with self.assertRaises(ValueError):
             files.add_uuid_string('/foo/bar.npy', 'fake')
 
+    def test_remove_uuid(self):
+        # Test for one.alf.files.remove_uuid, first test with full file
+        file_path = "/tmp/Subjects/CSHL063/2020-09-12/001/raw_ephys_data/probe00/" \
+                    "_spikeglx_sync.channels.probe00.89c861ea-66aa-4729-a808-e79f84d08b81.npy"
+        desired_output = Path(file_path).with_name("_spikeglx_sync.channels.probe00.npy")
+        files.remove_uuid_string(file_path)
+        assert desired_output == files.remove_uuid_string(file_path)
+        assert desired_output == files.remove_uuid_string(desired_output)
+
+        # test with single
+        file_path = "toto.89c861ea-66aa-4729-a808-e79f84d08b81.npy"
+        desired_output = Path("toto.npy")
+        assert desired_output == files.remove_uuid_string(file_path)
+
 
 class TestALFGet(unittest.TestCase):
     """Tests for path extraction functions"""
