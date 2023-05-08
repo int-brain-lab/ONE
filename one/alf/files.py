@@ -416,5 +416,5 @@ def remove_uuid_string(file_path):
     name_parts = file_path.stem.split('.')
 
     if spec.is_uuid_string(name_parts[-1]):
-        file_path = file_path.with_stem('.'.join(name_parts[:-1]))
+        file_path = file_path.with_name('.'.join(name_parts[:-1]) + file_path.suffix)
     return file_path
