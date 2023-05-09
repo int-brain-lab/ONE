@@ -636,13 +636,10 @@ def remove_uuid_file(file_path, dry=False) -> Path:
     """
     Renames a file without the UUID and returns the new pathlib.Path object
     """
-    if isinstance(file_path, str):
-        file_path = Path(file_path)
-    name_parts = file_path.name.split('.')
-    if not spec.is_uuid_string(name_parts[-2]):
-        return file_path
-    name_parts.pop(-2)
-    new_path = file_path.parent.joinpath('.'.join(name_parts))
+    file_path = Path(file_path)
+    new_path = files.remove_uuid_string(file_path)
+    if new_path == file_path:
+        return new_path
     if not dry and file_path.exists():
         file_path.replace(new_path)
     return new_path
