@@ -1609,6 +1609,122 @@ class OneAlyx(One):
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
+    def list_aggregates(self, relation: str, identifier: str = None,
+                        dataset=None, revision=None, assert_unique=False):
+        """
+        List datasets aggregated over a given relation.
+
+        Parameters
+        ----------
+        relation : str
+            The thing over which the data were aggregated, e.g. 'subjects' or 'tags'.
+        identifier : str
+            The ID of the datasets, e.g. for data over subjects this would be lab/subject.
+        dataset : str, dict, list
+            Filters datasets and returns only the ones matching the filename.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        revision : str
+            Filters datasets and returns only the ones matching the revision.
+            Supports asterisks as wildcards.
+        assert_unique : bool
+            When true an error is raised if multiple collections or datasets are found.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The matching aggregate dataset records.
+
+        Examples
+        --------
+        List datasets aggregated over a specific subject's sessions
+
+        >>> trials = one.list_aggregates('subjects', 'SP026')
+        """
+        query = 'session__isnull,True'  # ',data_repository_name__endswith,aggregates'
+        all_aggregates = self.alyx.rest('datasets', 'list', django=query)
+        records = (util.datasets2records(all_aggregates)
+                   .reset_index(level=0)
+                   .drop('eid', axis=1)
+                   .rename_axis(index={'id': 'did'}))
+        records['relation'] = records['rel_path'].map(lambda x: x.split('/')[1].lower())
+        records = records[records['relation'] == relation.lower()]
+
+        def path2id(p) -> str:
+            """Extract identifier from relative path."""
+            parts = rel_path_parts(p)[0].split('/')
+            idx = list(map(str.lower, parts)).index(relation.lower()) + 1
+            return '/'.join(parts[idx:])
+
+        records['identifier'] = records['rel_path'].map(path2id)
+        if identifier is not None:
+            # NB: We avoid exact matches as most users will only include subject, not lab/subject
+            records = records[records['identifier'].str.contains(identifier)]
+
+        # Add exists_aws field for download method
+        for i, rec in records.iterrows():
+            fr = next(x['file_records'] for x in all_aggregates if x['url'].endswith(i))
+            records.loc[i, 'exists_aws'] = any(
+                x['data_repository'].startswith('aws') and x['exists'] for x in fr)
+        return util.filter_datasets(records, filename=dataset, revision=revision,
+                                    wildcards=True, assert_unique=assert_unique)
+
+    def load_aggregate(self, relation: str, identifier: str,
+                       dataset=None, revision=None, download_only=False):
+        """
+        Load a single aggregated dataset for a given string identifier.
+
+        Loads data aggregated over a relation such as subject, project or tag.
+
+        Parameters
+        ----------
+        relation : str
+            The thing over which the data were aggregated, e.g. 'subjects' or 'tags'.
+        identifier : str
+            The ID of the datasets, e.g. for data over subjects this would be lab/subject.
+        dataset : str, dict, list
+            Filters datasets and returns only the ones matching the filename.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        revision : str
+            Filters datasets and returns only the ones matching the revision.
+            Supports asterisks as wildcards.
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+
+        Returns
+        -------
+        pandas.DataFrame, pathlib.Path
+            Dataset or a Path object if download_only is true.
+
+        Raises
+        ------
+        alferr.ALFObjectNotFound
+            No datasets match the object, attribute or revision filters for this relation and
+             identifier.
+            Matching dataset was not found on disk (neither on the remote repository or locally).
+
+        Examples
+        --------
+        Load a dataset aggregated over a specific subject's sessions
+
+        >>> trials = one.load_aggregate('subjects', 'SP026', '_ibl_subjectTraining.table')
+
+        """
+        # If only two parts and wildcards are on, append ext wildcard
+        if self.wildcards and isinstance(dataset, str) and len(dataset.split('.')) == 2:
+            dataset += '.*'
+            _logger.debug('Appending extension wildcard: ' + dataset)
+
+        records = self.list_aggregates(relation, identifier,
+                                       dataset=dataset, revision=revision, assert_unique=True)
+        if records.empty:
+            raise alferr.ALFObjectNotFound(
+                f'{dataset or "dataset"} not found for {relation}/{identifier}')
+        # update_exists=False because these datasets are not in the cache table
+        file, = self._check_filesystem(records, update_exists=False)
+        if not file:
+            raise alferr.ALFObjectNotFound('Dataset file not found on disk')
+        return file if download_only else alfio.load_file_content(file)
+
     @util.refresh
     def pid2eid(self, pid: str, query_type=None) -> (str, str):
         """

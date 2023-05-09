@@ -1,6 +1,11 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.0.0]
 
+### Added
+
+- OneAlyx.list_aggregates method to list datasets computed across more than one session
+- OneAlyx.load_aggregate method to load dataset computed across more than one session
+
 ### Modified
 
 - removed support for integer UUIDs in cache tables

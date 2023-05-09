@@ -1138,6 +1138,45 @@ class TestOneAlyx(unittest.TestCase):
             self.one._download_datasets(dsets)
             fallback_method.assert_called()
 
+    def test_list_aggregates(self):
+        """Test OneAlyx.list_aggregates"""
+        # Test listing by relation
+        datasets = self.one.list_aggregates('subjects')
+        self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects')))
+        self.assertIn('exists_aws', datasets.columns)
+        self.assertIn('session_path', datasets.columns)
+        self.assertTrue(all(datasets['session_path'] == ''))
+        self.assertTrue(self.one.list_aggregates('foobar').empty)
+        # Test filtering with an identifier
+        datasets = self.one.list_aggregates('subjects', 'ZM_1085')
+        self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects/ZM_1085')))
+        self.assertTrue(self.one.list_aggregates('subjects', 'foobar').empty)
+
+    def test_load_aggregate(self):
+        """Test OneAlyx.load_aggregate"""
+        # Test object not found on disk
+        assert self.one.offline
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_aggregate('subjects', 'ZM_1085', '_ibl_subjectTraining.table.pqt')
+
+        # Touch a file to ensure that we do not try downloading
+        expected = self.one.cache_dir.joinpath(
+            'cortexlab/Subjects/ZM_1085/_ibl_subjectTraining.table.pqt')
+        expected.parent.mkdir(parents=True), expected.touch()
+
+        # Test loading with different input dataset formats
+        datasets = ['_ibl_subjectTraining.table.pqt',
+                    '_ibl_subjectTraining.table',
+                    {'object': 'subjectTraining', 'attribute': 'table'}]
+        for dset in datasets:
+            with self.subTest(dataset=dset):
+                file = self.one.load_aggregate('subjects', 'ZM_1085', dset, download_only=True)
+                self.assertEqual(expected, file)
+
+        # Test object not found
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_aggregate('subjects', 'ZM_1085', 'foo.bar')
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
@@ -1145,7 +1184,7 @@ class TestOneAlyx(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneRemote(unittest.TestCase):
-    """Test remote queries"""
+    """Test remote queries using OpenAlyx"""
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
