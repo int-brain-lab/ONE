@@ -8,6 +8,8 @@
 - date field of session details a datetime.date object in remote mode (now consistent with local mode)
 - support datasets table without session_path field
 - clearer error message cache directory not available
+- support hyphens in collection part of ALF specification
+- 
 
 ## [1.21.4]
 
