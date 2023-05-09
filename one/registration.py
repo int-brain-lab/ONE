@@ -101,7 +101,7 @@ class RegistrationClient:
                                 self.one.alyx.rest('data-formats', 'list', no_cache=True)]
 
     def create_sessions(self, root_data_folder, glob_pattern='**/create_me.flag',
-                        register_files=False, dry=False):
+                        register_files=False, dry=False, **kwargs):
         """
         Create sessions looking recursively for flag files.
 
@@ -131,7 +131,8 @@ class RegistrationClient:
                 continue
             _logger.info('creating session for ' + str(flag_file.parent))
             # providing a false flag stops the registration after session creation
-            session_info, _ = self.register_session(flag_file.parent, file_list=register_files)
+            session_info, _ = self.register_session(
+                flag_file.parent, file_list=register_files, **kwargs)
             records.append(session_info)
             flag_file.unlink()
         return [ff.parent for ff in flag_files], records
