@@ -31,16 +31,16 @@ def ses2records(ses: dict, int_id=False):
     Parameters
     ----------
     ses : dict
-        Session dictionary from Alyx REST endpoint
+        Session dictionary from Alyx REST endpoint.
     int_id : bool
-        If True, the UUIDs are converted to two int64s
+        If True, the UUIDs are converted to two int64s.
 
     Returns
     -------
     pd.Series
-        Session record
+        Session record.
     pd.DataFrame
-        Datasets frame
+        Datasets frame.
     """
     # Extract session record
     eid = ses['url'][-36:]
@@ -79,21 +79,19 @@ def ses2records(ses: dict, int_id=False):
 
 
 def datasets2records(datasets, additional=None) -> pd.DataFrame:
-    """Extract datasets DataFrame from one or more Alyx dataset records
+    """Extract datasets DataFrame from one or more Alyx dataset records.
 
     Parameters
     ----------
     datasets : dict, list
-        One or more records from the Alyx 'datasets' endpoint
+        One or more records from the Alyx 'datasets' endpoint.
     additional : list of str
         A set of optional fields to extract from dataset records.
 
     Returns
     -------
     pd.DataFrame
-        Datasets frame
-    int_id : bool
-        If True, the UUIDs are converted to two int64s
+        Datasets frame.
 
     Examples
     --------
@@ -130,22 +128,22 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
 
 def parse_id(method):
     """
-    Ensures the input experiment identifier is an experiment UUID string
+    Ensures the input experiment identifier is an experiment UUID string.
 
     Parameters
     ----------
     method : function
-        An ONE method whose second arg is an experiment ID
+        An ONE method whose second arg is an experiment ID.
 
     Returns
     -------
     function
-        A wrapper function that parses the ID to the expected string
+        A wrapper function that parses the ID to the expected string.
 
     Raises
     ------
     ValueError
-        Unable to convert input to a valid experiment ID
+        Unable to convert input to a valid experiment ID.
     """
 
     @wraps(method)
@@ -160,7 +158,7 @@ def parse_id(method):
 
 def refresh(method):
     """
-    Refresh cache depending of query_type kwarg
+    Refresh cache depending of query_type kwarg.
     """
 
     @wraps(method)
@@ -176,7 +174,7 @@ def refresh(method):
 
 def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     """
-    Validates and arrange date range in a 2 elements list
+    Validates and arrange date range in a 2 elements list.
 
     Parameters
     ----------
@@ -186,7 +184,7 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     Returns
     -------
     tuple of pd.Timestamp
-        The start and end timestamps
+        The start and end timestamps.
 
     Examples
     --------
@@ -202,7 +200,7 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     Raises
     ------
     ValueError
-        Size of date range tuple must be 1 or 2
+        Size of date range tuple must be 1 or 2.
     """
     if date_range is None:
         return
@@ -241,14 +239,14 @@ def _collection_spec(collection=None, revision=None) -> str:
     Parameters
     ----------
     collection : None, str
-        An optional collection regular expression
+        An optional collection regular expression.
     revision : None, str
-        An optional revision regular expression
+        An optional revision regular expression.
 
     Returns
     -------
     str
-        A string format for matching the collection/revision
+        A string format for matching the collection/revision.
     """
     spec = ''
     for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
@@ -282,7 +280,7 @@ def _file_spec(**kwargs):
     Returns
     -------
     str
-        A string format for matching an ALF dataset
+        A string format for matching an ALF dataset.
     """
     OPTIONAL = {'namespace': '?', 'timescale': '?', 'extra': '*'}
     filespec = FILE_SPEC
@@ -413,17 +411,17 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
     Parameters
     ----------
     datasets : pandas.DataFrame
-        A datasets cache table
+        A datasets cache table.
     revision : str
-        A revision string to match (regular expressions not permitted)
+        A revision string to match (regular expressions not permitted).
     assert_unique : bool
         When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
-        default revisions are found; an alferr.ALFError when no default revision is found
+        default revisions are found; an alferr.ALFError when no default revision is found.
 
     Returns
     -------
     pd.DataFrame
-        A datasets DataFrame with 0 or 1 row per unique dataset
+        A datasets DataFrame with 0 or 1 row per unique dataset.
     """
     def _last_before(df):
         """Takes a DataFrame with only one dataset and multiple revisions, returns matching row"""
@@ -464,14 +462,14 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     Parameters
     ----------
     revisions : list of strings
-        A list of revision strings
+        A list of revision strings.
     revision : None, str
-        The revision string to match on
+        The revision string to match on.
 
     Returns
     -------
     int, None
-        Index of revision before matching string in sorted list or None
+        Index of revision before matching string in sorted list or None.
 
     Examples
     --------
@@ -488,7 +486,7 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
 
 def autocomplete(term, search_terms) -> str:
     """
-    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
+    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'.
     """
     term = term.lower()
     # Check if term already complete
@@ -504,7 +502,7 @@ def autocomplete(term, search_terms) -> str:
 
 
 def ensure_list(value):
-    """Ensure input is a list"""
+    """Ensure input is a list."""
     return [value] if isinstance(value, (str, dict)) or not isinstance(value, Iterable) else value
 
 
@@ -551,7 +549,7 @@ def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
     Parameters
     ----------
     table : pd.DataFrame
-        A cache table (from One._cache)
+        A cache table (from One._cache).
 
     """
     # Convert integer uuids to str uuids

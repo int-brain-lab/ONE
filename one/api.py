@@ -1,5 +1,6 @@
 """Classes for searching, listing and (down)loading ALyx Files."""
 import collections.abc
+import urllib.parse
 import warnings
 import logging
 import packaging.version
@@ -524,7 +525,7 @@ class One(ConversionMixin):
                 _dsets = self._cache['datasets'][
                     self._cache['datasets'].index.get_level_values(1).isin(datasets.index)
                 ]
-                idx =_dsets.index.get_level_values(1)
+                idx = _dsets.index.get_level_values(1)
             else:
                 _dsets = datasets
                 idx = pd.IndexSlice[:, _dsets.index.get_level_values(1)]
@@ -944,7 +945,7 @@ class One(ConversionMixin):
                      download_only: bool = False,
                      **kwargs) -> Any:
         """
-        Load a single dataset for a given session id and dataset name
+        Load a single dataset for a given session id and dataset name.
 
         Parameters
         ----------
@@ -990,7 +991,7 @@ class One(ConversionMixin):
         # If only two parts and wildcards are on, append ext wildcard
         if self.wildcards and isinstance(dataset, str) and len(dataset.split('.')) == 2:
             dataset += '.*'
-            _logger.info('Appending extension wildcard: ' + dataset)
+            _logger.debug('Appending extension wildcard: ' + dataset)
 
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
                                         wildcards=self.wildcards)
@@ -1132,21 +1133,21 @@ class One(ConversionMixin):
                              download_only: bool = False,
                              details: bool = False) -> Any:
         """
-        Load a dataset given a dataset UUID
+        Load a dataset given a dataset UUID.
 
         Parameters
         ----------
         dset_id : uuid.UUID, str
-            A dataset UUID to load
+            A dataset UUID to load.
         download_only : bool
-            If true the dataset is downloaded (if necessary) and the filepath returned
+            If true the dataset is downloaded (if necessary) and the filepath returned.
         details : bool
-            If true a pandas Series is returned in addition to the data
+            If true a pandas Series is returned in addition to the data.
 
         Returns
         -------
         np.ndarray, pathlib.Path
-            Dataset data (or filepath if download_only) and dataset record if details is True
+            Dataset data (or filepath if download_only) and dataset record if details is True.
         """
         if isinstance(dset_id, UUID):
             dset_id = str(dset_id)
@@ -1223,9 +1224,9 @@ class One(ConversionMixin):
         Raises
         ------
         alferr.ALFError
-            No datasets exist for the provided session collection
+            No datasets exist for the provided session collection.
         alferr.ALFObjectNotFound
-            No datasets match the object, attribute or revision filters for this collection
+            No datasets match the object, attribute or revision filters for this collection.
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(eid, details=True, collection=collection,
@@ -2028,7 +2029,11 @@ class OneAlyx(One):
         valid_urls = list(filter(None, url))
         if not valid_urls:
             return [None] * len(url)
-        target_dir = [str(Path(cache_dir, get_alf_path(x)).parent) for x in valid_urls]
+
+        target_dir = []
+        for x in valid_urls:
+            _path = urllib.parse.urlsplit(x, allow_fragments=False).path.strip('/')
+            target_dir.append(str(Path(cache_dir, get_alf_path(_path)).parent))
         files = self._download_file(valid_urls, target_dir, **kwargs)
         # Return list of file paths or None if we failed to extract URL from dataset
         return [None if not x else files.pop(0) for x in url]

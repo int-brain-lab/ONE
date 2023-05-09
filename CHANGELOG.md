@@ -9,7 +9,7 @@
 - support datasets table without session_path field
 - clearer error message cache directory not available
 - support hyphens in collection part of ALF specification
-- 
+- bugfix: safer construction of target directory from dataset URL in OneAlyx._download_dataset
 
 ## [1.21.4]
 
