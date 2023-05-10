@@ -473,10 +473,18 @@ class TestONECache(unittest.TestCase):
         file.unlink()
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_dataset(eid, '_iblrig_leftCamera.timestamps.ssv')
+        with self.assertRaises(ValueError):
+            self.one.load_dataset(eid, 'alf/_ibl_trials.choice', collection='')
 
         # Check loading without extension
         file = self.one.load_dataset(eid, '_ibl_wheel.position', download_only=True)
         self.assertTrue(str(file).endswith('wheel.position.npy'))
+
+        # Check loading with relative path
+        file = self.one.load_dataset(eid, 'alf/_ibl_trials.choice.npy', download_only=True)
+        self.assertIsNotNone(file)
+        with self.assertWarns(UserWarning):
+            self.one.load_dataset(eid, 'alf*/_ibl_trials.choice.npy', download_only=True)
 
     def test_load_datasets(self):
         """Test One.load_datasets"""
@@ -512,6 +520,8 @@ class TestONECache(unittest.TestCase):
         # Check validations
         with self.assertRaises(ValueError):
             self.one.load_datasets(eid, dsets, collections=['alf', '', 'foo'])
+        with self.assertRaises(ValueError):
+            self.one.load_datasets(eid, [f'alf/{x}' for x in dsets], collections='alf')
         with self.assertRaises(TypeError):
             self.one.load_datasets(eid, 'spikes.times')
         with self.assertRaises(alferr.ALFObjectNotFound):
@@ -538,6 +548,22 @@ class TestONECache(unittest.TestCase):
         dsets = ['_ibl_wheel.position.npy', '_ibl_wheel.timestamps']
         files, meta = self.one.load_datasets(eid, dsets, download_only=True)
         self.assertTrue(all(isinstance(x, Path) for x in files))
+
+        # Loading of non default revisions without using the revision kwarg causes user warning.
+        # With relative paths provided as input, dataset uniqueness validation is supressed.
+        datasets = util.revisions_datasets_table(
+            revisions=('', '2020-01-08'), attributes=('times',))
+        datasets['default_revision'] = [False, True] * 3
+        eid = datasets.iloc[0].name[0]
+        self.one._cache.datasets = datasets
+        with self.assertWarns(UserWarning):
+            self.one.load_datasets(eid, datasets['rel_path'].to_list(),
+                                   download_only=True, assert_present=False)
+
+        # When loading without collections in the dataset list (i.e. just the dataset names)
+        # an exception should be raised when datasets belong to multiple collections.
+        self.assertRaises(
+            alferr.ALFMultipleCollectionsFound, self.one.load_datasets, eid, ['spikes.times'])
 
     def test_load_dataset_from_id(self):
         """Test One.load_dataset_from_id"""

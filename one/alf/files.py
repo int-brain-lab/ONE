@@ -371,19 +371,37 @@ def get_alf_path(path: Union[str, Path]) -> str:
 
 def add_uuid_string(file_path, uuid):
     """
-    Add a UUID and an extra part to the filename of an ALF path
+    Add a UUID to the filename of an ALF path.
+
+    Adds a UUID to an ALF filename as an extra part, e.g.
+    'obj.attr.ext' -> 'obj.attr.a976e418-c8b8-4d24-be47-d05120b18341.ext'.
 
     Parameters
     ----------
     file_path : str, pathlib.Path, pathlib.PurePath
-        An ALF path to add the UUID to
+        An ALF path to add the UUID to.
     uuid : str, uuid.UUID
-        The UUID to add
+        The UUID to add.
 
     Returns
     -------
-    pathlib.Path
-        A new Path object with a UUID in the filename
+    pathlib.Path, pathlib.PurePath
+        A new Path or PurePath object with a UUID in the filename.
+
+    Examples
+    --------
+    >>> add_uuid_string('/path/to/trials.intervals.npy', 'a976e418-c8b8-4d24-be47-d05120b18341')
+    Path('/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy')
+
+    Raises
+    ------
+    ValueError
+        `uuid` must be a valid hyphen-separated hexadecimal UUID.
+
+    See Also
+    --------
+    one.alf.io.remove_uuid_string
+    one.alf.spec.is_uuid
     """
     if isinstance(uuid, str) and not spec.is_uuid_string(uuid):
         raise ValueError('Should provide a valid UUID v4')
@@ -396,3 +414,38 @@ def add_uuid_string(file_path, uuid):
         _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
         return file_path
     return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
+
+
+def remove_uuid_string(file_path):
+    """
+    Remove UUID from a filename of an ALF path.
+
+    Parameters
+    ----------
+    file_path : str, pathlib.Path, pathlib.PurePath
+        An ALF path to add the UUID to.
+
+    Returns
+    -------
+    pathlib.Path, pathlib.PurePath
+        A new Path or PurePath object without a UUID in the filename.
+
+    Examples
+    --------
+    >>> add_uuid_string('/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy')
+    Path('/path/to/trials.intervals.npy')
+
+    >>> add_uuid_string('/path/to/trials.intervals.npy')
+    Path('/path/to/trials.intervals.npy')
+
+    See Also
+    --------
+    one.alf.io.add_uuid_string
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+    name_parts = file_path.stem.split('.')
+
+    if spec.is_uuid_string(name_parts[-1]):
+        file_path = file_path.with_name('.'.join(name_parts[:-1]) + file_path.suffix)
+    return file_path

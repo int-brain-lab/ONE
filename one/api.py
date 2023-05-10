@@ -982,10 +982,31 @@ class One(ConversionMixin):
 
         >>> intervals = one.load_dataset(eid, 'trials.intervals')  # wildcard mode only
         >>> intervals = one.load_dataset(eid, '.*trials.intervals.*')  # regex mode only
+        >>> intervals = one.load_dataset(eid, dict(object='trials', attribute='intervals'))
         >>> filepath = one.load_dataset(eid, '_ibl_trials.intervals.npy', download_only=True)
         >>> spike_times = one.load_dataset(eid, 'spikes.times.npy', collection='alf/probe01')
         >>> old_spikes = one.load_dataset(eid, 'spikes.times.npy',
         ...                               collection='alf/probe01', revision='2020-08-31')
+        >>> old_spikes = one.load_dataset(eid, 'alf/probe01/#2020-08-31#/spikes.times.npy')
+
+        Raises
+        ------
+        ValueError
+            When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
+            the collection and revision keyword arguments must be None.
+        one.alf.exceptions.ALFObjectNotFound
+            The dataset was not found in the cache or on disk.
+        one.alf.exceptions.ALFMultipleCollectionsFound
+            The dataset provided exists in multiple collections or matched multiple different
+            files. Provide a specific collection to load, and make sure any wildcard/regular
+            expressions are specific enough.
+
+        Warnings
+        --------
+        UserWarning
+            When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
+            wildcards/regular expressions must not be used. To use wildcards, pass the collection
+            and revision as separate keyword arguments.
         """
         datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
         # If only two parts and wildcards are on, append ext wildcard
@@ -993,8 +1014,15 @@ class One(ConversionMixin):
             dataset += '.*'
             _logger.debug('Appending extension wildcard: ' + dataset)
 
+        assert_unique = ('/' if isinstance(dataset, str) else 'collection') not in dataset
+        # Check if wildcard was used (this is not an exhaustive check)
+        if not assert_unique and isinstance(dataset, str) and '*' in dataset:
+            warnings.warn('Wildcards should not be used with relative path as input.')
+        if not assert_unique and (collection is not None or revision is not None):
+            raise ValueError(
+                'collection and revision kwargs must be None when dataset is a relative path')
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
-                                        wildcards=self.wildcards)
+                                        wildcards=self.wildcards, assert_unique=assert_unique)
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
@@ -1053,6 +1081,42 @@ class One(ConversionMixin):
             A list of data (or file paths) the length of datasets
         list
             A list of meta data Bunches. If assert_present is False, missing data will be None
+
+        Notes
+        -----
+        - There are three ways the datasets may be formatted: the object.attribute; the file name
+         (including namespace and extension); the ALF components as a dict; the dataset path,
+         relative to the session path, e.g. collection/object.attribute.ext.
+        - When relative paths are provided (e.g. 'collection/#revision#/object.attribute.ext'),
+         wildcards/regular expressions must not be used. To use wildcards, pass the collection and
+         revision as separate keyword arguments.
+        - To ensure you are loading the correct revision, use the revisions kwarg instead of
+         relative paths.
+
+        Raises
+        ------
+        ValueError
+            When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
+            the collection and revision keyword arguments must be None.
+        ValueError
+            If a list of collections or revisions are provided, they must match the number of
+            datasets passed in.
+        TypeError
+            The datasets argument must be a non-string iterable.
+        one.alf.exceptions.ALFObjectNotFound
+            One or more of the datasets was not found in the cache or on disk.  To suppress this
+            error and return None for missing datasets, use assert_present=False.
+        one.alf.exceptions.ALFMultipleCollectionsFound
+            One or more of the dataset(s) provided exist in multiple collections. Provide the
+            specific collections to load, and if using wildcards/regular expressions, make sure
+            the expression is specific enough.
+
+        Warnings
+        --------
+        UserWarning
+            When providing a list of relative dataset paths, this warning occurs if one or more
+            of the datasets are not marked as default revisions.  Avoid such warnings by explicitly
+            passing in the required revisions with the revisions keyword argument.
         """
 
         def _verify_specifiers(specifiers):
@@ -1089,10 +1153,27 @@ class One(ConversionMixin):
         if self.wildcards:  # Append extension wildcard if 'object.attribute' string
             datasets = [x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
                         for x in datasets]
-        slices = [util.filter_datasets(all_datasets, x, y, z, wildcards=self.wildcards)
+        # If collections provided in datasets list, e.g. [collection/x.y.z], do not assert unique
+        validate = not any(('/' if isinstance(d, str) else 'collection') in d for d in datasets)
+        if not validate and not all(x is None for x in collections + revisions):
+            raise ValueError(
+                'collection and revision kwargs must be None when dataset is a relative path')
+        ops = dict(wildcards=self.wildcards, assert_unique=validate)
+        slices = [util.filter_datasets(all_datasets, x, y, z, **ops)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
         present_datasets = pd.concat(slices)
+
+        # Check if user is blindly downloading all data and warn of non-default revisions
+        if 'default_revision' in present_datasets and \
+                not any(revisions) and not all(present_datasets['default_revision']):
+            old = present_datasets.loc[~present_datasets['default_revision'], 'rel_path'].to_list()
+            warnings.warn(
+                'The following datasets may have been revised and ' +
+                'are therefore not recommended for analysis:\n\t' +
+                '\n\t'.join(old) + '\n'
+                'To avoid this warning, specify the revision as a kwarg or use load_dataset.'
+            )
 
         if not all(present):
             missing_list = ', '.join(x for x, y in zip(datasets, present) if not y)

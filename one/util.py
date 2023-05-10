@@ -432,7 +432,9 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
                 raise alferr.ALFMultipleRevisionsFound(rev_list)
             if sum(df.default_revision) == 1:
                 return df[df.default_revision]
-            # default_revision column all False; default doesn't isn't copied to remote repository
+            if len(df) == 1:  # This may be the case when called from load_datasets
+                return df  # It's not the default be there's only one available revision
+            # default_revision column all False; default isn't copied to remote repository
             dset_name = df['rel_path'].iloc[0]
             if assert_unique:
                 raise alferr.ALFError(f'No default revision for dataset {dset_name}')
