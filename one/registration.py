@@ -373,7 +373,7 @@ class RegistrationClient:
             kwargs.update({'lab': details['lab']})
         elif details['lab'] and kwargs.get('lab', details['lab']) != details['lab']:
             names = (kwargs['lab'], details['lab'])
-            raise ValueError('lab kwarg "%s" does not match lab name in path ("%s")' % names)
+            _logger.warning('lab kwarg "%s" does not match lab name in path ("%s")' % names)
         ses_.update(kwargs)
 
         if not session:  # Create from scratch
