@@ -21,9 +21,8 @@ import pandas as pd
 from iblutil.io import parquet
 from iblutil.util import Bunch
 
-import one.alf.io as alfio
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.files import get_session_path, add_uuid_string, session_path_parts
+from one.alf.files import get_session_path, add_uuid_string, session_path_parts, remove_uuid_string
 from .util import Listable, ensure_list
 
 
@@ -256,7 +255,7 @@ class ConversionMixin:
         if isinstance(path, str) and path.startswith('http'):
             # Remove the UUID from path
             path = urlsplit(path).path.strip('/')
-            path = alfio.remove_uuid_file(PurePosixPath(path), dry=True)
+            path = remove_uuid_string(PurePosixPath(path))
             session_path = get_session_path(path).as_posix()
         else:
             # No way of knowing root session path parts without cache tables
