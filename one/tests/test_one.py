@@ -939,6 +939,12 @@ class TestOneAlyx(unittest.TestCase):
         self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
 
+        # Test extracts additional fields
+        fields = ('url', 'auto_datetime')
+        datasets = datasets2records(dsets, additional=fields)
+        self.assertTrue(set(datasets.columns) >= set(fields))
+        self.assertTrue(all(datasets['url'].str.startswith('http')))
+
         # Test single input
         dataset = datasets2records(dsets[0])
         self.assertTrue(len(dataset) == 1)
@@ -1533,6 +1539,12 @@ class TestOneDownload(unittest.TestCase):
             self.assertFalse(
                 datasets.loc[pd.IndexSlice[:, dsets.index[0]], 'exists_aws'].any()
             )
+
+        # Check falls back to HTTP when error raised
+        with mock.patch('one.remote.aws.get_s3_from_alyx', side_effect=RuntimeError), \
+                mock.patch.object(self.one, '_download_dataset') as mock_method:
+            self.one._download_datasets(dsets)
+            mock_method.assert_called_with(dsets)
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.

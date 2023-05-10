@@ -16,9 +16,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 from typing import Optional, Union, Mapping, List, Iterable as Iter
 
-import numpy as np
 import pandas as pd
-from iblutil.io import parquet
 from iblutil.util import Bunch
 
 from one.alf.spec import is_session_path, is_uuid_string
@@ -215,8 +213,6 @@ class ConversionMixin:
         assert len(sessions) == 1
 
         eid, = sessions.index.values
-        if isinstance(eid, tuple):
-            eid = parquet.np2str(np.array(eid))
         return eid
 
     @recurse
@@ -310,17 +306,17 @@ class ConversionMixin:
         # FIXME Should be OneAlyx converter only
         if isinstance(record, pd.DataFrame):
             return [self.record2url(r) for _, r in record.iterrows()]
-        if isinstance(record, pd.Series):
+        elif isinstance(record, pd.Series):
             is_session_record = 'rel_path' not in record
             if is_session_record:
                 # NB: This assumes the root path is in the webclient URL
                 session_spec = '{lab}/Subjects/{subject}/{date}/{number:03d}'
                 url = record.get('session_path') or session_spec.format(**record)
                 return webclient.rel_path2url(url)
-            if all(isinstance(x, (int, np.int64)) for x in record.name):
-                uuid, = parquet.np2str(np.array([record.name[-2:]]))
-            else:
-                uuid = ensure_list(record.name)[-1]  # may be (eid, did) or simply did
+            uuid = ensure_list(record.name)[-1]  # may be (eid, did) or simply did
+        else:
+            raise TypeError(
+                f'record must be pandas.DataFrame or pandas.Series, got {type(record)} instead')
 
         session_path, rel_path = record[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)

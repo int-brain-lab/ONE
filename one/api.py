@@ -329,8 +329,6 @@ class One(ConversionMixin):
         else:
             name = 'dataset_uuid'
             ids = self._cache['_loaded_datasets']
-            if ids.dtype != '<U36':
-                ids = parquet.np2str(ids)
 
         timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
         filename = Path(self._tables_dir or self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
@@ -1236,8 +1234,6 @@ class One(ConversionMixin):
             dset_id, = parquet.np2str(dset_id)
         try:
             dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
-            if dataset.empty:
-                raise alferr.ALFObjectNotFound('Dataset not found')
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')

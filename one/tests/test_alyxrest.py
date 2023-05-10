@@ -16,7 +16,7 @@ from one.tests import TEST_DB_1, OFFLINE_ONLY
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestREST(unittest.TestCase):
-    """Tests for AlyxClient.rest method and remote Alyx REST interations."""
+    """Tests for AlyxClient.rest method and remote Alyx REST interactions."""
     EID = 'cf264653-2deb-44cb-aa84-89b82507028a'
     EID_EPHYS = 'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
     alyx = None

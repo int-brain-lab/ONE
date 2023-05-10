@@ -248,6 +248,8 @@ class TestOnlineConverters(unittest.TestCase):
         expected = 'https://ibl.flatironinstitute.org/public/' \
                    'hoferlab/Subjects/SWC_043/2020-09-21/001'
         self.assertEqual(expected, url)
+        # Check type checking
+        self.assertRaises(TypeError, self.one.record2url, rec.to_dict())
 
     def test_record2path(self):
         """Test for ConversionMixin.record2path"""
