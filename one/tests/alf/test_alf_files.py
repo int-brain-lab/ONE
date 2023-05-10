@@ -149,7 +149,7 @@ class TestAlfParse(unittest.TestCase):
             self.assertEqual(o, files._isdatetime(i))
 
     def test_add_uuid(self):
-        """Test for one.alf.files.add_uuid"""
+        """Test for one.alf.files.add_uuid_string."""
         _uuid = uuid.uuid4()
 
         file_with_uuid = f'/titi/tutu.part1.part1.{_uuid}.json'
@@ -162,6 +162,21 @@ class TestAlfParse(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             files.add_uuid_string('/foo/bar.npy', 'fake')
+
+    def test_remove_uuid(self):
+        """Test for one.alf.files.remove_uuid_string."""
+        # First test with full file
+        file_path = '/tmp/Subjects/CSHL063/2020-09-12/001/raw_ephys_data/probe00/' \
+                    '_spikeglx_sync.channels.probe00.89c861ea-66aa-4729-a808-e79f84d08b81.npy'
+        desired_output = Path(file_path).with_name('_spikeglx_sync.channels.probe00.npy')
+        files.remove_uuid_string(file_path)
+        self.assertEqual(desired_output, files.remove_uuid_string(file_path))
+        self.assertEqual(desired_output, files.remove_uuid_string(desired_output))
+
+        # Test with just file name
+        file_path = 'toto.89c861ea-66aa-4729-a808-e79f84d08b81.npy'
+        desired_output = Path('toto.npy')
+        self.assertEqual(desired_output, files.remove_uuid_string(file_path))
 
 
 class TestALFGet(unittest.TestCase):
