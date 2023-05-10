@@ -17,7 +17,7 @@ class TestALFSpec(unittest.TestCase):
         verifiable = alf_spec.regex()
         expected = ('((?P<lab>\\w+)/Subjects/)?'
                     '(?P<subject>[\\w-]+)/(?P<date>\\d{4}-\\d{2}-\\d{2})/(?P<number>\\d{1,3})/'
-                    '((?P<collection>[\\w/]+)/)?(#(?P<revision>[\\w-]+)#/)?'
+                    '((?P<collection>[\\w/-]+)/)?(#(?P<revision>[\\w-]+)#/)?'
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
                     '(?P<attribute>(?:_[a-z]+_)?[a-zA-Z0-9]+'
                     '(?:_times(?=[_.])|_intervals(?=[_.]))?)'

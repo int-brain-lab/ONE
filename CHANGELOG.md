@@ -3,20 +3,25 @@
 
 ### Added
 
+- OneAlyx.list_aggregates method to list datasets computed across more than one session
+- OneAlyx.load_aggregate method to load dataset computed across more than one session
 - one.alf.files.remove_uuid_string, complimenting add_uuid_string
 
 ### Modified
 
 - removed support for integer UUIDs in cache tables
-- support for pandas versions 1.5 - 2.0
-- bugfix: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- support for pandas versions 1.5 - 2.0; dropped support for Python 3.7
 - date field of session details a datetime.date object in remote mode (now consistent with local mode)
+- support datasets table without session_path field
+- clearer error message when cache directory not available
+- support hyphens in collection part of ALF specification
+- bugfix: safer construction of target directory from dataset URL in OneAlyx._download_dataset
+- bugfix: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
 - support datasets table without session_path field
 - clearer error message cache directory not available
 - official support of relative path inputs for One.load_dataset(s)
-- support hyphens in ALF collection spec
 - bugfix: one.webclient.http_download_file returns Path as documented, instead of str
-- deprecated one.alf.io.remove_uuid_file and remove_uuid_recursive in favour of 
+- deprecated one.alf.io.remove_uuid_file and remove_uuid_recursive in favour of one.alf.files.remove_uuid_string
 
 ## [1.21.4]
 

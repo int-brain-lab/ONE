@@ -118,14 +118,20 @@ site you are attempting to access with ONE (no need to log in)
 This is a unique issue with the way that the Windows OS handles certificates.
 
 ## How do I download the datasets cache for a specific IBL paper release?
-With OpenAlyx you have the ability to download cache tables containing datasets with a specific release tag.
+You can download cache tables containing datasets with a specific release tag.
 
 ```python
 from one.api import ONE
 
-one = ONE(base_url='https://openalyx.internationalbrainlab.org', password='international', silent=True)
+one = ONE()
 TAG = '2021_Q1_IBL_et_al_Behaviour'  # Release tag to download cache for
 one.load_cache(tag=TAG)
+```
+
+To return to the full cache containing an index of all experiments:
+```python
+ONE.cache_clear()
+one = ONE()
 ```
 
 ## How do I check which version of ONE I'm using within Python?

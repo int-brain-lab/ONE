@@ -921,11 +921,6 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
         self.assertTrue(datasets.default_revision.all())
 
-        # Check int_id as True
-        session, datasets = ses2records(ses, int_id=True)
-        self.assertEqual(session.name, (-7544566139326771059, -2928913016589240914))
-        self.assertEqual(tuple(datasets.index.names), ('eid_0', 'eid_1', 'id_0', 'id_1'))
-
         # Check behaviour when no datasets present
         ses['data_dataset_session_related'] = []
         _, datasets = ses2records(ses)
@@ -943,10 +938,6 @@ class TestOneAlyx(unittest.TestCase):
         expected = self.one._cache['datasets'].columns
         self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
-
-        # Check behaviour when ind_id is True
-        datasets = datasets2records(dsets, int_id=True)
-        self.assertEqual(tuple(datasets.index.names), ('eid_0', 'eid_1', 'id_0', 'id_1'))
 
         # Test single input
         dataset = datasets2records(dsets[0])
@@ -1164,6 +1155,45 @@ class TestOneAlyx(unittest.TestCase):
             self.one._download_datasets(dsets)
             fallback_method.assert_called()
 
+    def test_list_aggregates(self):
+        """Test OneAlyx.list_aggregates"""
+        # Test listing by relation
+        datasets = self.one.list_aggregates('subjects')
+        self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects')))
+        self.assertIn('exists_aws', datasets.columns)
+        self.assertIn('session_path', datasets.columns)
+        self.assertTrue(all(datasets['session_path'] == ''))
+        self.assertTrue(self.one.list_aggregates('foobar').empty)
+        # Test filtering with an identifier
+        datasets = self.one.list_aggregates('subjects', 'ZM_1085')
+        self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects/ZM_1085')))
+        self.assertTrue(self.one.list_aggregates('subjects', 'foobar').empty)
+
+    def test_load_aggregate(self):
+        """Test OneAlyx.load_aggregate"""
+        # Test object not found on disk
+        assert self.one.offline
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_aggregate('subjects', 'ZM_1085', '_ibl_subjectTraining.table.pqt')
+
+        # Touch a file to ensure that we do not try downloading
+        expected = self.one.cache_dir.joinpath(
+            'cortexlab/Subjects/ZM_1085/_ibl_subjectTraining.table.pqt')
+        expected.parent.mkdir(parents=True), expected.touch()
+
+        # Test loading with different input dataset formats
+        datasets = ['_ibl_subjectTraining.table.pqt',
+                    '_ibl_subjectTraining.table',
+                    {'object': 'subjectTraining', 'attribute': 'table'}]
+        for dset in datasets:
+            with self.subTest(dataset=dset):
+                file = self.one.load_aggregate('subjects', 'ZM_1085', dset, download_only=True)
+                self.assertEqual(expected, file)
+
+        # Test object not found
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            self.one.load_aggregate('subjects', 'ZM_1085', 'foo.bar')
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.tempdir.cleanup()
@@ -1171,7 +1201,7 @@ class TestOneAlyx(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneRemote(unittest.TestCase):
-    """Test remote queries"""
+    """Test remote queries using OpenAlyx"""
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2)
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
@@ -1440,12 +1470,13 @@ class TestOneDownload(unittest.TestCase):
         self.assertEqual(str(file).split('.')[2], rec['url'].split('/')[-1])
 
         # Check list input
-        files = self.one._download_dataset([rec] * 2)
+        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[0]]
+        files = self.one._download_dataset(recs)
         self.assertIsInstance(files, list)
         self.assertTrue(all(isinstance(x, Path) for x in files))
 
         # Check Series input
-        r_ = datasets2records(rec, int_id=True).squeeze()
+        r_ = datasets2records(rec).squeeze()
         file = self.one._download_dataset(r_)
         self.assertIn('channels.brainLocation', file.as_posix())
 
@@ -1607,8 +1638,7 @@ class TestOneSetup(unittest.TestCase):
             params_username = one.params.get(client=TEST_DB_1['base_url']).ALYX_LOGIN
             self.assertEqual(params_username, one_obj.alyx.user)
             self.assertEqual(credentials['username'], one_obj.alyx.user)
-            _, kwargs = req_mock.call_args
-            self.assertEqual(kwargs.get('data', {}), credentials)
+            self.assertEqual(req_mock.call_args.kwargs.get('data', {}), credentials)
 
             # Reinstantiate as a different user
             one_obj = ONE(base_url='https://test.alyx.internationalbrainlab.org',
