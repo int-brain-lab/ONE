@@ -1470,7 +1470,8 @@ class TestOneDownload(unittest.TestCase):
         self.assertEqual(str(file).split('.')[2], rec['url'].split('/')[-1])
 
         # Check list input
-        files = self.one._download_dataset([rec] * 2)
+        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[0]]
+        files = self.one._download_dataset(recs)
         self.assertIsInstance(files, list)
         self.assertTrue(all(isinstance(x, Path) for x in files))
 
