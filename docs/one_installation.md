@@ -68,3 +68,12 @@ To update, open a shell terminal, activate the environment `iblenv` and launch t
 ```python
 pip install -U ONE-api
 ```
+
+You can check the API version with Python one of two ways:
+```python
+from one.api import ONE
+print(ONE.version)
+
+from one import __version__
+print(__version__)
+```

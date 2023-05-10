@@ -175,8 +175,6 @@ class ConversionMixin:
             return
 
         # load path from cache
-        if self._index_type() is int:
-            eid = parquet.str2np(eid).tolist()
         try:
             ses = self._cache['sessions'].loc[eid].squeeze()
             assert isinstance(ses, pd.Series), 'Duplicate eids in sessions table'
