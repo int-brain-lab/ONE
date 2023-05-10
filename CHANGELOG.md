@@ -1,5 +1,24 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [1.21.4]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.0.0]
+
+### Added
+
+- one.alf.files.remove_uuid_string, complimenting add_uuid_string
+
+### Modified
+
+- removed support for integer UUIDs in cache tables
+- support for pandas versions 1.5 - 2.0
+- bugfix: mkdir called on destination instead of default location in AlyxClient.download_cache_tables
+- date field of session details a datetime.date object in remote mode (now consistent with local mode)
+- support datasets table without session_path field
+- clearer error message cache directory not available
+- official support of relative path inputs for One.load_dataset(s)
+- support hyphens in ALF collection spec
+- bugfix: one.webclient.http_download_file returns Path as documented, instead of str
+- deprecated one.alf.io.remove_uuid_file and remove_uuid_recursive in favour of 
+
+## [1.21.4]
 
 ### Modified
 

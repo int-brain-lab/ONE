@@ -14,6 +14,7 @@ import re
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import Union
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -634,8 +635,23 @@ def save_metadata(file_alf, dico) -> None:
 
 def remove_uuid_file(file_path, dry=False) -> Path:
     """
-    Renames a file without the UUID and returns the new pathlib.Path object
+    (DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.
+
+    Parameters
+    ----------
+    file_path : str, pathlib.Path
+        An ALF path containing a UUID in the file name.
+    dry : bool
+        If False, the file is not renamed on disk.
+
+    Returns
+    -------
+    pathlib.Path
+        The new file path without the UUID in the file name.
     """
+    warnings.warn(
+        'remove_uuid_file deprecated, use one.alf.files.remove_uuid_string instead',
+        DeprecationWarning)
     file_path = Path(file_path)
     new_path = files.remove_uuid_string(file_path)
     if new_path == file_path:
@@ -647,8 +663,18 @@ def remove_uuid_file(file_path, dry=False) -> Path:
 
 def remove_uuid_recursive(folder, dry=False) -> None:
     """
-    Within a folder, recursive renaming of all files to remove UUID
+    (DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.
+
+    Parameters
+    ----------
+    folder : str, pathlib.Path
+        A folder to recursively iterate, removing UUIDs from the file names.
+    dry : bool
+        If False renames the files on disk.
     """
+    warnings.warn(
+        'remove_uuid_recursive is deprecated and will be removed in the next release',
+        DeprecationWarning)
     for fn in Path(folder).rglob('*.*'):
         print(remove_uuid_file(fn, dry=dry))
 
