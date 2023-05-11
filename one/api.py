@@ -1,5 +1,6 @@
 """Classes for searching, listing and (down)loading ALyx Files."""
 import collections.abc
+import urllib.parse
 import warnings
 import logging
 import packaging.version
@@ -23,12 +24,12 @@ from iblutil.util import Bunch, flatten
 import one.params
 import one.webclient as wc
 import one.alf.io as alfio
+import one.alf.files as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db
-from .alf.files import rel_path_parts, get_session_path, get_alf_path, add_uuid_string
 from .alf.spec import is_uuid_string
 from . import __version__
-from one.converters import ConversionMixin
+from one.converters import ConversionMixin, session_record2path
 import one.util as util
 
 _logger = logging.getLogger(__name__)
@@ -143,6 +144,8 @@ class One(ConversionMixin):
             meta['expired'] = True
             meta['raw'] = {}
             self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
+            if self.offline:  # In online mode, the cache tables should be downloaded later
+                warnings.warn(f'No cache tables found in {self._tables_dir}')
         created = [datetime.fromisoformat(x['date_created'])
                    for x in meta['raw'].values() if 'date_created' in x]
         if created:
@@ -321,17 +324,11 @@ class One(ConversionMixin):
             return [], None
         if sessions_only:
             name = 'session_uuid'
-            if self._cache['_loaded_datasets'].dtype == 'int64' or self._index_type() is int:
-                # We're unlikely to return to int IDs and all caches should be cast to str on load
-                raise NotImplementedError('Saving integer session IDs not supported')
-            else:
-                idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
-                ids = self._cache['datasets'][idx].index.unique('eid').values
+            idx = self._cache['datasets'].index.isin(self._cache['_loaded_datasets'], 'id')
+            ids = self._cache['datasets'][idx].index.unique('eid').values
         else:
             name = 'dataset_uuid'
             ids = self._cache['_loaded_datasets']
-            if ids.dtype != '<U36':
-                ids = parquet.np2str(ids)
 
         timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
         filename = Path(self._tables_dir or self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
@@ -462,18 +459,14 @@ class One(ConversionMixin):
                 sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset check is biggest so this should be done last
             elif key == 'dataset':
-                index = ['eid_0', 'eid_1'] if self._index_type('datasets') is int else 'eid'
                 query = util.ensure_list(value)
                 datasets = self._cache['datasets']
-                if self._index_type() is int:
-                    idx = np.array(sessions.index.tolist())
-                    datasets = datasets.loc[(idx[:, 0], idx[:, 1], ), ]
-                else:
-                    datasets = datasets.loc[(sessions.index.values, ), :]
+                has_dset = sessions.index.isin(datasets.index.get_level_values('eid'))
+                datasets = datasets.loc[(sessions.index.values[has_dset], ), :]
                 # For each session check any dataset both contains query and exists
                 mask = (
                     (datasets
-                        .groupby(index, sort=False)
+                        .groupby('eid', sort=False)
                         .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
                 )
                 # eids of matching dataset records
@@ -487,8 +480,6 @@ class One(ConversionMixin):
             return ([], None) if details else []
         sessions = sessions.sort_values(['date', 'subject', 'number'], ascending=False)
         eids = sessions.index.to_list()
-        if self._index_type() is int:
-            eids = parquet.np2str(np.array(eids))
 
         if details:
             return eids, sessions.reset_index(drop=True).to_dict('records', Bunch)
@@ -525,6 +516,24 @@ class One(ConversionMixin):
             datasets = util.datasets2records(list(datasets))
         indices_to_download = []  # indices of datasets that need (re)downloading
         files = []  # file path list to return
+        # If the session_path field is missing from the datasets table, fetch from sessions table
+        if 'session_path' not in datasets.columns:
+            if 'eid' not in datasets.index.names:
+                # Get slice of full frame with eid in index
+                _dsets = self._cache['datasets'][
+                    self._cache['datasets'].index.get_level_values(1).isin(datasets.index)
+                ]
+                idx = _dsets.index.get_level_values(1)
+            else:
+                _dsets = datasets
+                idx = pd.IndexSlice[:, _dsets.index.get_level_values(1)]
+            # Ugly but works over unique sessions, which should be quicker
+            session_path = (self._cache['sessions']
+                            .loc[_dsets.index.get_level_values(0).unique()]
+                            .apply(session_record2path, axis=1))
+            datasets.loc[idx, 'session_path'] = \
+                pd.Series(_dsets.index.get_level_values(0)).map(session_path).values
+
         # First go through datasets and check if file exists and hash matches
         for i, rec in datasets.iterrows():
             file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
@@ -554,7 +563,11 @@ class One(ConversionMixin):
                     datasets.at[i, 'exists'] = not rec['exists']
                     if update_exists:
                         _logger.debug('Updating exists field')
-                        self._cache['datasets'].loc[(slice(None), i), 'exists'] = not rec['exists']
+                        if isinstance(i, tuple):
+                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
+                        else:  # eid index level missing in datasets input
+                            i = pd.IndexSlice[:, i]
+                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
                         self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
@@ -578,33 +591,6 @@ class One(ConversionMixin):
         # Return full list of file paths
         return files
 
-    def _index_type(self, table='sessions'):
-        """For a given table return the index type.
-
-        Parameters
-        ----------
-        table : str, pd.DataFrame
-            The cache table to check
-
-        Returns
-        -------
-        type
-            The type of the table index, either str or int
-
-        Raises
-        ------
-        IndexError
-            Unable to determine the index type of the cache table
-        """
-        table = self._cache[table] if isinstance(table, str) else table
-        idx_0 = table.index.values[0]
-        if len(table.index.names) % 2 == 0 and all(isinstance(x, int) for x in idx_0):
-            return int
-        elif all(isinstance(x, str) for x in util.ensure_list(idx_0)):
-            return str
-        else:
-            raise IndexError
-
     @util.refresh
     @util.parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
@@ -624,10 +610,8 @@ class One(ConversionMixin):
             A session record or full DataFrame with dataset information if full is True
         """
         # Int ids return DataFrame, making str eid a list ensures Series not returned
-        int_ids = self._index_type() is int
-        idx = parquet.str2np(eid).tolist() if int_ids else [eid]
         try:
-            det = self._cache['sessions'].loc[idx]
+            det = self._cache['sessions'].loc[[eid]]
             assert len(det) == 1
         except KeyError:
             raise alferr.ALFObjectNotFound(eid)
@@ -635,9 +619,8 @@ class One(ConversionMixin):
             raise alferr.ALFMultipleObjectsFound(f'Multiple sessions in cache for eid {eid}')
         if not full:
             return det.iloc[0]
-        # to_drop = 'eid' if int_ids else ['eid_0', 'eid_1']  # .reset_index(to_drop, drop=True)
-        column = ['eid_0', 'eid_1'] if int_ids else 'eid'
-        return self._cache['datasets'].join(det, on=column, how='right')
+        # .reset_index('eid', drop=True)
+        return self._cache['datasets'].join(det, on='eid', how='right')
 
     @util.refresh
     def list_subjects(self) -> List[str]:
@@ -717,11 +700,7 @@ class One(ConversionMixin):
         if not eid:
             return datasets.iloc[0:0]  # Return empty
         try:
-            if self._index_type() is int:
-                eid_num, = parquet.str2np(eid)
-                datasets = datasets.loc[pd.IndexSlice[eid_num, ], :]
-            else:
-                datasets = datasets.loc[(eid,), :]
+            datasets = datasets.loc[(eid,), :]
         except KeyError:
             return datasets.iloc[0:0]  # Return empty
 
@@ -791,7 +770,7 @@ class One(ConversionMixin):
         datasets = self.list_datasets(details=True, **filter_kwargs).copy()
 
         datasets['collection'] = datasets.rel_path.apply(
-            lambda x: rel_path_parts(x, assert_valid=False)[0] or ''
+            lambda x: alfiles.rel_path_parts(x, assert_valid=False)[0] or ''
         )
         if details:
             return {k: table.drop('collection', axis=1)
@@ -855,7 +834,7 @@ class One(ConversionMixin):
                       revision_last_before=False, wildcards=self.wildcards, assert_unique=False)
         datasets = util.filter_datasets(datasets, **kwargs)
         datasets['revision'] = datasets.rel_path.apply(
-            lambda x: (rel_path_parts(x, assert_valid=False)[1] or '').strip('#')
+            lambda x: (alfiles.rel_path_parts(x, assert_valid=False)[1] or '').strip('#')
         )
         if details:
             return {k: table.drop('revision', axis=1)
@@ -933,7 +912,7 @@ class One(ConversionMixin):
         # Validate result before loading
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(obj)
-        parts = [rel_path_parts(x) for x in datasets.rel_path]
+        parts = [alfiles.rel_path_parts(x) for x in datasets.rel_path]
         unique_objects = set(x[3] or '' for x in parts)
         unique_collections = set(x[0] or '' for x in parts)
         if len(unique_objects) > 1:
@@ -964,7 +943,7 @@ class One(ConversionMixin):
                      download_only: bool = False,
                      **kwargs) -> Any:
         """
-        Load a single dataset for a given session id and dataset name
+        Load a single dataset for a given session id and dataset name.
 
         Parameters
         ----------
@@ -1001,19 +980,47 @@ class One(ConversionMixin):
 
         >>> intervals = one.load_dataset(eid, 'trials.intervals')  # wildcard mode only
         >>> intervals = one.load_dataset(eid, '.*trials.intervals.*')  # regex mode only
+        >>> intervals = one.load_dataset(eid, dict(object='trials', attribute='intervals'))
         >>> filepath = one.load_dataset(eid, '_ibl_trials.intervals.npy', download_only=True)
         >>> spike_times = one.load_dataset(eid, 'spikes.times.npy', collection='alf/probe01')
         >>> old_spikes = one.load_dataset(eid, 'spikes.times.npy',
         ...                               collection='alf/probe01', revision='2020-08-31')
+        >>> old_spikes = one.load_dataset(eid, 'alf/probe01/#2020-08-31#/spikes.times.npy')
+
+        Raises
+        ------
+        ValueError
+            When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
+            the collection and revision keyword arguments must be None.
+        one.alf.exceptions.ALFObjectNotFound
+            The dataset was not found in the cache or on disk.
+        one.alf.exceptions.ALFMultipleCollectionsFound
+            The dataset provided exists in multiple collections or matched multiple different
+            files. Provide a specific collection to load, and make sure any wildcard/regular
+            expressions are specific enough.
+
+        Warnings
+        --------
+        UserWarning
+            When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
+            wildcards/regular expressions must not be used. To use wildcards, pass the collection
+            and revision as separate keyword arguments.
         """
         datasets = self.list_datasets(eid, details=True, query_type=query_type or self.mode)
         # If only two parts and wildcards are on, append ext wildcard
         if self.wildcards and isinstance(dataset, str) and len(dataset.split('.')) == 2:
             dataset += '.*'
-            _logger.info('Appending extension wildcard: ' + dataset)
+            _logger.debug('Appending extension wildcard: ' + dataset)
 
+        assert_unique = ('/' if isinstance(dataset, str) else 'collection') not in dataset
+        # Check if wildcard was used (this is not an exhaustive check)
+        if not assert_unique and isinstance(dataset, str) and '*' in dataset:
+            warnings.warn('Wildcards should not be used with relative path as input.')
+        if not assert_unique and (collection is not None or revision is not None):
+            raise ValueError(
+                'collection and revision kwargs must be None when dataset is a relative path')
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
-                                        wildcards=self.wildcards)
+                                        wildcards=self.wildcards, assert_unique=assert_unique)
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
@@ -1072,6 +1079,42 @@ class One(ConversionMixin):
             A list of data (or file paths) the length of datasets
         list
             A list of meta data Bunches. If assert_present is False, missing data will be None
+
+        Notes
+        -----
+        - There are three ways the datasets may be formatted: the object.attribute; the file name
+         (including namespace and extension); the ALF components as a dict; the dataset path,
+         relative to the session path, e.g. collection/object.attribute.ext.
+        - When relative paths are provided (e.g. 'collection/#revision#/object.attribute.ext'),
+         wildcards/regular expressions must not be used. To use wildcards, pass the collection and
+         revision as separate keyword arguments.
+        - To ensure you are loading the correct revision, use the revisions kwarg instead of
+         relative paths.
+
+        Raises
+        ------
+        ValueError
+            When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
+            the collection and revision keyword arguments must be None.
+        ValueError
+            If a list of collections or revisions are provided, they must match the number of
+            datasets passed in.
+        TypeError
+            The datasets argument must be a non-string iterable.
+        one.alf.exceptions.ALFObjectNotFound
+            One or more of the datasets was not found in the cache or on disk.  To suppress this
+            error and return None for missing datasets, use assert_present=False.
+        one.alf.exceptions.ALFMultipleCollectionsFound
+            One or more of the dataset(s) provided exist in multiple collections. Provide the
+            specific collections to load, and if using wildcards/regular expressions, make sure
+            the expression is specific enough.
+
+        Warnings
+        --------
+        UserWarning
+            When providing a list of relative dataset paths, this warning occurs if one or more
+            of the datasets are not marked as default revisions.  Avoid such warnings by explicitly
+            passing in the required revisions with the revisions keyword argument.
         """
 
         def _verify_specifiers(specifiers):
@@ -1108,10 +1151,27 @@ class One(ConversionMixin):
         if self.wildcards:  # Append extension wildcard if 'object.attribute' string
             datasets = [x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
                         for x in datasets]
-        slices = [util.filter_datasets(all_datasets, x, y, z, wildcards=self.wildcards)
+        # If collections provided in datasets list, e.g. [collection/x.y.z], do not assert unique
+        validate = not any(('/' if isinstance(d, str) else 'collection') in d for d in datasets)
+        if not validate and not all(x is None for x in collections + revisions):
+            raise ValueError(
+                'collection and revision kwargs must be None when dataset is a relative path')
+        ops = dict(wildcards=self.wildcards, assert_unique=validate)
+        slices = [util.filter_datasets(all_datasets, x, y, z, **ops)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
         present_datasets = pd.concat(slices)
+
+        # Check if user is blindly downloading all data and warn of non-default revisions
+        if 'default_revision' in present_datasets and \
+                not any(revisions) and not all(present_datasets['default_revision']):
+            old = present_datasets.loc[~present_datasets['default_revision'], 'rel_path'].to_list()
+            warnings.warn(
+                'The following datasets may have been revised and ' +
+                'are therefore not recommended for analysis:\n\t' +
+                '\n\t'.join(old) + '\n'
+                'To avoid this warning, specify the revision as a kwarg or use load_dataset.'
+            )
 
         if not all(present):
             missing_list = ', '.join(x for x, y in zip(datasets, present) if not y)
@@ -1135,7 +1195,7 @@ class One(ConversionMixin):
 
         # Make list of metadata Bunches out of the table
         records = (present_datasets
-                   .reset_index()
+                   .reset_index(names='id')
                    .to_dict('records', Bunch))
 
         # Ensure result same length as input datasets list
@@ -1152,40 +1212,33 @@ class One(ConversionMixin):
                              download_only: bool = False,
                              details: bool = False) -> Any:
         """
-        Load a dataset given a dataset UUID
+        Load a dataset given a dataset UUID.
 
         Parameters
         ----------
         dset_id : uuid.UUID, str
-            A dataset UUID to load
+            A dataset UUID to load.
         download_only : bool
-            If true the dataset is downloaded (if necessary) and the filepath returned
+            If true the dataset is downloaded (if necessary) and the filepath returned.
         details : bool
-            If true a pandas Series is returned in addition to the data
+            If true a pandas Series is returned in addition to the data.
 
         Returns
         -------
         np.ndarray, pathlib.Path
-            Dataset data (or filepath if download_only) and dataset record if details is True
+            Dataset data (or filepath if download_only) and dataset record if details is True.
         """
-        int_idx = self._index_type('datasets') is int
-        if isinstance(dset_id, str) and int_idx:
-            dset_id = parquet.str2np(dset_id)
-        elif isinstance(dset_id, UUID):
-            dset_id = parquet.uuid2np([dset_id]) if int_idx else str(dset_id)
-        elif not int_idx and not isinstance(dset_id, str):
+        if isinstance(dset_id, UUID):
+            dset_id = str(dset_id)
+        elif not isinstance(dset_id, str):
             dset_id, = parquet.np2str(dset_id)
         try:
-            if int_idx:
-                idx = (slice(None), slice(None), *dset_id.tolist())
-                dataset = self._cache['datasets'].loc[idx, :].squeeze()
-            else:
-                dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
-            if dataset.empty:
-                raise alferr.ALFObjectNotFound('Dataset not found')
+            dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
         except AssertionError:
             raise alferr.ALFMultipleObjectsFound('Duplicate dataset IDs')
+        except KeyError:
+            raise alferr.ALFObjectNotFound('Dataset not found')
 
         filepath, = self._check_filesystem(dataset)
         if not filepath:
@@ -1248,9 +1301,9 @@ class One(ConversionMixin):
         Raises
         ------
         alferr.ALFError
-            No datasets exist for the provided session collection
+            No datasets exist for the provided session collection.
         alferr.ALFObjectNotFound
-            No datasets match the object, attribute or revision filters for this collection
+            No datasets match the object, attribute or revision filters for this collection.
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(eid, details=True, collection=collection,
@@ -1266,7 +1319,7 @@ class One(ConversionMixin):
         # Validate result before loading
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(object or '')
-        parts = [rel_path_parts(x) for x in datasets.rel_path]
+        parts = [alfiles.rel_path_parts(x) for x in datasets.rel_path]
         unique_objects = set(x[3] or '' for x in parts)
 
         # For those that don't exist, download them
@@ -1442,6 +1495,15 @@ class OneAlyx(One):
             If True, query Alyx for a newer cache even if current (local) cache is recent.
         tag : str
             An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
+
+        Examples
+        --------
+        To load the cache tables for a given release tag
+        >>> one.load_cache(tag='2022_Q2_IBL_et_al_RepeatedSite')
+
+        To reset the cache tables after loading a tag
+        >>> ONE.cache_clear()
+        ... one = ONE()
         """
         cache_meta = self._cache.get('_meta', {})
         raw_meta = cache_meta.get('raw', {}).values() or [{}]
@@ -1456,8 +1518,7 @@ class OneAlyx(One):
         different_tag = any(x != tag for x in current_tags)
         if not (clobber or different_tag):
             super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
-            cache_meta = self._cache.get('_meta', {})  # TODO Make walrus when we drop 3.7 support
-            expired = self._cache and cache_meta['expired']
+            expired = self._cache and (cache_meta := self._cache.get('_meta', {}))['expired']
             if not expired or self.mode in {'local', 'remote'}:
                 return
 
@@ -1524,6 +1585,13 @@ class OneAlyx(One):
             _logger.debug(ex)
             _logger.error(f'{type(ex).__name__}: Failed to connect to Alyx')
             self.mode = 'local'
+        except FileNotFoundError as ex:
+            # NB: this error is only raised in online mode
+            raise ex from FileNotFoundError(
+                f'Cache directory not accessible: {tables_dir or self.cache_dir}\n'
+                'Please provide valid tables_dir / cache_dir kwargs '
+                'or run ONE.setup to update the default directory.'
+            )
 
     @property
     def alyx(self):
@@ -1617,6 +1685,122 @@ class OneAlyx(One):
             datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
+
+    def list_aggregates(self, relation: str, identifier: str = None,
+                        dataset=None, revision=None, assert_unique=False):
+        """
+        List datasets aggregated over a given relation.
+
+        Parameters
+        ----------
+        relation : str
+            The thing over which the data were aggregated, e.g. 'subjects' or 'tags'.
+        identifier : str
+            The ID of the datasets, e.g. for data over subjects this would be lab/subject.
+        dataset : str, dict, list
+            Filters datasets and returns only the ones matching the filename.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        revision : str
+            Filters datasets and returns only the ones matching the revision.
+            Supports asterisks as wildcards.
+        assert_unique : bool
+            When true an error is raised if multiple collections or datasets are found.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The matching aggregate dataset records.
+
+        Examples
+        --------
+        List datasets aggregated over a specific subject's sessions
+
+        >>> trials = one.list_aggregates('subjects', 'SP026')
+        """
+        query = 'session__isnull,True'  # ',data_repository_name__endswith,aggregates'
+        all_aggregates = self.alyx.rest('datasets', 'list', django=query)
+        records = (util.datasets2records(all_aggregates)
+                   .reset_index(level=0)
+                   .drop('eid', axis=1)
+                   .rename_axis(index={'id': 'did'}))
+        records['relation'] = records['rel_path'].map(lambda x: x.split('/')[1].lower())
+        records = records[records['relation'] == relation.lower()]
+
+        def path2id(p) -> str:
+            """Extract identifier from relative path."""
+            parts = alfiles.rel_path_parts(p)[0].split('/')
+            idx = list(map(str.lower, parts)).index(relation.lower()) + 1
+            return '/'.join(parts[idx:])
+
+        records['identifier'] = records['rel_path'].map(path2id)
+        if identifier is not None:
+            # NB: We avoid exact matches as most users will only include subject, not lab/subject
+            records = records[records['identifier'].str.contains(identifier)]
+
+        # Add exists_aws field for download method
+        for i, rec in records.iterrows():
+            fr = next(x['file_records'] for x in all_aggregates if x['url'].endswith(i))
+            records.loc[i, 'exists_aws'] = any(
+                x['data_repository'].startswith('aws') and x['exists'] for x in fr)
+        return util.filter_datasets(records, filename=dataset, revision=revision,
+                                    wildcards=True, assert_unique=assert_unique)
+
+    def load_aggregate(self, relation: str, identifier: str,
+                       dataset=None, revision=None, download_only=False):
+        """
+        Load a single aggregated dataset for a given string identifier.
+
+        Loads data aggregated over a relation such as subject, project or tag.
+
+        Parameters
+        ----------
+        relation : str
+            The thing over which the data were aggregated, e.g. 'subjects' or 'tags'.
+        identifier : str
+            The ID of the datasets, e.g. for data over subjects this would be lab/subject.
+        dataset : str, dict, list
+            Filters datasets and returns only the ones matching the filename.
+            Supports lists asterisks as wildcards.  May be a dict of ALF parts.
+        revision : str
+            Filters datasets and returns only the ones matching the revision.
+            Supports asterisks as wildcards.
+        download_only : bool
+            When true the data are downloaded and the file path is returned.
+
+        Returns
+        -------
+        pandas.DataFrame, pathlib.Path
+            Dataset or a Path object if download_only is true.
+
+        Raises
+        ------
+        alferr.ALFObjectNotFound
+            No datasets match the object, attribute or revision filters for this relation and
+             identifier.
+            Matching dataset was not found on disk (neither on the remote repository or locally).
+
+        Examples
+        --------
+        Load a dataset aggregated over a specific subject's sessions
+
+        >>> trials = one.load_aggregate('subjects', 'SP026', '_ibl_subjectTraining.table')
+
+        """
+        # If only two parts and wildcards are on, append ext wildcard
+        if self.wildcards and isinstance(dataset, str) and len(dataset.split('.')) == 2:
+            dataset += '.*'
+            _logger.debug('Appending extension wildcard: ' + dataset)
+
+        records = self.list_aggregates(relation, identifier,
+                                       dataset=dataset, revision=revision, assert_unique=True)
+        if records.empty:
+            raise alferr.ALFObjectNotFound(
+                f'{dataset or "dataset"} not found for {relation}/{identifier}')
+        # update_exists=False because these datasets are not in the cache table
+        file, = self._check_filesystem(records, update_exists=False)
+        if not file:
+            raise alferr.ALFObjectNotFound('Dataset file not found on disk')
+        return file if download_only else alfio.load_file_content(file)
 
     @util.refresh
     def pid2eid(self, pid: str, query_type=None) -> (str, str):
@@ -1880,7 +2064,7 @@ class OneAlyx(One):
         def _add_date(records):
             """Add date field for compatibility with One.search output."""
             for s in util.ensure_list(records):
-                s['date'] = str(datetime.fromisoformat(s['start_time']).date())
+                s['date'] = datetime.fromisoformat(s['start_time']).date()
             return records
 
         return eids, util.LazyId(ses, func=_add_date)
@@ -1915,8 +2099,6 @@ class OneAlyx(One):
         # Download datasets from AWS
         import one.remote.aws as aws
         s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
-        if self._index_type() is int:
-            raise NotImplementedError('AWS download only supported for str index cache')
         assert self.mode != 'local'
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
@@ -1941,9 +2123,9 @@ class OneAlyx(One):
                 out_files.append(None)
                 continue
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
-            source_path = add_uuid_string(source_path, uuid)
-            local_path = alfio.remove_uuid_file(
-                self.cache_dir.joinpath(dset['session_path'], dset['rel_path']), dry=True)
+            source_path = alfiles.add_uuid_string(source_path, uuid)
+            local_path = alfiles.remove_uuid_string(
+                self.cache_dir.joinpath(dset['session_path'], dset['rel_path']))
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(aws.s3_download_file(
                 source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
@@ -1990,8 +2172,7 @@ class OneAlyx(One):
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)  # NB: URL will always be returned but may not exist
-                is_int = all(isinstance(x, (int, np.int64)) for x in util.ensure_list(dset.name))
-                did = np.array(dset.name)[-2:] if is_int else util.ensure_list(dset.name)[-1]
+                did = util.ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
                 repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
                 url = next(
@@ -2003,10 +2184,6 @@ class OneAlyx(One):
         # Update cache if url not found
         if did is not None and not url and update_cache:
             _logger.debug('Updating cache')
-            if isinstance(did, str) and self._index_type('datasets') is int:
-                did, = parquet.str2np(did).tolist()
-            elif self._index_type('datasets') is str and not isinstance(did, str):
-                did = parquet.np2str(did)
             # NB: This will be considerably easier when IndexSlice supports Ellipsis
             idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
             self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
@@ -2039,13 +2216,17 @@ class OneAlyx(One):
         if not url:
             return
         if isinstance(url, str):
-            target_dir = str(Path(cache_dir, get_alf_path(url)).parent)
+            target_dir = str(Path(cache_dir, alfiles.get_alf_path(url)).parent)
             return self._download_file(url, target_dir, **kwargs)
         # must be list of URLs
         valid_urls = list(filter(None, url))
         if not valid_urls:
             return [None] * len(url)
-        target_dir = [str(Path(cache_dir, get_alf_path(x)).parent) for x in valid_urls]
+
+        target_dir = []
+        for x in valid_urls:
+            _path = urllib.parse.urlsplit(x, allow_fragments=False).path.strip('/')
+            target_dir.append(str(Path(cache_dir, alfiles.get_alf_path(_path)).parent))
         files = self._download_file(valid_urls, target_dir, **kwargs)
         # Return list of file paths or None if we failed to extract URL from dataset
         return [None if not x else files.pop(0) for x in url]
@@ -2117,9 +2298,9 @@ class OneAlyx(One):
 
         # remove uuids from list of file names
         if isinstance(local_path, (list, tuple)):
-            return [alfio.remove_uuid_file(x) for x in local_path]
+            return [x.replace(alfiles.remove_uuid_string(x)) for x in local_path]
         else:
-            return alfio.remove_uuid_file(local_path)
+            return local_path.replace(alfiles.remove_uuid_string(local_path))
 
     def _check_hash_and_file_size_mismatch(self, file_size, hash, expected_hash, local_path, url):
         """
@@ -2253,7 +2434,7 @@ class OneAlyx(One):
             if cache_eid or mode == 'local':
                 return cache_eid
 
-        session_path = get_session_path(path_obj)
+        session_path = alfiles.get_session_path(path_obj)
         # if path does not have a date and a number return None
         if session_path is None:
             return None

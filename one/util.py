@@ -13,9 +13,8 @@ import numpy as np
 from packaging import version
 
 import one.alf.exceptions as alferr
-from one.alf.files import rel_path_parts, get_session_path, get_alf_path
+from one.alf.files import rel_path_parts, get_session_path, get_alf_path, remove_uuid_string
 from one.alf.spec import FILE_SPEC, regex as alf_regex
-import one.alf.io as alfio
 
 logger = logging.getLogger(__name__)
 
@@ -25,27 +24,23 @@ def Listable(t):
     return Union[t, Sequence[t]]
 
 
-def ses2records(ses: dict, int_id=False):
+def ses2records(ses: dict):
     """Extract session cache record and datasets cache from a remote session data record.
 
     Parameters
     ----------
     ses : dict
-        Session dictionary from Alyx REST endpoint
-    int_id : bool
-        If True, the UUIDs are converted to two int64s
+        Session dictionary from Alyx REST endpoint.
 
     Returns
     -------
     pd.Series
-        Session record
+        Session record.
     pd.DataFrame
-        Datasets frame
+        Datasets frame.
     """
     # Extract session record
     eid = ses['url'][-36:]
-    if int_id:
-        eid = tuple(parquet.str2np(eid).flatten())
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
     session = (
@@ -57,14 +52,10 @@ def ses2records(ses: dict, int_id=False):
     # Extract datasets table
     def _to_record(d):
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        if int_id:
-            rec['id_0'], rec['id_1'] = parquet.str2np(d['id']).flatten().tolist()
-            rec['eid_0'], rec['eid_1'] = session.name
-        else:
-            rec['id'] = d['id']
-            rec['eid'] = session.name
+        rec['id'] = d['id']
+        rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
-        file_path = get_alf_path(alfio.remove_uuid_file(file_path, dry=True))
+        file_path = get_alf_path(remove_uuid_string(file_path))
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_revision'] == 'True'
@@ -73,25 +64,25 @@ def ses2records(ses: dict, int_id=False):
     if not ses.get('data_dataset_session_related'):
         return session, pd.DataFrame()
     records = map(_to_record, ses['data_dataset_session_related'])
-    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    index = ['eid', 'id']
     datasets = pd.DataFrame(records).set_index(index).sort_index()
     return session, datasets
 
 
-def datasets2records(datasets, int_id=False) -> pd.DataFrame:
-    """Extract datasets DataFrame from one or more Alyx dataset records
+def datasets2records(datasets, additional=None) -> pd.DataFrame:
+    """Extract datasets DataFrame from one or more Alyx dataset records.
 
     Parameters
     ----------
     datasets : dict, list
-        One or more records from the Alyx 'datasets' endpoint
+        One or more records from the Alyx 'datasets' endpoint.
+    additional : list of str
+        A set of optional fields to extract from dataset records.
 
     Returns
     -------
     pd.DataFrame
-        Datasets frame
-    int_id : bool
-        If True, the UUIDs are converted to two int64s
+        Datasets frame.
 
     Examples
     --------
@@ -105,21 +96,21 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
         if not file_record:
             continue  # Ignore files that are not accessible
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        if int_id:
-            rec['id_0'], rec['id_1'] = parquet.str2np(d['url'][-36:]).flatten().tolist()
-            rec['eid_0'], rec['eid_1'] = parquet.str2np(d['session'][-36:]).flatten().tolist()
-        else:
-            rec['id'] = d['url'][-36:]
-            rec['eid'] = d['session'][-36:]
+        rec['id'] = d['url'][-36:]
+        rec['eid'] = (d['session'] or '')[-36:]
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = get_alf_path(data_url.path.strip('/'))
-        file_path = alfio.remove_uuid_file(file_path, dry=True).as_posix()
-        rec['session_path'] = get_session_path(file_path).as_posix()
+        file_path = remove_uuid_string(file_path).as_posix()
+        rec['session_path'] = get_session_path(file_path) or ''
+        if rec['session_path']:
+            rec['session_path'] = rec['session_path'].as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_dataset']
+        for field in additional or []:
+            rec[field] = d.get(field)
         records.append(rec)
 
-    index = ['eid_0', 'eid_1', 'id_0', 'id_1'] if int_id else ['eid', 'id']
+    index = ['eid', 'id']
     if not records:
         keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision')
         return pd.DataFrame(columns=keys).set_index(index)
@@ -128,22 +119,22 @@ def datasets2records(datasets, int_id=False) -> pd.DataFrame:
 
 def parse_id(method):
     """
-    Ensures the input experiment identifier is an experiment UUID string
+    Ensures the input experiment identifier is an experiment UUID string.
 
     Parameters
     ----------
     method : function
-        An ONE method whose second arg is an experiment ID
+        An ONE method whose second arg is an experiment ID.
 
     Returns
     -------
     function
-        A wrapper function that parses the ID to the expected string
+        A wrapper function that parses the ID to the expected string.
 
     Raises
     ------
     ValueError
-        Unable to convert input to a valid experiment ID
+        Unable to convert input to a valid experiment ID.
     """
 
     @wraps(method)
@@ -158,7 +149,7 @@ def parse_id(method):
 
 def refresh(method):
     """
-    Refresh cache depending of query_type kwarg
+    Refresh cache depending of query_type kwarg.
     """
 
     @wraps(method)
@@ -174,7 +165,7 @@ def refresh(method):
 
 def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     """
-    Validates and arrange date range in a 2 elements list
+    Validates and arrange date range in a 2 elements list.
 
     Parameters
     ----------
@@ -184,7 +175,7 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     Returns
     -------
     tuple of pd.Timestamp
-        The start and end timestamps
+        The start and end timestamps.
 
     Examples
     --------
@@ -200,7 +191,7 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     Raises
     ------
     ValueError
-        Size of date range tuple must be 1 or 2
+        Size of date range tuple must be 1 or 2.
     """
     if date_range is None:
         return
@@ -239,14 +230,14 @@ def _collection_spec(collection=None, revision=None) -> str:
     Parameters
     ----------
     collection : None, str
-        An optional collection regular expression
+        An optional collection regular expression.
     revision : None, str
-        An optional revision regular expression
+        An optional revision regular expression.
 
     Returns
     -------
     str
-        A string format for matching the collection/revision
+        A string format for matching the collection/revision.
     """
     spec = ''
     for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
@@ -280,7 +271,7 @@ def _file_spec(**kwargs):
     Returns
     -------
     str
-        A string format for matching an ALF dataset
+        A string format for matching an ALF dataset.
     """
     OPTIONAL = {'namespace': '?', 'timescale': '?', 'extra': '*'}
     filespec = FILE_SPEC
@@ -411,17 +402,17 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
     Parameters
     ----------
     datasets : pandas.DataFrame
-        A datasets cache table
+        A datasets cache table.
     revision : str
-        A revision string to match (regular expressions not permitted)
+        A revision string to match (regular expressions not permitted).
     assert_unique : bool
         When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
-        default revisions are found; an alferr.ALFError when no default revision is found
+        default revisions are found; an alferr.ALFError when no default revision is found.
 
     Returns
     -------
     pd.DataFrame
-        A datasets DataFrame with 0 or 1 row per unique dataset
+        A datasets DataFrame with 0 or 1 row per unique dataset.
     """
     def _last_before(df):
         """Takes a DataFrame with only one dataset and multiple revisions, returns matching row"""
@@ -432,7 +423,9 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
                 raise alferr.ALFMultipleRevisionsFound(rev_list)
             if sum(df.default_revision) == 1:
                 return df[df.default_revision]
-            # default_revision column all False; default doesn't isn't copied to remote repository
+            if len(df) == 1:  # This may be the case when called from load_datasets
+                return df  # It's not the default be there's only one available revision
+            # default_revision column all False; default isn't copied to remote repository
             dset_name = df['rel_path'].iloc[0]
             if assert_unique:
                 raise alferr.ALFError(f'No default revision for dataset {dset_name}')
@@ -462,14 +455,14 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     Parameters
     ----------
     revisions : list of strings
-        A list of revision strings
+        A list of revision strings.
     revision : None, str
-        The revision string to match on
+        The revision string to match on.
 
     Returns
     -------
     int, None
-        Index of revision before matching string in sorted list or None
+        Index of revision before matching string in sorted list or None.
 
     Examples
     --------
@@ -486,7 +479,7 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
 
 def autocomplete(term, search_terms) -> str:
     """
-    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'
+    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'.
     """
     term = term.lower()
     # Check if term already complete
@@ -502,7 +495,7 @@ def autocomplete(term, search_terms) -> str:
 
 
 def ensure_list(value):
-    """Ensure input is a list"""
+    """Ensure input is a list."""
     return [value] if isinstance(value, (str, dict)) or not isinstance(value, Iterable) else value
 
 
@@ -549,7 +542,7 @@ def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
     Parameters
     ----------
     table : pd.DataFrame
-        A cache table (from One._cache)
+        A cache table (from One._cache).
 
     """
     # Convert integer uuids to str uuids

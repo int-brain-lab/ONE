@@ -270,6 +270,7 @@ class RegistrationClient:
         """
         date = date or datetime.datetime.now()  # If None get current time
         if isinstance(date, str):
+            # FIXME support timezone aware strings, e.g. '2023-03-09T17:08:12.4465024+00:00'
             date = datetime.datetime.fromisoformat(date)  # Validate by parsing
         elif type(date) is datetime.date:
             date = datetime.datetime.fromordinal(date.toordinal())

@@ -12,7 +12,7 @@ from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTim
 from iblutil.io import params as iopar
 
 from one.alf.spec import is_uuid
-from one.alf.io import remove_uuid_file
+from one.alf.files import remove_uuid_string
 import one.params
 from one.webclient import AlyxClient
 from .base import DownloadClient, load_client_params, save_client_params
@@ -413,9 +413,7 @@ class Globus(DownloadClient):
                 if i == max_retries:
                     raise ex
         for entry in response:
-            fn = PurePosixPath(
-                remove_uuid_file(entry['name'], dry=True) if remove_uuid else entry['name']
-            )
+            fn = PurePosixPath(remove_uuid_string(entry['name']) if remove_uuid else entry['name'])
             if return_size:
                 size = entry['size'] if entry['type'] == 'file' else None
                 out.append((fn, size))
