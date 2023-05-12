@@ -2,12 +2,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
 ![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
 
-The Open Neurophysiology Environment is a scheme for sharing neurophysiology data in a standardized manner. For information on how to share data with ONE please [click here](https://github.com/int-brain-lab/ONE/blob/main/docs/Open_Neurophysiology_Environment_Filename_Convention.pdf). This github page contains an API for searching and loading ONE-standardized data, stored either on a user’s local machine or on a remote server. Please [Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.
+The Open Neurophysiology Environment is a scheme for sharing neurophysiology data in a standardized manner. It is a Python API for searching and loading ONE-standardized data, stored either on a user’s local machine or on a remote server.
+
+Please [Click here](https://int-brain-lab.github.io/ONE/) for the main documentation page.  For a quick primer on the file naming convention we use, [click here](https://github.com/int-brain-lab/ONE/blob/main/docs/Open_Neurophysiology_Environment_Filename_Convention.pdf).
 
 **NB**: The API and backend database are still under active development, for the best experience please regularly update the package by running `pip install -U ONE-api`. 
 
 ## Requirements
-ONE runs on Python 3.7 or later, and is tested on the latest Ubuntu and Windows (3.7 and 3.8 only).
+ONE runs on Python 3.8 or later, and is tested on the latest Ubuntu and Windows (3.8 and 3.11 only).
 
 ## Installing
 Installing the package via pip typically takes a few seconds.  To install, run
@@ -22,19 +24,20 @@ from one.api import One
 one = One(cache_dir='/home/user/downlaods/ONE/behavior_paper')
 ```
 
+To use the default setup settings that connect you to the [IBL public database](https://openalyx.internationalbrainlab.org):
+```python
+from one.api import ONE
+ONE.setup(silent=True)  # Will use default information
+one = ONE(password='international')
+```
+
 For setting up ONE for a given database e.g. internal IBL Alyx:
 ```python
 from one.api import ONE
 one = ONE(base_url='https://alyx.internationalbrainlab.org')
 ```
 
-To use the default setup settings that connect you to the [IBL public database](https://openalyx.internationalbrainlab.org):
-```python
-from one.api import ONE
-one = ONE(silent=True, password='international')  # Will use default information
-```
-
-Once you've setup the server, subsequent calls will use the same parameters:
+Once you've setup the API for the first time, subsequent calls will use the same parameters:
 ```python
 from one.api import ONE
 one = ONE()
@@ -42,8 +45,8 @@ one = ONE()
 
 To set up ONE for another database and make it the default:
 ```python
-from one.api import OneAlyx, ONE
-OneAlyx.setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
+from one.api import ONE
+ONE.setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 one = ONE()  # Connected to https://test.alyx.internationalbrainlab.org
 ```
 
@@ -77,6 +80,12 @@ ts = one.load_dataset(eid, 'wheel.timestamps', collection='alf')
 
 # Download, but not load, a dataset
 filename = one.load_dataset(eid, 'wheel.timestamps', download_only=True)
+```
+
+To [share data](https://int-brain-lab.github.io/ONE/notebooks/data_sharing.html):
+```python
+from one.api import One
+one = One.setup()  # Enter the location of the ALF datasets when prompted
 ```
 
 Further examples and tutorials can be found in the [documentation](https://int-brain-lab.github.io/ONE/).

@@ -270,7 +270,7 @@ class TestRegistrationClient(unittest.TestCase):
         r, = self.client.register_files(file_list=[file])
         self.assertEqual(r['revision'], rev['name'])
         self.assertTrue(r['default'])
-        self.assertEqual(r['collection'], '')
+        self.assertIsNone(r['collection'])
 
         # Register exact dataset revision again - it should append an 'a'
         # When we re-register the original it should move them into revision with today's date
@@ -347,8 +347,7 @@ class TestRegistrationClient(unittest.TestCase):
             [x.touch() for x in files]
             self.client.register_files(file_list=files)
             self.assertEqual(2, alyx_mock.call_count)
-            _, kwargs = alyx_mock.call_args
-            actual = kwargs.get('data', {}).get('filenames', [])
+            actual = alyx_mock.call_args.kwargs.get('data', {}).get('filenames', [])
             expected = [
                 'wheel.position.ssv',
                 f'#{today}#/wheel.position.npy',

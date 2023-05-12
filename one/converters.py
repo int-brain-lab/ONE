@@ -16,14 +16,11 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 from typing import Optional, Union, Mapping, List, Iterable as Iter
 
-import numpy as np
 import pandas as pd
-from iblutil.io import parquet
 from iblutil.util import Bunch
 
-import one.alf.io as alfio
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.files import get_session_path, add_uuid_string, session_path_parts
+from one.alf.files import get_session_path, add_uuid_string, session_path_parts, remove_uuid_string
 from .util import Listable, ensure_list
 
 
@@ -175,8 +172,6 @@ class ConversionMixin:
             return
 
         # load path from cache
-        if self._index_type() is int:
-            eid = parquet.str2np(eid).tolist()
         try:
             ses = self._cache['sessions'].loc[eid].squeeze()
             assert isinstance(ses, pd.Series), 'Duplicate eids in sessions table'
@@ -218,8 +213,6 @@ class ConversionMixin:
         assert len(sessions) == 1
 
         eid, = sessions.index.values
-        if isinstance(eid, tuple):
-            eid = parquet.np2str(np.array(eid))
         return eid
 
     @recurse
@@ -258,7 +251,7 @@ class ConversionMixin:
         if isinstance(path, str) and path.startswith('http'):
             # Remove the UUID from path
             path = urlsplit(path).path.strip('/')
-            path = alfio.remove_uuid_file(PurePosixPath(path), dry=True)
+            path = remove_uuid_string(PurePosixPath(path))
             session_path = get_session_path(path).as_posix()
         else:
             # No way of knowing root session path parts without cache tables
@@ -313,17 +306,17 @@ class ConversionMixin:
         # FIXME Should be OneAlyx converter only
         if isinstance(record, pd.DataFrame):
             return [self.record2url(r) for _, r in record.iterrows()]
-        if isinstance(record, pd.Series):
+        elif isinstance(record, pd.Series):
             is_session_record = 'rel_path' not in record
             if is_session_record:
                 # NB: This assumes the root path is in the webclient URL
                 session_spec = '{lab}/Subjects/{subject}/{date}/{number:03d}'
                 url = record.get('session_path') or session_spec.format(**record)
                 return webclient.rel_path2url(url)
-            if all(isinstance(x, (int, np.int64)) for x in record.name):
-                uuid, = parquet.np2str(np.array([record.name[-2:]]))
-            else:
-                uuid = ensure_list(record.name)[-1]  # may be (eid, did) or simply did
+            uuid = ensure_list(record.name)[-1]  # may be (eid, did) or simply did
+        else:
+            raise TypeError(
+                f'record must be pandas.DataFrame or pandas.Series, got {type(record)} instead')
 
         session_path, rel_path = record[['session_path', 'rel_path']].to_numpy().flatten()
         url = PurePosixPath(session_path, rel_path)
@@ -673,9 +666,7 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]
-    repo_path = fr['data_repository_path']
-    repo_path = repo_path[repo_path.startswith('/'):]  # remove starting / if any
-    # repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # py3.8 Remove slash at start
+    repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # Remove slash at start, if any
     file_path = PurePosixPath(repo_path, fr['relative_path'])
     if root_path:
         # NB: By checking for string we won't cast any PurePaths

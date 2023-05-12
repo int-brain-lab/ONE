@@ -31,7 +31,6 @@ Download a remote file, given a local path
 import json
 import logging
 import math
-import os
 import re
 import functools
 import urllib.request
@@ -354,22 +353,20 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
 
     # default cache directory is the home dir
     if not target_dir:
-        target_dir = str(Path.home().joinpath('Downloads'))
-
-    # This is the local file name
-    file_name = str(target_dir) + os.sep + os.path.basename(full_link_to_file)
-
-    # do not overwrite an existing file unless specified
-    if not clobber and os.path.exists(file_name):
-        return (file_name, hashfile.md5(file_name)) if return_md5 else file_name
+        target_dir = Path.home().joinpath('Downloads')
 
     # This should be the base url you wanted to access.
-    baseurl = os.path.split(str(full_link_to_file))[0]
+    base_url, name = full_link_to_file.rsplit('/', 1)
+    file_name = Path(target_dir, name)
+
+    # do not overwrite an existing file unless specified
+    if not clobber and file_name.exists():
+        return (file_name, hashfile.md5(file_name)) if return_md5 else file_name
 
     # Create a password manager
     manager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     if username and password:
-        manager.add_password(None, baseurl, username, password)
+        manager.add_password(None, base_url, username, password)
 
     # Create an authentication handler using the password manager
     auth = urllib.request.HTTPBasicAuthHandler(manager)
