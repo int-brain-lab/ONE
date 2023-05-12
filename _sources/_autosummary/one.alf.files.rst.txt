@@ -21,6 +21,7 @@ one.alf.files
       get_alf_path
       get_session_path
       rel_path_parts
+      remove_uuid_string
       session_path_parts
    
    

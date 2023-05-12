@@ -57,6 +57,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Listing with ONE</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Filtering-lists">Filtering lists</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Combining-with-load-methods">Combining with load methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Listing-aggregate-datasets">Listing aggregate datasets</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../one_load/one_load.html">Loading with ONE</a></li>
@@ -493,6 +494,23 @@ dict_keys([&#39;spikes&#39;, &#39;channels&#39;, &#39;whitening&#39;, &#39;clust
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;clusters*&#39;</span><span class="p">)</span>
 <span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Listing-aggregate-datasets">
+<h2>Listing aggregate datasets<a class="headerlink" href="#Listing-aggregate-datasets" title="Permalink to this heading"></a></h2>
+<p>All raw and preprocessed data are stored at the session level, however some datasets are aggregated over a subject, project, or tag (called a ‘relation’). Such datasets are known as aggregates and can be listed and filtered using the <code class="docutils literal notranslate"><span class="pre">list_aggregates</span></code> method. Unlike <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code>, <code class="docutils literal notranslate"><span class="pre">list_aggregates</span></code> always returns a pandas DataFrame object.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>NB: This method is only available in ‘remote’ mode.</p>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;SWC_043&#39;</span>
+<span class="n">subject_aggregates</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_aggregates</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

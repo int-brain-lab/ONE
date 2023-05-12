@@ -171,10 +171,10 @@ For a full overview of the scope of the format, see:</p>
 <td><p>Will iteratively remove any children empty folders</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
-<td><p>Renames a file without the UUID and returns the new pathlib.Path object</p></td>
+<td><p>(DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_recursive" title="one.alf.io.remove_uuid_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_recursive</span></code></a></p></td>
-<td><p>Within a folder, recursive renaming of all files to remove UUID</p></td>
+<td><p>(DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.save_metadata" title="one.alf.io.save_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_metadata</span></code></a></p></td>
 <td><p>Writes a meta data file matching a current ALF file object.</p></td>
@@ -491,13 +491,35 @@ format in <cite>clusters.ccfLocation.metadata.json</cite></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.remove_uuid_file">
 <span class="sig-name descname"><span class="pre">remove_uuid_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#remove_uuid_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.remove_uuid_file" title="Permalink to this definition"></a></dt>
-<dd><p>Renames a file without the UUID and returns the new pathlib.Path object</p>
+<dd><p>(DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An ALF path containing a UUID in the file name.</p></li>
+<li><p><strong>dry</strong> (<em>bool</em>) – If False, the file is not renamed on disk.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new file path without the UUID in the file name.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.remove_uuid_recursive">
 <span class="sig-name descname"><span class="pre">remove_uuid_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#remove_uuid_recursive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.remove_uuid_recursive" title="Permalink to this definition"></a></dt>
-<dd><p>Within a folder, recursive renaming of all files to remove UUID</p>
+<dd><p>(DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A folder to recursively iterate, removing UUIDs from the file names.</p></li>
+<li><p><strong>dry</strong> (<em>bool</em>) – If False renames the files on disk.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

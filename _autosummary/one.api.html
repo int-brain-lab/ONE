@@ -546,7 +546,7 @@ see the one.alf.spec.describe function.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.load_dataset">
 <span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">UUID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_dataset" title="Permalink to this definition"></a></dt>
-<dd><p>Load a single dataset for a given session id and dataset name</p>
+<dd><p>Load a single dataset for a given session id and dataset name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -579,11 +579,34 @@ permitted.</p></li>
 <p>Load dataset without specifying extension</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals&#39;</span><span class="p">)</span>  <span class="c1"># wildcard mode only</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;.*trials.intervals.*&#39;</span><span class="p">)</span>  <span class="c1"># regex mode only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;intervals&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span>
 <span class="gp">... </span>                              <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-08-31&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;alf/probe01/#2020-08-31#/spikes.times.npy&#39;</span><span class="p">)</span>
 </pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – When a relative paths is provided (e.g. ‘collection/#revision#/object.attribute.ext’),
+    the collection and revision keyword arguments must be None.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFObjectNotFound" title="one.alf.exceptions.ALFObjectNotFound"><strong>one.alf.exceptions.ALFObjectNotFound</strong></a> – The dataset was not found in the cache or on disk.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound" title="one.alf.exceptions.ALFMultipleCollectionsFound"><strong>one.alf.exceptions.ALFMultipleCollectionsFound</strong></a> – The dataset provided exists in multiple collections or matched multiple different
+    files. Provide a specific collection to load, and make sure any wildcard/regular
+    expressions are specific enough.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<dl class="simple">
+<dt>UserWarning</dt><dd><p>When a relative paths is provided (e.g. ‘collection/#revision#/object.attribute.ext’),
+wildcards/regular expressions must not be used. To use wildcards, pass the collection
+and revision as separate keyword arguments.</p>
+</dd>
+</dl>
 </div>
 </dd></dl>
 
@@ -620,22 +643,68 @@ permitted.</p></li>
 </p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>There are three ways the datasets may be formatted: the object.attribute; the file name</p></li>
+</ul>
+<blockquote>
+<div><p>(including namespace and extension); the ALF components as a dict; the dataset path,
+relative to the session path, e.g. collection/object.attribute.ext.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>When relative paths are provided (e.g. ‘collection/#revision#/object.attribute.ext’),</p></li>
+</ul>
+<blockquote>
+<div><p>wildcards/regular expressions must not be used. To use wildcards, pass the collection and
+revision as separate keyword arguments.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>To ensure you are loading the correct revision, use the revisions kwarg instead of</p></li>
+</ul>
+<blockquote>
+<div><p>relative paths.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – When a relative paths is provided (e.g. ‘collection/#revision#/object.attribute.ext’),
+    the collection and revision keyword arguments must be None.</p></li>
+<li><p><strong>ValueError</strong> – If a list of collections or revisions are provided, they must match the number of
+    datasets passed in.</p></li>
+<li><p><strong>TypeError</strong> – The datasets argument must be a non-string iterable.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFObjectNotFound" title="one.alf.exceptions.ALFObjectNotFound"><strong>one.alf.exceptions.ALFObjectNotFound</strong></a> – One or more of the datasets was not found in the cache or on disk.  To suppress this
+    error and return None for missing datasets, use assert_present=False.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound" title="one.alf.exceptions.ALFMultipleCollectionsFound"><strong>one.alf.exceptions.ALFMultipleCollectionsFound</strong></a> – One or more of the dataset(s) provided exist in multiple collections. Provide the
+    specific collections to load, and if using wildcards/regular expressions, make sure
+    the expression is specific enough.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<dl class="simple">
+<dt>UserWarning</dt><dd><p>When providing a list of relative dataset paths, this warning occurs if one or more
+of the datasets are not marked as default revisions.  Avoid such warnings by explicitly
+passing in the required revisions with the revisions keyword argument.</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.load_dataset_from_id">
 <span class="sig-name descname"><span class="pre">load_dataset_from_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">UUID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/one/api.html#One.load_dataset_from_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_dataset_from_id" title="Permalink to this definition"></a></dt>
-<dd><p>Load a dataset given a dataset UUID</p>
+<dd><p>Load a dataset given a dataset UUID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dset_id</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – A dataset UUID to load</p></li>
-<li><p><strong>download_only</strong> (<em>bool</em>) – If true the dataset is downloaded (if necessary) and the filepath returned</p></li>
-<li><p><strong>details</strong> (<em>bool</em>) – If true a pandas Series is returned in addition to the data</p></li>
+<li><p><strong>dset_id</strong> (<em>uuid.UUID</em><em>, </em><em>str</em>) – A dataset UUID to load.</p></li>
+<li><p><strong>download_only</strong> (<em>bool</em>) – If true the dataset is downloaded (if necessary) and the filepath returned.</p></li>
+<li><p><strong>details</strong> (<em>bool</em>) – If true a pandas Series is returned in addition to the data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dataset data (or filepath if download_only) and dataset record if details is True</p>
+<dd class="field-even"><p>Dataset data (or filepath if download_only) and dataset record if details is True.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray, pathlib.Path</p>
@@ -683,8 +752,8 @@ see the one.alf.spec.describe function.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>alferr.ALFError</strong> – No datasets exist for the provided session collection</p></li>
-<li><p><strong>alferr.ALFObjectNotFound</strong> – No datasets match the object, attribute or revision filters for this collection</p></li>
+<li><p><strong>alferr.ALFError</strong> – No datasets exist for the provided session collection.</p></li>
+<li><p><strong>alferr.ALFObjectNotFound</strong> – No datasets match the object, attribute or revision filters for this collection.</p></li>
 </ul>
 </dd>
 </dl>
@@ -852,6 +921,72 @@ relative paths (collection/revision/filename) - see one.alf.spec.describe for de
 </div>
 <p>List datasets for an experiment that are part of a ‘wheel’ or ‘trial(s)’ object</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wheel&#39;</span><span class="p">,</span> <span class="s1">&#39;trial?&#39;</span><span class="p">]})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.list_aggregates">
+<span class="sig-name descname"><span class="pre">list_aggregates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_unique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.list_aggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.list_aggregates" title="Permalink to this definition"></a></dt>
+<dd><p>List datasets aggregated over a given relation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relation</strong> (<em>str</em>) – The thing over which the data were aggregated, e.g. ‘subjects’ or ‘tags’.</p></li>
+<li><p><strong>identifier</strong> (<em>str</em>) – The ID of the datasets, e.g. for data over subjects this would be lab/subject.</p></li>
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename.
+Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>assert_unique</strong> (<em>bool</em>) – When true an error is raised if multiple collections or datasets are found.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The matching aggregate dataset records.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>List datasets aggregated over a specific subject’s sessions</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_aggregates</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;SP026&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.api.OneAlyx.load_aggregate">
+<span class="sig-name descname"><span class="pre">load_aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.load_aggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.load_aggregate" title="Permalink to this definition"></a></dt>
+<dd><p>Load a single aggregated dataset for a given string identifier.</p>
+<p>Loads data aggregated over a relation such as subject, project or tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relation</strong> (<em>str</em>) – The thing over which the data were aggregated, e.g. ‘subjects’ or ‘tags’.</p></li>
+<li><p><strong>identifier</strong> (<em>str</em>) – The ID of the datasets, e.g. for data over subjects this would be lab/subject.</p></li>
+<li><p><strong>dataset</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Filters datasets and returns only the ones matching the filename.
+Supports lists asterisks as wildcards.  May be a dict of ALF parts.</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – Filters datasets and returns only the ones matching the revision.
+Supports asterisks as wildcards.</p></li>
+<li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataset or a Path object if download_only is true.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame, pathlib.Path</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>alferr.ALFObjectNotFound</strong> – No datasets match the object, attribute or revision filters for this relation and
+     identifier.
+    Matching dataset was not found on disk (neither on the remote repository or locally).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Load a dataset aggregated over a specific subject’s sessions</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_aggregate</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;SP026&#39;</span><span class="p">,</span> <span class="s1">&#39;_ibl_subjectTraining.table&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

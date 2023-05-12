@@ -175,7 +175,7 @@ properties to their original state on teardown, or call one.api.ONE.cache_clear(
 <td><p>Test functions in one.util</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_one.TestOneRemote" title="one.tests.test_one.TestOneRemote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestOneRemote</span></code></a></p></td>
-<td><p>Test remote queries</p></td>
+<td><p>Test remote queries using OpenAlyx</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_one.TestOneSetup" title="one.tests.test_one.TestOneSetup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestOneSetup</span></code></a></p></td>
 <td><p>Test parameter setup upon ONE instantiation and calling setup methods</p></td>
@@ -260,9 +260,11 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_index_type">
-<span class="sig-name descname"><span class="pre">test_index_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_index_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_index_type" title="Permalink to this definition"></a></dt>
-<dd><p>Test One._index_type</p>
+<dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_check_filesystem">
+<span class="sig-name descname"><span class="pre">test_check_filesystem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_check_filesystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_check_filesystem" title="Permalink to this definition"></a></dt>
+<dd><p>Test for One._check_filesystem.
+Most is already covered by other tests, this checks that it can deal with dataset frame
+without eid index and without a session_path column.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -430,6 +432,18 @@ dicts as input.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_list_aggregates">
+<span class="sig-name descname"><span class="pre">test_list_aggregates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_list_aggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_list_aggregates" title="Permalink to this definition"></a></dt>
+<dd><p>Test OneAlyx.list_aggregates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_load_aggregate">
+<span class="sig-name descname"><span class="pre">test_load_aggregate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_load_aggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_load_aggregate" title="Permalink to this definition"></a></dt>
+<dd><p>Test OneAlyx.load_aggregate</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.tearDownClass">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.tearDownClass" title="Permalink to this definition"></a></dt>
 <dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
@@ -441,7 +455,7 @@ dicts as input.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneRemote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Test remote queries</p>
+<p>Test remote queries using OpenAlyx</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.setUp" title="Permalink to this definition"></a></dt>

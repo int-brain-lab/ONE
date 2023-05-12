@@ -116,7 +116,7 @@
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
 
 <span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid</span>
-<span class="kn">from</span> <span class="nn">one.alf.io</span> <span class="kn">import</span> <span class="n">remove_uuid_file</span>
+<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">remove_uuid_string</span>
 <span class="kn">import</span> <span class="nn">one.params</span>
 <span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">DownloadClient</span><span class="p">,</span> <span class="n">load_client_params</span><span class="p">,</span> <span class="n">save_client_params</span>
@@ -517,9 +517,7 @@
                 <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">max_retries</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ex</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
-            <span class="n">fn</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span>
-                <span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">remove_uuid</span> <span class="k">else</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">remove_uuid</span> <span class="k">else</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">return_size</span><span class="p">:</span>
                 <span class="n">size</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fn</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>

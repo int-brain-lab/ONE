@@ -198,6 +198,15 @@ One (offline, C:\data) local
 </div>
 </div>
 <p>Caching greatly improves performance and should be used whenever possible. For more information on ONE REST queries, see <a class="reference external" href="./one_advanced/one_advanced.html">this guide</a>.</p>
+<p>You can turn off REST caching when instantiating ONE with the <code class="docutils literal notranslate"><span class="pre">cache_rest</span></code> keyword argument:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="Refreshing-the-cache-tables">
 <h2>Refreshing the cache tables<a class="headerlink" href="#Refreshing-the-cache-tables" title="Permalink to this heading"></a></h2>
@@ -263,14 +272,8 @@ One (offline, C:\data) local
 </tbody>
 </table>
 <p>*no remote cache tables are downloaded; local cache files must be present in this mode.</p>
-<div class="line-block">
-<div class="line"><strong>I want to make a REST query for up-to-the-minute information</strong></div>
-<div class="line">Use <code class="docutils literal notranslate"><span class="pre">one.alyx.rest(...,</span> <span class="pre">no_cache=True)</span></code>.</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>I want to use a remote ONE query with up-to-the-minute information</strong></div>
-<div class="line">Call the ONE method from within the <code class="docutils literal notranslate"><span class="pre">webclient.no_cache</span></code> context.</div>
-</div>
+<p><strong>I want to make a REST query for up-to-the-minute information</strong> Use <code class="docutils literal notranslate"><span class="pre">one.alyx.rest(...,</span> <span class="pre">no_cache=True)</span></code>.</p>
+<p><strong>I want to use a remote ONE query with up-to-the-minute information</strong> Call the ONE method from within the <code class="docutils literal notranslate"><span class="pre">webclient.no_cache</span></code> context.</p>
 </section>
 </section>
 

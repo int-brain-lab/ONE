@@ -475,19 +475,37 @@
 
 <div class="viewcode-block" id="add_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.add_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a UUID and an extra part to the filename of an ALF path</span>
+<span class="sd">    Add a UUID to the filename of an ALF path.</span>
+
+<span class="sd">    Adds a UUID to an ALF filename as an extra part, e.g.</span>
+<span class="sd">    &#39;obj.attr.ext&#39; -&gt; &#39;obj.attr.a976e418-c8b8-4d24-be47-d05120b18341.ext&#39;.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file_path : str, pathlib.Path, pathlib.PurePath</span>
-<span class="sd">        An ALF path to add the UUID to</span>
+<span class="sd">        An ALF path to add the UUID to.</span>
 <span class="sd">    uuid : str, uuid.UUID</span>
-<span class="sd">        The UUID to add</span>
+<span class="sd">        The UUID to add.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    pathlib.Path</span>
-<span class="sd">        A new Path object with a UUID in the filename</span>
+<span class="sd">    pathlib.Path, pathlib.PurePath</span>
+<span class="sd">        A new Path or PurePath object with a UUID in the filename.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; add_uuid_string(&#39;/path/to/trials.intervals.npy&#39;, &#39;a976e418-c8b8-4d24-be47-d05120b18341&#39;)</span>
+<span class="sd">    Path(&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        `uuid` must be a valid hyphen-separated hexadecimal UUID.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    one.alf.io.remove_uuid_string</span>
+<span class="sd">    one.alf.spec.is_uuid</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Should provide a valid UUID v4&#39;</span><span class="p">)</span>
@@ -500,6 +518,41 @@
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;UUID already found in file name: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: IGNORE&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file_path</span>
     <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}{</span><span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="remove_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.remove_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove UUID from a filename of an ALF path.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str, pathlib.Path, pathlib.PurePath</span>
+<span class="sd">        An ALF path to add the UUID to.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path, pathlib.PurePath</span>
+<span class="sd">        A new Path or PurePath object without a UUID in the filename.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; add_uuid_string(&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;)</span>
+<span class="sd">    Path(&#39;/path/to/trials.intervals.npy&#39;)</span>
+
+<span class="sd">    &gt;&gt;&gt; add_uuid_string(&#39;/path/to/trials.intervals.npy&#39;)</span>
+<span class="sd">    Path(&#39;/path/to/trials.intervals.npy&#39;)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    one.alf.io.add_uuid_string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">name_parts</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_path</span></div>
 </pre></div>
 
            </div>

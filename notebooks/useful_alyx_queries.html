@@ -207,11 +207,20 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 </pre></div></div>
 </div>
 <p>The main GET requests are ‘list’ and ‘read’. The parameters for each are described in the <code class="docutils literal notranslate"><span class="pre">rest_schemas</span></code> property. For example, for the parameters available for listing sessions…</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>This information is also available using the <code class="docutils literal notranslate"><span class="pre">print_endpoint_info</span></code> method, which prints the REST params and their respective data types:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>

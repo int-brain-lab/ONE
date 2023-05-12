@@ -117,9 +117,8 @@
 <span class="kn">from</span> <span class="nn">packaging</span> <span class="kn">import</span> <span class="n">version</span>
 
 <span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
-<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">rel_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">get_alf_path</span>
+<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">rel_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">get_alf_path</span><span class="p">,</span> <span class="n">remove_uuid_string</span>
 <span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span> <span class="k">as</span> <span class="n">alf_regex</span>
-<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -129,27 +128,23 @@
     <span class="k">return</span> <span class="n">Union</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">t</span><span class="p">]]</span></div>
 
 
-<div class="viewcode-block" id="ses2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a><span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">int_id</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ses2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a><span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ses : dict</span>
-<span class="sd">        Session dictionary from Alyx REST endpoint</span>
-<span class="sd">    int_id : bool</span>
-<span class="sd">        If True, the UUIDs are converted to two int64s</span>
+<span class="sd">        Session dictionary from Alyx REST endpoint.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series</span>
-<span class="sd">        Session record</span>
+<span class="sd">        Session record.</span>
 <span class="sd">    pd.DataFrame</span>
-<span class="sd">        Datasets frame</span>
+<span class="sd">        Datasets frame.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract session record</span>
     <span class="n">eid</span> <span class="o">=</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
-    <span class="k">if</span> <span class="n">int_id</span><span class="p">:</span>
-        <span class="n">eid</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parquet</span><span class="o">.</span><span class="n">str2np</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
     <span class="n">session_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">)</span>
     <span class="n">session_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ses</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="p">}</span>
     <span class="n">session</span> <span class="o">=</span> <span class="p">(</span>
@@ -161,14 +156,10 @@
     <span class="c1"># Extract datasets table</span>
     <span class="k">def</span> <span class="nf">_to_record</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">int_id</span><span class="p">:</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id_0&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">str2np</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid_0&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">name</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
         <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
         <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
         <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
@@ -177,25 +168,25 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">records</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_to_record</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">])</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid_0&#39;</span><span class="p">,</span> <span class="s1">&#39;eid_1&#39;</span><span class="p">,</span> <span class="s1">&#39;id_0&#39;</span><span class="p">,</span> <span class="s1">&#39;id_1&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">int_id</span> <span class="k">else</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
     <span class="n">datasets</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span></div>
 
 
-<div class="viewcode-block" id="datasets2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.datasets2records">[docs]</a><span class="k">def</span> <span class="nf">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">int_id</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract datasets DataFrame from one or more Alyx dataset records</span>
+<div class="viewcode-block" id="datasets2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.datasets2records">[docs]</a><span class="k">def</span> <span class="nf">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract datasets DataFrame from one or more Alyx dataset records.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    datasets : dict, list</span>
-<span class="sd">        One or more records from the Alyx &#39;datasets&#39; endpoint</span>
+<span class="sd">        One or more records from the Alyx &#39;datasets&#39; endpoint.</span>
+<span class="sd">    additional : list of str</span>
+<span class="sd">        A set of optional fields to extract from dataset records.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
-<span class="sd">        Datasets frame</span>
-<span class="sd">    int_id : bool</span>
-<span class="sd">        If True, the UUIDs are converted to two int64s</span>
+<span class="sd">        Datasets frame.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -209,21 +200,21 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">file_record</span><span class="p">:</span>
             <span class="k">continue</span>  <span class="c1"># Ignore files that are not accessible</span>
         <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">int_id</span><span class="p">:</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id_0&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">str2np</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid_0&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">str2np</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
-            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
         <span class="n">data_url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">file_record</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">data_url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]:</span>
+            <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
         <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
         <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_dataset&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">additional</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">rec</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
 
-    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid_0&#39;</span><span class="p">,</span> <span class="s1">&#39;eid_1&#39;</span><span class="p">,</span> <span class="s1">&#39;id_0&#39;</span><span class="p">,</span> <span class="s1">&#39;id_1&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">int_id</span> <span class="k">else</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;file_size&#39;</span><span class="p">,</span> <span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">,</span> <span class="s1">&#39;default_revision&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">keys</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
@@ -232,22 +223,22 @@
 
 <div class="viewcode-block" id="parse_id"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.parse_id">[docs]</a><span class="k">def</span> <span class="nf">parse_id</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Ensures the input experiment identifier is an experiment UUID string</span>
+<span class="sd">    Ensures the input experiment identifier is an experiment UUID string.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    method : function</span>
-<span class="sd">        An ONE method whose second arg is an experiment ID</span>
+<span class="sd">        An ONE method whose second arg is an experiment ID.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    function</span>
-<span class="sd">        A wrapper function that parses the ID to the expected string</span>
+<span class="sd">        A wrapper function that parses the ID to the expected string.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Unable to convert input to a valid experiment ID</span>
+<span class="sd">        Unable to convert input to a valid experiment ID.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
@@ -262,7 +253,7 @@
 
 <div class="viewcode-block" id="refresh"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.refresh">[docs]</a><span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Refresh cache depending of query_type kwarg</span>
+<span class="sd">    Refresh cache depending of query_type kwarg.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
@@ -278,7 +269,7 @@
 
 <div class="viewcode-block" id="validate_date_range"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.validate_date_range">[docs]</a><span class="k">def</span> <span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validates and arrange date range in a 2 elements list</span>
+<span class="sd">    Validates and arrange date range in a 2 elements list.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -288,7 +279,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tuple of pd.Timestamp</span>
-<span class="sd">        The start and end timestamps</span>
+<span class="sd">        The start and end timestamps.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -304,7 +295,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Size of date range tuple must be 1 or 2</span>
+<span class="sd">        Size of date range tuple must be 1 or 2.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">date_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
@@ -343,14 +334,14 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    collection : None, str</span>
-<span class="sd">        An optional collection regular expression</span>
+<span class="sd">        An optional collection regular expression.</span>
 <span class="sd">    revision : None, str</span>
-<span class="sd">        An optional revision regular expression</span>
+<span class="sd">        An optional revision regular expression.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        A string format for matching the collection/revision</span>
+<span class="sd">        A string format for matching the collection/revision.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">collection</span><span class="p">,</span> <span class="n">revision</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{collection}</span><span class="s1">/&#39;</span><span class="p">,</span> <span class="s1">&#39;#</span><span class="si">{revision}</span><span class="s1">#/&#39;</span><span class="p">)):</span>
@@ -384,7 +375,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        A string format for matching an ALF dataset</span>
+<span class="sd">        A string format for matching an ALF dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;namespace&#39;</span><span class="p">:</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;timescale&#39;</span><span class="p">:</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="s1">&#39;*&#39;</span><span class="p">}</span>
     <span class="n">filespec</span> <span class="o">=</span> <span class="n">FILE_SPEC</span>
@@ -515,17 +506,17 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    datasets : pandas.DataFrame</span>
-<span class="sd">        A datasets cache table</span>
+<span class="sd">        A datasets cache table.</span>
 <span class="sd">    revision : str</span>
-<span class="sd">        A revision string to match (regular expressions not permitted)</span>
+<span class="sd">        A revision string to match (regular expressions not permitted).</span>
 <span class="sd">    assert_unique : bool</span>
 <span class="sd">        When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple</span>
-<span class="sd">        default revisions are found; an alferr.ALFError when no default revision is found</span>
+<span class="sd">        default revisions are found; an alferr.ALFError when no default revision is found.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
-<span class="sd">        A datasets DataFrame with 0 or 1 row per unique dataset</span>
+<span class="sd">        A datasets DataFrame with 0 or 1 row per unique dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_last_before</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Takes a DataFrame with only one dataset and multiple revisions, returns matching row&quot;&quot;&quot;</span>
@@ -536,7 +527,9 @@
                 <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFMultipleRevisionsFound</span><span class="p">(</span><span class="n">rev_list</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">default_revision</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">default_revision</span><span class="p">]</span>
-            <span class="c1"># default_revision column all False; default doesn&#39;t isn&#39;t copied to remote repository</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># This may be the case when called from load_datasets</span>
+                <span class="k">return</span> <span class="n">df</span>  <span class="c1"># It&#39;s not the default be there&#39;s only one available revision</span>
+            <span class="c1"># default_revision column all False; default isn&#39;t copied to remote repository</span>
             <span class="n">dset_name</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">assert_unique</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No default revision for dataset </span><span class="si">{</span><span class="n">dset_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -566,14 +559,14 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    revisions : list of strings</span>
-<span class="sd">        A list of revision strings</span>
+<span class="sd">        A list of revision strings.</span>
 <span class="sd">    revision : None, str</span>
-<span class="sd">        The revision string to match on</span>
+<span class="sd">        The revision string to match on.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    int, None</span>
-<span class="sd">        Index of revision before matching string in sorted list or None</span>
+<span class="sd">        Index of revision before matching string in sorted list or None.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -590,7 +583,7 @@
 
 <div class="viewcode-block" id="autocomplete"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.autocomplete">[docs]</a><span class="k">def</span> <span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validate search term and return complete name, e.g. autocomplete(&#39;subj&#39;) == &#39;subject&#39;</span>
+<span class="sd">    Validate search term and return complete name, e.g. autocomplete(&#39;subj&#39;) == &#39;subject&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">term</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="c1"># Check if term already complete</span>
@@ -606,7 +599,7 @@
 
 
 <div class="viewcode-block" id="ensure_list"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ensure_list">[docs]</a><span class="k">def</span> <span class="nf">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure input is a list&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure input is a list.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span></div>
 
 
@@ -653,7 +646,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    table : pd.DataFrame</span>
-<span class="sd">        A cache table (from One._cache)</span>
+<span class="sd">        A cache table (from One._cache).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Convert integer uuids to str uuids</span>

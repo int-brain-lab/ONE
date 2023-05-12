@@ -148,7 +148,7 @@ ALF files must always have an extension</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.add_uuid_string" title="one.alf.files.add_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_uuid_string</span></code></a></p></td>
-<td><p>Add a UUID and an extra part to the filename of an ALF path</p></td>
+<td><p>Add a UUID to the filename of an ALF path.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.filename_parts" title="one.alf.files.filename_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filename_parts</span></code></a></p></td>
 <td><p>Return the parsed elements of a given ALF filename.</p></td>
@@ -168,7 +168,10 @@ ALF files must always have an extension</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.rel_path_parts" title="one.alf.files.rel_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel_path_parts</span></code></a></p></td>
 <td><p>Parse a relative path into the relevant parts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.session_path_parts" title="one.alf.files.session_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_path_parts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.remove_uuid_string" title="one.alf.files.remove_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_string</span></code></a></p></td>
+<td><p>Remove UUID from a filename of an ALF path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.session_path_parts" title="one.alf.files.session_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_path_parts</span></code></a></p></td>
 <td><p>Parse a session path into the relevant parts.</p></td>
 </tr>
 </tbody>
@@ -433,21 +436,67 @@ None is returned.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.files.add_uuid_string">
 <span class="sig-name descname"><span class="pre">add_uuid_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/files.html#add_uuid_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.add_uuid_string" title="Permalink to this definition"></a></dt>
-<dd><p>Add a UUID and an extra part to the filename of an ALF path</p>
+<dd><p>Add a UUID to the filename of an ALF path.</p>
+<p>Adds a UUID to an ALF filename as an extra part, e.g.
+‘obj.attr.ext’ -&gt; ‘obj.attr.a976e418-c8b8-4d24-be47-d05120b18341.ext’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – An ALF path to add the UUID to</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The UUID to add</p></li>
+<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – An ALF path to add the UUID to.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The UUID to add.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A new Path object with a UUID in the filename</p>
+<dd class="field-even"><p>A new Path or PurePath object with a UUID in the filename.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p>pathlib.Path, pathlib.PurePath</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/path/to/trials.intervals.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;a976e418-c8b8-4d24-be47-d05120b18341&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – <cite>uuid</cite> must be a valid hyphen-separated hexadecimal UUID.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.io.remove_uuid_string</span></code>, <a class="reference internal" href="one.alf.spec.html#one.alf.spec.is_uuid" title="one.alf.spec.is_uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.spec.is_uuid</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.files.remove_uuid_string">
+<span class="sig-name descname"><span class="pre">remove_uuid_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/files.html#remove_uuid_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.remove_uuid_string" title="Permalink to this definition"></a></dt>
+<dd><p>Remove UUID from a filename of an ALF path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – An ALF path to add the UUID to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Path or PurePath object without a UUID in the filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path, pathlib.PurePath</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/trials.intervals.npy&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/path/to/trials.intervals.npy&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/trials.intervals.npy&#39;)</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.io.add_uuid_string</span></code></p>
+</div>
 </dd></dl>
 
 </section>

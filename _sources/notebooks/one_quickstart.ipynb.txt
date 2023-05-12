@@ -38,7 +38,8 @@
    "outputs": [],
    "source": [
     "from one.api import ONE\n",
-    "one = ONE(base_url='https://openalyx.internationalbrainlab.org', password='international', silent=True)"
+    "ONE.setup(base_url='https://openalyx.internationalbrainlab.org', silent=True)\n",
+    "one = ONE(password='international')"
    ]
   },
   {

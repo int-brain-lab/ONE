@@ -135,7 +135,7 @@ one = ONE()
 ```
 
 ## How do I check which version of ONE I'm using within Python?
-You can check your version with the following: `import one; print(one.__version__)`.\
+You can check your version with the following: `print(ONE.version)`.\
 The latest version can be found in the CHANGELOG, [here](https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md). \
 To update to the latest available version run `pip install -U ONE-api`.
 

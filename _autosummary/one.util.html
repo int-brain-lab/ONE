@@ -152,10 +152,10 @@
 <td><p>Convert int ids to str ids for cache table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.datasets2records" title="one.util.datasets2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets2records</span></code></a></p></td>
-<td><p>Extract datasets DataFrame from one or more Alyx dataset records</p></td>
+<td><p>Extract datasets DataFrame from one or more Alyx dataset records.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.ensure_list" title="one.util.ensure_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_list</span></code></a></p></td>
-<td><p>Ensure input is a list</p></td>
+<td><p>Ensure input is a list.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.filter_datasets" title="one.util.filter_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_datasets</span></code></a></p></td>
 <td><p>Filter the datasets cache table by the relative path (dataset name, collection and revision).</p></td>
@@ -167,19 +167,19 @@
 <td><p>Returns the index of string that occurs directly before the provided revision string when lexicographic sorted.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.parse_id" title="one.util.parse_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_id</span></code></a></p></td>
-<td><p>Ensures the input experiment identifier is an experiment UUID string</p></td>
+<td><p>Ensures the input experiment identifier is an experiment UUID string.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.patch_cache" title="one.util.patch_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">patch_cache</span></code></a></p></td>
 <td><p>Reformat older cache tables to comply with this version of ONE.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.refresh" title="one.util.refresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refresh</span></code></a></p></td>
-<td><p>Refresh cache depending of query_type kwarg</p></td>
+<td><p>Refresh cache depending of query_type kwarg.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.ses2records" title="one.util.ses2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ses2records</span></code></a></p></td>
 <td><p>Extract session cache record and datasets cache from a remote session data record.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.validate_date_range" title="one.util.validate_date_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_date_range</span></code></a></p></td>
-<td><p>Validates and arrange date range in a 2 elements list</p></td>
+<td><p>Validates and arrange date range in a 2 elements list.</p></td>
 </tr>
 </tbody>
 </table>
@@ -199,19 +199,16 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.ses2records">
-<span class="sig-name descname"><span class="pre">ses2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.ses2records" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ses2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.ses2records" title="Permalink to this definition"></a></dt>
 <dd><p>Extract session cache record and datasets cache from a remote session data record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ses</strong> (<em>dict</em>) – Session dictionary from Alyx REST endpoint</p></li>
-<li><p><strong>int_id</strong> (<em>bool</em>) – If True, the UUIDs are converted to two int64s</p></li>
-</ul>
+<dd class="field-odd"><p><strong>ses</strong> (<em>dict</em>) – Session dictionary from Alyx REST endpoint.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>pd.Series</em> – Session record</p></li>
-<li><p><em>pd.DataFrame</em> – Datasets frame</p></li>
+<li><p><em>pd.Series</em> – Session record.</p></li>
+<li><p><em>pd.DataFrame</em> – Datasets frame.</p></li>
 </ul>
 </p>
 </dd>
@@ -220,18 +217,20 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.datasets2records">
-<span class="sig-name descname"><span class="pre">datasets2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/util.html#datasets2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.datasets2records" title="Permalink to this definition"></a></dt>
-<dd><p>Extract datasets DataFrame from one or more Alyx dataset records</p>
+<span class="sig-name descname"><span class="pre">datasets2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/util.html#datasets2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.datasets2records" title="Permalink to this definition"></a></dt>
+<dd><p>Extract datasets DataFrame from one or more Alyx dataset records.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>datasets</strong> (<em>dict</em><em>, </em><em>list</em>) – One or more records from the Alyx ‘datasets’ endpoint</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>dict</em><em>, </em><em>list</em>) – One or more records from the Alyx ‘datasets’ endpoint.</p></li>
+<li><p><strong>additional</strong> (<em>list</em><em> of </em><em>str</em>) – A set of optional fields to extract from dataset records.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>pd.DataFrame</em> – Datasets frame</p></li>
-<li><p><strong>int_id</strong> (<em>bool</em>) – If True, the UUIDs are converted to two int64s</p></li>
-</ul>
-</p>
+<dd class="field-even"><p>Datasets frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -244,19 +243,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.parse_id">
 <span class="sig-name descname"><span class="pre">parse_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#parse_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.parse_id" title="Permalink to this definition"></a></dt>
-<dd><p>Ensures the input experiment identifier is an experiment UUID string</p>
+<dd><p>Ensures the input experiment identifier is an experiment UUID string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>method</strong> (<em>function</em>) – An ONE method whose second arg is an experiment ID</p>
+<dd class="field-odd"><p><strong>method</strong> (<em>function</em>) – An ONE method whose second arg is an experiment ID.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A wrapper function that parses the ID to the expected string</p>
+<dd class="field-even"><p>A wrapper function that parses the ID to the expected string.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>function</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – Unable to convert input to a valid experiment ID</p>
+<dd class="field-even"><p><strong>ValueError</strong> – Unable to convert input to a valid experiment ID.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,19 +263,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.refresh">
 <span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.refresh" title="Permalink to this definition"></a></dt>
-<dd><p>Refresh cache depending of query_type kwarg</p>
+<dd><p>Refresh cache depending of query_type kwarg.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.validate_date_range">
 <span class="sig-name descname"><span class="pre">validate_date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_range)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'pandas._libs.tslibs.timestamps.Timestamp'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'pandas._libs.tslibs.timestamps.Timestamp'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#validate_date_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.validate_date_range" title="Permalink to this definition"></a></dt>
-<dd><p>Validates and arrange date range in a 2 elements list</p>
+<dd><p>Validates and arrange date range in a 2 elements list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>date_range</strong> (<em>str</em><em>, </em><em>datetime.date</em><em>, </em><em>datetime.datetime</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>np.datetime64</em><em>, </em><em>list</em><em>, </em><em>None</em>) – A single date or tuple/list of two dates.  None represents no bound.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The start and end timestamps</p>
+<dd class="field-even"><p>The start and end timestamps.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple of pd.Timestamp</p>
@@ -295,7 +294,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – Size of date range tuple must be 1 or 2</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – Size of date range tuple must be 1 or 2.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,14 +363,14 @@ doesn’t exactly match.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datasets</strong> (<em>pandas.DataFrame</em>) – A datasets cache table</p></li>
-<li><p><strong>revision</strong> (<em>str</em>) – A revision string to match (regular expressions not permitted)</p></li>
+<li><p><strong>datasets</strong> (<em>pandas.DataFrame</em>) – A datasets cache table.</p></li>
+<li><p><strong>revision</strong> (<em>str</em>) – A revision string to match (regular expressions not permitted).</p></li>
 <li><p><strong>assert_unique</strong> (<em>bool</em>) – When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
-default revisions are found; an alferr.ALFError when no default revision is found</p></li>
+default revisions are found; an alferr.ALFError when no default revision is found.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A datasets DataFrame with 0 or 1 row per unique dataset</p>
+<dd class="field-even"><p>A datasets DataFrame with 0 or 1 row per unique dataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -387,12 +386,12 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>revisions</strong> (<em>list</em><em> of </em><em>strings</em>) – A list of revision strings</p></li>
-<li><p><strong>revision</strong> (<em>None</em><em>, </em><em>str</em>) – The revision string to match on</p></li>
+<li><p><strong>revisions</strong> (<em>list</em><em> of </em><em>strings</em>) – A list of revision strings.</p></li>
+<li><p><strong>revision</strong> (<em>None</em><em>, </em><em>str</em>) – The revision string to match on.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Index of revision before matching string in sorted list or None</p>
+<dd class="field-even"><p>Index of revision before matching string in sorted list or None.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int, None</p>
@@ -407,13 +406,13 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.autocomplete">
 <span class="sig-name descname"><span class="pre">autocomplete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_terms</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/util.html#autocomplete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.autocomplete" title="Permalink to this definition"></a></dt>
-<dd><p>Validate search term and return complete name, e.g. autocomplete(‘subj’) == ‘subject’</p>
+<dd><p>Validate search term and return complete name, e.g. autocomplete(‘subj’) == ‘subject’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.ensure_list">
 <span class="sig-name descname"><span class="pre">ensure_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#ensure_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.ensure_list" title="Permalink to this definition"></a></dt>
-<dd><p>Ensure input is a list</p>
+<dd><p>Ensure input is a list.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -446,7 +445,7 @@ lexicographic sorted.  If revision is None, the index of the most recent revisio
 <dd><p>Convert int ids to str ids for cache table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>table</strong> (<em>pd.DataFrame</em>) – A cache table (from One._cache)</p>
+<dd class="field-odd"><p><strong>table</strong> (<em>pd.DataFrame</em>) – A cache table (from One._cache).</p>
 </dd>
 </dl>
 </dd></dl>

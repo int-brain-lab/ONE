@@ -64,10 +64,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#Loading-with-file-name-parts">Loading with file name parts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#More-regex-examples">More regex examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Load-spike-times-from-a-probe-UUID">Load spike times from a probe UUID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Loading-with-relative-paths">Loading with relative paths</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#Loading-with-timeseries">Loading with timeseries</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Loading-collections">Loading collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Loading-aggregate-datasets">Loading aggregate datasets</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../experiment_ids.html">Experiment IDs</a></li>
@@ -407,6 +409,23 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 </pre></div>
 </div>
 </section>
+<section id="Loading-with-relative-paths">
+<h3>Loading with relative paths<a class="headerlink" href="#Loading-with-relative-paths" title="Permalink to this heading"></a></h3>
+<p>You may also the complete dataset path, relative to the session path. When doing this the path must be complete (i.e. without wildcards) and the collection and revision arguments must be None.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>To ensure you’re loading the default revision (usually the most recent and correct data), do not explicitly provide the relative path or revision, and ONE will return the default automatically.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;alf/probe00/spikes.times.npy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Download all the raw data for a given session*</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;raw_*_data&#39;</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>*NB: This will download all revisions of the same data; for this reason it is better to objects and collections individually, or to provide dataset names instead of relative paths.</p>
+</section>
 </section>
 <section id="Loading-with-timeseries">
 <h2>Loading with timeseries<a class="headerlink" href="#Loading-with-timeseries" title="Permalink to this heading"></a></h2>
@@ -494,6 +513,23 @@ load_dataset(eid: Union[str, pathlib.Path, uuid.UUID], dataset: str, collection:
                                   collection=&#39;alf/probe01&#39;, revision=&#39;2020-08-31&#39;)
 
 </pre></div></div>
+</div>
+</section>
+<section id="Loading-aggregate-datasets">
+<h2>Loading aggregate datasets<a class="headerlink" href="#Loading-aggregate-datasets" title="Permalink to this heading"></a></h2>
+<p>All raw and preprocessed data are stored at the session level, however some datasets are aggregated over a subject, project, or tag (called a ‘relation’). Such datasets can be loaded using the <code class="docutils literal notranslate"><span class="pre">load_aggregate</span></code> method.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>NB: This method is only available in ‘remote’ mode.</p>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;SWC_043&#39;</span>
+<span class="n">subject_trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_aggregate</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;_ibl_subjectTrials.table&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </section>
 </section>
