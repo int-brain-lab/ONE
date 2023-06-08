@@ -13,6 +13,8 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
@@ -1086,9 +1088,11 @@ matching insertion.</p></li>
 <li><p>This method does not use the local cache and therefore can not work in ‘local’ mode.</p></li>
 </ul>
 <p class="rubric">Examples</p>
-<p>List the insertions associated with a given data release
-&gt;&gt;&gt; tag = ‘2022_Q2_IBL_et_al_RepeatedSite’
-… ins = one.search_insertions(django=’datasets__tags__name,’ + tag)</p>
+<p>List the insertions associated with a given data release</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;2022_Q2_IBL_et_al_RepeatedSite&#39;</span>
+<span class="gp">... </span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="s1">&#39;datasets__tags__name,&#39;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
