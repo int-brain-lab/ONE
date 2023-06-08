@@ -286,7 +286,7 @@ def load_file_content(fil):
 
     Returns
     -------
-    any
+    Any
         Array/json/pandas dataframe depending on format
     """
     if not fil:
