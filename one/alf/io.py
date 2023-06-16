@@ -286,7 +286,7 @@ def load_file_content(fil):
 
     Returns
     -------
-    any
+    Any
         Array/json/pandas dataframe depending on format
     """
     if not fil:
@@ -316,6 +316,13 @@ def load_file_content(fil):
     if fil.suffix in ('.yml', '.yaml'):
         with open(fil, 'r') as _fil:
             return yaml.safe_load(_fil)
+    if fil.suffix == '.sparse_npz':
+        try:
+            import sparse
+            return sparse.load_npz(fil)
+        except ModuleNotFoundError:
+            warnings.warn(f'{Path(fil).name} requires the pydata sparse package to load.')
+            return Path(fil)
     return Path(fil)
 
 
