@@ -24,6 +24,7 @@ one.tests.alf.test\_alf\_io
       TestsAlf
       TestsAlfPartsFilters
       TestsLoadFile
+      TestsLoadFileNonStandard
    
    
 

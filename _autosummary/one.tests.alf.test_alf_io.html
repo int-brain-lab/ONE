@@ -157,7 +157,10 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestsLoadFile" title="one.tests.alf.test_alf_io.TestsLoadFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestsLoadFile</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Tests for one.alf.io.load_fil_content function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.alf.test_alf_io.TestsLoadFileNonStandard" title="one.tests.alf.test_alf_io.TestsLoadFileNonStandard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestsLoadFileNonStandard</span></code></a></p></td>
+<td><p>Tests for one.alf.io.load_fil_content function with non-standard libraries.</p></td>
 </tr>
 </tbody>
 </table>
@@ -301,6 +304,7 @@
 <dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFile">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestsLoadFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for one.alf.io.load_fil_content function.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFile.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile.setUp" title="Permalink to this definition"></a></dt>
@@ -318,6 +322,24 @@
 <span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFile.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFile.tearDown" title="Permalink to this definition"></a></dt>
 <dd><p>Hook method for deconstructing the test fixture after testing it.</p>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFileNonStandard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestsLoadFileNonStandard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFileNonStandard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFileNonStandard" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for one.alf.io.load_fil_content function with non-standard libraries.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFileNonStandard.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFileNonStandard.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.setUp" title="Permalink to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.alf.test_alf_io.TestsLoadFileNonStandard.test_load_sparse_npz">
+<span class="sig-name descname"><span class="pre">test_load_sparse_npz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/alf/test_alf_io.html#TestsLoadFileNonStandard.test_load_sparse_npz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.test_load_sparse_npz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

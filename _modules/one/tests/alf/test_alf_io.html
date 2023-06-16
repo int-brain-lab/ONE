@@ -107,6 +107,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;Unit tests for the one.alf.io module&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">unittest.mock</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
@@ -123,6 +124,12 @@
 <span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
 <span class="kn">from</span> <span class="nn">one.alf.exceptions</span> <span class="kn">import</span> <span class="n">ALFObjectNotFound</span>
 <span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sparse</span>
+    <span class="n">SKIP_SPARSE</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="n">SKIP_SPARSE</span> <span class="o">=</span> <span class="kc">True</span>
 
 
 <div class="viewcode-block" id="TestAlfBunch"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch">[docs]</a><span class="k">class</span> <span class="nc">TestAlfBunch</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
@@ -585,8 +592,9 @@
 
 
 <div class="viewcode-block" id="TestsLoadFile"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile">[docs]</a><span class="k">class</span> <span class="nc">TestsLoadFile</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.alf.io.load_fil_content function.&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="TestsLoadFile.setUp"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># riri, fifi and loulou are huey, duey and louie in French (Donald nephews for ignorants)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">empty</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;foo.bar.npy&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
@@ -651,6 +659,26 @@
 
 <div class="viewcode-block" id="TestsLoadFile.tearDown"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="TestsLoadFileNonStandard"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">SKIP_SPARSE</span><span class="p">,</span> <span class="s1">&#39;pydata sparse package not installed&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TestsLoadFileNonStandard</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.alf.io.load_fil_content function with non-standard libraries.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestsLoadFileNonStandard.setUp"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;foo.baz.sparse_npz&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">sparse</span><span class="o">.</span><span class="n">save_npz</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">sparse</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="TestsLoadFileNonStandard.test_load_sparse_npz"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.test_load_sparse_npz">[docs]</a>    <span class="k">def</span> <span class="nf">test_load_sparse_npz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">loaded</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sparse.load_npz&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="ne">ModuleNotFoundError</span><span class="p">),</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+            <span class="n">loaded</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TestUUID_Files"><a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files">[docs]</a><span class="k">class</span> <span class="nc">TestUUID_Files</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
