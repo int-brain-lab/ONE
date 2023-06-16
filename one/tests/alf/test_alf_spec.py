@@ -16,8 +16,8 @@ class TestALFSpec(unittest.TestCase):
         # Should return the full regex with named capture groups by default
         verifiable = alf_spec.regex()
         expected = ('((?P<lab>\\w+)/Subjects/)?'
-                    '(?P<subject>[\\w-]+)/(?P<date>\\d{4}-\\d{2}-\\d{2})/(?P<number>\\d{1,3})/'
-                    '((?P<collection>[\\w/-]+)/)?(#(?P<revision>[\\w-]+)#/)?'
+                    '(?P<subject>[\\w.-]+)/(?P<date>\\d{4}-\\d{2}-\\d{2})/(?P<number>\\d{1,3})/'
+                    '((?P<collection>[\\w./-]+)/)?(#(?P<revision>[\\w.-]+)#/)?'
                     '_?(?P<namespace>(?<=_)[a-zA-Z0-9]+)?_?(?P<object>\\w+)\\.'
                     '(?P<attribute>(?:_[a-z]+_)?[a-zA-Z0-9]+'
                     '(?:_times(?=[_.])|_intervals(?=[_.]))?)'
@@ -31,7 +31,7 @@ class TestALFSpec(unittest.TestCase):
 
         # Should replace the collection pattern
         verifiable = alf_spec.regex(spec=alf_spec.COLLECTION_SPEC, collection=r'probe\d{2}')
-        expected = '((?P<collection>probe\\d{2})/)?(#(?P<revision>[\\w-]+)#/)?'
+        expected = '((?P<collection>probe\\d{2})/)?(#(?P<revision>[\\w.-]+)#/)?'
         self.assertEqual(expected, verifiable.pattern)
 
         # Should raise a key error
