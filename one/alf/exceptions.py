@@ -1,4 +1,4 @@
-"""ALyx File related errors
+"""ALyx File related errors.
 
 A set of Alyx and ALF related error classes which provide a more verbose description of the raised
 issues.
