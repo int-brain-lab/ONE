@@ -30,6 +30,7 @@ jobs:
         pip install coverage coveralls
         pip install -r requirements.txt
         pip install globus_sdk
+        pip install sparse
         pip install -e .
     - name: run tests
       run: |

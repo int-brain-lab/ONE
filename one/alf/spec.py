@@ -107,11 +107,11 @@ FULL_SPEC = f'{SESSION_SPEC}/{REL_PATH_SPEC}'
 
 _DEFAULT = (
     ('lab', r'\w+'),
-    ('subject', r'[\w-]+'),
+    ('subject', r'[\w.-]+'),
     ('date', r'\d{4}-\d{2}-\d{2}'),
     ('number', r'\d{1,3}'),
-    ('collection', r'[\w/-]+'),
-    ('revision', r'[\w-]+'),  # brackets
+    ('collection', r'[\w./-]+'),
+    ('revision', r'[\w.-]+'),  # brackets
     # to include underscores: r'(?P<namespace>(?:^_)\w+(?:_))?'
     ('namespace', '(?<=_)[a-zA-Z0-9]+'),  # brackets
     ('object', r'\w+'),

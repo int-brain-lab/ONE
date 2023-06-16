@@ -1929,6 +1929,7 @@ class OneAlyx(One):
         Examples
         --------
         List the insertions associated with a given data release
+
         >>> tag = '2022_Q2_IBL_et_al_RepeatedSite'
         ... ins = one.search_insertions(django='datasets__tags__name,' + tag)
         """

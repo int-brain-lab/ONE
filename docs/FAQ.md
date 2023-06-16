@@ -154,3 +154,15 @@ from one.api import ONE
 one = ONE(base_url='https://openalyx.internationalbrainlab.org', cache_rest=None, mode='local')
 assert one.offline and one.alyx.cache_mode is None
 ```
+
+## Why does the search return a LazyID object? 
+When in remote mode using one.search or one.search_insertions, a LazyID object is returned instead of a list.
+It behaves exactly the same as a list (you can index, slice and get its length).  Instead of retrieving all the
+values from the database query it will fetch only the items you index from the list.  This greatly speeds up
+the function when there are large search results.
+
+## How do I get information about a session from an experiment ID?
+You can fetch a dictionary of experiment details from an experiment ID using the `get_details` method:
+```python
+details = ONE().get_details(eid)
+```
