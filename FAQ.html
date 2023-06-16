@@ -89,6 +89,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-check-which-version-of-one-i-m-using-within-python">How do I check which version of ONE I’m using within Python?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-use-one-in-a-read-only-environment">How do I use ONE in a read-only environment?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-does-the-search-return-a-lazyid-object">Why does the search return a LazyID object?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-get-information-about-a-session-from-an-experiment-id">How do I get information about a session from an experiment ID?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
@@ -290,6 +292,20 @@ and set <code class="docutils literal notranslate"><span class="pre">cache_rest=
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span> <span class="ow">and</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_mode</span> <span class="ow">is</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</section>
+<section id="why-does-the-search-return-a-lazyid-object">
+<h2>Why does the search return a LazyID object?<a class="headerlink" href="#why-does-the-search-return-a-lazyid-object" title="Permalink to this heading"></a></h2>
+<p>When in remote mode using one.search or one.search_insertions, a LazyID object is returned instead of a list.
+It behaves exactly the same as a list (you can index, slice and get its length).  Instead of retrieving all the
+values from the database query it will fetch only the items you index from the list.  This greatly speeds up
+the function when there are large search results.</p>
+</section>
+<section id="how-do-i-get-information-about-a-session-from-an-experiment-id">
+<h2>How do I get information about a session from an experiment ID?<a class="headerlink" href="#how-do-i-get-information-about-a-session-from-an-experiment-id" title="Permalink to this heading"></a></h2>
+<p>You can fetch a dictionary of experiment details from an experiment ID using the <code class="docutils literal notranslate"><span class="pre">get_details</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">details</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
