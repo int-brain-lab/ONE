@@ -5,6 +5,7 @@ import sys
 import logging
 from pathlib import Path, PurePosixPath, PurePath, PureWindowsPath
 import warnings
+from functools import partial
 
 import globus_sdk
 from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
@@ -15,6 +16,7 @@ from one.alf.spec import is_uuid
 from one.alf.files import remove_uuid_string
 import one.params
 from one.webclient import AlyxClient
+from one.util import ensure_list
 from .base import DownloadClient, load_client_params, save_client_params
 
 _logger = logging.getLogger(__name__)
@@ -277,8 +279,37 @@ class Globus(DownloadClient):
     def to_address(self, data_path, endpoint):
         pass  # pragma: no cover
 
-    def download_file(self, file_address):
-        pass  # pragma: no cover
+    def download_file(self, file_address, source_endpoint, recursive=False, **kwargs) -> list:
+        """
+
+        Parameters
+        ----------
+        file_address : str, list of str
+            One or more relative paths to download.
+        source_endpoint : str, uuid.UUID
+            The source endpoint name or uuid.
+        recursive : bool
+            If true, transfer the contents of nested directories (NB: all data_paths must be
+            directories).
+        **kwargs
+            See Globus.transfer_data.
+
+        Returns
+        -------
+        list of pathlib.Path
+            The downloaded file paths.
+
+        TODO Return None for failed files
+        TODO convert globus path to Windows path
+        """
+        kwargs['label'] = kwargs.get('label', 'ONE download')
+        task = partial(self.transfer_data, file_address, source_endpoint, 'local',
+                       sync_level='mtime', recursive=recursive, **kwargs)
+        task_id = self.run_task(task)
+        files = []
+        for info in self.client.task_successful_transfers(task_id):
+            files.append(Path(info['destination_path']))
+        return files
 
     @staticmethod
     def setup(*args, **kwargs):
@@ -360,6 +391,24 @@ class Globus(DownloadClient):
         return as_globus_path(path)
 
     def _endpoint_id_root(self, endpoint):
+        """
+        Return endpoint UUID and root path from a given endpoint identifier.
+
+        Parameters
+        ----------
+        endpoint : str, uuid.UUID
+            An endpoint label or UUID.
+
+        Returns
+        -------
+        str, uuid.UUID
+            The endpoint UUID.
+        str, None
+            The endpoint root path (if defined) or None if UUID was provided.
+
+        TODO consistent return types
+        TODO search for root path by UUID
+        """
         root_path = None
         if endpoint in self.endpoints.keys():
             endpoint_id = self.endpoints[endpoint]['id']
@@ -368,11 +417,54 @@ class Globus(DownloadClient):
             return endpoint_id, root_path
         elif is_uuid(endpoint, range(1, 5)):
             endpoint_id = endpoint
-            return endpoint_id, None
+            return endpoint_id, root_path
         else:
             raise ValueError(
                 '"endpoint" must be a UUID or the label of an endpoint registered in this '
                 'Globus instance. You can add endpoints via the add_endpoints method')
+
+    def transfer_data(self, data_path, source_endpoint, destination_endpoint,
+                      recursive=False, **kwargs):
+        """
+        Transfer one or more paths between endpoints.
+
+        At least one of the endpoints must be a server endpoint.  Both file and directory paths may
+        be provided, however if recursive is true, all paths must be directories.
+
+        Parameters
+        ----------
+        data_path : str, list of str
+            One or more data paths, relative to the endpoint root path.
+        source_endpoint : str, uuid.UUID
+            The name or UUID of the source endpoint.
+        destination_endpoint : str, uuid.UUID
+            The name or UUID of the destination endpoint.
+        recursive : bool
+            If true, transfer the contents of nested directories (NB: all data_paths must be
+            directories).
+        **kwargs
+            See globus_sdk.TransferData.
+
+        Returns
+        -------
+        str
+            The Globus transfer ID.
+       """
+        kwargs['source_endpoint'] = (source_endpoint
+                                     if is_uuid(source_endpoint, versions=(1,))
+                                     else self.endpoints.get(source_endpoint)['id'])
+        kwargs['destination_endpoint'] = (destination_endpoint
+                                          if is_uuid(destination_endpoint, versions=(1,))
+                                          else self.endpoints.get(destination_endpoint)['id'])
+        transfer_object = globus_sdk.TransferData(self.client, **kwargs)
+
+        # add any number of items to the submission data
+        for path in ensure_list(data_path):
+            src = self._endpoint_path(path, self._endpoint_id_root(source_endpoint)[1])
+            dst = self._endpoint_path(path, self._endpoint_id_root(destination_endpoint)[1])
+            transfer_object.add_item(src, dst, recursive=recursive)
+        response = self.client.submit_transfer(transfer_object)
+        return response.data['task_id']
 
     def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
         """
@@ -448,7 +540,7 @@ class Globus(DownloadClient):
 
         Returns
         -------
-        int
+        str
             A Globus task ID.
         """
         source_endpoint, source_root = self._endpoint_id_root(source_endpoint)
@@ -475,10 +567,9 @@ class Globus(DownloadClient):
         Block until a Globus task finishes and retry upon Network or REST Errors.
         globus_func needs to submit a task to the client and return a task_id.
 
-
         Parameters
         ----------
-        globus_func : function
+        globus_func : function, Callable
             A function that returns a Globus task ID, typically it will submit a transfer.
         retries : int
             The number of times to call globus_func if it raises a Globus error.
@@ -487,7 +578,7 @@ class Globus(DownloadClient):
 
         Returns
         -------
-        int
+        str
             Globus task ID.
 
         Raises

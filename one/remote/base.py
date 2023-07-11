@@ -125,7 +125,7 @@ class DownloadClient:
         pass  # pragma: no cover
 
     @abstractmethod
-    def download_file(self, file_address):
+    def download_file(self, file_address, *args, **kwargs):
         """Download an ALF dataset given its address"""
         pass  # pragma: no cover
 
