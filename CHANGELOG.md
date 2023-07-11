@@ -4,6 +4,7 @@
 ### Modified
 
 - support endpoint create without fields
+- support for multiple timescales in to_alf
 
 ## [2.1.0]
 

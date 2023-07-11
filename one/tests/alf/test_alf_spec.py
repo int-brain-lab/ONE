@@ -189,6 +189,9 @@ class TestALFSpec(unittest.TestCase):
         filename = alf_spec.to_alf('spikes', 'times', 'npy',
                                    namespace='ibl', timescale='ephysClock', extra='raw')
         self.assertEqual(filename, '_ibl_spikes.times_ephysClock.raw.npy')
+        filename = alf_spec.to_alf('spikes', 'times', 'ssv',
+                                   namespace='ibl', timescale=('ephys clock', 'minutes'))
+        self.assertEqual(filename, '_ibl_spikes.times_ephysClock_minutes.ssv')
         filename = alf_spec.to_alf('wheel', 'timestamps', '.npy', 'ibl', 'bpod', ('raw', 'v12'))
         self.assertEqual(filename, '_ibl_wheel.timestamps_bpod.raw.v12.npy')
 

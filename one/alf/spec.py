@@ -342,7 +342,7 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
         The file extension
     namespace : str
         An optional namespace
-    timescale : str
+    timescale : str, tuple
         An optional timescale
     extra : str, tuple
         One or more optional extra ALF attributes
@@ -360,6 +360,8 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
     '_ibl_spikes.times.ssv'
     >>> to_alf('spikes', 'times', 'ssv', namespace='ibl', timescale='ephysClock')
     '_ibl_spikes.times_ephysClock.ssv'
+    >>> to_alf('spikes', 'times', 'ssv', namespace='ibl', timescale=('ephys clock', 'minutes'))
+    '_ibl_spikes.times_ephysClock_minutes.ssv'
     >>> to_alf('spikes', 'times', 'npy', namespace='ibl', timescale='ephysClock', extra='raw')
     '_ibl_spikes.times_ephysClock.raw.npy'
     >>> to_alf('wheel', 'timestamps', 'npy', 'ibl', 'bpod', ('raw', 'v12'))
@@ -380,7 +382,10 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
     if object[0] == '_':
         raise ValueError('Objects must not contain underscores; use namespace arg instead')
     # Ensure parts are camel case (converts whitespace and snake case)
-    object, timescale = map(_dromedary, (object, timescale))
+    if timescale:
+        timescale = [timescale] if isinstance(timescale, str) else timescale
+        timescale = '_'.join(map(_dromedary, timescale))
+    object = _dromedary(object)
 
     # Optional extras may be provided as string or tuple of strings
     if not extra:
