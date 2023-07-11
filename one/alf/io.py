@@ -338,7 +338,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
         An ALF object name to filter by
     wildcards : bool
         If true uses unix shell style pattern matching, otherwise uses regular expressions
-    kwargs : dict
+    **kwargs
         Other ALF parts to filter, including namespace, attribute, etc.
 
     Returns
@@ -429,7 +429,7 @@ def exists(alfpath, object, attributes=None, **kwargs) -> bool:
         Wanted attributes
     wildcards : bool
         If true uses unix shell style pattern matching, otherwise uses regular expressions
-    kwargs : dict
+    **kwargs
         Other ALF parts to filter by
 
     Returns
@@ -469,23 +469,23 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
     Parameters
     ----------
     alfpath : str, pathlib.Path, list
-        Any ALF path pertaining to the object OR directory containing ALFs OR list of paths
+        Any ALF path pertaining to the object OR directory containing ALFs OR list of paths.
     object : str, list, None
         The ALF object(s) to filter by.  If a directory is provided and object is None, all valid
-        ALF files returned
+        ALF files returned.
     short_keys : bool
         By default, the output dictionary keys will be compounds of attributes, timescale and
         any eventual parts separated by a dot. Use True to shorten the keys to the attribute
-        and timescale
+        and timescale.
     wildcards : bool
-        If true uses unix shell style pattern matching, otherwise uses regular expressions
-    kwargs : dict
-        Other ALF parts to filter by
+        If true uses unix shell style pattern matching, otherwise uses regular expressions.
+    **kwargs
+        Other ALF parts to filter by.
 
     Returns
     -------
     AlfBunch
-        An ALFBunch (dict-like) of all attributes pertaining to the object
+        An ALFBunch (dict-like) of all attributes pertaining to the object.
 
     Examples
     --------

@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.1.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.0]
+
+### Modified
+
+- support endpoint create without fields
+
+## [2.1.0]
 
 ### Added
 

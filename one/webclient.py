@@ -1022,7 +1022,8 @@ class AlyxClient:
                             endpoint_scheme[action]['url'])
             return
         # the actions below require a data dictionary, warn and help the user with fields list
-        if action in ['create', 'update', 'partial_update'] and not data:
+        data_required = 'fields' in endpoint_scheme[action]
+        if action in ['create', 'update', 'partial_update'] and data_required and not data:
             pprint(endpoint_scheme[action]['fields'])
             for act in endpoint_scheme[action]['fields']:
                 print("'" + act['name'] + "': ...,")

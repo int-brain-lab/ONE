@@ -3,7 +3,6 @@ import collections.abc
 import urllib.parse
 import warnings
 import logging
-import packaging.version
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
 from inspect import unwrap
@@ -17,6 +16,7 @@ import threading
 import pandas as pd
 import numpy as np
 import requests.exceptions
+import packaging.version
 
 from iblutil.io import parquet, hashfile
 from iblutil.util import Bunch, flatten
