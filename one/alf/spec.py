@@ -383,7 +383,7 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
         raise ValueError('Objects must not contain underscores; use namespace arg instead')
     # Ensure parts are camel case (converts whitespace and snake case)
     if timescale:
-        timescale = [timescale] if isinstance(timescale, str) else timescale
+        timescale = filter(None, [timescale] if isinstance(timescale, str) else timescale)
         timescale = '_'.join(map(_dromedary, timescale))
     object = _dromedary(object)
 
