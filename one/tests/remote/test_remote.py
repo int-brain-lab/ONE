@@ -26,11 +26,11 @@ from one.remote import base, globus
 
 
 class TestBase(unittest.TestCase):
-    """Tests for the one.remote.base module"""
+    """Tests for the one.remote.base module."""
 
-    """unittest.mock._patch: Mock object for setting parameter location as temporary directory"""
+    """unittest.mock._patch: Mock object for setting parameter location as temporary directory."""
     path_mock = None
-    """tempfile.TemporaryDirectory: The temporary location of remote parameters file"""
+    """tempfile.TemporaryDirectory: The temporary location of remote parameters file."""
     tempdir = None
 
     @classmethod
@@ -43,7 +43,7 @@ class TestBase(unittest.TestCase):
         self.path_mock.start()
 
     def test_load_client_params(self):
-        """Tests for one.remote.base.load_client_params function"""
+        """Tests for one.remote.base.load_client_params function."""
         # Check behaviour when no parameters file exists
         with self.assertRaises(FileNotFoundError):
             base.load_client_params(assert_present=True)
@@ -68,7 +68,7 @@ class TestBase(unittest.TestCase):
         self.assertIn('par1', p.as_dict())
 
     def test_save_client_params(self):
-        """Tests for one.remote.base.save_client_params function"""
+        """Tests for one.remote.base.save_client_params function."""
         # Check behaviour when saving all params
         expected = {'foo': {'bar': 'baz'}}
         base.save_client_params(expected)
@@ -90,7 +90,7 @@ class TestBase(unittest.TestCase):
         self.assertEqual(1, p['new']['par1'])
 
     def test_repo_from_alyx(self):
-        """Test for DownloadClient.repo_from_alyx method"""
+        """Test for DownloadClient.repo_from_alyx method."""
         ac = AlyxClient(**TEST_DB_1)
         setup_rest_cache(ac.cache_dir)  # Copy REST cache fixtures to temp dir
         record = base.DownloadClient.repo_from_alyx('mainenlab', ac)
@@ -108,11 +108,11 @@ class TestBase(unittest.TestCase):
 
 
 class TestGlobus(unittest.TestCase):
-    """Tests for the one.remote.globus module"""
+    """Tests for the one.remote.globus module."""
 
-    """unittest.mock._patch: Mock object for setting parameter location as temporary directory"""
+    """unittest.mock._patch: Mock object for setting parameter location as temporary directory."""
     path_mock = None
-    """tempfile.TemporaryDirectory: The temporary location of remote parameters file"""
+    """tempfile.TemporaryDirectory: The temporary location of remote parameters file."""
     tempdir = None
 
     @classmethod
@@ -126,7 +126,7 @@ class TestGlobus(unittest.TestCase):
 
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_setup(self, _):
-        """Tests for one.remote.globus.setup function"""
+        """Tests for one.remote.globus.setup function."""
         # Check behaviour when no parameters file exists, local endpoint ID found
         ans = ('', '123', '', 'new_path/to/thing', 'c')
         with mock.patch('builtins.input', side_effect=ans),\
@@ -174,7 +174,7 @@ class TestGlobus(unittest.TestCase):
             self.assertIn('local endpoint ID', str(ex))
 
     def test_as_globus_path(self):
-        """Tests for one.remote.globus.as_globus_path"""
+        """Tests for one.remote.globus.as_globus_path."""
         # A Windows path
         # "/E/FlatIron/integration"
         # Only test this on windows
@@ -188,7 +188,7 @@ class TestGlobus(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_get_local_endpoint_id(self):
-        """Test for one.remote.globus.get_local_endpoint_id function"""
+        """Test for one.remote.globus.get_local_endpoint_id function."""
         def _check_path(x):
             self.assertTrue(str(x).endswith('client-id.txt'))
             return True
@@ -205,7 +205,7 @@ class TestGlobus(unittest.TestCase):
         self.assertEqual('123', x)
 
     def test_get_local_endpoint_paths(self):
-        """Tests for one.remote.globus.get_local_endpoint_paths function"""
+        """Tests for one.remote.globus.get_local_endpoint_paths function."""
         with mock.patch('one.remote.globus.sys.platform', 'win32'):
             self.assertEqual([], globus.get_local_endpoint_paths())
 
@@ -220,7 +220,7 @@ class TestGlobus(unittest.TestCase):
             self.assertCountEqual(expected, globus.get_local_endpoint_paths())
 
     def test_get_lab_from_endpoint_id(self):
-        """Tests for one.remote.globus.get_lab_from_endpoint_id function"""
+        """Tests for one.remote.globus.get_lab_from_endpoint_id function."""
         # Set up REST cache fixtures
         ac = AlyxClient(**TEST_DB_1)
         setup_rest_cache(ac.cache_dir)
@@ -243,7 +243,7 @@ class TestGlobus(unittest.TestCase):
 
     @mock.patch('one.remote.globus.globus_sdk')
     def test_create_globus_client(self, globus_mock):
-        """Tests for one.remote.globus.create_globus_client function"""
+        """Tests for one.remote.globus.create_globus_client function."""
         # Check setup run when no params exist, check raises exception when missing params
         incomplete_pars = iopar.from_dict({'GLOBUS_CLIENT_ID': 123})
         with mock.patch('one.remote.globus.setup') as setup_mock,\
@@ -275,9 +275,9 @@ class TestGlobus(unittest.TestCase):
 
 
 class TestGlobusClient(unittest.TestCase):
-    """Tests for the GlobusClient class"""
+    """Tests for the GlobusClient class."""
 
-    """unittest.mock._patch: Mock object for globus_sdk package"""
+    """unittest.mock._patch: Mock object for globus_sdk package."""
     globus_sdk_mock = None
 
     @mock.patch('one.remote.globus.setup')
@@ -296,147 +296,177 @@ class TestGlobusClient(unittest.TestCase):
         self.globus_sdk_mock.start()
         self.addCleanup(self.globus_sdk_mock.stop)
         with mock.patch('one.remote.globus.load_client_params', return_value=pars):
-            self.client = globus.Globus()
+            self.globus = globus.Globus()
 
     def test_constructor(self):
-        """Test for Globus.__init__ method"""
+        """Test for Globus.__init__ method."""
         # self.assertEqual(self.client.client, self.globus_sdk_mock.TransferClient())
         expected = {'local': {'id': '987', 'root_path': self.tempdir.name}}
-        self.assertDictEqual(self.client.endpoints, expected)
+        self.assertDictEqual(self.globus.endpoints, expected)
 
     def test_add_endpoint(self):
-        """Test for Globus.add_endpoint method"""
+        """Test for Globus.add_endpoint method."""
         # Test with UUID
         # 1. Should raise exception when label not defined
         endpoint_id = '2dc8ccc6-2f8e-11e9-9351-0e3d676669f4'
         with self.assertRaises(ValueError):
-            self.client.add_endpoint(endpoint_id)
+            self.globus.add_endpoint(endpoint_id)
         # 2. Should add UUID to endpoints along with root path
         name = 'lab1'
-        self.client.add_endpoint(endpoint_id, label=name, root_path='/mnt')
-        self.assertIn(name, self.client.endpoints)
+        self.globus.add_endpoint(endpoint_id, label=name, root_path='/mnt')
+        self.assertIn(name, self.globus.endpoints)
         expected = {'id': endpoint_id, 'root_path': '/mnt'}
-        self.assertDictEqual(self.client.endpoints[name], expected)
+        self.assertDictEqual(self.globus.endpoints[name], expected)
 
         # Test with Alyx repo name
         # Set up REST cache fixtures
         ac = AlyxClient(**TEST_DB_1)
         setup_rest_cache(ac.cache_dir)
         name = 'mainenlab'
-        self.client.add_endpoint(name, alyx=ac)
-        self.assertIn(name, self.client.endpoints)
+        self.globus.add_endpoint(name, alyx=ac)
+        self.assertIn(name, self.globus.endpoints)
         expected = {
             'id': '0b6f5a7c-a7a9-11e8-96fa-0a6d4e044368',
             'root_path': '/mnt/globus/mainenlab/Subjects'
         }
-        self.assertDictEqual(self.client.endpoints[name], expected)
+        self.assertDictEqual(self.globus.endpoints[name], expected)
 
         # Test behaviour when label exists
         with self.assertLogs(logging.getLogger('one.remote.globus'), logging.ERROR):
-            self.client.add_endpoint(name, root_path='/', alyx=ac)
-            self.assertNotEqual(self.client.endpoints[name]['root_path'], '/')
-        self.client.add_endpoint(name, root_path='/', overwrite=True, alyx=ac)
-        self.assertEqual(self.client.endpoints[name]['root_path'], '/')
+            self.globus.add_endpoint(name, root_path='/', alyx=ac)
+            self.assertNotEqual(self.globus.endpoints[name]['root_path'], '/')
+        self.globus.add_endpoint(name, root_path='/', overwrite=True, alyx=ac)
+        self.assertEqual(self.globus.endpoints[name]['root_path'], '/')
 
     def test_endpoint_path(self):
-        """Test for Globus._endpoint_path method"""
+        """Test for Globus._endpoint_path method."""
         expected = PurePosixPath('/mnt/foo/bar')
-        self.assertEqual(str(expected), self.client._endpoint_path(expected))
+        self.assertEqual(str(expected), self.globus._endpoint_path(expected))
         expected = '/foo/bar/baz'
-        self.assertEqual(expected, self.client._endpoint_path('bar/baz', root_path='/foo'))
+        self.assertEqual(expected, self.globus._endpoint_path('bar/baz', root_path='/foo'))
         with self.assertRaises(ValueError):
-            self.client._endpoint_path('bar', root_path='foo')
+            self.globus._endpoint_path('bar', root_path='foo')
 
     def test_endpoint_id_root(self):
-        """Test for Globus._endpoint_id_root method"""
-        id, path = self.client._endpoint_id_root('local')
+        """Test for Globus._endpoint_id_root method."""
+        id, path = self.globus._endpoint_id_root('local')
         self.assertEqual('987', id)
         self.assertEqual(path, self.tempdir.name)
 
         expected = uuid.uuid4()
-        id, path = self.client._endpoint_id_root(expected)
+        id, path = self.globus._endpoint_id_root(expected)
         self.assertEqual(expected, id)
         self.assertIsNone(path)
 
         with self.assertRaises(ValueError):
-            self.client._endpoint_id_root('remote')
+            self.globus._endpoint_id_root('remote')
 
     def test_ls(self):
-        """Test for Globus.ls method"""
+        """Test for Globus.ls method."""
         response = dict(
             name=Path(self.tempdir.name, f'some.{uuid.uuid4()}.file').as_posix(),
             type='file', size=1024)
         err = globus_sdk.GlobusConnectionError('', ConnectionError)
-        self.client.client.operation_ls.side_effect = (err, [response])
+        self.globus.client.operation_ls.side_effect = (err, [response])
         path = globus.as_globus_path(self.tempdir.name)
-        out = self.client.ls('local', path)
-        self.assertEqual(2, self.client.client.operation_ls.call_count)
+        out = self.globus.ls('local', path)
+        self.assertEqual(2, self.globus.client.operation_ls.call_count)
         self.assertIsInstance(out[0], PurePosixPath)
         self.assertEqual(response['name'], out[0].as_posix())
 
         # Remove uuid and return size args
-        self.client.client.operation_ls.side_effect = ([response],)
-        out, = self.client.ls('local', path, remove_uuid=True, return_size=True)
+        self.globus.client.operation_ls.side_effect = ([response],)
+        out, = self.globus.ls('local', path, remove_uuid=True, return_size=True)
         self.assertEqual(response['size'], out[1])
         self.assertNotIn(response['name'].split('.')[-2], str(out[0]))
 
-        self.client.client.operation_ls.reset_mock()
-        self.client.client.operation_ls.side_effect = err
+        self.globus.client.operation_ls.reset_mock()
+        self.globus.client.operation_ls.side_effect = err
         with self.assertRaises(globus_sdk.GlobusConnectionError):
-            self.client.ls('local', path, max_retries=2)
-        self.assertEqual(3, self.client.client.operation_ls.call_count)
+            self.globus.ls('local', path, max_retries=2)
+        self.assertEqual(3, self.globus.client.operation_ls.call_count)
 
     def test_mv(self):
-        """Test for Globus.mv and Globus.run_task methods"""
+        """Test for Globus.mv and Globus.run_task methods."""
         source = ('some.file', 'some2.file')
         destination = ('new.file', 'new2.file')
         # Ensure root path is Globus compliant (required on Windows)
-        self.client.endpoints['local']['root_path'] = globus.as_globus_path(self.tempdir.name)
+        self.globus.endpoints['local']['root_path'] = globus.as_globus_path(self.tempdir.name)
         # Mock transfer output
         task_id = random.randint(0, int(1e6))
-        self.client.client.submit_transfer.return_value = {'task_id': task_id}
-        self.client.client.get_task.return_value = {'status': 'SUCCEEDED'}
-        self.client.client.task_successful_transfers.return_value = \
+        self.globus.client.submit_transfer.return_value = {'task_id': task_id}
+        self.globus.client.get_task.return_value = {'status': 'SUCCEEDED'}
+        self.globus.client.task_successful_transfers.return_value = \
             [dict(source_path=src, destination_path=dst) for src, dst in zip(source, destination)]
-        self.client.client.task_skipped_errors.return_value = []
-        task_response = self.client.mv('local', 'local', source, destination)
+        self.globus.client.task_skipped_errors.return_value = []
+        task_response = self.globus.mv('local', 'local', source, destination)
         self.assertEqual(task_id, task_response)
 
         # Test errors
         # Check timeout behaviour
-        self.client.client.task_wait.reset_mock()
-        self.client.client.task_wait.return_value = False
+        self.globus.client.task_wait.reset_mock()
+        self.globus.client.task_wait.return_value = False
         timeout = 10
         with self.assertRaises(IOError) as ex:
-            self.client.mv('local', 'local', source, destination, timeout=timeout)
+            self.globus.mv('local', 'local', source, destination, timeout=timeout)
             self.assertIn(str(task_id), str(ex))
-        self.assertEqual(timeout, self.client.client.task_wait.call_count)
+        self.assertEqual(timeout, self.globus.client.task_wait.call_count)
 
         # Check status check error behaviour
-        self.client.client.task_wait.return_value = True
-        self.client.client.task_successful_transfers.side_effect = \
+        self.globus.client.task_wait.return_value = True
+        self.globus.client.task_successful_transfers.side_effect = \
             globus_sdk.TransferAPIError(mock.MagicMock())
         with self.assertLogs(logging.getLogger('one.remote.globus'), logging.WARNING):
-            self.client.mv('local', 'local', source, destination)
+            self.globus.mv('local', 'local', source, destination)
 
         # Check failed transfer
-        self.client.client.get_task.return_value = {'status': 'FAILED'}
-        self.client.client.task_successful_transfers.reset_mock()
+        self.globus.client.get_task.return_value = {'status': 'FAILED'}
+        self.globus.client.task_successful_transfers.reset_mock()
         with self.assertRaises(IOError) as ex:
-            self.client.mv('local', 'local', source, destination)
-            self.assertIn(self.client.client.get_task.return_value['status'], str(ex))
+            self.globus.mv('local', 'local', source, destination)
+            self.assertIn(self.globus.client.get_task.return_value['status'], str(ex))
 
         # Check submission error behaviour
-        self.client.client.submit_transfer.side_effect = \
+        self.globus.client.submit_transfer.side_effect = \
             globus_sdk.GlobusConnectionError('', ConnectionError)
         default_n_retries = 3
         with self.assertLogs(logging.getLogger('one.remote.globus')) as log, \
                 self.assertRaises(globus_sdk.GlobusConnectionError):
-            self.client.mv('local', 'local', source, destination)
+            self.globus.mv('local', 'local', source, destination)
             warnings = filter(lambda x: x.levelno == 30, log.records)
             self.assertEqual(default_n_retries, len(list(warnings)))
             self.assertRegex(log.records[-1].msg, 'Max retries')
             self.assertEqual('ERROR', log.records[-1].levelname)
+
+    def test_transfer_data(self):
+        """Test for Globus.transfer_data method."""
+        self.globus.endpoints['repo_01'] = {'id': 123, 'root_path': '/mnt/s0/'}
+        self.globus.endpoints['repo_00'] = {'id': 456, 'root_path': '/mnt/h0/Data'}
+        sdk_mock, _ = self.globus_sdk_mock.get_original()
+        response_mock = mock.create_autospec(globus_sdk.response.GlobusHTTPResponse)
+        response_mock.data = {'task_id': 'abc123'}
+        self.globus.client.submit_transfer.return_value = response_mock
+
+        out = self.globus.transfer_data('path/to/file', 'repo_00', 'repo_01', foo='bar')
+
+        # SDK should be called with endpoint IDs and optional kwargs
+        sdk_mock.TransferData.assert_called_once_with(
+            self.globus.client, foo='bar', source_endpoint=456, destination_endpoint=123)
+        sdk_mock.TransferData().add_item.assert_called_once_with(
+            '/mnt/h0/Data/path/to/file', '/mnt/s0/path/to/file', recursive=False)
+        self.globus.client.submit_transfer.assert_called_once()
+        self.assertEqual('abc123', out)
+
+        # Test passing list of files
+        sdk_mock.reset_mock()
+        files = ['path/to/file', 'foo/bar.baz']
+        self.globus.transfer_data(files, 'repo_00', 'repo_01')
+        self.assertEqual(sdk_mock.TransferData().add_item.call_count, len(files))
+
+    @unittest.skip
+    def test_download_file(self):
+        """Test for Globus.download_file method."""
+        ...
 
 
 if __name__ == '__main__':
