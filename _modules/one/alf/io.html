@@ -63,7 +63,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -444,7 +444,7 @@
 <span class="sd">        An ALF object name to filter by</span>
 <span class="sd">    wildcards : bool</span>
 <span class="sd">        If true uses unix shell style pattern matching, otherwise uses regular expressions</span>
-<span class="sd">    kwargs : dict</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Other ALF parts to filter, including namespace, attribute, etc.</span>
 
 <span class="sd">    Returns</span>
@@ -535,7 +535,7 @@
 <span class="sd">        Wanted attributes</span>
 <span class="sd">    wildcards : bool</span>
 <span class="sd">        If true uses unix shell style pattern matching, otherwise uses regular expressions</span>
-<span class="sd">    kwargs : dict</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Other ALF parts to filter by</span>
 
 <span class="sd">    Returns</span>
@@ -575,23 +575,23 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    alfpath : str, pathlib.Path, list</span>
-<span class="sd">        Any ALF path pertaining to the object OR directory containing ALFs OR list of paths</span>
+<span class="sd">        Any ALF path pertaining to the object OR directory containing ALFs OR list of paths.</span>
 <span class="sd">    object : str, list, None</span>
 <span class="sd">        The ALF object(s) to filter by.  If a directory is provided and object is None, all valid</span>
-<span class="sd">        ALF files returned</span>
+<span class="sd">        ALF files returned.</span>
 <span class="sd">    short_keys : bool</span>
 <span class="sd">        By default, the output dictionary keys will be compounds of attributes, timescale and</span>
 <span class="sd">        any eventual parts separated by a dot. Use True to shorten the keys to the attribute</span>
-<span class="sd">        and timescale</span>
+<span class="sd">        and timescale.</span>
 <span class="sd">    wildcards : bool</span>
-<span class="sd">        If true uses unix shell style pattern matching, otherwise uses regular expressions</span>
-<span class="sd">    kwargs : dict</span>
-<span class="sd">        Other ALF parts to filter by</span>
+<span class="sd">        If true uses unix shell style pattern matching, otherwise uses regular expressions.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Other ALF parts to filter by.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    AlfBunch</span>
-<span class="sd">        An ALFBunch (dict-like) of all attributes pertaining to the object</span>
+<span class="sd">        An ALFBunch (dict-like) of all attributes pertaining to the object.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>

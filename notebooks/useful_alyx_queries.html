@@ -130,7 +130,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -359,7 +359,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
                       <span class="n">django</span><span class="o">=</span><span class="s2">&quot;log__icontains,TimeoutError: [Errno 110]&quot;</span><span class="p">)</span>
 <span class="c1"># Set tasks to Waiting so they get rerun</span>
 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-    <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;log&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;Waiting&#39;</span><span class="p">}</span>
+    <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;log&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;Waiting&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </section>

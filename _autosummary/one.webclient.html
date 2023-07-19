@@ -66,7 +66,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -133,7 +133,7 @@
              
   <section id="module-one.webclient">
 <span id="one-webclient"></span><h1>one.webclient<a class="headerlink" href="#module-one.webclient" title="Permalink to this heading"></a></h1>
-<p>API for interacting with a remote Alyx instance through REST
+<p>API for interacting with a remote Alyx instance through REST.
 The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
 files through Alyx.</p>
 <p class="rubric">Examples</p>
@@ -255,8 +255,8 @@ Same options behaviour as http_download_file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>links_to_file_list</strong> (<em>list</em>) – List of http links to files</p></li>
-<li><p><strong>kwargs</strong> – Optional arguments to pass to http_download_file</p></li>
+<li><p><strong>links_to_file_list</strong> (<em>list</em>) – List of http links to files.</p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments to pass to http_download_file.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -354,7 +354,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dl class="py property">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.rest_schemes">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rest_schemes</span></span><a class="headerlink" href="#one.webclient.AlyxClient.rest_schemes" title="Permalink to this definition"></a></dt>
-<dd><p>The REST endpoints and their parameters</p>
+<dd><p>The REST endpoints and their parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -365,7 +365,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dl class="py property">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.cache_dir">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cache_dir</span></span><a class="headerlink" href="#one.webclient.AlyxClient.cache_dir" title="Permalink to this definition"></a></dt>
-<dd><p>The location of the downloaded file cache</p>
+<dd><p>The location of the downloaded file cache.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
@@ -376,7 +376,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dl class="py property">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.is_logged_in">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_logged_in</span></span><a class="headerlink" href="#one.webclient.AlyxClient.is_logged_in" title="Permalink to this definition"></a></dt>
-<dd><p>Check if user logged into Alyx database; True if user is authenticated</p>
+<dd><p>Check if user logged into Alyx database; True if user is authenticated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -447,10 +447,10 @@ Deletes the cached authentication token for the currently logged-in user.</p>
 other than 200, 201.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – A REST query string either as a relative URL path complete URL</p>
+<dd class="field-odd"><p><strong>rest_query</strong> (<em>str</em>) – A REST query string either as a relative URL path complete URL.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>JSON interpreted dictionary from response</p>
+<dd class="field-even"><p>JSON interpreted dictionary from response.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -465,16 +465,16 @@ other than 200, 201.</p>
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.download_file">
 <span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_file" title="Permalink to this definition"></a></dt>
 <dd><p>Downloads a single file or list of files on the Alyx server from a
-file record REST field URL</p>
+file record REST field URL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em><em>, </em><em>list</em>) – Full url(s) of the file(s)</p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – WebClient.http_download_file parameters</p></li>
+<li><p><strong>url</strong> (<em>str</em><em>, </em><em>list</em>) – Full url(s) of the file(s).</p></li>
+<li><p><strong>**kwargs</strong> – WebClient.http_download_file parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Local path(s) of downloaded file(s)</p>
+<dd class="field-even"><p>Local path(s) of downloaded file(s).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -482,7 +482,7 @@ file record REST field URL</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.download_cache_tables">
 <span class="sig-name descname"><span class="pre">download_cache_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.download_cache_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.download_cache_tables" title="Permalink to this definition"></a></dt>
-<dd><p>Downloads the Alyx cache tables to the local data cache directory</p>
+<dd><p>Downloads the Alyx cache tables to the local data cache directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -504,10 +504,10 @@ Default: AlyxClient.base_url.</p></li>
 It is expected that the remote HTTP server has the same file tree as the local system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative ALF path (subject/date/number/etc.)</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative ALF path (subject/date/number/etc.).</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A URL string</p>
+<dd class="field-even"><p>A URL string.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -522,12 +522,12 @@ For the dictionary contents and list of endpoints, refer to:
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – A REST URL path, e.g. ‘/sessions?user=Hamish’</p></li>
-<li><p><strong>kwargs</strong> (<em>any</em>) – Optional arguments to pass to _generic_request and _cache_response decorator</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – A REST URL path, e.g. ‘/sessions?user=Hamish’.</p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments to pass to _generic_request and _cache_response decorator.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>JSON interpreted dictionary from response</p>
+<dd class="field-even"><p>JSON interpreted dictionary from response.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -541,13 +541,13 @@ For the dictionary contents, refer to:
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
-<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
-<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL.</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests).</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response object</p>
+<dd class="field-even"><p>Response object.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -561,13 +561,13 @@ For the dictionary contents, refer to:
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
-<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
-<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL.</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests).</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response object</p>
+<dd class="field-even"><p>Response object.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -581,13 +581,13 @@ For the dictionary contents, refer to:
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL</p></li>
-<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests)</p></li>
-<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests)</p></li>
+<li><p><strong>rest_query</strong> (<em>str</em>) – The endpoint as full or relative URL.</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>str</em>) – JSON encoded string or dictionary (c.f. requests).</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Files to attach (c.f. requests).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response object</p>
+<dd class="field-even"><p>Response object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>requests.Response</p>
@@ -616,18 +616,18 @@ alyx_client.rest(endpoint, action): lists fields and URL</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>) – Endpoint name</p></li>
-<li><p><strong>action</strong> (<em>str</em>) – One of ‘list’, ‘create’, ‘read’, ‘update’, ‘partial_update’, ‘delete’</p></li>
-<li><p><strong>id</strong> (<em>str</em>) – Lookup string for actions ‘read’, ‘update’, ‘partial_update’, and ‘delete’</p></li>
-<li><p><strong>data</strong> (<em>dict</em>) – Data dictionary for actions ‘update’, ‘partial_update’ and ‘create’</p></li>
-<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Option file(s) to upload</p></li>
-<li><p><strong>no_cache</strong> (<em>bool</em>) – If true the <cite>list</cite> and <cite>read</cite> actions are performed without returning the cache</p></li>
-<li><p><strong>kwargs</strong> – Filters as per the Alyx REST documentation
+<li><p><strong>url</strong> (<em>str</em>) – Endpoint name.</p></li>
+<li><p><strong>action</strong> (<em>str</em>) – One of ‘list’, ‘create’, ‘read’, ‘update’, ‘partial_update’, ‘delete’.</p></li>
+<li><p><strong>id</strong> (<em>str</em>) – Lookup string for actions ‘read’, ‘update’, ‘partial_update’, and ‘delete’.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – Data dictionary for actions ‘update’, ‘partial_update’ and ‘create’.</p></li>
+<li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Option file(s) to upload.</p></li>
+<li><p><strong>no_cache</strong> (<em>bool</em>) – If true the <cite>list</cite> and <cite>read</cite> actions are performed without returning the cache.</p></li>
+<li><p><strong>**kwargs</strong> – Filters as per the Alyx REST documentation
 cf. <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/">https://openalyx.internationalbrainlab.org/docs/</a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of queried dicts (‘list’) or dict (other actions)</p>
+<dd class="field-even"><p>List of queried dicts (‘list’) or dict (other actions).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list, dict</p>
@@ -643,14 +643,14 @@ NOTE: Destructive write!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>None</em>) – Valid alyx endpoint, defaults to None</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em><em>, </em><em>None</em>) – UUID or lookup name for endpoint</p></li>
-<li><p><strong>field_name</strong> (<em>str</em><em>, </em><em>None</em>) – Valid json field name, defaults to None</p></li>
-<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>None</em>) – Data to write to json field, defaults to None</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>None</em>) – Valid alyx endpoint, defaults to None.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em><em>, </em><em>None</em>) – UUID or lookup name for endpoint.</p></li>
+<li><p><strong>field_name</strong> (<em>str</em><em>, </em><em>None</em>) – Valid json field name, defaults to None.</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>, </em><em>None</em>) – Data to write to json field, defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Written data dict</p>
+<dd class="field-even"><p>Written data dict.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -661,21 +661,21 @@ NOTE: Destructive write!</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_update">
 <span class="sig-name descname"><span class="pre">json_field_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_update" title="Permalink to this definition"></a></dt>
-<dd><p>Non-destructive update of JSON field of endpoint for object
-Will update the field_name of the object with pk = uuid of given endpoint
+<dd><p>Non-destructive update of JSON field of endpoint for object.</p>
+<p>Will update the field_name of the object with pk = uuid of given endpoint
 If data has keys with the same name of existing keys it will squash the old
 values (uses the dict.update() method).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint</strong> (<em>str</em>) – Alyx REST endpoint to hit</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – UUID or lookup name of object</p></li>
-<li><p><strong>field_name</strong> (<em>str</em>) – Name of the json field</p></li>
-<li><p><strong>data</strong> (<em>dict</em>) – A dictionary with fields to be updated</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Alyx REST endpoint to hit.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – UUID or lookup name of object.</p></li>
+<li><p><strong>field_name</strong> (<em>str</em>) – Name of the json field.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – A dictionary with fields to be updated.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>New patched json field contents as dict</p>
+<dd class="field-even"><p>New patched json field contents as dict.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -691,19 +691,19 @@ values (uses the dict.update() method).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_remove_key">
 <span class="sig-name descname"><span class="pre">json_field_remove_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_remove_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_remove_key" title="Permalink to this definition"></a></dt>
-<dd><p>Remove inputted key from JSON field dict and re-upload it to Alyx.
-Needs endpoint, uuid and json field name</p>
+<dd><p>Remove inputted key from JSON field dict and re-upload it to Alyx.</p>
+<p>Needs endpoint, UUID and json field name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint to hit, defaults to None</p></li>
-<li><p><strong>uuid</strong> (<em>str</em>) – UUID or lookup name for endpoint</p></li>
-<li><p><strong>field_name</strong> (<em>str</em>) – JSON field name of object, defaults to None</p></li>
-<li><p><strong>key</strong> (<em>str</em>) – Key name of dictionary inside object, defaults to None</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint to hit, defaults to None.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – UUID or lookup name for endpoint.</p></li>
+<li><p><strong>field_name</strong> (<em>str</em>) – JSON field name of object, defaults to None.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Key name of dictionary inside object, defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>New content of json field</p>
+<dd class="field-even"><p>New content of json field.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -714,12 +714,30 @@ Needs endpoint, uuid and json field name</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.json_field_delete">
 <span class="sig-name descname"><span class="pre">json_field_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.json_field_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.json_field_delete" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set an entire field to null.</p>
+<p>Note that this deletes all data from a given field. To delete only a single key from a
+given JSON field, use <cite>json_field_remove_key</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint to hit, defaults to None.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – UUID or lookup name for endpoint.</p></li>
+<li><p><strong>field_name</strong> (<em>str</em>) – The field name of object (e.g. ‘json’, ‘name’, ‘extended_qc’), defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New content of json field.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.clear_rest_cache">
 <span class="sig-name descname"><span class="pre">clear_rest_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.clear_rest_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.clear_rest_cache" title="Permalink to this definition"></a></dt>
-<dd><p>Clear all REST response cache files for the base url</p>
+<dd><p>Clear all REST response cache files for the base url.</p>
 </dd></dl>
 
 </dd></dl>

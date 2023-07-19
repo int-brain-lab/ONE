@@ -66,7 +66,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -278,9 +278,10 @@ cache_dir.</p></li>
 </div></blockquote>
 <p>For all of the search parameters, a single value or list may be provided.  For dataset,
 the sessions returned will contain all listed datasets.  For the other parameters,
-the session must contain at least one of the entries. NB: Wildcards are not permitted,
-however if wildcards property is False, regular expressions may be used for all but
-number and date_range.</p>
+the session must contain at least one of the entries.</p>
+<p>For all but date_range and number, any field that contains the search string is returned.
+Wildcards are not permitted, however if wildcards property is True, regular expressions may
+be used (see examples).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -309,6 +310,47 @@ session.</p></li>
 </p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>Search for sessions with ‘training’ in the task protocol.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Search for sessions by subject ‘MFD_04’.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;MFD_04&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do an exact search for sessions by subject ‘FD_04’.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;the wildcards flag must be True for regex expressions&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Search for sessions on a given date, in a given lab, containing trials and spike data.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;churchlandlab&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>In default and local mode, most queries are case-sensitive partial matches. When lists</p></li>
+</ul>
+<blockquote>
+<div><p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>All search terms are true for a session to be returned, i.e. subject matches AND project</p></li>
+</ul>
+<blockquote>
+<div><p>matches, etc.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>In remote mode most queries are case-insensitive partial matches.</p></li>
+<li><p>In default and local mode, when the one.wildcards flag is True (default), queries are</p></li>
+</ul>
+<blockquote>
+<div><p>interpreted as regular expressions. To turn this off set one.wildcards to False.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
@@ -1105,9 +1147,10 @@ matching insertion.</p></li>
 </div></blockquote>
 <p>For all of the search parameters, a single value or list may be provided.  For dataset,
 the sessions returned will contain all listed datasets.  For the other parameters,
-the session must contain at least one of the entries. NB: Wildcards are not permitted,
-however if wildcards property is False, regular expressions may be used for all but
-number and date_range.</p>
+the session must contain at least one of the entries.</p>
+<p>For all but date_range and number, any field that contains the search string is returned.
+Wildcards are not permitted, however if wildcards property is True, regular expressions may
+be used (see notes and examples).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1116,9 +1159,11 @@ A dataset matches if it contains the search string e.g. ‘wheel.position’ mat
 ‘_ibl_wheel.position.npy’. C.f. <cite>datasets</cite> argument.</p></li>
 <li><p><strong>date_range</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>datetime.datetime</em><em>, </em><em>datetime.date</em><em>, </em><em>pandas.timestamp</em>) – A single date to search or a list of 2 dates that define the range (inclusive).  To
 define only the upper or lower date bound, set the other element to None.</p></li>
-<li><p><strong>lab</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab names, returns sessions from any of these labs.</p></li>
+<li><p><strong>lab</strong> (<em>str</em><em>, </em><em>list</em>) – A str or list of lab names, returns sessions from any of these labs (can be partial,
+i.e. any task protocol containing that str will be found).</p></li>
 <li><p><strong>number</strong> (<em>str</em><em>, </em><em>int</em>) – Number of session to be returned, i.e. number in sequence for a given date.</p></li>
-<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects.</p></li>
+<li><p><strong>subject</strong> (<em>str</em><em>, </em><em>list</em>) – A list of subject nicknames, returns sessions for any of these subjects (can be
+partial, i.e. any task protocol containing that str will be found).</p></li>
 <li><p><strong>task_protocol</strong> (<em>str</em><em>, </em><em>list</em>) – The task protocol name (can be partial, i.e. any task protocol containing that str
 will be found).</p></li>
 <li><p><strong>project</strong><strong>(</strong><strong>s</strong><strong>)</strong> (<em>str</em><em>, </em><em>list</em>) – The project name (can be partial, i.e. any task protocol containing that str
@@ -1144,6 +1189,47 @@ matching session.</p></li>
 </p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>Search for sessions with ‘training’ in the task protocol.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Search for sessions by subject ‘MFD_04’.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;MFD_04&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do an exact search for sessions by subject ‘FD_04’.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;the wildcards flag must be True for regex expressions&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Search for sessions on a given date, in a given lab, containing trials and spike data.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;churchlandlab&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>In default and local mode, most queries are case-sensitive partial matches. When lists</p></li>
+</ul>
+<blockquote>
+<div><p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>All search terms are true for a session to be returned, i.e. subject matches AND project</p></li>
+</ul>
+<blockquote>
+<div><p>matches, etc.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>In remote mode most queries are case-insensitive partial matches.</p></li>
+<li><p>In default and local mode, when the one.wildcards flag is True (default), queries are</p></li>
+</ul>
+<blockquote>
+<div><p>interpreted as regular expressions. To turn this off set one.wildcards to False.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">

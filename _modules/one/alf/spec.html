@@ -63,7 +63,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -448,7 +448,7 @@
 <span class="sd">        The file extension</span>
 <span class="sd">    namespace : str</span>
 <span class="sd">        An optional namespace</span>
-<span class="sd">    timescale : str</span>
+<span class="sd">    timescale : str, tuple</span>
 <span class="sd">        An optional timescale</span>
 <span class="sd">    extra : str, tuple</span>
 <span class="sd">        One or more optional extra ALF attributes</span>
@@ -466,6 +466,8 @@
 <span class="sd">    &#39;_ibl_spikes.times.ssv&#39;</span>
 <span class="sd">    &gt;&gt;&gt; to_alf(&#39;spikes&#39;, &#39;times&#39;, &#39;ssv&#39;, namespace=&#39;ibl&#39;, timescale=&#39;ephysClock&#39;)</span>
 <span class="sd">    &#39;_ibl_spikes.times_ephysClock.ssv&#39;</span>
+<span class="sd">    &gt;&gt;&gt; to_alf(&#39;spikes&#39;, &#39;times&#39;, &#39;ssv&#39;, namespace=&#39;ibl&#39;, timescale=(&#39;ephys clock&#39;, &#39;minutes&#39;))</span>
+<span class="sd">    &#39;_ibl_spikes.times_ephysClock_minutes.ssv&#39;</span>
 <span class="sd">    &gt;&gt;&gt; to_alf(&#39;spikes&#39;, &#39;times&#39;, &#39;npy&#39;, namespace=&#39;ibl&#39;, timescale=&#39;ephysClock&#39;, extra=&#39;raw&#39;)</span>
 <span class="sd">    &#39;_ibl_spikes.times_ephysClock.raw.npy&#39;</span>
 <span class="sd">    &gt;&gt;&gt; to_alf(&#39;wheel&#39;, &#39;timestamps&#39;, &#39;npy&#39;, &#39;ibl&#39;, &#39;bpod&#39;, (&#39;raw&#39;, &#39;v12&#39;))</span>
@@ -486,7 +488,10 @@
     <span class="k">if</span> <span class="nb">object</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Objects must not contain underscores; use namespace arg instead&#39;</span><span class="p">)</span>
     <span class="c1"># Ensure parts are camel case (converts whitespace and snake case)</span>
-    <span class="nb">object</span><span class="p">,</span> <span class="n">timescale</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_dromedary</span><span class="p">,</span> <span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">timescale</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">timescale</span><span class="p">:</span>
+        <span class="n">timescale</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">timescale</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timescale</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">timescale</span><span class="p">)</span>
+        <span class="n">timescale</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_dromedary</span><span class="p">,</span> <span class="n">timescale</span><span class="p">))</span>
+    <span class="nb">object</span> <span class="o">=</span> <span class="n">_dromedary</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
 
     <span class="c1"># Optional extras may be provided as string or tuple of strings</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">:</span>

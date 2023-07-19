@@ -63,7 +63,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -109,7 +109,6 @@
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">packaging.version</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span><span class="p">,</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">unwrap</span>
@@ -123,6 +122,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">requests.exceptions</span>
+<span class="kn">import</span> <span class="nn">packaging.version</span>
 
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">parquet</span><span class="p">,</span> <span class="n">hashfile</span>
 <span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">Bunch</span><span class="p">,</span> <span class="n">flatten</span>
@@ -490,9 +490,11 @@
 
 <span class="sd">        For all of the search parameters, a single value or list may be provided.  For dataset,</span>
 <span class="sd">        the sessions returned will contain all listed datasets.  For the other parameters,</span>
-<span class="sd">        the session must contain at least one of the entries. NB: Wildcards are not permitted,</span>
-<span class="sd">        however if wildcards property is False, regular expressions may be used for all but</span>
-<span class="sd">        number and date_range.</span>
+<span class="sd">        the session must contain at least one of the entries.</span>
+
+<span class="sd">        For all but date_range and number, any field that contains the search string is returned.</span>
+<span class="sd">        Wildcards are not permitted, however if wildcards property is True, regular expressions may</span>
+<span class="sd">        be used (see examples).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -527,6 +529,36 @@
 <span class="sd">        (list)</span>
 <span class="sd">            (If details is True) a list of dictionaries, each entry corresponding to a matching</span>
 <span class="sd">            session.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Search for sessions with &#39;training&#39; in the task protocol.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(task=&#39;training&#39;)</span>
+
+<span class="sd">        Search for sessions by subject &#39;MFD_04&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(subject=&#39;MFD_04&#39;)</span>
+
+<span class="sd">        Do an exact search for sessions by subject &#39;FD_04&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; assert one.wildcards is True, &#39;the wildcards flag must be True for regex expressions&#39;</span>
+<span class="sd">        &gt;&gt;&gt; eids = one.search(subject=&#39;^FD_04$&#39;)</span>
+
+<span class="sd">        Search for sessions on a given date, in a given lab, containing trials and spike data.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(date=&#39;2023-01-01&#39;, lab=&#39;churchlandlab&#39;, dataset=[&#39;trials&#39;, &#39;spikes&#39;])</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - In default and local mode, most queries are case-sensitive partial matches. When lists</span>
+<span class="sd">         are provided, the search is a logical OR, except for `datasets`, which is a logical AND.</span>
+<span class="sd">        - All search terms are true for a session to be returned, i.e. subject matches AND project</span>
+<span class="sd">         matches, etc.</span>
+<span class="sd">        - In remote mode most queries are case-insensitive partial matches.</span>
+<span class="sd">        - In default and local mode, when the one.wildcards flag is True (default), queries are</span>
+<span class="sd">         interpreted as regular expressions. To turn this off set one.wildcards to False.</span>
+<span class="sd">        - In remote mode regular expressions are only supported using the `django` argument.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">all_present</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -2085,9 +2117,11 @@
 
 <span class="sd">        For all of the search parameters, a single value or list may be provided.  For dataset,</span>
 <span class="sd">        the sessions returned will contain all listed datasets.  For the other parameters,</span>
-<span class="sd">        the session must contain at least one of the entries. NB: Wildcards are not permitted,</span>
-<span class="sd">        however if wildcards property is False, regular expressions may be used for all but</span>
-<span class="sd">        number and date_range.</span>
+<span class="sd">        the session must contain at least one of the entries.</span>
+
+<span class="sd">        For all but date_range and number, any field that contains the search string is returned.</span>
+<span class="sd">        Wildcards are not permitted, however if wildcards property is True, regular expressions may</span>
+<span class="sd">        be used (see notes and examples).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2099,11 +2133,13 @@
 <span class="sd">            A single date to search or a list of 2 dates that define the range (inclusive).  To</span>
 <span class="sd">            define only the upper or lower date bound, set the other element to None.</span>
 <span class="sd">        lab : str, list</span>
-<span class="sd">            A str or list of lab names, returns sessions from any of these labs.</span>
+<span class="sd">            A str or list of lab names, returns sessions from any of these labs (can be partial,</span>
+<span class="sd">            i.e. any task protocol containing that str will be found).</span>
 <span class="sd">        number : str, int</span>
 <span class="sd">            Number of session to be returned, i.e. number in sequence for a given date.</span>
 <span class="sd">        subject : str, list</span>
-<span class="sd">            A list of subject nicknames, returns sessions for any of these subjects.</span>
+<span class="sd">            A list of subject nicknames, returns sessions for any of these subjects (can be</span>
+<span class="sd">            partial, i.e. any task protocol containing that str will be found).</span>
 <span class="sd">        task_protocol : str, list</span>
 <span class="sd">            The task protocol name (can be partial, i.e. any task protocol containing that str</span>
 <span class="sd">            will be found).</span>
@@ -2136,6 +2172,37 @@
 <span class="sd">        (list of dicts)</span>
 <span class="sd">            If details is True, also returns a list of dictionaries, each entry corresponding to a</span>
 <span class="sd">            matching session.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Search for sessions with &#39;training&#39; in the task protocol.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(task=&#39;training&#39;)</span>
+
+<span class="sd">        Search for sessions by subject &#39;MFD_04&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(subject=&#39;MFD_04&#39;)</span>
+
+<span class="sd">        Do an exact search for sessions by subject &#39;FD_04&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; assert one.wildcards is True, &#39;the wildcards flag must be True for regex expressions&#39;</span>
+<span class="sd">        &gt;&gt;&gt; eids = one.search(subject=&#39;^FD_04$&#39;, query_type=&#39;local&#39;)</span>
+
+<span class="sd">        Search for sessions on a given date, in a given lab, containing trials and spike data.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(date=&#39;2023-01-01&#39;, lab=&#39;churchlandlab&#39;, dataset=[&#39;trials&#39;, &#39;spikes&#39;])</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - In default and local mode, most queries are case-sensitive partial matches. When lists</span>
+<span class="sd">         are provided, the search is a logical OR, except for `datasets`, which is a logical AND.</span>
+<span class="sd">        - All search terms are true for a session to be returned, i.e. subject matches AND project</span>
+<span class="sd">         matches, etc.</span>
+<span class="sd">        - In remote mode most queries are case-insensitive partial matches.</span>
+<span class="sd">        - In default and local mode, when the one.wildcards flag is True (default), queries are</span>
+<span class="sd">         interpreted as regular expressions. To turn this off set one.wildcards to False.</span>
+<span class="sd">        - In remote mode regular expressions are only supported using the `django` argument.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
         <span class="k">if</span> <span class="n">query_type</span> <span class="o">!=</span> <span class="s1">&#39;remote&#39;</span><span class="p">:</span>

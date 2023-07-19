@@ -63,7 +63,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -104,7 +104,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.webclient</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;API for interacting with a remote Alyx instance through REST</span>
+<span></span><span class="sd">&quot;&quot;&quot;API for interacting with a remote Alyx instance through REST.</span>
 <span class="sd">The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote</span>
 <span class="sd">files through Alyx.</span>
 
@@ -166,45 +166,45 @@
 
 
 <span class="k">def</span> <span class="nf">_cache_response</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for the generic request method</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for the generic request method.</span>
 
 <span class="sd">    Caches the result of the query and on subsequent calls, returns cache instead of hitting the</span>
-<span class="sd">    database</span>
+<span class="sd">    database.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    method : function</span>
-<span class="sd">        Function to wrap (i.e. AlyxClient._generic_request)</span>
+<span class="sd">        Function to wrap (i.e. AlyxClient._generic_request).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    function</span>
-<span class="sd">        Handle to wrapped method</span>
+<span class="sd">        Handle to wrapped method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapper_decorator</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        REST caching wrapper</span>
+<span class="sd">        REST caching wrapper.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        alyx_client : AlyxClient</span>
-<span class="sd">            An instance of the AlyxClient class</span>
+<span class="sd">            An instance of the AlyxClient class.</span>
 <span class="sd">        args : any</span>
-<span class="sd">            Positional arguments for applying to wrapped function</span>
+<span class="sd">            Positional arguments for applying to wrapped function.</span>
 <span class="sd">        expires : bool</span>
 <span class="sd">            An optional timedelta for how long cached response is valid.  If True, the cached</span>
 <span class="sd">            response will not be used on subsequent calls.  If None, the default expiry is applied.</span>
 <span class="sd">        clobber : bool</span>
-<span class="sd">            If True any existing cached response is overwritten</span>
-<span class="sd">        kwargs : any</span>
-<span class="sd">            Keyword arguments for applying to wrapped function</span>
+<span class="sd">            If True any existing cached response is overwritten.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments for applying to wrapped function.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
-<span class="sd">            The REST response JSON either from cached file or directly from remote</span>
+<span class="sd">            The REST response JSON either from cached file or directly from remote.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">expires</span> <span class="o">=</span> <span class="n">expires</span> <span class="ow">or</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">default_expiry</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">alyx_client</span><span class="o">.</span><span class="n">cache_mode</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -385,9 +385,9 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    links_to_file_list : list</span>
-<span class="sd">        List of http links to files</span>
-<span class="sd">    kwargs</span>
-<span class="sd">        Optional arguments to pass to http_download_file</span>
+<span class="sd">        List of http links to files.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Optional arguments to pass to http_download_file.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -585,19 +585,19 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        base_url : str</span>
-<span class="sd">            Alyx server address, including port and protocol</span>
+<span class="sd">            Alyx server address, including port and protocol.</span>
 <span class="sd">        username : str</span>
-<span class="sd">            Alyx database user</span>
+<span class="sd">            Alyx database user.</span>
 <span class="sd">        password : str</span>
-<span class="sd">            Alyx database password</span>
+<span class="sd">            Alyx database password.</span>
 <span class="sd">        cache_dir : str, pathlib.Path</span>
-<span class="sd">            The default root download location</span>
+<span class="sd">            The default root download location.</span>
 <span class="sd">        silent : bool</span>
-<span class="sd">            If true, user prompts and progress bars are suppressed</span>
+<span class="sd">            If true, user prompts and progress bars are suppressed.</span>
 <span class="sd">        cache_rest : str</span>
-<span class="sd">            Which type of http method to apply cache to; if &#39;*&#39;, all requests are cached</span>
+<span class="sd">            Which type of http method to apply cache to; if &#39;*&#39;, all requests are cached.</span>
 <span class="sd">        stay_logged_in : bool</span>
-<span class="sd">            If true, auth token is cached</span>
+<span class="sd">            If true, auth token is cached.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">silent</span> <span class="o">=</span> <span class="n">silent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
@@ -618,7 +618,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rest_schemes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: The REST endpoints and their parameters&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: The REST endpoints and their parameters.&quot;&quot;&quot;</span>
         <span class="c1"># Delayed fetch of rest schemes speeds up instantiation</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
@@ -626,7 +626,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">)</span>
 
     <span class="nd">@cache_dir</span><span class="o">.</span><span class="n">setter</span>
@@ -637,7 +637,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if user logged into Alyx database; True if user is authenticated&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if user logged into Alyx database; True if user is authenticated.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="ow">and</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AlyxClient.list_endpoints"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.list_endpoints">[docs]</a>    <span class="k">def</span> <span class="nf">list_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -829,11 +829,11 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rest_query : str</span>
-<span class="sd">            A REST query string either as a relative URL path complete URL</span>
+<span class="sd">            A REST query string either as a relative URL path complete URL.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        JSON interpreted dictionary from response</span>
+<span class="sd">        JSON interpreted dictionary from response.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -846,18 +846,18 @@
 <div class="viewcode-block" id="AlyxClient.download_file"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downloads a single file or list of files on the Alyx server from a</span>
-<span class="sd">        file record REST field URL</span>
+<span class="sd">        file record REST field URL.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        url : str, list</span>
-<span class="sd">            Full url(s) of the file(s)</span>
-<span class="sd">        kwargs : Any</span>
-<span class="sd">            WebClient.http_download_file parameters</span>
+<span class="sd">            Full url(s) of the file(s).</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            WebClient.http_download_file parameters.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Local path(s) of downloaded file(s)</span>
+<span class="sd">        Local path(s) of downloaded file(s).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_file_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -882,7 +882,7 @@
         <span class="k">return</span> <span class="n">files</span></div>
 
 <div class="viewcode-block" id="AlyxClient.download_cache_tables"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.download_cache_tables">[docs]</a>    <span class="k">def</span> <span class="nf">download_cache_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Downloads the Alyx cache tables to the local data cache directory</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Downloads the Alyx cache tables to the local data cache directory.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -923,11 +923,11 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        url : str</span>
-<span class="sd">            The full or partial URL to validate</span>
+<span class="sd">            The full or partial URL to validate.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">            The complete URL</span>
+<span class="sd">            The complete URL.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -951,11 +951,11 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        path : str, pathlib.Path</span>
-<span class="sd">            A relative ALF path (subject/date/number/etc.)</span>
+<span class="sd">            A relative ALF path (subject/date/number/etc.).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">            A URL string</span>
+<span class="sd">            A URL string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)</span>
@@ -971,13 +971,13 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rest_query : str</span>
-<span class="sd">            A REST URL path, e.g. &#39;/sessions?user=Hamish&#39;</span>
-<span class="sd">        kwargs : any</span>
-<span class="sd">            Optional arguments to pass to _generic_request and _cache_response decorator</span>
+<span class="sd">            A REST URL path, e.g. &#39;/sessions?user=Hamish&#39;.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Optional arguments to pass to _generic_request and _cache_response decorator.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        JSON interpreted dictionary from response</span>
+<span class="sd">        JSON interpreted dictionary from response.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;next&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">]:</span>
@@ -997,15 +997,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rest_query : str</span>
-<span class="sd">            The endpoint as full or relative URL</span>
+<span class="sd">            The endpoint as full or relative URL.</span>
 <span class="sd">        data : dict, str</span>
-<span class="sd">            JSON encoded string or dictionary (c.f. requests)</span>
+<span class="sd">            JSON encoded string or dictionary (c.f. requests).</span>
 <span class="sd">        files : dict, tuple</span>
-<span class="sd">            Files to attach (c.f. requests)</span>
+<span class="sd">            Files to attach (c.f. requests).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Response object</span>
+<span class="sd">        Response object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">patch</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -1018,15 +1018,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rest_query : str</span>
-<span class="sd">            The endpoint as full or relative URL</span>
+<span class="sd">            The endpoint as full or relative URL.</span>
 <span class="sd">        data : dict, str</span>
-<span class="sd">            JSON encoded string or dictionary (c.f. requests)</span>
+<span class="sd">            JSON encoded string or dictionary (c.f. requests).</span>
 <span class="sd">        files : dict, tuple</span>
-<span class="sd">            Files to attach (c.f. requests)</span>
+<span class="sd">            Files to attach (c.f. requests).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Response object</span>
+<span class="sd">        Response object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -1039,16 +1039,16 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rest_query : str</span>
-<span class="sd">            The endpoint as full or relative URL</span>
+<span class="sd">            The endpoint as full or relative URL.</span>
 <span class="sd">        data : dict, str</span>
-<span class="sd">            JSON encoded string or dictionary (c.f. requests)</span>
+<span class="sd">            JSON encoded string or dictionary (c.f. requests).</span>
 <span class="sd">        files : dict, tuple</span>
-<span class="sd">            Files to attach (c.f. requests)</span>
+<span class="sd">            Files to attach (c.f. requests).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        requests.Response</span>
-<span class="sd">            Response object</span>
+<span class="sd">            Response object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
@@ -1074,25 +1074,25 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        url : str</span>
-<span class="sd">            Endpoint name</span>
+<span class="sd">            Endpoint name.</span>
 <span class="sd">        action : str</span>
-<span class="sd">            One of &#39;list&#39;, &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, &#39;delete&#39;</span>
+<span class="sd">            One of &#39;list&#39;, &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, &#39;delete&#39;.</span>
 <span class="sd">        id : str</span>
-<span class="sd">            Lookup string for actions &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, and &#39;delete&#39;</span>
+<span class="sd">            Lookup string for actions &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, and &#39;delete&#39;.</span>
 <span class="sd">        data : dict</span>
-<span class="sd">            Data dictionary for actions &#39;update&#39;, &#39;partial_update&#39; and &#39;create&#39;</span>
+<span class="sd">            Data dictionary for actions &#39;update&#39;, &#39;partial_update&#39; and &#39;create&#39;.</span>
 <span class="sd">        files : dict, tuple</span>
-<span class="sd">            Option file(s) to upload</span>
+<span class="sd">            Option file(s) to upload.</span>
 <span class="sd">        no_cache : bool</span>
-<span class="sd">            If true the `list` and `read` actions are performed without returning the cache</span>
-<span class="sd">        kwargs</span>
+<span class="sd">            If true the `list` and `read` actions are performed without returning the cache.</span>
+<span class="sd">        **kwargs</span>
 <span class="sd">            Filters as per the Alyx REST documentation</span>
 <span class="sd">            cf. https://openalyx.internationalbrainlab.org/docs/</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list, dict</span>
-<span class="sd">            List of queried dicts (&#39;list&#39;) or dict (other actions)</span>
+<span class="sd">            List of queried dicts (&#39;list&#39;) or dict (other actions).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if endpoint is None, list available endpoints</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
@@ -1128,7 +1128,8 @@
                             <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
             <span class="k">return</span>
         <span class="c1"># the actions below require a data dictionary, warn and help the user with fields list</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">data_required</span> <span class="o">=</span> <span class="s1">&#39;fields&#39;</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">data_required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">pprint</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;: ...,&quot;</span><span class="p">)</span>
@@ -1195,18 +1196,18 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        endpoint : str, None</span>
-<span class="sd">            Valid alyx endpoint, defaults to None</span>
+<span class="sd">            Valid alyx endpoint, defaults to None.</span>
 <span class="sd">        uuid : str, uuid.UUID, None</span>
-<span class="sd">            UUID or lookup name for endpoint</span>
+<span class="sd">            UUID or lookup name for endpoint.</span>
 <span class="sd">        field_name : str, None</span>
-<span class="sd">            Valid json field name, defaults to None</span>
+<span class="sd">            Valid json field name, defaults to None.</span>
 <span class="sd">        data : dict, None</span>
-<span class="sd">            Data to write to json field, defaults to None</span>
+<span class="sd">            Data to write to json field, defaults to None.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
-<span class="sd">            Written data dict</span>
+<span class="sd">            Written data dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="c1"># Prepare data to patch</span>
@@ -1223,7 +1224,8 @@
             <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Non-destructive update of JSON field of endpoint for object</span>
+<span class="sd">        Non-destructive update of JSON field of endpoint for object.</span>
+
 <span class="sd">        Will update the field_name of the object with pk = uuid of given endpoint</span>
 <span class="sd">        If data has keys with the same name of existing keys it will squash the old</span>
 <span class="sd">        values (uses the dict.update() method).</span>
@@ -1231,18 +1233,18 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        endpoint : str</span>
-<span class="sd">            Alyx REST endpoint to hit</span>
+<span class="sd">            Alyx REST endpoint to hit.</span>
 <span class="sd">        uuid : str, uuid.UUID</span>
-<span class="sd">            UUID or lookup name of object</span>
+<span class="sd">            UUID or lookup name of object.</span>
 <span class="sd">        field_name : str</span>
-<span class="sd">            Name of the json field</span>
+<span class="sd">            Name of the json field.</span>
 <span class="sd">        data : dict</span>
-<span class="sd">            A dictionary with fields to be updated</span>
+<span class="sd">            A dictionary with fields to be updated.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
-<span class="sd">            New patched json field contents as dict</span>
+<span class="sd">            New patched json field contents as dict.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1278,23 +1280,24 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove inputted key from JSON field dict and re-upload it to Alyx.</span>
-<span class="sd">        Needs endpoint, uuid and json field name</span>
+
+<span class="sd">        Needs endpoint, UUID and json field name.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        endpoint : str</span>
-<span class="sd">            Endpoint to hit, defaults to None</span>
-<span class="sd">        uuid : str</span>
-<span class="sd">            UUID or lookup name for endpoint</span>
+<span class="sd">            Endpoint to hit, defaults to None.</span>
+<span class="sd">        uuid : str, uuid.UUID</span>
+<span class="sd">            UUID or lookup name for endpoint.</span>
 <span class="sd">        field_name : str</span>
-<span class="sd">            JSON field name of object, defaults to None</span>
+<span class="sd">            JSON field name of object, defaults to None.</span>
 <span class="sd">        key : str</span>
-<span class="sd">            Key name of dictionary inside object, defaults to None</span>
+<span class="sd">            Key name of dictionary inside object, defaults to None.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
-<span class="sd">            New content of json field</span>
+<span class="sd">            New content of json field.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">)[</span><span class="n">field_name</span><span class="p">]</span>
@@ -1322,12 +1325,32 @@
 <div class="viewcode-block" id="AlyxClient.json_field_delete"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_delete">[docs]</a>    <span class="k">def</span> <span class="nf">json_field_delete</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set an entire field to null.</span>
+
+<span class="sd">        Note that this deletes all data from a given field. To delete only a single key from a</span>
+<span class="sd">        given JSON field, use `json_field_remove_key`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            Endpoint to hit, defaults to None.</span>
+<span class="sd">        uuid : str, uuid.UUID</span>
+<span class="sd">            UUID or lookup name for endpoint.</span>
+<span class="sd">        field_name : str</span>
+<span class="sd">            The field name of object (e.g. &#39;json&#39;, &#39;name&#39;, &#39;extended_qc&#39;), defaults to None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">            New content of json field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">_</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="AlyxClient.clear_rest_cache"><a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_rest_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all REST response cache files for the base url&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all REST response cache files for the base url.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
             <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span></div></div>
 </pre></div>

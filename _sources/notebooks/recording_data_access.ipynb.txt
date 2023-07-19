@@ -22,7 +22,7 @@
     "id": "Ke27mmuJ_i0R"
    },
    "source": [
-    "# Recording Data Access\n",
+    "# Recording data access\n",
     "When working with huge data repositories it can be worthwhile to record the subset of data used\n",
     "for a given analysis.  ONE can keep track of which datasets were loaded via the `load_*` methods.\n",
     "\n",

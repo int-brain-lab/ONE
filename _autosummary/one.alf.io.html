@@ -66,7 +66,7 @@
 <p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording Data Access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -383,7 +383,7 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 <li><p><strong>object</strong> (<em>str</em>) – ALF object name</p></li>
 <li><p><strong>attributes</strong> (<em>str</em><em>, </em><em>list</em>) – Wanted attributes</p></li>
 <li><p><strong>wildcards</strong> (<em>bool</em>) – If true uses unix shell style pattern matching, otherwise uses regular expressions</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Other ALF parts to filter by</p></li>
+<li><p><strong>**kwargs</strong> – Other ALF parts to filter by</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -407,18 +407,18 @@ whose keys will be <cite>times</cite>, <cite>clusters</cite>, <cite>depths</cite
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>list</em>) – Any ALF path pertaining to the object OR directory containing ALFs OR list of paths</p></li>
+<li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>list</em>) – Any ALF path pertaining to the object OR directory containing ALFs OR list of paths.</p></li>
 <li><p><strong>object</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>None</em>) – The ALF object(s) to filter by.  If a directory is provided and object is None, all valid
-ALF files returned</p></li>
+ALF files returned.</p></li>
 <li><p><strong>short_keys</strong> (<em>bool</em>) – By default, the output dictionary keys will be compounds of attributes, timescale and
 any eventual parts separated by a dot. Use True to shorten the keys to the attribute
-and timescale</p></li>
-<li><p><strong>wildcards</strong> (<em>bool</em>) – If true uses unix shell style pattern matching, otherwise uses regular expressions</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Other ALF parts to filter by</p></li>
+and timescale.</p></li>
+<li><p><strong>wildcards</strong> (<em>bool</em>) – If true uses unix shell style pattern matching, otherwise uses regular expressions.</p></li>
+<li><p><strong>**kwargs</strong> – Other ALF parts to filter by.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An ALFBunch (dict-like) of all attributes pertaining to the object</p>
+<dd class="field-even"><p>An ALFBunch (dict-like) of all attributes pertaining to the object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch">AlfBunch</a></p>

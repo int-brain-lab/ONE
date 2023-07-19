@@ -42,7 +42,7 @@
    "id": "c687995a",
    "metadata": {},
    "source": [
-    "We can search for sessions within a specified date range"
+    "We can search for sessions within a specified date range (inclusive)"
    ]
   },
   {
@@ -73,6 +73,32 @@
     "eids = one.search(date_range=['2020-01-01', '2021-01-01'])\n",
     "pprint(eids)"
    ]
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "A single date can be provided instead of a range. Also to define only the upper or lower date bound, set the other element to None."
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [
+    "assert one.search(date_range=['2020-01-01', '2021-01-01']) == one.search(date_range='2021-01-01')"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
   },
   {
    "cell_type": "markdown",
@@ -190,6 +216,62 @@
   },
   {
    "cell_type": "markdown",
+   "source": [
+    "<div class=\"alert alert-warning\">\n",
+    "Warning.\n",
+    "\n",
+    "Remote search query behave slightly differently. See [gochas](#gochas) below.\n",
+    "</div>"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Search term arguments may be shortened, so long as they are not ambiguous:"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [
+    "assert one.search(task_protocol='training') == one.search(task='training')\n",
+    "assert one.search(project='brainwide') == one.search(proj='brainwide')\n",
+    "assert one.search(date_range='2021-01-01') == one.search(date='2021-01-01')"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "`one.search(dat='2020-01-01')` will raise a ValueError as 'dat' could be short for both 'date_range' and 'dataset'.\n",
+    "\n",
+    "<div class=\"alert alert-warning\">\n",
+    "Warning.\n",
+    "\n",
+    "There are more search terms when using remote mode, for example 'data' can match both 'dataset' and 'datasets' in remote mode.\n",
+    "</div>\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
    "id": "f89cd239",
    "metadata": {},
    "source": [
@@ -280,6 +362,152 @@
    "source": [
     "help(one.search)"
    ]
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "## Advanced searching\n",
+    "By default ONE searches most terms function as an LIKE OR expression, returning results that contain any of\n",
+    "the search values as a substring.  For example `one.search(subject=['foo', 'bar'])` returns all sessions where\n",
+    "the subject name contains 'foo' or contains 'bar'. The exception is the dataset search term, which is a LIKE AND\n",
+    "expression, i.e. the session must contain one or more dataset names containing 'foo' AND one or more datasets\n",
+    "containing 'bar'.  Note that all expressions are case-sensitive in auto/local mode and case-insensitive in remote mode.\n",
+    "\n",
+    "For more precises searches, regular expressions (a.k.a. regex) can be used.  This is on by default and can be\n",
+    "deactivated by settings the wildcards flag: `one.wildcards = False` (note that this also affects the list and\n",
+    "load methods, see [the advanced loading section of Loading with ONE](../one_load/one_load.html#Advanced-loading)\n",
+    "for more details).\n",
+    "\n",
+    "Regex allows one to make exact searches by asserting the start and end of the string:"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [
+    "eids = one.search(subject='FD_04')  # includes sessions with subject 'MFD_04'\n",
+    "assert one.wildcards is True, 'the wildcards flag must be True for regex expressions'\n",
+    "eids = one.search(subject='^FD_04$')  # exact subject name match"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Likewise, to search for sessions that include one dataset OR another, we can used the `|` character in\n",
+    "our regex:"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [
+    "# Sessions containing either leftCamera.times OR rightCamera.times:\n",
+    "eids = one.search(proj='brainwide', dataset='leftCamera\\.times|rightCamera\\.times')\n",
+    "# XOR expressions are also possible:\n",
+    "eids = one.search(proj='brainwide', dataset='(leftCamera\\.times|rightCamera\\.times){1}')"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "Note that the wildcards flag causes certain characters to be interpreted differently (e.g. '`.`' matches\n",
+    "any character).  To avoid this, either set the wildcards flag to False or escape the string using `re.escape`:"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "outputs": [],
+   "source": [
+    "import re\n",
+    "subject = 'NYU-14.1'\n",
+    "if one.wildcards:\n",
+    "    subject = re.escape(subject)\n",
+    "eids = one.search(subject=subject)  # 'NYU\\\\-14\\\\.1'"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "### Gotchas\n",
+    "ONE.search strikes a balance between usability, functionality, and stability. We have been careful\n",
+    "to ensure that the results of the search function have remained consistent across versions, however\n",
+    "there are some confusing and unintuitive behaviours as a result...\n",
+    "\n",
+    "**Difference between search term behaviours**\n",
+    "As mentioned above, different search terms perform differently. Below are the search terms and their\n",
+    "approximate SQL equivalents:\n",
+    "\n",
+    "| Term         | Lookup    |\n",
+    "|--------------|-----------|\n",
+    "| dataset      | LIKE AND  |\n",
+    "| number       | EXACT     |\n",
+    "| date_range   | BETWEEN   |\n",
+    "| subject, etc.| LIKE OR   |\n",
+    "\n",
+    "Combinations of terms form a logical AND, for example `one.search(subject=['foo', 'bar'], project='baz')`\n",
+    "searches for sessions where the subject name contained foo OR bar, AND the project contained baz.\n",
+    "\n",
+    "#### Difference between remote mode search terms\n",
+    "Many search terms perform differently between auto/local mode and [remote mode](../one_modes.html),\n",
+    "namely in remote mode, search queries are case-insensitive.\n",
+    "\n",
+    "#### The dataset, datasets and dataset_types remote arguments\n",
+    "In remote mode there are three ways to search for datasets:\n",
+    "\n",
+    "* **dataset** - a partial, case-insensitive match of a single dataset (multiple datasets not supported).\n",
+    "* **datasets** - an exact, case-sensitive match of one or more datasets.  All datasets must be present.\n",
+    "* **dataset_type** - an exact, case-sensitive match of one or more [dataset types](../datasets_and_types.html#Dataset-types).  All dataset types must be present.\n",
+    "\n",
+    "#### Regex systems between modes\n",
+    "Regex searches can be made in remote mode by using special [Django queries](../useful_alyx_queries.html#regex), for example,\n",
+    "```\n",
+    "eids = one.search(django='subject__nickname__regex,^FD_04$', query_type='remote')\n",
+    "```\n",
+    "Regular expression syntax is different between modes, however: in remote mode the regex is parsed by a [PostgreSQL](https://www.postgresql.org/docs/current/functions-matching.html)\n",
+    "database, while in other modes it is done using Python's [re.search](https://docs.python.org/3/library/re.html#regular-expression-syntax)."
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
   },
   {
    "cell_type": "markdown",
