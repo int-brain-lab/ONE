@@ -1,6 +1,7 @@
 """Unit tests for the one.alf.io module"""
 import logging
 import unittest
+import unittest.mock
 import tempfile
 from pathlib import Path
 import shutil
@@ -17,6 +18,12 @@ from iblutil.io import jsonable
 import one.alf.io as alfio
 from one.alf.exceptions import ALFObjectNotFound
 from one.alf.spec import FILE_SPEC, regex
+
+try:
+    import sparse
+    SKIP_SPARSE = False
+except ModuleNotFoundError:
+    SKIP_SPARSE = True
 
 
 class TestAlfBunch(unittest.TestCase):
@@ -479,8 +486,9 @@ class TestsAlf(unittest.TestCase):
 
 
 class TestsLoadFile(unittest.TestCase):
+    """Tests for one.alf.io.load_fil_content function."""
+
     def setUp(self) -> None:
-        # riri, fifi and loulou are huey, duey and louie in French (Donald nephews for ignorants)
         self.tmpdir = tempfile.TemporaryDirectory()
         self.empty = Path(self.tmpdir.name) / 'foo.bar.npy'
         self.empty.touch()
@@ -545,6 +553,26 @@ class TestsLoadFile(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.tmpdir.cleanup()
+
+
+@unittest.skipIf(SKIP_SPARSE, 'pydata sparse package not installed')
+class TestsLoadFileNonStandard(unittest.TestCase):
+    """Tests for one.alf.io.load_fil_content function with non-standard libraries."""
+
+    def setUp(self) -> None:
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        self.sparse_npz = Path(self.tmpdir.name) / 'foo.baz.sparse_npz'
+        with open(self.sparse_npz, 'wb') as fp:
+            sparse.save_npz(fp, sparse.random((2, 2, 2)))
+
+    def test_load_sparse_npz(self):
+        loaded = alfio.load_file_content(str(self.sparse_npz))
+        self.assertIsInstance(loaded, sparse.COO)
+        with unittest.mock.patch('sparse.load_npz', side_effect=ModuleNotFoundError), \
+                self.assertWarns(UserWarning):
+            loaded = alfio.load_file_content(str(self.sparse_npz))
+            self.assertEqual(loaded, self.sparse_npz)
 
 
 class TestUUID_Files(unittest.TestCase):

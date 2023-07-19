@@ -1,4 +1,4 @@
-"""API for interacting with a remote Alyx instance through REST
+"""API for interacting with a remote Alyx instance through REST.
 The AlyxClient class contains methods for making remote Alyx REST queries and downloading remote
 files through Alyx.
 
@@ -60,45 +60,45 @@ _logger = logging.getLogger(__name__)
 
 
 def _cache_response(method):
-    """Decorator for the generic request method
+    """Decorator for the generic request method.
 
     Caches the result of the query and on subsequent calls, returns cache instead of hitting the
-    database
+    database.
 
     Parameters
     ----------
     method : function
-        Function to wrap (i.e. AlyxClient._generic_request)
+        Function to wrap (i.e. AlyxClient._generic_request).
 
     Returns
     -------
     function
-        Handle to wrapped method
+        Handle to wrapped method.
     """
 
     @functools.wraps(method)
     def wrapper_decorator(alyx_client, *args, expires=None, clobber=False, **kwargs):
         """
-        REST caching wrapper
+        REST caching wrapper.
 
         Parameters
         ----------
         alyx_client : AlyxClient
-            An instance of the AlyxClient class
+            An instance of the AlyxClient class.
         args : any
-            Positional arguments for applying to wrapped function
+            Positional arguments for applying to wrapped function.
         expires : bool
             An optional timedelta for how long cached response is valid.  If True, the cached
             response will not be used on subsequent calls.  If None, the default expiry is applied.
         clobber : bool
-            If True any existing cached response is overwritten
-        kwargs : any
-            Keyword arguments for applying to wrapped function
+            If True any existing cached response is overwritten.
+        **kwargs
+            Keyword arguments for applying to wrapped function.
 
         Returns
         -------
         dict
-            The REST response JSON either from cached file or directly from remote
+            The REST response JSON either from cached file or directly from remote.
         """
         expires = expires or alyx_client.default_expiry
         mode = (alyx_client.cache_mode or '').lower()
@@ -279,9 +279,9 @@ def http_download_file_list(links_to_file_list, **kwargs):
     Parameters
     ----------
     links_to_file_list : list
-        List of http links to files
-    kwargs
-        Optional arguments to pass to http_download_file
+        List of http links to files.
+    **kwargs
+        Optional arguments to pass to http_download_file.
 
     Returns
     -------
@@ -479,19 +479,19 @@ class AlyxClient:
         Parameters
         ----------
         base_url : str
-            Alyx server address, including port and protocol
+            Alyx server address, including port and protocol.
         username : str
-            Alyx database user
+            Alyx database user.
         password : str
-            Alyx database password
+            Alyx database password.
         cache_dir : str, pathlib.Path
-            The default root download location
+            The default root download location.
         silent : bool
-            If true, user prompts and progress bars are suppressed
+            If true, user prompts and progress bars are suppressed.
         cache_rest : str
-            Which type of http method to apply cache to; if '*', all requests are cached
+            Which type of http method to apply cache to; if '*', all requests are cached.
         stay_logged_in : bool
-            If true, auth token is cached
+            If true, auth token is cached.
         """
         self.silent = silent
         self._par = one.params.get(client=base_url, silent=self.silent, username=username)
@@ -512,7 +512,7 @@ class AlyxClient:
 
     @property
     def rest_schemes(self):
-        """dict: The REST endpoints and their parameters"""
+        """dict: The REST endpoints and their parameters."""
         # Delayed fetch of rest schemes speeds up instantiation
         if not self._rest_schemes:
             self._rest_schemes = self.get('/docs', expires=timedelta(weeks=1))
@@ -520,7 +520,7 @@ class AlyxClient:
 
     @property
     def cache_dir(self):
-        """pathlib.Path: The location of the downloaded file cache"""
+        """pathlib.Path: The location of the downloaded file cache."""
         return Path(self._par.CACHE_DIR)
 
     @cache_dir.setter
@@ -531,7 +531,7 @@ class AlyxClient:
 
     @property
     def is_logged_in(self):
-        """bool: Check if user logged into Alyx database; True if user is authenticated"""
+        """bool: Check if user logged into Alyx database; True if user is authenticated."""
         return bool(self.user and self._token and 'Authorization' in self._headers)
 
     def list_endpoints(self):
@@ -723,11 +723,11 @@ class AlyxClient:
         Parameters
         ----------
         rest_query : str
-            A REST query string either as a relative URL path complete URL
+            A REST query string either as a relative URL path complete URL.
 
         Returns
         -------
-        JSON interpreted dictionary from response
+        JSON interpreted dictionary from response.
 
         Examples
         --------
@@ -740,18 +740,18 @@ class AlyxClient:
     def download_file(self, url, **kwargs):
         """
         Downloads a single file or list of files on the Alyx server from a
-        file record REST field URL
+        file record REST field URL.
 
         Parameters
         ----------
         url : str, list
-            Full url(s) of the file(s)
-        kwargs : Any
-            WebClient.http_download_file parameters
+            Full url(s) of the file(s).
+        **kwargs
+            WebClient.http_download_file parameters.
 
         Returns
         -------
-        Local path(s) of downloaded file(s)
+        Local path(s) of downloaded file(s).
         """
         if isinstance(url, str):
             url = self._validate_file_url(url)
@@ -776,7 +776,7 @@ class AlyxClient:
         return files
 
     def download_cache_tables(self, source=None, destination=None):
-        """Downloads the Alyx cache tables to the local data cache directory
+        """Downloads the Alyx cache tables to the local data cache directory.
 
         Parameters
         ----------
@@ -817,11 +817,11 @@ class AlyxClient:
         Parameters
         ----------
         url : str
-            The full or partial URL to validate
+            The full or partial URL to validate.
 
         Returns
         -------
-            The complete URL
+            The complete URL.
 
         Examples
         --------
@@ -845,11 +845,11 @@ class AlyxClient:
         Parameters
         ----------
         path : str, pathlib.Path
-            A relative ALF path (subject/date/number/etc.)
+            A relative ALF path (subject/date/number/etc.).
 
         Returns
         -------
-            A URL string
+            A URL string.
         """
         path = str(path).strip('/')
         assert not path.startswith('http')
@@ -865,13 +865,13 @@ class AlyxClient:
         Parameters
         ----------
         rest_query : str
-            A REST URL path, e.g. '/sessions?user=Hamish'
-        kwargs : any
-            Optional arguments to pass to _generic_request and _cache_response decorator
+            A REST URL path, e.g. '/sessions?user=Hamish'.
+        **kwargs
+            Optional arguments to pass to _generic_request and _cache_response decorator.
 
         Returns
         -------
-        JSON interpreted dictionary from response
+        JSON interpreted dictionary from response.
         """
         rep = self._generic_request(requests.get, rest_query, **kwargs)
         if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
@@ -891,15 +891,15 @@ class AlyxClient:
         Parameters
         ----------
         rest_query : str
-            The endpoint as full or relative URL
+            The endpoint as full or relative URL.
         data : dict, str
-            JSON encoded string or dictionary (c.f. requests)
+            JSON encoded string or dictionary (c.f. requests).
         files : dict, tuple
-            Files to attach (c.f. requests)
+            Files to attach (c.f. requests).
 
         Returns
         -------
-        Response object
+        Response object.
         """
         return self._generic_request(requests.patch, rest_query, data=data, files=files)
 
@@ -912,15 +912,15 @@ class AlyxClient:
         Parameters
         ----------
         rest_query : str
-            The endpoint as full or relative URL
+            The endpoint as full or relative URL.
         data : dict, str
-            JSON encoded string or dictionary (c.f. requests)
+            JSON encoded string or dictionary (c.f. requests).
         files : dict, tuple
-            Files to attach (c.f. requests)
+            Files to attach (c.f. requests).
 
         Returns
         -------
-        Response object
+        Response object.
         """
         return self._generic_request(requests.post, rest_query, data=data, files=files)
 
@@ -933,16 +933,16 @@ class AlyxClient:
         Parameters
         ----------
         rest_query : str
-            The endpoint as full or relative URL
+            The endpoint as full or relative URL.
         data : dict, str
-            JSON encoded string or dictionary (c.f. requests)
+            JSON encoded string or dictionary (c.f. requests).
         files : dict, tuple
-            Files to attach (c.f. requests)
+            Files to attach (c.f. requests).
 
         Returns
         -------
         requests.Response
-            Response object
+            Response object.
         """
         return self._generic_request(requests.put, rest_query, data=data, files=files)
 
@@ -968,25 +968,25 @@ class AlyxClient:
         Parameters
         ----------
         url : str
-            Endpoint name
+            Endpoint name.
         action : str
-            One of 'list', 'create', 'read', 'update', 'partial_update', 'delete'
+            One of 'list', 'create', 'read', 'update', 'partial_update', 'delete'.
         id : str
-            Lookup string for actions 'read', 'update', 'partial_update', and 'delete'
+            Lookup string for actions 'read', 'update', 'partial_update', and 'delete'.
         data : dict
-            Data dictionary for actions 'update', 'partial_update' and 'create'
+            Data dictionary for actions 'update', 'partial_update' and 'create'.
         files : dict, tuple
-            Option file(s) to upload
+            Option file(s) to upload.
         no_cache : bool
-            If true the `list` and `read` actions are performed without returning the cache
-        kwargs
+            If true the `list` and `read` actions are performed without returning the cache.
+        **kwargs
             Filters as per the Alyx REST documentation
             cf. https://openalyx.internationalbrainlab.org/docs/
 
         Returns
         -------
         list, dict
-            List of queried dicts ('list') or dict (other actions)
+            List of queried dicts ('list') or dict (other actions).
         """
         # if endpoint is None, list available endpoints
         if not url:
@@ -1022,7 +1022,8 @@ class AlyxClient:
                             endpoint_scheme[action]['url'])
             return
         # the actions below require a data dictionary, warn and help the user with fields list
-        if action in ['create', 'update', 'partial_update'] and not data:
+        data_required = 'fields' in endpoint_scheme[action]
+        if action in ['create', 'update', 'partial_update'] and data_required and not data:
             pprint(endpoint_scheme[action]['fields'])
             for act in endpoint_scheme[action]['fields']:
                 print("'" + act['name'] + "': ...,")
@@ -1089,18 +1090,18 @@ class AlyxClient:
         Parameters
         ----------
         endpoint : str, None
-            Valid alyx endpoint, defaults to None
+            Valid alyx endpoint, defaults to None.
         uuid : str, uuid.UUID, None
-            UUID or lookup name for endpoint
+            UUID or lookup name for endpoint.
         field_name : str, None
-            Valid json field name, defaults to None
+            Valid json field name, defaults to None.
         data : dict, None
-            Data to write to json field, defaults to None
+            Data to write to json field, defaults to None.
 
         Returns
         -------
         dict
-            Written data dict
+            Written data dict.
         """
         self._check_inputs(endpoint)
         # Prepare data to patch
@@ -1117,7 +1118,8 @@ class AlyxClient:
             data: dict = None
     ) -> dict:
         """
-        Non-destructive update of JSON field of endpoint for object
+        Non-destructive update of JSON field of endpoint for object.
+
         Will update the field_name of the object with pk = uuid of given endpoint
         If data has keys with the same name of existing keys it will squash the old
         values (uses the dict.update() method).
@@ -1125,18 +1127,18 @@ class AlyxClient:
         Parameters
         ----------
         endpoint : str
-            Alyx REST endpoint to hit
+            Alyx REST endpoint to hit.
         uuid : str, uuid.UUID
-            UUID or lookup name of object
+            UUID or lookup name of object.
         field_name : str
-            Name of the json field
+            Name of the json field.
         data : dict
-            A dictionary with fields to be updated
+            A dictionary with fields to be updated.
 
         Returns
         -------
         dict
-            New patched json field contents as dict
+            New patched json field contents as dict.
 
         Examples
         --------
@@ -1172,23 +1174,24 @@ class AlyxClient:
     ) -> Optional[dict]:
         """
         Remove inputted key from JSON field dict and re-upload it to Alyx.
-        Needs endpoint, uuid and json field name
+
+        Needs endpoint, UUID and json field name.
 
         Parameters
         ----------
         endpoint : str
-            Endpoint to hit, defaults to None
-        uuid : str
-            UUID or lookup name for endpoint
+            Endpoint to hit, defaults to None.
+        uuid : str, uuid.UUID
+            UUID or lookup name for endpoint.
         field_name : str
-            JSON field name of object, defaults to None
+            JSON field name of object, defaults to None.
         key : str
-            Key name of dictionary inside object, defaults to None
+            Key name of dictionary inside object, defaults to None.
 
         Returns
         -------
         dict
-            New content of json field
+            New content of json field.
         """
         self._check_inputs(endpoint)
         current = self.rest(endpoint, 'read', id=uuid)[field_name]
@@ -1216,11 +1219,31 @@ class AlyxClient:
     def json_field_delete(
             self, endpoint: str = None, uuid: str = None, field_name: str = None
     ) -> None:
+        """
+        Set an entire field to null.
+
+        Note that this deletes all data from a given field. To delete only a single key from a
+        given JSON field, use `json_field_remove_key`.
+
+        Parameters
+        ----------
+        endpoint : str
+            Endpoint to hit, defaults to None.
+        uuid : str, uuid.UUID
+            UUID or lookup name for endpoint.
+        field_name : str
+            The field name of object (e.g. 'json', 'name', 'extended_qc'), defaults to None.
+
+        Returns
+        -------
+        None
+            New content of json field.
+        """
         self._check_inputs(endpoint)
         _ = self.rest(endpoint, 'partial_update', id=uuid, data={field_name: None})
         return _[field_name]
 
     def clear_rest_cache(self):
-        """Clear all REST response cache files for the base url"""
+        """Clear all REST response cache files for the base url."""
         for file in self.cache_dir.joinpath('.rest').glob('*'):
             file.unlink()

@@ -1,5 +1,22 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.0.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.0]
+
+### Modified
+
+- support endpoint create without fields
+- support for multiple timescales in to_alf
+
+## [2.1.0]
+
+### Added
+
+- ALF loader for sparse npz files
+
+### Modified
+
+- support for periods (.) in ALF path spec (subject, collection and revision parts)
+
+## [2.0.0]
 
 ### Added
 
@@ -12,7 +29,6 @@
 - removed support for integer UUIDs in cache tables
 - support for pandas versions 1.5 - 2.0; dropped support for Python 3.7
 - date field of session details a datetime.date object in remote mode (now consistent with local mode)
-- support datasets table without session_path field
 - clearer error message when cache directory not available
 - support hyphens in collection part of ALF specification
 - bugfix: safer construction of target directory from dataset URL in OneAlyx._download_dataset
