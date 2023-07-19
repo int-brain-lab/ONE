@@ -1118,7 +1118,8 @@ class AlyxClient:
             data: dict = None
     ) -> dict:
         """
-        Non-destructive update of JSON field of endpoint for object
+        Non-destructive update of JSON field of endpoint for object.
+
         Will update the field_name of the object with pk = uuid of given endpoint
         If data has keys with the same name of existing keys it will squash the old
         values (uses the dict.update() method).
@@ -1173,13 +1174,14 @@ class AlyxClient:
     ) -> Optional[dict]:
         """
         Remove inputted key from JSON field dict and re-upload it to Alyx.
-        Needs endpoint, uuid and json field name.
+
+        Needs endpoint, UUID and json field name.
 
         Parameters
         ----------
         endpoint : str
             Endpoint to hit, defaults to None.
-        uuid : str
+        uuid : str, uuid.UUID
             UUID or lookup name for endpoint.
         field_name : str
             JSON field name of object, defaults to None.
@@ -1217,11 +1219,31 @@ class AlyxClient:
     def json_field_delete(
             self, endpoint: str = None, uuid: str = None, field_name: str = None
     ) -> None:
+        """
+        Set an entire field to null.
+
+        Note that this deletes all data from a given field. To delete only a single key from a
+        given JSON field, use `json_field_remove_key`.
+
+        Parameters
+        ----------
+        endpoint : str
+            Endpoint to hit, defaults to None.
+        uuid : str, uuid.UUID
+            UUID or lookup name for endpoint.
+        field_name : str
+            The field name of object (e.g. 'json', 'name', 'extended_qc'), defaults to None.
+
+        Returns
+        -------
+        None
+            New content of json field.
+        """
         self._check_inputs(endpoint)
         _ = self.rest(endpoint, 'partial_update', id=uuid, data={field_name: None})
         return _[field_name]
 
     def clear_rest_cache(self):
-        """Clear all REST response cache files for the base url"""
+        """Clear all REST response cache files for the base url."""
         for file in self.cache_dir.joinpath('.rest').glob('*'):
             file.unlink()
