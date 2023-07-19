@@ -382,13 +382,13 @@ class One(ConversionMixin):
 
             one.search_terms()
 
-        For all of the search parameters, a single value or list may be provided.  For dataset,
+        For all of the search parameters, a single value or list may be provided.  For `dataset`,
         the sessions returned will contain all listed datasets.  For the other parameters,
         the session must contain at least one of the entries.
 
-        For all but date_range and number, any field that contains the search string is returned.
-        Wildcards are not permitted, however if wildcards property is True, regular expressions may
-        be used (see examples).
+        For all but `date_range` and `number`, any field that contains the search string is
+        returned.  Wildcards are not permitted, however if wildcards property is True, regular
+        expressions may be used (see notes and examples).
 
         Parameters
         ----------
@@ -446,12 +446,12 @@ class One(ConversionMixin):
         Notes
         -----
         - In default and local mode, most queries are case-sensitive partial matches. When lists
-         are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
+        are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
         - All search terms are true for a session to be returned, i.e. subject matches AND project
-         matches, etc.
+        matches, etc.
         - In remote mode most queries are case-insensitive partial matches.
         - In default and local mode, when the one.wildcards flag is True (default), queries are
-         interpreted as regular expressions. To turn this off set one.wildcards to False.
+        interpreted as regular expressions. To turn this off set one.wildcards to False.
         - In remote mode regular expressions are only supported using the `django` argument.
         """
 
@@ -1115,13 +1115,13 @@ class One(ConversionMixin):
         Notes
         -----
         - There are three ways the datasets may be formatted: the object.attribute; the file name
-         (including namespace and extension); the ALF components as a dict; the dataset path,
-         relative to the session path, e.g. collection/object.attribute.ext.
+        (including namespace and extension); the ALF components as a dict; the dataset path,
+        relative to the session path, e.g. collection/object.attribute.ext.
         - When relative paths are provided (e.g. 'collection/#revision#/object.attribute.ext'),
-         wildcards/regular expressions must not be used. To use wildcards, pass the collection and
-         revision as separate keyword arguments.
+        wildcards/regular expressions must not be used. To use wildcards, pass the collection and
+        revision as separate keyword arguments.
         - To ensure you are loading the correct revision, use the revisions kwarg instead of
-         relative paths.
+        relative paths.
 
         Raises
         ------
@@ -2009,13 +2009,13 @@ class OneAlyx(One):
 
             one.search_terms(query_type='remote')
 
-        For all of the search parameters, a single value or list may be provided.  For dataset,
+        For all of the search parameters, a single value or list may be provided.  For `dataset`,
         the sessions returned will contain all listed datasets.  For the other parameters,
         the session must contain at least one of the entries.
 
-        For all but date_range and number, any field that contains the search string is returned.
-        Wildcards are not permitted, however if wildcards property is True, regular expressions may
-        be used (see notes and examples).
+        For all but `date_range` and `number`, any field that contains the search string is
+        returned.  Wildcards are not permitted, however if wildcards property is True, regular
+        expressions may be used (see notes and examples).
 
         Parameters
         ----------
@@ -2089,14 +2089,13 @@ class OneAlyx(One):
         Notes
         -----
         - In default and local mode, most queries are case-sensitive partial matches. When lists
-         are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
+        are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
         - All search terms are true for a session to be returned, i.e. subject matches AND project
-         matches, etc.
+        matches, etc.
         - In remote mode most queries are case-insensitive partial matches.
         - In default and local mode, when the one.wildcards flag is True (default), queries are
-         interpreted as regular expressions. To turn this off set one.wildcards to False.
+        interpreted as regular expressions. To turn this off set one.wildcards to False.
         - In remote mode regular expressions are only supported using the `django` argument.
-
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
