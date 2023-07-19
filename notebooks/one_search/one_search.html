@@ -58,6 +58,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Searching with ONE</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Advanced-searching">Advanced searching</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Gotchas">Gotchas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Difference-between-search-term-behaviours">Difference between search term behaviours</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Difference-between-remote-mode-search-terms">Difference between remote mode search terms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#The-dataset,-datasets-and-dataset_types-remote-arguments">The dataset, datasets and dataset_types remote arguments</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Regex-systems-between-modes">Regex systems between modes</a></li>
@@ -243,7 +244,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <div class="admonition warning">
 <p class="admonition-title fa fa-exclamation-circle">Warning.</p>
-<p>Remote search query behave slightly differently. See gochas below.</p>
+<p>Remote search queries behave slightly differently. See “Gochas” below.</p>
 </div>
 <p>Search term arguments may be shortened, so long as they are not ambiguous:</p>
 <div class="nbinput nblast docutils container">
@@ -339,7 +340,7 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
 <h2>Advanced searching<a class="headerlink" href="#Advanced-searching" title="Permalink to this heading"></a></h2>
 <p>By default ONE searches most terms function as an LIKE OR expression, returning results that contain any of the search values as a substring. For example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'])</span></code> returns all sessions where the subject name contains ‘foo’ or contains ‘bar’. The exception is the dataset search term, which is a LIKE AND expression, i.e. the session must contain one or more dataset names containing ‘foo’ AND one or more datasets containing ‘bar’. Note that all expressions are
 case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
-<p>For more precises searches, regular expressions (a.k.a. regex) can be used. This is on by default and can be deactivated by settings the wildcards flag: <code class="docutils literal notranslate"><span class="pre">one.wildcards</span> <span class="pre">=</span> <span class="pre">False</span></code> (note that this also affects the list and load methods, see <a class="reference external" href="../one_load/one_load.html#Advanced-loading">the advanced loading section of Loading with ONE</a> for more details).</p>
+<p>For more precise searches, regular expressions (a.k.a. regex) can be used. This is on by default and can be deactivated by setting the wildcards flag: <code class="docutils literal notranslate"><span class="pre">one.wildcards</span> <span class="pre">=</span> <span class="pre">False</span></code> (note that this also affects the list and load methods, see <a class="reference external" href="../one_load/one_load.html#Advanced-loading">the advanced loading section of Loading with ONE</a> for more details).</p>
 <p>Regex allows one to make exact searches by asserting the start and end of the string:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -351,7 +352,7 @@ case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
 </pre></div>
 </div>
 </div>
-<p>Likewise, to search for sessions that include one dataset OR another, we can used the <code class="docutils literal notranslate"><span class="pre">|</span></code> character in our regex:</p>
+<p>Likewise, to search for sessions that include one dataset OR another, we can use the <code class="docutils literal notranslate"><span class="pre">|</span></code> character in our regex:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -363,7 +364,7 @@ case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
 </pre></div>
 </div>
 </div>
-<p>Note that the wildcards flag causes certain characters to be interpreted differently (e.g. ‘<code class="docutils literal notranslate"><span class="pre">.</span></code>’ matches any character). To avoid this, either set the wildcards flag to False or escape the string using <code class="docutils literal notranslate"><span class="pre">re.escape</span></code>:</p>
+<p>Note that the wildcards flag causes certain characters to be interpreted differently (e.g. <code class="docutils literal notranslate"><span class="pre">.</span></code> matches any character). To avoid this, either set the wildcards flag to False or escape the string using <code class="docutils literal notranslate"><span class="pre">re.escape</span></code>:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -379,7 +380,9 @@ case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
 <section id="Gotchas">
 <h3>Gotchas<a class="headerlink" href="#Gotchas" title="Permalink to this heading"></a></h3>
 <p>ONE.search strikes a balance between usability, functionality, and stability. We have been careful to ensure that the results of the search function have remained consistent across versions, however there are some confusing and unintuitive behaviours as a result…</p>
-<p><strong>Difference between search term behaviours</strong> As mentioned above, different search terms perform differently. Below are the search terms and their approximate SQL equivalents:</p>
+<section id="Difference-between-search-term-behaviours">
+<h4>Difference between search term behaviours<a class="headerlink" href="#Difference-between-search-term-behaviours" title="Permalink to this heading"></a></h4>
+<p>As mentioned above, different search terms perform differently. Below are the search terms and their approximate SQL equivalents:</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Term</p></th>
@@ -401,7 +404,8 @@ case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
 </tr>
 </tbody>
 </table>
-<p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contained foo OR bar, AND the project contained baz.</p>
+<p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contains foo OR bar, AND the project contains baz.</p>
+</section>
 <section id="Difference-between-remote-mode-search-terms">
 <h4>Difference between remote mode search terms<a class="headerlink" href="#Difference-between-remote-mode-search-terms" title="Permalink to this heading"></a></h4>
 <p>Many search terms perform differently between auto/local mode and <a class="reference external" href="../one_modes.html">remote mode</a>, namely in remote mode, search queries are case-insensitive.</p>

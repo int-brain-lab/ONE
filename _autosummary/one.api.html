@@ -276,12 +276,12 @@ cache_dir.</p></li>
 <blockquote>
 <div><p>one.search_terms()</p>
 </div></blockquote>
-<p>For all of the search parameters, a single value or list may be provided.  For dataset,
+<p>For all of the search parameters, a single value or list may be provided.  For <cite>dataset</cite>,
 the sessions returned will contain all listed datasets.  For the other parameters,
 the session must contain at least one of the entries.</p>
-<p>For all but date_range and number, any field that contains the search string is returned.
-Wildcards are not permitted, however if wildcards property is True, regular expressions may
-be used (see examples).</p>
+<p>For all but <cite>date_range</cite> and <cite>number</cite>, any field that contains the search string is
+returned.  Wildcards are not permitted, however if wildcards property is True, regular
+expressions may be used (see notes and examples).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -332,25 +332,13 @@ session.</p></li>
 <ul class="simple">
 <li><p>In default and local mode, most queries are case-sensitive partial matches. When lists</p></li>
 </ul>
-<blockquote>
-<div><p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>All search terms are true for a session to be returned, i.e. subject matches AND project</p></li>
-</ul>
-<blockquote>
-<div><p>matches, etc.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>In remote mode most queries are case-insensitive partial matches.</p></li>
-<li><p>In default and local mode, when the one.wildcards flag is True (default), queries are</p></li>
-</ul>
-<blockquote>
-<div><p>interpreted as regular expressions. To turn this off set one.wildcards to False.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p></li>
-</ul>
+<p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.
+- All search terms are true for a session to be returned, i.e. subject matches AND project
+matches, etc.
+- In remote mode most queries are case-insensitive partial matches.
+- In default and local mode, when the one.wildcards flag is True (default), queries are
+interpreted as regular expressions. To turn this off set one.wildcards to False.
+- In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -691,23 +679,13 @@ permitted.</p></li>
 <ul class="simple">
 <li><p>There are three ways the datasets may be formatted: the object.attribute; the file name</p></li>
 </ul>
-<blockquote>
-<div><p>(including namespace and extension); the ALF components as a dict; the dataset path,
-relative to the session path, e.g. collection/object.attribute.ext.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>When relative paths are provided (e.g. ‘collection/#revision#/object.attribute.ext’),</p></li>
-</ul>
-<blockquote>
-<div><p>wildcards/regular expressions must not be used. To use wildcards, pass the collection and
-revision as separate keyword arguments.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>To ensure you are loading the correct revision, use the revisions kwarg instead of</p></li>
-</ul>
-<blockquote>
-<div><p>relative paths.</p>
-</div></blockquote>
+<p>(including namespace and extension); the ALF components as a dict; the dataset path,
+relative to the session path, e.g. collection/object.attribute.ext.
+- When relative paths are provided (e.g. ‘collection/#revision#/object.attribute.ext’),
+wildcards/regular expressions must not be used. To use wildcards, pass the collection and
+revision as separate keyword arguments.
+- To ensure you are loading the correct revision, use the revisions kwarg instead of
+relative paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1145,12 +1123,12 @@ matching insertion.</p></li>
 <blockquote>
 <div><p>one.search_terms(query_type=’remote’)</p>
 </div></blockquote>
-<p>For all of the search parameters, a single value or list may be provided.  For dataset,
+<p>For all of the search parameters, a single value or list may be provided.  For <cite>dataset</cite>,
 the sessions returned will contain all listed datasets.  For the other parameters,
 the session must contain at least one of the entries.</p>
-<p>For all but date_range and number, any field that contains the search string is returned.
-Wildcards are not permitted, however if wildcards property is True, regular expressions may
-be used (see notes and examples).</p>
+<p>For all but <cite>date_range</cite> and <cite>number</cite>, any field that contains the search string is
+returned.  Wildcards are not permitted, however if wildcards property is True, regular
+expressions may be used (see notes and examples).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1211,25 +1189,13 @@ matching session.</p></li>
 <ul class="simple">
 <li><p>In default and local mode, most queries are case-sensitive partial matches. When lists</p></li>
 </ul>
-<blockquote>
-<div><p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>All search terms are true for a session to be returned, i.e. subject matches AND project</p></li>
-</ul>
-<blockquote>
-<div><p>matches, etc.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>In remote mode most queries are case-insensitive partial matches.</p></li>
-<li><p>In default and local mode, when the one.wildcards flag is True (default), queries are</p></li>
-</ul>
-<blockquote>
-<div><p>interpreted as regular expressions. To turn this off set one.wildcards to False.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p></li>
-</ul>
+<p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.
+- All search terms are true for a session to be returned, i.e. subject matches AND project
+matches, etc.
+- In remote mode most queries are case-insensitive partial matches.
+- In default and local mode, when the one.wildcards flag is True (default), queries are
+interpreted as regular expressions. To turn this off set one.wildcards to False.
+- In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p>
 </dd></dl>
 
 <dl class="py method">

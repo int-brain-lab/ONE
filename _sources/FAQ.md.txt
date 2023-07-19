@@ -168,7 +168,7 @@ details = ONE().get_details(eid)
 ```
 
 ## How do I search for sessions with the exact subject name (excluding partial matches)?
-When not in remote mode you can use a [regular expression](./notebooks/one_search/one_search.html#advanced-searching)
+When not in remote mode you can use a [regular expression](notebooks/one_search/one_search.html#Advanced-searching)
 to assert the start and end of the search string:
 ```python
 one = ONE(wildcards=True)  # Should be True by default
@@ -176,7 +176,7 @@ subject = 'FD_04'
 eids = one.search(subject=f'^{subject}$')
 ```
 
-When in remote mode you can use a [Django exact query](./notebooks/useful_alyx_queries.html#exact):
+When in remote mode you can use a [Django exact query](notebooks/useful_alyx_queries.html#exact):
 ```python
 one = ONE(mode='remote')
 subject = 'FD_04'
@@ -189,8 +189,8 @@ This may be caused by one of two things:
 First, each day when connecting to the database you download an updated cache table. The data on the database
 may simply have changed, or you are loading a different cache table from somewhere. This may be because you
 are connecting to a different database (check `one.alyx.base_url`), providing a different cache location (check `one._tables_dir`),
-or provided a different tag (see [this question](#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release).
+or provided a different tag (see [this question](#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release)).
 
 Second, there are minor differences between the default/local modes and remote mode. Namely that in remote mode
 queries are generally case-insensitive.  See the 'gotcha' section of
-'[Searching with ONE](./notebooks/one_search/one_search.html#gotchas)' for more information.
+'[Searching with ONE](notebooks/one_search/one_search.html#Gotchas)' for more information.

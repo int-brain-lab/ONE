@@ -313,14 +313,14 @@ the function when there are large search results.</p>
 </section>
 <section id="how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches">
 <h2>How do I search for sessions with the exact subject name (excluding partial matches)?<a class="headerlink" href="#how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches" title="Permalink to this heading"></a></h2>
-<p>When not in remote mode you can use a <a class="reference internal" href="#./notebooks/one_search/one_search.html#advanced-searching"><span class="xref myst">regular expression</span></a>
+<p>When not in remote mode you can use a <a class="reference internal" href="#notebooks/one_search/one_search.html#Advanced-searching"><span class="xref myst">regular expression</span></a>
 to assert the start and end of the search string:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Should be True by default</span>
 <span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;FD_04&#39;</span>
 <span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;^</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>When in remote mode you can use a <a class="reference internal" href="#./notebooks/useful_alyx_queries.html#exact"><span class="xref myst">Django exact query</span></a>:</p>
+<p>When in remote mode you can use a <a class="reference internal" href="#notebooks/useful_alyx_queries.html#exact"><span class="xref myst">Django exact query</span></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
 <span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;FD_04&#39;</span>
 <span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;subject__nickname__exact,</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -333,10 +333,10 @@ to assert the start and end of the search string:</p>
 <p>First, each day when connecting to the database you download an updated cache table. The data on the database
 may simply have changed, or you are loading a different cache table from somewhere. This may be because you
 are connecting to a different database (check <code class="docutils literal notranslate"><span class="pre">one.alyx.base_url</span></code>), providing a different cache location (check <code class="docutils literal notranslate"><span class="pre">one._tables_dir</span></code>),
-or provided a different tag (see <a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release"><span class="std std-ref">this question</span></a>.</p>
+or provided a different tag (see <a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release"><span class="std std-ref">this question</span></a>).</p>
 <p>Second, there are minor differences between the default/local modes and remote mode. Namely that in remote mode
 queries are generally case-insensitive.  See the ‘gotcha’ section of
-‘<a class="reference internal" href="#./notebooks/one_search/one_search.html#gotchas"><span class="xref myst">Searching with ONE</span></a>’ for more information.</p>
+‘<a class="reference internal" href="#notebooks/one_search/one_search.html#Gotchas"><span class="xref myst">Searching with ONE</span></a>’ for more information.</p>
 </section>
 </section>
 
