@@ -6,7 +6,7 @@ issues.
 
 
 class ALFError(Exception):
-    """A base class for ALF-related errors
+    """A base class for ALF-related errors.
 
     Attributes
     ----------
@@ -17,14 +17,14 @@ class ALFError(Exception):
     explanation = ''
 
     def __init__(self, *args, terse=False):
-        """A base ALF exception
+        """A base ALF exception.
 
         Parameters
         ----------
         args : str, any
-            A specific error message to display or items to include in message
+            A specific error message to display or items to include in message.
         terse : bool
-            If True, the explanation string is not included in exception message
+            If True, the explanation string is not included in exception message.
 
         Examples
         --------

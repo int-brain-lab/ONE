@@ -42,14 +42,14 @@ def _get_current_par(k, par_current):
     Parameters
     ----------
     k : str
-        The parameter key lookup
+        The parameter key lookup.
     par_current : IBLParams
-        The current parameter set
+        The current parameter set.
 
     Returns
     -------
     any
-        The current parameter value or default if None or not set
+        The current parameter value or default if None or not set.
     """
     cpar = getattr(par_current, k, None)
     if cpar is None:
@@ -65,12 +65,12 @@ def _key_from_url(url: str) -> str:
     Parameters
     ----------
     url : str
-        A URL string
+        A URL string.
 
     Returns
     -------
     str
-        A filename-safe string
+        A filename-safe string.
 
     Example
     -------

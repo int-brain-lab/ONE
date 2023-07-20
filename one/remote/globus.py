@@ -214,19 +214,19 @@ def as_globus_path(path):
     Parameters
     ----------
     path : pathlib.Path, pathlib.PurePath, str
-        A path to convert to a Globus-complient path string
+        A path to convert to a Globus-complient path string.
 
     Returns
     -------
     str
-        A formatted path string
+        A formatted path string.
 
     Notes
     -----
     - If using tilda in path, the home folder of your Globus Connect instance must be the same as
       the OS home dir.
     - If validating a path for another system ensure the input path is a PurePath, in particular,
-    on a Linux computer a remote Windows should first be made into a PureWindowsPath.
+      on a Linux computer a remote Windows should first be made into a PureWindowsPath.
 
     Examples
     --------
