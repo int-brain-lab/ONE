@@ -1,1 +1,1 @@
-"""Unit tests for the one.alf package"""
+"""Unit tests for the one.alf package."""

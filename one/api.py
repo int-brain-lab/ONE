@@ -2639,7 +2639,7 @@ class OneAlyx(One):
     @util.refresh
     @util.parse_id
     def get_details(self, eid: str, full: bool = False, query_type=None):
-        """Return session details for a given session
+        """Return session details for a given session.
 
         Parameters
         ----------
@@ -2647,7 +2647,7 @@ class OneAlyx(One):
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         full : bool
-            If True, returns a DataFrame of session and dataset info
+            If True, returns a DataFrame of session and dataset info.
         query_type : {'local', 'refresh', 'auto', 'remote'}
             The query mode - if 'local' the details are taken from the cache tables; if 'remote'
             the details are returned from the sessions REST endpoint; if 'auto' uses whichever
@@ -2657,14 +2657,14 @@ class OneAlyx(One):
         -------
         pd.Series, pd.DataFrame, dict
             in local mode - a session record or full DataFrame with dataset information if full is
-            True; in remote mode - a full or partial session dict
+            True; in remote mode - a full or partial session dict.
 
         Raises
         ------
         ValueError
-            Invalid experiment ID (failed to parse into eid string)
+            Invalid experiment ID (failed to parse into eid string).
         requests.exceptions.HTTPError
-            [Errno 404] Remote session not found on Alyx
+            [Errno 404] Remote session not found on Alyx.
         """
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)

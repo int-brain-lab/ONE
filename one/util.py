@@ -1,4 +1,4 @@
-"""Decorators and small standalone functions for api module"""
+"""Decorators and small standalone functions for api module."""
 import logging
 import urllib.parse
 from functools import wraps
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def Listable(t):
-    """Return a typing.Union if the input and sequence of input"""
+    """Return a typing.Union if the input and sequence of input."""
     return Union[t, Sequence[t]]
 
 

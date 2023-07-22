@@ -7,15 +7,12 @@ An ALF file has the following components (those in brackets are optional):
 Note the following:
     Object attributes may not contain an underscore unless followed by 'times' or 'intervals'.
     A namespace must not contain extra underscores (i.e. `name_space` and `__namespace__` are not
-    valid)
-    ALF files must always have an extension
+    valid).
+    ALF files must always have an extension.
 
 For more information, see the following documentation:
     https://int-brain-lab.github.io/ONE/alf_intro.html
 
-Created on Tue Sep 11 18:06:21 2018
-
-@author: Miles
 """
 from collections import OrderedDict
 from datetime import datetime
@@ -38,18 +35,18 @@ def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
     Parameters
     ----------
     rel_path : str, pathlib.Path
-        A relative path string
+        A relative path string.
     as_dict : bool
         If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
-        'number'), otherwise a tuple of values are returned
+        'number'), otherwise a tuple of values are returned.
     assert_valid : bool
         If true a ValueError is raised when the session cannot be parsed, otherwise an empty
-        dict of tuple of Nones is returned
+        dict of tuple of Nones is returned.
 
     Returns
     -------
     OrderedDict, tuple
-        A dict if as_dict is true, or a tuple of parsed values
+        A dict if as_dict is true, or a tuple of parsed values.
     """
     return _path_parts(rel_path, REL_PATH_SPEC, True, as_dict, assert_valid)
 
@@ -66,50 +63,50 @@ def session_path_parts(session_path, as_dict=False, assert_valid=True):
     Parameters
     ----------
     session_path : str, pathlib.Path
-        A session path string
+        A session path string.
     as_dict : bool
         If true, an OrderedDict of parts are returned with the keys ('lab', 'subject', 'date',
-        'number'), otherwise a tuple of values are returned
+        'number'), otherwise a tuple of values are returned.
     assert_valid : bool
         If true a ValueError is raised when the session cannot be parsed, otherwise an empty
-        dict of tuple of Nones is returned
+        dict of tuple of Nones is returned.
 
     Returns
     -------
     OrderedDict, tuple
-        A dict if as_dict is true, or a tuple of parsed values
+        A dict if as_dict is true, or a tuple of parsed values.
 
     Raises
     ------
     ValueError
-        Invalid ALF session path (assert_valid is True)
+        Invalid ALF session path (assert_valid is True).
     """
     return _path_parts(session_path, SESSION_SPEC, False, as_dict, assert_valid)
 
 
 def _path_parts(path, spec_str, match=True, as_dict=False, assert_valid=True):
-    """Given a ALF and a spec string, parse into parts
+    """Given a ALF and a spec string, parse into parts.
 
     Parameters
     ----------
     path : str, pathlib.Path
-        An ALF path or dataset
+        An ALF path or dataset.
     match : bool
-        If True, string must match exactly, otherwise search for expression within path
+        If True, string must match exactly, otherwise search for expression within path.
     as_dict : bool
-        When true a dict of matches is returned
+        When true a dict of matches is returned.
     assert_valid : bool
-        When true an exception is raised when the filename cannot be parsed
+        When true an exception is raised when the filename cannot be parsed.
 
     Returns
     -------
     OrderedDict, tuple
-        A dict if as_dict is true, or a tuple of parsed values
+        A dict if as_dict is true, or a tuple of parsed values.
 
     Raises
     ------
     ValueError
-        Invalid ALF path (assert_valid is True)
+        Invalid ALF path (assert_valid is True).
     """
     if hasattr(path, 'as_posix'):
         path = path.as_posix()
@@ -132,26 +129,26 @@ def filename_parts(filename, as_dict=False, assert_valid=True) -> Union[dict, tu
     Parameters
     ----------
     filename : str
-        The name of the file
+        The name of the file.
     as_dict : bool
-        When true a dict of matches is returned
+        When true a dict of matches is returned.
     assert_valid : bool
-        When true an exception is raised when the filename cannot be parsed
+        When true an exception is raised when the filename cannot be parsed.
 
     Returns
     -------
     namespace : str
-        The _namespace_ or None if not present
+        The _namespace_ or None if not present.
     object : str
-        ALF object
+        ALF object.
     attribute : str
-        The ALF attribute
+        The ALF attribute.
     timescale : str
-        The ALF _timescale or None if not present
+        The ALF _timescale or None if not present.
     extra : str
-        Any extra parts to the filename, or None if not present
+        Any extra parts to the filename, or None if not present.
     extension : str
-        The file extension
+        The file extension.
 
     Examples
     --------
@@ -178,7 +175,7 @@ def filename_parts(filename, as_dict=False, assert_valid=True) -> Union[dict, tu
     Raises
     ------
     ValueError
-        Invalid ALF dataset (assert_valid is True)
+        Invalid ALF dataset (assert_valid is True).
     """
     return _path_parts(filename, FILE_SPEC, True, as_dict, assert_valid)
 
@@ -188,17 +185,17 @@ def full_path_parts(path, as_dict=False, assert_valid=True) -> Union[dict, tuple
 
     Parameters
     ----------
-    path : str, pathlib.Path
+    path : str, pathlib.Path.
         The ALF path
     as_dict : bool
-        When true a dict of matches is returned
+        When true a dict of matches is returned.
     assert_valid : bool
-        When true an exception is raised when the filename cannot be parsed
+        When true an exception is raised when the filename cannot be parsed.
 
     Returns
     -------
     OrderedDict, tuple
-        A dict if as_dict is true, or a tuple of parsed values
+        A dict if as_dict is true, or a tuple of parsed values.
 
     Examples
     --------
@@ -224,7 +221,7 @@ def full_path_parts(path, as_dict=False, assert_valid=True) -> Union[dict, tuple
     Raises
     ------
     ValueError
-        Invalid ALF path (assert_valid is True)
+        Invalid ALF path (assert_valid is True).
     """
     path = Path(path)
     # NB We try to determine whether we have a folder or filename path.  Filenames contain at
@@ -251,16 +248,16 @@ def folder_parts(folder_path, as_dict=False, assert_valid=True) -> Union[dict, t
     Parameters
     ----------
     folder_path : str, pathlib.Path
-        The ALF folder path
+        The ALF folder path.
     as_dict : bool
-        When true a dict of matches is returned
+        When true a dict of matches is returned.
     assert_valid : bool
-        When true an exception is raised when the filename cannot be parsed
+        When true an exception is raised when the filename cannot be parsed.
 
     Returns
     -------
     OrderedDict, tuple
-        A dict if as_dict is true, or a tuple of parsed values
+        A dict if as_dict is true, or a tuple of parsed values.
 
     Examples
     --------
@@ -277,7 +274,7 @@ def folder_parts(folder_path, as_dict=False, assert_valid=True) -> Union[dict, t
     Raises
     ------
     ValueError
-        Invalid ALF path (assert_valid is True)
+        Invalid ALF path (assert_valid is True).
     """
     if hasattr(folder_path, 'as_posix'):
         folder_path = folder_path.as_posix()
@@ -288,7 +285,7 @@ def folder_parts(folder_path, as_dict=False, assert_valid=True) -> Union[dict, t
 
 
 def _isdatetime(s: str) -> bool:
-    """Returns True if input is valid ISO date string"""
+    """Returns True if input is valid ISO date string."""
     try:
         datetime.strptime(s, '%Y-%m-%d')
         return True
@@ -299,7 +296,7 @@ def _isdatetime(s: str) -> bool:
 def get_session_path(path: Union[str, Path]) -> Optional[Path]:
     """
     Returns the session path from any filepath if the date/number pattern is found,
-    including the root directory
+    including the root directory.
 
     Returns
     -------
@@ -335,12 +332,12 @@ def get_alf_path(path: Union[str, Path]) -> str:
     Parameters
     ----------
     path : str, pathlib.Path
-        A path to parse
+        A path to parse.
 
     Returns
     -------
     str
-        A string containing the full ALF path, session path, relative path or filename
+        A string containing the full ALF path, session path, relative path or filename.
 
     Examples
     --------
@@ -400,7 +397,7 @@ def add_uuid_string(file_path, uuid):
 
     See Also
     --------
-    one.alf.io.remove_uuid_string
+    one.alf.files.remove_uuid_string
     one.alf.spec.is_uuid
     """
     if isinstance(uuid, str) and not spec.is_uuid_string(uuid):
@@ -440,7 +437,7 @@ def remove_uuid_string(file_path):
 
     See Also
     --------
-    one.alf.io.add_uuid_string
+    one.alf.files.add_uuid_string
     """
     if isinstance(file_path, str):
         file_path = Path(file_path)
