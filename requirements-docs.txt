@@ -7,7 +7,6 @@ sphinx-copybutton
 sphinx-gallery
 ipyevents
 jupyter
-widgetsnbextension==4.0.7  # Something changed, causing 'Jupyter command `jupyter-nbextension` not found' error
 # jupyter  # Required but must be installed last
 # ibllib  # Required to execute the one_quickstart notebook
 # matplotlib  # Required to execute the data_sharing notebook
