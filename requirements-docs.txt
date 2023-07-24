@@ -7,7 +7,6 @@ sphinx-copybutton
 sphinx-gallery
 ipyevents
 jupyter
-jupyter_contrib_nbextensions
 # ibllib  # Required to execute the one_quickstart notebook
 # matplotlib  # Required to execute the data_sharing notebook
 globus_sdk  # For Globus module
