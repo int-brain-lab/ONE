@@ -113,15 +113,12 @@
 <span class="sd">Note the following:</span>
 <span class="sd">    Object attributes may not contain an underscore unless followed by &#39;times&#39; or &#39;intervals&#39;.</span>
 <span class="sd">    A namespace must not contain extra underscores (i.e. `name_space` and `__namespace__` are not</span>
-<span class="sd">    valid)</span>
-<span class="sd">    ALF files must always have an extension</span>
+<span class="sd">    valid).</span>
+<span class="sd">    ALF files must always have an extension.</span>
 
 <span class="sd">For more information, see the following documentation:</span>
 <span class="sd">    https://int-brain-lab.github.io/ONE/alf_intro.html</span>
 
-<span class="sd">Created on Tue Sep 11 18:06:21 2018</span>
-
-<span class="sd">@author: Miles</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -144,18 +141,18 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    rel_path : str, pathlib.Path</span>
-<span class="sd">        A relative path string</span>
+<span class="sd">        A relative path string.</span>
 <span class="sd">    as_dict : bool</span>
 <span class="sd">        If true, an OrderedDict of parts are returned with the keys (&#39;lab&#39;, &#39;subject&#39;, &#39;date&#39;,</span>
-<span class="sd">        &#39;number&#39;), otherwise a tuple of values are returned</span>
+<span class="sd">        &#39;number&#39;), otherwise a tuple of values are returned.</span>
 <span class="sd">    assert_valid : bool</span>
 <span class="sd">        If true a ValueError is raised when the session cannot be parsed, otherwise an empty</span>
-<span class="sd">        dict of tuple of Nones is returned</span>
+<span class="sd">        dict of tuple of Nones is returned.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    OrderedDict, tuple</span>
-<span class="sd">        A dict if as_dict is true, or a tuple of parsed values</span>
+<span class="sd">        A dict if as_dict is true, or a tuple of parsed values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">REL_PATH_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
 
@@ -172,50 +169,50 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    session_path : str, pathlib.Path</span>
-<span class="sd">        A session path string</span>
+<span class="sd">        A session path string.</span>
 <span class="sd">    as_dict : bool</span>
 <span class="sd">        If true, an OrderedDict of parts are returned with the keys (&#39;lab&#39;, &#39;subject&#39;, &#39;date&#39;,</span>
-<span class="sd">        &#39;number&#39;), otherwise a tuple of values are returned</span>
+<span class="sd">        &#39;number&#39;), otherwise a tuple of values are returned.</span>
 <span class="sd">    assert_valid : bool</span>
 <span class="sd">        If true a ValueError is raised when the session cannot be parsed, otherwise an empty</span>
-<span class="sd">        dict of tuple of Nones is returned</span>
+<span class="sd">        dict of tuple of Nones is returned.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    OrderedDict, tuple</span>
-<span class="sd">        A dict if as_dict is true, or a tuple of parsed values</span>
+<span class="sd">        A dict if as_dict is true, or a tuple of parsed values.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Invalid ALF session path (assert_valid is True)</span>
+<span class="sd">        Invalid ALF session path (assert_valid is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">SESSION_SPEC</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a ALF and a spec string, parse into parts</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a ALF and a spec string, parse into parts.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    path : str, pathlib.Path</span>
-<span class="sd">        An ALF path or dataset</span>
+<span class="sd">        An ALF path or dataset.</span>
 <span class="sd">    match : bool</span>
-<span class="sd">        If True, string must match exactly, otherwise search for expression within path</span>
+<span class="sd">        If True, string must match exactly, otherwise search for expression within path.</span>
 <span class="sd">    as_dict : bool</span>
-<span class="sd">        When true a dict of matches is returned</span>
+<span class="sd">        When true a dict of matches is returned.</span>
 <span class="sd">    assert_valid : bool</span>
-<span class="sd">        When true an exception is raised when the filename cannot be parsed</span>
+<span class="sd">        When true an exception is raised when the filename cannot be parsed.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    OrderedDict, tuple</span>
-<span class="sd">        A dict if as_dict is true, or a tuple of parsed values</span>
+<span class="sd">        A dict if as_dict is true, or a tuple of parsed values.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Invalid ALF path (assert_valid is True)</span>
+<span class="sd">        Invalid ALF path (assert_valid is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;as_posix&#39;</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
@@ -238,26 +235,26 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    filename : str</span>
-<span class="sd">        The name of the file</span>
+<span class="sd">        The name of the file.</span>
 <span class="sd">    as_dict : bool</span>
-<span class="sd">        When true a dict of matches is returned</span>
+<span class="sd">        When true a dict of matches is returned.</span>
 <span class="sd">    assert_valid : bool</span>
-<span class="sd">        When true an exception is raised when the filename cannot be parsed</span>
+<span class="sd">        When true an exception is raised when the filename cannot be parsed.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    namespace : str</span>
-<span class="sd">        The _namespace_ or None if not present</span>
+<span class="sd">        The _namespace_ or None if not present.</span>
 <span class="sd">    object : str</span>
-<span class="sd">        ALF object</span>
+<span class="sd">        ALF object.</span>
 <span class="sd">    attribute : str</span>
-<span class="sd">        The ALF attribute</span>
+<span class="sd">        The ALF attribute.</span>
 <span class="sd">    timescale : str</span>
-<span class="sd">        The ALF _timescale or None if not present</span>
+<span class="sd">        The ALF _timescale or None if not present.</span>
 <span class="sd">    extra : str</span>
-<span class="sd">        Any extra parts to the filename, or None if not present</span>
+<span class="sd">        Any extra parts to the filename, or None if not present.</span>
 <span class="sd">    extension : str</span>
-<span class="sd">        The file extension</span>
+<span class="sd">        The file extension.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -284,7 +281,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Invalid ALF dataset (assert_valid is True)</span>
+<span class="sd">        Invalid ALF dataset (assert_valid is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
 
@@ -294,17 +291,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : str, pathlib.Path</span>
+<span class="sd">    path : str, pathlib.Path.</span>
 <span class="sd">        The ALF path</span>
 <span class="sd">    as_dict : bool</span>
-<span class="sd">        When true a dict of matches is returned</span>
+<span class="sd">        When true a dict of matches is returned.</span>
 <span class="sd">    assert_valid : bool</span>
-<span class="sd">        When true an exception is raised when the filename cannot be parsed</span>
+<span class="sd">        When true an exception is raised when the filename cannot be parsed.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    OrderedDict, tuple</span>
-<span class="sd">        A dict if as_dict is true, or a tuple of parsed values</span>
+<span class="sd">        A dict if as_dict is true, or a tuple of parsed values.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -330,7 +327,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Invalid ALF path (assert_valid is True)</span>
+<span class="sd">        Invalid ALF path (assert_valid is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="c1"># NB We try to determine whether we have a folder or filename path.  Filenames contain at</span>
@@ -357,16 +354,16 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    folder_path : str, pathlib.Path</span>
-<span class="sd">        The ALF folder path</span>
+<span class="sd">        The ALF folder path.</span>
 <span class="sd">    as_dict : bool</span>
-<span class="sd">        When true a dict of matches is returned</span>
+<span class="sd">        When true a dict of matches is returned.</span>
 <span class="sd">    assert_valid : bool</span>
-<span class="sd">        When true an exception is raised when the filename cannot be parsed</span>
+<span class="sd">        When true an exception is raised when the filename cannot be parsed.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    OrderedDict, tuple</span>
-<span class="sd">        A dict if as_dict is true, or a tuple of parsed values</span>
+<span class="sd">        A dict if as_dict is true, or a tuple of parsed values.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -383,7 +380,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        Invalid ALF path (assert_valid is True)</span>
+<span class="sd">        Invalid ALF path (assert_valid is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;as_posix&#39;</span><span class="p">):</span>
         <span class="n">folder_path</span> <span class="o">=</span> <span class="n">folder_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
@@ -394,7 +391,7 @@
 
 
 <span class="k">def</span> <span class="nf">_isdatetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if input is valid ISO date string&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if input is valid ISO date string.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -405,7 +402,7 @@
 <div class="viewcode-block" id="get_session_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_session_path">[docs]</a><span class="k">def</span> <span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the session path from any filepath if the date/number pattern is found,</span>
-<span class="sd">    including the root directory</span>
+<span class="sd">    including the root directory.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -441,12 +438,12 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    path : str, pathlib.Path</span>
-<span class="sd">        A path to parse</span>
+<span class="sd">        A path to parse.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        A string containing the full ALF path, session path, relative path or filename</span>
+<span class="sd">        A string containing the full ALF path, session path, relative path or filename.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -506,7 +503,7 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    one.alf.io.remove_uuid_string</span>
+<span class="sd">    one.alf.files.remove_uuid_string</span>
 <span class="sd">    one.alf.spec.is_uuid</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
@@ -546,7 +543,7 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    one.alf.io.add_uuid_string</span>
+<span class="sd">    one.alf.files.add_uuid_string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>

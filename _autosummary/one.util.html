@@ -140,12 +140,12 @@
              
   <section id="module-one.util">
 <span id="one-util"></span><h1>one.util<a class="headerlink" href="#module-one.util" title="Permalink to this heading"></a></h1>
-<p>Decorators and small standalone functions for api module</p>
+<p>Decorators and small standalone functions for api module.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.util.Listable" title="one.util.Listable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Listable</span></code></a></p></td>
-<td><p>Return a typing.Union if the input and sequence of input</p></td>
+<td><p>Return a typing.Union if the input and sequence of input.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.util.autocomplete" title="one.util.autocomplete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">autocomplete</span></code></a></p></td>
 <td><p>Validate search term and return complete name, e.g.</p></td>
@@ -196,7 +196,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.Listable">
 <span class="sig-name descname"><span class="pre">Listable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#Listable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.Listable" title="Permalink to this definition"></a></dt>
-<dd><p>Return a typing.Union if the input and sequence of input</p>
+<dd><p>Return a typing.Union if the input and sequence of input.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -349,12 +349,10 @@ with regular expressions permitted.</p></li>
 </div>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>It is not possible to match datasets that are in a given collection OR NOT in ANY collection.</p></li>
+<li><p>It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
+e.g. filter_datasets(dsets, collection=[‘alf’, ‘’]) will not match the latter. For this you
+must use two separate queries.</p></li>
 </ul>
-<blockquote>
-<div><p>e.g. filter_datasets(dsets, collection=[‘alf’, ‘’]) will not match the latter. For this you
-must use two separate queries.</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py function">

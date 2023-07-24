@@ -270,9 +270,9 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    - If no credentials are present in the database, boto3 will use environment config or default</span>
-<span class="sd">     AWS profile settings instead.</span>
+<span class="sd">      AWS profile settings instead.</span>
 <span class="sd">    - If there are no credentials for the bucket and the bucket has &#39;public&#39; in the name, the</span>
-<span class="sd">     returned resource will use an unsigned signature.</span>
+<span class="sd">      returned resource will use an unsigned signature.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session_keys</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">get_aws_access_keys</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">)</span>
     <span class="n">no_creds</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;key&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">())))</span>

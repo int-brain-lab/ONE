@@ -330,15 +330,15 @@ session.</p></li>
 </div>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>In default and local mode, most queries are case-sensitive partial matches. When lists</p></li>
+<li><p>In default and local mode, most queries are case-sensitive partial matches. When lists
+are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.</p></li>
+<li><p>All search terms are true for a session to be returned, i.e. subject matches AND project
+matches, etc.</p></li>
+<li><p>In remote mode most queries are case-insensitive partial matches.</p></li>
+<li><p>In default and local mode, when the one.wildcards flag is True (default), queries are
+interpreted as regular expressions. To turn this off set one.wildcards to False.</p></li>
+<li><p>In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p></li>
 </ul>
-<p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.
-- All search terms are true for a session to be returned, i.e. subject matches AND project
-matches, etc.
-- In remote mode most queries are case-insensitive partial matches.
-- In default and local mode, when the one.wildcards flag is True (default), queries are
-interpreted as regular expressions. To turn this off set one.wildcards to False.
-- In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -677,15 +677,15 @@ permitted.</p></li>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>There are three ways the datasets may be formatted: the object.attribute; the file name</p></li>
-</ul>
-<p>(including namespace and extension); the ALF components as a dict; the dataset path,
-relative to the session path, e.g. collection/object.attribute.ext.
-- When relative paths are provided (e.g. ‘collection/#revision#/object.attribute.ext’),
+<li><p>There are three ways the datasets may be formatted: the object.attribute; the file name
+(including namespace and extension); the ALF components as a dict; the dataset path,
+relative to the session path, e.g. collection/object.attribute.ext.</p></li>
+<li><p>When relative paths are provided (e.g. ‘collection/#revision#/object.attribute.ext’),
 wildcards/regular expressions must not be used. To use wildcards, pass the collection and
-revision as separate keyword arguments.
-- To ensure you are loading the correct revision, use the revisions kwarg instead of
-relative paths.</p>
+revision as separate keyword arguments.</p></li>
+<li><p>To ensure you are loading the correct revision, use the revisions kwarg instead of
+relative paths.</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1187,15 +1187,15 @@ matching session.</p></li>
 </div>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>In default and local mode, most queries are case-sensitive partial matches. When lists</p></li>
+<li><p>In default and local mode, most queries are case-sensitive partial matches. When lists
+are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.</p></li>
+<li><p>All search terms are true for a session to be returned, i.e. subject matches AND project
+matches, etc.</p></li>
+<li><p>In remote mode most queries are case-insensitive partial matches.</p></li>
+<li><p>In default and local mode, when the one.wildcards flag is True (default), queries are
+interpreted as regular expressions. To turn this off set one.wildcards to False.</p></li>
+<li><p>In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p></li>
 </ul>
-<p>are provided, the search is a logical OR, except for <cite>datasets</cite>, which is a logical AND.
-- All search terms are true for a session to be returned, i.e. subject matches AND project
-matches, etc.
-- In remote mode most queries are case-insensitive partial matches.
-- In default and local mode, when the one.wildcards flag is True (default), queries are
-interpreted as regular expressions. To turn this off set one.wildcards to False.
-- In remote mode regular expressions are only supported using the <cite>django</cite> argument.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1346,13 +1346,13 @@ details dict or Path.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.OneAlyx.get_details">
 <span class="sig-name descname"><span class="pre">get_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#OneAlyx.get_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.OneAlyx.get_details" title="Permalink to this definition"></a></dt>
-<dd><p>Return session details for a given session</p>
+<dd><p>Return session details for a given session.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>full</strong> (<em>bool</em>) – If True, returns a DataFrame of session and dataset info</p></li>
+<li><p><strong>full</strong> (<em>bool</em>) – If True, returns a DataFrame of session and dataset info.</p></li>
 <li><p><strong>query_type</strong> (<em>{'local'</em><em>, </em><em>'refresh'</em><em>, </em><em>'auto'</em><em>, </em><em>'remote'}</em>) – The query mode - if ‘local’ the details are taken from the cache tables; if ‘remote’
 the details are returned from the sessions REST endpoint; if ‘auto’ uses whichever
 mode ONE is in; if ‘refresh’ reloads the cache before querying.</p></li>
@@ -1360,15 +1360,15 @@ mode ONE is in; if ‘refresh’ reloads the cache before querying.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>in local mode - a session record or full DataFrame with dataset information if full is
-True; in remote mode - a full or partial session dict</p>
+True; in remote mode - a full or partial session dict.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.Series, pd.DataFrame, dict</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – Invalid experiment ID (failed to parse into eid string)</p></li>
-<li><p><strong>requests.exceptions.HTTPError</strong> – [Errno 404] Remote session not found on Alyx</p></li>
+<li><p><strong>ValueError</strong> – Invalid experiment ID (failed to parse into eid string).</p></li>
+<li><p><strong>requests.exceptions.HTTPError</strong> – [Errno 404] Remote session not found on Alyx.</p></li>
 </ul>
 </dd>
 </dl>

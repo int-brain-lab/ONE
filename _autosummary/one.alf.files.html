@@ -138,14 +138,12 @@
 </dd>
 <dt>Note the following:</dt><dd><p>Object attributes may not contain an underscore unless followed by ‘times’ or ‘intervals’.
 A namespace must not contain extra underscores (i.e. <cite>name_space</cite> and <cite>__namespace__</cite> are not
-valid)
-ALF files must always have an extension</p>
+valid).
+ALF files must always have an extension.</p>
 </dd>
 <dt>For more information, see the following documentation:</dt><dd><p><a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">https://int-brain-lab.github.io/ONE/alf_intro.html</a></p>
 </dd>
 </dl>
-<p>Created on Tue Sep 11 18:06:21 2018</p>
-<p>&#64;author: Miles</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -165,7 +163,7 @@ ALF files must always have an extension</p>
 <td><p>Returns the ALF part of a path or filename.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.get_session_path" title="one.alf.files.get_session_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session_path</span></code></a></p></td>
-<td><p>Returns the session path from any filepath if the date/number pattern is found, including the root directory</p></td>
+<td><p>Returns the session path from any filepath if the date/number pattern is found, including the root directory.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.rel_path_parts" title="one.alf.files.rel_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel_path_parts</span></code></a></p></td>
 <td><p>Parse a relative path into the relevant parts.</p></td>
@@ -189,15 +187,15 @@ ALF files must always have an extension</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rel_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative path string</p></li>
+<li><p><strong>rel_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative path string.</p></li>
 <li><p><strong>as_dict</strong> (<em>bool</em>) – If true, an OrderedDict of parts are returned with the keys (‘lab’, ‘subject’, ‘date’,
-‘number’), otherwise a tuple of values are returned</p></li>
+‘number’), otherwise a tuple of values are returned.</p></li>
 <li><p><strong>assert_valid</strong> (<em>bool</em>) – If true a ValueError is raised when the session cannot be parsed, otherwise an empty
-dict of tuple of Nones is returned</p></li>
+dict of tuple of Nones is returned.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values</p>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>OrderedDict, tuple</p>
@@ -221,21 +219,21 @@ dict of tuple of Nones is returned</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A session path string</p></li>
+<li><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A session path string.</p></li>
 <li><p><strong>as_dict</strong> (<em>bool</em>) – If true, an OrderedDict of parts are returned with the keys (‘lab’, ‘subject’, ‘date’,
-‘number’), otherwise a tuple of values are returned</p></li>
+‘number’), otherwise a tuple of values are returned.</p></li>
 <li><p><strong>assert_valid</strong> (<em>bool</em>) – If true a ValueError is raised when the session cannot be parsed, otherwise an empty
-dict of tuple of Nones is returned</p></li>
+dict of tuple of Nones is returned.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values</p>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>OrderedDict, tuple</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – Invalid ALF session path (assert_valid is True)</p>
+<dd class="field-even"><p><strong>ValueError</strong> – Invalid ALF session path (assert_valid is True).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -247,19 +245,19 @@ dict of tuple of Nones is returned</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The name of the file</p></li>
-<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned</p></li>
-<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – The name of the file.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>namespace</strong> (<em>str</em>) – The _namespace_ or None if not present</p></li>
-<li><p><strong>object</strong> (<em>str</em>) – ALF object</p></li>
-<li><p><strong>attribute</strong> (<em>str</em>) – The ALF attribute</p></li>
-<li><p><strong>timescale</strong> (<em>str</em>) – The ALF _timescale or None if not present</p></li>
-<li><p><strong>extra</strong> (<em>str</em>) – Any extra parts to the filename, or None if not present</p></li>
-<li><p><strong>extension</strong> (<em>str</em>) – The file extension</p></li>
+<li><p><strong>namespace</strong> (<em>str</em>) – The _namespace_ or None if not present.</p></li>
+<li><p><strong>object</strong> (<em>str</em>) – ALF object.</p></li>
+<li><p><strong>attribute</strong> (<em>str</em>) – The ALF attribute.</p></li>
+<li><p><strong>timescale</strong> (<em>str</em>) – The ALF _timescale or None if not present.</p></li>
+<li><p><strong>extra</strong> (<em>str</em>) – Any extra parts to the filename, or None if not present.</p></li>
+<li><p><strong>extension</strong> (<em>str</em>) – The file extension.</p></li>
 </ul>
 </p>
 </dd>
@@ -288,7 +286,7 @@ dict of tuple of Nones is returned</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF dataset (assert_valid is True)</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF dataset (assert_valid is True).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -300,13 +298,13 @@ dict of tuple of Nones is returned</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The ALF path</p></li>
-<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned</p></li>
-<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed</p></li>
+<li><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path.</em>) – The ALF path</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values</p>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>OrderedDict, tuple</p>
@@ -335,7 +333,7 @@ dict of tuple of Nones is returned</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True)</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,13 +345,13 @@ dict of tuple of Nones is returned</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>folder_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The ALF folder path</p></li>
-<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned</p></li>
-<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed</p></li>
+<li><p><strong>folder_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The ALF folder path.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values</p>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>OrderedDict, tuple</p>
@@ -373,7 +371,7 @@ dict of tuple of Nones is returned</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True)</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -382,7 +380,7 @@ dict of tuple of Nones is returned</p></li>
 <dt class="sig sig-object py" id="one.alf.files.get_session_path">
 <span class="sig-name descname"><span class="pre">get_session_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/alf/files.html#get_session_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.get_session_path" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the session path from any filepath if the date/number pattern is found,
-including the root directory</p>
+including the root directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The session path part of the input path or None if path invalid.</p>
@@ -411,10 +409,10 @@ then relative path (collection/revision/filename), then just the filename.  If a
 None is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to parse</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to parse.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A string containing the full ALF path, session path, relative path or filename</p>
+<dd class="field-even"><p>A string containing the full ALF path, session path, relative path or filename.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -467,7 +465,7 @@ None is returned.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.io.remove_uuid_string</span></code>, <a class="reference internal" href="one.alf.spec.html#one.alf.spec.is_uuid" title="one.alf.spec.is_uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.spec.is_uuid</span></code></a></p>
+<p><a class="reference internal" href="#one.alf.files.remove_uuid_string" title="one.alf.files.remove_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.files.remove_uuid_string</span></code></a>, <a class="reference internal" href="one.alf.spec.html#one.alf.spec.is_uuid" title="one.alf.spec.is_uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.spec.is_uuid</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -497,7 +495,7 @@ None is returned.</p>
 </div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.io.add_uuid_string</span></code></p>
+<p><a class="reference internal" href="#one.alf.files.add_uuid_string" title="one.alf.files.add_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.files.add_uuid_string</span></code></a></p>
 </div>
 </dd></dl>
 

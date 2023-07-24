@@ -185,10 +185,10 @@ therefore the first arg is assumed to be the object.  Maps and pandas objects ar
 iterated over.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> (<em>function</em>) – A method to decorate</p>
+<dd class="field-odd"><p><strong>func</strong> (<em>function</em>) – A method to decorate.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The decorated method</p>
+<dd class="field-even"><p>The decorated method.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>function</p>
@@ -344,19 +344,19 @@ correctly reflects the files system</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.eid2ref">
 <span class="sig-name descname"><span class="pre">eid2ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.eid2ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.eid2ref" title="Permalink to this definition"></a></dt>
-<dd><p>Get human-readable session ref from path</p>
+<dd><p>Get human-readable session ref from path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The experiment uuid to find reference for</p></li>
-<li><p><strong>as_dict</strong> (<em>bool</em>) – If false a string is returned in the form ‘subject_sequence_yyyy-mm-dd’</p></li>
+<li><p><strong>eid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The experiment uuid to find reference for.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – If false a string is returned in the form ‘subject_sequence_yyyy-mm-dd’.</p></li>
 <li><p><strong>parse</strong> (<em>bool</em>) – If true, the reference date and sequence are parsed from strings to their respective
-data types</p></li>
+data types.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with the
-form yyyy-mm-dd_n_subject</p>
+form yyyy-mm-dd_n_subject.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict, str, list</p>
@@ -382,14 +382,14 @@ form yyyy-mm-dd_n_subject</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.ref2eid">
 <span class="sig-name descname"><span class="pre">ref2eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.ref2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.ref2eid" title="Permalink to this definition"></a></dt>
-<dd><p>Returns experiment uuid, given one or more experiment references</p>
+<dd><p>Returns experiment uuid, given one or more experiment references.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with
-the form yyyy-mm-dd_n_subject</p>
+the form yyyy-mm-dd_n_subject.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>One or more experiment uuid strings</p>
+<dd class="field-even"><p>One or more experiment uuid strings.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str, list</p>
@@ -412,14 +412,14 @@ the form yyyy-mm-dd_n_subject</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.ref2path">
 <span class="sig-name descname"><span class="pre">ref2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.ref2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.ref2path" title="Permalink to this definition"></a></dt>
-<dd><p>Convert one or more experiment references to session path(s)</p>
+<dd><p>Convert one or more experiment references to session path(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with
-the form yyyy-mm-dd_n_subject</p>
+the form yyyy-mm-dd_n_subject.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Path object(s) for the experiment session(s)</p>
+<dd class="field-even"><p>Path object(s) for the experiment session(s).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
@@ -447,12 +447,12 @@ The path need not exist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path_str</strong> (<em>str</em>) – A path to a given session</p></li>
-<li><p><strong>as_dict</strong> (<em>bool</em>) – If True a Bunch is returned, otherwise a string</p></li>
+<li><p><strong>path_str</strong> (<em>str</em>) – A path to a given session.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – If True a Bunch is returned, otherwise a string.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>One or more objects with keys (‘subject’, ‘date’, ‘sequence’)</p>
+<dd class="field-even"><p>One or more objects with keys (‘subject’, ‘date’, ‘sequence’).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict, str, list</p>
@@ -475,14 +475,14 @@ The path need not exist.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.is_exp_ref">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_exp_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.is_exp_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.is_exp_ref" title="Permalink to this definition"></a></dt>
-<dd><p>Returns True is ref is a valid experiment reference</p>
+<dd><p>Returns True is ref is a valid experiment reference.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – One or more objects with keys (‘subject’, ‘date’, ‘sequence’), or strings with
-the form yyyy-mm-dd_n_subject</p>
+the form yyyy-mm-dd_n_subject.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if ref is valid</p>
+<dd class="field-even"><p>True if ref is valid.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -503,13 +503,13 @@ the form yyyy-mm-dd_n_subject</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.ref2dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ref2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Bunch</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.ref2dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.ref2dict" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a Bunch (dict-like) from a reference string (or list thereof)</p>
+<dd><p>Returns a Bunch (dict-like) from a reference string (or list thereof).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>list</em>) – One or more experiment reference strings</p>
+<dd class="field-odd"><p><strong>ref</strong> (<em>str</em><em>, </em><em>list</em>) – One or more experiment reference strings.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A Bunch in with keys (‘subject’, ‘sequence’, ‘date’)</p>
+<dd class="field-even"><p>A Bunch in with keys (‘subject’, ‘sequence’, ‘date’).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>iblutil.util.Bunch</p>
@@ -533,10 +533,10 @@ the form yyyy-mm-dd_n_subject</p>
 <dd><p>Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ref_dict</strong> (<em>dict</em><em>, </em><em>Bunch</em><em>, </em><em>list</em><em>, </em><em>tuple</em>) – A map with the keys (‘subject’, ‘date’, ‘sequence’)</p>
+<dd class="field-odd"><p><strong>ref_dict</strong> (<em>dict</em><em>, </em><em>Bunch</em><em>, </em><em>list</em><em>, </em><em>tuple</em>) – A map with the keys (‘subject’, ‘date’, ‘sequence’).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An experiment reference string, or list thereof</p>
+<dd class="field-even"><p>An experiment reference string, or list thereof.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str, list</p>
@@ -554,12 +554,12 @@ Unlike <cite>to_eid</cite>, this function does not require ONE, and the dataset 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dset</strong> (<em>dict</em><em>, </em><em>list</em>) – Dataset dictionary or list of dictionaries from Alyx rest endpoint</p></li>
-<li><p><strong>one_cache</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – The local ONE data cache directory</p></li>
+<li><p><strong>dset</strong> (<em>dict</em><em>, </em><em>list</em>) – Dataset dictionary or list of dictionaries from Alyx rest endpoint.</p></li>
+<li><p><strong>one_cache</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – The local ONE data cache directory.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The local path for a given dataset</p>
+<dd class="field-even"><p>The local path for a given dataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>
@@ -575,15 +575,15 @@ Unlike <cite>to_eid</cite>, this function does not require ONE, and the dataset 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dset</strong> (<em>dict</em><em>, </em><em>list</em>) – Dataset dictionary or list of dictionaries from Alyx rest endpoint</p></li>
-<li><p><strong>root_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – The prefix path such as the ONE download directory or remote http server root</p></li>
+<li><p><strong>dset</strong> (<em>dict</em><em>, </em><em>list</em>) – Dataset dictionary or list of dictionaries from Alyx rest endpoint.</p></li>
+<li><p><strong>root_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – The prefix path such as the ONE download directory or remote http server root.</p></li>
 <li><p><strong>repository</strong> (<em>str</em><em>, </em><em>None</em>) – Which data repository to use from the file_records list, defaults to first online
-repository</p></li>
-<li><p><strong>uuid</strong> (<em>bool</em>) – If True, the file path will contain the dataset UUID</p></li>
+repository.</p></li>
+<li><p><strong>uuid</strong> (<em>bool</em>) – If True, the file path will contain the dataset UUID.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>File path or list of paths</p>
+<dd class="field-even"><p>File path or list of paths.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path, list</p>
@@ -600,13 +600,13 @@ otherwise if the root_path is a PurePath, the same path type is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fr</strong> (<em>dict</em>) – An Alyx file record dict</p></li>
-<li><p><strong>root_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An optional root path</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – An optional dataset UUID to add to the file name</p></li>
+<li><p><strong>fr</strong> (<em>dict</em>) – An Alyx file record dict.</p></li>
+<li><p><strong>root_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An optional root path.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – An optional dataset UUID to add to the file name.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A filepath as a pathlib object</p>
+<dd class="field-even"><p>A filepath as a pathlib object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pathlib.Path</p>

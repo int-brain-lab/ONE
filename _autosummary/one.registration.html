@@ -395,18 +395,12 @@ before copying to the repository.</p></li>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The registered files may be automatically moved to new revision folders if they are</p></li>
-</ul>
-<blockquote>
-<div><p>protected on Alyx, therefore it’s important to check the relative paths of the output.</p>
-</div></blockquote>
-<ul class="simple">
+<li><p>The registered files may be automatically moved to new revision folders if they are
+protected on Alyx, therefore it’s important to check the relative paths of the output.</p></li>
 <li><p>Protected datasets are not checked in dry mode.</p></li>
-<li><p>In most circumstances a new revision will be added automatically, however if this fails</p></li>
+<li><p>In most circumstances a new revision will be added automatically, however if this fails
+a 403 HTTP status may be returned.</p></li>
 </ul>
-<blockquote>
-<div><p>a 403 HTTP status may be returned.</p>
-</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>requests.exceptions.HTTPError</strong> – Submitted data not valid (400 status code)

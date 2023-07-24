@@ -254,10 +254,10 @@ UUID.</p>
 <dd><p>Convert a path into one suitable for the Globus TransferClient.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em><em>, </em><em>str</em>) – A path to convert to a Globus-complient path string</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em><em>, </em><em>str</em>) – A path to convert to a Globus-complient path string.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A formatted path string</p>
+<dd class="field-even"><p>A formatted path string.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -267,9 +267,9 @@ UUID.</p>
 <ul class="simple">
 <li><p>If using tilda in path, the home folder of your Globus Connect instance must be the same as
 the OS home dir.</p></li>
-<li><p>If validating a path for another system ensure the input path is a PurePath, in particular,</p></li>
+<li><p>If validating a path for another system ensure the input path is a PurePath, in particular,
+on a Linux computer a remote Windows should first be made into a PureWindowsPath.</p></li>
 </ul>
-<p>on a Linux computer a remote Windows should first be made into a PureWindowsPath.</p>
 <p class="rubric">Examples</p>
 <p>A Windows path</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;E:\FlatIron\integration&#39;</span><span class="p">)</span>

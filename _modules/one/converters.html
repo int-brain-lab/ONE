@@ -141,12 +141,12 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    func : function</span>
-<span class="sd">        A method to decorate</span>
+<span class="sd">        A method to decorate.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    function</span>
-<span class="sd">        The decorated method</span>
+<span class="sd">        The decorated method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapper_decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -452,23 +452,23 @@
     <span class="k">def</span> <span class="nf">eid2ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> \
             <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get human-readable session ref from path</span>
+<span class="sd">        Get human-readable session ref from path.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        eid : str, uuid.UUID</span>
-<span class="sd">            The experiment uuid to find reference for</span>
+<span class="sd">            The experiment uuid to find reference for.</span>
 <span class="sd">        as_dict : bool</span>
-<span class="sd">            If false a string is returned in the form &#39;subject_sequence_yyyy-mm-dd&#39;</span>
+<span class="sd">            If false a string is returned in the form &#39;subject_sequence_yyyy-mm-dd&#39;.</span>
 <span class="sd">        parse : bool</span>
 <span class="sd">            If true, the reference date and sequence are parsed from strings to their respective</span>
-<span class="sd">            data types</span>
+<span class="sd">            data types.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict, str, list</span>
 <span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with the</span>
-<span class="sd">            form yyyy-mm-dd_n_subject</span>
+<span class="sd">            form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -499,18 +499,18 @@
 <div class="viewcode-block" id="ConversionMixin.ref2eid"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2eid">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">ref2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns experiment uuid, given one or more experiment references</span>
+<span class="sd">        Returns experiment uuid, given one or more experiment references.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, dict, list</span>
 <span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
-<span class="sd">            the form yyyy-mm-dd_n_subject</span>
+<span class="sd">            the form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str, list</span>
-<span class="sd">            One or more experiment uuid strings</span>
+<span class="sd">            One or more experiment uuid strings.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -535,18 +535,18 @@
 <div class="viewcode-block" id="ConversionMixin.ref2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2path">[docs]</a>    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">ref2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convert one or more experiment references to session path(s)</span>
+<span class="sd">        Convert one or more experiment references to session path(s).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, dict, list</span>
 <span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
-<span class="sd">            the form yyyy-mm-dd_n_subject</span>
+<span class="sd">            the form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        pathlib.Path</span>
-<span class="sd">            Path object(s) for the experiment session(s)</span>
+<span class="sd">            Path object(s) for the experiment session(s).</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -574,14 +574,14 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        path_str : str</span>
-<span class="sd">            A path to a given session</span>
+<span class="sd">            A path to a given session.</span>
 <span class="sd">        as_dict : bool</span>
-<span class="sd">            If True a Bunch is returned, otherwise a string</span>
+<span class="sd">            If True a Bunch is returned, otherwise a string.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict, str, list</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;)</span>
+<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;).</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -606,18 +606,18 @@
 <div class="viewcode-block" id="ConversionMixin.is_exp_ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.is_exp_ref">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_exp_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns True is ref is a valid experiment reference</span>
+<span class="sd">        Returns True is ref is a valid experiment reference.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, dict, list</span>
 <span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
-<span class="sd">            the form yyyy-mm-dd_n_subject</span>
+<span class="sd">            the form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            True if ref is valid</span>
+<span class="sd">            True if ref is valid.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -643,17 +643,17 @@
     <span class="nd">@parse_values</span>
     <span class="k">def</span> <span class="nf">ref2dict</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a Bunch (dict-like) from a reference string (or list thereof)</span>
+<span class="sd">        Returns a Bunch (dict-like) from a reference string (or list thereof).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, list</span>
-<span class="sd">            One or more experiment reference strings</span>
+<span class="sd">            One or more experiment reference strings.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        iblutil.util.Bunch</span>
-<span class="sd">            A Bunch in with keys (&#39;subject&#39;, &#39;sequence&#39;, &#39;date&#39;)</span>
+<span class="sd">            A Bunch in with keys (&#39;subject&#39;, &#39;sequence&#39;, &#39;date&#39;).</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -680,12 +680,12 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref_dict : dict, Bunch, list, tuple</span>
-<span class="sd">            A map with the keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;)</span>
+<span class="sd">            A map with the keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str, list:</span>
-<span class="sd">            An experiment reference string, or list thereof</span>
+<span class="sd">            An experiment reference string, or list thereof.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">ConversionMixin</span><span class="o">.</span><span class="n">dict2ref</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="p">]</span>
@@ -706,14 +706,14 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    dset : dict, list</span>
-<span class="sd">        Dataset dictionary or list of dictionaries from Alyx rest endpoint</span>
+<span class="sd">        Dataset dictionary or list of dictionaries from Alyx rest endpoint.</span>
 <span class="sd">    one_cache : str, pathlib.Path, pathlib.PurePath</span>
-<span class="sd">        The local ONE data cache directory</span>
+<span class="sd">        The local ONE data cache directory.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pathlib.Path</span>
-<span class="sd">        The local path for a given dataset</span>
+<span class="sd">        The local path for a given dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">one_cache</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
@@ -726,19 +726,19 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    dset : dict, list</span>
-<span class="sd">        Dataset dictionary or list of dictionaries from Alyx rest endpoint</span>
+<span class="sd">        Dataset dictionary or list of dictionaries from Alyx rest endpoint.</span>
 <span class="sd">    root_path : str, pathlib.Path, pathlib.PurePath</span>
-<span class="sd">        The prefix path such as the ONE download directory or remote http server root</span>
+<span class="sd">        The prefix path such as the ONE download directory or remote http server root.</span>
 <span class="sd">    repository : str, None</span>
 <span class="sd">        Which data repository to use from the file_records list, defaults to first online</span>
-<span class="sd">        repository</span>
+<span class="sd">        repository.</span>
 <span class="sd">    uuid : bool</span>
-<span class="sd">        If True, the file path will contain the dataset UUID</span>
+<span class="sd">        If True, the file path will contain the dataset UUID.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pathlib.Path, list</span>
-<span class="sd">        File path or list of paths</span>
+<span class="sd">        File path or list of paths.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">path_from_dataset</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">]</span>
@@ -759,16 +759,16 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    fr : dict</span>
-<span class="sd">        An Alyx file record dict</span>
+<span class="sd">        An Alyx file record dict.</span>
 <span class="sd">    root_path : str, pathlib.Path</span>
-<span class="sd">        An optional root path</span>
+<span class="sd">        An optional root path.</span>
 <span class="sd">    uuid : str, uuid.UUID</span>
-<span class="sd">        An optional dataset UUID to add to the file name</span>
+<span class="sd">        An optional dataset UUID to add to the file name.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pathlib.Path</span>
-<span class="sd">        A filepath as a pathlib object</span>
+<span class="sd">        A filepath as a pathlib object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">path_from_filerecord</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fr</span><span class="p">]</span>

@@ -266,17 +266,11 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>If no credentials are present in the database, boto3 will use environment config or default</p></li>
+<li><p>If no credentials are present in the database, boto3 will use environment config or default
+AWS profile settings instead.</p></li>
+<li><p>If there are no credentials for the bucket and the bucket has ‘public’ in the name, the
+returned resource will use an unsigned signature.</p></li>
 </ul>
-<blockquote>
-<div><p>AWS profile settings instead.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>If there are no credentials for the bucket and the bucket has ‘public’ in the name, the</p></li>
-</ul>
-<blockquote>
-<div><p>returned resource will use an unsigned signature.</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
