@@ -24,6 +24,8 @@ jobs:
         sudo apt install pandoc
         pip install -r requirements.txt
         pip install -r requirements-docs.txt
+      # jupyter must be installed last for some reason
+        pip install jupyter
         jupyter nbextension enable --py --sys-prefix ipyevents
     - name: build docs
       run: |
