@@ -15,7 +15,6 @@ TODO Currently record2url assumes all data are stored on a single HTTP data serv
  address by precedence.  NB: OneAlyx._download_dataset uses record2url then calls
  AlyxClient.download_file.
 TODO Could have .one/.params file that stores ONE state, including whether files are distributed?
-TODO Release changes to alyx repo first
 """
 from abc import abstractmethod
 import logging
@@ -56,9 +55,9 @@ def load_client_params(client_key=None, assert_present=True):
     Raises
     ------
     FileNotFoundError
-        No one/remote JSON file found
+        No one/remote JSON file found.
     AttributeError
-        Provided client key not present in one/remote params
+        Provided client key not present in one/remote params.
 
     Examples
     --------
@@ -95,14 +94,14 @@ def save_client_params(new_pars, client_key=None):
     Parameters
     ----------
     new_pars : dict, IBLParams
-        A set or subset or parameters to save
+        A set or subset or parameters to save.
     client_key : str
         An optional, specific client whose parameters to save.
 
     Raises
     ------
     ValueError
-        If client_key is None, all parameter fields must hold dicts
+        If client_key is None, all parameter fields must hold dicts.
     """
     if not client_key:
         if not all(isinstance(x, dict) for x in iopar.as_dict(new_pars).values()):
@@ -115,18 +114,18 @@ def save_client_params(new_pars, client_key=None):
 
 
 class DownloadClient:
-    """Data download handler base class"""
+    """Data download handler base class."""
     def __init__(self):
         pass
 
     @abstractmethod
     def to_address(self, data_path, *args, **kwargs):
-        """Returns the remote data URL for a given ALF path"""
+        """Returns the remote data URL for a given ALF path."""
         pass  # pragma: no cover
 
     @abstractmethod
     def download_file(self, file_address, *args, **kwargs):
-        """Download an ALF dataset given its address"""
+        """Download an ALF dataset given its address."""
         pass  # pragma: no cover
 
     @staticmethod
@@ -136,5 +135,5 @@ class DownloadClient:
 
     @staticmethod
     def repo_from_alyx(name, alyx):
-        """Return the data repository information for a given data repository"""
+        """Return the data repository information for a given data repository."""
         return alyx.rest('data-repository', 'read', id=name)

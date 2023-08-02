@@ -100,7 +100,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_water_administration(self.subject, volume, session='NaN')
         with self.assertRaises(ValueError):
             self.client.register_water_administration(self.subject, .0)
-        with unittest.mock.patch.object(self.client.one, 'to_eid', return_value=None),\
+        with unittest.mock.patch.object(self.client.one, 'to_eid', return_value=None), \
              self.assertRaises(ValueError):
             self.client.register_water_administration(self.subject, 3.6, session=ses['url'])
 
@@ -137,7 +137,7 @@ class TestRegistrationClient(unittest.TestCase):
         # Check raises non-404
         err = HTTPError()
         err.response = Bunch({'status_code': 500})
-        with unittest.mock.patch.object(self.one.alyx, 'get', side_effect=err),\
+        with unittest.mock.patch.object(self.one.alyx, 'get', side_effect=err), \
                 self.assertRaises(HTTPError):
             self.client.assert_exists('foobar', 'subjects')
 
