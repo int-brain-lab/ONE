@@ -130,7 +130,38 @@
              
   <section id="module-one.remote.globus">
 <span id="one-remote-globus"></span><h1>one.remote.globus<a class="headerlink" href="#module-one.remote.globus" title="Permalink to this heading"></a></h1>
-<p>A module for handling file operations through the Globus SDK</p>
+<p>A module for handling file operations through the Globus SDK.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<p>To set up Globus simply instantiate the <cite>Globus</cite> class for the first time and follow the prompts.
+Providing a client name string to the constructor allows one to set up multiple Globus clients
+(i.e. when switching between different Globus client IDs).</p>
+<p class="rubric">Examples</p>
+<p>Asynchronously transfer data between Alyx repositories</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alyx</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">&#39;flatiron_cortexlab&#39;</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">&#39;cortex_lab_SR&#39;</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;flatiron_cortexlab&#39;</span><span class="p">,</span> <span class="s1">&#39;cortex_lab_SR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Synchronously transfer data to an alternate local location</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">root_path</span> <span class="o">=</span> <span class="s1">&#39;/path/to/new/location&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">get_local_endpoint_id</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;alternate_local&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">root_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">&#39;camera/ZFM-01867/2021-03-23/002&#39;</span>  <span class="c1"># An example folder to download</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;integration&#39;</span><span class="p">,</span> <span class="s1">&#39;integration_local&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">label</span><span class="o">=</span><span class="s1">&#39;alternate data&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>  <span class="c1"># Submit task to Globus and await completion</span>
+</pre></div>
+</div>
+<p>Temporarily change local data root path and synchronously download file</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/path/to/new/location&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;path/to/file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;source_endpoint&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/new/location/path/to/file.ext&#39;)</span>
+</pre></div>
+</div>
+</section>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -206,7 +237,7 @@ In order to use this function you need:</p>
 <dd class="field-odd"><p>The local Globus endpoint ID</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>str</p>
+<dd class="field-even"><p>uuid.UUID</p>
 </dd>
 </dl>
 </dd></dl>
@@ -271,17 +302,22 @@ the OS home dir.</p></li>
 on a Linux computer a remote Windows should first be made into a PureWindowsPath.</p></li>
 </ul>
 <p class="rubric">Examples</p>
-<p>A Windows path</p>
+<p>A Windows path (on Windows OS)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;E:\FlatIron\integration&#39;</span><span class="p">)</span>
 <span class="go">&#39;/E/FlatIron/integration&#39;</span>
 </pre></div>
 </div>
-<p>A relative POSIX path</p>
+<p>When explicitly a POSIX path, remains unchanged</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;E:\FlatIron\integration&#39;</span><span class="p">))</span>
+<span class="go">&#39;E:\FlatIron\integration&#39;</span>
+</pre></div>
+</div>
+<p>A relative POSIX path (on <a href="#id1"><span class="problematic" id="id2">*</span></a>nix OS)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;../data/integration&#39;</span><span class="p">)</span>
 <span class="go">&#39;/mnt/data/integration&#39;</span>
 </pre></div>
 </div>
-<p>A globus path</p>
+<p>A valid Globus path remains unchanged</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;/E/FlatIron/integration&#39;</span><span class="p">)</span>
 <span class="go">&#39;/E/FlatIron/integration&#39;</span>
 </pre></div>
@@ -294,21 +330,111 @@ on a Linux computer a remote Windows should first be made into a PureWindowsPath
 <dd><p>Bases: <a class="reference internal" href="one.remote.base.html#one.remote.base.DownloadClient" title="one.remote.base.DownloadClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">DownloadClient</span></code></a></p>
 <p>Wrapper for managing files on Globus endpoints.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.fetch_endpoints_from_alyx">
+<span class="sig-name descname"><span class="pre">fetch_endpoints_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.fetch_endpoints_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.fetch_endpoints_from_alyx" title="Permalink to this definition"></a></dt>
+<dd><p>Update endpoints property with Alyx Globus data repositories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>one.webclient.AlyxClient</em></a>) – An optional AlyxClient.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – Whether existing endpoint with the same label should be replaced.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The endpoints added from Alyx.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.to_address">
 <span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.to_address" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the remote data URL for a given ALF path</p>
+<dd><p>Get full path for a given endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>Path</em><em>, </em><em>PurePath</em><em>, </em><em>str</em>) – An absolute or relative POSIX path</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – An endpoint label or UUID.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A complete path string formatted for Globus.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">&#39;0ec47586-3a19-11eb-b173-0ee0d5d9299f&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="s1">&#39;bar/baz.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+<span class="go">&#39;/foo/bar/baz.ext&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.download_file">
-<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.download_file" title="Permalink to this definition"></a></dt>
-<dd><p>Download an ALF dataset given its address</p>
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.download_file" title="Permalink to this definition"></a></dt>
+<dd><p>Download one or more files via Globus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_address</strong> (<em>str</em><em>, </em><em>list</em><em> of </em><em>str</em>) – One or more relative POSIX paths to download.</p></li>
+<li><p><strong>source_endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The source endpoint name or uuid.</p></li>
+<li><p><strong>recursive</strong> (<em>bool</em>) – If true, transfer the contents of nested directories (NB: all data_paths must be
+directories).</p></li>
+<li><p><strong>**kwargs</strong> – See Globus.transfer_data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The downloaded file path(s). If recursive is True, a list is always returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path, list of pathlib.Path</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Assumes that the local endpoint root path is NOT POSIX style on Windows.</p></li>
+</ul>
+<p>TODO Return None for failed files</p>
+<p class="rubric">Examples</p>
+<p>Download a single file</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;0ec47586-3a19-11eb-b173-0ee0d5d9299f&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Download multiple files and verify checksum</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;relative/file/path.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;source_endpoint_name&#39;</span><span class="p">,</span> <span class="n">verify_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Download a folder</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;folder/path&#39;</span><span class="p">,</span> <span class="s1">&#39;source_endpoint_name&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.setup">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.setup" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup a Globus client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>client_name</strong> (<em>str</em>) – Parameter profile name to set up e.g. ‘default’, ‘admin’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Globus client object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#one.remote.globus.Globus" title="one.remote.globus.Globus">Globus</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.add_endpoint">
@@ -322,10 +448,49 @@ on a Linux computer a remote Windows should first be made into a PureWindowsPath
 optional.</p></li>
 <li><p><strong>root_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – File path to be accessed by Globus on the endpoint.</p></li>
 <li><p><strong>overwrite</strong> (<em>bool</em>) – Whether existing endpoint with the same label should be replaced.</p></li>
-<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>webclient.AlyxClient</em></a>) – An AlyxClient instance for looking up repository information.</p></li>
+<li><p><strong>alyx</strong> (<a class="reference internal" href="one.webclient.html#one.webclient.AlyxClient" title="one.webclient.AlyxClient"><em>one.webclient.AlyxClient</em></a>) – An AlyxClient instance for looking up repository information.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.remote.globus.Globus.transfer_data">
+<span class="sig-name descname"><span class="pre">transfer_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.transfer_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.transfer_data" title="Permalink to this definition"></a></dt>
+<dd><p>Transfer one or more paths between endpoints.</p>
+<p>At least one of the endpoints must be a server endpoint.  Both file and directory paths may
+be provided, however if recursive is true, all paths must be directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em><em>, </em><em>list</em><em> of </em><em>str</em>) – One or more data paths, relative to the endpoint root path.</p></li>
+<li><p><strong>source_endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The name or UUID of the source endpoint.</p></li>
+<li><p><strong>destination_endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The name or UUID of the destination endpoint.</p></li>
+<li><p><strong>recursive</strong> (<em>bool</em>) – If true, transfer the contents of nested directories (NB: all data_paths must be
+directories).</p></li>
+<li><p><strong>**kwargs</strong> – See globus_sdk.TransferData.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Globus transfer ID.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>uuid.UUID</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Transfer two files (asynchronous)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;source_endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;destination_endpoint&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Transfer a folder (asynchronous)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">&#39;path/to/folder&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;source_endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;destination_endpoint&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -376,7 +541,7 @@ is a UUID, the path must be absolute.</p></li>
 <dd class="field-even"><p>A Globus task ID.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-odd"><p>uuid.UUID</p>
 </dd>
 </dl>
 </dd></dl>
@@ -389,7 +554,7 @@ globus_func needs to submit a task to the client and return a task_id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>globus_func</strong> (<em>function</em>) – A function that returns a Globus task ID, typically it will submit a transfer.</p></li>
+<li><p><strong>globus_func</strong> (<em>function</em><em>, </em><em>Callable</em>) – A function that returns a Globus task ID, typically it will submit a transfer.</p></li>
 <li><p><strong>retries</strong> (<em>int</em>) – The number of times to call globus_func if it raises a Globus error.</p></li>
 <li><p><strong>timeout</strong> (<em>int</em>) – Maximum time in seconds to wait for the task to complete.</p></li>
 </ul>
@@ -398,10 +563,13 @@ globus_func needs to submit a task to the client and return a task_id.</p>
 <dd class="field-even"><p>Globus task ID.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-odd"><p>uuid.UUID</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>IOError</strong> – Timed out waiting for task to complete.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>IOError</strong> – Timed out waiting for task to complete.</p></li>
+<li><p><strong>TODO Add a quick fail option that returns when files missing</strong><strong>, </strong><strong>etc.</strong> – </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

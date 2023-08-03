@@ -104,13 +104,50 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.remote.globus</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A module for handling file operations through the Globus SDK&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;A module for handling file operations through the Globus SDK.</span>
+
+<span class="sd">Setup</span>
+<span class="sd">-----</span>
+
+<span class="sd">To set up Globus simply instantiate the `Globus` class for the first time and follow the prompts.</span>
+<span class="sd">Providing a client name string to the constructor allows one to set up multiple Globus clients</span>
+<span class="sd">(i.e. when switching between different Globus client IDs).</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">Asynchronously transfer data between Alyx repositories</span>
+
+<span class="sd">&gt;&gt;&gt; alyx = AlyxClient()</span>
+<span class="sd">&gt;&gt;&gt; glo = Globus(&#39;admin&#39;)</span>
+<span class="sd">&gt;&gt;&gt; glo.add_endpoint(&#39;flatiron_cortexlab&#39;, alyx=alyx)</span>
+<span class="sd">&gt;&gt;&gt; glo.add_endpoint(&#39;cortex_lab_SR&#39;, alyx=alyx)</span>
+<span class="sd">&gt;&gt;&gt; task_id = glo.transfer_data(&#39;path/to/file&#39;, &#39;flatiron_cortexlab&#39;, &#39;cortex_lab_SR&#39;)</span>
+
+<span class="sd">Synchronously transfer data to an alternate local location</span>
+
+<span class="sd">&gt;&gt;&gt; from functools import partial</span>
+<span class="sd">&gt;&gt;&gt; root_path = &#39;/path/to/new/location&#39;</span>
+<span class="sd">&gt;&gt;&gt; glo.add_endpoint(get_local_endpoint_id(), label=&#39;alternate_local&#39;, root_path=root_path)</span>
+<span class="sd">&gt;&gt;&gt; folder = &#39;camera/ZFM-01867/2021-03-23/002&#39;  # An example folder to download</span>
+<span class="sd">&gt;&gt;&gt; task = partial(glo.transfer_data, folder, &#39;integration&#39;, &#39;integration_local&#39;,</span>
+<span class="sd">...                label=&#39;alternate data&#39;, recursive=True)</span>
+<span class="sd">&gt;&gt;&gt; task_id = glo.run_task(task)  # Submit task to Globus and await completion</span>
+
+<span class="sd">Temporarily change local data root path and synchronously download file</span>
+
+<span class="sd">&gt;&gt;&gt; glo.endpoints[&#39;local&#39;][&#39;root_path&#39;] = &#39;/path/to/new/location&#39;</span>
+<span class="sd">&gt;&gt;&gt; file = glo.download_file(&#39;path/to/file.ext&#39;, &#39;source_endpoint&#39;)</span>
+<span class="sd">Path(&#39;/path/to/new/location/path/to/file.ext&#39;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
 <span class="kn">import</span> <span class="nn">globus_sdk</span>
 <span class="kn">from</span> <span class="nn">globus_sdk</span> <span class="kn">import</span> <span class="n">TransferAPIError</span><span class="p">,</span> <span class="n">GlobusAPIError</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">,</span> <span class="n">GlobusTimeoutError</span><span class="p">,</span> \
@@ -121,6 +158,7 @@
 <span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">remove_uuid_string</span>
 <span class="kn">import</span> <span class="nn">one.params</span>
 <span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
+<span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">DownloadClient</span><span class="p">,</span> <span class="n">load_client_params</span><span class="p">,</span> <span class="n">save_client_params</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -180,8 +218,8 @@
             <span class="s1">&#39;Cannot find local endpoint ID. Beware that this might mean that Globus Connect &#39;</span>
             <span class="s1">&#39;is not set up properly.&#39;</span><span class="p">)</span>
     <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">default_endpoint</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Globus local endpoint ID is a required field&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Globus local endpoint ID must be a UUID version 1 or 2&#39;</span><span class="p">)</span>
 
     <span class="c1"># Check for local path</span>
     <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Please enter the local endpoint path&#39;</span>
@@ -240,7 +278,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    str</span>
+<span class="sd">    uuid.UUID</span>
 <span class="sd">        The local Globus endpoint ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot find local endpoint ID, check if Globus Connect is set up correctly, &#39;</span>
@@ -255,7 +293,7 @@
     <span class="n">local_id</span> <span class="o">=</span> <span class="n">id_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_file</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found local endpoint ID in Globus Connect settings </span><span class="si">{</span><span class="n">local_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">local_id</span></div>
+    <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">local_id</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_local_endpoint_paths"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.get_local_endpoint_paths">[docs]</a><span class="k">def</span> <span class="nf">get_local_endpoint_paths</span><span class="p">():</span>
@@ -336,17 +374,22 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    A Windows path</span>
+<span class="sd">    A Windows path (on Windows OS)</span>
 
 <span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;E:\\FlatIron\\integration&#39;)</span>
 <span class="sd">    &#39;/E/FlatIron/integration&#39;</span>
 
-<span class="sd">    A relative POSIX path</span>
+<span class="sd">    When explicitly a POSIX path, remains unchanged</span>
+
+<span class="sd">    &gt;&gt;&gt; as_globus_path(PurePosixPath(&#39;E:\\FlatIron\\integration&#39;))</span>
+<span class="sd">    &#39;E:\\FlatIron\\integration&#39;</span>
+
+<span class="sd">    A relative POSIX path (on *nix OS)</span>
 
 <span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;../data/integration&#39;)</span>
 <span class="sd">    &#39;/mnt/data/integration&#39;</span>
 
-<span class="sd">    A globus path</span>
+<span class="sd">    A valid Globus path remains unchanged</span>
 
 <span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;/E/FlatIron/integration&#39;)</span>
 <span class="sd">    &#39;/E/FlatIron/integration&#39;</span>
@@ -371,24 +414,162 @@
 <div class="viewcode-block" id="Globus"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus">[docs]</a><span class="k">class</span> <span class="nc">Globus</span><span class="p">(</span><span class="n">DownloadClient</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for managing files on Globus endpoints.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrapper for managing files on Globus endpoints.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client_name : str</span>
+<span class="sd">            Parameter profile name to load e.g. &#39;default&#39;, &#39;admin&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Setting up transfer client</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">create_globus_client</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="n">client_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="c1"># Try adding local endpoint</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">local_endpoint</span><span class="p">}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">local_endpoint</span><span class="p">)}}</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding local endpoint.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">local_path</span>
 
-<div class="viewcode-block" id="Globus.to_address"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.to_address">[docs]</a>    <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
-        <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
+<div class="viewcode-block" id="Globus.fetch_endpoints_from_alyx"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.fetch_endpoints_from_alyx">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_endpoints_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update endpoints property with Alyx Globus data repositories.</span>
 
-<div class="viewcode-block" id="Globus.download_file"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">):</span>
-        <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alyx : one.webclient.AlyxClient</span>
+<span class="sd">            An optional AlyxClient.</span>
+<span class="sd">        overwrite : bool</span>
+<span class="sd">            Whether existing endpoint with the same label should be replaced.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The endpoints added from Alyx.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span> <span class="ow">or</span> <span class="n">AlyxClient</span><span class="p">()</span>
+        <span class="n">alyx_endpoints</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="n">alyx_endpoints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">endpoint</span><span class="p">[</span><span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">endpoint</span><span class="p">[</span><span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span>
+                <span class="n">uid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">endpoint</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">root_path</span><span class="o">=</span><span class="n">endpoint</span><span class="p">[</span><span class="s1">&#39;globus_path&#39;</span><span class="p">],</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span>
+            <span class="p">)</span>
+        <span class="n">endpoint_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">alyx_endpoints</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">endpoint_names</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Globus.to_address"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.to_address">[docs]</a>    <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get full path for a given endpoint.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_path : Path, PurePath, str</span>
+<span class="sd">            An absolute or relative POSIX path</span>
+<span class="sd">        endpoint : str, uuid.UUID</span>
+<span class="sd">            An endpoint label or UUID.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A complete path string formatted for Globus.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; glo = Globus()</span>
+<span class="sd">        &gt;&gt;&gt; glo.add_endpoint(&#39;0ec47586-3a19-11eb-b173-0ee0d5d9299f&#39;,</span>
+<span class="sd">        ...                  label=&#39;foobar&#39;, root_path=&#39;/foo&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; glo.to_address(&#39;bar/baz.ext&#39;, &#39;foobar&#39;)</span>
+<span class="sd">        &#39;/foo/bar/baz.ext&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">root_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">root_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Globus.download_file"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download one or more files via Globus.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_address : str, list of str</span>
+<span class="sd">            One or more relative POSIX paths to download.</span>
+<span class="sd">        source_endpoint : str, uuid.UUID</span>
+<span class="sd">            The source endpoint name or uuid.</span>
+<span class="sd">        recursive : bool</span>
+<span class="sd">            If true, transfer the contents of nested directories (NB: all data_paths must be</span>
+<span class="sd">            directories).</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            See Globus.transfer_data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pathlib.Path, list of pathlib.Path</span>
+<span class="sd">            The downloaded file path(s). If recursive is True, a list is always returned.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Assumes that the local endpoint root path is NOT POSIX style on Windows.</span>
+
+<span class="sd">        TODO Return None for failed files</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Download a single file</span>
+
+<span class="sd">        &gt;&gt;&gt; file = Globus().download_file(&#39;path/to/file&#39;, &#39;0ec47586-3a19-11eb-b173-0ee0d5d9299f&#39;)</span>
+
+<span class="sd">        Download multiple files and verify checksum</span>
+
+<span class="sd">        &gt;&gt;&gt; files = [&#39;relative/file/path.ext&#39;, &#39;foo.bar&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; files = Globus().download_file(files, &#39;source_endpoint_name&#39;, verify_checksum=True)</span>
+
+<span class="sd">        Download a folder</span>
+
+<span class="sd">        &gt;&gt;&gt; files = Globus().download_file(&#39;folder/path&#39;, &#39;source_endpoint_name&#39;, recursive=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">return_single</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_address</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">recursive</span> <span class="ow">is</span> <span class="kc">False</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;ONE download&#39;</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span>
+                       <span class="n">sync_level</span><span class="o">=</span><span class="s1">&#39;mtime&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">])</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">root</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="p">(</span><span class="n">task_id</span><span class="p">):</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;destination_path&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">return_single</span><span class="p">:</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">file</span>
+
+        <span class="c1"># Order files by input</span>
+        <span class="k">def</span> <span class="nf">_best_match</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return the index of the input file that best matches downloaded file.&quot;&quot;&quot;</span>
+            <span class="n">spans</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">frag</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">file_address</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="n">spans</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">spans</span><span class="p">))</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_best_match</span><span class="p">)))</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">exists</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">files</span></div>
 
 <div class="viewcode-block" id="Globus.setup"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.setup">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup a Globus client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client_name : str</span>
+<span class="sd">            Parameter profile name to set up e.g. &#39;default&#39;, &#39;admin&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Globus</span>
+<span class="sd">            A new Globus client object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">setup</span><span class="p">(</span><span class="n">client_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Globus</span><span class="p">(</span><span class="n">client_name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Globus.add_endpoint"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.add_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">add_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -405,16 +586,16 @@
 <span class="sd">            File path to be accessed by Globus on the endpoint.</span>
 <span class="sd">        overwrite : bool</span>
 <span class="sd">            Whether existing endpoint with the same label should be replaced.</span>
-<span class="sd">        alyx : webclient.AlyxClient</span>
+<span class="sd">        alyx : one.webclient.AlyxClient</span>
 <span class="sd">            An AlyxClient instance for looking up repository information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,)):</span>  <span class="c1"># MAC address UUID</span>
+        <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>  <span class="c1"># MAC address UUID</span>
             <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;If &quot;endpoint&quot; is a UUID, &quot;label&quot; cannot be None.&#39;</span><span class="p">)</span>
-            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_from_alyx</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
-            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="n">repo</span><span class="p">[</span><span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">]</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">repo</span><span class="p">[</span><span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">])</span>
             <span class="n">root_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="ow">or</span> <span class="n">repo</span><span class="p">[</span><span class="s1">&#39;globus_path&#39;</span><span class="p">]</span>
             <span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">endpoint</span>
         <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">overwrite</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -429,6 +610,7 @@
     <span class="k">def</span> <span class="nf">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an absolute path or relative path with a root path, return a Globus path str.</span>
+
 <span class="sd">        Note: Paths must be POSIX or Globus-compliant paths.  In other words for Windows systems</span>
 <span class="sd">        the input root_path or absolute path must be passed through `as_globus_path` before</span>
 <span class="sd">        calling this method.</span>
@@ -465,20 +647,177 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> is relative and no root_path defined&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_ensure_uuid</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensures UUID object returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        uid : str, uuid.UUID</span>
+<span class="sd">            A UUID to cast to UUID object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        uuid.UUID</span>
+<span class="sd">            A UUID object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">UUID</span><span class="p">)</span> <span class="k">else</span> <span class="n">uid</span>
+
     <span class="k">def</span> <span class="nf">_endpoint_id_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return endpoint UUID and root path from a given endpoint identifier.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str, uuid.UUID</span>
+<span class="sd">            An endpoint label or UUID.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        uuid.UUID</span>
+<span class="sd">            The endpoint UUID.</span>
+<span class="sd">        str, None</span>
+<span class="sd">            The POSIX-style endpoint root path (if defined).</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        UserWarning</span>
+<span class="sd">            If endpoint UUID is associated with multiple root paths, it is better to provide the</span>
+<span class="sd">            endpoint label to avoid this warning and to ensure the intended root path is returned.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        Globus._sanitize_local</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">root_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">endpoint_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">&#39;root_path&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">root_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span>
+                <span class="n">root_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_local</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)):</span>
-            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="n">endpoint</span>
-            <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="c1"># If a UUID was provided, find the first endpoint with a root path with the UUID</span>
+            <span class="n">endpoint_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+            <span class="n">matching</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">endpoint_id</span> <span class="ow">and</span> <span class="s1">&#39;root_path&#39;</span> <span class="ow">in</span> <span class="n">v</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">(</span><span class="n">matching</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="c1"># Warn of ambiguity if multiple endpoints share a UUID</span>
+                <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="n">matching</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Multiple endpoints added with the same UUID, &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;using root path from &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+                <span class="n">root_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">root_path</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_local</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;&quot;endpoint&quot; must be a UUID or the label of an endpoint registered in this &#39;</span>
                 <span class="s1">&#39;Globus instance. You can add endpoints via the add_endpoints method&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_sanitize_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure local root path on Windows is POSIX-style.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint_id : uuid.UUID</span>
+<span class="sd">            The endpoint UUID to determine if root path is local.</span>
+<span class="sd">        root_path : pathlib.Path, str, None</span>
+<span class="sd">            The root path to sanitize.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        endpoint_id : uuid.UUID</span>
+<span class="sd">            The endpoint UUID, returned unchanged to match `Globus._endpoint_id_root` signature.</span>
+<span class="sd">        str, None</span>
+<span class="sd">            The root path as a POSIX style string, or None if root_path is None.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Providing a local root path on Windows</span>
+
+<span class="sd">        &gt;&gt;&gt; glo = Globus()</span>
+<span class="sd">        &gt;&gt;&gt; uid = glo.endpoints[&#39;local&#39;][&#39;id&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; glo._sanitize_local(uid, &#39;C:\\Data&#39;)</span>
+<span class="sd">        UUID(&#39;50282ed5-3124-11ee-b977-482ae33bf6ca&#39;), &#39;/C/Data&#39;</span>
+
+<span class="sd">        Path left unchanged on *nix systems or when endpoint ID is not local</span>
+
+<span class="sd">        &gt;&gt;&gt; uid = UUID(&#39;c7c46cec-3124-11ee-bf50-482ae33bf6ca&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; glo._sanitize_local(uid, &#39;C:\\Data&#39;)</span>
+<span class="sd">        UUID(&#39;c7c46cec-3124-11ee-bf50-482ae33bf6ca&#39;), &#39;C:\\Data&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">root_path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="c1"># If the local root path is not explicitly a Windows Path and we&#39;re on windows, make sure</span>
+        <span class="c1"># it&#39;s converted correctly to a POSIX style path</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">is_win</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">endpoint_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">is_win</span><span class="p">:</span>
+                <span class="n">root_path</span> <span class="o">=</span> <span class="n">PureWindowsPath</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">root_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">as_globus_path</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Globus.transfer_data"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.transfer_data">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">destination_endpoint</span><span class="p">,</span>
+                      <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer one or more paths between endpoints.</span>
+
+<span class="sd">        At least one of the endpoints must be a server endpoint.  Both file and directory paths may</span>
+<span class="sd">        be provided, however if recursive is true, all paths must be directories.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_path : str, list of str</span>
+<span class="sd">            One or more data paths, relative to the endpoint root path.</span>
+<span class="sd">        source_endpoint : str, uuid.UUID</span>
+<span class="sd">            The name or UUID of the source endpoint.</span>
+<span class="sd">        destination_endpoint : str, uuid.UUID</span>
+<span class="sd">            The name or UUID of the destination endpoint.</span>
+<span class="sd">        recursive : bool</span>
+<span class="sd">            If true, transfer the contents of nested directories (NB: all data_paths must be</span>
+<span class="sd">            directories).</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            See globus_sdk.TransferData.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        uuid.UUID</span>
+<span class="sd">            The Globus transfer ID.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Transfer two files (asynchronous)</span>
+
+<span class="sd">        &gt;&gt;&gt; glo = Globus()</span>
+<span class="sd">        &gt;&gt;&gt; files = [&#39;file.ext&#39;, &#39;foo.bar&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; task_id = glo.transfer_data(files, &#39;source_endpoint&#39;, &#39;destination_endpoint&#39;)</span>
+
+<span class="sd">        Transfer a folder (asynchronous)</span>
+
+<span class="sd">        &gt;&gt;&gt; folder = &#39;path/to/folder&#39;</span>
+<span class="sd">        &gt;&gt;&gt; task_id = glo.transfer_data(</span>
+<span class="sd">        ...    folder, &#39;source_endpoint&#39;, &#39;destination_endpoint&#39;, recursive=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;source_endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">source_endpoint</span>
+                                     <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+                                     <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">)[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;destination_endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">destination_endpoint</span>
+                                          <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">destination_endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+                                          <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">destination_endpoint</span><span class="p">)[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+        <span class="n">transfer_object</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># add any number of items to the submission data</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">destination_endpoint</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">transfer_object</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="p">(</span><span class="n">transfer_object</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Globus.ls"><a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove_uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -554,7 +893,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        int</span>
+<span class="sd">        uuid.UUID</span>
 <span class="sd">            A Globus task ID.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">source_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">)</span>
@@ -581,10 +920,9 @@
 <span class="sd">        Block until a Globus task finishes and retry upon Network or REST Errors.</span>
 <span class="sd">        globus_func needs to submit a task to the client and return a task_id.</span>
 
-
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        globus_func : function</span>
+<span class="sd">        globus_func : function, Callable</span>
 <span class="sd">            A function that returns a Globus task ID, typically it will submit a transfer.</span>
 <span class="sd">        retries : int</span>
 <span class="sd">            The number of times to call globus_func if it raises a Globus error.</span>
@@ -593,16 +931,19 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        int</span>
+<span class="sd">        uuid.UUID</span>
 <span class="sd">            Globus task ID.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        IOError</span>
 <span class="sd">            Timed out waiting for task to complete.</span>
+
+<span class="sd">        TODO Add a quick fail option that returns when files missing, etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">task_id</span> <span class="o">=</span> <span class="n">globus_func</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="s1">&#39;invalid UUID returned&#39;</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Waiting for Globus task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s1"> to complete&#39;</span><span class="p">)</span>
             <span class="c1"># While the task with task is active, print a dot every second. Timeout after timeout</span>
             <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
@@ -630,7 +971,7 @@
                                     <span class="sa">f</span><span class="s1">&#39;unsuccessful&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Globus task finished unsuccessfully with status </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">task_id</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_uuid</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">GlobusAPIError</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">,</span> <span class="n">GlobusTimeoutError</span><span class="p">,</span> <span class="n">GlobusConnectionError</span><span class="p">,</span>
                 <span class="n">GlobusConnectionTimeoutError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">retries</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>

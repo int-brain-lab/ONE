@@ -121,7 +121,6 @@
 <span class="sd"> address by precedence.  NB: OneAlyx._download_dataset uses record2url then calls</span>
 <span class="sd"> AlyxClient.download_file.</span>
 <span class="sd">TODO Could have .one/.params file that stores ONE state, including whether files are distributed?</span>
-<span class="sd">TODO Release changes to alyx repo first</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -162,9 +161,9 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    FileNotFoundError</span>
-<span class="sd">        No one/remote JSON file found</span>
+<span class="sd">        No one/remote JSON file found.</span>
 <span class="sd">    AttributeError</span>
-<span class="sd">        Provided client key not present in one/remote params</span>
+<span class="sd">        Provided client key not present in one/remote params.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -201,14 +200,14 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    new_pars : dict, IBLParams</span>
-<span class="sd">        A set or subset or parameters to save</span>
+<span class="sd">        A set or subset or parameters to save.</span>
 <span class="sd">    client_key : str</span>
 <span class="sd">        An optional, specific client whose parameters to save.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If client_key is None, all parameter fields must hold dicts</span>
+<span class="sd">        If client_key is None, all parameter fields must hold dicts.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">client_key</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">new_pars</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -221,18 +220,18 @@
 
 
 <div class="viewcode-block" id="DownloadClient"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient">[docs]</a><span class="k">class</span> <span class="nc">DownloadClient</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data download handler base class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data download handler base class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="DownloadClient.to_address"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.to_address">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the remote data URL for a given ALF path&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the remote data URL for a given ALF path.&quot;&quot;&quot;</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
 
 <div class="viewcode-block" id="DownloadClient.download_file"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.download_file">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download an ALF dataset given its address&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download an ALF dataset given its address.&quot;&quot;&quot;</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
 
 <div class="viewcode-block" id="DownloadClient.setup"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.setup">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -242,7 +241,7 @@
 
 <div class="viewcode-block" id="DownloadClient.repo_from_alyx"><a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.repo_from_alyx">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">repo_from_alyx</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alyx</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data repository information for a given data repository&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data repository information for a given data repository.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
 </pre></div>
 
