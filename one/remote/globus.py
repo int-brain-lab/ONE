@@ -1,4 +1,39 @@
-"""A module for handling file operations through the Globus SDK"""
+"""A module for handling file operations through the Globus SDK.
+
+Setup
+-----
+
+To set up Globus simply instantiate the `Globus` class for the first time and follow the prompts.
+Providing a client name string to the constructor allows one to set up multiple Globus clients
+(i.e. when switching between different Globus client IDs).
+
+Examples
+--------
+
+Asynchronously transfer data between Alyx repositories
+
+>>> alyx = AlyxClient()
+>>> glo = Globus('admin')
+>>> glo.add_endpoint('flatiron_cortexlab', alyx=alyx)
+>>> glo.add_endpoint('cortex_lab_SR', alyx=alyx)
+>>> task_id = glo.transfer_data('path/to/file', 'flatiron_cortexlab', 'cortex_lab_SR')
+
+Synchronously transfer data to an alternate local location
+
+>>> from functools import partial
+>>> root_path = '/path/to/new/location'
+>>> glo.add_endpoint(get_local_endpoint_id(), label='alternate_local', root_path=root_path)
+>>> folder = 'camera/ZFM-01867/2021-03-23/002'  # An example folder to download
+>>> task = partial(glo.transfer_data, folder, 'integration', 'integration_local',
+...                label='alternate data', recursive=True)
+>>> task_id = glo.run_task(task)  # Submit task to Globus and await completion
+
+Temporarily change local data root path and synchronously download file
+
+>>> glo.endpoints['local']['root_path'] = '/path/to/new/location'
+>>> file = glo.download_file('path/to/file.ext', 'source_endpoint')
+Path('/path/to/new/location/path/to/file.ext')
+"""
 import os
 import re
 import sys
@@ -273,6 +308,14 @@ def as_globus_path(path):
 class Globus(DownloadClient):
     """Wrapper for managing files on Globus endpoints."""
     def __init__(self, client_name='default'):
+        """
+        Wrapper for managing files on Globus endpoints.
+
+        Parameters
+        ----------
+        client_name : str
+            Parameter profile name to load e.g. 'default', 'admin'.
+        """
         # Setting up transfer client
         super().__init__()
         self.client = create_globus_client(client_name=client_name)
@@ -282,8 +325,60 @@ class Globus(DownloadClient):
         _logger.info('Adding local endpoint.')
         self.endpoints['local']['root_path'] = self.pars.local_path
 
+    def fetch_endpoints_from_alyx(self, alyx=None, overwrite=False):
+        """
+        Update endpoints property with Alyx Globus data repositories.
+
+        Parameters
+        ----------
+        alyx : one.webclient.AlyxClient
+            An optional AlyxClient.
+        overwrite : bool
+            Whether existing endpoint with the same label should be replaced.
+
+        Returns
+        -------
+        dict
+            The endpoints added from Alyx.
+        """
+        alyx = alyx or AlyxClient()
+        alyx_endpoints = alyx.rest('data-repository', 'list')
+        for endpoint in alyx_endpoints:
+            if not endpoint['globus_endpoint_id']:
+                continue
+            uid = UUID(endpoint['globus_endpoint_id'])
+            self.add_endpoint(
+                uid, label=endpoint['name'], root_path=endpoint['globus_path'], overwrite=overwrite
+            )
+        endpoint_names = {e['name'] for e in alyx_endpoints}
+        return {k: v for k, v in self.endpoints.items() if k in endpoint_names}
+
     def to_address(self, data_path, endpoint):
-        pass  # pragma: no cover
+        """
+        Get full path for a given endpoint.
+
+        Parameters
+        ----------
+        data_path : Path, PurePath, str
+            An absolute or relative POSIX path
+        endpoint : str, uuid.UUID
+            An endpoint label or UUID.
+
+        Returns
+        -------
+        str
+            A complete path string formatted for Globus.
+
+        Examples
+        --------
+        >>> glo = Globus()
+        >>> glo.add_endpoint('0ec47586-3a19-11eb-b173-0ee0d5d9299f',
+        ...                  label='foobar', root_path='/foo')
+        >>> glo.to_address('bar/baz.ext', 'foobar')
+        '/foo/bar/baz.ext'
+        """
+        _, root_path = self._endpoint_id_root(endpoint)
+        return self._endpoint_path(data_path, root_path)
 
     def download_file(self, file_address, source_endpoint, recursive=False, **kwargs):
         """
@@ -311,6 +406,21 @@ class Globus(DownloadClient):
         - Assumes that the local endpoint root path is NOT POSIX style on Windows.
 
         TODO Return None for failed files
+
+        Examples
+        --------
+        Download a single file
+
+        >>> file = Globus().download_file('path/to/file', '0ec47586-3a19-11eb-b173-0ee0d5d9299f')
+
+        Download multiple files and verify checksum
+
+        >>> files = ['relative/file/path.ext', 'foo.bar']
+        >>> files = Globus().download_file(files, 'source_endpoint_name', verify_checksum=True)
+
+        Download a folder
+
+        >>> files = Globus().download_file('folder/path', 'source_endpoint_name', recursive=True)
         """
         return_single = isinstance(file_address, str) and recursive is False
         kwargs['label'] = kwargs.get('label', 'ONE download')
@@ -338,8 +448,22 @@ class Globus(DownloadClient):
         return files
 
     @staticmethod
-    def setup(*args, **kwargs):
-        pass  # pragma: no cover
+    def setup(client_name='default'):
+        """
+        Setup a Globus client.
+
+        Parameters
+        ----------
+        client_name : str
+            Parameter profile name to set up e.g. 'default', 'admin'.
+
+        Returns
+        -------
+        Globus
+            A new Globus client object.
+        """
+        setup(client_name)
+        return Globus(client_name)
 
     def add_endpoint(self, endpoint, label=None, root_path=None, overwrite=False, alyx=None):
         """
@@ -356,13 +480,13 @@ class Globus(DownloadClient):
             File path to be accessed by Globus on the endpoint.
         overwrite : bool
             Whether existing endpoint with the same label should be replaced.
-        alyx : webclient.AlyxClient
+        alyx : one.webclient.AlyxClient
             An AlyxClient instance for looking up repository information.
         """
         if is_uuid(endpoint, versions=(1, 2)):  # MAC address UUID
             if label is None:
                 raise ValueError('If "endpoint" is a UUID, "label" cannot be None.')
-            endpoint_id = UUID(endpoint)
+            endpoint_id = self._ensure_uuid(endpoint)
         else:
             repo = self.repo_from_alyx(endpoint, alyx=alyx)
             endpoint_id = UUID(repo['globus_endpoint_id'])
@@ -450,6 +574,12 @@ class Globus(DownloadClient):
         str, None
             The POSIX-style endpoint root path (if defined).
 
+        Warnings
+        --------
+        UserWarning
+            If endpoint UUID is associated with multiple root paths, it is better to provide the
+            endpoint label to avoid this warning and to ensure the intended root path is returned.
+
         See Also
         --------
         Globus._sanitize_local
@@ -461,10 +591,21 @@ class Globus(DownloadClient):
                 root_path = self.endpoints[endpoint]['root_path']
             return self._sanitize_local(endpoint_id, root_path)
         elif is_uuid(endpoint, range(1, 5)):
+            # If a UUID was provided, find the first endpoint with a root path with the UUID
             endpoint_id = self._ensure_uuid(endpoint)
-            matching = (v['root_path'] for v in self.endpoints.values()
-                        if v['id'] == endpoint_id and 'root_path' in v)
-            return self._sanitize_local(endpoint_id, next(matching, None))
+            matching = (
+                k for k, v in self.endpoints.items() if v['id'] == endpoint_id and 'root_path' in v
+            )
+            if name := next(matching, None):
+                # Warn of ambiguity if multiple endpoints share a UUID
+                if next(matching, None) is not None:
+                    warnings.warn(
+                        f'Multiple endpoints added with the same UUID, '
+                        f'using root path from "{name}"')
+                root_path = self.endpoints[name]['root_path']
+            else:
+                root_path = None
+            return self._sanitize_local(endpoint_id, root_path)
         else:
             raise ValueError(
                 '"endpoint" must be a UUID or the label of an endpoint registered in this '
@@ -505,10 +646,15 @@ class Globus(DownloadClient):
         """
         if not root_path:
             return endpoint_id, None
-        if endpoint_id == self.endpoints['local']['id'] and sys.platform in ('win32', 'cygwin'):
-            return endpoint_id, as_globus_path(root_path)
-        else:
-            return endpoint_id, str(root_path)
+        # If the local root path is not explicitly a Windows Path and we're on windows, make sure
+        # it's converted correctly to a POSIX style path
+        if isinstance(root_path, str):
+            is_win = sys.platform in ('win32', 'cygwin')
+            if endpoint_id == self.endpoints['local']['id'] and is_win:
+                root_path = PureWindowsPath(root_path)
+            else:
+                root_path = PurePosixPath(root_path)
+        return endpoint_id, as_globus_path(root_path)
 
     def transfer_data(self, data_path, source_endpoint, destination_endpoint,
                       recursive=False, **kwargs):
@@ -534,9 +680,23 @@ class Globus(DownloadClient):
 
         Returns
         -------
-        UUID
+        uuid.UUID
             The Globus transfer ID.
-       """
+
+        Examples
+        --------
+        Transfer two files (asynchronous)
+
+        >>> glo = Globus()
+        >>> files = ['file.ext', 'foo.bar']
+        >>> task_id = glo.transfer_data(files, 'source_endpoint', 'destination_endpoint')
+
+        Transfer a folder (asynchronous)
+
+        >>> folder = 'path/to/folder'
+        >>> task_id = glo.transfer_data(
+        ...    folder, 'source_endpoint', 'destination_endpoint', recursive=True)
+        """
         kwargs['source_endpoint'] = (source_endpoint
                                      if is_uuid(source_endpoint, versions=(1,))
                                      else self.endpoints.get(source_endpoint)['id'])

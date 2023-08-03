@@ -127,6 +127,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(alf_spec._dromedary('FooBarBaz'), 'fooBarBaz')
         self.assertEqual(alf_spec._dromedary('passive_RFM'), 'passiveRFM')
         self.assertEqual(alf_spec._dromedary('ROI Motion Energy'), 'ROIMotionEnergy')
+        self.assertEqual(alf_spec._dromedary(''), '')
 
     def test_readable_ALF(self):
         """Test for one.alf.spec.readableALF function."""

@@ -3,7 +3,7 @@ import logging
 import tempfile
 import unittest
 from unittest import mock
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import shutil
 from functools import partial
 from tempfile import TemporaryDirectory
@@ -181,13 +181,24 @@ class TestGlobus(unittest.TestCase):
         # "/E/FlatIron/integration"
         # Only test this on windows
         if sys.platform == 'win32':
-            actual = globus.as_globus_path('E:\\FlatIron\\integration')
-            self.assertTrue(actual.startswith('/E/'))
+            actual = globus.as_globus_path('/foo/bar')
+            self.assertEqual(actual, f'/{Path.cwd().drive[0]}/foo/bar')
 
-        # A globus path
-        actual = globus.as_globus_path('/E/FlatIron/integration')
-        expected = '/E/FlatIron/integration'
-        self.assertEqual(expected, actual)
+        # On all systems an explicit Windows path should be converted to a POSIX one
+        actual = globus.as_globus_path(PureWindowsPath('E:\\FlatIron\\integration'))
+        self.assertTrue(actual.startswith('/E/'))
+
+        # On all systems an explicit POSIX path should be left unchanged
+        actual = globus.as_globus_path(PurePosixPath('E:\\FlatIron\\integration'))
+        self.assertEqual(actual, 'E:\\FlatIron\\integration')
+
+        # A valid globus path should be unchanged
+        path = '/mnt/ibl'
+        actual = globus.as_globus_path(PurePosixPath(path))
+        self.assertEqual(actual, path)
+        path = '/E/FlatIron/integration'
+        actual = globus.as_globus_path(path)
+        self.assertEqual(actual, path)
 
     def test_get_local_endpoint_id(self):
         """Test for one.remote.globus.get_local_endpoint_id function."""
@@ -285,26 +296,52 @@ class TestGlobusClient(unittest.TestCase):
     @mock.patch('one.remote.globus.setup')
     def setUp(self, _) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
+        # The github CI root dir contains an alias/symlink so we must resolve it
+        self.root_path = Path(self.tempdir.name).resolve()
         self.addCleanup(self.tempdir.cleanup)
-        pars = iopar.from_dict({
+        self. pars = iopar.from_dict({
             'GLOBUS_CLIENT_ID': '123',
             'refresh_token': '456',
             'local_endpoint': str(ENDPOINT_ID),
-            'local_path': self.tempdir.name,
+            'local_path': str(self.root_path),
             'access_token': 'abc',
             'expires_at_seconds': 1636109267
         })
         self.globus_sdk_mock = mock.patch('one.remote.globus.globus_sdk')
         self.globus_sdk_mock.start()
         self.addCleanup(self.globus_sdk_mock.stop)
-        with mock.patch('one.remote.globus.load_client_params', return_value=pars):
+        with mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
             self.globus = globus.Globus()
 
     def test_constructor(self):
         """Test for Globus.__init__ method."""
         # self.assertEqual(self.client.client, self.globus_sdk_mock.TransferClient())
-        expected = {'local': {'id': ENDPOINT_ID, 'root_path': self.tempdir.name}}
+        expected = {'local': {'id': ENDPOINT_ID, 'root_path': str(self.root_path)}}
         self.assertDictEqual(self.globus.endpoints, expected)
+
+    def test_setup(self):
+        """Test for Globus.setup static method.
+
+        TestGlobus.test_setup tests the setup function. Here we just check it's called.
+        """
+        with mock.patch('one.remote.globus.setup') as setup_mock, \
+                mock.patch('one.remote.globus.create_globus_client'), \
+                mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
+            self.assertIsInstance(globus.Globus.setup(), globus.Globus)
+            setup_mock.assert_called_once()
+
+    def test_to_address(self):
+        """Test for Globus.to_address method."""
+        # Check with Windows path
+        root_path = PureWindowsPath(r'C:\root\path')
+        uid = uuid.uuid1()
+        # Check works with endpoint label
+        self.globus.add_endpoint(uid, label='data-repo', root_path=root_path)
+        addr = self.globus.to_address('path/to/file', 'data-repo')
+        self.assertEqual(addr, '/C/root/path/path/to/file')
+        # Check works with UUID
+        addr = self.globus.to_address('foo/bar', str(uid))
+        self.assertEqual(addr, '/C/root/path/foo/bar')
 
     def test_add_endpoint(self):
         """Test for Globus.add_endpoint method."""
@@ -340,6 +377,18 @@ class TestGlobusClient(unittest.TestCase):
         self.globus.add_endpoint(name, root_path='/', overwrite=True, alyx=ac)
         self.assertEqual(self.globus.endpoints[name]['root_path'], '/')
 
+    def test_fetch_endpoints_from_alyx(self):
+        """Test for Globus.fetch_endpoints_from_alyx method."""
+        alyx = AlyxClient(**TEST_DB_1)
+        uid = uuid.uuid1()
+        repos = [{'name': 'foo', 'globus_endpoint_id': '', 'globus_path': '/some/path'},
+                 {'name': 'bar', 'globus_endpoint_id': str(uid), 'globus_path': '/foo/path'}]
+        with mock.patch.object(alyx, 'rest', return_value=repos):
+            added = self.globus.fetch_endpoints_from_alyx(alyx)
+        # Repos without an endpoint ID should have been ignored
+        self.assertEqual(added, {'bar': {'id': uid, 'root_path': '/foo/path'}})
+        self.assertIn('bar', self.globus.endpoints)
+
     def test_endpoint_path(self):
         """Test for Globus._endpoint_path method."""
         expected = PurePosixPath('/mnt/foo/bar')
@@ -353,12 +402,20 @@ class TestGlobusClient(unittest.TestCase):
         """Test for Globus._endpoint_id_root method."""
         id, path = self.globus._endpoint_id_root('local')
         self.assertEqual(ENDPOINT_ID, id)
-        self.assertEqual(path, globus.as_globus_path(self.tempdir.name))
+        self.assertEqual(path, globus.as_globus_path(self.root_path))
 
+        # Check behaviour when endpoint not in list
         expected = uuid.uuid4()
         id, path = self.globus._endpoint_id_root(expected)
         self.assertEqual(expected, id)
         self.assertIsNone(path)
+
+        # Should warn when ambiguous
+        self.globus.add_endpoint(ENDPOINT_ID, label='foo', root_path='/foo/bar')
+        with self.assertWarns(UserWarning):
+            id, path = self.globus._endpoint_id_root(ENDPOINT_ID)
+        self.assertEqual(ENDPOINT_ID, id)
+        self.assertEqual(path, globus.as_globus_path(self.root_path))
 
         with self.assertRaises(ValueError):
             self.globus._endpoint_id_root('remote')
@@ -366,11 +423,11 @@ class TestGlobusClient(unittest.TestCase):
     def test_ls(self):
         """Test for Globus.ls method."""
         response = dict(
-            name=Path(self.tempdir.name, f'some.{uuid.uuid4()}.file').as_posix(),
+            name=Path(self.root_path, f'some.{uuid.uuid4()}.file').as_posix(),
             type='file', size=1024)
         err = globus_sdk.GlobusConnectionError('', ConnectionError)
         self.globus.client.operation_ls.side_effect = (err, [response])
-        path = globus.as_globus_path(self.tempdir.name)
+        path = globus.as_globus_path(self.root_path)
         out = self.globus.ls('local', path)
         self.assertEqual(2, self.globus.client.operation_ls.call_count)
         self.assertIsInstance(out[0], PurePosixPath)
@@ -392,8 +449,6 @@ class TestGlobusClient(unittest.TestCase):
         """Test for Globus.mv and Globus.run_task methods."""
         source = ('some.file', 'some2.file')
         destination = ('new.file', 'new2.file')
-        # Ensure root path is Globus compliant (required on Windows)
-        self.globus.endpoints['local']['root_path'] = globus.as_globus_path(self.tempdir.name)
         # Mock transfer output
         task_id = uuid.uuid1()
         self.globus.client.submit_transfer.return_value = {'task_id': str(task_id)}
@@ -474,7 +529,7 @@ class TestGlobusClient(unittest.TestCase):
         # create files on disk
         transferred = []
         for f in reversed(files):  # reversed to check files reordered
-            full_path = Path(self.tempdir.name, f)
+            full_path = self.root_path / f
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.touch()
             transferred.append({'destination_path': globus.as_globus_path(full_path)})
@@ -482,7 +537,7 @@ class TestGlobusClient(unittest.TestCase):
         self.globus.client.task_successful_transfers.return_value = transferred
         with mock.patch.object(self.globus, 'run_task', return_value=task_id):
             downloaded = self.globus.download_file(files, 'repo_01')
-        expected = list(map(Path(self.tempdir.name).joinpath, files))
+        expected = list(map(self.root_path.joinpath, files))
         self.assertEqual(downloaded, expected)  # asserts order of list identical
 
         # Behaviour should be similar when a folder is downloaded (i.e. recursive is True)
@@ -497,7 +552,7 @@ class TestGlobusClient(unittest.TestCase):
         self.assertIsInstance(downloaded, Path)
 
         # Should raise assertion error if file doesn't exist on disk (unlikely!)
-        Path(self.tempdir.name, files[0]).unlink()
+        self.root_path.joinpath(files[0]).unlink()
         self.globus.client.task_successful_transfers.return_value = transferred
         with mock.patch.object(self.globus, 'run_task', return_value=task_id):
             self.assertRaises(AssertionError, self.globus.download_file, files, 'repo_01')
