@@ -35,12 +35,12 @@ def recurse(func):
     Parameters
     ----------
     func : function
-        A method to decorate
+        A method to decorate.
 
     Returns
     -------
     function
-        The decorated method
+        The decorated method.
     """
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
@@ -346,23 +346,23 @@ class ConversionMixin:
     def eid2ref(self, eid: Union[str, Iter], as_dict=True, parse=True) \
             -> Union[str, Mapping, List]:
         """
-        Get human-readable session ref from path
+        Get human-readable session ref from path.
 
         Parameters
         ----------
         eid : str, uuid.UUID
-            The experiment uuid to find reference for
+            The experiment uuid to find reference for.
         as_dict : bool
-            If false a string is returned in the form 'subject_sequence_yyyy-mm-dd'
+            If false a string is returned in the form 'subject_sequence_yyyy-mm-dd'.
         parse : bool
             If true, the reference date and sequence are parsed from strings to their respective
-            data types
+            data types.
 
         Returns
         -------
         dict, str, list
             One or more objects with keys ('subject', 'date', 'sequence'), or strings with the
-            form yyyy-mm-dd_n_subject
+            form yyyy-mm-dd_n_subject.
 
         Examples
         --------
@@ -393,18 +393,18 @@ class ConversionMixin:
     @recurse
     def ref2eid(self, ref: Union[Mapping, str, Iter]) -> Union[str, List]:
         """
-        Returns experiment uuid, given one or more experiment references
+        Returns experiment uuid, given one or more experiment references.
 
         Parameters
         ----------
         ref : str, dict, list
             One or more objects with keys ('subject', 'date', 'sequence'), or strings with
-            the form yyyy-mm-dd_n_subject
+            the form yyyy-mm-dd_n_subject.
 
         Returns
         -------
         str, list
-            One or more experiment uuid strings
+            One or more experiment uuid strings.
 
         Examples
         --------
@@ -429,18 +429,18 @@ class ConversionMixin:
     @recurse
     def ref2path(self, ref):
         """
-        Convert one or more experiment references to session path(s)
+        Convert one or more experiment references to session path(s).
 
         Parameters
         ----------
         ref : str, dict, list
             One or more objects with keys ('subject', 'date', 'sequence'), or strings with
-            the form yyyy-mm-dd_n_subject
+            the form yyyy-mm-dd_n_subject.
 
         Returns
         -------
         pathlib.Path
-            Path object(s) for the experiment session(s)
+            Path object(s) for the experiment session(s).
 
         Examples
         --------
@@ -468,14 +468,14 @@ class ConversionMixin:
         Parameters
         ----------
         path_str : str
-            A path to a given session
+            A path to a given session.
         as_dict : bool
-            If True a Bunch is returned, otherwise a string
+            If True a Bunch is returned, otherwise a string.
 
         Returns
         -------
         dict, str, list
-            One or more objects with keys ('subject', 'date', 'sequence')
+            One or more objects with keys ('subject', 'date', 'sequence').
 
         Examples
         --------
@@ -500,18 +500,18 @@ class ConversionMixin:
     @staticmethod
     def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
         """
-        Returns True is ref is a valid experiment reference
+        Returns True is ref is a valid experiment reference.
 
         Parameters
         ----------
         ref : str, dict, list
             One or more objects with keys ('subject', 'date', 'sequence'), or strings with
-            the form yyyy-mm-dd_n_subject
+            the form yyyy-mm-dd_n_subject.
 
         Returns
         -------
         bool
-            True if ref is valid
+            True if ref is valid.
 
         Examples
         --------
@@ -537,17 +537,17 @@ class ConversionMixin:
     @parse_values
     def ref2dict(ref: Union[str, Mapping, Iter]) -> Union[Bunch, List]:
         """
-        Returns a Bunch (dict-like) from a reference string (or list thereof)
+        Returns a Bunch (dict-like) from a reference string (or list thereof).
 
         Parameters
         ----------
         ref : str, list
-            One or more experiment reference strings
+            One or more experiment reference strings.
 
         Returns
         -------
         iblutil.util.Bunch
-            A Bunch in with keys ('subject', 'sequence', 'date')
+            A Bunch in with keys ('subject', 'sequence', 'date').
 
         Examples
         --------
@@ -574,12 +574,12 @@ class ConversionMixin:
         Parameters
         ----------
         ref_dict : dict, Bunch, list, tuple
-            A map with the keys ('subject', 'date', 'sequence')
+            A map with the keys ('subject', 'date', 'sequence').
 
         Returns
         -------
         str, list:
-            An experiment reference string, or list thereof
+            An experiment reference string, or list thereof.
         """
         if isinstance(ref_dict, (list, tuple)):
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
@@ -600,14 +600,14 @@ def one_path_from_dataset(dset, one_cache):
     Parameters
     ----------
     dset : dict, list
-        Dataset dictionary or list of dictionaries from Alyx rest endpoint
+        Dataset dictionary or list of dictionaries from Alyx rest endpoint.
     one_cache : str, pathlib.Path, pathlib.PurePath
-        The local ONE data cache directory
+        The local ONE data cache directory.
 
     Returns
     -------
     pathlib.Path
-        The local path for a given dataset
+        The local path for a given dataset.
     """
     return path_from_dataset(dset, root_path=one_cache, uuid=False)
 
@@ -620,19 +620,19 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
     Parameters
     ----------
     dset : dict, list
-        Dataset dictionary or list of dictionaries from Alyx rest endpoint
+        Dataset dictionary or list of dictionaries from Alyx rest endpoint.
     root_path : str, pathlib.Path, pathlib.PurePath
-        The prefix path such as the ONE download directory or remote http server root
+        The prefix path such as the ONE download directory or remote http server root.
     repository : str, None
         Which data repository to use from the file_records list, defaults to first online
-        repository
+        repository.
     uuid : bool
-        If True, the file path will contain the dataset UUID
+        If True, the file path will contain the dataset UUID.
 
     Returns
     -------
     pathlib.Path, list
-        File path or list of paths
+        File path or list of paths.
     """
     if isinstance(dset, list):
         return [path_from_dataset(d) for d in dset]
@@ -653,16 +653,16 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
     Parameters
     ----------
     fr : dict
-        An Alyx file record dict
+        An Alyx file record dict.
     root_path : str, pathlib.Path
-        An optional root path
+        An optional root path.
     uuid : str, uuid.UUID
-        An optional dataset UUID to add to the file name
+        An optional dataset UUID to add to the file name.
 
     Returns
     -------
     pathlib.Path
-        A filepath as a pathlib object
+        A filepath as a pathlib object.
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]

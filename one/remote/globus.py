@@ -1,10 +1,47 @@
-"""A module for handling file operations through the Globus SDK"""
+"""A module for handling file operations through the Globus SDK.
+
+Setup
+-----
+
+To set up Globus simply instantiate the `Globus` class for the first time and follow the prompts.
+Providing a client name string to the constructor allows one to set up multiple Globus clients
+(i.e. when switching between different Globus client IDs).
+
+Examples
+--------
+
+Asynchronously transfer data between Alyx repositories
+
+>>> alyx = AlyxClient()
+>>> glo = Globus('admin')
+>>> glo.add_endpoint('flatiron_cortexlab', alyx=alyx)
+>>> glo.add_endpoint('cortex_lab_SR', alyx=alyx)
+>>> task_id = glo.transfer_data('path/to/file', 'flatiron_cortexlab', 'cortex_lab_SR')
+
+Synchronously transfer data to an alternate local location
+
+>>> from functools import partial
+>>> root_path = '/path/to/new/location'
+>>> glo.add_endpoint(get_local_endpoint_id(), label='alternate_local', root_path=root_path)
+>>> folder = 'camera/ZFM-01867/2021-03-23/002'  # An example folder to download
+>>> task = partial(glo.transfer_data, folder, 'integration', 'integration_local',
+...                label='alternate data', recursive=True)
+>>> task_id = glo.run_task(task)  # Submit task to Globus and await completion
+
+Temporarily change local data root path and synchronously download file
+
+>>> glo.endpoints['local']['root_path'] = '/path/to/new/location'
+>>> file = glo.download_file('path/to/file.ext', 'source_endpoint')
+Path('/path/to/new/location/path/to/file.ext')
+"""
 import os
 import re
 import sys
 import logging
+from uuid import UUID
 from pathlib import Path, PurePosixPath, PurePath, PureWindowsPath
 import warnings
+from functools import partial
 
 import globus_sdk
 from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
@@ -15,6 +52,7 @@ from one.alf.spec import is_uuid
 from one.alf.files import remove_uuid_string
 import one.params
 from one.webclient import AlyxClient
+from one.util import ensure_list
 from .base import DownloadClient, load_client_params, save_client_params
 
 _logger = logging.getLogger(__name__)
@@ -74,8 +112,8 @@ def setup(par_id=None):
             'Cannot find local endpoint ID. Beware that this might mean that Globus Connect '
             'is not set up properly.')
     pars['local_endpoint'] = input(message + ':').strip() or default_endpoint
-    if not pars['local_endpoint']:
-        raise ValueError('Globus local endpoint ID is a required field')
+    if not is_uuid(pars['local_endpoint'], (1, 2)):
+        raise ValueError('Globus local endpoint ID must be a UUID version 1 or 2')
 
     # Check for local path
     message = 'Please enter the local endpoint path'
@@ -134,7 +172,7 @@ def get_local_endpoint_id():
 
     Returns
     -------
-    str
+    uuid.UUID
         The local Globus endpoint ID
     """
     msg = ('Cannot find local endpoint ID, check if Globus Connect is set up correctly, '
@@ -149,7 +187,7 @@ def get_local_endpoint_id():
     local_id = id_file.read_text().strip()
     assert isinstance(local_id, str), msg.format(id_file)
     print(f'Found local endpoint ID in Globus Connect settings {local_id}')
-    return local_id
+    return UUID(local_id)
 
 
 def get_local_endpoint_paths():
@@ -214,33 +252,38 @@ def as_globus_path(path):
     Parameters
     ----------
     path : pathlib.Path, pathlib.PurePath, str
-        A path to convert to a Globus-complient path string
+        A path to convert to a Globus-complient path string.
 
     Returns
     -------
     str
-        A formatted path string
+        A formatted path string.
 
     Notes
     -----
     - If using tilda in path, the home folder of your Globus Connect instance must be the same as
       the OS home dir.
     - If validating a path for another system ensure the input path is a PurePath, in particular,
-    on a Linux computer a remote Windows should first be made into a PureWindowsPath.
+      on a Linux computer a remote Windows should first be made into a PureWindowsPath.
 
     Examples
     --------
-    A Windows path
+    A Windows path (on Windows OS)
 
     >>> as_globus_path('E:\\FlatIron\\integration')
     '/E/FlatIron/integration'
 
-    A relative POSIX path
+    When explicitly a POSIX path, remains unchanged
+
+    >>> as_globus_path(PurePosixPath('E:\\FlatIron\\integration'))
+    'E:\\FlatIron\\integration'
+
+    A relative POSIX path (on *nix OS)
 
     >>> as_globus_path('../data/integration')
     '/mnt/data/integration'
 
-    A globus path
+    A valid Globus path remains unchanged
 
     >>> as_globus_path('/E/FlatIron/integration')
     '/E/FlatIron/integration'
@@ -265,24 +308,162 @@ def as_globus_path(path):
 class Globus(DownloadClient):
     """Wrapper for managing files on Globus endpoints."""
     def __init__(self, client_name='default'):
+        """
+        Wrapper for managing files on Globus endpoints.
+
+        Parameters
+        ----------
+        client_name : str
+            Parameter profile name to load e.g. 'default', 'admin'.
+        """
         # Setting up transfer client
         super().__init__()
         self.client = create_globus_client(client_name=client_name)
         self.pars = load_client_params(f'{CLIENT_KEY}.{client_name}')
         # Try adding local endpoint
-        self.endpoints = {'local': {'id': self.pars.local_endpoint}}
+        self.endpoints = {'local': {'id': UUID(self.pars.local_endpoint)}}
         _logger.info('Adding local endpoint.')
         self.endpoints['local']['root_path'] = self.pars.local_path
 
-    def to_address(self, data_path, endpoint):
-        pass  # pragma: no cover
+    def fetch_endpoints_from_alyx(self, alyx=None, overwrite=False):
+        """
+        Update endpoints property with Alyx Globus data repositories.
 
-    def download_file(self, file_address):
-        pass  # pragma: no cover
+        Parameters
+        ----------
+        alyx : one.webclient.AlyxClient
+            An optional AlyxClient.
+        overwrite : bool
+            Whether existing endpoint with the same label should be replaced.
+
+        Returns
+        -------
+        dict
+            The endpoints added from Alyx.
+        """
+        alyx = alyx or AlyxClient()
+        alyx_endpoints = alyx.rest('data-repository', 'list')
+        for endpoint in alyx_endpoints:
+            if not endpoint['globus_endpoint_id']:
+                continue
+            uid = UUID(endpoint['globus_endpoint_id'])
+            self.add_endpoint(
+                uid, label=endpoint['name'], root_path=endpoint['globus_path'], overwrite=overwrite
+            )
+        endpoint_names = {e['name'] for e in alyx_endpoints}
+        return {k: v for k, v in self.endpoints.items() if k in endpoint_names}
+
+    def to_address(self, data_path, endpoint):
+        """
+        Get full path for a given endpoint.
+
+        Parameters
+        ----------
+        data_path : Path, PurePath, str
+            An absolute or relative POSIX path
+        endpoint : str, uuid.UUID
+            An endpoint label or UUID.
+
+        Returns
+        -------
+        str
+            A complete path string formatted for Globus.
+
+        Examples
+        --------
+        >>> glo = Globus()
+        >>> glo.add_endpoint('0ec47586-3a19-11eb-b173-0ee0d5d9299f',
+        ...                  label='foobar', root_path='/foo')
+        >>> glo.to_address('bar/baz.ext', 'foobar')
+        '/foo/bar/baz.ext'
+        """
+        _, root_path = self._endpoint_id_root(endpoint)
+        return self._endpoint_path(data_path, root_path)
+
+    def download_file(self, file_address, source_endpoint, recursive=False, **kwargs):
+        """
+        Download one or more files via Globus.
+
+        Parameters
+        ----------
+        file_address : str, list of str
+            One or more relative POSIX paths to download.
+        source_endpoint : str, uuid.UUID
+            The source endpoint name or uuid.
+        recursive : bool
+            If true, transfer the contents of nested directories (NB: all data_paths must be
+            directories).
+        **kwargs
+            See Globus.transfer_data.
+
+        Returns
+        -------
+        pathlib.Path, list of pathlib.Path
+            The downloaded file path(s). If recursive is True, a list is always returned.
+
+        Notes
+        -----
+        - Assumes that the local endpoint root path is NOT POSIX style on Windows.
+
+        TODO Return None for failed files
+
+        Examples
+        --------
+        Download a single file
+
+        >>> file = Globus().download_file('path/to/file', '0ec47586-3a19-11eb-b173-0ee0d5d9299f')
+
+        Download multiple files and verify checksum
+
+        >>> files = ['relative/file/path.ext', 'foo.bar']
+        >>> files = Globus().download_file(files, 'source_endpoint_name', verify_checksum=True)
+
+        Download a folder
+
+        >>> files = Globus().download_file('folder/path', 'source_endpoint_name', recursive=True)
+        """
+        return_single = isinstance(file_address, str) and recursive is False
+        kwargs['label'] = kwargs.get('label', 'ONE download')
+        task = partial(self.transfer_data, file_address, source_endpoint, 'local',
+                       sync_level='mtime', recursive=recursive, **kwargs)
+        task_id = self.run_task(task)
+        files = []
+        root = Path(self.endpoints['local']['root_path'])
+        idx = len(self._endpoint_path(PurePosixPath(as_globus_path(root))))
+        for info in self.client.task_successful_transfers(task_id):
+            files.append(info['destination_path'][idx:].strip('/'))
+
+        if return_single:
+            file = root / files[0]
+            assert file.exists()
+            return file
+
+        # Order files by input
+        def _best_match(x):
+            """Return the index of the input file that best matches downloaded file."""
+            spans = [len(frag) / len(x) if frag in x else 0 for frag in ensure_list(file_address)]
+            return spans.index(max(spans))
+        files = list(map(root.joinpath, sorted(files, key=_best_match)))
+        assert all(map(Path.exists, filter(None, files)))
+        return files
 
     @staticmethod
-    def setup(*args, **kwargs):
-        pass  # pragma: no cover
+    def setup(client_name='default'):
+        """
+        Setup a Globus client.
+
+        Parameters
+        ----------
+        client_name : str
+            Parameter profile name to set up e.g. 'default', 'admin'.
+
+        Returns
+        -------
+        Globus
+            A new Globus client object.
+        """
+        setup(client_name)
+        return Globus(client_name)
 
     def add_endpoint(self, endpoint, label=None, root_path=None, overwrite=False, alyx=None):
         """
@@ -299,16 +480,16 @@ class Globus(DownloadClient):
             File path to be accessed by Globus on the endpoint.
         overwrite : bool
             Whether existing endpoint with the same label should be replaced.
-        alyx : webclient.AlyxClient
+        alyx : one.webclient.AlyxClient
             An AlyxClient instance for looking up repository information.
         """
-        if is_uuid(endpoint, versions=(1,)):  # MAC address UUID
+        if is_uuid(endpoint, versions=(1, 2)):  # MAC address UUID
             if label is None:
                 raise ValueError('If "endpoint" is a UUID, "label" cannot be None.')
-            endpoint_id = str(endpoint)
+            endpoint_id = self._ensure_uuid(endpoint)
         else:
             repo = self.repo_from_alyx(endpoint, alyx=alyx)
-            endpoint_id = repo['globus_endpoint_id']
+            endpoint_id = UUID(repo['globus_endpoint_id'])
             root_path = root_path or repo['globus_path']
             label = label or endpoint
         if label in self.endpoints.keys() and overwrite is False:
@@ -323,6 +504,7 @@ class Globus(DownloadClient):
     def _endpoint_path(path, root_path=None):
         """
         Given an absolute path or relative path with a root path, return a Globus path str.
+
         Note: Paths must be POSIX or Globus-compliant paths.  In other words for Windows systems
         the input root_path or absolute path must be passed through `as_globus_path` before
         calling this method.
@@ -359,20 +541,177 @@ class Globus(DownloadClient):
             raise ValueError(f'{path} is relative and no root_path defined')
         return as_globus_path(path)
 
+    @staticmethod
+    def _ensure_uuid(uid):
+        """
+        Ensures UUID object returned.
+
+        Parameters
+        ----------
+        uid : str, uuid.UUID
+            A UUID to cast to UUID object.
+
+        Returns
+        -------
+        uuid.UUID
+            A UUID object.
+        """
+        return UUID(uid) if not isinstance(uid, UUID) else uid
+
     def _endpoint_id_root(self, endpoint):
+        """
+        Return endpoint UUID and root path from a given endpoint identifier.
+
+        Parameters
+        ----------
+        endpoint : str, uuid.UUID
+            An endpoint label or UUID.
+
+        Returns
+        -------
+        uuid.UUID
+            The endpoint UUID.
+        str, None
+            The POSIX-style endpoint root path (if defined).
+
+        Warnings
+        --------
+        UserWarning
+            If endpoint UUID is associated with multiple root paths, it is better to provide the
+            endpoint label to avoid this warning and to ensure the intended root path is returned.
+
+        See Also
+        --------
+        Globus._sanitize_local
+        """
         root_path = None
         if endpoint in self.endpoints.keys():
             endpoint_id = self.endpoints[endpoint]['id']
             if 'root_path' in self.endpoints[endpoint].keys():
-                root_path = str(self.endpoints[endpoint]['root_path'])
-            return endpoint_id, root_path
+                root_path = self.endpoints[endpoint]['root_path']
+            return self._sanitize_local(endpoint_id, root_path)
         elif is_uuid(endpoint, range(1, 5)):
-            endpoint_id = endpoint
-            return endpoint_id, None
+            # If a UUID was provided, find the first endpoint with a root path with the UUID
+            endpoint_id = self._ensure_uuid(endpoint)
+            matching = (
+                k for k, v in self.endpoints.items() if v['id'] == endpoint_id and 'root_path' in v
+            )
+            if name := next(matching, None):
+                # Warn of ambiguity if multiple endpoints share a UUID
+                if next(matching, None) is not None:
+                    warnings.warn(
+                        f'Multiple endpoints added with the same UUID, '
+                        f'using root path from "{name}"')
+                root_path = self.endpoints[name]['root_path']
+            else:
+                root_path = None
+            return self._sanitize_local(endpoint_id, root_path)
         else:
             raise ValueError(
                 '"endpoint" must be a UUID or the label of an endpoint registered in this '
                 'Globus instance. You can add endpoints via the add_endpoints method')
+
+    def _sanitize_local(self, endpoint_id, root_path):
+        """
+        Ensure local root path on Windows is POSIX-style.
+
+        Parameters
+        ----------
+        endpoint_id : uuid.UUID
+            The endpoint UUID to determine if root path is local.
+        root_path : pathlib.Path, str, None
+            The root path to sanitize.
+
+        Returns
+        -------
+        endpoint_id : uuid.UUID
+            The endpoint UUID, returned unchanged to match `Globus._endpoint_id_root` signature.
+        str, None
+            The root path as a POSIX style string, or None if root_path is None.
+
+        Examples
+        --------
+        Providing a local root path on Windows
+
+        >>> glo = Globus()
+        >>> uid = glo.endpoints['local']['id']
+        >>> glo._sanitize_local(uid, 'C:\\Data')
+        UUID('50282ed5-3124-11ee-b977-482ae33bf6ca'), '/C/Data'
+
+        Path left unchanged on *nix systems or when endpoint ID is not local
+
+        >>> uid = UUID('c7c46cec-3124-11ee-bf50-482ae33bf6ca')
+        >>> glo._sanitize_local(uid, 'C:\\Data')
+        UUID('c7c46cec-3124-11ee-bf50-482ae33bf6ca'), 'C:\\Data'
+        """
+        if not root_path:
+            return endpoint_id, None
+        # If the local root path is not explicitly a Windows Path and we're on windows, make sure
+        # it's converted correctly to a POSIX style path
+        if isinstance(root_path, str):
+            is_win = sys.platform in ('win32', 'cygwin')
+            if endpoint_id == self.endpoints['local']['id'] and is_win:
+                root_path = PureWindowsPath(root_path)
+            else:
+                root_path = PurePosixPath(root_path)
+        return endpoint_id, as_globus_path(root_path)
+
+    def transfer_data(self, data_path, source_endpoint, destination_endpoint,
+                      recursive=False, **kwargs):
+        """
+        Transfer one or more paths between endpoints.
+
+        At least one of the endpoints must be a server endpoint.  Both file and directory paths may
+        be provided, however if recursive is true, all paths must be directories.
+
+        Parameters
+        ----------
+        data_path : str, list of str
+            One or more data paths, relative to the endpoint root path.
+        source_endpoint : str, uuid.UUID
+            The name or UUID of the source endpoint.
+        destination_endpoint : str, uuid.UUID
+            The name or UUID of the destination endpoint.
+        recursive : bool
+            If true, transfer the contents of nested directories (NB: all data_paths must be
+            directories).
+        **kwargs
+            See globus_sdk.TransferData.
+
+        Returns
+        -------
+        uuid.UUID
+            The Globus transfer ID.
+
+        Examples
+        --------
+        Transfer two files (asynchronous)
+
+        >>> glo = Globus()
+        >>> files = ['file.ext', 'foo.bar']
+        >>> task_id = glo.transfer_data(files, 'source_endpoint', 'destination_endpoint')
+
+        Transfer a folder (asynchronous)
+
+        >>> folder = 'path/to/folder'
+        >>> task_id = glo.transfer_data(
+        ...    folder, 'source_endpoint', 'destination_endpoint', recursive=True)
+        """
+        kwargs['source_endpoint'] = (source_endpoint
+                                     if is_uuid(source_endpoint, versions=(1,))
+                                     else self.endpoints.get(source_endpoint)['id'])
+        kwargs['destination_endpoint'] = (destination_endpoint
+                                          if is_uuid(destination_endpoint, versions=(1,))
+                                          else self.endpoints.get(destination_endpoint)['id'])
+        transfer_object = globus_sdk.TransferData(self.client, **kwargs)
+
+        # add any number of items to the submission data
+        for path in ensure_list(data_path):
+            src = self._endpoint_path(path, self._endpoint_id_root(source_endpoint)[1])
+            dst = self._endpoint_path(path, self._endpoint_id_root(destination_endpoint)[1])
+            transfer_object.add_item(src, dst, recursive=recursive)
+        response = self.client.submit_transfer(transfer_object)
+        return UUID(response.data['task_id'])
 
     def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
         """
@@ -448,7 +787,7 @@ class Globus(DownloadClient):
 
         Returns
         -------
-        int
+        uuid.UUID
             A Globus task ID.
         """
         source_endpoint, source_root = self._endpoint_id_root(source_endpoint)
@@ -475,10 +814,9 @@ class Globus(DownloadClient):
         Block until a Globus task finishes and retry upon Network or REST Errors.
         globus_func needs to submit a task to the client and return a task_id.
 
-
         Parameters
         ----------
-        globus_func : function
+        globus_func : function, Callable
             A function that returns a Globus task ID, typically it will submit a transfer.
         retries : int
             The number of times to call globus_func if it raises a Globus error.
@@ -487,16 +825,19 @@ class Globus(DownloadClient):
 
         Returns
         -------
-        int
+        uuid.UUID
             Globus task ID.
 
         Raises
         ------
         IOError
             Timed out waiting for task to complete.
+
+        TODO Add a quick fail option that returns when files missing, etc.
         """
         try:
             task_id = globus_func()
+            assert is_uuid(task_id, versions=(1, 2)), 'invalid UUID returned'
             print(f'Waiting for Globus task {task_id} to complete')
             # While the task with task is active, print a dot every second. Timeout after timeout
             i = 0
@@ -524,7 +865,7 @@ class Globus(DownloadClient):
                                     f'unsuccessful')
             else:
                 raise IOError(f'Globus task finished unsuccessfully with status {task["status"]}')
-            return task_id
+            return self._ensure_uuid(task_id)
         except (GlobusAPIError, NetworkError, GlobusTimeoutError, GlobusConnectionError,
                 GlobusConnectionTimeoutError) as e:
             if retries < 1:

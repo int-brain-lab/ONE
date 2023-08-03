@@ -432,10 +432,10 @@ class RegistrationClient:
         Notes
         -----
         - The registered files may be automatically moved to new revision folders if they are
-         protected on Alyx, therefore it's important to check the relative paths of the output.
+          protected on Alyx, therefore it's important to check the relative paths of the output.
         - Protected datasets are not checked in dry mode.
         - In most circumstances a new revision will be added automatically, however if this fails
-         a 403 HTTP status may be returned.
+          a 403 HTTP status may be returned.
 
         Raises
         ------

@@ -1,4 +1,4 @@
-"""Unit tests for the one.alf.spec module"""
+"""Unit tests for the one.alf.spec module."""
 import unittest.mock
 import re
 import io
@@ -127,6 +127,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(alf_spec._dromedary('FooBarBaz'), 'fooBarBaz')
         self.assertEqual(alf_spec._dromedary('passive_RFM'), 'passiveRFM')
         self.assertEqual(alf_spec._dromedary('ROI Motion Energy'), 'ROIMotionEnergy')
+        self.assertEqual(alf_spec._dromedary(''), '')
 
     def test_readable_ALF(self):
         """Test for one.alf.spec.readableALF function."""
@@ -189,6 +190,9 @@ class TestALFSpec(unittest.TestCase):
         filename = alf_spec.to_alf('spikes', 'times', 'npy',
                                    namespace='ibl', timescale='ephysClock', extra='raw')
         self.assertEqual(filename, '_ibl_spikes.times_ephysClock.raw.npy')
+        filename = alf_spec.to_alf('spikes', 'times', 'ssv',
+                                   namespace='ibl', timescale=('ephys clock', 'minutes'))
+        self.assertEqual(filename, '_ibl_spikes.times_ephysClock_minutes.ssv')
         filename = alf_spec.to_alf('wheel', 'timestamps', '.npy', 'ibl', 'bpod', ('raw', 'v12'))
         self.assertEqual(filename, '_ibl_wheel.timestamps_bpod.raw.v12.npy')
 

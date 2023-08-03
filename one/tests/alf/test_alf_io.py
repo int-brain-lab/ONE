@@ -1,4 +1,4 @@
-"""Unit tests for the one.alf.io module"""
+"""Unit tests for the one.alf.io module."""
 import logging
 import unittest
 import unittest.mock

@@ -164,9 +164,9 @@ def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
     Notes
     -----
     - If no credentials are present in the database, boto3 will use environment config or default
-     AWS profile settings instead.
+      AWS profile settings instead.
     - If there are no credentials for the bucket and the bucket has 'public' in the name, the
-     returned resource will use an unsigned signature.
+      returned resource will use an unsigned signature.
     """
     session_keys, bucket_name = get_aws_access_keys(alyx, repo_name)
     no_creds = not any(filter(None, (v for k, v in session_keys.items() if 'key' in k.lower())))

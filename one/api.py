@@ -3,7 +3,6 @@ import collections.abc
 import urllib.parse
 import warnings
 import logging
-import packaging.version
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
 from inspect import unwrap
@@ -17,6 +16,7 @@ import threading
 import pandas as pd
 import numpy as np
 import requests.exceptions
+import packaging.version
 
 from iblutil.io import parquet, hashfile
 from iblutil.util import Bunch, flatten
@@ -382,11 +382,13 @@ class One(ConversionMixin):
 
             one.search_terms()
 
-        For all of the search parameters, a single value or list may be provided.  For dataset,
+        For all of the search parameters, a single value or list may be provided.  For `dataset`,
         the sessions returned will contain all listed datasets.  For the other parameters,
-        the session must contain at least one of the entries. NB: Wildcards are not permitted,
-        however if wildcards property is False, regular expressions may be used for all but
-        number and date_range.
+        the session must contain at least one of the entries.
+
+        For all but `date_range` and `number`, any field that contains the search string is
+        returned.  Wildcards are not permitted, however if wildcards property is True, regular
+        expressions may be used (see notes and examples).
 
         Parameters
         ----------
@@ -421,6 +423,36 @@ class One(ConversionMixin):
         (list)
             (If details is True) a list of dictionaries, each entry corresponding to a matching
             session.
+
+        Examples
+        --------
+        Search for sessions with 'training' in the task protocol.
+
+        >>> eids = one.search(task='training')
+
+        Search for sessions by subject 'MFD_04'.
+
+        >>> eids = one.search(subject='MFD_04')
+
+        Do an exact search for sessions by subject 'FD_04'.
+
+        >>> assert one.wildcards is True, 'the wildcards flag must be True for regex expressions'
+        >>> eids = one.search(subject='^FD_04$')
+
+        Search for sessions on a given date, in a given lab, containing trials and spike data.
+
+        >>> eids = one.search(date='2023-01-01', lab='churchlandlab', dataset=['trials', 'spikes'])
+
+        Notes
+        -----
+        - In default and local mode, most queries are case-sensitive partial matches. When lists
+          are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
+        - All search terms are true for a session to be returned, i.e. subject matches AND project
+          matches, etc.
+        - In remote mode most queries are case-insensitive partial matches.
+        - In default and local mode, when the one.wildcards flag is True (default), queries are
+          interpreted as regular expressions. To turn this off set one.wildcards to False.
+        - In remote mode regular expressions are only supported using the `django` argument.
         """
 
         def all_present(x, dsets, exists=True):
@@ -1083,13 +1115,13 @@ class One(ConversionMixin):
         Notes
         -----
         - There are three ways the datasets may be formatted: the object.attribute; the file name
-         (including namespace and extension); the ALF components as a dict; the dataset path,
-         relative to the session path, e.g. collection/object.attribute.ext.
+          (including namespace and extension); the ALF components as a dict; the dataset path,
+          relative to the session path, e.g. collection/object.attribute.ext.
         - When relative paths are provided (e.g. 'collection/#revision#/object.attribute.ext'),
-         wildcards/regular expressions must not be used. To use wildcards, pass the collection and
-         revision as separate keyword arguments.
+          wildcards/regular expressions must not be used. To use wildcards, pass the collection and
+          revision as separate keyword arguments.
         - To ensure you are loading the correct revision, use the revisions kwarg instead of
-         relative paths.
+          relative paths.
 
         Raises
         ------
@@ -1977,11 +2009,13 @@ class OneAlyx(One):
 
             one.search_terms(query_type='remote')
 
-        For all of the search parameters, a single value or list may be provided.  For dataset,
+        For all of the search parameters, a single value or list may be provided.  For `dataset`,
         the sessions returned will contain all listed datasets.  For the other parameters,
-        the session must contain at least one of the entries. NB: Wildcards are not permitted,
-        however if wildcards property is False, regular expressions may be used for all but
-        number and date_range.
+        the session must contain at least one of the entries.
+
+        For all but `date_range` and `number`, any field that contains the search string is
+        returned.  Wildcards are not permitted, however if wildcards property is True, regular
+        expressions may be used (see notes and examples).
 
         Parameters
         ----------
@@ -1993,11 +2027,13 @@ class OneAlyx(One):
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
         lab : str, list
-            A str or list of lab names, returns sessions from any of these labs.
+            A str or list of lab names, returns sessions from any of these labs (can be partial,
+            i.e. any task protocol containing that str will be found).
         number : str, int
             Number of session to be returned, i.e. number in sequence for a given date.
         subject : str, list
-            A list of subject nicknames, returns sessions for any of these subjects.
+            A list of subject nicknames, returns sessions for any of these subjects (can be
+            partial, i.e. any task protocol containing that str will be found).
         task_protocol : str, list
             The task protocol name (can be partial, i.e. any task protocol containing that str
             will be found).
@@ -2030,6 +2066,36 @@ class OneAlyx(One):
         (list of dicts)
             If details is True, also returns a list of dictionaries, each entry corresponding to a
             matching session.
+
+        Examples
+        --------
+        Search for sessions with 'training' in the task protocol.
+
+        >>> eids = one.search(task='training')
+
+        Search for sessions by subject 'MFD_04'.
+
+        >>> eids = one.search(subject='MFD_04')
+
+        Do an exact search for sessions by subject 'FD_04'.
+
+        >>> assert one.wildcards is True, 'the wildcards flag must be True for regex expressions'
+        >>> eids = one.search(subject='^FD_04$', query_type='local')
+
+        Search for sessions on a given date, in a given lab, containing trials and spike data.
+
+        >>> eids = one.search(date='2023-01-01', lab='churchlandlab', dataset=['trials', 'spikes'])
+
+        Notes
+        -----
+        - In default and local mode, most queries are case-sensitive partial matches. When lists
+          are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
+        - All search terms are true for a session to be returned, i.e. subject matches AND project
+          matches, etc.
+        - In remote mode most queries are case-insensitive partial matches.
+        - In default and local mode, when the one.wildcards flag is True (default), queries are
+          interpreted as regular expressions. To turn this off set one.wildcards to False.
+        - In remote mode regular expressions are only supported using the `django` argument.
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -2573,7 +2639,7 @@ class OneAlyx(One):
     @util.refresh
     @util.parse_id
     def get_details(self, eid: str, full: bool = False, query_type=None):
-        """Return session details for a given session
+        """Return session details for a given session.
 
         Parameters
         ----------
@@ -2581,7 +2647,7 @@ class OneAlyx(One):
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         full : bool
-            If True, returns a DataFrame of session and dataset info
+            If True, returns a DataFrame of session and dataset info.
         query_type : {'local', 'refresh', 'auto', 'remote'}
             The query mode - if 'local' the details are taken from the cache tables; if 'remote'
             the details are returned from the sessions REST endpoint; if 'auto' uses whichever
@@ -2591,14 +2657,14 @@ class OneAlyx(One):
         -------
         pd.Series, pd.DataFrame, dict
             in local mode - a session record or full DataFrame with dataset information if full is
-            True; in remote mode - a full or partial session dict
+            True; in remote mode - a full or partial session dict.
 
         Raises
         ------
         ValueError
-            Invalid experiment ID (failed to parse into eid string)
+            Invalid experiment ID (failed to parse into eid string).
         requests.exceptions.HTTPError
-            [Errno 404] Remote session not found on Alyx
+            [Errno 404] Remote session not found on Alyx.
         """
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)

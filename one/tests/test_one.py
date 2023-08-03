@@ -662,7 +662,7 @@ class TestONECache(unittest.TestCase):
             self.one.load_collection(eid, 'alf', object='foo')
         # Should raise error when no objects found on disk
         with mock.patch.object(self.one, '_check_filesystem',
-                               side_effect=lambda x, **kwargs: [None] * len(x)),\
+                               side_effect=lambda x, **kwargs: [None] * len(x)), \
                 self.assertRaises(alferr.ALFObjectNotFound) as ex:
             self.one.load_collection(eid, 'alf')
             self.assertIn('not found on disk', str(ex))
@@ -987,7 +987,7 @@ class TestOneAlyx(unittest.TestCase):
         # Check raises non-404 error
         err = HTTPError()
         err.response = Bunch({'status_code': 500})
-        with mock.patch.object(self.one.alyx, 'get', side_effect=err),\
+        with mock.patch.object(self.one.alyx, 'get', side_effect=err), \
                 self.assertRaises(HTTPError):
             self.one.describe_revision(record['name'])
 
@@ -1071,7 +1071,7 @@ class TestOneAlyx(unittest.TestCase):
 
             cache_info = {'min_api_version': '200.0.0'}
             # Check version verification
-            with mock.patch.object(self.one.alyx, 'get', return_value=cache_info),\
+            with mock.patch.object(self.one.alyx, 'get', return_value=cache_info), \
                     self.assertWarns(UserWarning):
                 self.one.load_cache(clobber=True)
 
@@ -1608,7 +1608,7 @@ class TestOneSetup(unittest.TestCase):
         - Mock getfile to return temp dir as param file location
         - Mock input function as fail safe in case function erroneously prompts user for input
         """
-        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.params.input', new=self.assertFalse):
             one_obj = ONE(silent=True, mode='local', password=TEST_DB_2['password'])
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
@@ -1640,8 +1640,8 @@ class TestOneSetup(unittest.TestCase):
         - Mock requests.post returns a fake user authentication response
         """
         credentials = {'username': 'foobar', 'password': '123'}
-        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
-                mock.patch('one.params.input', new=self.assertFalse),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
+                mock.patch('one.params.input', new=self.assertFalse), \
                 mock.patch('one.webclient.requests.post') as req_mock:
             req_mock().json.return_value = {'token': 'shhh'}
             # In remote mode the cache endpoint will not be queried
@@ -1664,7 +1664,7 @@ class TestOneSetup(unittest.TestCase):
     @unittest.skipIf(OFFLINE_ONLY, 'online only test')
     def test_static_setup(self):
         """Test OneAlyx.setup"""
-        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.webclient.getpass', return_value='international'):
             one_obj = OneAlyx.setup(silent=True)
         self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
@@ -1731,7 +1731,7 @@ class TestOneSetup(unittest.TestCase):
 
     def test_one_factory(self):
         """Tests the ONE class factory"""
-        with mock.patch('iblutil.io.params.getfile', new=self.get_file),\
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.params.input', new=self.assertFalse):
             # Cache dir not in client cache map; use One (light)
             one_obj = ONE(cache_dir=self.tempdir.name)

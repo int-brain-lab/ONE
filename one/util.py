@@ -1,4 +1,4 @@
-"""Decorators and small standalone functions for api module"""
+"""Decorators and small standalone functions for api module."""
 import logging
 import urllib.parse
 from functools import wraps
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def Listable(t):
-    """Return a typing.Union if the input and sequence of input"""
+    """Return a typing.Union if the input and sequence of input."""
     return Union[t, Sequence[t]]
 
 
@@ -337,8 +337,8 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Notes
     -----
     - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
-     e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
-     must use two separate queries.
+      e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
+      must use two separate queries.
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}

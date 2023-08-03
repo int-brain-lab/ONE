@@ -1,4 +1,4 @@
-"""Unit tests for the one.alf.cache module"""
+"""Unit tests for the one.alf.cache module."""
 import unittest
 import tempfile
 from pathlib import Path

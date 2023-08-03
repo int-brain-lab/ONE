@@ -64,7 +64,7 @@ class TestAuthentication(unittest.TestCase):
         # Test user prompts
         ac.logout()
         ac.silent = False
-        with mock.patch('builtins.input', return_value=TEST_DB_2['username']),\
+        with mock.patch('builtins.input', return_value=TEST_DB_2['username']), \
              mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']):
             ac.authenticate(cache_token=True)
         self.assertTrue(ac.is_logged_in)
@@ -116,14 +116,14 @@ class TestAuthentication(unittest.TestCase):
             self.assertTrue('user = intbrainlab' in str(ex))
             self.assertFalse('wrong_pass' in str(ex))
         # Check behaviour when connection error occurs (should mention firewall settings)
-        with mock.patch('one.webclient.requests.post', side_effect=requests.ConnectionError),\
+        with mock.patch('one.webclient.requests.post', side_effect=requests.ConnectionError), \
              self.assertRaises(ConnectionError) as ex:
             self.ac.authenticate()
             self.assertTrue('firewall' in str(ex))
         # Check behaviour when server error occurs
         rep = requests.Response()
         rep.status_code = 500
-        with mock.patch('one.webclient.requests.post', return_value=rep),\
+        with mock.patch('one.webclient.requests.post', return_value=rep), \
              self.assertRaises(requests.HTTPError):
             self.ac.authenticate()
 

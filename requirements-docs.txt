@@ -6,10 +6,7 @@ sphinx >=3.1.2
 sphinx-copybutton
 sphinx-gallery
 ipyevents
-jupyter_contrib_nbextensions
+jupyter
 # ibllib  # Required to execute the one_quickstart notebook
 # matplotlib  # Required to execute the data_sharing notebook
 globus_sdk  # For Globus module
-
-# Also need to run
-# jupyter nbextension enable --py --sys-prefix ipyevents

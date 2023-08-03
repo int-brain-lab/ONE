@@ -1,5 +1,22 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.1.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.0]
+
+### Modified
+
+- support endpoint create without fields
+- support for multiple timescales in to_alf
+- better handling of Globus local endpoint path in Windows
+- Globus class now consistently returns UUID objects instead of strings
+
+### Added
+
+- Globus.transfer_data method to asynchronously transfer data between Globus endpoints
+- Globus.download_data method to synchronously download data
+- Globus.to_address method creates a full Globus path from a relative path and endpoint ID/name
+- Globus.fetch_endpoints_from_alyx method to populate endpoints from Alyx data repositories
+- Globus.setup static method useful for modifying a client's parameters
+
+## [2.1.0]
 
 ### Added
 
