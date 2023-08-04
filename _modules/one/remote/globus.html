@@ -210,7 +210,7 @@
     <span class="c1"># Find and set local ID</span>
     <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Please enter the local endpoint ID&#39;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">default_endpoint</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">get_local_endpoint_id</span><span class="p">()</span>
+        <span class="n">default_endpoint</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_endpoint&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">get_local_endpoint_id</span><span class="p">())</span>
         <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; (default: </span><span class="si">{</span><span class="n">default_endpoint</span><span class="si">}</span><span class="s1">)&#39;</span>
     <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
         <span class="n">default_endpoint</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
