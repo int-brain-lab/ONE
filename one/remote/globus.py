@@ -104,7 +104,7 @@ def setup(par_id=None):
     # Find and set local ID
     message = 'Please enter the local endpoint ID'
     try:
-        default_endpoint = pars['local_endpoint'] or get_local_endpoint_id()
+        default_endpoint = str(pars['local_endpoint'] or get_local_endpoint_id())
         message += f' (default: {default_endpoint})'
     except AssertionError:
         default_endpoint = ''

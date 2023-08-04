@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.1]
+
+### Modified
+
+HOTFIX: cast default local Globus UUID to str before saving parameters
+
+## [2.2.0]
 
 ### Modified
 

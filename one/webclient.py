@@ -488,7 +488,7 @@ class AlyxClient:
             The default root download location.
         silent : bool
             If true, user prompts and progress bars are suppressed.
-        cache_rest : str
+        cache_rest : str, None
             Which type of http method to apply cache to; if '*', all requests are cached.
         stay_logged_in : bool
             If true, auth token is cached.
