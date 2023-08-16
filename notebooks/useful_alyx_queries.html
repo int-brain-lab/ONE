@@ -78,6 +78,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#list-ephys-sessions-that-have-errored-tasks">list ephys sessions that have errored tasks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rerun-/-set-errored-tasks-to-Waiting">rerun / set errored tasks to Waiting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list-sessions-where-extended-QC-exists-for-any-video">list sessions where extended QC exists for any video</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-associated-with-a-given-release-tag">list sessions associated with a given release tag</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#Field-lookup-reference">Field lookup reference</a><ul>
@@ -367,6 +368,13 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <h3>list sessions where extended QC exists for any video<a class="headerlink" href="#list-sessions-where-extended-QC-exists-for-any-video" title="Permalink to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;videoLeft&#39;</span><span class="p">,</span> <span class="s1">&#39;videoRight&#39;</span><span class="p">,</span> <span class="s1">&#39;videoBody&#39;</span><span class="p">)</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__has_any_keys,</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="list-sessions-associated-with-a-given-release-tag">
+<h3>list sessions associated with a given release tag<a class="headerlink" href="#list-sessions-associated-with-a-given-release-tag" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>
+<span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;data_dataset_session_related__tags__name,</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
