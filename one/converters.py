@@ -510,7 +510,7 @@ class ConversionMixin:
 
         Returns
         -------
-        bool
+        bool, list of bool
             True if ref is valid.
 
         Examples
@@ -531,7 +531,7 @@ class ConversionMixin:
             ref = '{date}_{sequence}_{subject}'.format(**ref)
         elif not isinstance(ref, str):
             return False
-        return re.compile(r'\d{4}(-\d{2}){2}_(\d{1}|\d{3})_\w+').match(ref) is not None
+        return re.compile(r'\d{4}(-\d{2}){2}_(\d{1,3})_\w+').match(ref) is not None
 
     @staticmethod
     @parse_values

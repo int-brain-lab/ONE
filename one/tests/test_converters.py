@@ -150,10 +150,11 @@ class TestConverters(unittest.TestCase):
         self.assertTrue(self.one.is_exp_ref(ref))
         self.assertTrue(self.one.is_exp_ref('2018-07-13_001_flowers'))
         self.assertTrue(self.one.is_exp_ref('2018-07-13_1_flowers'))
+        self.assertTrue(self.one.is_exp_ref('2023-03-14_11_HB_003'))
         self.assertFalse(self.one.is_exp_ref('2018-invalid_ref-s'))
         # Test recurse
         refs = ('2018-07-13_001_flowers', '2018-07-13_1_flowers')
-        self.assertTrue(all(x is True for x in self.one.is_exp_ref(refs)))
+        self.assertTrue(all(self.one.is_exp_ref(refs)))
 
     def test_ref2dict(self):
         # Test ref string (none padded)

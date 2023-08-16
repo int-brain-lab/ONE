@@ -1,9 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.2]
 
 ### Modified
 
-HOTFIX: cast default local Globus UUID to str before saving parameters
+- HOTFIX: one.ConversionMixin.is_exp_ref supports refs with 2 digit sequence
+
+## [2.2.1]
+
+### Modified
+
+- HOTFIX: cast default local Globus UUID to str before saving parameters
 
 ## [2.2.0]
 
