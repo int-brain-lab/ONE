@@ -235,7 +235,6 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     list
         The lab names associated with the endpoint UUID.
     """
-
     alyx = alyx or AlyxClient(silent=True)
     if not endpoint:
         endpoint = get_local_endpoint_id()
@@ -691,6 +690,10 @@ class Globus(DownloadClient):
         >>> files = ['file.ext', 'foo.bar']
         >>> task_id = glo.transfer_data(files, 'source_endpoint', 'destination_endpoint')
 
+        Transfer a file (synchronous)
+        >>> file = 'file.ext'
+        >>> task_id = glo.run_task(lambda: glo.transfer_data(file, 'src_endpoint', 'dst_endpoint'))
+
         Transfer a folder (asynchronous)
 
         >>> folder = 'path/to/folder'
@@ -711,6 +714,59 @@ class Globus(DownloadClient):
             dst = self._endpoint_path(path, self._endpoint_id_root(destination_endpoint)[1])
             transfer_object.add_item(src, dst, recursive=recursive)
         response = self.client.submit_transfer(transfer_object)
+        return UUID(response.data['task_id'])
+
+    def delete_data(self, data_path, endpoint, recursive=False, **kwargs):
+        """
+        Delete one or more paths within an endpoint.
+
+        Both file and directory paths may be provided, however if recursive is true, all paths must
+        be directories.
+
+        Parameters
+        ----------
+        data_path : str, list of str
+            One or more data paths, relative to the endpoint root path.
+        endpoint : str, uuid.UUID
+            The name or UUID of the endpoint.
+        recursive : bool
+            If true, delete the contents of nested directories (NB: all data_paths must be
+            directories).
+        **kwargs
+            See globus_sdk.DeleteData.
+
+        Returns
+        -------
+        uuid.UUID
+            The Globus transfer ID.
+
+        Examples
+        --------
+        Delete two files, ingnoring those that don't exist (asynchronous)
+
+        >>> glo = Globus()
+        >>> files = ['file.ext', 'foo.bar']
+        >>> task_id = glo.delete_data(files, 'endpoint_name', ignore_missing=True)
+
+        Delete a file (synchronous)
+
+        >>> task_id = glo.run_task(lambda: glo.delete_data('file.ext', 'endpoint_name')
+
+        Recursively delete a folder (asynchronous)
+
+        >>> folder = 'path/to/folder'
+        >>> task_id = glo.delete_data(folder, 'endpoint_name', recursive=True)
+        """
+        kwargs['endpoint'] = (endpoint
+                              if is_uuid(endpoint, versions=(1,))
+                              else self.endpoints.get(endpoint)['id'])
+        delete_object = globus_sdk.DeleteData(self.client, recursive=recursive, **kwargs)
+
+        # add any number of items to the submission data
+        for path in ensure_list(data_path):
+            fullpath = self._endpoint_path(path, self._endpoint_id_root(endpoint)[1])
+            delete_object.add_item(fullpath)
+        response = self.client.submit_delete(delete_object)
         return UUID(response.data['task_id'])
 
     def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
@@ -876,3 +932,69 @@ class Globus(DownloadClient):
                 # if we reach this point without returning or erring, retry
                 _logger.warning('\nGlobus experienced a network error, retrying.')
                 self.run_task(globus_func, retries=(retries - 1), timeout=timeout)
+
+    def delete_dataset(self, dataset, alyx=None):
+        """
+        Delete a dataset off Alyx and remove file record from all Globus repositories
+
+        Parameters
+        ----------
+        dataset : uuid.UUID, str, dict
+            The dataset record or ID to delete.
+        alyx : one.webclient.AlyxClient
+            An Alyx instance from which to delete the dataset.
+
+        Returns
+        -------
+        list of uuid.UUID
+            A list of Globus delete task IDs.
+        """
+        from itertools import groupby, starmap
+        from collections import defaultdict
+        from one.alf.files import add_uuid_string
+
+        alyx = alyx or AlyxClient()
+        if is_uuid(dataset):
+            did = dataset
+            dataset = alyx.rest('datasets', 'read', id=did)
+        else:
+            did = dataset['url'].split('/')[-1]
+
+        files_by_repo = defaultdict(list)  # uuid.UUID -> [pathlib.PurePosixPath]
+        file_records = filter(lambda x: x['exists'], dataset['file_records'])
+        for repo, record in groupby(file_records, lambda x: x['data_repository']):
+            if not record['globus_id']:
+                raise NotImplementedError
+            if repo not in self.endpoints:
+                self.add_endpoint(repo, alyx=alyx)
+            filepath = PurePosixPath(record['relative_path'])
+            if 'flatiron' in repo:
+                filepath = add_uuid_string(filepath, did)
+            files_by_repo[repo].append(filepath)
+
+        # Delete the files
+        task_ids = list(starmap(self.delete_data, files_by_repo.items()))
+        # Delete the dataset from Alyx
+        alyx.rest('datasets', 'delete', id=did)
+        return task_ids
+
+    async def task_wait_async(self, task_id, polling_interval=10):
+        import asyncio
+        if polling_interval < 1:
+            raise ValueError
+        TIMEOUT = 60 * 60
+        polling_interval = min(TIMEOUT, polling_interval)
+        waited_time = 0
+        while True:
+            task = self.client.get_task(task_id)
+            status = task['status']
+            if status != "ACTIVE":
+                return True
+
+            # make sure to check if we timed out before sleeping again, so we
+            # don't sleep an extra polling_interval
+            waited_time += polling_interval
+            if waited_time >= TIMEOUT:
+                return False
+
+            await asyncio.sleep(polling_interval)
