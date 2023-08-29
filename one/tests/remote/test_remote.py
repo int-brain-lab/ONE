@@ -557,6 +557,57 @@ class TestGlobusClient(unittest.TestCase):
         with mock.patch.object(self.globus, 'run_task', return_value=task_id):
             self.assertRaises(AssertionError, self.globus.download_file, files, 'repo_01')
 
+    def test_delete_data(self):
+        """Test for Globus.delete_data method."""
+        globus_id = uuid.uuid1()
+        self.globus.endpoints['repo_00'] = {'id': globus_id, 'root_path': '/mnt/h0/Data'}
+        sdk_mock, _ = self.globus_sdk_mock.get_original()
+        response_mock = mock.create_autospec(globus_sdk.response.GlobusHTTPResponse)
+        response_mock.data = {'task_id': str(uuid.uuid1())}
+        self.globus.client.submit_delete.return_value = response_mock
+
+        out = self.globus.delete_data('path/to/file', 'repo_00', foo='bar')
+
+        # SDK should be called with endpoint IDs and optional kwargs
+        sdk_mock.DeleteData.assert_called_once_with(
+            self.globus.client, recursive=False, foo='bar', endpoint=globus_id)
+        sdk_mock.DeleteData().add_item.assert_called_once_with('/mnt/h0/Data/path/to/file')
+        self.globus.client.submit_delete.assert_called_once()
+        self.assertEqual(out, uuid.UUID(response_mock.data['task_id']))
+
+        # Test passing list of files
+        sdk_mock.reset_mock()
+        files = ['path/to/file', 'foo/bar.baz']
+        self.globus.delete_data(files, 'repo_00')
+        self.assertEqual(sdk_mock.DeleteData().add_item.call_count, len(files))
+
+
+class TestGlobusAsync(unittest.IsolatedAsyncioTestCase, TestGlobusClient):
+    """Asynchronous Globus method tests."""
+
+    async def test_task_wait_async(self):
+        """Test for Globus.task_wait_async method."""
+        task_id = uuid.uuid4()
+        statuses = ({'status': 'ACTIVE'}, {'status': 'SUCCESSFUL'})
+        with mock.patch('asyncio.sleep', new_callable=mock.AsyncMock) as sleep_mock, \
+                mock.patch.object(self.globus.client, 'get_task', side_effect=statuses):
+            self.assertTrue(await self.globus.task_wait_async(task_id, polling_interval=5))
+            sleep_mock.assert_awaited_once_with(5)  # polling_interval value
+
+        # Check timeout behaviour
+        status = statuses[0]
+        with mock.patch('asyncio.sleep', new_callable=mock.AsyncMock) as sleep_mock, \
+                mock.patch.object(self.globus.client, 'get_task', return_value=status):
+            self.assertFalse(await self.globus.task_wait_async(task_id, polling_interval=3))
+            sleep_mock.assert_awaited_with(3)  # polling_interval value
+            self.assertEqual(round(10 / 3), sleep_mock.await_count)  # timeout = 10
+
+        # Check input validation
+        with self.assertRaises(globus_sdk.GlobusSDKUsageError):
+            await self.globus.task_wait_async(task_id, polling_interval=.5)
+        with self.assertRaises(globus_sdk.GlobusSDKUsageError):
+            await self.globus.task_wait_async(task_id, timeout=.5)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
