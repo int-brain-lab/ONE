@@ -12,13 +12,13 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -144,7 +144,9 @@
 <span class="n">N_THREADS</span> <span class="o">=</span> <span class="mi">4</span>
 
 
-<div class="viewcode-block" id="One"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One">[docs]</a><span class="k">class</span> <span class="nc">One</span><span class="p">(</span><span class="n">ConversionMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="One">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One">[docs]</a>
+<span class="k">class</span> <span class="nc">One</span><span class="p">(</span><span class="n">ConversionMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem&quot;&quot;&quot;</span>
     <span class="n">_search_terms</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span>
@@ -190,10 +192,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: True if mode is local or no Web client set&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_web_client&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="One.search_terms"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search_terms">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+<div class="viewcode-block" id="One.search_terms">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search_terms">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;List the search term keyword args for use in the search method&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span></div>
+
 
     <span class="k">def</span> <span class="nf">_reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields&quot;&quot;&quot;</span>
@@ -206,7 +211,9 @@
             <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># map of original table metadata</span>
         <span class="p">}})</span>
 
-<div class="viewcode-block" id="One.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="One.load_cache">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load parquet cache files from a local directory.</span>
 
@@ -260,7 +267,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="One.save_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_cache">[docs]</a>    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="One.save_cache">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save One._cache attribute into parquet tables if recently modified.</span>
 
 <span class="sd">        Parameters</span>
@@ -271,6 +281,7 @@
 <span class="sd">            If True, the cache is saved regardless of modification time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">))</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="nf">_save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -312,7 +323,9 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">lock_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
-<div class="viewcode-block" id="One.refresh_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.refresh_cache">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="One.refresh_cache">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.refresh_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check and reload cache tables</span>
 
 <span class="sd">        Parameters</span>
@@ -342,6 +355,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown refresh type &quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span></div>
+
 
     <span class="k">def</span> <span class="nf">_update_cache_from_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -407,7 +421,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
         <span class="k">return</span> <span class="n">updated</span>
 
-<div class="viewcode-block" id="One.save_loaded_ids"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_loaded_ids">[docs]</a>    <span class="k">def</span> <span class="nf">save_loaded_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clear_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="One.save_loaded_ids">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.save_loaded_ids">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_loaded_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clear_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.</span>
 
@@ -442,6 +458,7 @@
         <span class="k">if</span> <span class="n">clear_list</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_loaded_datasets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">filename</span></div>
+
 
     <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -480,7 +497,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span>
 
-<div class="viewcode-block" id="One.search"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="One.search">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search">[docs]</a>
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches sessions matching the given criteria and returns a list of matching eids</span>
 
@@ -624,6 +643,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">eids</span></div>
 
+
     <span class="k">def</span> <span class="nf">_check_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the local filesystem for the given datasets.</span>
 
@@ -729,7 +749,9 @@
         <span class="c1"># Return full list of file paths</span>
         <span class="k">return</span> <span class="n">files</span>
 
-<div class="viewcode-block" id="One.get_details"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.get_details">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+<div class="viewcode-block" id="One.get_details">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.get_details">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">get_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return session details for a given session ID</span>
@@ -760,7 +782,10 @@
         <span class="c1"># .reset_index(&#39;eid&#39;, drop=True)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">det</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="One.list_subjects"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_subjects">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.list_subjects">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_subjects">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_subjects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List all subjects in database</span>
@@ -772,7 +797,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;subject&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="One.list_datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.list_datasets">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_datasets">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -846,7 +874,10 @@
         <span class="c1"># Return only the relative path</span>
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="One.list_collections"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_collections">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.list_collections">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_collections">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -916,7 +947,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="One.list_revisions"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_revisions">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.list_revisions">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_revisions">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_revisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -980,7 +1014,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;revision&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="One.load_object"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_object">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.load_object">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_object">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">load_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
@@ -1070,7 +1107,10 @@
 
         <span class="k">return</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="One.load_dataset"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_dataset">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.load_dataset">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_dataset">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
@@ -1171,7 +1211,10 @@
             <span class="k">return</span> <span class="n">file</span>
         <span class="k">return</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="One.load_datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.load_datasets">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_datasets">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">load_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                       <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
@@ -1344,7 +1387,10 @@
             <span class="k">return</span> <span class="n">files</span><span class="p">,</span> <span class="n">records</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span> <span class="n">records</span></div>
 
-<div class="viewcode-block" id="One.load_dataset_from_id"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_dataset_from_id">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.load_dataset_from_id">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_dataset_from_id">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">load_dataset_from_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                              <span class="n">dset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
                              <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1387,7 +1433,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="One.load_collection"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_collection">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="One.load_collection">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_collection">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">load_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                         <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
@@ -1477,7 +1526,10 @@
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="One.setup"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.setup">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="One.setup">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.setup">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up One cache tables for a given data directory.</span>
 
@@ -1514,10 +1566,14 @@
 
         <span class="c1"># Build cache tables</span>
         <span class="n">make_parquet_db</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ONE"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.ONE">[docs]</a><span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ONE">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.ONE">[docs]</a>
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">ONE</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ONE API factory</span>
 <span class="sd">    Determine which class to instantiate depending on parameters passed.</span>
@@ -1571,7 +1627,10 @@
         <span class="k">return</span> <span class="n">OneAlyx</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="n">wildcards</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="OneAlyx"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx">[docs]</a><span class="k">class</span> <span class="nc">OneAlyx</span><span class="p">(</span><span class="n">One</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OneAlyx">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx">[docs]</a>
+<span class="k">class</span> <span class="nc">OneAlyx</span><span class="p">(</span><span class="n">One</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1617,7 +1676,9 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;One (</span><span class="si">{</span><span class="s2">&quot;off&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;on&quot;</span><span class="si">}</span><span class="s1">line, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">)&#39;</span>
 
-<div class="viewcode-block" id="OneAlyx.load_cache"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OneAlyx.load_cache">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load parquet cache files.  If the local cache is sufficiently old, this method will query</span>
 <span class="sd">        the database for the location and creation date of the remote cache.  If newer, it will be</span>
@@ -1731,6 +1792,7 @@
                 <span class="s1">&#39;or run ONE.setup to update the default directory.&#39;</span>
             <span class="p">)</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;one.webclient.AlyxClient: The Alyx Web client&quot;&quot;&quot;</span>
@@ -1741,7 +1803,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;pathlib.Path: The location of the downloaded file cache&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_client</span><span class="o">.</span><span class="n">cache_dir</span>
 
-<div class="viewcode-block" id="OneAlyx.search_terms"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_terms">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+<div class="viewcode-block" id="OneAlyx.search_terms">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_terms">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of search terms to be passed as kwargs to the search method.</span>
@@ -1772,7 +1836,10 @@
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">({</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excl</span><span class="p">)})</span></div>
 
-<div class="viewcode-block" id="OneAlyx.describe_dataset"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">describe_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OneAlyx.describe_dataset">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">describe_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print a dataset type description.</span>
 
 <span class="sd">        NB: This requires an Alyx database connection.</span>
@@ -1802,7 +1869,10 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="OneAlyx.list_datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.list_datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="OneAlyx.list_datasets">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.list_datasets">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
         <span class="n">filters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">)</span>
@@ -1824,7 +1894,10 @@
         <span class="c1"># Return only the relative path</span>
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="OneAlyx.list_aggregates"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.list_aggregates">[docs]</a>    <span class="k">def</span> <span class="nf">list_aggregates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="OneAlyx.list_aggregates">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.list_aggregates">[docs]</a>
+    <span class="k">def</span> <span class="nf">list_aggregates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List datasets aggregated over a given relation.</span>
@@ -1883,7 +1956,10 @@
         <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_datasets</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
                                     <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="n">assert_unique</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OneAlyx.load_aggregate"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">load_aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+
+<div class="viewcode-block" id="OneAlyx.load_aggregate">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.load_aggregate">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                        <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a single aggregated dataset for a given string identifier.</span>
@@ -1940,7 +2016,10 @@
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="s1">&#39;Dataset file not found on disk&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file</span> <span class="k">if</span> <span class="n">download_only</span> <span class="k">else</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OneAlyx.pid2eid"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.pid2eid">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="OneAlyx.pid2eid">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.pid2eid">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">pid2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an Alyx probe UUID string, returns the session id string and the probe label</span>
@@ -1968,7 +2047,10 @@
         <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="OneAlyx.eid2pid"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2pid">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="OneAlyx.eid2pid">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2pid">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">eid2pid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an experiment UUID (eID), returns the probe IDs and the probe labels</span>
@@ -2009,7 +2091,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pids</span><span class="p">,</span> <span class="n">labels</span></div>
 
-<div class="viewcode-block" id="OneAlyx.search_insertions"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_insertions">[docs]</a>    <span class="k">def</span> <span class="nf">search_insertions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OneAlyx.search_insertions">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search_insertions">[docs]</a>
+    <span class="k">def</span> <span class="nf">search_insertions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches insertions matching the given criteria and returns a list of matching probe IDs.</span>
 
@@ -2107,7 +2192,10 @@
 
         <span class="k">return</span> <span class="n">pids</span><span class="p">,</span> <span class="n">ins</span></div>
 
-<div class="viewcode-block" id="OneAlyx.search"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OneAlyx.search">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.search">[docs]</a>
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches sessions matching the given criteria and returns a list of matching eids.</span>
 
@@ -2241,6 +2329,7 @@
             <span class="k">return</span> <span class="n">records</span>
 
         <span class="k">return</span> <span class="n">eids</span><span class="p">,</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">_add_date</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2507,7 +2596,9 @@
                 <span class="c1"># tag the mismatched file records</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tag_mismatched_file_record</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OneAlyx.setup"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.setup">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="OneAlyx.setup">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.setup">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set up OneAlyx for a given database</span>
@@ -2532,7 +2623,10 @@
         <span class="n">cache_map</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">OneAlyx</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OneAlyx.eid2path"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2path">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="OneAlyx.eid2path">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2path">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">util</span><span class="o">.</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2572,7 +2666,10 @@
                 <span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;lab&#39;</span><span class="p">],</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;start_time&#39;</span><span class="p">][:</span><span class="mi">10</span><span class="p">],</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="OneAlyx.path2eid"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2eid">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="OneAlyx.path2eid">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2eid">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">util</span><span class="o">.</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From a local path, gets the experiment ID</span>
@@ -2622,7 +2719,10 @@
         <span class="c1"># Return the uuid if any</span>
         <span class="k">return</span> <span class="n">uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">uuid</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="OneAlyx.path2url"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2url">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+
+<div class="viewcode-block" id="OneAlyx.path2url">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2url">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">path2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a local file path, returns the URL of the remote file.</span>
@@ -2650,7 +2750,10 @@
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">StopIteration</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File record for </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> not found on Alyx&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OneAlyx.type2datasets"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.type2datasets">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
+
+<div class="viewcode-block" id="OneAlyx.type2datasets">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.type2datasets">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">type2datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get list of datasets belonging to a given dataset type for a given session</span>
@@ -2680,7 +2783,10 @@
         <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">datasets2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="n">restriction</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span></div>
 
-<div class="viewcode-block" id="OneAlyx.dataset2type"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.dataset2type">[docs]</a>    <span class="k">def</span> <span class="nf">dataset2type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="OneAlyx.dataset2type">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.dataset2type">[docs]</a>
+    <span class="k">def</span> <span class="nf">dataset2type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dataset type from dataset.</span>
 
 <span class="sd">        NB: Requires an Alyx database connection</span>
@@ -2707,7 +2813,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unrecognized name or UUID&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">dset</span><span class="p">)[</span><span class="s1">&#39;dataset_type&#39;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="OneAlyx.describe_revision"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_revision">[docs]</a>    <span class="k">def</span> <span class="nf">describe_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OneAlyx.describe_revision">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.describe_revision">[docs]</a>
+    <span class="k">def</span> <span class="nf">describe_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print description of a revision</span>
 
 <span class="sd">        Parameters</span>
@@ -2733,6 +2842,7 @@
                 <span class="k">raise</span> <span class="n">ex</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;revision &quot;</span><span class="si">{</span><span class="n">revision</span><span class="si">}</span><span class="s1">&quot; not found&#39;</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_dataset_name2id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset_name</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># TODO finish function</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span> <span class="k">if</span> <span class="n">eid</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
@@ -2742,7 +2852,9 @@
                 <span class="k">return</span> <span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># (eid, did)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dataset </span><span class="si">{</span><span class="n">dset_name</span><span class="si">}</span><span class="s1"> not found in cache&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OneAlyx.get_details"><a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.get_details">[docs]</a>    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
+<div class="viewcode-block" id="OneAlyx.get_details">
+<a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.get_details">[docs]</a>
+    <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
     <span class="k">def</span> <span class="nf">get_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return session details for a given session.</span>
@@ -2791,7 +2903,9 @@
         <span class="n">out</span><span class="p">[</span><span class="s1">&#39;projects&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;projects&#39;</span><span class="p">])</span>
         <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">),</span>
                     <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()})</span>
-        <span class="k">return</span> <span class="n">out</span></div></div>
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
 
 
 <span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

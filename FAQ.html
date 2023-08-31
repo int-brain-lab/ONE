@@ -13,13 +13,13 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script src="_static/clipboard.min.js"></script>
-        <script src="_static/copybutton.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -125,15 +125,15 @@
            <div itemprop="articleBody">
              
   <section id="faq">
-<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this heading"></a></h1>
+<h1>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h1>
 <section id="how-do-i-release-my-own-data-with-the-one-api">
-<h2>How do I release my own data with the ONE API?<a class="headerlink" href="#how-do-i-release-my-own-data-with-the-one-api" title="Permalink to this heading"></a></h2>
+<h2>How do I release my own data with the ONE API?<a class="headerlink" href="#how-do-i-release-my-own-data-with-the-one-api" title="Link to this heading"></a></h2>
 <p>First create a directory of <a class="reference internal" href="notebooks/datasets_and_types.html"><span class="doc std std-doc">ALF datasets</span></a>, generate the
 cache tables, then share the directory with others.  See <a class="reference internal" href="notebooks/data_sharing.html"><span class="doc std std-doc">data sharing</span></a>
 guide for more information.</p>
 </section>
 <section id="how-do-i-use-one-without-connecting-to-my-database">
-<h2>How do I use ONE without connecting to my database?<a class="headerlink" href="#how-do-i-use-one-without-connecting-to-my-database" title="Permalink to this heading"></a></h2>
+<h2>How do I use ONE without connecting to my database?<a class="headerlink" href="#how-do-i-use-one-without-connecting-to-my-database" title="Link to this heading"></a></h2>
 <p>If you temporarily lose access to your Alyx database, you can instantiate ONE in local mode:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
 </pre></div>
@@ -141,7 +141,7 @@ guide for more information.</p>
 <p>Read more about ONE modes <a class="reference internal" href="notebooks/one_modes.html"><span class="doc std std-doc">here</span></a>.</p>
 </section>
 <section id="why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx">
-<h2>Why are my recent data missing from my cache but present on Alyx?<a class="headerlink" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx" title="Permalink to this heading"></a></h2>
+<h2>Why are my recent data missing from my cache but present on Alyx?<a class="headerlink" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx" title="Link to this heading"></a></h2>
 <p>After new data are acquired it may take time for it to be copied to an online server (it will
 be marked as ‘online’ in Alyx).  Once the data is marked as existing and online, it should appear
 in the cache tables next time they are generated.  For the IBL Alyx, the ONE cache tables are
@@ -176,7 +176,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 </ol>
 </section>
 <section id="i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it">
-<h2>I made a mistake during setup and now can’t call setup, how do I fix it?<a class="headerlink" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it" title="Permalink to this heading"></a></h2>
+<h2>I made a mistake during setup and now can’t call setup, how do I fix it?<a class="headerlink" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it" title="Link to this heading"></a></h2>
 <p>Usually you can re-run your setup with the following command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
@@ -184,7 +184,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 </div>
 </section>
 <section id="how-do-i-change-my-download-a-k-a-cache-directory">
-<h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Permalink to this heading"></a></h2>
+<h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Link to this heading"></a></h2>
 <p>To <strong>permanently</strong> change the directory, simply re-run the setup routine:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Re-run setup for default database (takes effect next time you instantiate ONE)</span>
@@ -201,7 +201,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 <p><strong>NB</strong>: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the <code class="docutils literal notranslate"><span class="pre">tables_dir</span></code> kwarg.</p>
 </section>
 <section id="how-do-i-load-cache-tables-from-a-different-location">
-<h2>How do I load cache tables from a different location?<a class="headerlink" href="#how-do-i-load-cache-tables-from-a-different-location" title="Permalink to this heading"></a></h2>
+<h2>How do I load cache tables from a different location?<a class="headerlink" href="#how-do-i-load-cache-tables-from-a-different-location" title="Link to this heading"></a></h2>
 <p>By default, the cache tables are in the cache_dir root.  You can load cache tables in a different location in the following two ways:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
@@ -215,7 +215,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 <p><strong>NB</strong>: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set <code class="docutils literal notranslate"><span class="pre">mode='local'</span></code>.</p>
 </section>
 <section id="how-do-check-who-i-m-logged-in-as">
-<h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Permalink to this heading"></a></h2>
+<h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">:</span>
@@ -225,7 +225,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 </div>
 </section>
 <section id="how-do-i-log-out-or-temporarily-log-in-as-someone-else">
-<h2>How do I log out, or temporarily log in as someone else?<a class="headerlink" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else" title="Permalink to this heading"></a></h2>
+<h2>How do I log out, or temporarily log in as someone else?<a class="headerlink" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else" title="Link to this heading"></a></h2>
 <p>To log out:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
@@ -239,7 +239,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 </div>
 </section>
 <section id="what-to-do-if-i-am-seeing-a-certificate-error">
-<h2>What to do if I am seeing a certificate error?<a class="headerlink" href="#what-to-do-if-i-am-seeing-a-certificate-error" title="Permalink to this heading"></a></h2>
+<h2>What to do if I am seeing a certificate error?<a class="headerlink" href="#what-to-do-if-i-am-seeing-a-certificate-error" title="Link to this heading"></a></h2>
 <p>If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few
 lines of the traceback should like this:</p>
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">File</span> <span class="s2">&quot;C:\Users\User\anaconda3\envs\ONE\lib\urllib\request.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="n">1351</span><span class="p">,</span> <span class="k">in</span> <span class="n">do_open</span>
@@ -260,7 +260,7 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 </ul>
 </section>
 <section id="how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">
-<h2>How do I download the datasets cache for a specific IBL paper release?<a class="headerlink" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release" title="Permalink to this heading"></a></h2>
+<h2>How do I download the datasets cache for a specific IBL paper release?<a class="headerlink" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release" title="Link to this heading"></a></h2>
 <p>You can download cache tables containing datasets with a specific release tag.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 
@@ -276,13 +276,13 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 </div>
 </section>
 <section id="how-do-i-check-which-version-of-one-i-m-using-within-python">
-<h2>How do I check which version of ONE I’m using within Python?<a class="headerlink" href="#how-do-i-check-which-version-of-one-i-m-using-within-python" title="Permalink to this heading"></a></h2>
+<h2>How do I check which version of ONE I’m using within Python?<a class="headerlink" href="#how-do-i-check-which-version-of-one-i-m-using-within-python" title="Link to this heading"></a></h2>
 <p>You can check your version with the following: <code class="docutils literal notranslate"><span class="pre">print(ONE.version)</span></code>.<br />
 The latest version can be found in the CHANGELOG, <a class="reference external" href="https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md">here</a>. <br />
 To update to the latest available version run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">ONE-api</span></code>.</p>
 </section>
 <section id="how-do-i-use-one-in-a-read-only-environment">
-<h2>How do I use ONE in a read-only environment?<a class="headerlink" href="#how-do-i-use-one-in-a-read-only-environment" title="Permalink to this heading"></a></h2>
+<h2>How do I use ONE in a read-only environment?<a class="headerlink" href="#how-do-i-use-one-in-a-read-only-environment" title="Link to this heading"></a></h2>
 <p>To use ONE without any write access or internet access, simply instantiate in local mode:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/dir&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
@@ -298,21 +298,21 @@ and set <code class="docutils literal notranslate"><span class="pre">cache_rest=
 </div>
 </section>
 <section id="why-does-the-search-return-a-lazyid-object">
-<h2>Why does the search return a LazyID object?<a class="headerlink" href="#why-does-the-search-return-a-lazyid-object" title="Permalink to this heading"></a></h2>
+<h2>Why does the search return a LazyID object?<a class="headerlink" href="#why-does-the-search-return-a-lazyid-object" title="Link to this heading"></a></h2>
 <p>When in remote mode using one.search or one.search_insertions, a LazyID object is returned instead of a list.
 It behaves exactly the same as a list (you can index, slice and get its length).  Instead of retrieving all the
 values from the database query it will fetch only the items you index from the list.  This greatly speeds up
 the function when there are large search results.</p>
 </section>
 <section id="how-do-i-get-information-about-a-session-from-an-experiment-id">
-<h2>How do I get information about a session from an experiment ID?<a class="headerlink" href="#how-do-i-get-information-about-a-session-from-an-experiment-id" title="Permalink to this heading"></a></h2>
+<h2>How do I get information about a session from an experiment ID?<a class="headerlink" href="#how-do-i-get-information-about-a-session-from-an-experiment-id" title="Link to this heading"></a></h2>
 <p>You can fetch a dictionary of experiment details from an experiment ID using the <code class="docutils literal notranslate"><span class="pre">get_details</span></code> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">details</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches">
-<h2>How do I search for sessions with the exact subject name (excluding partial matches)?<a class="headerlink" href="#how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches" title="Permalink to this heading"></a></h2>
+<h2>How do I search for sessions with the exact subject name (excluding partial matches)?<a class="headerlink" href="#how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches" title="Link to this heading"></a></h2>
 <p>When not in remote mode you can use a <a class="reference internal" href="#notebooks/one_search/one_search.html#Advanced-searching"><span class="xref myst">regular expression</span></a>
 to assert the start and end of the search string:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Should be True by default</span>
@@ -328,7 +328,7 @@ to assert the start and end of the search string:</p>
 </div>
 </section>
 <section id="why-are-my-search-results-inconsistent-and-or-seem-to-change">
-<h2>Why are my search results inconsistent and/or seem to change?<a class="headerlink" href="#why-are-my-search-results-inconsistent-and-or-seem-to-change" title="Permalink to this heading"></a></h2>
+<h2>Why are my search results inconsistent and/or seem to change?<a class="headerlink" href="#why-are-my-search-results-inconsistent-and-or-seem-to-change" title="Link to this heading"></a></h2>
 <p>This may be caused by one of two things:</p>
 <p>First, each day when connecting to the database you download an updated cache table. The data on the database
 may simply have changed, or you are loading a different cache table from somewhere. This may be because you

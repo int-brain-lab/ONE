@@ -13,13 +13,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -129,7 +129,7 @@
            <div itemprop="articleBody">
              
   <section id="module-one.remote.base">
-<span id="one-remote-base"></span><h1>one.remote.base<a class="headerlink" href="#module-one.remote.base" title="Permalink to this heading"></a></h1>
+<span id="one-remote-base"></span><h1>one.remote.base<a class="headerlink" href="#module-one.remote.base" title="Link to this heading"></a></h1>
 <p>Download methods common to all remote file download clients.</p>
 <p>All supported access protocols are defined in ALYX_JSON.</p>
 <dl class="simple">
@@ -178,7 +178,7 @@ AlyxClient.download_file.</p>
 </table>
 <dl class="py data">
 <dt class="sig sig-object py" id="one.remote.base.ALYX_JSON">
-<span class="sig-name descname"><span class="pre">ALYX_JSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'access_protocol':</span> <span class="pre">{('aws',</span> <span class="pre">'http',</span> <span class="pre">'kachary',</span> <span class="pre">'globus')}}</span></em><a class="headerlink" href="#one.remote.base.ALYX_JSON" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ALYX_JSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'access_protocol':</span> <span class="pre">{('aws',</span> <span class="pre">'http',</span> <span class="pre">'kachary',</span> <span class="pre">'globus')}}</span></em><a class="headerlink" href="#one.remote.base.ALYX_JSON" title="Link to this definition"></a></dt>
 <dd><p>Location of the remote download client parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -189,7 +189,7 @@ AlyxClient.download_file.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.base.load_client_params">
-<span class="sig-name descname"><span class="pre">load_client_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_present</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#load_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.load_client_params" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_client_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_present</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#load_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.load_client_params" title="Link to this definition"></a></dt>
 <dd><p>Load the parameters from the remote params file.  If a client key is provided, only those
 client parameters are returned.  NB: Remote param values are expected to all be dicts.</p>
 <dl class="field-list simple">
@@ -229,7 +229,7 @@ client parameters are returned.  NB: Remote param values are expected to all be 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.base.save_client_params">
-<span class="sig-name descname"><span class="pre">save_client_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_pars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#save_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.save_client_params" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save_client_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_pars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#save_client_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.save_client_params" title="Link to this definition"></a></dt>
 <dd><p>Save parameters into the remote params file.  If a client key is provided, parameters are
 saved into this field.</p>
 <dl class="field-list simple">
@@ -247,29 +247,29 @@ saved into this field.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.remote.base.DownloadClient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DownloadClient</span></span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DownloadClient</span></span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Data download handler base class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.base.DownloadClient.to_address">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.to_address" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.to_address" title="Link to this definition"></a></dt>
 <dd><p>Returns the remote data URL for a given ALF path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.base.DownloadClient.download_file">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.download_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.download_file" title="Link to this definition"></a></dt>
 <dd><p>Download an ALF dataset given its address.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.base.DownloadClient.setup">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.setup" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.setup" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.base.DownloadClient.repo_from_alyx">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">repo_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.repo_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.repo_from_alyx" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">repo_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/base.html#DownloadClient.repo_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.base.DownloadClient.repo_from_alyx" title="Link to this definition"></a></dt>
 <dd><p>Return the data repository information for a given data repository.</p>
 </dd></dl>
 

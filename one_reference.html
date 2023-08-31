@@ -13,13 +13,13 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script src="_static/clipboard.min.js"></script>
-        <script src="_static/copybutton.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -119,27 +119,27 @@
            <div itemprop="articleBody">
              
   <section id="introduction-to-one-open-neurophysiology-environment">
-<h1>Introduction to ONE (Open Neurophysiology Environment)<a class="headerlink" href="#introduction-to-one-open-neurophysiology-environment" title="Permalink to this heading"></a></h1>
+<h1>Introduction to ONE (Open Neurophysiology Environment)<a class="headerlink" href="#introduction-to-one-open-neurophysiology-environment" title="Link to this heading"></a></h1>
 <p>The Open Neurophysiology Environment is a protocol for standardizing, searching and sharing
 neurophysiology data.</p>
 <p>ONE defines a simple set of conventions for how to store and share neurophysiology data, including features such as cross-references between datasets, versioning, and time synchronization. The easiest way to share data with ONE is save it in files following the <a class="reference download internal" download="" href="_downloads/d82e118af539e2761734231bc1153cab/Open_Neurophysiology_Environment_Filename_Convention.pdf"><span class="xref download myst">ONE filename convention</span></a>, using <a class="reference external" href="https://docs.google.com/spreadsheets/d/13-3f1JE_wdSAqlO2xi_6XV8nQ5up-uaOIvWAYFBJ7q0/edit#gid=0">standard filenames</a> when applicable, and put them on a website. By following this convention, individual labs or small collaborations can enable users to easily load their data and understand how it is organized, without having to spend hours reading documentation.</p>
 <p>ONE also provides an API to search and load datasets. The same API commands can be used to access a few files kept on a user’s local machine, or large collections of files stored on a remote server. By releasing data in remote mode, large collaborations can release data covering all aspects of their experiments while allowing users to find and download only the specific data items that they need. Using the same interface to access small and large collections makes it easy for scientists to share data using ONE as a standard, and to scale up as their projects grow.</p>
 <p>The following documentation describes the ONE API, and how to use it to access data from the <a class="reference external" href="https://www.internationalbrainlab.com/">International Brain Lab</a>.</p>
 <section id="how-the-one-api-works">
-<h2>How the ONE API works<a class="headerlink" href="#how-the-one-api-works" title="Permalink to this heading"></a></h2>
+<h2>How the ONE API works<a class="headerlink" href="#how-the-one-api-works" title="Link to this heading"></a></h2>
 <p>The API comprises three simple methods to search, list and load data.
 Because the data files follow a standard naming convention, the Open Neurophysiology Environment (ONE)
 provides a way for scientists to analyze data from multiple data providers using the same analysis code.
 There is no need for the scientist to explicitly download data files or understand their format - this
 is all handled seamlessly by the ONE framework.</p>
 <section id="experiment-ids">
-<h3>Experiment IDs<a class="headerlink" href="#experiment-ids" title="Permalink to this heading"></a></h3>
+<h3>Experiment IDs<a class="headerlink" href="#experiment-ids" title="Link to this heading"></a></h3>
 <p>Every experimental session is identified by an <em>experiment ID</em> (<em>eID</em>) – a string that uniquely
 identifies a particular experiment. This may be a path fragment (i.e. subject/date/number) or <a class="reference external" href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a>.</p>
 <p>For detailed information, see the <a class="reference internal" href="notebooks/experiment_ids.html"><span class="doc std std-doc">searching data</span></a> guide.</p>
 </section>
 <section id="searching-for-experiments">
-<h3>Searching for experiments<a class="headerlink" href="#searching-for-experiments" title="Permalink to this heading"></a></h3>
+<h3>Searching for experiments<a class="headerlink" href="#searching-for-experiments" title="Link to this heading"></a></h3>
 <p>To obtain the eIDs of experiments a user can use the search method to filter experiments by a set of criteria:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
     <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;CortexLabUCL&#39;</span><span class="p">,</span> 
@@ -157,7 +157,7 @@ you want are exactly those with datasets describing the ephys recordings and tha
 <p>For detailed information, see the <a class="reference internal" href="notebooks/one_search/one_search.html"><span class="doc std std-doc">searching data</span></a> guide.</p>
 </section>
 <section id="datasets">
-<h3>Datasets<a class="headerlink" href="#datasets" title="Permalink to this heading"></a></h3>
+<h3>Datasets<a class="headerlink" href="#datasets" title="Link to this heading"></a></h3>
 <p>The data for each experiment are organized into <em>datasets</em>, which are normally (but not always)
 numerical arrays. A <em>dataset name</em> is a string identifying a particular piece of data
 (such as <code class="docutils literal notranslate"><span class="pre">spikes.times</span></code>). When a user requests one of these, they are guaranteed to be returned the
@@ -185,7 +185,7 @@ may optionally be organized by lab.</p>
 <p>For detailed information, see the <a class="reference internal" href="notebooks/datasets_and_types.html"><span class="doc std std-doc">datasets and types</span></a> guide.</p>
 </section>
 <section id="collections-and-revisions">
-<h3>Collections and revisions<a class="headerlink" href="#collections-and-revisions" title="Permalink to this heading"></a></h3>
+<h3>Collections and revisions<a class="headerlink" href="#collections-and-revisions" title="Link to this heading"></a></h3>
 <p>An experiment may contain multiple datasets of the same type. For example in an electrophysiology
 recording with multiple probes, for which the results of multiple spike sorting algorithms have been stored,
 the user must be able to specify which version of <code class="docutils literal notranslate"><span class="pre">spikes.times</span></code> they want. In this case, the datasets
@@ -201,7 +201,7 @@ analysis by specifying a single date, and thus be given a snapshot of what the m
 <p>For detailed information, see the <a class="reference internal" href="alf_intro.html"><span class="doc std std-doc">full ALF specification</span></a>.</p>
 </section>
 <section id="listing-data">
-<h3>Listing data<a class="headerlink" href="#listing-data" title="Permalink to this heading"></a></h3>
+<h3>Listing data<a class="headerlink" href="#listing-data" title="Link to this heading"></a></h3>
 <p>The second API method allows the user to list and filter the available datasets for an experiment.
 To list the datasets for a given experiment and filter by a collection, the user would run</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe00&#39;</span><span class="p">)</span>
@@ -211,7 +211,7 @@ To list the datasets for a given experiment and filter by a collection, the user
 <p>For detailed information, see the <a class="reference internal" href="notebooks/one_list/one_list.html"><span class="doc std std-doc">listing data</span></a> guide.</p>
 </section>
 <section id="loading-data">
-<h3>Loading data<a class="headerlink" href="#loading-data" title="Permalink to this heading"></a></h3>
+<h3>Loading data<a class="headerlink" href="#loading-data" title="Link to this heading"></a></h3>
 <p>Finally the user can load data for the experiment using one of the load methods:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">st</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">cbl</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eID</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters.brain_location&#39;</span><span class="p">])</span>
 </pre></div>
@@ -221,7 +221,7 @@ spikes recorded in that experiment, together with an estimate of the brain locat
 <p>For detailed information, see the <a class="reference internal" href="notebooks/one_load/one_load.html"><span class="doc std std-doc">loading data</span></a> guide.</p>
 </section>
 <section id="for-data-sharers">
-<h3>For data sharers<a class="headerlink" href="#for-data-sharers" title="Permalink to this heading"></a></h3>
+<h3>For data sharers<a class="headerlink" href="#for-data-sharers" title="Link to this heading"></a></h3>
 <p>Data standards are only adopted when they are easy to use, for both providers and users of data.
 For users, the three ONE methods will be simple to learn, and will cover most common use cases.</p>
 <p>For providers, a key advantage of this framework is its low barrier to entry. To share data with ONE,

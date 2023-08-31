@@ -12,13 +12,13 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -130,7 +130,9 @@
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">Listable</span><span class="p">,</span> <span class="n">ensure_list</span>
 
 
-<div class="viewcode-block" id="recurse"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.recurse">[docs]</a><span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="recurse">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.recurse">[docs]</a>
+<span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to call decorated function recursively if first arg is non-string iterable.</span>
 
 <span class="sd">    Allows decorated methods to accept both single values, and lists/tuples of values.  When</span>
@@ -161,7 +163,10 @@
     <span class="k">return</span> <span class="n">wrapper_decorator</span></div>
 
 
-<div class="viewcode-block" id="parse_values"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.parse_values">[docs]</a><span class="k">def</span> <span class="nf">parse_values</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+
+<div class="viewcode-block" id="parse_values">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.parse_values">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_values</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert str values in reference dict to appropriate type.</span>
 
 <span class="sd">    Example</span>
@@ -192,14 +197,19 @@
     <span class="k">return</span> <span class="n">wrapper_decorator</span></div>
 
 
-<div class="viewcode-block" id="ConversionMixin"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin">[docs]</a><span class="k">class</span> <span class="nc">ConversionMixin</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ConversionMixin">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin">[docs]</a>
+<span class="k">class</span> <span class="nc">ConversionMixin</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A mixin providing methods to interconvert experiment identifiers&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_par</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ConversionMixin.to_eid"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.to_eid">[docs]</a>    <span class="nd">@recurse</span>
+<div class="viewcode-block" id="ConversionMixin.to_eid">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.to_eid">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">to_eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="nb">id</span><span class="p">:</span> <span class="n">Listable</span><span class="p">(</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Listable</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
@@ -256,7 +266,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unrecognized experiment ID&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.eid2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2path">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.eid2path">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2path">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">)]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From an experiment id or a list of experiment ids, gets the local cache path</span>
@@ -285,7 +298,10 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.path2eid"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2eid">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.path2eid">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2eid">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From a local path, gets the experiment id</span>
@@ -321,7 +337,10 @@
         <span class="n">eid</span><span class="p">,</span> <span class="o">=</span> <span class="n">sessions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
         <span class="k">return</span> <span class="n">eid</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.path2record"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2record">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.path2record">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2record">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">path2record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a file or session path to a dataset or session cache record.</span>
 
@@ -372,7 +391,10 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Multiple records found&#39;</span>
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="n">rec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.path2url"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2url">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.path2url">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2url">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">path2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a local file path, constructs the URL of the remote file.</span>
@@ -392,7 +414,10 @@
             <span class="k">return</span>
         <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record2url</span><span class="p">)(</span><span class="n">record</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.record2url"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2url">[docs]</a>    <span class="k">def</span> <span class="nf">record2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ConversionMixin.record2url">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2url">[docs]</a>
+    <span class="k">def</span> <span class="nf">record2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a session or dataset record to a remote URL</span>
 
 <span class="sd">        NB: Requires online instance</span>
@@ -428,7 +453,10 @@
         <span class="n">url</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">webclient</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.record2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2path">[docs]</a>    <span class="k">def</span> <span class="nf">record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="ConversionMixin.record2path">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2path">[docs]</a>
+    <span class="k">def</span> <span class="nf">record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a set of dataset records, checks the corresponding exists flag in the cache</span>
 <span class="sd">        correctly reflects the files system</span>
@@ -448,7 +476,10 @@
         <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file</span>  <span class="c1"># files[0] if len(datasets) == 1 else files</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.eid2ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2ref">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.eid2ref">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2ref">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">eid2ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> \
             <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -496,7 +527,10 @@
             <span class="n">format_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span>
         <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.ref2eid"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2eid">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.ref2eid">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2eid">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">ref2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns experiment uuid, given one or more experiment references.</span>
@@ -532,7 +566,10 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;session not found&#39;</span>
         <span class="k">return</span> <span class="n">session</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.ref2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2path">[docs]</a>    <span class="nd">@recurse</span>
+
+<div class="viewcode-block" id="ConversionMixin.ref2path">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2path">[docs]</a>
+    <span class="nd">@recurse</span>
     <span class="k">def</span> <span class="nf">ref2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert one or more experiment references to session path(s).</span>
@@ -564,7 +601,10 @@
         <span class="n">ref2eid</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref2eid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.path2ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2ref">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="ConversionMixin.path2ref">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2ref">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="nd">@parse_values</span>
     <span class="k">def</span> <span class="nf">path2ref</span><span class="p">(</span><span class="n">path_str</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -603,7 +643,10 @@
             <span class="n">ref</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.is_exp_ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.is_exp_ref">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="ConversionMixin.is_exp_ref">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.is_exp_ref">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_exp_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True is ref is a valid experiment reference.</span>
@@ -639,7 +682,10 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d</span><span class="si">{4}</span><span class="s1">(-\d</span><span class="si">{2}</span><span class="s1">)</span><span class="si">{2}</span><span class="s1">_(\d{1,3})_\w+&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.ref2dict"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2dict">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="ConversionMixin.ref2dict">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2dict">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="nd">@parse_values</span>
     <span class="k">def</span> <span class="nf">ref2dict</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -672,7 +718,10 @@
         <span class="n">ref</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">ref</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConversionMixin.dict2ref"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.dict2ref">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="ConversionMixin.dict2ref">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.dict2ref">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">dict2ref</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.</span>
@@ -695,10 +744,14 @@
         <span class="n">format_str</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;{date:%Y-%m-</span><span class="si">%d</span><span class="s1">}_</span><span class="si">{sequence:d}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span>
                       <span class="k">if</span> <span class="n">parsed</span>
                       <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref_dict</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref_dict</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="one_path_from_dataset"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.one_path_from_dataset">[docs]</a><span class="k">def</span> <span class="nf">one_path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">one_cache</span><span class="p">):</span>
+
+<div class="viewcode-block" id="one_path_from_dataset">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.one_path_from_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">one_path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">one_cache</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns local one file path from a dset record or a list of dsets records from REST.</span>
 <span class="sd">    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.</span>
@@ -718,7 +771,10 @@
     <span class="k">return</span> <span class="n">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">one_cache</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="path_from_dataset"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_dataset">[docs]</a><span class="k">def</span> <span class="nf">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="path_from_dataset">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the local file path from a dset record from a REST query.</span>
 <span class="sd">    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.</span>
@@ -750,7 +806,10 @@
     <span class="k">return</span> <span class="n">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="path_from_filerecord"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_filerecord">[docs]</a><span class="k">def</span> <span class="nf">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="path_from_filerecord">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_filerecord">[docs]</a>
+<span class="k">def</span> <span class="nf">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a data file Path constructed from an Alyx file record.  The Path type returned</span>
 <span class="sd">    depends on the type of root_path: If root_path is a string a Path object is returned,</span>
@@ -784,7 +843,10 @@
     <span class="k">return</span> <span class="n">file_path</span></div>
 
 
-<div class="viewcode-block" id="session_record2path"><a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.session_record2path">[docs]</a><span class="k">def</span> <span class="nf">session_record2path</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="session_record2path">
+<a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.session_record2path">[docs]</a>
+<span class="k">def</span> <span class="nf">session_record2path</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a session record into a path.</span>
 
@@ -823,6 +885,7 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">rel_path</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

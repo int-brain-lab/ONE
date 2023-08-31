@@ -12,13 +12,13 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script src="../../../_static/clipboard.min.js"></script>
-        <script src="../../../_static/copybutton.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -230,14 +230,19 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="path_pattern"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.path_pattern">[docs]</a><span class="k">def</span> <span class="nf">path_pattern</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="path_pattern">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.path_pattern">[docs]</a>
+<span class="k">def</span> <span class="nf">path_pattern</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a template string representing the where the ALF parts lie in an ALF path.</span>
 <span class="sd">    Brackets denote optional parts.  This is used for documentation purposes only.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">?*</span><span class="se">\\</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">FULL_SPEC</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="describe"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.describe">[docs]</a><span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
+
+<div class="viewcode-block" id="describe">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.describe">[docs]</a>
+<span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Print a description of an ALF part.</span>
 <span class="sd">    Prints the path pattern along with a description of the given ALF part (or all parts if None).</span>
 
@@ -277,6 +282,7 @@
         <span class="n">lines</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">ln</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">replace_whitespace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">SPEC_DESCRIPTION</span><span class="p">[</span><span class="n">part</span><span class="p">]</span><span class="o">.</span><span class="n">splitlines</span><span class="p">())</span>
         <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">ln</span><span class="p">)</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_dromedary</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -322,7 +328,9 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;(?P&lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&gt;</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s1">)&#39;</span>
 
 
-<div class="viewcode-block" id="regex"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.regex">[docs]</a><span class="k">def</span> <span class="nf">regex</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">FULL_SPEC</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">:</span>
+<div class="viewcode-block" id="regex">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.regex">[docs]</a>
+<span class="k">def</span> <span class="nf">regex</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">FULL_SPEC</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Construct a regular expression pattern for parsing or validating an ALF</span>
 
@@ -361,7 +369,10 @@
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">spec_str</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="is_valid"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_valid">[docs]</a><span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+
+<div class="viewcode-block" id="is_valid">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_valid">[docs]</a>
+<span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a True for a given file name if it is an ALF file, otherwise returns False</span>
 
@@ -389,7 +400,10 @@
     <span class="k">return</span> <span class="n">regex</span><span class="p">(</span><span class="n">FILE_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="is_session_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_session_path">[docs]</a><span class="k">def</span> <span class="nf">is_session_path</span><span class="p">(</span><span class="n">path_object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="is_session_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_session_path">[docs]</a>
+<span class="k">def</span> <span class="nf">is_session_path</span><span class="p">(</span><span class="n">path_object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks if the syntax corresponds to a session path.  Note that there is no physical check</span>
 <span class="sd">    about existence nor contents</span>
@@ -411,7 +425,10 @@
     <span class="k">return</span> <span class="n">session_spec</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path_object</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="is_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">is_uuid_string</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="is_uuid_string">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_uuid_string">[docs]</a>
+<span class="k">def</span> <span class="nf">is_uuid_string</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Bool test for randomly generated hexadecimal uuid validity.</span>
 <span class="sd">    NB: unlike is_uuid, is_uuid_string checks that uuid is correctly hyphen separated</span>
@@ -419,7 +436,10 @@
     <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="n">string</span><span class="p">))</span> <span class="o">==</span> <span class="n">string</span></div>
 
 
-<div class="viewcode-block" id="is_uuid"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_uuid">[docs]</a><span class="k">def</span> <span class="nf">is_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="is_uuid">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.is_uuid">[docs]</a>
+<span class="k">def</span> <span class="nf">is_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bool test for randomly generated hexadecimal uuid validity.</span>
 <span class="sd">    Unlike `is_uuid_string`, this function accepts UUID objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -433,7 +453,10 @@
     <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">UUID</span><span class="p">)</span> <span class="ow">and</span> <span class="n">uuid</span><span class="o">.</span><span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span></div>
 
 
-<div class="viewcode-block" id="to_alf"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.to_alf">[docs]</a><span class="k">def</span> <span class="nf">to_alf</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="to_alf">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.to_alf">[docs]</a>
+<span class="k">def</span> <span class="nf">to_alf</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a set of ALF file parts, return a valid ALF file name.  Essential periods and</span>
 <span class="sd">    underscores are added by the function.</span>
@@ -507,7 +530,10 @@
     <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="readableALF"><a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.readableALF">[docs]</a><span class="k">def</span> <span class="nf">readableALF</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">capitalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="readableALF">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.spec.html#one.alf.spec.readableALF">[docs]</a>
+<span class="k">def</span> <span class="nf">readableALF</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">capitalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert camel case string to space separated string.</span>
 
 <span class="sd">    Given an ALF object name or attribute, return a string where the camel case words are space</span>
@@ -544,6 +570,7 @@
     <span class="n">words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
     <span class="n">display_str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">words</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">display_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">display_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">capitalize</span> <span class="k">else</span> <span class="n">display_str</span></div>
+
 </pre></div>
 
            </div>

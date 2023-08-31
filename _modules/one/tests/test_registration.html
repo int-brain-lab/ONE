@@ -12,13 +12,13 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script src="../../../_static/clipboard.min.js"></script>
-        <script src="../../../_static/copybutton.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -128,9 +128,13 @@
 <span class="kn">from</span> <span class="nn">one.tests</span> <span class="kn">import</span> <span class="n">util</span>
 
 
-<div class="viewcode-block" id="TestDatasetTypes"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes">[docs]</a><span class="k">class</span> <span class="nc">TestDatasetTypes</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestDatasetTypes">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes">[docs]</a>
+<span class="k">class</span> <span class="nc">TestDatasetTypes</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for dataset type validation.&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TestDatasetTypes.test_get_dataset_type"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes.test_get_dataset_type">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_dataset_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestDatasetTypes.test_get_dataset_type">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes.test_get_dataset_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_dataset_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test one.registration.get_dataset_type function.&quot;&quot;&quot;</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;obj.attr&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
@@ -151,10 +155,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">registration</span><span class="o">.</span><span class="n">get_dataset_type</span><span class="p">,</span> <span class="s1">&#39;no_match&#39;</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)</span>
         <span class="c1"># Add an ambiguous dataset type pattern</span>
         <span class="n">dtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo.bor&#39;</span><span class="p">,</span> <span class="s1">&#39;filename_pattern&#39;</span><span class="p">:</span> <span class="s1">&#39;foo.bor*&#39;</span><span class="p">}))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">registration</span><span class="o">.</span><span class="n">get_dataset_type</span><span class="p">,</span> <span class="s1">&#39;foo.bor&#39;</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">registration</span><span class="o">.</span><span class="n">get_dataset_type</span><span class="p">,</span> <span class="s1">&#39;foo.bor&#39;</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TestRegistrationClient"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestRegistrationClient">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient">[docs]</a>
+<span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TestRegistrationClient</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test class for RegistrationClient class.&quot;&quot;&quot;</span>
     <span class="n">one</span> <span class="o">=</span> <span class="kc">None</span>
@@ -162,7 +170,9 @@
     <span class="n">temp_dir</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">tag</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="TestRegistrationClient.setUpClass"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.setUpClass">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TestRegistrationClient.setUpClass">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.setUpClass">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">temp_dir</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">set_up_env</span><span class="p">()</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -179,10 +189,16 @@
             <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">filepath</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.setUp"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.setUp">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.setUp">[docs]</a>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">registration</span><span class="o">.</span><span class="n">RegistrationClient</span><span class="p">(</span><span class="n">one</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_water_administration"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_water_administration">[docs]</a>    <span class="k">def</span> <span class="nf">test_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_water_administration">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_water_administration">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.register_water_administration&quot;&quot;&quot;</span>
         <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="mf">35.10000000235</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">)</span>
@@ -210,7 +226,10 @@
              <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="mf">3.6</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_register_weight"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_weight">[docs]</a>    <span class="k">def</span> <span class="nf">test_register_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_register_weight">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_weight">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_register_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.register_weight&quot;&quot;&quot;</span>
         <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register_weight</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="mf">35.10000000235</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">)</span>
@@ -220,7 +239,10 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register_weight</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_ensure_ISO8601"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_ensure_ISO8601">[docs]</a>    <span class="k">def</span> <span class="nf">test_ensure_ISO8601</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_ensure_ISO8601">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_ensure_ISO8601">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_ensure_ISO8601</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.ensure_ISO8601&quot;&quot;&quot;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">525119</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="s1">&#39;2021-07-14T15:53:15.525119&#39;</span><span class="p">)</span>
@@ -230,7 +252,10 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">date</span><span class="si">:</span><span class="s1">%D</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_exists"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_exists">[docs]</a>    <span class="k">def</span> <span class="nf">test_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_exists">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_exists">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.assert_exists&quot;&quot;&quot;</span>
         <span class="c1"># Check user endpoint</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">alferr</span><span class="o">.</span><span class="n">AlyxSubjectNotFound</span><span class="p">):</span>
@@ -247,7 +272,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">HTTPError</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_find_files"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_find_files">[docs]</a>    <span class="k">def</span> <span class="nf">test_find_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_find_files">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_find_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_find_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.find_files&quot;&quot;&quot;</span>
         <span class="c1"># Remove a dataset type from the client to check that the dataset(s) are ignored</span>
         <span class="n">existing</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]))</span>
@@ -259,7 +287,10 @@
         <span class="c1"># Check removed file pattern not in file list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span> <span class="n">removed</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_create_new_session"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_create_new_session">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_create_new_session">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_create_new_session">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.create_new_session&quot;&quot;&quot;</span>
         <span class="c1"># Check register = True</span>
         <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span>
@@ -278,7 +309,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">expected</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_register_session"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_session">[docs]</a>    <span class="k">def</span> <span class="nf">test_register_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_register_session">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_session">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_register_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.register_session&quot;&quot;&quot;</span>
         <span class="c1"># Find some datasets to create</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
@@ -309,7 +343,10 @@
         <span class="n">ses</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">session_path</span><span class="p">),</span> <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_create_sessions"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_create_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_create_sessions">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_create_sessions">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.create_sessions&quot;&quot;&quot;</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="n">session_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -328,7 +365,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">session_path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_register_files"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_files">[docs]</a>    <span class="k">def</span> <span class="nf">test_register_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_register_files">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_register_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.register_files&quot;&quot;&quot;</span>
         <span class="c1"># Test a few things not checked in register_session</span>
         <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">)</span>
@@ -470,7 +510,10 @@
             <span class="n">alyx_mock</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="n">HTTPError</span><span class="p">(</span><span class="n">response</span><span class="o">=</span><span class="n">mock_resp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">HTTPError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register_files</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="p">[</span><span class="n">file</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_next_revision"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_next_revision">[docs]</a>    <span class="k">def</span> <span class="nf">test_next_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_next_revision">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_next_revision">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_next_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test RegistrationClient._next_revision method&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;2020-01-01a&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">))</span>
         <span class="n">reserved</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2020-01-01a&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-01b&#39;</span><span class="p">]</span>
@@ -479,14 +522,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">945</span><span class="p">,</span> <span class="nb">ord</span><span class="p">(</span><span class="n">new_revision</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">,</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="s1">&#39;do&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.test_instantiation"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_instantiation">[docs]</a>    <span class="k">def</span> <span class="nf">test_instantiation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.test_instantiation">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_instantiation">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_instantiation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test RegistrationClient.__init__ with no args&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.registration.ONE&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mk</span><span class="p">:</span>
             <span class="n">client</span> <span class="o">=</span> <span class="n">registration</span><span class="o">.</span><span class="n">RegistrationClient</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">one</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">)</span>
         <span class="n">mk</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestRegistrationClient.tearDownClass"><a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.tearDownClass">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="TestRegistrationClient.tearDownClass">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.tearDownClass">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">admin</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;water-administrations&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
                                        <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname,&#39;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -496,7 +545,9 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">subject</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tags&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">tag</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div></div>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+</div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

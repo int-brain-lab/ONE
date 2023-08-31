@@ -13,13 +13,13 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script src="_static/clipboard.min.js"></script>
-        <script src="_static/copybutton.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -118,9 +118,9 @@
            <div itemprop="articleBody">
              
   <section id="one-installation-and-setup">
-<h1>ONE installation and setup<a class="headerlink" href="#one-installation-and-setup" title="Permalink to this heading"></a></h1>
+<h1>ONE installation and setup<a class="headerlink" href="#one-installation-and-setup" title="Link to this heading"></a></h1>
 <section id="installation">
-<h2>1. Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<h2>1. Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>ONE can be installed as a standalone package with python 3.7 or later by running,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">ONE</span><span class="o">-</span><span class="n">api</span>
 </pre></div>
@@ -132,11 +132,11 @@ installed, so you can skip this step!</p>
 </div>
 </section>
 <section id="setup">
-<h2>2. Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>2. Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>To start using ONE, we must first configure some settings that tell ONE whether it should connect to a database or
 use a local file system</p>
 <section id="connect-to-ibl-public-database">
-<h3>Connect to IBL Public database<a class="headerlink" href="#connect-to-ibl-public-database" title="Permalink to this heading"></a></h3>
+<h3>Connect to IBL Public database<a class="headerlink" href="#connect-to-ibl-public-database" title="Link to this heading"></a></h3>
 <p>By default ONE is configured to connect to the public IBL database, this can be setup by typing the following</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># silent means use default parameters for the IBL public database</span>
@@ -146,7 +146,7 @@ use a local file system</p>
 <p>If you are having an issue at this stage, or need to re-configure ONE, please see <a class="reference internal" href="FAQ.html#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it"><span class="std std-ref">this FAQ page</span></a>.</p>
 </section>
 <section id="using-local-folder-structure">
-<h3>Using local folder structure<a class="headerlink" href="#using-local-folder-structure" title="Permalink to this heading"></a></h3>
+<h3>Using local folder structure<a class="headerlink" href="#using-local-folder-structure" title="Link to this heading"></a></h3>
 <p>ONE can also be used independently of a database by using a local cache directory. This can be setup in the following way</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">One</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;/home/user/downlaods/ONE/behavior_paper&#39;</span><span class="p">)</span>
@@ -155,7 +155,7 @@ use a local file system</p>
 <p>For more information about using ONE with a local cache directory please refer to this <a class="reference internal" href="notebooks/data_sharing.html"><span class="doc std std-doc">section</span></a>.</p>
 </section>
 <section id="connecting-to-specific-database-relevant-for-ibl-users">
-<h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Permalink to this heading"></a></h3>
+<h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Link to this heading"></a></h3>
 <p>To connect to a specific database, for example the internal IBL Alyx database, a base-url argument must be given</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
@@ -173,7 +173,7 @@ available datasets</p>
 </section>
 </section>
 <section id="post-setup">
-<h2>3. Post setup<a class="headerlink" href="#post-setup" title="Permalink to this heading"></a></h2>
+<h2>3. Post setup<a class="headerlink" href="#post-setup" title="Link to this heading"></a></h2>
 <p>Once you’ve setup the server you can initialise ONE in the following way and it will automatically connect to the
 default database configured in your settings,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
@@ -186,7 +186,7 @@ default database configured in your settings,</p>
 </div>
 </section>
 <section id="update">
-<h2>4. Update<a class="headerlink" href="#update" title="Permalink to this heading"></a></h2>
+<h2>4. Update<a class="headerlink" href="#update" title="Link to this heading"></a></h2>
 <p>To update, open a shell terminal, activate the environment <code class="docutils literal notranslate"><span class="pre">iblenv</span></code> and launch the command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">ONE</span><span class="o">-</span><span class="n">api</span>
 </pre></div>

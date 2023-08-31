@@ -12,13 +12,13 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script src="../../../_static/clipboard.min.js"></script>
-        <script src="../../../_static/copybutton.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -132,7 +132,9 @@
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="rel_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.rel_path_parts">[docs]</a><span class="k">def</span> <span class="nf">rel_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="rel_path_parts">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.rel_path_parts">[docs]</a>
+<span class="k">def</span> <span class="nf">rel_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a relative path into the relevant parts.</span>
 
 <span class="sd">    A relative path follows the pattern</span>
@@ -157,7 +159,10 @@
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">REL_PATH_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="session_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.session_path_parts">[docs]</a><span class="k">def</span> <span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="session_path_parts">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.session_path_parts">[docs]</a>
+<span class="k">def</span> <span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a session path into the relevant parts.</span>
 
 <span class="sd">    Return keys:</span>
@@ -188,6 +193,7 @@
 <span class="sd">        Invalid ALF session path (assert_valid is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">SESSION_SPEC</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -228,7 +234,9 @@
         <span class="k">return</span> <span class="n">empty</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">empty</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 
-<div class="viewcode-block" id="filename_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.filename_parts">[docs]</a><span class="k">def</span> <span class="nf">filename_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<div class="viewcode-block" id="filename_parts">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.filename_parts">[docs]</a>
+<span class="k">def</span> <span class="nf">filename_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the parsed elements of a given ALF filename.</span>
 
@@ -286,7 +294,10 @@
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="full_path_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.full_path_parts">[docs]</a><span class="k">def</span> <span class="nf">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="full_path_parts">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.full_path_parts">[docs]</a>
+<span class="k">def</span> <span class="nf">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse all filename and folder parts.</span>
 
 <span class="sd">    Parameters</span>
@@ -348,7 +359,10 @@
         <span class="k">return</span> <span class="n">folders</span> <span class="o">+</span> <span class="n">dataset</span></div>
 
 
-<div class="viewcode-block" id="folder_parts"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.folder_parts">[docs]</a><span class="k">def</span> <span class="nf">folder_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="folder_parts">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.folder_parts">[docs]</a>
+<span class="k">def</span> <span class="nf">folder_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse all folder parts, including session, collection and revision.</span>
 
 <span class="sd">    Parameters</span>
@@ -390,6 +404,7 @@
     <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">_isdatetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if input is valid ISO date string.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -399,7 +414,9 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="get_session_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_session_path">[docs]</a><span class="k">def</span> <span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_session_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_session_path">[docs]</a>
+<span class="k">def</span> <span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the session path from any filepath if the date/number pattern is found,</span>
 <span class="sd">    including the root directory.</span>
@@ -429,7 +446,10 @@
     <span class="k">return</span> <span class="n">sess</span></div>
 
 
-<div class="viewcode-block" id="get_alf_path"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_alf_path">[docs]</a><span class="k">def</span> <span class="nf">get_alf_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_alf_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.get_alf_path">[docs]</a>
+<span class="k">def</span> <span class="nf">get_alf_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the ALF part of a path or filename.</span>
 <span class="sd">    Attempts to return the first valid part of the path, first searching for a session path,</span>
 <span class="sd">    then relative path (collection/revision/filename), then just the filename.  If all invalid,</span>
@@ -472,7 +492,10 @@
         <span class="k">return</span> <span class="n">path</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}{</span><span class="n">FILE_SPEC</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="add_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.add_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+
+<div class="viewcode-block" id="add_uuid_string">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.add_uuid_string">[docs]</a>
+<span class="k">def</span> <span class="nf">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a UUID to the filename of an ALF path.</span>
 
@@ -519,7 +542,10 @@
     <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}{</span><span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="remove_uuid_string"><a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.remove_uuid_string">[docs]</a><span class="k">def</span> <span class="nf">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+
+<div class="viewcode-block" id="remove_uuid_string">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.remove_uuid_string">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove UUID from a filename of an ALF path.</span>
 
@@ -552,6 +578,7 @@
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">file_path</span></div>
+
 </pre></div>
 
            </div>

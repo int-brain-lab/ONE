@@ -14,13 +14,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -174,7 +174,7 @@
   <a href="useful_alyx_queries.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/
 useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section id="Useful-Alyx-REST-queries">
-<h1>Useful Alyx REST queries<a class="headerlink" href="#Useful-Alyx-REST-queries" title="Permalink to this heading"></a></h1>
+<h1>Useful Alyx REST queries<a class="headerlink" href="#Useful-Alyx-REST-queries" title="Link to this heading"></a></h1>
 <p>Examples of using ONE to query Alyx via Django REST queries.</p>
 <p>Alyx queries require and internet connection and are slower than the local cache queries using one.search, however it is much more powerful. Searching for datasets or sessions based solely on the fields in <code class="docutils literal notranslate"><span class="pre">one.search_terms</span></code> should be done using one.search. This script demonstrates some of the more complex queries that must be done remotely.</p>
 <div class="nbinput nblast docutils container">
@@ -190,7 +190,7 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 </div>
 </div>
 <section id="Exploring-the-REST-endpoints">
-<h2>Exploring the REST endpoints<a class="headerlink" href="#Exploring-the-REST-endpoints" title="Permalink to this heading"></a></h2>
+<h2>Exploring the REST endpoints<a class="headerlink" href="#Exploring-the-REST-endpoints" title="Link to this heading"></a></h2>
 <p>Full documentation of using Alyx REST interface can be found at <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <p>This URL is itself a REST endpoint, so you can list the endpoints through ONE:</p>
 <div class="nbinput docutils container">
@@ -274,16 +274,16 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="Example-queries">
-<h2>Example queries<a class="headerlink" href="#Example-queries" title="Permalink to this heading"></a></h2>
+<h2>Example queries<a class="headerlink" href="#Example-queries" title="Link to this heading"></a></h2>
 <section id="convert-session-dicts-to-eids">
-<h3>convert session dicts to eids<a class="headerlink" href="#convert-session-dicts-to-eids" title="Permalink to this heading"></a></h3>
+<h3>convert session dicts to eids<a class="headerlink" href="#convert-session-dicts-to-eids" title="Link to this heading"></a></h3>
 <p>The output of the below queries can be easily converted to eID strings with the following line:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-sessions-that-have-histology-available">
-<h3>list sessions that have histology available<a class="headerlink" href="#list-sessions-that-have-histology-available" title="Permalink to this heading"></a></h3>
+<h3>list sessions that have histology available<a class="headerlink" href="#list-sessions-that-have-histology-available" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The sessions endpoint has a `histology` parameter:</span>
 <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">histology</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -294,7 +294,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="list-experiments-spanning-channel-locations">
-<h3>list experiments spanning channel locations<a class="headerlink" href="#list-experiments-spanning-channel-locations" title="Permalink to this heading"></a></h3>
+<h3>list experiments spanning channel locations<a class="headerlink" href="#list-experiments-spanning-channel-locations" title="Link to this heading"></a></h3>
 <p>By default the channels are assigned to the regions ID available in the Allen Institute brain atlas volume. Users may want to query higher level regions, so the query will return all insertions or sessions that have at least one channel in the brain region or in one of its descendants. For example a query in Somatomotor areas would get all the leaf nodes belonging to that region and encompass somatomotor layers and primary and secondary motor areas.</p>
 <p>The table of brain regions as per the Allen Atlas is available <a class="reference external" href="https://openalyx.internationalbrainlab.org/admin/experiments/brainregion/">on alyx</a></p>
 <p>For sessions:</p>
@@ -311,19 +311,19 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="list-sessions-that-do-not-have-matlab-in-the-project-name">
-<h3>list sessions that do not have matlab in the project name<a class="headerlink" href="#list-sessions-that-do-not-have-matlab-in-the-project-name" title="Permalink to this heading"></a></h3>
+<h3>list sessions that do not have matlab in the project name<a class="headerlink" href="#list-sessions-that-do-not-have-matlab-in-the-project-name" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~project__name__icontains,matlab&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-insertions-that-have-alignment-resolved">
-<h3>list insertions that have alignment resolved<a class="headerlink" href="#list-insertions-that-have-alignment-resolved" title="Permalink to this heading"></a></h3>
+<h3>list insertions that have alignment resolved<a class="headerlink" href="#list-insertions-that-have-alignment-resolved" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;json__extended_qc__alignment_resolved,True&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-names-of-users-who-have-aligned-specified-insertion">
-<h3>list names of users who have aligned specified insertion<a class="headerlink" href="#list-names-of-users-who-have-aligned-specified-insertion" title="Permalink to this heading"></a></h3>
+<h3>list names of users who have aligned specified insertion<a class="headerlink" href="#list-names-of-users-who-have-aligned-specified-insertion" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">insertion_uuid</span> <span class="o">=</span> <span class="s1">&#39;b749446c-18e3-4987-820a-50649ab0f826&#39;</span>
 <span class="n">traj</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;trajectories&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
                       <span class="n">provenance</span><span class="o">=</span><span class="s1">&#39;Ephys aligned histology track&#39;</span><span class="p">,</span>
@@ -333,25 +333,25 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="list-probe-insertions-for-a-given-task-protocol">
-<h3>list probe insertions for a given task protocol<a class="headerlink" href="#list-probe-insertions-for-a-given-task-protocol" title="Permalink to this heading"></a></h3>
+<h3>list probe insertions for a given task protocol<a class="headerlink" href="#list-probe-insertions-for-a-given-task-protocol" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__task_protocol__icontains,choiceworld&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-spiken-sorting-tasks-that-have-errored-in-a-given-lab">
-<h3>list spiken sorting tasks that have errored in a given lab<a class="headerlink" href="#list-spiken-sorting-tasks-that-have-errored-in-a-given-lab" title="Permalink to this heading"></a></h3>
+<h3>list spiken sorting tasks that have errored in a given lab<a class="headerlink" href="#list-spiken-sorting-tasks-that-have-errored-in-a-given-lab" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">errored</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;Errored&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;angelakilab&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SpikeSorting&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-ephys-sessions-that-have-errored-tasks">
-<h3>list ephys sessions that have errored tasks<a class="headerlink" href="#list-ephys-sessions-that-have-errored-tasks" title="Permalink to this heading"></a></h3>
+<h3>list ephys sessions that have errored tasks<a class="headerlink" href="#list-ephys-sessions-that-have-errored-tasks" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;ephys&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;tasks__status,40&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="rerun-/-set-errored-tasks-to-Waiting">
-<h3>rerun / set errored tasks to Waiting<a class="headerlink" href="#rerun-/-set-errored-tasks-to-Waiting" title="Permalink to this heading"></a></h3>
+<h3>rerun / set errored tasks to Waiting<a class="headerlink" href="#rerun-/-set-errored-tasks-to-Waiting" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># List tasks with given status</span>
 <span class="n">tasks</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;EphysDLC&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;Errored&#39;</span><span class="p">)</span>
 
@@ -365,14 +365,14 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="list-sessions-where-extended-QC-exists-for-any-video">
-<h3>list sessions where extended QC exists for any video<a class="headerlink" href="#list-sessions-where-extended-QC-exists-for-any-video" title="Permalink to this heading"></a></h3>
+<h3>list sessions where extended QC exists for any video<a class="headerlink" href="#list-sessions-where-extended-QC-exists-for-any-video" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;videoLeft&#39;</span><span class="p">,</span> <span class="s1">&#39;videoRight&#39;</span><span class="p">,</span> <span class="s1">&#39;videoBody&#39;</span><span class="p">)</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;extended_qc__has_any_keys,</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="list-sessions-associated-with-a-given-release-tag">
-<h3>list sessions associated with a given release tag<a class="headerlink" href="#list-sessions-associated-with-a-given-release-tag" title="Permalink to this heading"></a></h3>
+<h3>list sessions associated with a given release tag<a class="headerlink" href="#list-sessions-associated-with-a-given-release-tag" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;data_dataset_session_related__tags__name,</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
@@ -380,16 +380,16 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </section>
 </section>
 <section id="Field-lookup-reference">
-<h2>Field lookup reference<a class="headerlink" href="#Field-lookup-reference" title="Permalink to this heading"></a></h2>
+<h2>Field lookup reference<a class="headerlink" href="#Field-lookup-reference" title="Link to this heading"></a></h2>
 <p>With the <code class="docutils literal notranslate"><span class="pre">django</span></code> parameter you can write custom filters. The syntax is <code class="docutils literal notranslate"><span class="pre">'field1__lookup,query,</span> <span class="pre">field2__lookup,query'</span></code> (the field and lookup query are separated by two underscores). For example <code class="docutils literal notranslate"><span class="pre">'nickname__icontains,ks,death_date__isnull,True'</span></code>. Multiple lookups are separated by commas, forming a logical AND (it is not possible to construct OR queries, instead make separate queries).</p>
 <p>The lookups translate to a <a class="reference external" href="https://www.w3schools.com/SQl/sql_where.asp">SQL WHERE clause</a>.</p>
 <section id="Related-field-lookups">
-<h3>Related field lookups<a class="headerlink" href="#Related-field-lookups" title="Permalink to this heading"></a></h3>
+<h3>Related field lookups<a class="headerlink" href="#Related-field-lookups" title="Link to this heading"></a></h3>
 <p>Some fields are actually related tables, whose fields can also used in the filter. For example, the <code class="docutils literal notranslate"><span class="pre">subject</span></code> field of the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table contains all the subject table fields. Lookups can be applied to these fields in the same way: <code class="docutils literal notranslate"><span class="pre">field__subfield__lookup,query</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">sessions__subject__nickname__icontains,dop</span></code> (‘find sessions where the subject’s name contains “dop”’).</p>
 <p>See the django <a class="reference external" href="https://docs.djangoproject.com/en/3.2/ref/models/querysets/#field-lookups">QuerySet API documentation</a> and <a class="reference external" href="https://docs.djangoproject.com/en/3.2/ref/contrib/postgres/fields/">PostgreSQL specific documentation</a> for more details.</p>
 </section>
 <section id="JSON-field-lookups">
-<h3>JSON field lookups<a class="headerlink" href="#JSON-field-lookups" title="Permalink to this heading"></a></h3>
+<h3>JSON field lookups<a class="headerlink" href="#JSON-field-lookups" title="Link to this heading"></a></h3>
 <p>JSON fields can be filtered in the same way as related tables. For example, the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table contains a ‘extended_qc’ JSON field that contains a map of QC checks and their outcomes. The fields and values can be used in lookup queries. For more info, see <a class="reference external" href="https://docs.djangoproject.com/en/3.2/topics/db/queries/#querying-jsonfield">Querying JSONField</a>.</p>
 <p>Here’s how the extended_qc field looks:</p>
 <div class="nbinput nblast docutils container">
@@ -402,7 +402,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </div>
 <section id="Looking-up-fields">
-<h4>Looking up fields<a class="headerlink" href="#Looking-up-fields" title="Permalink to this heading"></a></h4>
+<h4>Looking up fields<a class="headerlink" href="#Looking-up-fields" title="Link to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where task QC is marked as &#39;FAIL&#39;</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;extended_qc__task__iexact,fail&#39;</span><span class="p">)</span>
 </pre></div>
@@ -415,7 +415,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <p>Any search depth is allowed, and lookups such as <code class="docutils literal notranslate"><span class="pre">isnull</span></code>, <code class="docutils literal notranslate"><span class="pre">startswith</span></code>, <code class="docutils literal notranslate"><span class="pre">gte</span></code>, etc. are permitted.</p>
 </section>
 <section id="contains">
-<h4>contains<a class="headerlink" href="#contains" title="Permalink to this heading"></a></h4>
+<h4>contains<a class="headerlink" href="#contains" title="Link to this heading"></a></h4>
 <p>The returned objects are those where the given dict of key-value pairs are all contained in the top-level of the field.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; both pass:</span>
 <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dlcLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;videoLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">}</span>
@@ -424,7 +424,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="contained_by">
-<h4>contained_by<a class="headerlink" href="#contained_by" title="Permalink to this heading"></a></h4>
+<h4>contained_by<a class="headerlink" href="#contained_by" title="Link to this heading"></a></h4>
 <p>This is the inverse of the contains lookup - the objects returned will be those where the key-value pairs on the object are a subset of those in the value passed.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC has &#39;dlcLeft&#39; and &#39;videoLeft&#39; are missing or do not pass:</span>
 <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dlcLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;videoLeft&#39;</span><span class="p">:</span> <span class="s1">&#39;PASS&#39;</span><span class="p">}</span>
@@ -433,7 +433,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="has_key">
-<h4>has_key<a class="headerlink" href="#has_key" title="Permalink to this heading"></a></h4>
+<h4>has_key<a class="headerlink" href="#has_key" title="Link to this heading"></a></h4>
 <p>JSON field contains a given key.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC has &#39;dlcLeft&#39; field:</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;extended_qc__has_key,dlcLeft&#39;</span><span class="p">)</span>
@@ -441,7 +441,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="has_keys">
-<h4>has_keys<a class="headerlink" href="#has_keys" title="Permalink to this heading"></a></h4>
+<h4>has_keys<a class="headerlink" href="#has_keys" title="Link to this heading"></a></h4>
 <p>JSON contains all of the listed keys. The list should be surrounded by parentheses or square brackets, e.g. <code class="docutils literal notranslate"><span class="pre">'field__has_keys,['field1',</span> <span class="pre">'field2']'</span></code> or <code class="docutils literal notranslate"><span class="pre">'field__has_keys,('field1',</span> <span class="pre">'field2')'</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC &#39;behavior&#39; and &#39;ephys&#39; fields:</span>
 <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;behavior&#39;</span><span class="p">,</span> <span class="s1">&#39;ephys&#39;</span><span class="p">]</span>
@@ -450,7 +450,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="has_any_keys">
-<h4>has_any_keys<a class="headerlink" href="#has_any_keys" title="Permalink to this heading"></a></h4>
+<h4>has_any_keys<a class="headerlink" href="#has_any_keys" title="Link to this heading"></a></h4>
 <p>JSON contains at least one of the listed keys. The list should be surrounded by parentheses or square brackets, e.g. <code class="docutils literal notranslate"><span class="pre">'field__has_any_keys,['field1',</span> <span class="pre">'field2']'</span></code> or <code class="docutils literal notranslate"><span class="pre">'field__has_any_keys,('field1',</span> <span class="pre">'field2')'</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find sessions where extended QC exists for any video</span>
 <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;videoLeft&#39;</span><span class="p">,</span> <span class="s1">&#39;videoRight&#39;</span><span class="p">,</span> <span class="s1">&#39;videoBody&#39;</span><span class="p">)</span>
@@ -460,7 +460,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </section>
 </section>
 <section id="exact">
-<h3>exact<a class="headerlink" href="#exact" title="Permalink to this heading"></a></h3>
+<h3>exact<a class="headerlink" href="#exact" title="Link to this heading"></a></h3>
 <p>An exact match. When the lookup is omitted it is assumed to be <code class="docutils literal notranslate"><span class="pre">exact</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname__exact,KS022&#39;</span><span class="p">)</span>
 <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname,KS022&#39;</span><span class="p">)</span>  <span class="c1"># equivalent</span>
@@ -468,24 +468,24 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="iexact">
-<h3>iexact<a class="headerlink" href="#iexact" title="Permalink to this heading"></a></h3>
+<h3>iexact<a class="headerlink" href="#iexact" title="Link to this heading"></a></h3>
 <p>Case insensitive exact match:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;subject__nickname__exact,ks022&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="contains-1">
-<span id="id1"></span><h3>contains<a class="headerlink" href="#contains-1" title="Permalink to this heading"></a></h3>
+<span id="id1"></span><h3>contains<a class="headerlink" href="#contains-1" title="Link to this heading"></a></h3>
 </section>
 <section id="icontains">
-<h3>icontains<a class="headerlink" href="#icontains" title="Permalink to this heading"></a></h3>
+<h3>icontains<a class="headerlink" href="#icontains" title="Link to this heading"></a></h3>
 <p>Search for records where a given field contains a substring, case insensitive. For examples to query insertions with a task protocol containing ‘choiceworld’:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__task_protocol__icontains,choiceworld&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="in">
-<h3>in<a class="headerlink" href="#in" title="Permalink to this heading"></a></h3>
+<h3>in<a class="headerlink" href="#in" title="Link to this heading"></a></h3>
 <p>In a given iterable; often a list, tuple, or queryset. It’s not a common use case, but strings (being iterables) are accepted. For example to query session for several subjects:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subjects</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DY_003&#39;</span><span class="p">,</span> <span class="s1">&#39;DY_006&#39;</span><span class="p">]</span>
 <span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subject__nickname__in,</span><span class="si">{</span><span class="n">subjects</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -496,49 +496,49 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="gt">
-<h3>gt<a class="headerlink" href="#gt" title="Permalink to this heading"></a></h3>
+<h3>gt<a class="headerlink" href="#gt" title="Link to this heading"></a></h3>
 </section>
 <section id="gte">
-<h3>gte<a class="headerlink" href="#gte" title="Permalink to this heading"></a></h3>
+<h3>gte<a class="headerlink" href="#gte" title="Link to this heading"></a></h3>
 </section>
 <section id="lt">
-<h3>lt<a class="headerlink" href="#lt" title="Permalink to this heading"></a></h3>
+<h3>lt<a class="headerlink" href="#lt" title="Link to this heading"></a></h3>
 <p>Less than. Works for datetime, date and numerical fields:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__qc__lt,40&#39;</span><span class="p">)</span>  <span class="c1"># Where QC less than 40</span>
 </pre></div>
 </div>
 </section>
 <section id="lte">
-<h3>lte<a class="headerlink" href="#lte" title="Permalink to this heading"></a></h3>
+<h3>lte<a class="headerlink" href="#lte" title="Link to this heading"></a></h3>
 <p>Less than or equal. Works for datetime, date and numerical fields. For example to get insertions for sessions on or before a given date:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;session__start_time__date__lte,2021-07-22&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="startswith">
-<h3>startswith<a class="headerlink" href="#startswith" title="Permalink to this heading"></a></h3>
+<h3>startswith<a class="headerlink" href="#startswith" title="Link to this heading"></a></h3>
 </section>
 <section id="istartswith">
-<h3>istartswith<a class="headerlink" href="#istartswith" title="Permalink to this heading"></a></h3>
+<h3>istartswith<a class="headerlink" href="#istartswith" title="Link to this heading"></a></h3>
 </section>
 <section id="endswith">
-<h3>endswith<a class="headerlink" href="#endswith" title="Permalink to this heading"></a></h3>
+<h3>endswith<a class="headerlink" href="#endswith" title="Link to this heading"></a></h3>
 </section>
 <section id="iendswith">
-<h3>iendswith<a class="headerlink" href="#iendswith" title="Permalink to this heading"></a></h3>
+<h3>iendswith<a class="headerlink" href="#iendswith" title="Link to this heading"></a></h3>
 </section>
 <section id="not">
-<h3>not<a class="headerlink" href="#not" title="Permalink to this heading"></a></h3>
+<h3>not<a class="headerlink" href="#not" title="Link to this heading"></a></h3>
 <p>A tilda can be used to negate any query filter, for example, to query sessions that <strong>do not</strong> have matlab in the project name:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~project__name__icontains,matlab&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="range">
-<h3>range<a class="headerlink" href="#range" title="Permalink to this heading"></a></h3>
+<h3>range<a class="headerlink" href="#range" title="Link to this heading"></a></h3>
 </section>
 <section id="date">
-<h3>date<a class="headerlink" href="#date" title="Permalink to this heading"></a></h3>
+<h3>date<a class="headerlink" href="#date" title="Link to this heading"></a></h3>
 <p>Extract the date part from a date_time field. For example to search for a given date:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;2021-02-05&#39;</span>
 <span class="n">weighings</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;date_time__date,</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -546,47 +546,47 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="year">
-<h3>year<a class="headerlink" href="#year" title="Permalink to this heading"></a></h3>
+<h3>year<a class="headerlink" href="#year" title="Link to this heading"></a></h3>
 <p>Extract the year from a date_time field.</p>
 </section>
 <section id="iso_year">
-<h3>iso_year<a class="headerlink" href="#iso_year" title="Permalink to this heading"></a></h3>
+<h3>iso_year<a class="headerlink" href="#iso_year" title="Link to this heading"></a></h3>
 </section>
 <section id="month">
-<h3>month<a class="headerlink" href="#month" title="Permalink to this heading"></a></h3>
+<h3>month<a class="headerlink" href="#month" title="Link to this heading"></a></h3>
 </section>
 <section id="day">
-<h3>day<a class="headerlink" href="#day" title="Permalink to this heading"></a></h3>
+<h3>day<a class="headerlink" href="#day" title="Link to this heading"></a></h3>
 </section>
 <section id="week">
-<h3>week<a class="headerlink" href="#week" title="Permalink to this heading"></a></h3>
+<h3>week<a class="headerlink" href="#week" title="Link to this heading"></a></h3>
 </section>
 <section id="week_day">
-<h3>week_day<a class="headerlink" href="#week_day" title="Permalink to this heading"></a></h3>
+<h3>week_day<a class="headerlink" href="#week_day" title="Link to this heading"></a></h3>
 </section>
 <section id="iso_week_day">
-<h3>iso_week_day<a class="headerlink" href="#iso_week_day" title="Permalink to this heading"></a></h3>
+<h3>iso_week_day<a class="headerlink" href="#iso_week_day" title="Link to this heading"></a></h3>
 </section>
 <section id="quarter">
-<h3>quarter<a class="headerlink" href="#quarter" title="Permalink to this heading"></a></h3>
+<h3>quarter<a class="headerlink" href="#quarter" title="Link to this heading"></a></h3>
 </section>
 <section id="time">
-<h3>time<a class="headerlink" href="#time" title="Permalink to this heading"></a></h3>
+<h3>time<a class="headerlink" href="#time" title="Link to this heading"></a></h3>
 </section>
 <section id="hour">
-<h3>hour<a class="headerlink" href="#hour" title="Permalink to this heading"></a></h3>
+<h3>hour<a class="headerlink" href="#hour" title="Link to this heading"></a></h3>
 </section>
 <section id="minute">
-<h3>minute<a class="headerlink" href="#minute" title="Permalink to this heading"></a></h3>
+<h3>minute<a class="headerlink" href="#minute" title="Link to this heading"></a></h3>
 </section>
 <section id="second">
-<h3>second<a class="headerlink" href="#second" title="Permalink to this heading"></a></h3>
+<h3>second<a class="headerlink" href="#second" title="Link to this heading"></a></h3>
 </section>
 <section id="isnull">
-<h3>isnull<a class="headerlink" href="#isnull" title="Permalink to this heading"></a></h3>
+<h3>isnull<a class="headerlink" href="#isnull" title="Link to this heading"></a></h3>
 </section>
 <section id="regex">
-<h3>regex<a class="headerlink" href="#regex" title="Permalink to this heading"></a></h3>
+<h3>regex<a class="headerlink" href="#regex" title="Link to this heading"></a></h3>
 <p>Case-sensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For a given session, find datasets that belong to a probe collection</span>
 <span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span>
@@ -598,7 +598,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </div>
 </section>
 <section id="iregex">
-<h3>iregex<a class="headerlink" href="#iregex" title="Permalink to this heading"></a></h3>
+<h3>iregex<a class="headerlink" href="#iregex" title="Link to this heading"></a></h3>
 <p>Case-insensitive regular expression match. The regular expressions should be supported by PostgreSQL. More info on the syntax <a class="reference external" href="https://www.postgresql.org/docs/9.3/functions-matching.html">here</a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># List datasets for a given session that are related to either the right or left videos</span>
 <span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span>

@@ -13,13 +13,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -129,10 +129,10 @@
            <div itemprop="articleBody">
              
   <section id="module-one.remote.globus">
-<span id="one-remote-globus"></span><h1>one.remote.globus<a class="headerlink" href="#module-one.remote.globus" title="Permalink to this heading"></a></h1>
+<span id="one-remote-globus"></span><h1>one.remote.globus<a class="headerlink" href="#module-one.remote.globus" title="Link to this heading"></a></h1>
 <p>A module for handling file operations through the Globus SDK.</p>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>To set up Globus simply instantiate the <cite>Globus</cite> class for the first time and follow the prompts.
 Providing a client name string to the constructor allows one to set up multiple Globus clients
 (i.e. when switching between different Globus client IDs).</p>
@@ -195,7 +195,7 @@ Providing a client name string to the constructor allows one to set up multiple 
 </table>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.setup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.setup" title="Link to this definition"></a></dt>
 <dd><p>Sets up Globus as a backend for ONE functions.
 In order to use this function you need:</p>
 <ol class="arabic simple">
@@ -213,7 +213,7 @@ In order to use this function you need:</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.create_globus_client">
-<span class="sig-name descname"><span class="pre">create_globus_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#create_globus_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.create_globus_client" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_globus_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#create_globus_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.create_globus_client" title="Link to this definition"></a></dt>
 <dd><p>Creates a Globus transfer client based on existing parameter file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -230,7 +230,7 @@ In order to use this function you need:</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.get_local_endpoint_id">
-<span class="sig-name descname"><span class="pre">get_local_endpoint_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_local_endpoint_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_id" title="Link to this definition"></a></dt>
 <dd><p>Extracts the ID of the local Globus Connect endpoint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -244,7 +244,7 @@ In order to use this function you need:</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.get_local_endpoint_paths">
-<span class="sig-name descname"><span class="pre">get_local_endpoint_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_paths" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_local_endpoint_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_local_endpoint_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_local_endpoint_paths" title="Link to this definition"></a></dt>
 <dd><p>Extracts the local endpoint paths accessible by Globus Connect.  NB: This is only supported
 on Linux.</p>
 <dl class="field-list simple">
@@ -259,7 +259,7 @@ on Linux.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.get_lab_from_endpoint_id">
-<span class="sig-name descname"><span class="pre">get_lab_from_endpoint_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_lab_from_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_lab_from_endpoint_id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_lab_from_endpoint_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#get_lab_from_endpoint_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.get_lab_from_endpoint_id" title="Link to this definition"></a></dt>
 <dd><p>Extracts lab names associated with a given an endpoint UUID.</p>
 <p>Finds the lab names that are associated to data repositories with the provided Globus endpoint
 UUID.</p>
@@ -281,7 +281,7 @@ UUID.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.globus.as_globus_path">
-<span class="sig-name descname"><span class="pre">as_globus_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#as_globus_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.as_globus_path" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_globus_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#as_globus_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.as_globus_path" title="Link to this definition"></a></dt>
 <dd><p>Convert a path into one suitable for the Globus TransferClient.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -326,12 +326,12 @@ on a Linux computer a remote Windows should first be made into a PureWindowsPath
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.remote.globus.Globus">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Globus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Globus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="one.remote.base.html#one.remote.base.DownloadClient" title="one.remote.base.DownloadClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">DownloadClient</span></code></a></p>
 <p>Wrapper for managing files on Globus endpoints.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.fetch_endpoints_from_alyx">
-<span class="sig-name descname"><span class="pre">fetch_endpoints_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.fetch_endpoints_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.fetch_endpoints_from_alyx" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fetch_endpoints_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.fetch_endpoints_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.fetch_endpoints_from_alyx" title="Link to this definition"></a></dt>
 <dd><p>Update endpoints property with Alyx Globus data repositories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -351,7 +351,7 @@ on a Linux computer a remote Windows should first be made into a PureWindowsPath
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.to_address">
-<span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.to_address" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.to_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.to_address" title="Link to this definition"></a></dt>
 <dd><p>Get full path for a given endpoint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -379,7 +379,7 @@ on a Linux computer a remote Windows should first be made into a PureWindowsPath
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.download_file">
-<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.download_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.download_file" title="Link to this definition"></a></dt>
 <dd><p>Download one or more files via Globus.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -421,7 +421,7 @@ directories).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.setup">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.setup" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.setup" title="Link to this definition"></a></dt>
 <dd><p>Setup a Globus client.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -438,7 +438,7 @@ directories).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.add_endpoint">
-<span class="sig-name descname"><span class="pre">add_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.add_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.add_endpoint" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alyx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.add_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.add_endpoint" title="Link to this definition"></a></dt>
 <dd><p>Add an endpoint to the Globus instance to be used by other functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -456,7 +456,7 @@ optional.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.transfer_data">
-<span class="sig-name descname"><span class="pre">transfer_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.transfer_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.transfer_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transfer_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.transfer_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.transfer_data" title="Link to this definition"></a></dt>
 <dd><p>Transfer one or more paths between endpoints.</p>
 <p>At least one of the endpoints must be a server endpoint.  Both file and directory paths may
 be provided, however if recursive is true, all paths must be directories.</p>
@@ -495,7 +495,7 @@ directories).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.ls">
-<span class="sig-name descname"><span class="pre">ls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.ls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.ls" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.ls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.ls" title="Link to this definition"></a></dt>
 <dd><p>Return the list of (filename, filesize) in a given endpoint directory.
 NB: If you’re using ls routinely when transferring or deleting files you’re probably doing
 something wrong!</p>
@@ -521,7 +521,7 @@ True, tuples of PurePosixPath objects and the corresponding file sizes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.mv">
-<span class="sig-name descname"><span class="pre">mv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.mv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.mv" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.mv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.mv" title="Link to this definition"></a></dt>
 <dd><p>Move files from one endpoint to another.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -548,7 +548,7 @@ is a UUID, the path must be absolute.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.remote.globus.Globus.run_task">
-<span class="sig-name descname"><span class="pre">run_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">globus_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.run_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.run_task" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">globus_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/globus.html#Globus.run_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.globus.Globus.run_task" title="Link to this definition"></a></dt>
 <dd><p>Block until a Globus task finishes and retry upon Network or REST Errors.
 globus_func needs to submit a task to the client and return a task_id.</p>
 <dl class="field-list simple">

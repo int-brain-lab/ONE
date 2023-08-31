@@ -12,13 +12,13 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -125,12 +125,17 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Listable"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.Listable">[docs]</a><span class="k">def</span> <span class="nf">Listable</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<div class="viewcode-block" id="Listable">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.Listable">[docs]</a>
+<span class="k">def</span> <span class="nf">Listable</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a typing.Union if the input and sequence of input.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Union</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">t</span><span class="p">]]</span></div>
 
 
-<div class="viewcode-block" id="ses2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a><span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ses2records">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a>
+<span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record.</span>
 
 <span class="sd">    Parameters</span>
@@ -175,7 +180,10 @@
     <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span></div>
 
 
-<div class="viewcode-block" id="datasets2records"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.datasets2records">[docs]</a><span class="k">def</span> <span class="nf">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="datasets2records">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.datasets2records">[docs]</a>
+<span class="k">def</span> <span class="nf">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract datasets DataFrame from one or more Alyx dataset records.</span>
 
 <span class="sd">    Parameters</span>
@@ -223,7 +231,10 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="parse_id"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.parse_id">[docs]</a><span class="k">def</span> <span class="nf">parse_id</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+
+<div class="viewcode-block" id="parse_id">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.parse_id">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_id</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ensures the input experiment identifier is an experiment UUID string.</span>
 
@@ -253,7 +264,10 @@
     <span class="k">return</span> <span class="n">wrapper</span></div>
 
 
-<div class="viewcode-block" id="refresh"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.refresh">[docs]</a><span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+
+<div class="viewcode-block" id="refresh">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.refresh">[docs]</a>
+<span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Refresh cache depending of query_type kwarg.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -269,7 +283,10 @@
     <span class="k">return</span> <span class="n">wrapper</span></div>
 
 
-<div class="viewcode-block" id="validate_date_range"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.validate_date_range">[docs]</a><span class="k">def</span> <span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
+
+<div class="viewcode-block" id="validate_date_range">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.validate_date_range">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates and arrange date range in a 2 elements list.</span>
 
@@ -325,6 +342,7 @@
         <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_collection_spec</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -389,7 +407,9 @@
     <span class="k">return</span> <span class="n">filespec</span>
 
 
-<div class="viewcode-block" id="filter_datasets"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_datasets">[docs]</a><span class="k">def</span> <span class="nf">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="filter_datasets">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_datasets">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter the datasets cache table by the relative path (dataset name, collection and revision).</span>
@@ -500,7 +520,10 @@
     <span class="k">return</span> <span class="n">filter_revision_last_before</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="n">assert_unique</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="filter_revision_last_before"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_revision_last_before">[docs]</a><span class="k">def</span> <span class="nf">filter_revision_last_before</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="filter_revision_last_before">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_revision_last_before">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_revision_last_before</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter datasets by revision, returning previous revision in ordered list if revision</span>
 <span class="sd">    doesn&#39;t exactly match.</span>
@@ -553,7 +576,10 @@
     <span class="k">return</span> <span class="n">grouped</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_last_before</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="index_last_before"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.index_last_before">[docs]</a><span class="k">def</span> <span class="nf">index_last_before</span><span class="p">(</span><span class="n">revisions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="index_last_before">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.index_last_before">[docs]</a>
+<span class="k">def</span> <span class="nf">index_last_before</span><span class="p">(</span><span class="n">revisions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the index of string that occurs directly before the provided revision string when</span>
 <span class="sd">    lexicographic sorted.  If revision is None, the index of the most recent revision is returned.</span>
@@ -583,7 +609,10 @@
     <span class="k">return</span> <span class="n">revisions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">revisions_sorted</span><span class="p">[</span><span class="n">lt</span><span class="o">.</span><span class="n">argmax</span><span class="p">()])</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">lt</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="autocomplete"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.autocomplete">[docs]</a><span class="k">def</span> <span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="autocomplete">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.autocomplete">[docs]</a>
+<span class="k">def</span> <span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validate search term and return complete name, e.g. autocomplete(&#39;subj&#39;) == &#39;subject&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -600,12 +629,18 @@
     <span class="k">return</span> <span class="n">key_</span></div>
 
 
-<div class="viewcode-block" id="ensure_list"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ensure_list">[docs]</a><span class="k">def</span> <span class="nf">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ensure_list">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ensure_list">[docs]</a>
+<span class="k">def</span> <span class="nf">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure input is a list.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="LazyId"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId">[docs]</a><span class="k">class</span> <span class="nc">LazyId</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LazyId">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId">[docs]</a>
+<span class="k">class</span> <span class="nc">LazyId</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Using a paginated response object or list of session records, extracts eid string when required</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -622,7 +657,9 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">())</span>
 
-<div class="viewcode-block" id="LazyId.ses2eid"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId.ses2eid">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LazyId.ses2eid">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId.ses2eid">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">ses2eid</span><span class="p">(</span><span class="n">ses</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Given one or more session dictionaries, extract and return the session UUID.</span>
 
@@ -639,10 +676,14 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">LazyId</span><span class="o">.</span><span class="n">ses2eid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ses</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div></div>
+            <span class="k">return</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="cache_int2str"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.cache_int2str">[docs]</a><span class="k">def</span> <span class="nf">cache_int2str</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="cache_int2str">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.cache_int2str">[docs]</a>
+<span class="k">def</span> <span class="nf">cache_int2str</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert int ids to str ids for cache table.</span>
 
 <span class="sd">    Parameters</span>
@@ -664,7 +705,10 @@
     <span class="k">return</span> <span class="n">table</span></div>
 
 
-<div class="viewcode-block" id="patch_cache"><a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.patch_cache">[docs]</a><span class="k">def</span> <span class="nf">patch_cache</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="patch_cache">
+<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.patch_cache">[docs]</a>
+<span class="k">def</span> <span class="nf">patch_cache</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformat older cache tables to comply with this version of ONE.</span>
 
 <span class="sd">    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the &#39;project&#39;</span>
@@ -683,6 +727,7 @@
     <span class="k">if</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">&#39;1.13.0&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;project&#39;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="s1">&#39;projects&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">table</span></div>
+
 </pre></div>
 
            </div>

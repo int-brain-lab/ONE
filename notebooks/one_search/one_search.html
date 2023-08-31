@@ -14,13 +14,13 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -126,7 +126,7 @@
   <a href="one_search.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/one_search/
 one_search.ipynb"><button id="github">Github link</button></a><section id="Searching-with-ONE">
-<h1>Searching with ONE<a class="headerlink" href="#Searching-with-ONE" title="Permalink to this heading"></a></h1>
+<h1>Searching with ONE<a class="headerlink" href="#Searching-with-ONE" title="Link to this heading"></a></h1>
 <p>ONE contains a method that allows you to search for sessions of interest. The possible search terms can be listed using,</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
@@ -371,7 +371,7 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
 </pre></div></div>
 </div>
 <section id="Advanced-searching">
-<h2>Advanced searching<a class="headerlink" href="#Advanced-searching" title="Permalink to this heading"></a></h2>
+<h2>Advanced searching<a class="headerlink" href="#Advanced-searching" title="Link to this heading"></a></h2>
 <p>By default ONE searches most terms function as an LIKE OR expression, returning results that contain any of the search values as a substring. For example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'])</span></code> returns all sessions where the subject name contains ‘foo’ or contains ‘bar’. The exception is the dataset search term, which is a LIKE AND expression, i.e. the session must contain one or more dataset names containing ‘foo’ AND one or more datasets containing ‘bar’. Note that all expressions are
 case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
 <p>For more precise searches, regular expressions (a.k.a. regex) can be used. This is on by default and can be deactivated by setting the wildcards flag: <code class="docutils literal notranslate"><span class="pre">one.wildcards</span> <span class="pre">=</span> <span class="pre">False</span></code> (note that this also affects the list and load methods, see <a class="reference external" href="../one_load/one_load.html#Advanced-loading">the advanced loading section of Loading with ONE</a> for more details).</p>
@@ -421,10 +421,10 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 </div>
 </div>
 <section id="Gotchas">
-<h3>Gotchas<a class="headerlink" href="#Gotchas" title="Permalink to this heading"></a></h3>
+<h3>Gotchas<a class="headerlink" href="#Gotchas" title="Link to this heading"></a></h3>
 <p>ONE.search strikes a balance between usability, functionality, and stability. We have been careful to ensure that the results of the search function have remained consistent across versions, however there are some confusing and unintuitive behaviours as a result…</p>
 <section id="Difference-between-search-term-behaviours">
-<h4>Difference between search term behaviours<a class="headerlink" href="#Difference-between-search-term-behaviours" title="Permalink to this heading"></a></h4>
+<h4>Difference between search term behaviours<a class="headerlink" href="#Difference-between-search-term-behaviours" title="Link to this heading"></a></h4>
 <p>As mentioned above, different search terms perform differently. Below are the search terms and their approximate SQL equivalents:</p>
 <table class="docutils align-default">
 <thead>
@@ -450,11 +450,11 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 <p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contains foo OR bar, AND the project contains baz.</p>
 </section>
 <section id="Difference-between-remote-mode-search-terms">
-<h4>Difference between remote mode search terms<a class="headerlink" href="#Difference-between-remote-mode-search-terms" title="Permalink to this heading"></a></h4>
+<h4>Difference between remote mode search terms<a class="headerlink" href="#Difference-between-remote-mode-search-terms" title="Link to this heading"></a></h4>
 <p>Many search terms perform differently between auto/local mode and <a class="reference external" href="../one_modes.html">remote mode</a>, namely in remote mode, search queries are case-insensitive.</p>
 </section>
 <section id="The-dataset,-datasets-and-dataset_types-remote-arguments">
-<h4>The dataset, datasets and dataset_types remote arguments<a class="headerlink" href="#The-dataset,-datasets-and-dataset_types-remote-arguments" title="Permalink to this heading"></a></h4>
+<h4>The dataset, datasets and dataset_types remote arguments<a class="headerlink" href="#The-dataset,-datasets-and-dataset_types-remote-arguments" title="Link to this heading"></a></h4>
 <p>In remote mode there are three ways to search for datasets:</p>
 <ul class="simple">
 <li><p><strong>dataset</strong> - a partial, case-insensitive match of a single dataset (multiple datasets not supported).</p></li>
@@ -463,7 +463,7 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 </ul>
 </section>
 <section id="Regex-systems-between-modes">
-<h4>Regex systems between modes<a class="headerlink" href="#Regex-systems-between-modes" title="Permalink to this heading"></a></h4>
+<h4>Regex systems between modes<a class="headerlink" href="#Regex-systems-between-modes" title="Link to this heading"></a></h4>
 <p>Regex searches can be made in remote mode by using special <a class="reference external" href="../useful_alyx_queries.html#regex">Django queries</a>, for example,</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>eids = one.search(django=&#39;subject__nickname__regex,^FD_04$&#39;, query_type=&#39;remote&#39;)
 </pre></div>
@@ -473,7 +473,7 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 </section>
 </section>
 <section id="Searching-data-with-a-release-tag">
-<h2>Searching data with a release tag<a class="headerlink" href="#Searching-data-with-a-release-tag" title="Permalink to this heading"></a></h2>
+<h2>Searching data with a release tag<a class="headerlink" href="#Searching-data-with-a-release-tag" title="Link to this heading"></a></h2>
 <p>Datasets associated with a given paper and/or data release are associated with a tag. You can list the available release tags like so:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
@@ -515,7 +515,7 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 </div>
 </section>
 <section id="Searching-insertions">
-<h2>Searching insertions<a class="headerlink" href="#Searching-insertions" title="Permalink to this heading"></a></h2>
+<h2>Searching insertions<a class="headerlink" href="#Searching-insertions" title="Link to this heading"></a></h2>
 <p>A session may contain multiple insertions recording different brain areas. To find data associated with a specific brain area, it is useful to search by insertion instead of by session.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">OneAlyx.search_insertions</span></code> method takes similar arguments to the remote search method, and returns a list of probe UUIDs (pIDs), which can be interconverted with session IDs (eIDs) for <a class="reference external" href="../one_load/one_load.html#Load-spike-times-from-a-probe-UUID">loading data</a>.</p>
 <div class="admonition note">

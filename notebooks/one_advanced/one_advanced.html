@@ -14,13 +14,13 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -117,14 +117,14 @@
   <a href="one_advanced.ipynb"><button id="download">Download tutorial notebook</button></a>
 <a href="https://github.com/int-brain-lab/ONE/tree/main/docs/notebooks/one_advanced/
 one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE-REST-queries">
-<h1>ONE REST queries<a class="headerlink" href="#ONE-REST-queries" title="Permalink to this heading"></a></h1>
+<h1>ONE REST queries<a class="headerlink" href="#ONE-REST-queries" title="Link to this heading"></a></h1>
 <p>While the basic <code class="docutils literal notranslate"><span class="pre">one.search</span></code> command allows us to filter experimental sessions by date, lab, subject etc., you may quickly find that you want to apply more complex queries to restrict your search output. This can be achieved using the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command. This has access to a range of tables stored in the database and gives us more flexibility when forming our queries.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note.</p>
 <p>REST queries can only be made while ONE is in online mode.</p>
 </div>
 <section id="one.search-vs-one.alyx.rest">
-<h2><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#one.search-vs-one.alyx.rest" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">one.search</span></code> vs <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#one.search-vs-one.alyx.rest" title="Link to this heading"></a></h2>
 <p>We will get started by importing ONE</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -253,7 +253,7 @@ one_advanced.ipynb"><button id="github">Github link</button></a><section id="ONE
 </div>
 </section>
 <section id="Accessing-other-Alyx-tables">
-<h2>Accessing other Alyx tables<a class="headerlink" href="#Accessing-other-Alyx-tables" title="Permalink to this heading"></a></h2>
+<h2>Accessing other Alyx tables<a class="headerlink" href="#Accessing-other-Alyx-tables" title="Link to this heading"></a></h2>
 <p>With the <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command we are not only limited to the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table, but can formulate queries based on other tables to find session eIDs of interest. Consider the case where we want to find all sessions that have probe insertions that target a specific ML and AP coordinate. For this we can formulate our query based on the <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/#trajectories-list">trajectories table</a>. Let’s see if there are any probe insertions at the coordinates
 ML(x) = -2225, and AP(y) = -1894 from bregma.</p>
 <div class="nbinput docutils container">
@@ -381,7 +381,7 @@ ML(x) = -2225, and AP(y) = -1894 from bregma.</p>
 </div>
 </section>
 <section id="Searching-with-one.alyx.rest">
-<h2>Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#Searching-with-one.alyx.rest" title="Permalink to this heading"></a></h2>
+<h2>Searching with <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code><a class="headerlink" href="#Searching-with-one.alyx.rest" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">one.alyx.rest</span></code> command is also provides an alternative method to <code class="docutils literal notranslate"><span class="pre">one.list</span></code> for searching the database for possible keywords that you can use to restrict your queries. For example, if we want to find the names of female subjects in the Witten lab that are alive, we can use the <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/#subjects-list">subjects table</a> to write,</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:

@@ -13,13 +13,13 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script src="_static/clipboard.min.js"></script>
-        <script src="_static/copybutton.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -127,7 +127,7 @@
            <div itemprop="articleBody">
              
   <section id="alyx-filenames-alf">
-<h1>ALyx Filenames (ALF)<a class="headerlink" href="#alyx-filenames-alf" title="Permalink to this heading"></a></h1>
+<h1>ALyx Filenames (ALF)<a class="headerlink" href="#alyx-filenames-alf" title="Link to this heading"></a></h1>
 <p>This package is concerned with parsing and loading files that follow the Alyx file name specification.
 Files should be organized in folders by subject name, date and session number, for example:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001
@@ -150,10 +150,10 @@ not supported, except with ‘times’, ‘timestamps’ and ‘intervals’, wh
 </pre></div>
 </div>
 <section id="optional-components">
-<h2>Optional components<a class="headerlink" href="#optional-components" title="Permalink to this heading"></a></h2>
+<h2>Optional components<a class="headerlink" href="#optional-components" title="Link to this heading"></a></h2>
 <p>There are other optional parts to the file path that are used to convey other information.</p>
 <section id="collections">
-<h3>Collections<a class="headerlink" href="#collections" title="Permalink to this heading"></a></h3>
+<h3>Collections<a class="headerlink" href="#collections" title="Link to this heading"></a></h3>
 <p>Within a session folder the data may be placed in any number of sub-folders, each one is referred to as a
 collection and these may be used to sort identical datasets by device or preprocessing software.  For
 example spikes collected on two different probes maybe in different numbered probe collections:</p>
@@ -169,7 +169,7 @@ mouse_001/2021-05-27/001/probe01/yass/spikes.times.npy
 </div>
 </section>
 <section id="revisions">
-<h3>Revisions<a class="headerlink" href="#revisions" title="Permalink to this heading"></a></h3>
+<h3>Revisions<a class="headerlink" href="#revisions" title="Link to this heading"></a></h3>
 <p>If the data require pre-processing in a different manner, a revision folder may be used so that the
 original data is not overwritten.  This can be used as a form of versioning and should be a dated
 folder surrounded by pound signs, e.g.</p>
@@ -186,7 +186,7 @@ mouse_001/2021-05-27/001/#2021-06-01b#/spikes.times.npy
 </div>
 </section>
 <section id="namespace">
-<h3>Namespace<a class="headerlink" href="#namespace" title="Permalink to this heading"></a></h3>
+<h3>Namespace<a class="headerlink" href="#namespace" title="Link to this heading"></a></h3>
 <p>For datasets that are not intended to be standard in the community, a namespace may be added to the
 start of the filename.  This must be surrounded by underscores:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>_ibl_wheel.position
@@ -195,7 +195,7 @@ _ss_gratingID.laserOn.npy
 </div>
 </section>
 <section id="timescale">
-<h3>Timescale<a class="headerlink" href="#timescale" title="Permalink to this heading"></a></h3>
+<h3>Timescale<a class="headerlink" href="#timescale" title="Link to this heading"></a></h3>
 <p>Datasets containing timestamp data are expected to be in the same common timescale (usually seconds from
 experiment start).  For datasets in a different timescale, the clock name should be appended to the
 attribute part with an underscore:</p>
@@ -205,7 +205,7 @@ trials.intervals_bpod.ssv
 </div>
 </section>
 <section id="extension">
-<h3>Extension<a class="headerlink" href="#extension" title="Permalink to this heading"></a></h3>
+<h3>Extension<a class="headerlink" href="#extension" title="Link to this heading"></a></h3>
 <p>The extension should be self-explanatory.  Although they are optional in the ALF spec, it’s preferable
 to include the format in the filename, and to use formats that are well supported in MATLAB and Python:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>spikes.times.npy
@@ -215,7 +215,7 @@ spikes.times.mat
 </div>
 </section>
 <section id="extra">
-<h3>Extra<a class="headerlink" href="#extra" title="Permalink to this heading"></a></h3>
+<h3>Extra<a class="headerlink" href="#extra" title="Link to this heading"></a></h3>
 <p>Any number of extra parts, separated by periods, can be added after the attribute.  Examples include UUIDs
 for ensuring the filename is unique or parts for splitting datasets into parts.  NB: The text after the final
 period is expected to be the file extension.</p>
@@ -226,7 +226,7 @@ period is expected to be the file extension.</p>
 </div>
 </section>
 <section id="relations">
-<h3>Relations<a class="headerlink" href="#relations" title="Permalink to this heading"></a></h3>
+<h3>Relations<a class="headerlink" href="#relations" title="Link to this heading"></a></h3>
 <p>Alf objects can be related through their attributes. If the attribute name of one file matches the object name of a
 second, then the first file is guaranteed to contain integers referring to the rows of the second. For example,
 spikes.clusters.npy would contain integer references to the rows of clusters.brain_location.json and
@@ -234,9 +234,9 @@ clusters.probes.npy; and clusters.probes.npy would contain integer references to
 </section>
 </section>
 <section id="glossary">
-<h2>Glossary<a class="headerlink" href="#glossary" title="Permalink to this heading"></a></h2>
+<h2>Glossary<a class="headerlink" href="#glossary" title="Link to this heading"></a></h2>
 <section id="dataset-name">
-<h3>Dataset name<a class="headerlink" href="#dataset-name" title="Permalink to this heading"></a></h3>
+<h3>Dataset name<a class="headerlink" href="#dataset-name" title="Link to this heading"></a></h3>
 <p>A filename with at least an object and attribute.  Some examples of valid ALF datasets:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>spikes.times
 spikes.times.npy
@@ -245,7 +245,7 @@ _ibl_trials.goCue_times_bpodClock.csv
 </div>
 </section>
 <section id="dataset-type">
-<h3>Dataset type<a class="headerlink" href="#dataset-type" title="Permalink to this heading"></a></h3>
+<h3>Dataset type<a class="headerlink" href="#dataset-type" title="Link to this heading"></a></h3>
 <p>In Alyx datasets are grouped by a type.  Datasets should belong to exactly one dataset type.  The
 group is determined by a filename pattern.  Dataset types group datasets with the same content but
 different formats, etc. and include a description of the dataset.  For example, the following datasets
@@ -258,7 +258,7 @@ spikes.times.cbin
 </div>
 </section>
 <section id="session-path">
-<h3>Session path<a class="headerlink" href="#session-path" title="Permalink to this heading"></a></h3>
+<h3>Session path<a class="headerlink" href="#session-path" title="Link to this heading"></a></h3>
 <p>The part of the path that includes the subject name, date and number.  Optionally a lab name may also
 be part of the session path:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mouse_001/2021-05-27/001
@@ -267,7 +267,7 @@ cortexlab/Subjects/mouse_001/2021-05-27/1
 </div>
 </section>
 <section id="relative-path">
-<h3>Relative path<a class="headerlink" href="#relative-path" title="Permalink to this heading"></a></h3>
+<h3>Relative path<a class="headerlink" href="#relative-path" title="Link to this heading"></a></h3>
 <p>Everything that comes after the session path.  In other words the filename and optional collections
 and revision folders:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>alf/probe00/spikes.times.npy
@@ -277,7 +277,7 @@ trials.intervals.npy
 </div>
 </section>
 <section id="alf-path">
-<h3>ALF path<a class="headerlink" href="#alf-path" title="Permalink to this heading"></a></h3>
+<h3>ALF path<a class="headerlink" href="#alf-path" title="Link to this heading"></a></h3>
 <p>The full file path, including the session path and relative path, e.g.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cortexlab/Subjects/mouse_001/2021-05-27/1/alf/probe00/spikes.times.npy
 </pre></div>
