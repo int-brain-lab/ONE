@@ -178,7 +178,7 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 <p>Examples of using ONE to query Alyx via Django REST queries.</p>
 <p>Alyx queries require and internet connection and are slower than the local cache queries using one.search, however it is much more powerful. Searching for datasets or sessions based solely on the fields in <code class="docutils literal notranslate"><span class="pre">one.search_terms</span></code> should be done using one.search. This script demonstrates some of the more complex queries that must be done remotely.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
@@ -194,7 +194,7 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 <p>Full documentation of using Alyx REST interface can be found at <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
 <p>This URL is itself a REST endpoint, so you can list the endpoints through ONE:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">())</span>  <span class="c1"># Can also be done with `one.alyx.rest()`</span>
@@ -206,24 +206,15 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;brain-regions&#39;, &#39;cache&#39;, &#39;cache.zip&#39;, &#39;channels&#39;, &#39;data-formats&#39;, &#39;data-repository&#39;, &#39;data-repository-type&#39;, &#39;dataset-types&#39;, &#39;datasets&#39;, &#39;downloads&#39;, &#39;files&#39;, &#39;insertions&#39;, &#39;labs&#39;, &#39;locations&#39;, &#39;new-download&#39;, &#39;notes&#39;, &#39;projects&#39;, &#39;register-file&#39;, &#39;revisions&#39;, &#39;sessions&#39;, &#39;subjects&#39;, &#39;surgeries&#39;, &#39;sync-file-status&#39;, &#39;tags&#39;, &#39;tasks&#39;, &#39;trajectories&#39;, &#39;uploaded&#39;, &#39;users&#39;, &#39;water-administrations&#39;, &#39;water-requirement&#39;, &#39;water-restricted-subjects&#39;, &#39;water-restriction&#39;, &#39;water-type&#39;, &#39;weighings&#39;]
+[&#39;brain-regions&#39;, &#39;cache&#39;, &#39;cache.zip&#39;, &#39;channels&#39;, &#39;chronic-insertions&#39;, &#39;data-formats&#39;, &#39;data-repository&#39;, &#39;data-repository-type&#39;, &#39;dataset-types&#39;, &#39;datasets&#39;, &#39;downloads&#39;, &#39;fields-of-view&#39;, &#39;files&#39;, &#39;fov-location&#39;, &#39;imaging-stack&#39;, &#39;insertions&#39;, &#39;labs&#39;, &#39;locations&#39;, &#39;new-download&#39;, &#39;notes&#39;, &#39;procedures&#39;, &#39;projects&#39;, &#39;register-file&#39;, &#39;revisions&#39;, &#39;sessions&#39;, &#39;subjects&#39;, &#39;surgeries&#39;, &#39;sync-file-status&#39;, &#39;tags&#39;, &#39;tasks&#39;, &#39;trajectories&#39;, &#39;uploaded&#39;, &#39;users&#39;, &#39;water-administrations&#39;, &#39;water-requirement&#39;, &#39;water-restricted-subjects&#39;, &#39;water-restriction&#39;, &#39;water-type&#39;, &#39;weighings&#39;]
 </pre></div></div>
 </div>
 <p>The main GET requests are ‘list’ and ‘read’. The parameters for each are described in the <code class="docutils literal notranslate"><span class="pre">rest_schemas</span></code> property. For example, for the parameters available for listing sessions…</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
-</pre></div>
-</div>
-</div>
-<p>This information is also available using the <code class="docutils literal notranslate"><span class="pre">print_endpoint_info</span></code> method, which prints the REST params and their respective data types:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -235,7 +226,8 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 **FILTERS**
 
 -   **subject**: subject nickname `/sessions?subject=Algernon`
--   **dataset_types**: dataset type
+-   **dataset_types**: dataset type(s) `/sessions?dataset_types=trials.table,camera.times`
+-   **datasets**: dataset name(s) `/sessions?datasets=_ibl_leftCamera.times.npy`
 -   **number**: session number
 -   **users**: experimenters (exact)
 -   **date_range**: date `/sessions?date_range=2020-01-12,2020-01-16`
@@ -253,7 +245,7 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
     -   chained lookups: `/sessions/?extended_qc=qc_pct__gte;0.5;qc_bool;True`,
 -   **performance_gte**, **performance_lte**: percentage of successful trials gte/lte
 -   **brain_region**: returns a session if any channel name icontains the value:
-    `/sessions?brain_region=vis`
+    `/sessions?brain_region=visual cortex`
 -   **atlas_acronym**: returns a session if any of its channels name exactly matches the value
     `/sessions?atlas_acronym=SSp-m4`, cf Allen CCFv2017
 -   **atlas_id**: returns a session if any of its channels id matches the provided value:
@@ -270,6 +262,59 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
     does the exclusive set: filters sessions that do not have matlab in the project name
 
 [===&gt; session model reference](/admin/doc/models/actions.session)
+</pre></div></div>
+</div>
+<p>This information is also available using the <code class="docutils literal notranslate"><span class="pre">print_endpoint_info</span></code> method, which prints the REST params and their respective data types:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;list&#39;
+        &#34;atlas_acronym&#34;: string,
+        &#34;atlas_id&#34;: number,
+        &#34;atlas_name&#34;: string,
+        &#34;auto_datetime&#34;: string,
+        &#34;dataset_types&#34;: string,
+        &#34;datasets&#34;: string,
+        &#34;date_range&#34;: string,
+        &#34;django&#34;: string,
+        &#34;end_time&#34;: string,
+        &#34;extended_qc&#34;: string,
+        &#34;histology&#34;: string,
+        &#34;id&#34;: string,
+        &#34;json&#34;: string,
+        &#34;lab&#34;: string,
+        &#34;limit&#34;: integer, Number of results to return per page.
+        &#34;location&#34;: string,
+        &#34;n_correct_trials&#34;: number,
+        &#34;n_trials&#34;: number,
+        &#34;name&#34;: string,
+        &#34;narrative&#34;: string,
+        &#34;nickname&#34;: string,
+        &#34;number&#34;: number,
+        &#34;offset&#34;: integer, The initial index from which to return the results.
+        &#34;parent_session&#34;: string,
+        &#34;performance_gte&#34;: number,
+        &#34;performance_lte&#34;: number,
+        &#34;procedures&#34;: string,
+        &#34;project&#34;: string,
+        &#34;projects&#34;: string,
+        &#34;qc&#34;: string,
+        &#34;start_time&#34;: string,
+        &#34;subject&#34;: string,
+        &#34;tag&#34;: string,
+        &#34;task_protocol&#34;: string,
+        &#34;type&#34;: string,
+        &#34;users&#34;: string,
 </pre></div></div>
 </div>
 </section>
@@ -312,7 +357,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </section>
 <section id="list-sessions-that-do-not-have-matlab-in-the-project-name">
 <h3>list sessions that do not have matlab in the project name<a class="headerlink" href="#list-sessions-that-do-not-have-matlab-in-the-project-name" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~project__name__icontains,matlab&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~projects__name__icontains,matlab&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -392,14 +437,116 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <h3>JSON field lookups<a class="headerlink" href="#JSON-field-lookups" title="Link to this heading"></a></h3>
 <p>JSON fields can be filtered in the same way as related tables. For example, the <code class="docutils literal notranslate"><span class="pre">sessions</span></code> table contains a ‘extended_qc’ JSON field that contains a map of QC checks and their outcomes. The fields and values can be used in lookup queries. For more info, see <a class="reference external" href="https://docs.djangoproject.com/en/3.2/topics/db/queries/#querying-jsonfield">Querying JSONField</a>.</p>
 <p>Here’s how the extended_qc field looks:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;extended_qc&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;_dlcBody_if_mean_in_box&#39;: True,
+ &#39;_dlcBody_if_points_all_nan&#39;: True,
+ &#39;_dlcBody_lick_detection&#39;: None,
+ &#39;_dlcBody_mean_in_bbox&#39;: True,
+ &#39;_dlcBody_pupil_blocked&#39;: None,
+ &#39;_dlcBody_pupil_diameter_snr&#39;: None,
+ &#39;_dlcBody_time_trace_length_match&#39;: True,
+ &#39;_dlcBody_trace_all_nan&#39;: True,
+ &#39;_dlcBody_whisker_pupil_block&#39;: True,
+ &#39;_dlcLeft_if_mean_in_box&#39;: True,
+ &#39;_dlcLeft_if_points_all_nan&#39;: True,
+ &#39;_dlcLeft_lick_detection&#39;: True,
+ &#39;_dlcLeft_mean_in_bbox&#39;: True,
+ &#39;_dlcLeft_pupil_blocked&#39;: True,
+ &#39;_dlcLeft_pupil_diameter_snr&#39;: [True, 49.355],
+ &#39;_dlcLeft_time_trace_length_match&#39;: True,
+ &#39;_dlcLeft_trace_all_nan&#39;: True,
+ &#39;_dlcLeft_whisker_pupil_block&#39;: True,
+ &#39;_dlcRight_if_mean_in_box&#39;: True,
+ &#39;_dlcRight_if_points_all_nan&#39;: True,
+ &#39;_dlcRight_lick_detection&#39;: True,
+ &#39;_dlcRight_mean_in_bbox&#39;: True,
+ &#39;_dlcRight_pupil_blocked&#39;: True,
+ &#39;_dlcRight_pupil_diameter_snr&#39;: [True, 6.703],
+ &#39;_dlcRight_time_trace_length_match&#39;: True,
+ &#39;_dlcRight_trace_all_nan&#39;: True,
+ &#39;_dlcRight_whisker_pupil_block&#39;: True,
+ &#39;_task_audio_pre_trial&#39;: 1.0,
+ &#39;_task_correct_trial_event_sequence&#39;: 1.0,
+ &#39;_task_detected_wheel_moves&#39;: 0.9961977186311787,
+ &#39;_task_errorCue_delays&#39;: 0.9186046511627907,
+ &#39;_task_error_trial_event_sequence&#39;: 0.9767441860465116,
+ &#39;_task_goCue_delays&#39;: 1.0,
+ &#39;_task_iti_delays&#39;: 0.3314393939393939,
+ &#39;_task_n_trial_events&#39;: 0.9905482041587902,
+ &#39;_task_negative_feedback_stimOff_delays&#39;: 0.9418604651162791,
+ &#39;_task_passed_trial_checks&#39;: 0.32325141776937616,
+ &#39;_task_positive_feedback_stimOff_delays&#39;: 1.0,
+ &#39;_task_response_feedback_delays&#39;: 0.996219281663516,
+ &#39;_task_response_stimFreeze_delays&#39;: 0.9847908745247148,
+ &#39;_task_reward_volume_set&#39;: 1.0,
+ &#39;_task_reward_volumes&#39;: 1.0,
+ &#39;_task_stimFreeze_delays&#39;: 0.9792060491493384,
+ &#39;_task_stimOff_delays&#39;: 0.9924385633270322,
+ &#39;_task_stimOff_itiIn_delays&#39;: 0.9980988593155894,
+ &#39;_task_stimOn_delays&#39;: 0.998109640831758,
+ &#39;_task_stimOn_goCue_delays&#39;: 0.998109640831758,
+ &#39;_task_stimulus_move_before_goCue&#39;: 0.9980988593155894,
+ &#39;_task_trial_length&#39;: 0.996219281663516,
+ &#39;_task_wheel_freeze_during_quiescence&#39;: 1.0,
+ &#39;_task_wheel_integrity&#39;: 0.999999010009791,
+ &#39;_task_wheel_move_before_feedback&#39;: 0.9961977186311787,
+ &#39;_task_wheel_move_during_closed_loop&#39;: 0.9961977186311787,
+ &#39;_task_wheel_move_during_closed_loop_bpod&#39;: 1.0,
+ &#39;_videoBody_brightness&#39;: True,
+ &#39;_videoBody_camera_times&#39;: [True, 0],
+ &#39;_videoBody_dropped_frames&#39;: [True, 0, 0],
+ &#39;_videoBody_file_headers&#39;: True,
+ &#39;_videoBody_focus&#39;: True,
+ &#39;_videoBody_framerate&#39;: [True, 29.943],
+ &#39;_videoBody_pin_state&#39;: [True, 9, 0],
+ &#39;_videoBody_position&#39;: True,
+ &#39;_videoBody_resolution&#39;: True,
+ &#39;_videoBody_timestamps&#39;: True,
+ &#39;_videoBody_wheel_alignment&#39;: None,
+ &#39;_videoLeft_brightness&#39;: True,
+ &#39;_videoLeft_camera_times&#39;: [True, 0],
+ &#39;_videoLeft_dropped_frames&#39;: [True, 0, 0],
+ &#39;_videoLeft_file_headers&#39;: True,
+ &#39;_videoLeft_focus&#39;: True,
+ &#39;_videoLeft_framerate&#39;: [True, 59.767],
+ &#39;_videoLeft_pin_state&#39;: [True, 9, 0],
+ &#39;_videoLeft_position&#39;: True,
+ &#39;_videoLeft_resolution&#39;: True,
+ &#39;_videoLeft_timestamps&#39;: True,
+ &#39;_videoLeft_wheel_alignment&#39;: [True, 0],
+ &#39;_videoRight_brightness&#39;: False,
+ &#39;_videoRight_camera_times&#39;: [True, 0],
+ &#39;_videoRight_dropped_frames&#39;: [True, 21, 0],
+ &#39;_videoRight_file_headers&#39;: True,
+ &#39;_videoRight_focus&#39;: True,
+ &#39;_videoRight_framerate&#39;: [True, 150.015],
+ &#39;_videoRight_pin_state&#39;: [True, 6, 0],
+ &#39;_videoRight_position&#39;: True,
+ &#39;_videoRight_resolution&#39;: True,
+ &#39;_videoRight_timestamps&#39;: True,
+ &#39;_videoRight_wheel_alignment&#39;: [True, 1],
+ &#39;behavior&#39;: 1,
+ &#39;dlcBody&#39;: &#39;PASS&#39;,
+ &#39;dlcLeft&#39;: &#39;PASS&#39;,
+ &#39;dlcRight&#39;: &#39;PASS&#39;,
+ &#39;task&#39;: &#39;WARNING&#39;,
+ &#39;videoBody&#39;: &#39;WARNING&#39;,
+ &#39;videoLeft&#39;: &#39;WARNING&#39;,
+ &#39;videoRight&#39;: &#39;FAIL&#39;}
+</pre></div></div>
 </div>
 <section id="Looking-up-fields">
 <h4>Looking up fields<a class="headerlink" href="#Looking-up-fields" title="Link to this heading"></a></h4>
@@ -529,8 +676,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 </section>
 <section id="not">
 <h3>not<a class="headerlink" href="#not" title="Link to this heading"></a></h3>
-<p>A tilda can be used to negate any query filter, for example, to query sessions that <strong>do not</strong> have matlab in the project name:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~project__name__icontains,matlab&#39;</span><span class="p">)</span>
+<p>A tilda can be used to negate any query filter, for example, to query sessions that <strong>do not</strong> have matlab in the project names:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;~projects__name__icontains,matlab&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

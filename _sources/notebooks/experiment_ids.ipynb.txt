@@ -31,13 +31,12 @@
      "shell.execute_reply": "2021-09-07T19:21:26.888647Z"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:08.846566300Z",
-     "start_time": "2023-08-31T11:41:06.448949500Z"
+     "end_time": "2023-08-31T13:00:33.185570900Z",
+     "start_time": "2023-08-31T13:00:31.240317Z"
     }
    },
    "outputs": [],
    "source": [
-    "from pprint import pprint\n",
     "from uuid import UUID\n",
     "\n",
     "from one.api import ONE\n",
@@ -72,8 +71,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:08.891578700Z",
-     "start_time": "2023-08-31T11:41:08.853548100Z"
+     "end_time": "2023-08-31T13:00:33.276636900Z",
+     "start_time": "2023-08-31T13:00:33.201557400Z"
     }
    }
   },
@@ -115,8 +114,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:08.966492600Z",
-     "start_time": "2023-08-31T11:41:08.896602500Z"
+     "end_time": "2023-08-31T13:00:33.334940500Z",
+     "start_time": "2023-08-31T13:00:33.284784700Z"
     }
    }
   },
@@ -155,8 +154,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:08.993421600Z",
-     "start_time": "2023-08-31T11:41:08.928707600Z"
+     "end_time": "2023-08-31T13:00:33.412980900Z",
+     "start_time": "2023-08-31T13:00:33.311614400Z"
     }
    }
   },
@@ -194,8 +193,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:09.068763Z",
-     "start_time": "2023-08-31T11:41:08.988432Z"
+     "end_time": "2023-08-31T13:00:33.488753800Z",
+     "start_time": "2023-08-31T13:00:33.374118Z"
     }
    },
    "execution_count": 5,
@@ -237,8 +236,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:09.145234500Z",
-     "start_time": "2023-08-31T11:41:09.068437200Z"
+     "end_time": "2023-08-31T13:00:33.498326200Z",
+     "start_time": "2023-08-31T13:00:33.460256700Z"
     }
    }
   },
@@ -274,8 +273,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:09.998968100Z",
-     "start_time": "2023-08-31T11:41:09.146965400Z"
+     "end_time": "2023-08-31T13:00:34.329216900Z",
+     "start_time": "2023-08-31T13:00:33.480427700Z"
     }
    }
   },
@@ -302,8 +301,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:10.196864200Z",
-     "start_time": "2023-08-31T11:41:10.018042700Z"
+     "end_time": "2023-08-31T13:00:34.465326200Z",
+     "start_time": "2023-08-31T13:00:34.331212500Z"
     }
    },
    "execution_count": 8,
@@ -323,24 +322,17 @@
    "execution_count": 9,
    "outputs": [
     {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "{'date': datetime.date(2022, 8, 23),\n",
-      " 'lab': 'steinmetzlab',\n",
-      " 'local_path': WindowsPath('F:/FlatIron/openalyx.internationalbrainlab.org/steinmetzlab/Subjects/NR_0027/2022-08-23/001'),\n",
-      " 'number': 1,\n",
-      " 'projects': 'ibl_neuropixel_brainwide_01',\n",
-      " 'start_time': '2022-08-23T09:26:09',\n",
-      " 'subject': 'NR_0027',\n",
-      " 'task_protocol': '_iblrig_tasks_ephysChoiceWorld6.6.2',\n",
-      " 'url': 'https://openalyx.internationalbrainlab.org/sessions/ae8787b1-4229-4d56-b0c2-566b61a25b77'}\n"
-     ]
+     "data": {
+      "text/plain": "{'subject': 'NR_0027',\n 'lab': 'steinmetzlab',\n 'projects': 'ibl_neuropixel_brainwide_01',\n 'task_protocol': '_iblrig_tasks_ephysChoiceWorld6.6.2',\n 'number': 1,\n 'start_time': '2022-08-23T09:26:09',\n 'url': 'https://openalyx.internationalbrainlab.org/sessions/ae8787b1-4229-4d56-b0c2-566b61a25b77',\n 'local_path': WindowsPath('F:/FlatIron/openalyx.internationalbrainlab.org/steinmetzlab/Subjects/NR_0027/2022-08-23/001'),\n 'date': datetime.date(2022, 8, 23)}"
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
     }
    ],
    "source": [
     "info = one.get_details(eid)\n",
-    "pprint(info)"
+    "info"
    ],
    "metadata": {
     "collapsed": false,
@@ -348,8 +340,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:10.278642300Z",
-     "start_time": "2023-08-31T11:41:10.195867400Z"
+     "end_time": "2023-08-31T13:00:34.524588100Z",
+     "start_time": "2023-08-31T13:00:34.470311600Z"
     }
    }
   },
@@ -385,8 +377,8 @@
      "name": "#%%\n"
     },
     "ExecuteTime": {
-     "end_time": "2023-08-31T11:41:10.291710500Z",
-     "start_time": "2023-08-31T11:41:10.238751Z"
+     "end_time": "2023-08-31T13:00:34.549041400Z",
+     "start_time": "2023-08-31T13:00:34.501609600Z"
     }
    }
   }

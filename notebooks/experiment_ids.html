@@ -126,8 +126,7 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
 
 <span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
 <span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_session_path</span><span class="p">,</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">is_uuid</span>
@@ -267,24 +266,25 @@ Session exists on disk
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+<span class="n">info</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[9]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;date&#39;: datetime.date(2022, 8, 23),
+{&#39;subject&#39;: &#39;NR_0027&#39;,
  &#39;lab&#39;: &#39;steinmetzlab&#39;,
- &#39;local_path&#39;: WindowsPath(&#39;F:/FlatIron/openalyx.internationalbrainlab.org/steinmetzlab/Subjects/NR_0027/2022-08-23/001&#39;),
- &#39;number&#39;: 1,
  &#39;projects&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
- &#39;start_time&#39;: &#39;2022-08-23T09:26:09&#39;,
- &#39;subject&#39;: &#39;NR_0027&#39;,
  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.6.2&#39;,
- &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/ae8787b1-4229-4d56-b0c2-566b61a25b77&#39;}
+ &#39;number&#39;: 1,
+ &#39;start_time&#39;: &#39;2022-08-23T09:26:09&#39;,
+ &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/ae8787b1-4229-4d56-b0c2-566b61a25b77&#39;,
+ &#39;local_path&#39;: WindowsPath(&#39;F:/FlatIron/openalyx.internationalbrainlab.org/steinmetzlab/Subjects/NR_0027/2022-08-23/001&#39;),
+ &#39;date&#39;: datetime.date(2022, 8, 23)}
 </pre></div></div>
 </div>
 <p>In online mode you get retrieve exhaustive session information:</p>
