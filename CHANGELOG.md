@@ -6,6 +6,11 @@
 - Globus.delete_data method for deleting files and folders from an endpoint
 - Globus.task_wait_async is an asynchronous implementation of the TransferClient.task_wait method
 
+### Modified
+
+- one.ConversionMixin.dict2ref supports 'start_time' and 'number' fields
+- AlyxClient._generic_request now uses is_logged_in property
+
 ## [2.2.2]
 
 ### Modified

@@ -580,7 +580,7 @@ class AlyxClient:
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
-        if not self._token and (not self._headers or 'Authorization' not in self._headers):
+        if not self.is_logged_in:
             self.authenticate(username=self.user)
         # makes sure the base url is the one from the instance
         rest_query = rest_query.replace(self.base_url, '')
