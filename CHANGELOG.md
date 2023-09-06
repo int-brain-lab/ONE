@@ -8,6 +8,9 @@
 
 ### Modified
 
+- Globus headless mode for servers
+- Globus login and logout methods
+- deprecated one.remote.globus.create_globus_client; use one.remote.globus.Globus class instead
 - one.ConversionMixin.dict2ref supports 'start_time' and 'number' fields
 - AlyxClient._generic_request now uses is_logged_in property
 
