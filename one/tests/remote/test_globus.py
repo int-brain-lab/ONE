@@ -607,7 +607,7 @@ class TestGlobusClient(_GlobusClientTest):
             self.globus.login()
             self.assertFalse(self.globus.is_logged_in)
 
-        token = {'refresh_token': None, 'expires_at_seconds': datetime.now().timestamp() + 60,
+        token = {'refresh_token': None, 'expires_at_seconds': datetime.now().timestamp() + 60**2,
                  'access_token': 'a1b2c3d4e5f6g7h8'}
         # Stop and start mock in order to reset MagicMock attributes
         self.globus_sdk_mock.stop()
