@@ -7,8 +7,49 @@ To set up Globus simply instantiate the `Globus` class for the first time and fo
 Providing a client name string to the constructor allows one to set up multiple Globus clients
 (i.e. when switching between different Globus client IDs).
 
+In order to use this function you need:
+
+1. The client ID of an existing Globus Client (`see this tutorial`_).
+2. Set up `Global Connect`_ on your local device.
+3. Register your local device as an `endpoint`_ in your Globus Client.
+
+
+To modify the settings for a pre-established client, call the `Globus.setup` method with the client
+name:
+
+>>> globus = Globus.setup('default')
+
+You can update the list of endpoints using the `fetch_endpoints_from_alyx` method:
+
+>>> globus = Globus('admin')
+>>> remote_endpoints = globus.fetch_endpoints_from_alyx(alyx=AlyxClient())
+
+The endpoints are stored in the `endpoints` property
+
+>>> print(globus.endpoints.keys())
+>>> print(globus.endpoints['local'])
+
+.. _how to create one: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+.. _Global Connect: https://www.globus.org/globus-connect-personal
+.. _endpoint: https://app.globus.org/
+
+
 Examples
 --------
+Get the full Globus file path
+
+>>> relative_path = 'subject/2020-01-01/001/alf/_ibl_trials.table.pqt'
+>>> full_path = globus.to_address(relative_path, 'flatiron_cortexlab')
+
+Log in with a limited time token
+
+>>> globus = Globus('admin')
+>>> globus.login(stay_logged_in=False)
+
+Log out of Globus, revoking and deleting all tokens
+
+>>> globus.logout()
+>>> assert not globus.is_logged_in
 
 Asynchronously transfer data between Alyx repositories
 
@@ -33,6 +74,13 @@ Temporarily change local data root path and synchronously download file
 >>> glo.endpoints['local']['root_path'] = '/path/to/new/location'
 >>> file = glo.download_file('path/to/file.ext', 'source_endpoint')
 Path('/path/to/new/location/path/to/file.ext')
+
+Await multiple tasks to complete by passing a list of Globus tranfer IDs
+
+>>> import asyncio
+>>> tasks = [asyncio.create_task(globus.task_wait_async(task_id))) for task_id in task_ids]
+>>> success = asyncio.run(asyncio.gather(*tasks))
+
 """
 import os
 import re
@@ -57,9 +105,19 @@ from one.webclient import AlyxClient
 from one.util import ensure_list
 from .base import DownloadClient, load_client_params, save_client_params
 
+__all__ = ['Globus', 'get_lab_from_endpoint_id', 'as_globus_path']
 _logger = logging.getLogger(__name__)
 CLIENT_KEY = 'globus'
+"""str: The default key in the remote settings file"""
+
 DEFAULT_PAR = {'GLOBUS_CLIENT_ID': None, 'local_endpoint': None, 'local_path': None}
+"""dict: The default Globus parameter fields"""
+
+STATUS_MAP = {
+    'ACTIVE': ('QUEUED', 'ACTIVE', 'GC_NOT_CONNECTED', 'UNKNOWN'),
+    'FAILED': ('ENDPOINT_ERROR', 'PERMISSION_DENIED', 'CONNECT_FAILED'),
+    'INACTIVE': 'PAUSED_BY_ADMIN'}
+"""dict: A map of Globus status to "nice" status"""
 
 
 def ensure_logged_in(func):
@@ -87,15 +145,9 @@ def ensure_logged_in(func):
     return wrapper_decorator
 
 
-def setup(par_id=None, login=True, refresh_tokens=True):
+def _setup(par_id=None, login=True, refresh_tokens=True):
     """
     Sets up Globus as a backend for ONE functions.
-    In order to use this function you need:
-
-    1. The Client ID of an existing Globus Client, or to create one
-       (https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html).
-    2. Set up Global Connect on your local device (https://www.globus.org/globus-connect-personal).
-    3. Register your local device as an Endpoint in your Globus Client (https://app.globus.org/).
 
     Parameters
     ----------
@@ -216,14 +268,14 @@ def create_globus_client(client_name='default'):
     try:
         globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}')
     except (AttributeError, FileNotFoundError):
-        setup(client_name, login=True, refresh_tokens=True)
+        _setup(client_name, login=True, refresh_tokens=True)
         globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}', assert_present=False) or {}
 
     # Assert valid Globus client ID found
     if not (globus_pars and 'GLOBUS_CLIENT_ID' in iopar.as_dict(globus_pars)
             and is_uuid(globus_pars.GLOBUS_CLIENT_ID)):
         raise ValueError(
-            'Invalid Globus client ID in client parameter file. Rerun one.remote.globus.setup'
+            'Invalid Globus client ID in client parameter file. Rerun Globus.setup'
         )
 
     if iopar.as_dict(globus_pars).get('refresh_token'):
@@ -411,7 +463,7 @@ def as_globus_path(path):
 
 
 class Globus(DownloadClient):
-    """Wrapper for managing files on Globus endpoints."""
+
     def __init__(self, client_name='default', connect=True, headless=False):
         """
         Wrapper for managing files on Globus endpoints.
@@ -425,6 +477,16 @@ class Globus(DownloadClient):
         headless : bool
             If true, raises ValueError if unable to log in automatically. Otherwise the user is
             prompted to enter information.
+
+        Examples
+        --------
+        Instantiate without authentication
+
+        >>> globus = Globus(connect=False)
+
+        Instantiate without user prompts
+
+        >>> globus = Globus('server', headless=True)
         """
         # Setting up transfer client
         super().__init__()
@@ -437,7 +499,7 @@ class Globus(DownloadClient):
         if self._pars is None:
             if self.headless:
                 raise RuntimeError(f'Globus not set up for client "{self.client_name}"')
-            self._pars = setup(self.client_name, login=False)
+            self._pars = _setup(self.client_name, login=False)
 
         if connect:
             self.login()
@@ -646,22 +708,34 @@ class Globus(DownloadClient):
         return files
 
     @staticmethod
-    def setup(client_name='default'):
+    def setup(client_name='default', **kwargs):
         """
         Setup a Globus client.
+
+        In order to use this function you need:
+
+        1. The client ID of an existing Globus Client (`see this tutorial`_).
+        2. Set up `Global Connect`_ on your local device.
+        3. Register your local device as an `endpoint`_ in your Globus Client.
+
+        .. _how to create one: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+        .. _Global Connect: https://www.globus.org/globus-connect-personal
+        .. _endpoint: https://app.globus.org/
 
         Parameters
         ----------
         client_name : str
             Parameter profile name to set up e.g. 'default', 'admin'.
+        **kwargs
+            Optional Globus constructor arguments.
 
         Returns
         -------
         Globus
             A new Globus client object.
         """
-        setup(client_name, login=False)
-        return Globus(client_name)
+        _setup(client_name, login=False)
+        return Globus(client_name, **kwargs)
 
     def add_endpoint(self, endpoint, label=None, root_path=None, overwrite=False, alyx=None):
         """
@@ -1097,6 +1171,7 @@ class Globus(DownloadClient):
             Timed out waiting for task to complete.
 
         TODO Add a quick fail option that returns when files missing, etc.
+        TODO Add status logging
         """
         try:
             task_id = globus_func()
@@ -1160,6 +1235,12 @@ class Globus(DownloadClient):
         -------
         bool
             True if status not ACTIVE before timeout. False if status still ACTIVE at timeout.
+
+        Examples
+        --------
+        Asynchronously await a task to complete
+
+        >>> await Globus().task_wait_async(task_id)
         """
         if polling_interval < 1:
             raise GlobusSDKUsageError('polling_interval must be at least 1 second')

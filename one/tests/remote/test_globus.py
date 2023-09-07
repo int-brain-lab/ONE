@@ -44,14 +44,14 @@ class TestGlobus(unittest.TestCase):
 
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_setup(self, _):
-        """Tests for one.remote.globus.setup function."""
+        """Tests for one.remote.globus._setup function."""
         local_id = str(ENDPOINT_ID)
         gc_id = str(uuid.uuid4())
         # Check behaviour when no parameters file exists, local endpoint ID found
         ans = ('', gc_id, '', 'new_path/to/thing', 'c')
         with mock.patch('builtins.input', side_effect=ans), \
                 mock.patch('one.remote.globus.get_local_endpoint_id', return_value=local_id):
-            globus.setup(login=False)
+            globus._setup(login=False)
 
         p = globus.load_client_params('globus.default').as_dict()
         expected = {
@@ -73,7 +73,7 @@ class TestGlobus(unittest.TestCase):
                 by_resource_server.
                 __getitem__
             ).return_value = d
-            globus.setup()
+            globus._setup()
 
         p = globus.load_client_params('globus.default').as_dict()
         expected.update(d)
@@ -83,20 +83,20 @@ class TestGlobus(unittest.TestCase):
         # 1. New profile and no Globus ID inputted
         with mock.patch('builtins.input', side_effect=['']), \
                 self.assertRaises(ValueError) as ex:
-            globus.setup(par_id='foo')
+            globus._setup(par_id='foo')
             self.assertIn('Globus client ID', str(ex))
 
         # 2. New profile, Globus ID invalid
         with mock.patch('builtins.input', side_effect=['bar', '123']), \
                 self.assertRaises(ValueError) as ex:
-            globus.setup(par_id='foo')
+            globus._setup(par_id='foo')
             self.assertIn('Invalid Globus client ID', str(ex))
 
         # 3. New profile, no local endpoint ID found and none inputted
         with mock.patch('builtins.input', side_effect=['foo', gc_id, '']), \
              mock.patch('one.remote.globus.get_local_endpoint_id', side_effect=AssertionError), \
              self.assertRaises(ValueError) as ex, self.assertWarns(Warning):
-            globus.setup()
+            globus._setup()
             self.assertIn('local endpoint ID', str(ex))
 
     def test_as_globus_path(self):
@@ -184,7 +184,7 @@ class TestGlobus(unittest.TestCase):
         # Check setup run when no params exist, check raises exception when missing params
         gc_id = str(uuid.uuid4())
         incomplete_pars = iopar.from_dict({'GLOBUS_CLIENT_ID': gc_id})
-        with mock.patch('one.remote.globus.setup') as setup_mock, \
+        with mock.patch('one.remote.globus._setup') as setup_mock, \
              self.assertRaises(ValueError), \
              mock.patch('one.remote.base.load_client_params',
                         side_effect=[AssertionError, incomplete_pars]):
@@ -269,7 +269,7 @@ class _GlobusClientTest(unittest.TestCase):
     """unittest.mock._patch: Mock object for globus_sdk package."""
     globus_sdk_mock = None
 
-    @mock.patch('one.remote.globus.setup')
+    @mock.patch('one.remote.globus._setup')
     def setUp(self, _) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         # The github CI root dir contains an alias/symlink so we must resolve it
@@ -304,7 +304,7 @@ class TestGlobusClient(_GlobusClientTest):
 
         TestGlobus.test_setup tests the setup function. Here we just check it's called.
         """
-        with mock.patch('one.remote.globus.setup') as setup_mock, \
+        with mock.patch('one.remote.globus._setup') as setup_mock, \
                 mock.patch('one.remote.globus.create_globus_client'), \
                 mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
             self.assertIsInstance(globus.Globus.setup(), globus.Globus)
@@ -565,7 +565,7 @@ class TestGlobusClient(_GlobusClientTest):
         """Test for Globus object in headless mode."""
         self.assertRaises(RuntimeError, globus.Globus, 'foobar', headless=True)
         pars = self.globus._pars
-        with mock.patch('one.remote.globus.setup', return_value=pars) as setup_function:
+        with mock.patch('one.remote.globus._setup', return_value=pars) as setup_function:
             globus.Globus('foobar', headless=False, connect=False)
             setup_function.assert_called()
 
