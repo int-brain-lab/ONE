@@ -5,6 +5,15 @@ one.remote.globus
 
    
    
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CLIENT_KEY
+      DEFAULT_PAR
+      STATUS_MAP
+   
    
 
    
@@ -16,10 +25,11 @@ one.remote.globus
    
       as_globus_path
       create_globus_client
+      ensure_logged_in
       get_lab_from_endpoint_id
       get_local_endpoint_id
       get_local_endpoint_paths
-      setup
+      get_token
    
    
 

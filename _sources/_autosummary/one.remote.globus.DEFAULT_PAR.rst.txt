@@ -1,0 +1,6 @@
+one.remote.globus.DEFAULT\_PAR
+==============================
+
+.. currentmodule:: one.remote.globus
+
+.. autodata:: DEFAULT_PAR

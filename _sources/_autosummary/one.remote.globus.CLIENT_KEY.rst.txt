@@ -1,0 +1,6 @@
+one.remote.globus.CLIENT\_KEY
+=============================
+
+.. currentmodule:: one.remote.globus
+
+.. autodata:: CLIENT_KEY

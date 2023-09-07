@@ -1,0 +1,32 @@
+one.tests.remote.test\_globus
+=============================
+
+.. automodule:: one.tests.remote.test_globus
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      TestGlobus
+      TestGlobusAsync
+      TestGlobusClient
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.tests.remote.test_aws &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.tests.remote.test_base" href="one.tests.remote.test_base.html" />
+    <link rel="prev" title="one.tests.remote" href="one.tests.remote.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="one.tests.html">one.tests</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="one.tests.alf.html">one.tests.alf</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="one.tests.remote.html">one.tests.remote</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxclient.html">one.tests.test_alyxclient</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_alyxrest.html">one.tests.test_alyxrest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_converters.html">one.tests.test_converters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_one.html">one.tests.test_one</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_params.html">one.tests.test_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.test_registration.html">one.tests.test_registration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.tests.util.html">one.tests.util</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="one.html">one</a></li>
+          <li class="breadcrumb-item"><a href="one.tests.html">one.tests</a></li>
+          <li class="breadcrumb-item"><a href="one.tests.remote.html">one.tests.remote</a></li>
+      <li class="breadcrumb-item active">one.tests.remote.test_aws</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.tests.remote.test_aws.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-one.tests.remote.test_aws">
+<span id="one-tests-remote-test-aws"></span><h1>one.tests.remote.test_aws<a class="headerlink" href="#module-one.tests.remote.test_aws" title="Link to this heading"></a></h1>
+<p>Tests for the one.remote.aws module.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.remote.test_aws.TestAWS" title="one.tests.remote.test_aws.TestAWS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestAWS</span></code></a></p></td>
+<td><p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.remote.test_aws.TestAWSPublic" title="one.tests.remote.test_aws.TestAWSPublic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestAWSPublic</span></code></a></p></td>
+<td><p>This test relies on downloading the cache folder for open alyx as it is rather small The assertions may change if the content does change.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.remote.test_aws.TestUtils" title="one.tests.remote.test_aws.TestUtils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestUtils</span></code></a></p></td>
+<td><p>Tests for one.remote.aws utility functions</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWSPublic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAWSPublic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWSPublic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWSPublic" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>This test relies on downloading the cache folder for open alyx as it is rather small
+The assertions may change if the content does change.
+If the folder grows bigger, we could create a dedicated test folder for this test</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWSPublic.source">
+<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'caches/openalyx/cache_info.json'</span></em><a class="headerlink" href="#one.tests.remote.test_aws.TestAWSPublic.source" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWSPublic.test_download_file">
+<span class="sig-name descname"><span class="pre">test_download_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWSPublic.test_download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWSPublic.test_download_file" title="Link to this definition"></a></dt>
+<dd><p>Test for one.aws.remote.s3_download_file function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWSPublic.test_download_folder">
+<span class="sig-name descname"><span class="pre">test_download_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWSPublic.test_download_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWSPublic.test_download_folder" title="Link to this definition"></a></dt>
+<dd><p>Test for one.remote.aws.s3_download_public_folder function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAWS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWS.repo">
+<span class="sig-name descname"><span class="pre">repo</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_aws.TestAWS.repo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWS.tempdir">
+<span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.remote.test_aws.TestAWS.tempdir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWS.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWS.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWS.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWS.test_credentials">
+<span class="sig-name descname"><span class="pre">test_credentials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWS.test_credentials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWS.test_credentials" title="Link to this definition"></a></dt>
+<dd><p>Test for one.remote.aws.get_aws_access_keys function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestAWS.test_get_s3_from_alyx">
+<span class="sig-name descname"><span class="pre">test_get_s3_from_alyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestAWS.test_get_s3_from_alyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestAWS.test_get_s3_from_alyx" title="Link to this definition"></a></dt>
+<dd><p>Tests for one.remote.aws.get_s3_from_alyx function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestUtils">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestUtils</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestUtils"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestUtils" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for one.remote.aws utility functions</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.remote.test_aws.TestUtils.test_get_s3_virtual_host">
+<span class="sig-name descname"><span class="pre">test_get_s3_virtual_host</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/remote/test_aws.html#TestUtils.test_get_s3_virtual_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.remote.test_aws.TestUtils.test_get_s3_virtual_host" title="Link to this definition"></a></dt>
+<dd><p>Tests for one.remote.aws.get_s3_virtual_host function</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.tests.remote.html" class="btn btn-neutral float-left" title="one.tests.remote" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.tests.remote.test_base.html" class="btn btn-neutral float-right" title="one.tests.remote.test_base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

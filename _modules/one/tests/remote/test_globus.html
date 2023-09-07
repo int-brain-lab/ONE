@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.tests.remote.test_globus &mdash; ONE  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/recording_data_access.html">Recording data access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">one.tests.remote.test_globus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for one.tests.remote.test_globus</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">globus_sdk</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">unittest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s1">&#39;globus_sdk module not installed&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
+
+<span class="kn">from</span> <span class="nn">one.tests.util</span> <span class="kn">import</span> <span class="n">get_file</span><span class="p">,</span> <span class="n">setup_rest_cache</span>
+<span class="kn">from</span> <span class="nn">one.tests</span> <span class="kn">import</span> <span class="n">TEST_DB_1</span>
+<span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
+<span class="kn">from</span> <span class="nn">one.remote</span> <span class="kn">import</span> <span class="n">globus</span>
+
+<span class="n">ENDPOINT_ID</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="TestGlobus">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus">[docs]</a>
+<span class="k">class</span> <span class="nc">TestGlobus</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the one.remote.globus module.&quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;unittest.mock._patch: Mock object for setting parameter location as temporary directory.&quot;&quot;&quot;</span>
+    <span class="n">path_mock</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;tempfile.TemporaryDirectory: The temporary location of remote parameters file.&quot;&quot;&quot;</span>
+    <span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TestGlobus.setUpClass">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.setUpClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">path_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.base.iopar.getfile&#39;</span><span class="p">,</span>
+                                   <span class="n">new</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">get_file</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.setUp">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.setUp">[docs]</a>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_mock</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_setup">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_setup">[docs]</a>
+    <span class="nd">@unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.globus._setup function.&quot;&quot;&quot;</span>
+        <span class="n">local_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">)</span>
+        <span class="n">gc_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="c1"># Check behaviour when no parameters file exists, local endpoint ID found</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">gc_id</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;new_path/to/thing&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">ans</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.get_local_endpoint_id&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">local_id</span><span class="p">):</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">login</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">load_client_params</span><span class="p">(</span><span class="s1">&#39;globus.default&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">:</span> <span class="n">gc_id</span><span class="p">,</span>
+            <span class="s1">&#39;local_endpoint&#39;</span><span class="p">:</span> <span class="n">local_id</span><span class="p">,</span>
+            <span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="s1">&#39;new_path/to/thing&#39;</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Set up again with globus login</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">refresh_token</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">expires_at_seconds</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">ans</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk.NativeAppAuthClient&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">,</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.get_local_endpoint_id&#39;</span><span class="p">):</span>
+            <span class="p">(</span>
+                <span class="n">client</span><span class="p">()</span><span class="o">.</span>
+                <span class="n">oauth2_exchange_code_for_tokens</span><span class="p">()</span><span class="o">.</span>
+                <span class="n">by_resource_server</span><span class="o">.</span>
+                <span class="fm">__getitem__</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">d</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">_setup</span><span class="p">()</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">load_client_params</span><span class="p">(</span><span class="s1">&#39;globus.default&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">expected</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Check for input validations</span>
+        <span class="c1"># 1. New profile and no Globus ID inputted</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]),</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">par_id</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;Globus client ID&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+
+        <span class="c1"># 2. New profile, Globus ID invalid</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;123&#39;</span><span class="p">]),</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">par_id</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;Invalid Globus client ID&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+
+        <span class="c1"># 3. New profile, no local endpoint ID found and none inputted</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">gc_id</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]),</span> \
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.get_local_endpoint_id&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="ne">AssertionError</span><span class="p">),</span> \
+             <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">_setup</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;local endpoint ID&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_as_globus_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_as_globus_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_as_globus_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.globus.as_globus_path.&quot;&quot;&quot;</span>
+        <span class="c1"># A Windows path</span>
+        <span class="c1"># &quot;/E/FlatIron/integration&quot;</span>
+        <span class="c1"># Only test this on windows</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;win32&#39;</span><span class="p">:</span>
+            <span class="n">actual</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;/foo/bar&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">drive</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">/foo/bar&#39;</span><span class="p">)</span>
+
+        <span class="c1"># On all systems an explicit Windows path should be converted to a POSIX one</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">PureWindowsPath</span><span class="p">(</span><span class="s1">&#39;E:</span><span class="se">\\</span><span class="s1">FlatIron</span><span class="se">\\</span><span class="s1">integration&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/E/&#39;</span><span class="p">))</span>
+
+        <span class="c1"># On all systems an explicit POSIX path should be left unchanged</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;E:</span><span class="se">\\</span><span class="s1">FlatIron</span><span class="se">\\</span><span class="s1">integration&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="s1">&#39;E:</span><span class="se">\\</span><span class="s1">FlatIron</span><span class="se">\\</span><span class="s1">integration&#39;</span><span class="p">)</span>
+
+        <span class="c1"># A valid globus path should be unchanged</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/mnt/ibl&#39;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/E/FlatIron/integration&#39;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_get_local_endpoint_id">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_get_local_endpoint_id">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_local_endpoint_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.remote.globus.get_local_endpoint_id function.&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">_check_path</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;client-id.txt&#39;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Function should check for path existence</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">get_local_endpoint_id</span><span class="p">()</span>
+
+        <span class="c1"># Function should look for &#39;client-id.txt&#39; file and return contents</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="n">_check_path</span><span class="p">),</span> \
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s1">&#39;read_text&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">ENDPOINT_ID</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_local_endpoint_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_get_local_endpoint_paths">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_get_local_endpoint_paths">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_local_endpoint_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.globus.get_local_endpoint_paths function.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.sys.platform&#39;</span><span class="p">,</span> <span class="s1">&#39;win32&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([],</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_local_endpoint_paths</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.sys.platform&#39;</span><span class="p">,</span> <span class="s1">&#39;linux&#39;</span><span class="p">),</span> \
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([],</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_local_endpoint_paths</span><span class="p">())</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">)]</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.sys.platform&#39;</span><span class="p">,</span> <span class="s1">&#39;linux&#39;</span><span class="p">),</span> \
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> \
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s1">&#39;read_text&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="s1">&#39;path/one,path/two &#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_local_endpoint_paths</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_get_lab_from_endpoint_id">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_get_lab_from_endpoint_id">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_lab_from_endpoint_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.globus.get_lab_from_endpoint_id function.&quot;&quot;&quot;</span>
+        <span class="c1"># Set up REST cache fixtures</span>
+        <span class="n">ac</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">)</span>
+        <span class="n">setup_rest_cache</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="n">endpoint_id</span> <span class="o">=</span> <span class="s1">&#39;2dc8ccc6-2f8e-11e9-9351-0e3d676669f4&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_lab_from_endpoint_id</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">,</span> <span class="n">ac</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;mainenlab&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check behaviour when unknown UUID</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="s1">&#39;rest&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">get_lab_from_endpoint_id</span><span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="n">ac</span><span class="p">))</span>
+
+        <span class="c1"># Check behaviour when multiple labs returned</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="s1">&#39;rest&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;lab_A&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;lab_B&#39;</span><span class="p">}]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">get_lab_from_endpoint_id</span><span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="n">ac</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Check behaviour when no input ID returned</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.get_local_endpoint_id&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">endpoint_id</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_lab_from_endpoint_id</span><span class="p">(</span><span class="n">alyx</span><span class="o">=</span><span class="n">ac</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;mainenlab&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_create_globus_client">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_create_globus_client">[docs]</a>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_create_globus_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">globus_mock</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.globus.create_globus_client function.&quot;&quot;&quot;</span>
+        <span class="c1"># Check setup run when no params exist, check raises exception when missing params</span>
+        <span class="n">gc_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">incomplete_pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">:</span> <span class="n">gc_id</span><span class="p">})</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus._setup&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">setup_mock</span><span class="p">,</span> \
+             <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">),</span> \
+             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.base.load_client_params&#39;</span><span class="p">,</span>
+                        <span class="n">side_effect</span><span class="o">=</span><span class="p">[</span><span class="ne">AssertionError</span><span class="p">,</span> <span class="n">incomplete_pars</span><span class="p">]):</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">create_globus_client</span><span class="p">()</span>
+            <span class="n">setup_mock</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+
+        <span class="c1"># Check behaviour with complete params</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">:</span> <span class="n">gc_id</span><span class="p">,</span> <span class="s1">&#39;refresh_token&#39;</span><span class="p">:</span> <span class="mi">456</span><span class="p">})</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span> <span class="k">as</span> <span class="n">par_mock</span><span class="p">:</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">create_globus_client</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+            <span class="n">par_mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;globus.admin&#39;</span><span class="p">)</span>
+        <span class="n">globus_mock</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">gc_id</span><span class="p">)</span>
+        <span class="n">globus_mock</span><span class="o">.</span><span class="n">RefreshTokenAuthorizer</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">globus_mock</span><span class="o">.</span><span class="n">TransferClient</span><span class="p">())</span>
+
+        <span class="c1"># Check without refresh tokens</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="n">pars</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="mi">456</span><span class="p">)</span>
+        <span class="n">globus_mock</span><span class="o">.</span><span class="n">RefreshTokenAuthorizer</span><span class="o">.</span><span class="n">reset_mock</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span> <span class="k">as</span> <span class="n">par_mock</span><span class="p">:</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">create_globus_client</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+            <span class="n">par_mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;globus.admin&#39;</span><span class="p">)</span>
+        <span class="n">globus_mock</span><span class="o">.</span><span class="n">AccessTokenAuthorizer</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="mi">456</span><span class="p">)</span>
+        <span class="n">globus_mock</span><span class="o">.</span><span class="n">RefreshTokenAuthorizer</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">globus_mock</span><span class="o">.</span><span class="n">TransferClient</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_remove_token_fields">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_remove_token_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_remove_token_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.remote.globus._remove_token_fields function.&quot;&quot;&quot;</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span>
+            <span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">:</span> <span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="s1">&#39;refresh_token&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;access_token&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span> <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">:</span> <span class="mi">12345678</span><span class="p">})</span>
+        <span class="n">newpar</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">_remove_token_fields</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">newpar</span><span class="p">,</span> <span class="s1">&#39;_fields&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">newpar</span><span class="o">.</span><span class="n">_fields</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;local_path&#39;</span><span class="p">,</span> <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">))</span>
+        <span class="c1"># Check works with a dict</span>
+        <span class="n">newpar</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">_remove_token_fields</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">newpar</span><span class="p">,</span> <span class="s1">&#39;_fields&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">newpar</span><span class="o">.</span><span class="n">_fields</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;local_path&#39;</span><span class="p">,</span> <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">_remove_token_fields</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.test_get_token">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_get_token">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.remote.globus.get_token function.&quot;&quot;&quot;</span>
+        <span class="n">auth_code</span> <span class="o">=</span> <span class="s1">&#39;a1b2c3d4e5f6g7h8&#39;</span>
+        <span class="c1"># Test without refresh tokens</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">auth_code</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk.NativeAppAuthClient&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">),</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_exchange_code_for_tokens</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="s1">&#39;a1b2c3d4e5f6g7h8&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">token</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Test with refresh tokens</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">auth_code</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk.NativeAppAuthClient&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">),</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Test cancel</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="s1">&#39;c &#39;</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk.NativeAppAuthClient&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">),</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_exchange_code_for_tokens</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">expected</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.tearDown">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.tearDown">[docs]</a>
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">par_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="s1">&#39;.one&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">par_path</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">par_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">par_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_mock</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestGlobus.tearDownClass">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.tearDownClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">_GlobusClientTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Globus Client test setup routines.&quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;unittest.mock._patch: Mock object for globus_sdk package.&quot;&quot;&quot;</span>
+    <span class="n">globus_sdk_mock</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus._setup&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="c1"># The github CI root dir contains an alias/symlink so we must resolve it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span> <span class="n">pars</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span>
+            <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span><span class="p">:</span> <span class="s1">&#39;123&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;refresh_token&#39;</span><span class="p">:</span> <span class="s1">&#39;456&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;local_endpoint&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">),</span>
+            <span class="s1">&#39;local_path&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">),</span>
+            <span class="s1">&#39;access_token&#39;</span><span class="p">:</span> <span class="s1">&#39;abc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">+</span> <span class="mi">60</span><span class="o">**</span><span class="mi">2</span>
+        <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">Globus</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="TestGlobusClient">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient">[docs]</a>
+<span class="k">class</span> <span class="nc">TestGlobusClient</span><span class="p">(</span><span class="n">_GlobusClientTest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the GlobusClient class.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestGlobusClient.test_constructor">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_constructor">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.__init__ method.&quot;&quot;&quot;</span>
+        <span class="c1"># self.assertEqual(self.client.client, self.globus_sdk_mock.TransferClient())</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">)}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_setup">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_setup">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.setup static method.</span>
+
+<span class="sd">        TestGlobus.test_setup tests the setup function. Here we just check it&#39;s called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus._setup&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">setup_mock</span><span class="p">,</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.create_globus_client&#39;</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">Globus</span><span class="o">.</span><span class="n">setup</span><span class="p">(),</span> <span class="n">globus</span><span class="o">.</span><span class="n">Globus</span><span class="p">)</span>
+            <span class="n">setup_mock</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_to_address">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_to_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.to_address method.&quot;&quot;&quot;</span>
+        <span class="c1"># Check with Windows path</span>
+        <span class="n">root_path</span> <span class="o">=</span> <span class="n">PureWindowsPath</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;C:\root\path&#39;</span><span class="p">)</span>
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
+        <span class="c1"># Check works with endpoint label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;data-repo&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">root_path</span><span class="p">)</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;data-repo&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="s1">&#39;/C/root/path/path/to/file&#39;</span><span class="p">)</span>
+        <span class="c1"># Check works with UUID</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="s1">&#39;foo/bar&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="s1">&#39;/C/root/path/foo/bar&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_add_endpoint">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_add_endpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_add_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.add_endpoint method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test with UUID</span>
+        <span class="c1"># 1. Should raise exception when label not defined</span>
+        <span class="n">endpoint_id</span> <span class="o">=</span> <span class="s1">&#39;2dc8ccc6-2f8e-11e9-9351-0e3d676669f4&#39;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">)</span>
+        <span class="c1"># 2. Should add UUID to endpoints along with root path</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;lab1&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/mnt&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">endpoint_id</span><span class="p">),</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/mnt&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Test with Alyx repo name</span>
+        <span class="c1"># Set up REST cache fixtures</span>
+        <span class="n">ac</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">)</span>
+        <span class="n">setup_rest_cache</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;mainenlab&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">ac</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="s1">&#39;0b6f5a7c-a7a9-11e8-96fa-0a6d4e044368&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/mnt/globus/mainenlab/Subjects&#39;</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Test behaviour when label exists</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.remote.globus&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">ac</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">],</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">ac</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">],</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_fetch_endpoints_from_alyx">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_fetch_endpoints_from_alyx">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_fetch_endpoints_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.fetch_endpoints_from_alyx method.&quot;&quot;&quot;</span>
+        <span class="n">alyx</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">)</span>
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;globus_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/some/path&#39;</span><span class="p">},</span>
+                 <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;globus_endpoint_id&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">),</span> <span class="s1">&#39;globus_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/foo/path&#39;</span><span class="p">}]</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="s1">&#39;rest&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">repos</span><span class="p">):</span>
+            <span class="n">added</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">fetch_endpoints_from_alyx</span><span class="p">(</span><span class="n">alyx</span><span class="p">)</span>
+        <span class="c1"># Repos without an endpoint ID should have been ignored</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">added</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/foo/path&#39;</span><span class="p">}})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_endpoint_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_endpoint_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_endpoint_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus._endpoint_path method.&quot;&quot;&quot;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;/mnt/foo/bar&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">expected</span><span class="p">))</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;/foo/bar/baz&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="s1">&#39;bar/baz&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/foo&#39;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_endpoint_id_root">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_endpoint_id_root">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_endpoint_id_root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus._endpoint_id_root method.&quot;&quot;&quot;</span>
+        <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">))</span>
+
+        <span class="c1"># Check behaviour when endpoint not in list</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># Should warn when ambiguous</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/foo/bar&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+            <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_ls">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_ls">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.ls method.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;some.</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="si">}</span><span class="s1">.file&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">GlobusConnectionError</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="ne">ConnectionError</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="p">[</span><span class="n">response</span><span class="p">])</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="o">.</span><span class="n">call_count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PurePosixPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+        <span class="c1"># Remove uuid and return size args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">([</span><span class="n">response</span><span class="p">],)</span>
+        <span class="n">out</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove_uuid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="o">.</span><span class="n">reset_mock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="n">err</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">globus_sdk</span><span class="o">.</span><span class="n">GlobusConnectionError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">operation_ls</span><span class="o">.</span><span class="n">call_count</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_mv">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_mv">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_mv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.mv and Globus.run_task methods.&quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;some.file&#39;</span><span class="p">,</span> <span class="s1">&#39;some2.file&#39;</span><span class="p">)</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;new.file&#39;</span><span class="p">,</span> <span class="s1">&#39;new2.file&#39;</span><span class="p">)</span>
+        <span class="c1"># Mock transfer output</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;task_id&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">task_id</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_task</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;SUCCEEDED&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">source_path</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">destination_path</span><span class="o">=</span><span class="n">dst</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_skipped_errors</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">task_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_response</span><span class="p">)</span>
+
+        <span class="c1"># Test errors</span>
+        <span class="c1"># Check timeout behaviour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_wait</span><span class="o">.</span><span class="n">reset_mock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_wait</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">timeout</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IOError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">task_id</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_wait</span><span class="o">.</span><span class="n">call_count</span><span class="p">)</span>
+
+        <span class="c1"># Check status check error behaviour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_wait</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> \
+            <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferAPIError</span><span class="p">(</span><span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">())</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.remote.globus&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+        <span class="c1"># Check failed transfer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_task</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;FAILED&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="o">.</span><span class="n">reset_mock</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IOError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_task</span><span class="o">.</span><span class="n">return_value</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+
+        <span class="c1"># Check submission error behaviour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> \
+            <span class="n">globus_sdk</span><span class="o">.</span><span class="n">GlobusConnectionError</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="ne">ConnectionError</span><span class="p">)</span>
+        <span class="n">default_n_retries</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.remote.globus&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">log</span><span class="p">,</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">globus_sdk</span><span class="o">.</span><span class="n">GlobusConnectionError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+            <span class="n">warnings</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">levelno</span> <span class="o">==</span> <span class="mi">30</span><span class="p">,</span> <span class="n">log</span><span class="o">.</span><span class="n">records</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">default_n_retries</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">warnings</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRegex</span><span class="p">(</span><span class="n">log</span><span class="o">.</span><span class="n">records</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span> <span class="s1">&#39;Max retries&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">,</span> <span class="n">log</span><span class="o">.</span><span class="n">records</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">levelname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_transfer_data">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_transfer_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_transfer_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.transfer_data method.&quot;&quot;&quot;</span>
+        <span class="n">src_id</span><span class="p">,</span> <span class="n">dst_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">(),</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;repo_01&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">dst_id</span><span class="p">,</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/mnt/s0/&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;repo_00&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">src_id</span><span class="p">,</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/mnt/h0/Data&#39;</span><span class="p">}</span>
+        <span class="n">sdk_mock</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">get_original</span><span class="p">()</span>
+        <span class="n">response_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">create_autospec</span><span class="p">(</span><span class="n">globus_sdk</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">GlobusHTTPResponse</span><span class="p">)</span>
+        <span class="n">response_mock</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;task_id&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">())}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">response_mock</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_00&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+
+        <span class="c1"># SDK should be called with endpoint IDs and optional kwargs</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">TransferData</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="o">=</span><span class="n">src_id</span><span class="p">,</span> <span class="n">destination_endpoint</span><span class="o">=</span><span class="n">dst_id</span><span class="p">)</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">TransferData</span><span class="p">()</span><span class="o">.</span><span class="n">add_item</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span>
+            <span class="s1">&#39;/mnt/h0/Data/path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;/mnt/s0/path/to/file&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">response_mock</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]))</span>
+
+        <span class="c1"># Test passing list of files</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">reset_mock</span><span class="p">()</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;foo/bar.baz&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;repo_00&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sdk_mock</span><span class="o">.</span><span class="n">TransferData</span><span class="p">()</span><span class="o">.</span><span class="n">add_item</span><span class="o">.</span><span class="n">call_count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_download_file">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_download_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.download_file method.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;repo_01&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">ENDPOINT_ID</span><span class="p">,</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/mnt/s0/&#39;</span><span class="p">}</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="s1">&#39;abc123&#39;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;foo/bar.file&#39;</span><span class="p">,</span> <span class="s1">&#39;foo/foo/bar.file&#39;</span><span class="p">,</span> <span class="s1">&#39;baz.file&#39;</span><span class="p">]</span>
+        <span class="c1"># create files on disk</span>
+        <span class="n">transferred</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>  <span class="c1"># reversed to check files reordered</span>
+            <span class="n">full_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span> <span class="o">/</span> <span class="n">f</span>
+            <span class="n">full_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">full_path</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+            <span class="n">transferred</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;destination_path&#39;</span><span class="p">:</span> <span class="n">globus</span><span class="o">.</span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">full_path</span><span class="p">)})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">transferred</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="p">,</span> <span class="s1">&#39;run_task&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">task_id</span><span class="p">):</span>
+            <span class="n">downloaded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">,</span> <span class="n">files</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>  <span class="c1"># asserts order of list identical</span>
+
+        <span class="c1"># Behaviour should be similar when a folder is downloaded (i.e. recursive is True)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="p">,</span> <span class="s1">&#39;run_task&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">task_id</span><span class="p">):</span>
+            <span class="n">downloaded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;folder&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Should return a single element if one file downloaded</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">[</span><span class="n">transferred</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="p">,</span> <span class="s1">&#39;run_task&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">task_id</span><span class="p">):</span>
+            <span class="n">downloaded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>
+
+        <span class="c1"># Should raise assertion error if file doesn&#39;t exist on disk (unlikely!)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">task_successful_transfers</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">transferred</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="p">,</span> <span class="s1">&#39;run_task&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">task_id</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">download_file</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_delete_data">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_delete_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_delete_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.delete_data method.&quot;&quot;&quot;</span>
+        <span class="n">globus_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;repo_00&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">globus_id</span><span class="p">,</span> <span class="s1">&#39;root_path&#39;</span><span class="p">:</span> <span class="s1">&#39;/mnt/h0/Data&#39;</span><span class="p">}</span>
+        <span class="n">sdk_mock</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">get_original</span><span class="p">()</span>
+        <span class="n">response_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">create_autospec</span><span class="p">(</span><span class="n">globus_sdk</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">GlobusHTTPResponse</span><span class="p">)</span>
+        <span class="n">response_mock</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;task_id&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">())}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_delete</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">response_mock</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_00&#39;</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+
+        <span class="c1"># SDK should be called with endpoint IDs and optional kwargs</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">DeleteData</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">globus_id</span><span class="p">)</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">DeleteData</span><span class="p">()</span><span class="o">.</span><span class="n">add_item</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;/mnt/h0/Data/path/to/file&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_delete</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">response_mock</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]))</span>
+
+        <span class="c1"># Test passing list of files</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">reset_mock</span><span class="p">()</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;foo/bar.baz&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;repo_00&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sdk_mock</span><span class="o">.</span><span class="n">DeleteData</span><span class="p">()</span><span class="o">.</span><span class="n">add_item</span><span class="o">.</span><span class="n">call_count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_globus_headless">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_globus_headless">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_globus_headless</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus object in headless mode.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">globus</span><span class="o">.</span><span class="n">Globus</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="n">headless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_pars</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus._setup&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span> <span class="k">as</span> <span class="n">setup_function</span><span class="p">:</span>
+            <span class="n">globus</span><span class="o">.</span><span class="n">Globus</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">setup_function</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestGlobusClient.test_login_logout">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_login_logout">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_login_logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.login and Globus.logout methods.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">is_logged_in</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="s1">&#39;one.remote.globus&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">ensure_valid_token</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+
+        <span class="c1"># Log out</span>
+        <span class="c1"># Change client name in order to avoid overwriting parameters</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.save_client_params&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">save_func</span><span class="p">,</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+            <span class="n">save_func</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+            <span class="p">(</span><span class="n">all_pars</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">save_func</span><span class="o">.</span><span class="n">call_args</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="n">all_pars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client_name</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>  <span class="c1"># check repeat calls don&#39;t raise errors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">get_authorization_header</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">authorizer</span><span class="p">,</span> <span class="s1">&#39;access_token&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_pars</span><span class="p">,</span> <span class="s1">&#39;access_token&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_token_expired</span><span class="p">)</span>
+
+        <span class="c1"># Test what happens when authenticate called with invalid token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">_authenticate</span><span class="p">)</span>
+
+        <span class="c1"># Check login in headless mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">headless</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">login</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">headless</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Test login cancel</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">),</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="s1">&#39;one.remote.globus&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">)</span>
+
+        <span class="n">token</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">+</span> <span class="mi">60</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="s1">&#39;access_token&#39;</span><span class="p">:</span> <span class="s1">&#39;a1b2c3d4e5f6g7h8&#39;</span><span class="p">}</span>
+        <span class="c1"># Stop and start mock in order to reset MagicMock attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus_sdk_mock</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.save_client_params&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">save_func</span><span class="p">,</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.get_token&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">token</span><span class="p">),</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.load_client_params&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">):</span>
+            <span class="c1"># Expected refresh token warning as stay_logged_in is True</span>
+            <span class="c1"># In reality this will only happen when loading saved taken where refresh_token = False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">login</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestGlobusAsync">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusAsync">[docs]</a>
+<span class="k">class</span> <span class="nc">TestGlobusAsync</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">IsolatedAsyncioTestCase</span><span class="p">,</span> <span class="n">_GlobusClientTest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asynchronous Globus method tests.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestGlobusAsync.test_task_wait_async">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusAsync.test_task_wait_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">test_task_wait_async</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for Globus.task_wait_async method.&quot;&quot;&quot;</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="n">statuses</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;ACTIVE&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;SUCCESSFUL&#39;</span><span class="p">})</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;asyncio.sleep&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">mock</span><span class="o">.</span><span class="n">AsyncMock</span><span class="p">)</span> <span class="k">as</span> <span class="n">sleep_mock</span><span class="p">,</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="s1">&#39;get_task&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">statuses</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">task_wait_async</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">polling_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+            <span class="n">sleep_mock</span><span class="o">.</span><span class="n">assert_awaited_once_with</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># polling_interval value</span>
+
+        <span class="c1"># Check timeout behaviour</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">statuses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;asyncio.sleep&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">mock</span><span class="o">.</span><span class="n">AsyncMock</span><span class="p">)</span> <span class="k">as</span> <span class="n">sleep_mock</span><span class="p">,</span> \
+                <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="s1">&#39;get_task&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">status</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">task_wait_async</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">polling_interval</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">sleep_mock</span><span class="o">.</span><span class="n">assert_awaited_with</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># polling_interval value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">3</span><span class="p">),</span> <span class="n">sleep_mock</span><span class="o">.</span><span class="n">await_count</span><span class="p">)</span>  <span class="c1"># timeout = 10</span>
+
+        <span class="c1"># Check input validation</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">globus_sdk</span><span class="o">.</span><span class="n">GlobusSDKUsageError</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">task_wait_async</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">polling_interval</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">globus_sdk</span><span class="o">.</span><span class="n">GlobusSDKUsageError</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">task_wait_async</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

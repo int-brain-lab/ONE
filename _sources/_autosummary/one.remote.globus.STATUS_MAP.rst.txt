@@ -1,0 +1,6 @@
+one.remote.globus.STATUS\_MAP
+=============================
+
+.. currentmodule:: one.remote.globus
+
+.. autodata:: STATUS_MAP
