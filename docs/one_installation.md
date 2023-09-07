@@ -59,8 +59,9 @@ one = ONE()
 ```
 
 To change your default database, or re-run the setup for a given database, you can use the following
+
 ```python
-ONE.setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
+ONE._setup(base_url='https://test.alyx.internationalbrainlab.org', make_default=True)
 ```
 
 ## 4. Update

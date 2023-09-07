@@ -1,4 +1,3 @@
-"""Unit tests for the one.remote package."""
 import logging
 import tempfile
 import unittest
@@ -7,8 +6,8 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 import shutil
 from functools import partial
 from tempfile import TemporaryDirectory
+from datetime import datetime
 import io
-import json
 import sys
 import uuid
 
@@ -21,91 +20,9 @@ from iblutil.io import params as iopar
 from one.tests.util import get_file, setup_rest_cache
 from one.tests import TEST_DB_1
 from one.webclient import AlyxClient
-from one.remote import base, globus
+from one.remote import globus
 
 ENDPOINT_ID = uuid.uuid1()
-
-
-class TestBase(unittest.TestCase):
-    """Tests for the one.remote.base module."""
-
-    """unittest.mock._patch: Mock object for setting parameter location as temporary directory."""
-    path_mock = None
-    """tempfile.TemporaryDirectory: The temporary location of remote parameters file."""
-    tempdir = None
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.tempdir = TemporaryDirectory()
-        cls.path_mock = mock.patch('one.remote.base.iopar.getfile',
-                                   new=partial(get_file, cls.tempdir.name))
-
-    def setUp(self) -> None:
-        self.path_mock.start()
-
-    def test_load_client_params(self):
-        """Tests for one.remote.base.load_client_params function."""
-        # Check behaviour when no parameters file exists
-        with self.assertRaises(FileNotFoundError):
-            base.load_client_params(assert_present=True)
-        self.assertIsNone(base.load_client_params(assert_present=False))
-
-        # Check behaviour with parameters file
-        iopar.write(base.PAR_ID_STR, {'foo': {'bar': 'baz'}})
-        p = base.load_client_params(assert_present=True)
-        self.assertIn('foo', p.as_dict())
-
-        # Check behaviour when existing key provided
-        p = base.load_client_params('foo', assert_present=True)
-        self.assertEqual(p.bar, 'baz')
-
-        with self.assertRaises(AttributeError):
-            base.load_client_params('bar', assert_present=True)
-        self.assertIsNone(base.load_client_params('bar', assert_present=False))
-
-        # Loading a sub-key
-        iopar.write(base.PAR_ID_STR, {'globus': {'default': {'par1': 'par2'}}})
-        p = base.load_client_params('globus.default')
-        self.assertIn('par1', p.as_dict())
-
-    def test_save_client_params(self):
-        """Tests for one.remote.base.save_client_params function."""
-        # Check behaviour when saving all params
-        expected = {'foo': {'bar': 'baz'}}
-        base.save_client_params(expected)
-        par_path = next(Path(self.tempdir.name).rglob('*remote'), None)
-        self.assertIsNotNone(par_path)
-        with open(par_path, 'r') as f:
-            p = json.load(f)
-        self.assertEqual(p, expected)
-
-        # Check validation
-        with self.assertRaises(ValueError):
-            base.save_client_params({'foo': 'bar'})
-
-        # Check behaviour when saving into client key
-        base.save_client_params({'new': {'par1': 1}})
-        with open(par_path, 'r') as f:
-            p = json.load(f)
-        self.assertIn('new', p)
-        self.assertEqual(1, p['new']['par1'])
-
-    def test_repo_from_alyx(self):
-        """Test for DownloadClient.repo_from_alyx method."""
-        ac = AlyxClient(**TEST_DB_1)
-        setup_rest_cache(ac.cache_dir)  # Copy REST cache fixtures to temp dir
-        record = base.DownloadClient.repo_from_alyx('mainenlab', ac)
-        self.assertEqual('mainenlab', record['name'])
-
-    def tearDown(self) -> None:
-        par_path = Path(iopar.getfile('.one'))
-        assert str(par_path).startswith(self.tempdir.name)
-        shutil.rmtree(par_path)
-        self.path_mock.stop()
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.tempdir.cleanup()
 
 
 class TestGlobus(unittest.TestCase):
@@ -127,17 +44,18 @@ class TestGlobus(unittest.TestCase):
 
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_setup(self, _):
-        """Tests for one.remote.globus.setup function."""
+        """Tests for one.remote.globus._setup function."""
         local_id = str(ENDPOINT_ID)
+        gc_id = str(uuid.uuid4())
         # Check behaviour when no parameters file exists, local endpoint ID found
-        ans = ('', '123', '', 'new_path/to/thing', 'c')
+        ans = ('', gc_id, '', 'new_path/to/thing', 'c')
         with mock.patch('builtins.input', side_effect=ans), \
                 mock.patch('one.remote.globus.get_local_endpoint_id', return_value=local_id):
-            globus.setup()
+            globus._setup(login=False)
 
         p = globus.load_client_params('globus.default').as_dict()
         expected = {
-            'GLOBUS_CLIENT_ID': '123',
+            'GLOBUS_CLIENT_ID': gc_id,
             'local_endpoint': local_id,
             'local_path': 'new_path/to/thing'
         }
@@ -155,7 +73,7 @@ class TestGlobus(unittest.TestCase):
                 by_resource_server.
                 __getitem__
             ).return_value = d
-            globus.setup()
+            globus._setup()
 
         p = globus.load_client_params('globus.default').as_dict()
         expected.update(d)
@@ -165,14 +83,20 @@ class TestGlobus(unittest.TestCase):
         # 1. New profile and no Globus ID inputted
         with mock.patch('builtins.input', side_effect=['']), \
                 self.assertRaises(ValueError) as ex:
-            globus.setup(par_id='foo')
+            globus._setup(par_id='foo')
             self.assertIn('Globus client ID', str(ex))
 
-        # 2. New profile, no local endpoint ID found and none inputted
-        with mock.patch('builtins.input', side_effect=['foo', '123', '']), \
+        # 2. New profile, Globus ID invalid
+        with mock.patch('builtins.input', side_effect=['bar', '123']), \
+                self.assertRaises(ValueError) as ex:
+            globus._setup(par_id='foo')
+            self.assertIn('Invalid Globus client ID', str(ex))
+
+        # 3. New profile, no local endpoint ID found and none inputted
+        with mock.patch('builtins.input', side_effect=['foo', gc_id, '']), \
              mock.patch('one.remote.globus.get_local_endpoint_id', side_effect=AssertionError), \
              self.assertRaises(ValueError) as ex, self.assertWarns(Warning):
-            globus.setup()
+            globus._setup()
             self.assertIn('local endpoint ID', str(ex))
 
     def test_as_globus_path(self):
@@ -258,8 +182,9 @@ class TestGlobus(unittest.TestCase):
     def test_create_globus_client(self, globus_mock):
         """Tests for one.remote.globus.create_globus_client function."""
         # Check setup run when no params exist, check raises exception when missing params
-        incomplete_pars = iopar.from_dict({'GLOBUS_CLIENT_ID': 123})
-        with mock.patch('one.remote.globus.setup') as setup_mock, \
+        gc_id = str(uuid.uuid4())
+        incomplete_pars = iopar.from_dict({'GLOBUS_CLIENT_ID': gc_id})
+        with mock.patch('one.remote.globus._setup') as setup_mock, \
              self.assertRaises(ValueError), \
              mock.patch('one.remote.base.load_client_params',
                         side_effect=[AssertionError, incomplete_pars]):
@@ -267,13 +192,64 @@ class TestGlobus(unittest.TestCase):
             setup_mock.assert_called()
 
         # Check behaviour with complete params
-        pars = iopar.from_dict({'GLOBUS_CLIENT_ID': 123, 'refresh_token': 456})
+        pars = iopar.from_dict({'GLOBUS_CLIENT_ID': gc_id, 'refresh_token': 456})
         with mock.patch('one.remote.globus.load_client_params', return_value=pars) as par_mock:
             client = globus.create_globus_client('admin')
             par_mock.assert_called_once_with('globus.admin')
-        globus_mock.NativeAppAuthClient.assert_called_once_with(123)
+        globus_mock.NativeAppAuthClient.assert_called_once_with(gc_id)
         globus_mock.RefreshTokenAuthorizer.assert_called()
         self.assertEqual(client, globus_mock.TransferClient())
+
+        # Check without refresh tokens
+        pars = pars.set('refresh_token', None).set('access_token', 456)
+        globus_mock.RefreshTokenAuthorizer.reset_mock()
+        with mock.patch('one.remote.globus.load_client_params', return_value=pars) as par_mock:
+            client = globus.create_globus_client('admin')
+            par_mock.assert_called_once_with('globus.admin')
+        globus_mock.AccessTokenAuthorizer.assert_called_once_with(456)
+        globus_mock.RefreshTokenAuthorizer.assert_not_called()
+        self.assertEqual(client, globus_mock.TransferClient())
+
+    def test_remove_token_fields(self):
+        """Test for one.remote.globus._remove_token_fields function."""
+        par = iopar.from_dict({
+            'local_path': 'foo', 'GLOBUS_CLIENT_ID': ENDPOINT_ID, 'refresh_token': None,
+            'access_token': str(uuid.uuid4()), 'expires_at_seconds': 12345678})
+        newpar = globus._remove_token_fields(par)
+        self.assertTrue(hasattr(newpar, '_fields'))
+        self.assertEqual(newpar._fields, ('local_path', 'GLOBUS_CLIENT_ID'))
+        # Check works with a dict
+        newpar = globus._remove_token_fields(par.as_dict())
+        self.assertTrue(hasattr(newpar, '_fields'))
+        self.assertEqual(newpar._fields, ('local_path', 'GLOBUS_CLIENT_ID'))
+        self.assertIsNone(globus._remove_token_fields(None))
+
+    def test_get_token(self):
+        """Test for one.remote.globus.get_token function."""
+        auth_code = 'a1b2c3d4e5f6g7h8'
+        # Test without refresh tokens
+        with mock.patch('builtins.input', return_value=auth_code), \
+                mock.patch('one.remote.globus.globus_sdk.NativeAppAuthClient') as client:
+            token = globus.get_token(str(ENDPOINT_ID), refresh_tokens=False)
+            client().oauth2_start_flow.assert_called_with(refresh_tokens=False)
+            client().oauth2_exchange_code_for_tokens.assert_called_with('a1b2c3d4e5f6g7h8')
+            self.assertIsInstance(token, dict)
+            expected = ('refresh_token', 'access_token', 'expires_at_seconds')
+            self.assertCountEqual(expected, token.keys())
+
+        # Test with refresh tokens
+        with mock.patch('builtins.input', return_value=auth_code), \
+                mock.patch('one.remote.globus.globus_sdk.NativeAppAuthClient') as client:
+            token = globus.get_token(str(ENDPOINT_ID), refresh_tokens=True)
+            client().oauth2_start_flow.assert_called_with(refresh_tokens=True)
+
+        # Test cancel
+        with mock.patch('builtins.input', return_value='c '), \
+                mock.patch('one.remote.globus.globus_sdk.NativeAppAuthClient') as client:
+            token = globus.get_token(str(ENDPOINT_ID), refresh_tokens=True)
+            client().oauth2_exchange_code_for_tokens.assert_not_called()
+            self.assertCountEqual(token.keys(), expected)
+            self.assertFalse(any(token.values()))
 
     def tearDown(self) -> None:
         par_path = Path(iopar.getfile('.one'))
@@ -287,13 +263,13 @@ class TestGlobus(unittest.TestCase):
         cls.tempdir.cleanup()
 
 
-class TestGlobusClient(unittest.TestCase):
-    """Tests for the GlobusClient class."""
+class _GlobusClientTest(unittest.TestCase):
+    """Globus Client test setup routines."""
 
     """unittest.mock._patch: Mock object for globus_sdk package."""
     globus_sdk_mock = None
 
-    @mock.patch('one.remote.globus.setup')
+    @mock.patch('one.remote.globus._setup')
     def setUp(self, _) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         # The github CI root dir contains an alias/symlink so we must resolve it
@@ -305,13 +281,17 @@ class TestGlobusClient(unittest.TestCase):
             'local_endpoint': str(ENDPOINT_ID),
             'local_path': str(self.root_path),
             'access_token': 'abc',
-            'expires_at_seconds': 1636109267
+            'expires_at_seconds': datetime.now().timestamp() + 60**2
         })
         self.globus_sdk_mock = mock.patch('one.remote.globus.globus_sdk')
         self.globus_sdk_mock.start()
         self.addCleanup(self.globus_sdk_mock.stop)
         with mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
             self.globus = globus.Globus()
+
+
+class TestGlobusClient(_GlobusClientTest):
+    """Tests for the GlobusClient class."""
 
     def test_constructor(self):
         """Test for Globus.__init__ method."""
@@ -324,7 +304,7 @@ class TestGlobusClient(unittest.TestCase):
 
         TestGlobus.test_setup tests the setup function. Here we just check it's called.
         """
-        with mock.patch('one.remote.globus.setup') as setup_mock, \
+        with mock.patch('one.remote.globus._setup') as setup_mock, \
                 mock.patch('one.remote.globus.create_globus_client'), \
                 mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
             self.assertIsInstance(globus.Globus.setup(), globus.Globus)
@@ -557,6 +537,117 @@ class TestGlobusClient(unittest.TestCase):
         with mock.patch.object(self.globus, 'run_task', return_value=task_id):
             self.assertRaises(AssertionError, self.globus.download_file, files, 'repo_01')
 
+    def test_delete_data(self):
+        """Test for Globus.delete_data method."""
+        globus_id = uuid.uuid1()
+        self.globus.endpoints['repo_00'] = {'id': globus_id, 'root_path': '/mnt/h0/Data'}
+        sdk_mock, _ = self.globus_sdk_mock.get_original()
+        response_mock = mock.create_autospec(globus_sdk.response.GlobusHTTPResponse)
+        response_mock.data = {'task_id': str(uuid.uuid1())}
+        self.globus.client.submit_delete.return_value = response_mock
+
+        out = self.globus.delete_data('path/to/file', 'repo_00', foo='bar')
+
+        # SDK should be called with endpoint IDs and optional kwargs
+        sdk_mock.DeleteData.assert_called_once_with(
+            self.globus.client, recursive=False, foo='bar', endpoint=globus_id)
+        sdk_mock.DeleteData().add_item.assert_called_once_with('/mnt/h0/Data/path/to/file')
+        self.globus.client.submit_delete.assert_called_once()
+        self.assertEqual(out, uuid.UUID(response_mock.data['task_id']))
+
+        # Test passing list of files
+        sdk_mock.reset_mock()
+        files = ['path/to/file', 'foo/bar.baz']
+        self.globus.delete_data(files, 'repo_00')
+        self.assertEqual(sdk_mock.DeleteData().add_item.call_count, len(files))
+
+    def test_globus_headless(self):
+        """Test for Globus object in headless mode."""
+        self.assertRaises(RuntimeError, globus.Globus, 'foobar', headless=True)
+        pars = self.globus._pars
+        with mock.patch('one.remote.globus._setup', return_value=pars) as setup_function:
+            globus.Globus('foobar', headless=False, connect=False)
+            setup_function.assert_called()
+
+    def test_login_logout(self):
+        """Test for Globus.login and Globus.logout methods."""
+        assert self.globus.is_logged_in
+        with self.assertLogs('one.remote.globus', 10):
+            self.globus.login()
+            self.globus.client.authorizer.ensure_valid_token.assert_called()
+
+        # Log out
+        # Change client name in order to avoid overwriting parameters
+        with mock.patch('one.remote.globus.save_client_params') as save_func, \
+                mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
+            self.globus.logout()
+            save_func.assert_called()
+            (all_pars, *_), _ = save_func.call_args
+            self.assertNotIn('access_token', all_pars[self.globus.client_name])
+
+        self.globus.logout()  # check repeat calls don't raise errors
+        self.assertIsNone(self.globus.client.authorizer.get_authorization_header())
+        self.assertFalse(hasattr(self.globus.client.authorizer, 'access_token'))
+        self.assertFalse(hasattr(self.globus._pars, 'access_token'))
+        self.assertFalse(self.globus.is_logged_in)
+        self.assertIsNone(self.globus._token_expired)
+
+        # Test what happens when authenticate called with invalid token
+        self.assertRaises(RuntimeError, self.globus._authenticate)
+
+        # Check login in headless mode
+        self.globus.headless = True
+        self.assertRaises(RuntimeError, self.globus.login)
+
+        self.globus.headless = False
+        # Test login cancel
+        with mock.patch('one.remote.globus.load_client_params', return_value=self.pars), \
+                mock.patch('builtins.input', return_value='c'), \
+                self.assertLogs('one.remote.globus', 10):
+            self.globus.login()
+            self.assertFalse(self.globus.is_logged_in)
+
+        token = {'refresh_token': None, 'expires_at_seconds': datetime.now().timestamp() + 60**2,
+                 'access_token': 'a1b2c3d4e5f6g7h8'}
+        # Stop and start mock in order to reset MagicMock attributes
+        self.globus_sdk_mock.stop()
+        self.globus_sdk_mock = self.globus_sdk_mock.start()
+        self.addCleanup(self.globus_sdk_mock.stop)
+        with mock.patch('one.remote.globus.save_client_params') as save_func, \
+                mock.patch('one.remote.globus.get_token', return_value=token), \
+                mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
+            # Expected refresh token warning as stay_logged_in is True
+            # In reality this will only happen when loading saved taken where refresh_token = False
+            self.assertWarns(UserWarning, self.globus.login, stay_logged_in=True)
+            self.assertTrue(self.globus.is_logged_in)
+
+
+class TestGlobusAsync(unittest.IsolatedAsyncioTestCase, _GlobusClientTest):
+    """Asynchronous Globus method tests."""
+
+    async def test_task_wait_async(self):
+        """Test for Globus.task_wait_async method."""
+        task_id = uuid.uuid4()
+        statuses = ({'status': 'ACTIVE'}, {'status': 'SUCCESSFUL'})
+        with mock.patch('asyncio.sleep', new_callable=mock.AsyncMock) as sleep_mock, \
+                mock.patch.object(self.globus.client, 'get_task', side_effect=statuses):
+            self.assertTrue(await self.globus.task_wait_async(task_id, polling_interval=5))
+            sleep_mock.assert_awaited_once_with(5)  # polling_interval value
+
+        # Check timeout behaviour
+        status = statuses[0]
+        with mock.patch('asyncio.sleep', new_callable=mock.AsyncMock) as sleep_mock, \
+                mock.patch.object(self.globus.client, 'get_task', return_value=status):
+            self.assertFalse(await self.globus.task_wait_async(task_id, polling_interval=3))
+            sleep_mock.assert_awaited_with(3)  # polling_interval value
+            self.assertEqual(round(10 / 3), sleep_mock.await_count)  # timeout = 10
+
+        # Check input validation
+        with self.assertRaises(globus_sdk.GlobusSDKUsageError):
+            await self.globus.task_wait_async(task_id, polling_interval=.5)
+        with self.assertRaises(globus_sdk.GlobusSDKUsageError):
+            await self.globus.task_wait_async(task_id, timeout=.5)
+
 
 if __name__ == '__main__':
-    unittest.main(exit=False)
+    unittest.main()

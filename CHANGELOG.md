@@ -1,5 +1,20 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.2.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.3.0]
+
+### Added
+
+- Globus.delete_data method for deleting files and folders from an endpoint
+- Globus.task_wait_async is an asynchronous implementation of the TransferClient.task_wait method
+
+### Modified
+
+- Globus headless mode for servers
+- Globus login and logout methods
+- deprecated one.remote.globus.create_globus_client; use one.remote.globus.Globus class instead
+- one.ConversionMixin.dict2ref supports 'start_time' and 'number' fields
+- AlyxClient._generic_request now uses is_logged_in property
+
+## [2.2.2]
 
 ### Modified
 

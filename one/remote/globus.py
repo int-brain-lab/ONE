@@ -7,8 +7,49 @@ To set up Globus simply instantiate the `Globus` class for the first time and fo
 Providing a client name string to the constructor allows one to set up multiple Globus clients
 (i.e. when switching between different Globus client IDs).
 
+In order to use this function you need:
+
+1. The client ID of an existing Globus Client (`see this tutorial`_).
+2. Set up `Global Connect`_ on your local device.
+3. Register your local device as an `endpoint`_ in your Globus Client.
+
+
+To modify the settings for a pre-established client, call the `Globus.setup` method with the client
+name:
+
+>>> globus = Globus.setup('default')
+
+You can update the list of endpoints using the `fetch_endpoints_from_alyx` method:
+
+>>> globus = Globus('admin')
+>>> remote_endpoints = globus.fetch_endpoints_from_alyx(alyx=AlyxClient())
+
+The endpoints are stored in the `endpoints` property
+
+>>> print(globus.endpoints.keys())
+>>> print(globus.endpoints['local'])
+
+.. _how to create one: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+.. _Global Connect: https://www.globus.org/globus-connect-personal
+.. _endpoint: https://app.globus.org/
+
+
 Examples
 --------
+Get the full Globus file path
+
+>>> relative_path = 'subject/2020-01-01/001/alf/_ibl_trials.table.pqt'
+>>> full_path = globus.to_address(relative_path, 'flatiron_cortexlab')
+
+Log in with a limited time token
+
+>>> globus = Globus('admin')
+>>> globus.login(stay_logged_in=False)
+
+Log out of Globus, revoking and deleting all tokens
+
+>>> globus.logout()
+>>> assert not globus.is_logged_in
 
 Asynchronously transfer data between Alyx repositories
 
@@ -33,19 +74,28 @@ Temporarily change local data root path and synchronously download file
 >>> glo.endpoints['local']['root_path'] = '/path/to/new/location'
 >>> file = glo.download_file('path/to/file.ext', 'source_endpoint')
 Path('/path/to/new/location/path/to/file.ext')
+
+Await multiple tasks to complete by passing a list of Globus tranfer IDs
+
+>>> import asyncio
+>>> tasks = [asyncio.create_task(globus.task_wait_async(task_id))) for task_id in task_ids]
+>>> success = asyncio.run(asyncio.gather(*tasks))
+
 """
 import os
 import re
 import sys
+import asyncio
 import logging
 from uuid import UUID
+from datetime import datetime
 from pathlib import Path, PurePosixPath, PurePath, PureWindowsPath
 import warnings
-from functools import partial
+from functools import partial, wraps
 
 import globus_sdk
 from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
-    GlobusConnectionError, GlobusConnectionTimeoutError
+    GlobusConnectionError, GlobusConnectionTimeoutError, GlobusSDKUsageError, NullAuthorizer
 from iblutil.io import params as iopar
 
 from one.alf.spec import is_uuid
@@ -55,26 +105,59 @@ from one.webclient import AlyxClient
 from one.util import ensure_list
 from .base import DownloadClient, load_client_params, save_client_params
 
+__all__ = ['Globus', 'get_lab_from_endpoint_id', 'as_globus_path']
 _logger = logging.getLogger(__name__)
 CLIENT_KEY = 'globus'
+"""str: The default key in the remote settings file"""
+
 DEFAULT_PAR = {'GLOBUS_CLIENT_ID': None, 'local_endpoint': None, 'local_path': None}
+"""dict: The default Globus parameter fields"""
+
+STATUS_MAP = {
+    'ACTIVE': ('QUEUED', 'ACTIVE', 'GC_NOT_CONNECTED', 'UNKNOWN'),
+    'FAILED': ('ENDPOINT_ERROR', 'PERMISSION_DENIED', 'CONNECT_FAILED'),
+    'INACTIVE': 'PAUSED_BY_ADMIN'}
+"""dict: A map of Globus status to "nice" status"""
 
 
-def setup(par_id=None):
+def ensure_logged_in(func):
+    """Decorator for the Globus methods.
+
+    Before calling methods that require authentication, attempts to log in. If the user is already
+    logged in, the token may be refreshed to extend the session. If the token has expired and not
+    in headless mode, the user is prompted to authorize a new session.  If in headless mode and not
+    logged in an error is raised.
+
+    Parameters
+    ----------
+    func : function
+        Method to wrap (e.g. Globus.transfer_data).
+
+    Returns
+    -------
+    function
+        Handle to wrapped method.
+    """
+    @wraps(func)
+    def wrapper_decorator(self, *args, **kwargs):
+        self.login()
+        return func(self, *args, **kwargs)
+    return wrapper_decorator
+
+
+def _setup(par_id=None, login=True, refresh_tokens=True):
     """
     Sets up Globus as a backend for ONE functions.
-    In order to use this function you need:
-
-    1. The Client ID of an existing Globus Client, or to create one
-       (https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html).
-    2. Set up Global Connect on your local device (https://www.globus.org/globus-connect-personal).
-    3. Register your local device as an Endpoint in your Globus Client (https://app.globus.org/).
 
     Parameters
     ----------
     par_id : str
         Parameter profile name to set up e.g. 'default', 'admin'.
 
+    Returns
+    -------
+    IBLParams
+        A set of Globus parameters.
     """
 
     print('Setting up Globus parameter file. See docstring for help.')
@@ -100,6 +183,8 @@ def setup(par_id=None):
         if not new_id:
             raise ValueError('Globus client ID is a required field')
         pars['GLOBUS_CLIENT_ID'] = new_id
+    if not is_uuid(pars['GLOBUS_CLIENT_ID']):
+        raise ValueError('Invalid Globus client ID "%s"', pars['GLOBUS_CLIENT_ID'])
 
     # Find and set local ID
     message = 'Please enter the local endpoint ID'
@@ -121,21 +206,47 @@ def setup(par_id=None):
     message += f' (default: {local_path})'
     pars['local_path'] = input(message + ':').strip() or local_path
 
-    # Log in manually and get refresh token to avoid having to login repeatedly
-    client = globus_sdk.NativeAppAuthClient(pars['GLOBUS_CLIENT_ID'])
-    client.oauth2_start_flow(refresh_tokens=True)
+    if login:
+        # Log in manually and get refresh token to avoid having to login repeatedly
+        token = get_token(pars['GLOBUS_CLIENT_ID'], refresh_tokens=refresh_tokens)
+        pars.update(token)
+
+    globus_pars[par_id] = pars
+    save_client_params(globus_pars, client_key=CLIENT_KEY)
+    print('Finished setup.')
+    return iopar.from_dict(pars)
+
+
+def get_token(client_id, refresh_tokens=True):
+    """
+    Get a Globus authentication token.
+
+    This step requires the user to login to Globus via a browser.
+
+    Parameters
+    ----------
+    client_id : str
+        A Globus client ID.
+    refresh_tokens : bool
+        If true, requests a refresh token for repeat logins.
+
+    Returns
+    -------
+    dict
+        A dict containing the keys {'refresh_token', 'access_token', 'expires_at_seconds'}.
+    """
+    client = globus_sdk.NativeAppAuthClient(client_id)
+    client.oauth2_start_flow(refresh_tokens=bool(refresh_tokens))
     authorize_url = client.oauth2_get_authorize_url()
+    fields = ('refresh_token', 'access_token', 'expires_at_seconds')
     print('To get a new token, go to this URL and login: {0}'.format(authorize_url))
     auth_code = input('Enter the code you get after login here (press "c" to cancel): ').strip()
     if auth_code and auth_code.lower() != 'c':
         token_response = client.oauth2_exchange_code_for_tokens(auth_code)
         globus_transfer_data = token_response.by_resource_server['transfer.api.globus.org']
-        for par in ['refresh_token', 'access_token', 'expires_at_seconds']:
-            pars[par] = globus_transfer_data[par]
-
-    globus_pars[par_id] = pars
-    save_client_params(globus_pars, client_key=CLIENT_KEY)
-    print('Finished setup.')
+        return {k: globus_transfer_data.get(k) for k in fields}
+    else:
+        return dict.fromkeys(fields)
 
 
 def create_globus_client(client_name='default'):
@@ -150,20 +261,67 @@ def create_globus_client(client_name='default'):
     Returns
     -------
     globus_sdk.TransferClient
-        Globus transfer client instance
+        Globus transfer client instance.
     """
+    msg = 'create_globus_client will be removed in the future, use Globus class instead.'
+    warnings.warn(msg, FutureWarning)
     try:
         globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}')
     except (AttributeError, FileNotFoundError):
-        setup(client_name)
+        _setup(client_name, login=True, refresh_tokens=True)
         globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}', assert_present=False) or {}
-    required_fields = {'refresh_token', 'GLOBUS_CLIENT_ID'}
-    if not (globus_pars and required_fields.issubset(iopar.as_dict(globus_pars))):
-        raise ValueError('No token in client parameter file. Run one.remote.globus.setup first')
-    client = globus_sdk.NativeAppAuthClient(globus_pars.GLOBUS_CLIENT_ID)
-    client.oauth2_start_flow(refresh_tokens=True)
-    authorizer = globus_sdk.RefreshTokenAuthorizer(globus_pars.refresh_token, client)
-    return globus_sdk.TransferClient(authorizer=authorizer)
+
+    # Assert valid Globus client ID found
+    if not (globus_pars and 'GLOBUS_CLIENT_ID' in iopar.as_dict(globus_pars)
+            and is_uuid(globus_pars.GLOBUS_CLIENT_ID)):
+        raise ValueError(
+            'Invalid Globus client ID in client parameter file. Rerun Globus.setup'
+        )
+
+    if iopar.as_dict(globus_pars).get('refresh_token'):
+        client = globus_sdk.NativeAppAuthClient(globus_pars.GLOBUS_CLIENT_ID)
+        client.oauth2_start_flow(refresh_tokens=True)
+        authorizer = globus_sdk.RefreshTokenAuthorizer(globus_pars.refresh_token, client)
+        return globus_sdk.TransferClient(authorizer=authorizer)
+    else:
+        authorizer = globus_sdk.AccessTokenAuthorizer(globus_pars.access_token)
+        return globus_sdk.TransferClient(authorizer=authorizer)
+
+
+def _remove_token_fields(pars):
+    """
+    Remove the token fields from a parameters object.
+
+    Parameters
+    ----------
+    pars : IBLParams, dict
+        The Globus parameters containing token fields.
+
+    Returns
+    -------
+    IBLParams
+        A copy of the params without the token fields.
+    """
+    if pars is None:
+        return pars
+    fields = ('refresh_token', 'access_token', 'expires_at_seconds')
+    return iopar.from_dict({k: v for k, v in iopar.as_dict(pars).items() if k not in fields})
+
+
+def _save_globus_params(pars, client_name):
+    """Save Globus client parameters.
+
+    Parameters
+    ----------
+    pars : IBLParams, dict
+        The Globus client parameters to save.
+    client_name : str
+        The Globus client name, e.g. 'default'.
+
+    """
+    globus_pars = iopar.as_dict(load_client_params(CLIENT_KEY, assert_present=False) or {})
+    globus_pars[client_name] = iopar.as_dict(pars)
+    save_client_params(globus_pars, CLIENT_KEY)
 
 
 def get_local_endpoint_id():
@@ -173,7 +331,7 @@ def get_local_endpoint_id():
     Returns
     -------
     uuid.UUID
-        The local Globus endpoint ID
+        The local Globus endpoint ID.
     """
     msg = ('Cannot find local endpoint ID, check if Globus Connect is set up correctly, '
            '{} exists and contains a UUID.')
@@ -235,7 +393,6 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     list
         The lab names associated with the endpoint UUID.
     """
-
     alyx = alyx or AlyxClient(silent=True)
     if not endpoint:
         endpoint = get_local_endpoint_id()
@@ -306,8 +463,8 @@ def as_globus_path(path):
 
 
 class Globus(DownloadClient):
-    """Wrapper for managing files on Globus endpoints."""
-    def __init__(self, client_name='default'):
+
+    def __init__(self, client_name='default', connect=True, headless=False):
         """
         Wrapper for managing files on Globus endpoints.
 
@@ -315,15 +472,117 @@ class Globus(DownloadClient):
         ----------
         client_name : str
             Parameter profile name to load e.g. 'default', 'admin'.
+        connect : bool
+            Whether to create the Globus SDK client on init.
+        headless : bool
+            If true, raises ValueError if unable to log in automatically. Otherwise the user is
+            prompted to enter information.
+
+        Examples
+        --------
+        Instantiate without authentication
+
+        >>> globus = Globus(connect=False)
+
+        Instantiate without user prompts
+
+        >>> globus = Globus('server', headless=True)
         """
         # Setting up transfer client
         super().__init__()
-        self.client = create_globus_client(client_name=client_name)
-        self.pars = load_client_params(f'{CLIENT_KEY}.{client_name}')
+        self.client = None
+        self.client_name = client_name
+        self.headless = headless
+        self._pars = load_client_params(f'{CLIENT_KEY}.{client_name}', assert_present=False)
+
+        # If no parameters, Globus must be set up for this client
+        if self._pars is None:
+            if self.headless:
+                raise RuntimeError(f'Globus not set up for client "{self.client_name}"')
+            self._pars = _setup(self.client_name, login=False)
+
+        if connect:
+            self.login()
+
         # Try adding local endpoint
-        self.endpoints = {'local': {'id': UUID(self.pars.local_endpoint)}}
+        self.endpoints = {'local': {'id': UUID(self._pars.local_endpoint)}}
         _logger.info('Adding local endpoint.')
-        self.endpoints['local']['root_path'] = self.pars.local_path
+        self.endpoints['local']['root_path'] = self._pars.local_path
+
+    @property
+    def is_logged_in(self):
+        """bool: Check if client exists and is authenticated"""
+        has_token = self.client and self.client.authorizer.get_authorization_header() is not None
+        return has_token and not self._token_expired
+
+    @property
+    def _token_expired(self):
+        """bool or None: True if token expired; False if still valid; None if token not present.
+
+        Note the 'expires_at_seconds' may be greater than `Globus.client.authorizer.expires_at` if
+        using refresh tokens. The `login` method will always refresh the token if still valid.
+        """
+        try:
+            return getattr(self._pars, 'expires_at_seconds') - datetime.utcnow().timestamp() < 60
+        except AttributeError:
+            return
+
+    def login(self, stay_logged_in=None):
+        """
+        Authenticate Globus client.
+
+        Parameters
+        ----------
+        stay_logged_in : bool, optional
+            If True, use refresh token to remain logged in for longer.  If False, use an auth
+            token without the option of refreshing when expired. If not specified, uses the refresh
+            token if available.
+        """
+        if self.is_logged_in:
+            _logger.debug('Already logged in')
+            self.client.authorizer.ensure_valid_token()  # refresh token if necessary
+            return
+
+        # If no tokens in parameters, Globus must be authenticated
+        required_fields = {'refresh_token', 'access_token', 'expires_at_seconds'}
+        if not required_fields.issubset(iopar.as_dict(self._pars)) or self._token_expired:
+            if self.headless:
+                raise RuntimeError(f'Globus not authenticated for client "{self.client_name}"')
+            stay_logged_in = True if stay_logged_in is None else stay_logged_in
+            token = get_token(self._pars.GLOBUS_CLIENT_ID, refresh_tokens=stay_logged_in)
+            if not any(token.values()):
+                _logger.debug('Login cancelled by user')
+                return
+            self._pars = iopar.from_dict({**self._pars.as_dict(), **token})
+            _save_globus_params(self._pars, self.client_name)
+
+        # Ready to authenticate
+        self._authenticate(stay_logged_in)
+
+    def logout(self):
+        """Revoke any tokens and delete them from the client and parameter file."""
+        if self.client and self.client.authorizer and \
+                not isinstance(self.client.authorizer, NullAuthorizer):
+            self.client.authorizer.auth_client.oauth2_revoke_token()
+        del self.client.authorizer
+        self.client.authorizer = NullAuthorizer()
+        if pars := load_client_params(f'{CLIENT_KEY}.{self.client_name}', assert_present=False):
+            _save_globus_params(_remove_token_fields(pars), self.client_name)
+        self._pars = _remove_token_fields(self._pars)
+
+    def _authenticate(self, stay_logged_in=None):
+        """Authenticate and instantiate Globus SDK client."""
+        if self._token_expired is not False:
+            raise RuntimeError(f'token no longer valid for client "{self.client_name}"')
+        if self._pars.as_dict().get('refresh_token') and stay_logged_in is not False:
+            client = globus_sdk.NativeAppAuthClient(self._pars.GLOBUS_CLIENT_ID)
+            client.oauth2_start_flow(refresh_tokens=True)
+            authorizer = globus_sdk.RefreshTokenAuthorizer(self._pars.refresh_token, client)
+        else:
+            if stay_logged_in is True:
+                warnings.warn('No refresh token. Please log out and back in to remain logged in.')
+            authorizer = globus_sdk.AccessTokenAuthorizer(self._pars.access_token)
+        self.client = globus_sdk.TransferClient(authorizer=authorizer)
 
     def fetch_endpoints_from_alyx(self, alyx=None, overwrite=False):
         """
@@ -380,6 +639,7 @@ class Globus(DownloadClient):
         _, root_path = self._endpoint_id_root(endpoint)
         return self._endpoint_path(data_path, root_path)
 
+    @ensure_logged_in
     def download_file(self, file_address, source_endpoint, recursive=False, **kwargs):
         """
         Download one or more files via Globus.
@@ -448,22 +708,34 @@ class Globus(DownloadClient):
         return files
 
     @staticmethod
-    def setup(client_name='default'):
+    def setup(client_name='default', **kwargs):
         """
         Setup a Globus client.
+
+        In order to use this function you need:
+
+        1. The client ID of an existing Globus Client (`see this tutorial`_).
+        2. Set up `Global Connect`_ on your local device.
+        3. Register your local device as an `endpoint`_ in your Globus Client.
+
+        .. _how to create one: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+        .. _Global Connect: https://www.globus.org/globus-connect-personal
+        .. _endpoint: https://app.globus.org/
 
         Parameters
         ----------
         client_name : str
             Parameter profile name to set up e.g. 'default', 'admin'.
+        **kwargs
+            Optional Globus constructor arguments.
 
         Returns
         -------
         Globus
             A new Globus client object.
         """
-        setup(client_name)
-        return Globus(client_name)
+        _setup(client_name, login=False)
+        return Globus(client_name, **kwargs)
 
     def add_endpoint(self, endpoint, label=None, root_path=None, overwrite=False, alyx=None):
         """
@@ -656,6 +928,7 @@ class Globus(DownloadClient):
                 root_path = PurePosixPath(root_path)
         return endpoint_id, as_globus_path(root_path)
 
+    @ensure_logged_in
     def transfer_data(self, data_path, source_endpoint, destination_endpoint,
                       recursive=False, **kwargs):
         """
@@ -691,6 +964,10 @@ class Globus(DownloadClient):
         >>> files = ['file.ext', 'foo.bar']
         >>> task_id = glo.transfer_data(files, 'source_endpoint', 'destination_endpoint')
 
+        Transfer a file (synchronous)
+        >>> file = 'file.ext'
+        >>> task_id = glo.run_task(lambda: glo.transfer_data(file, 'src_endpoint', 'dst_endpoint'))
+
         Transfer a folder (asynchronous)
 
         >>> folder = 'path/to/folder'
@@ -713,6 +990,61 @@ class Globus(DownloadClient):
         response = self.client.submit_transfer(transfer_object)
         return UUID(response.data['task_id'])
 
+    @ensure_logged_in
+    def delete_data(self, data_path, endpoint, recursive=False, **kwargs):
+        """
+        Delete one or more paths within an endpoint.
+
+        Both file and directory paths may be provided, however if recursive is true, all paths must
+        be directories.
+
+        Parameters
+        ----------
+        data_path : str, list of str
+            One or more data paths, relative to the endpoint root path.
+        endpoint : str, uuid.UUID
+            The name or UUID of the endpoint.
+        recursive : bool
+            If true, delete the contents of nested directories (NB: all data_paths must be
+            directories).
+        **kwargs
+            See globus_sdk.DeleteData.
+
+        Returns
+        -------
+        uuid.UUID
+            The Globus transfer ID.
+
+        Examples
+        --------
+        Delete two files, ingnoring those that don't exist (asynchronous)
+
+        >>> glo = Globus()
+        >>> files = ['file.ext', 'foo.bar']
+        >>> task_id = glo.delete_data(files, 'endpoint_name', ignore_missing=True)
+
+        Delete a file (synchronous)
+
+        >>> task_id = glo.run_task(lambda: glo.delete_data('file.ext', 'endpoint_name')
+
+        Recursively delete a folder (asynchronous)
+
+        >>> folder = 'path/to/folder'
+        >>> task_id = glo.delete_data(folder, 'endpoint_name', recursive=True)
+        """
+        kwargs['endpoint'] = (endpoint
+                              if is_uuid(endpoint, versions=(1,))
+                              else self.endpoints.get(endpoint)['id'])
+        delete_object = globus_sdk.DeleteData(self.client, recursive=recursive, **kwargs)
+
+        # add any number of items to the submission data
+        for path in ensure_list(data_path):
+            fullpath = self._endpoint_path(path, self._endpoint_id_root(endpoint)[1])
+            delete_object.add_item(fullpath)
+        response = self.client.submit_delete(delete_object)
+        return UUID(response.data['task_id'])
+
+    @ensure_logged_in
     def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
         """
         Return the list of (filename, filesize) in a given endpoint directory.
@@ -730,6 +1062,9 @@ class Globus(DownloadClient):
             If True, remove the UUID from the returned filenames.
         return_size : bool
             If True, return the size of each listed file in bytes.
+        max_retries : int
+            The number of times to retry the remote operation before raising. Increasing this may
+            mitigate unstable network issues.
 
         Returns
         -------
@@ -762,6 +1097,7 @@ class Globus(DownloadClient):
         return out
 
     # TODO: allow to move all content of a directory with 'recursive' keyword in add_item
+    @ensure_logged_in
     def mv(self, source_endpoint, target_endpoint, source_paths, target_paths,
            timeout=None, **kwargs):
         """
@@ -774,7 +1110,7 @@ class Globus(DownloadClient):
         target_endpoint : uuid.UUID, str
             The Globus destination endpoint. May be a UUID or a key in the Globus.endpoints
             attribute.
-        source_paths : list of str, Path or PurePath
+        source_paths : list of str, pathlib.Path or pathlib.PurePath
             The absolute or relative Globus paths of source files to moves.  Note: if endpoint is
             a UUID, the path must be absolute.
         target_paths : list of str, Path or PurePath
@@ -782,7 +1118,7 @@ class Globus(DownloadClient):
             is a UUID, the path must be absolute.
         timeout : int
             Maximum time in seconds to wait for the task to complete.
-        kwargs
+        **kwargs
             Optional arguments for globus_sdk.TransferData.
 
         Returns
@@ -809,6 +1145,7 @@ class Globus(DownloadClient):
 
         return self.run_task(wrapper, timeout=timeout)
 
+    @ensure_logged_in
     def run_task(self, globus_func, retries=3, timeout=None):
         """
         Block until a Globus task finishes and retry upon Network or REST Errors.
@@ -834,6 +1171,7 @@ class Globus(DownloadClient):
             Timed out waiting for task to complete.
 
         TODO Add a quick fail option that returns when files missing, etc.
+        TODO Add status logging
         """
         try:
             task_id = globus_func()
@@ -876,3 +1214,49 @@ class Globus(DownloadClient):
                 # if we reach this point without returning or erring, retry
                 _logger.warning('\nGlobus experienced a network error, retrying.')
                 self.run_task(globus_func, retries=(retries - 1), timeout=timeout)
+
+    @ensure_logged_in
+    async def task_wait_async(self, task_id, polling_interval=10, timeout=10):
+        """
+        Asynchronously wait until a Task is complete or fails, with a time limit.
+
+        If the task status is ACTIVE after timout, returns False, otherwise returns True.
+
+        Parameters
+        ----------
+        task_id : str, uuid.UUID
+            A Globus task UUID to wait on for completion.
+        polling_interval : float
+            Number of seconds between queries to Globus about the task status. Minimum 1 second.
+        timeout : float
+            Number of seconds to wait in total. Minimum 1 second.
+
+        Returns
+        -------
+        bool
+            True if status not ACTIVE before timeout. False if status still ACTIVE at timeout.
+
+        Examples
+        --------
+        Asynchronously await a task to complete
+
+        >>> await Globus().task_wait_async(task_id)
+        """
+        if polling_interval < 1:
+            raise GlobusSDKUsageError('polling_interval must be at least 1 second')
+        if timeout < 1:
+            raise GlobusSDKUsageError('timout must be at least 1 second')
+        polling_interval = min(timeout, polling_interval)
+        waited_time = 0
+        while True:
+            task = self.client.get_task(task_id)
+            status = task['status']
+            if status != 'ACTIVE':
+                return True
+
+            # check if we timed out before sleeping again
+            waited_time += polling_interval
+            if waited_time >= timeout:
+                return False
+
+            await asyncio.sleep(polling_interval)

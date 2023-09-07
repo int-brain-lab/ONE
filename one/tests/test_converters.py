@@ -177,12 +177,17 @@ class TestConverters(unittest.TestCase):
 
     def test_dict2ref(self):
         d1 = {'date': '2018-07-13', 'sequence': '001', 'subject': 'flowers'}
-        self.assertEqual('2018-07-13_001_flowers', self.one.dict2ref(d1))
+        self.assertEqual(self.one.dict2ref(d1), '2018-07-13_001_flowers')
         d2 = {'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'}
-        self.assertEqual('2018-07-13_1_flowers', self.one.dict2ref(d2))
+        self.assertEqual(self.one.dict2ref(d2), '2018-07-13_1_flowers')
         self.assertIsNone(self.one.dict2ref({}))
         expected = ['2018-07-13_001_flowers', '2018-07-13_1_flowers']
         self.assertCountEqual(expected, self.one.dict2ref([d1, d2]))
+        d3 = {'start_time': '2023-04-07T17:34:11.403825', 'number': '001', 'subject': 'flowers'}
+        self.assertEqual(self.one.dict2ref(d3), '2023-04-07_001_flowers')
+        start_date_time = datetime.datetime.fromisoformat(d3['start_time'])
+        d4 = {'start_time': start_date_time, 'number': 1, 'subject': 'flowers'}
+        self.assertEqual(self.one.dict2ref(d4), '2023-04-07_1_flowers')
 
     def test_path2ref(self):
         path_str = Path('E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001')

@@ -585,6 +585,15 @@ class ConversionMixin:
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
         if not ref_dict:
             return
+        if 'sequence' not in ref_dict and 'number' in ref_dict:
+            ref_dict = ref_dict.copy()
+            ref_dict['sequence'] = ref_dict.pop('number')
+        if 'date' not in ref_dict and 'start_time' in ref_dict:
+            ref_dict = ref_dict.copy()
+            if isinstance(ref_dict['start_time'], str):
+                ref_dict['date'] = ref_dict['start_time'][:10]
+            else:
+                ref_dict['date'] = ref_dict['start_time'].date()
         parsed = any(not isinstance(k, str) for k in ref_dict.values())
         format_str = ('{date:%Y-%m-%d}_{sequence:d}_{subject:s}'
                       if parsed
