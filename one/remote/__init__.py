@@ -1,1 +1,1 @@
-"""A package for remote data access"""
+"""A package for remote data access."""

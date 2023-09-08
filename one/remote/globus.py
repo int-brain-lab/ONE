@@ -29,7 +29,7 @@ The endpoints are stored in the `endpoints` property
 >>> print(globus.endpoints.keys())
 >>> print(globus.endpoints['local'])
 
-.. _how to create one: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+.. _see this tutorial: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
 .. _Global Connect: https://www.globus.org/globus-connect-personal
 .. _endpoint: https://app.globus.org/
 
@@ -718,7 +718,7 @@ class Globus(DownloadClient):
         2. Set up `Global Connect`_ on your local device.
         3. Register your local device as an `endpoint`_ in your Globus Client.
 
-        .. _how to create one: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+        .. _see this tutorial: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
         .. _Global Connect: https://www.globus.org/globus-connect-personal
         .. _endpoint: https://app.globus.org/
 
