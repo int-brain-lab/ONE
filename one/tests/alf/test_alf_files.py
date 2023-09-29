@@ -1,6 +1,6 @@
 """Unit tests for the one.alf.files module."""
 import unittest
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import uuid
 
 import one.alf.files as files
@@ -177,6 +177,21 @@ class TestAlfParse(unittest.TestCase):
         file_path = 'toto.89c861ea-66aa-4729-a808-e79f84d08b81.npy'
         desired_output = Path('toto.npy')
         self.assertEqual(desired_output, files.remove_uuid_string(file_path))
+
+    def test_padded_sequence(self):
+        """Test for one.alf.files.padded_sequence."""
+        # Test with pure path file input
+        filepath = PureWindowsPath(r'F:\ScanImageAcquisitions\subject\2023-01-01\1\foo\bar.baz')
+        expected = PureWindowsPath(r'F:\ScanImageAcquisitions\subject\2023-01-01\001\foo\bar.baz')
+        self.assertEqual(files.padded_sequence(filepath), expected)
+
+        # Test with str input session path
+        session_path = '/mnt/s0/Data/Subjects/subject/2023-01-01/001'
+        expected = Path('/mnt/s0/Data/Subjects/subject/2023-01-01/001')
+        self.assertEqual(files.padded_sequence(session_path), expected)
+
+        # Test invalid ALF session path
+        self.assertRaises(ValueError, files.padded_sequence, '/foo/bar/baz')
 
 
 class TestALFGet(unittest.TestCase):
