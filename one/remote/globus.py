@@ -344,7 +344,7 @@ def get_local_endpoint_id():
     assert id_file.exists(), msg.format(id_file)
     local_id = id_file.read_text().strip()
     assert isinstance(local_id, str), msg.format(id_file)
-    print(f'Found local endpoint ID in Globus Connect settings {local_id}')
+    _logger.info(f'Found local endpoint ID in Globus Connect settings {local_id}')
     return UUID(local_id)
 
 
