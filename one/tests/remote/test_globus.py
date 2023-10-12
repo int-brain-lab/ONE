@@ -13,6 +13,7 @@ import uuid
 
 try:
     import globus_sdk
+    import globus_sdk.services.auth
 except ModuleNotFoundError:
     raise unittest.skip('globus_sdk module not installed')
 from iblutil.io import params as iopar
@@ -572,7 +573,11 @@ class TestGlobusClient(_GlobusClientTest):
     def test_login_logout(self):
         """Test for Globus.login and Globus.logout methods."""
         assert self.globus.is_logged_in
+        sdk_mock, _ = self.globus_sdk_mock.get_original()
         with self.assertLogs('one.remote.globus', 10):
+            # Token validator checks token auth class, which is mocked, so here we set the
+            # RefreshTokenAuthorizer to a MagicMock so that the types match
+            sdk_mock.RefreshTokenAuthorizer = mock.MagicMock
             self.globus.login()
             self.globus.client.authorizer.ensure_valid_token.assert_called()
 
@@ -590,7 +595,7 @@ class TestGlobusClient(_GlobusClientTest):
         self.assertFalse(hasattr(self.globus.client.authorizer, 'access_token'))
         self.assertFalse(hasattr(self.globus._pars, 'access_token'))
         self.assertFalse(self.globus.is_logged_in)
-        self.assertIsNone(self.globus._token_expired)
+        self.assertTrue(self.globus._token_expired)
 
         # Test what happens when authenticate called with invalid token
         self.assertRaises(RuntimeError, self.globus._authenticate)
@@ -620,6 +625,34 @@ class TestGlobusClient(_GlobusClientTest):
             # In reality this will only happen when loading saved taken where refresh_token = False
             self.assertWarns(UserWarning, self.globus.login, stay_logged_in=True)
             self.assertTrue(self.globus.is_logged_in)
+
+    def test_save_refresh_token_callback(self):
+        """Test for Globus._save_refresh_token_callback method."""
+        assert hasattr(self.globus._pars, 'refresh_token')
+        token = {'refresh_token': '567', 'access_token': 'abc', 'expires_at_seconds': 100000000}
+        res = mock.MagicMock(spec=globus_sdk.services.auth.OAuthTokenResponse)
+        res.by_resource_server = dict(server=token)
+
+        # Check behaviour when called with Globus auth response
+        with mock.patch('one.remote.globus.save_client_params') as client_params_mock:
+            self.globus._save_refresh_token_callback(res)
+        client_params_mock.assert_called_once()
+        (pars, name), _ = client_params_mock.call_args
+        self.assertEqual(name, 'globus')
+        self.assertIn(self.globus.client_name, pars)
+        self.assertTrue(set(pars[self.globus.client_name]) >= set(globus.DEFAULT_PAR))
+        for k, v in token.items():
+            with self.subTest(k):
+                self.assertEqual(pars[self.globus.client_name].get(k), v)
+        # Obj params should be modified
+        par_vals = map(partial(getattr, self.globus._pars), token.keys())
+        self.assertCountEqual(par_vals, token.values())
+
+        # Check behaviour when called with empty auth response
+        res.by_resource_server = dict()
+        with mock.patch('one.remote.globus.save_client_params') as client_params_mock:
+            self.globus._save_refresh_token_callback(res)
+        client_params_mock.assert_not_called()
 
 
 class TestGlobusAsync(unittest.IsolatedAsyncioTestCase, _GlobusClientTest):
