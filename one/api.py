@@ -44,6 +44,9 @@ class One(ConversionMixin):
         'dataset', 'date_range', 'laboratory', 'number', 'projects', 'subject', 'task_protocol'
     )
 
+    uuid_filenames = None
+    """bool: whether datasets on disk have a UUID in their filename"""
+
     def __init__(self, cache_dir=None, mode='auto', wildcards=True, tables_dir=None):
         """An API for searching and loading data on a local filesystem
 
@@ -72,6 +75,8 @@ class One(ConversionMixin):
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
         self.record_loaded = False
+        # assign property here as different instances may work on separate filesystems
+        self.uuid_filenames = False
         # init the cache file
         self._reset_cache()
         self.load_cache()
@@ -569,6 +574,8 @@ class One(ConversionMixin):
         # First go through datasets and check if file exists and hash matches
         for i, rec in datasets.iterrows():
             file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
+            if self.uuid_filenames:
+                file = alfiles.add_uuid_string(file, i[1] if isinstance(i, tuple) else i)
             if file.exists():
                 # Check if there's a hash mismatch
                 # If so, add this index to list of datasets that need downloading
@@ -2138,21 +2145,24 @@ class OneAlyx(One):
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
-         Download a single or multitude of datasets if stored on AWS, otherwise calls
-         OneAlyx._download_dataset.
+        Download a single or multitude of datasets if stored on AWS, otherwise calls
+        OneAlyx._download_dataset.
 
-         NB: This will not skip files that are already present.  Use check_filesystem instead.
+        NB: This will not skip files that are already present.  Use check_filesystem instead.
 
-         Parameters
-         ----------
-         dset : dict, str, pd.Series
-             A single or multitude of dataset dictionaries.
+        Parameters
+        ----------
+        dset : dict, str, pd.Series
+            A single or multitude of dataset dictionaries.
 
-         Returns
-         -------
-         pathlib.Path
-             A local file path or list of paths.
-         """
+        Returns
+        -------
+        pathlib.Path
+            A local file path or list of paths.
+        """
+        # determine whether to remove the UUID after download, this may be overridden by user
+        kwargs['keep_uuid'] = kwargs.get('keep_uuid', self.uuid_filenames)
+
         # If all datasets exist on AWS, download from there.
         try:
             if 'exists_aws' in dsets and np.all(np.equal(dsets['exists_aws'].values, True)):
@@ -2162,7 +2172,7 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, update_exists=True, **_) -> List[Path]:
+    def _download_aws(self, dsets, update_exists=True, keep_uuid=None, **_) -> List[Path]:
         # Download datasets from AWS
         import one.remote.aws as aws
         s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
@@ -2191,8 +2201,9 @@ class OneAlyx(One):
                 continue
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
             source_path = alfiles.add_uuid_string(source_path, uuid)
-            local_path = alfiles.remove_uuid_string(
-                self.cache_dir.joinpath(dset['session_path'], dset['rel_path']))
+            local_path = self.cache_dir.joinpath(dset['session_path'], dset['rel_path'])
+            if keep_uuid is False or (keep_uuid is None and self.uuid_filenames is False):
+                local_path = alfiles.remove_uuid_string(local_path)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(aws.s3_download_file(
                 source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
@@ -2317,7 +2328,7 @@ class OneAlyx(One):
                     f'Failed to tag remote file record mismatch: {ex}\n'
                     'Please contact the database administrator.')
 
-    def _download_file(self, url, target_dir, keep_uuid=False, file_size=None, hash=None):
+    def _download_file(self, url, target_dir, keep_uuid=None, file_size=None, hash=None):
         """
         Downloads a single file or multitude of files from an HTTP webserver.
         The webserver in question is set by the AlyxClient object.
@@ -2329,7 +2340,7 @@ class OneAlyx(One):
         target_dir : str, list
             Absolute path of directory to download file to (including alf path).
         keep_uuid : bool
-            If true, the UUID is not removed from the file name (default is False).
+            If true, the UUID is not removed from the file name.  See `uuid_filenames' property.
         file_size : int, list
             The expected file size or list of file sizes to compare with downloaded file.
         hash : str, list
@@ -2360,7 +2371,7 @@ class OneAlyx(One):
             self._check_hash_and_file_size_mismatch(*args)
 
         # check if we are keeping the uuid on the list of file names
-        if keep_uuid:
+        if keep_uuid is True or (keep_uuid is None and self.uuid_filenames):
             return local_path
 
         # remove uuids from list of file names
