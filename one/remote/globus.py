@@ -344,7 +344,7 @@ def get_local_endpoint_id():
     assert id_file.exists(), msg.format(id_file)
     local_id = id_file.read_text().strip()
     assert isinstance(local_id, str), msg.format(id_file)
-    print(f'Found local endpoint ID in Globus Connect settings {local_id}')
+    _logger.debug(f'Found local endpoint ID in Globus Connect settings {local_id}')
     return UUID(local_id)
 
 
@@ -517,15 +517,20 @@ class Globus(DownloadClient):
 
     @property
     def _token_expired(self):
-        """bool or None: True if token expired; False if still valid; None if token not present.
+        """bool: True if token absent or expired; False if valid
 
         Note the 'expires_at_seconds' may be greater than `Globus.client.authorizer.expires_at` if
         using refresh tokens. The `login` method will always refresh the token if still valid.
         """
         try:
-            return getattr(self._pars, 'expires_at_seconds') - datetime.utcnow().timestamp() < 60
-        except AttributeError:
-            return
+            authorizer = getattr(self.client, 'authorizer', None)
+            has_refresh_token = self._pars.as_dict().get('refresh_token') is not None
+            if has_refresh_token and isinstance(authorizer, globus_sdk.RefreshTokenAuthorizer):
+                self.client.authorizer.ensure_valid_token()  # Fetch new refresh token if needed
+        except Exception as ex:
+            _logger.debug('Failed to refresh token: %s', ex)
+        expires_at_seconds = getattr(self._pars, 'expires_at_seconds', 0)
+        return expires_at_seconds - datetime.utcnow().timestamp() < 60
 
     def login(self, stay_logged_in=None):
         """
@@ -540,15 +545,19 @@ class Globus(DownloadClient):
         """
         if self.is_logged_in:
             _logger.debug('Already logged in')
-            self.client.authorizer.ensure_valid_token()  # refresh token if necessary
             return
 
+        # Default depends on refresh token
+        stay_logged_in = True if stay_logged_in is None else stay_logged_in
+        expired = bool(
+            self._pars.as_dict().get('refresh_token') is None
+            if stay_logged_in else self._token_expired
+        )
         # If no tokens in parameters, Globus must be authenticated
         required_fields = {'refresh_token', 'access_token', 'expires_at_seconds'}
-        if not required_fields.issubset(iopar.as_dict(self._pars)) or self._token_expired:
+        if not required_fields.issubset(iopar.as_dict(self._pars)) or expired:
             if self.headless:
                 raise RuntimeError(f'Globus not authenticated for client "{self.client_name}"')
-            stay_logged_in = True if stay_logged_in is None else stay_logged_in
             token = get_token(self._pars.GLOBUS_CLIENT_ID, refresh_tokens=stay_logged_in)
             if not any(token.values()):
                 _logger.debug('Login cancelled by user')
@@ -572,17 +581,37 @@ class Globus(DownloadClient):
 
     def _authenticate(self, stay_logged_in=None):
         """Authenticate and instantiate Globus SDK client."""
-        if self._token_expired is not False:
-            raise RuntimeError(f'token no longer valid for client "{self.client_name}"')
         if self._pars.as_dict().get('refresh_token') and stay_logged_in is not False:
             client = globus_sdk.NativeAppAuthClient(self._pars.GLOBUS_CLIENT_ID)
             client.oauth2_start_flow(refresh_tokens=True)
-            authorizer = globus_sdk.RefreshTokenAuthorizer(self._pars.refresh_token, client)
+            authorizer = globus_sdk.RefreshTokenAuthorizer(
+                self._pars.refresh_token, client, on_refresh=self._save_refresh_token_callback)
         else:
             if stay_logged_in is True:
                 warnings.warn('No refresh token. Please log out and back in to remain logged in.')
+            if self._token_expired is not False:
+                raise RuntimeError(f'token no longer valid for client "{self.client_name}"')
             authorizer = globus_sdk.AccessTokenAuthorizer(self._pars.access_token)
         self.client = globus_sdk.TransferClient(authorizer=authorizer)
+
+    def _save_refresh_token_callback(self, res):
+        """
+        Save a token fetched by the refresh token authorizer.
+
+        This is a callback for the globus_sdk.RefreshTokenAuthorizer to update the parameters.
+
+        Parameters
+        ----------
+        res : globus_sdk.services.auth.OAuthTokenResponse
+            An Open Authorization response object.
+
+        """
+        if not res or not (token := next(iter(res.by_resource_server.values()), None)):
+            return
+        token_fields = {'refresh_token', 'access_token', 'expires_at_seconds'}
+        self._pars = iopar.from_dict(
+            {**self._pars.as_dict(), **{k: v for k, v in token.items() if k in token_fields}})
+        _save_globus_params(self._pars, self.client_name)
 
     def fetch_endpoints_from_alyx(self, alyx=None, overwrite=False):
         """
@@ -685,7 +714,7 @@ class Globus(DownloadClient):
         return_single = isinstance(file_address, str) and recursive is False
         kwargs['label'] = kwargs.get('label', 'ONE download')
         task = partial(self.transfer_data, file_address, source_endpoint, 'local',
-                       sync_level='mtime', recursive=recursive, **kwargs)
+                       recursive=recursive, **kwargs)
         task_id = self.run_task(task)
         files = []
         root = Path(self.endpoints['local']['root_path'])

@@ -446,3 +446,39 @@ def remove_uuid_string(file_path):
     if spec.is_uuid_string(name_parts[-1]):
         file_path = file_path.with_name('.'.join(name_parts[:-1]) + file_path.suffix)
     return file_path
+
+
+def padded_sequence(filepath):
+    """
+    Ensures a file path contains a zero-padded experiment sequence folder.
+
+    Parameters
+    ----------
+    filepath : str, pathlib.Path, pathlib.PurePath
+        A session or file path to convert.
+
+    Returns
+    -------
+    pathlib.Path, pathlib.PurePath
+        The same path but with the experiment sequence folder zero-padded.  If a PurePath was
+        passed, a PurePath will be returned, otherwise a Path object is returned.
+
+    Examples
+    --------
+    >>> filepath = '/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml'
+    >>> padded_sequence(filepath)
+    pathlib.Path('/iblrigdata/subject/2023-01-01/001/_ibl_experiment.description.yaml')
+
+    Supports folders and will not affect already padded paths
+
+    >>> session_path = pathlib.PurePosixPath('subject/2023-01-01/001')
+    >>> padded_sequence(filepath)
+    pathlib.PurePosixPath('subject/2023-01-01/001')
+    """
+    if isinstance(filepath, str):
+        filepath = Path(filepath)
+    if (session_path := get_session_path(filepath)) is None:
+        raise ValueError('path must include a valid ALF session path, e.g. subject/YYYY-MM-DD/N')
+    idx = len(filepath.parts) - len(session_path.parts)
+    sequence = str(int(session_path.parts[-1])).zfill(3)  # zero-pad if necessary
+    return filepath.parents[idx].joinpath(sequence, filepath.relative_to(session_path))
