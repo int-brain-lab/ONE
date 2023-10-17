@@ -251,7 +251,7 @@
 <div class="viewcode-block" id="TestUtils.test_get_s3_virtual_host">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_s3_virtual_host">[docs]</a>
     <span class="k">def</span> <span class="nf">test_get_s3_virtual_host</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.get_s3_virtual_host function&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.get_s3_virtual_host function.&quot;&quot;&quot;</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;https://my-s3-bucket.s3.eu-east-1.amazonaws.com/&#39;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_virtual_host</span><span class="p">(</span><span class="s1">&#39;s3://my-s3-bucket&#39;</span><span class="p">,</span> <span class="s1">&#39;eu-east-1&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
@@ -265,6 +265,17 @@
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">):</span>
             <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_virtual_host</span><span class="p">(</span><span class="s1">&#39;s3://my-s3-bucket/path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;wrong-foo-4&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUtils.test_url2uri">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_url2uri">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_url2uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.url2uri function.&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://my-s3-bucket.s3.eu-east-1.amazonaws.com/path/to/file&#39;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;s3://my-s3-bucket/path/to/file&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">aws</span><span class="o">.</span><span class="n">url2uri</span><span class="p">(</span><span class="n">url</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="n">uri</span><span class="p">,</span> <span class="n">loc</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">url2uri</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">return_location</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="s1">&#39;eu-east-1&#39;</span><span class="p">)</span></div>
 </div>
 
 

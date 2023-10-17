@@ -169,6 +169,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.s3_download_folder" title="one.remote.aws.s3_download_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s3_download_folder</span></code></a></p></td>
 <td><p>Downloads S3 folder content to a local folder.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.url2uri" title="one.remote.aws.url2uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url2uri</span></code></a></p></td>
+<td><p>Convert a generic Amazon virtual host URL to an S3 URI.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="py function">
@@ -188,6 +191,27 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.aws.url2uri">
+<span class="sig-name descname"><span class="pre">url2uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#url2uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.url2uri" title="Link to this definition"></a></dt>
+<dd><p>Convert a generic Amazon virtual host URL to an S3 URI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – An Amazon virtual host URL to convert.</p></li>
+<li><p><strong>return_location</strong> (<em>bool</em>) – If true, additionally returns the location string.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>str</em> – An S3 URI with scheme ‘s3://’.</p></li>
+<li><p><em>str</em> – If return_location is true, returns the bucket location, e.g. ‘eu-east-1’.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>

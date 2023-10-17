@@ -21,6 +21,7 @@ one.remote.aws
       is_folder
       s3_download_file
       s3_download_folder
+      url2uri
    
    
 

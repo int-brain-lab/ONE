@@ -165,13 +165,16 @@ ALF files must always have an extension.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.get_session_path" title="one.alf.files.get_session_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session_path</span></code></a></p></td>
 <td><p>Returns the session path from any filepath if the date/number pattern is found, including the root directory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.rel_path_parts" title="one.alf.files.rel_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel_path_parts</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.padded_sequence" title="one.alf.files.padded_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">padded_sequence</span></code></a></p></td>
+<td><p>Ensures a file path contains a zero-padded experiment sequence folder.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.rel_path_parts" title="one.alf.files.rel_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel_path_parts</span></code></a></p></td>
 <td><p>Parse a relative path into the relevant parts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.remove_uuid_string" title="one.alf.files.remove_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_string</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.remove_uuid_string" title="one.alf.files.remove_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_string</span></code></a></p></td>
 <td><p>Remove UUID from a filename of an ALF path.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.files.session_path_parts" title="one.alf.files.session_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_path_parts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.files.session_path_parts" title="one.alf.files.session_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_path_parts</span></code></a></p></td>
 <td><p>Parse a session path into the relevant parts.</p></td>
 </tr>
 </tbody>
@@ -496,6 +499,36 @@ None is returned.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#one.alf.files.add_uuid_string" title="one.alf.files.add_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.files.add_uuid_string</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.files.padded_sequence">
+<span class="sig-name descname"><span class="pre">padded_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/files.html#padded_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.files.padded_sequence" title="Link to this definition"></a></dt>
+<dd><p>Ensures a file path contains a zero-padded experiment sequence folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – A session or file path to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same path but with the experiment sequence folder zero-padded.  If a PurePath was
+passed, a PurePath will be returned, otherwise a Path object is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path, pathlib.PurePath</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">filepath</span> <span class="o">=</span> <span class="s1">&#39;/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">padded_sequence</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="go">pathlib.Path(&#39;/iblrigdata/subject/2023-01-01/001/_ibl_experiment.description.yaml&#39;)</span>
+</pre></div>
+</div>
+<p>Supports folders and will not affect already padded paths</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;subject/2023-01-01/001&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">padded_sequence</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="go">pathlib.PurePosixPath(&#39;subject/2023-01-01/001&#39;)</span>
+</pre></div>
 </div>
 </dd></dl>
 

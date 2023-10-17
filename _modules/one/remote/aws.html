@@ -191,6 +191,34 @@
 
 
 
+<div class="viewcode-block" id="url2uri">
+<a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.url2uri">[docs]</a>
+<span class="k">def</span> <span class="nf">url2uri</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">return_location</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a generic Amazon virtual host URL to an S3 URI.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_path : str</span>
+<span class="sd">        An Amazon virtual host URL to convert.</span>
+<span class="sd">    return_location : bool</span>
+<span class="sd">        If true, additionally returns the location string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        An S3 URI with scheme &#39;s3://&#39;.</span>
+<span class="sd">    str</span>
+<span class="sd">        If return_location is true, returns the bucket location, e.g. &#39;eu-east-1&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">bucket_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}{</span><span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_location</span> <span class="k">else</span> <span class="n">uri</span></div>
+
+
+
 <div class="viewcode-block" id="is_folder">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.is_folder">[docs]</a>
 <span class="k">def</span> <span class="nf">is_folder</span><span class="p">(</span><span class="n">obj_summery</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
