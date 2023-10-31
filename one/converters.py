@@ -340,6 +340,9 @@ class ConversionMixin:
         assert isinstance(dataset, pd.Series) or len(dataset) == 1
         session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
         file = Path(self.cache_dir, session_path, rel_path)
+        if self.uuid_filenames:
+            i = dataset.name if isinstance(dataset, pd.Series) else dataset.index[0]
+            file = add_uuid_string(file, i[1] if isinstance(i, tuple) else i)
         return file  # files[0] if len(datasets) == 1 else files
 
     @recurse
