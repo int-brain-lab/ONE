@@ -1,5 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.4.0]
+
+### Added
+
+- one.remote.aws.url2uri function converts generic an Amazon virtual host URL to an S3 URI
+- Globus._remove_token_fields method removes Globus token fields before saving parameters
+- one.alf.files.padded_sequence function ensures file paths contain zero-padded experiment sequence folder
+
+### Modified
+
+- one.remote.globus.get_local_endpoint_id no longer prints ID to std out; uses debug log instead
+
+## [2.3.0]
 
 ### Added
 

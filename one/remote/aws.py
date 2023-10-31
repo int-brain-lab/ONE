@@ -82,6 +82,31 @@ def get_s3_virtual_host(uri, region) -> str:
     return 'https://' + '/'.join((hostname, *key))
 
 
+def url2uri(data_path, return_location=False):
+    """
+    Convert a generic Amazon virtual host URL to an S3 URI.
+
+    Parameters
+    ----------
+    data_path : str
+        An Amazon virtual host URL to convert.
+    return_location : bool
+        If true, additionally returns the location string.
+
+    Returns
+    -------
+    str
+        An S3 URI with scheme 's3://'.
+    str
+        If return_location is true, returns the bucket location, e.g. 'eu-east-1'.
+    """
+    parsed = urllib.parse.urlparse(data_path)
+    assert parsed.netloc and parsed.scheme and parsed.path
+    bucket_name, _, loc, *_ = parsed.netloc.split('.')
+    uri = f's3://{bucket_name}{parsed.path}'
+    return (uri, loc) if return_location else uri
+
+
 def is_folder(obj_summery) -> bool:
     """
     Given an S3 ObjectSummery instance, returns true if the associated object is a directory.

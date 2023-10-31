@@ -120,7 +120,7 @@ class TestUtils(unittest.TestCase):
     """Tests for one.remote.aws utility functions"""
 
     def test_get_s3_virtual_host(self):
-        """Tests for one.remote.aws.get_s3_virtual_host function"""
+        """Tests for one.remote.aws.get_s3_virtual_host function."""
         expected = 'https://my-s3-bucket.s3.eu-east-1.amazonaws.com/'
         url = aws.get_s3_virtual_host('s3://my-s3-bucket', 'eu-east-1')
         self.assertEqual(expected, url)
@@ -134,6 +134,14 @@ class TestUtils(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             aws.get_s3_virtual_host('s3://my-s3-bucket/path/to/file', 'wrong-foo-4')
+
+    def test_url2uri(self):
+        """Tests for one.remote.aws.url2uri function."""
+        url = 'https://my-s3-bucket.s3.eu-east-1.amazonaws.com/path/to/file'
+        expected = 's3://my-s3-bucket/path/to/file'
+        self.assertEqual(aws.url2uri(url), expected)
+        uri, loc = aws.url2uri(url, return_location=True)
+        self.assertEqual(loc, 'eu-east-1')
 
 
 if __name__ == '__main__':
