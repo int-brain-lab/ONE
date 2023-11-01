@@ -182,7 +182,7 @@ class One(ConversionMixin):
         force : bool
             If True, the cache is saved regardless of modification time.
         """
-        TIMEOUT = 30  # Delete lock file this many seconds after creation/modification or waiting
+        TIMEOUT = 5  # Delete lock file this many seconds after creation/modification or waiting
         lock_file = Path(self.cache_dir).joinpath('.cache.lock')
         save_dir = Path(save_dir or self.cache_dir)
         meta = self._cache['_meta']

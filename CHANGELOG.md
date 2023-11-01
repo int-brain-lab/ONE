@@ -1,5 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.4.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.0]
+
+### Added
+
+- One.uuid_filenames property supports local files containing the dataset UUID
+
+### Modified
+
+- One._save_cache lock file timeout changed from 30 to 5 seconds
+
+## [2.4.0]
 
 ### Added
 
