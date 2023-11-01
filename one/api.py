@@ -2152,19 +2152,22 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        dset : dict, str, pd.Series
-            A single or multitude of dataset dictionaries.
+        dset : dict, str, pandas.Series, pandas.DataFrame
+            A single or multitude of dataset dictionaries. For AWS downloads the input must be a
+            data frame.
 
         Returns
         -------
-        pathlib.Path
-            A local file path or list of paths.
+        list of pathlib.Path
+            A list of local file paths.
         """
         # determine whether to remove the UUID after download, this may be overridden by user
         kwargs['keep_uuid'] = kwargs.get('keep_uuid', self.uuid_filenames)
 
         # If all datasets exist on AWS, download from there.
         try:
+            if not isinstance(dsets, pd.DataFrame):
+                raise TypeError('Input datasets must be a pandas data frame for AWS download.')
             if 'exists_aws' in dsets and np.all(np.equal(dsets['exists_aws'].values, True)):
                 _logger.info('Downloading from AWS')
                 return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
@@ -2173,6 +2176,30 @@ class OneAlyx(One):
         return self._download_dataset(dsets, **kwargs)
 
     def _download_aws(self, dsets, update_exists=True, keep_uuid=None, **_) -> List[Path]:
+        """
+        Download datasets from an AWS S3 instance using boto3.
+
+        Parameters
+        ----------
+        dsets : list of pandas.Series
+            An iterable for datasets as a pandas Series.
+        update_exists : bool
+            If true, the 'exists_aws' field of the cache table is set to False for any missing
+            datasets.
+        keep_uuid : bool
+            If false, the dataset UUID is removed from the downloaded filename. If None, the
+            `uuid_filenames` attribute determined whether the UUID is kept (default is false).
+
+        Returns
+        -------
+        list of pathlib.Path
+            A list the length of `dsets` of downloaded dataset file paths. Missing datasets are
+            returned as None.
+
+        See Also
+        --------
+        one.remote.aws.s3_download_file - The AWS download function.
+        """
         # Download datasets from AWS
         import one.remote.aws as aws
         s3, bucket_name = aws.get_s3_from_alyx(self.alyx)
@@ -2202,8 +2229,8 @@ class OneAlyx(One):
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
             source_path = alfiles.add_uuid_string(source_path, uuid)
             local_path = self.cache_dir.joinpath(dset['session_path'], dset['rel_path'])
-            if keep_uuid is False or (keep_uuid is None and self.uuid_filenames is False):
-                local_path = alfiles.remove_uuid_string(local_path)
+            if keep_uuid is True or (keep_uuid is None and self.uuid_filenames is True):
+                local_path = alfiles.add_uuid_string(local_path, uuid)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(aws.s3_download_file(
                 source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
@@ -2286,7 +2313,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        pathlib.Path, list
+        list of pathlib.Path
             A local file path or list of paths.
         """
         cache_dir = cache_dir or self.cache_dir
@@ -2348,7 +2375,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        pathlib.Path
+        pathlib.Path or list of pathlib.Path
             The file path of the downloaded file or files.
 
         Example

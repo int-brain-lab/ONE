@@ -1525,6 +1525,14 @@ class TestOneDownload(unittest.TestCase):
                 mock.patch('one.remote.aws.s3_download_file', return_value=file) as method:
             self.one._download_datasets(dsets)
             self.assertEqual(len(dsets), method.call_count)
+            # Check output filename
+            _, local = method.call_args.args
+            self.assertTrue(local.as_posix().startswith(self.one.cache_dir.as_posix()))
+            self.assertTrue(local.as_posix().endswith(dsets.iloc[-1, -1]))
+            # Check keep_uuid = True
+            self.one._download_datasets(dsets, keep_uuid=True)
+            _, local = method.call_args.args
+            self.assertIn(dsets.iloc[-1].name, local.name)
 
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
@@ -1544,7 +1552,11 @@ class TestOneDownload(unittest.TestCase):
         with mock.patch('one.remote.aws.get_s3_from_alyx', side_effect=RuntimeError), \
                 mock.patch.object(self.one, '_download_dataset') as mock_method:
             self.one._download_datasets(dsets)
-            mock_method.assert_called_with(dsets)
+            mock_method.assert_called_with(dsets, keep_uuid=False)
+        # Test type check (download_aws only works with data frames)
+        with mock.patch.object(self.one, '_download_dataset') as mock_method:
+            self.one._download_datasets(dsets.to_dict('records'))
+            mock_method.assert_called()
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.
