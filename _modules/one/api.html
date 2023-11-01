@@ -152,6 +152,9 @@
         <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span>
     <span class="p">)</span>
 
+    <span class="n">uuid_filenames</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bool: whether datasets on disk have a UUID in their filename&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem</span>
 
@@ -180,6 +183,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span> <span class="o">=</span> <span class="n">wildcards</span>  <span class="c1"># Flag indicating whether to use regex or wildcards</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">record_loaded</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># assign property here as different instances may work on separate filesystems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># init the cache file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset_cache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
@@ -294,7 +299,7 @@
 <span class="sd">        force : bool</span>
 <span class="sd">            If True, the cache is saved regardless of modification time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># Delete lock file this many seconds after creation/modification or waiting</span>
+        <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Delete lock file this many seconds after creation/modification or waiting</span>
         <span class="n">lock_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.cache.lock&#39;</span><span class="p">)</span>
         <span class="n">save_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">save_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
@@ -695,6 +700,8 @@
         <span class="c1"># First go through datasets and check if file exists and hash matches</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">rec</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span><span class="p">:</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="c1"># Check if there&#39;s a hash mismatch</span>
                 <span class="c1"># If so, add this index to list of datasets that need downloading</span>
@@ -2333,23 +2340,29 @@
 
     <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">         Download a single or multitude of datasets if stored on AWS, otherwise calls</span>
-<span class="sd">         OneAlyx._download_dataset.</span>
+<span class="sd">        Download a single or multitude of datasets if stored on AWS, otherwise calls</span>
+<span class="sd">        OneAlyx._download_dataset.</span>
 
-<span class="sd">         NB: This will not skip files that are already present.  Use check_filesystem instead.</span>
+<span class="sd">        NB: This will not skip files that are already present.  Use check_filesystem instead.</span>
 
-<span class="sd">         Parameters</span>
-<span class="sd">         ----------</span>
-<span class="sd">         dset : dict, str, pd.Series</span>
-<span class="sd">             A single or multitude of dataset dictionaries.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dset : dict, str, pandas.Series, pandas.DataFrame</span>
+<span class="sd">            A single or multitude of dataset dictionaries. For AWS downloads the input must be a</span>
+<span class="sd">            data frame.</span>
 
-<span class="sd">         Returns</span>
-<span class="sd">         -------</span>
-<span class="sd">         pathlib.Path</span>
-<span class="sd">             A local file path or list of paths.</span>
-<span class="sd">         &quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of pathlib.Path</span>
+<span class="sd">            A list of local file paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># determine whether to remove the UUID after download, this may be overridden by user</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;keep_uuid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;keep_uuid&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span><span class="p">)</span>
+
         <span class="c1"># If all datasets exist on AWS, download from there.</span>
         <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Input datasets must be a pandas data frame for AWS download.&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s1">&#39;exists_aws&#39;</span> <span class="ow">in</span> <span class="n">dsets</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">dsets</span><span class="p">[</span><span class="s1">&#39;exists_aws&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="kc">True</span><span class="p">)):</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading from AWS&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_aws</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dsets</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -2357,7 +2370,31 @@
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keep_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download datasets from an AWS S3 instance using boto3.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dsets : list of pandas.Series</span>
+<span class="sd">            An iterable for datasets as a pandas Series.</span>
+<span class="sd">        update_exists : bool</span>
+<span class="sd">            If true, the &#39;exists_aws&#39; field of the cache table is set to False for any missing</span>
+<span class="sd">            datasets.</span>
+<span class="sd">        keep_uuid : bool</span>
+<span class="sd">            If false, the dataset UUID is removed from the downloaded filename. If None, the</span>
+<span class="sd">            `uuid_filenames` attribute determined whether the UUID is kept (default is false).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of pathlib.Path</span>
+<span class="sd">            A list the length of `dsets` of downloaded dataset file paths. Missing datasets are</span>
+<span class="sd">            returned as None.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        one.remote.aws.s3_download_file - The AWS download function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Download datasets from AWS</span>
         <span class="kn">import</span> <span class="nn">one.remote.aws</span> <span class="k">as</span> <span class="nn">aws</span>
         <span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="p">)</span>
@@ -2386,8 +2423,9 @@
                 <span class="k">continue</span>
             <span class="n">source_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;data_repository_path&#39;</span><span class="p">],</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;relative_path&#39;</span><span class="p">])</span>
             <span class="n">source_path</span> <span class="o">=</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">source_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span>
-            <span class="n">local_path</span> <span class="o">=</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">remove_uuid_string</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]))</span>
+            <span class="n">local_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">keep_uuid</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="p">(</span><span class="n">keep_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="n">local_path</span> <span class="o">=</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span>
             <span class="n">local_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span>
                 <span class="n">source_path</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">update_exists</span><span class="p">))</span>
@@ -2470,7 +2508,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pathlib.Path, list</span>
+<span class="sd">        list of pathlib.Path</span>
 <span class="sd">            A local file path or list of paths.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
@@ -2512,7 +2550,7 @@
                     <span class="sa">f</span><span class="s1">&#39;Failed to tag remote file record mismatch: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
                     <span class="s1">&#39;Please contact the database administrator.&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="n">keep_uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">hash</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="n">keep_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">hash</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downloads a single file or multitude of files from an HTTP webserver.</span>
 <span class="sd">        The webserver in question is set by the AlyxClient object.</span>
@@ -2524,7 +2562,7 @@
 <span class="sd">        target_dir : str, list</span>
 <span class="sd">            Absolute path of directory to download file to (including alf path).</span>
 <span class="sd">        keep_uuid : bool</span>
-<span class="sd">            If true, the UUID is not removed from the file name (default is False).</span>
+<span class="sd">            If true, the UUID is not removed from the file name.  See `uuid_filenames&#39; property.</span>
 <span class="sd">        file_size : int, list</span>
 <span class="sd">            The expected file size or list of file sizes to compare with downloaded file.</span>
 <span class="sd">        hash : str, list</span>
@@ -2532,7 +2570,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pathlib.Path</span>
+<span class="sd">        pathlib.Path or list of pathlib.Path</span>
 <span class="sd">            The file path of the downloaded file or files.</span>
 
 <span class="sd">        Example</span>
@@ -2555,7 +2593,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_hash_and_file_size_mismatch</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 
         <span class="c1"># check if we are keeping the uuid on the list of file names</span>
-        <span class="k">if</span> <span class="n">keep_uuid</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keep_uuid</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="p">(</span><span class="n">keep_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">local_path</span>
 
         <span class="c1"># remove uuids from list of file names</span>
