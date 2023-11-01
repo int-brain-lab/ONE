@@ -264,13 +264,23 @@ class TestOnlineConverters(unittest.TestCase):
         alf_path = ('hoferlab/Subjects/SWC_043/2020-09-21/001/'
                     'alf/probe00/_phy_spikes_subset.channels.npy')
         expected = Path(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
-        path = self.one.record2path(rec.loc[(self.eid, '00c234a3-a4ff-4f97-a522-939d15528a45')])
+        data_id = '00c234a3-a4ff-4f97-a522-939d15528a45'
+        path = self.one.record2path(rec.loc[(self.eid, data_id)])
         self.assertIsInstance(path, Path)
         self.assertEqual(expected, path)
         # As pd.DataFrame
         idx = rec.rel_path == 'alf/probe00/_phy_spikes_subset.channels.npy'
         path = self.one.record2path(rec[idx])
         self.assertEqual(expected, path)
+        # With UUID in file name
+        try:
+            self.one.uuid_filenames = True
+            expected = expected.with_suffix(f'.{data_id}.npy')
+            self.assertEqual(expected, self.one.record2path(rec[idx]))  # as pd.DataFrame
+            self.assertEqual(expected, self.one.record2path(rec[idx].squeeze()))  # as pd.Series
+            self.assertEqual(expected, self.one.record2path(rec[idx].droplevel(0)))  # no eid
+        finally:
+            self.one.uuid_filenames = False
 
     def test_eid2path(self):
         """Test for OneAlyx.eid2path"""

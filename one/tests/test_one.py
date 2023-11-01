@@ -447,6 +447,16 @@ class TestONECache(unittest.TestCase):
         # Attempt the same with the eid index missing
         datasets = datasets.droplevel(0).drop('session_path', axis=1)
         self.assertEqual(files, self.one._check_filesystem(datasets))
+        # Test with uuid_filenames as True
+        self.one.uuid_filenames = True
+        try:
+            for file, (uuid, _) in zip(files, datasets.iterrows()):
+                file.rename(file.with_suffix(f'.{uuid}{file.suffix}'))
+            files = self.one._check_filesystem(datasets)
+            self.assertTrue(all(files))
+            self.assertIn(datasets.index[0], files[0].name)
+        finally:
+            self.one.uuid_filenames = False
 
     def test_load_dataset(self):
         """Test One.load_dataset"""
@@ -735,6 +745,17 @@ class TestONECache(unittest.TestCase):
             raw_modified = One(cache_dir=tdir)._cache['_meta']['raw']['datasets']['date_modified']
             expected = self.one._cache['_meta']['modified_time'].strftime('%Y-%m-%d %H:%M')
             self.assertEqual(raw_modified, expected)
+            # Test file lock
+            t_now = time.time()
+            with mock.patch('one.api.time') as time_mock:
+                lock_file = Path(self.one.cache_dir).joinpath('.cache.lock')
+                lock_file.touch()
+                # We expect the process to sleep at first, then after skipping time,
+                # the stale lock file should be removed.
+                time_mock.time.side_effect = (t_now, t_now + 30)
+                self.one._save_cache(save_dir=tdir, force=True)  # force flag ignores modified time
+            self.assertFalse(lock_file.exists(), 'failed to remove stale lock file')
+            time_mock.sleep.assert_called()
 
     def test_update_cache_from_records(self):
         """Test One._update_cache_from_records"""
@@ -1525,6 +1546,14 @@ class TestOneDownload(unittest.TestCase):
                 mock.patch('one.remote.aws.s3_download_file', return_value=file) as method:
             self.one._download_datasets(dsets)
             self.assertEqual(len(dsets), method.call_count)
+            # Check output filename
+            _, local = method.call_args.args
+            self.assertTrue(local.as_posix().startswith(self.one.cache_dir.as_posix()))
+            self.assertTrue(local.as_posix().endswith(dsets.iloc[-1, -1]))
+            # Check keep_uuid = True
+            self.one._download_datasets(dsets, keep_uuid=True)
+            _, local = method.call_args.args
+            self.assertIn(dsets.iloc[-1].name, local.name)
 
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
@@ -1544,7 +1573,11 @@ class TestOneDownload(unittest.TestCase):
         with mock.patch('one.remote.aws.get_s3_from_alyx', side_effect=RuntimeError), \
                 mock.patch.object(self.one, '_download_dataset') as mock_method:
             self.one._download_datasets(dsets)
-            mock_method.assert_called_with(dsets)
+            mock_method.assert_called_with(dsets, keep_uuid=False)
+        # Test type check (download_aws only works with data frames)
+        with mock.patch.object(self.one, '_download_dataset') as mock_method:
+            self.one._download_datasets(dsets.to_dict('records'))
+            mock_method.assert_called()
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.
