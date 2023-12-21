@@ -283,8 +283,8 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
     for obj_summary in filter(lambda x: not is_folder(x), objects):
         # we can only filter an object collection by prefix, so we need to make sure the file
         # is in the subpath of the source folder
-        # for example, if source is '/toto/tata' and obj_summary.key is '/toto/tata_alaternate/titi.txt'
-        # we need to exclude it
+        # for example, if source is '/toto/tata' and obj_summary.key is
+        # '/toto/tata_alaternate/titi.txt', we need to exclude it
         if not Path(source) in Path(obj_summary.key).parents:
             continue
         local_file = Path(destination).joinpath(Path(obj_summary.key).relative_to(source))
