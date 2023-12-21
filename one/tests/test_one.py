@@ -1251,7 +1251,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(166, len(dsets))
+        self.assertEqual(171, len(dsets))  # this may change after a BWM release or patch
 
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/008', details=True, query_type='remote')
@@ -1267,7 +1267,7 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(166, len(dsets))
+        self.assertEqual(171, len(dsets))  # this may change after a BWM release or patch
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
@@ -1558,7 +1558,10 @@ class TestOneDownload(unittest.TestCase):
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
         rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0])
-        rec['file_records'][-1]['exists'] = False  # Set AWS file record to non-existent
+        # need to find the index of matching aws repo, this is not constant accross releases
+        iaws = list(map(lambda x: x['data_repository'].startswith('aws'),
+                        rec['file_records'])).index(True)
+        rec['file_records'][iaws]['exists'] = False  # Set AWS file record to non-existent
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[rec]), \
                 self.assertLogs('one.api', logging.DEBUG) as log:
