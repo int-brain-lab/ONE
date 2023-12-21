@@ -1267,7 +1267,7 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(171, len(dsets)) # this may change after a BWM release or patch
+        self.assertEqual(171, len(dsets))  # this may change after a BWM release or patch
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
