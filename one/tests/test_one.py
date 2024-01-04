@@ -1195,6 +1195,28 @@ class TestOneAlyx(unittest.TestCase):
         datasets = self.one.list_aggregates('subjects', 'ZM_1085')
         self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects/ZM_1085')))
         self.assertTrue(self.one.list_aggregates('subjects', 'foobar').empty)
+        # Test that additional parts of data path are correctly removed
+        # specifically /public in FI openalyx file rec
+        mock_ds = [
+            {'url': '3ef042c6-82a4-426c-9aa9-be3b48d86652',
+             'session': None, 'file_size': '', 'hash': '',
+             'file_records': [{'data_url': 'https://ibl-brain-wide-map-public.s3.amazonaws.com/'
+                                           'aggregates/Subjects/cortexlab/KS051/'
+                                           'trials.table.3ef042c6-82a4-426c-9aa9-be3b48d86652.pqt',
+                               'data_repository': 'aws_aggregates',
+                               'exists': True}],
+             'default_dataset': True},
+            {'url': '7bdb08d6-b166-43d8-8981-816cf616d291',
+             'session': None, 'file_size': '', 'hash': '',
+             'file_records': [{'data_url': 'https://ibl.flatironinstitute.org/'
+                                           'public/aggregates/Subjects/mrsicflogellab/IBL_005/'
+                                           'trials.table.7bdb08d6-b166-43d8-8981-816cf616d291.pqt',
+                               'data_repository': 'flatiron_aggregates',
+                               'exists': True}],
+             'default_dataset': True},
+        ]
+        with mock.patch.object(self.one.alyx, 'rest', return_value=mock_ds):
+            self.assertEqual(len(self.one.list_aggregates('subjects')), 2)
 
     def test_load_aggregate(self):
         """Test OneAlyx.load_aggregate"""
