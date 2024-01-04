@@ -1762,7 +1762,9 @@ class OneAlyx(One):
                    .reset_index(level=0)
                    .drop('eid', axis=1)
                    .rename_axis(index={'id': 'did'}))
-        records['relation'] = records['rel_path'].map(lambda x: x.split('aggregates')[-1].split('/')[1].lower())
+        records['relation'] = records['rel_path'].map(
+            lambda x: x.split('aggregates')[-1].split('/')[1].lower()
+        )
         records = records[records['relation'] == relation.lower()]
 
         def path2id(p) -> str:
