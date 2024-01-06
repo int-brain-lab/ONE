@@ -615,6 +615,7 @@ class AlyxClient:
                 message = json.loads(r.text)
                 message.pop('status_code', None)  # Get status code from response object instead
                 message = message.get('detail') or message  # Get details if available
+                _logger.error(message)
             except json.decoder.JSONDecodeError:
                 message = r.text
             raise requests.HTTPError(r.status_code, rest_query, message, response=r)
