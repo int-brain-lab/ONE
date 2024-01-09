@@ -16,7 +16,7 @@ For a folder, the following:
 >>> local_files = aws.s3_download_folder(source, destination)
 """
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import logging
 import urllib.parse
 
@@ -285,7 +285,7 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
         # is in the subpath of the source folder
         # for example, if source is '/toto/tata' and obj_summary.key is
         # '/toto/tata_alaternate/titi.txt', we need to exclude it
-        if not Path(source) in Path(obj_summary.key).parents:
+        if not PurePosixPath(source) in PurePosixPath(obj_summary.key).parents:
             continue
         local_file = Path(destination).joinpath(Path(obj_summary.key).relative_to(source))
         lf = s3_download_file(obj_summary.key, local_file, s3=s3, bucket_name=bucket_name,
