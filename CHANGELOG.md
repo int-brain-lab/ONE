@@ -1,4 +1,16 @@
 # Changelog
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.2]
+
+### Modified
+
+- handle data urls that have URL parts before 'aggregates/' in OneAlyx.list_aggregates method
+
+## [2.5.1]
+
+### Modified
+
+- exclude irrelevant s3 objects with source name in key, e.g. for foo/bar exclude foo/bar_baz/ key
+
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.0]
 
 ### Added
