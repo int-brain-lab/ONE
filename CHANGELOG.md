@@ -1,5 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.6.0]
+
+### Modified
+
+- one.load_dataset
+  - add an option to skip computing hash for existing files when loading datasets `check_hash=False`
+  - check filesize before computing hash for performance
+
+### Added
+
+- one.remote.aws.get_s3_allen() convenience function to interact with Allen Institute S3 bucket for atlases
+
+## [2.5.2]
 
 ### Modified
 
@@ -11,7 +23,7 @@
 
 - exclude irrelevant s3 objects with source name in key, e.g. for foo/bar exclude foo/bar_baz/ key
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.0]
+## [2.5.0]
 
 ### Added
 

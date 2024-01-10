@@ -168,6 +168,23 @@ def get_s3_public():
     return s3, S3_BUCKET_IBL
 
 
+def get_s3_allen():
+    """
+    Retrieve the Allen public S3 service resource.
+
+    Returns
+    -------
+    s3.ServiceResource
+        An S3 ServiceResource instance with the provided.
+    str
+        The name of the S3 bucket.
+    """
+    S3_BUCKET_ALLEN = 'allen-brain-cell-atlas'
+    session = boto3.Session(region_name='us-west-2')
+    s3 = session.resource('s3', config=Config(signature_version=UNSIGNED))
+    return s3, S3_BUCKET_ALLEN
+
+
 def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
     """
     Create an S3 resource instance using credentials from an Alyx data repository.
