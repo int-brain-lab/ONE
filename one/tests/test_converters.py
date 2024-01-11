@@ -207,6 +207,12 @@ class TestConverters(unittest.TestCase):
             {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}
         ]
         self.assertCountEqual(expected, refs)
+        # Check support of non-zero-padded sequences
+        ref = self.one.path2ref(path_str.with_name('1'), as_dict=False)
+        self.assertEqual('2018-07-13_1_flowers', ref)
+        # The regex matches sequence length between 1 and 3. If zero-padded, must be 3 digits.
+        path_str4 = path_str.with_name('01')
+        self.assertIsNone(self.one.path2ref(path_str4, as_dict=False))
 
     def test_ref2path(self):
         ref = {'subject': 'flowers', 'date': datetime.datetime(2018, 7, 13).date(), 'sequence': 1}

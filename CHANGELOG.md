@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.3]
+
+### Modified
+
+- support non-zero-padded sequence paths in ConvertersMixin.path2ref, e.g. subject/2020-01-01/1
+
+## [2.5.2]
 
 ### Modified
 

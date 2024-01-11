@@ -87,7 +87,7 @@ def parse_values(func):
 
 
 class ConversionMixin:
-    """A mixin providing methods to interconvert experiment identifiers"""
+    """A mixin providing methods to interconvert experiment identifiers."""
 
     def __init__(self):
         self._cache = None
@@ -153,7 +153,7 @@ class ConversionMixin:
     @recurse
     def eid2path(self, eid: str) -> Optional[Listable(Path)]:
         """
-        From an experiment id or a list of experiment ids, gets the local cache path
+        From an experiment id or a list of experiment ids, gets the local cache path.
 
         Parameters
         ----------
@@ -182,7 +182,7 @@ class ConversionMixin:
     @recurse
     def path2eid(self, path_obj):
         """
-        From a local path, gets the experiment id
+        From a local path, gets the experiment id.
 
         Parameters
         ----------
@@ -287,7 +287,7 @@ class ConversionMixin:
         return unwrap(self.record2url)(record)
 
     def record2url(self, record):
-        """Convert a session or dataset record to a remote URL
+        """Convert a session or dataset record to a remote URL.
 
         NB: Requires online instance
 
@@ -325,7 +325,7 @@ class ConversionMixin:
     def record2path(self, dataset) -> Optional[Path]:
         """
         Given a set of dataset records, checks the corresponding exists flag in the cache
-        correctly reflects the files system
+        correctly reflects the files system.
 
         Parameters
         ----------
@@ -465,7 +465,8 @@ class ConversionMixin:
     @parse_values
     def path2ref(path_str: Union[str, Path, Iter], as_dict=True) -> Union[Bunch, List]:
         """
-        Returns a human readable experiment reference, given a session path.
+        Returns a human-readable experiment reference, given a session path.
+
         The path need not exist.
 
         Parameters
@@ -494,9 +495,9 @@ class ConversionMixin:
         """
         if isinstance(path_str, (list, tuple)):
             return [unwrap(ConversionMixin.path2ref)(x) for x in path_str]
-        pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{3})'
+        pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{1,3})'
         match = re.search(pattern, str(path_str))
-        if match:
+        if match and not re.match(r'^0\d$', match.groups()[-1]):  # e.g. '02' not valid
             ref = match.groupdict()
             return Bunch(ref) if as_dict else '{date:s}_{sequence:s}_{subject:s}'.format(**ref)
 
