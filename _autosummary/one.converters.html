@@ -173,7 +173,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.ConversionMixin" title="one.converters.ConversionMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConversionMixin</span></code></a></p></td>
-<td><p>A mixin providing methods to interconvert experiment identifiers</p></td>
+<td><p>A mixin providing methods to interconvert experiment identifiers.</p></td>
 </tr>
 </tbody>
 </table>
@@ -213,7 +213,7 @@ iterated over.</p>
 <dt class="sig sig-object py" id="one.converters.ConversionMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConversionMixin</span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A mixin providing methods to interconvert experiment identifiers</p>
+<p>A mixin providing methods to interconvert experiment identifiers.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.to_eid">
 <span class="sig-name descname"><span class="pre">to_eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">UUID</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">UUID</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.to_eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.to_eid" title="Link to this definition"></a></dt>
@@ -241,7 +241,7 @@ iterated over.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.eid2path">
 <span class="sig-name descname"><span class="pre">eid2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.eid2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.eid2path" title="Link to this definition"></a></dt>
-<dd><p>From an experiment id or a list of experiment ids, gets the local cache path</p>
+<dd><p>From an experiment id or a list of experiment ids, gets the local cache path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>eid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – Experiment ID (UUID) or list of UUIDs</p>
@@ -258,7 +258,7 @@ iterated over.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.path2eid">
 <span class="sig-name descname"><span class="pre">path2eid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.path2eid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.path2eid" title="Link to this definition"></a></dt>
-<dd><p>From a local path, gets the experiment id</p>
+<dd><p>From a local path, gets the experiment id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path_obj</strong> (<em>pathlib.Path</em><em>, </em><em>str</em>) – Local path or list of local paths</p>
@@ -310,7 +310,7 @@ iterated over.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.record2url">
 <span class="sig-name descname"><span class="pre">record2url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.record2url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.record2url" title="Link to this definition"></a></dt>
-<dd><p>Convert a session or dataset record to a remote URL</p>
+<dd><p>Convert a session or dataset record to a remote URL.</p>
 <p>NB: Requires online instance</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -329,7 +329,7 @@ iterated over.</p>
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.record2path">
 <span class="sig-name descname"><span class="pre">record2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.record2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.record2path" title="Link to this definition"></a></dt>
 <dd><p>Given a set of dataset records, checks the corresponding exists flag in the cache
-correctly reflects the files system</p>
+correctly reflects the files system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dataset</strong> (<em>pd.DataFrame</em><em>, </em><em>pd.Series</em>) – A datasets dataframe slice</p>
@@ -444,8 +444,8 @@ the form yyyy-mm-dd_n_subject.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.path2ref">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path2ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Bunch</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.path2ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.path2ref" title="Link to this definition"></a></dt>
-<dd><p>Returns a human readable experiment reference, given a session path.
-The path need not exist.</p>
+<dd><p>Returns a human-readable experiment reference, given a session path.</p>
+<p>The path need not exist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

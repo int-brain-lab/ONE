@@ -124,7 +124,7 @@
 <span class="sd">&gt;&gt;&gt; local_files = aws.s3_download_folder(source, destination)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
 
@@ -416,7 +416,7 @@
         <span class="c1"># is in the subpath of the source folder</span>
         <span class="c1"># for example, if source is &#39;/toto/tata&#39; and obj_summary.key is</span>
         <span class="c1"># &#39;/toto/tata_alaternate/titi.txt&#39;, we need to exclude it</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">obj_summary</span><span class="o">.</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">obj_summary</span><span class="o">.</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">local_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">obj_summary</span><span class="o">.</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">source</span><span class="p">))</span>
         <span class="n">lf</span> <span class="o">=</span> <span class="n">s3_download_file</span><span class="p">(</span><span class="n">obj_summary</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">local_file</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="n">bucket_name</span><span class="p">,</span>
