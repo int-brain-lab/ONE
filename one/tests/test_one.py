@@ -323,10 +323,12 @@ class TestONECache(unittest.TestCase):
         dsets = self.one.list_datasets(details=True)
         self.assertEqual(len(dsets), len(self.one._cache.datasets))
         self.assertFalse(dsets is self.one._cache.datasets)
+        self.assertEqual(2, dsets.index.nlevels, 'details data frame should be with eid index')
 
         # Test list for eid
         dsets = self.one.list_datasets('KS005/2019-04-02/001', details=True)
         self.assertEqual(27, len(dsets))
+        self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
         # Test filters
         filename = {'attribute': ['times', 'intervals'], 'extension': 'npy'}
@@ -1281,6 +1283,7 @@ class TestOneRemote(unittest.TestCase):
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
         self.assertEqual(171, len(dsets))  # this may change after a BWM release or patch
+        self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/008', details=True, query_type='remote')
