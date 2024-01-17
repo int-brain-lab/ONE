@@ -26,7 +26,7 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.files as alfiles
 import one.alf.exceptions as alferr
-from .alf.cache import make_parquet_db
+from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
 from .alf.spec import is_uuid_string
 from . import __version__
 from one.converters import ConversionMixin, session_record2path
@@ -148,7 +148,9 @@ class One(ConversionMixin):
             # No tables present
             meta['expired'] = True
             meta['raw'] = {}
-            self._cache.update({'datasets': pd.DataFrame(), 'sessions': pd.DataFrame()})
+            self._cache.update({
+                'datasets': pd.DataFrame(columns=DATASETS_COLUMNS).set_index(['eid', 'id']),
+                'sessions': pd.DataFrame(columns=SESSIONS_COLUMNS).set_index('id')})
             if self.offline:  # In online mode, the cache tables should be downloaded later
                 warnings.warn(f'No cache tables found in {self._tables_dir}')
         created = [datetime.fromisoformat(x['date_created'])
@@ -290,7 +292,7 @@ class One(ConversionMixin):
                 to_drop = set(records.columns) - set(self._cache[table].columns)
                 records.drop(to_drop, axis=1, inplace=True)
                 records = records.reindex(columns=self._cache[table].columns)
-            assert all(self._cache[table].columns == records.columns)
+            assert set(self._cache[table].columns) == set(records.columns)
             # Update existing rows
             to_update = records.index.isin(self._cache[table].index)
             self._cache[table].loc[records.index[to_update], :] = records[to_update]
