@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.4]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.5]
+
+### Modified
+
+- HOTFIX: no eid in frame index when calling list_datasets with eid and details = True
+
+## [2.5.4]
 
 ### Modified
 
@@ -23,7 +29,7 @@
 
 - HOTFIX: exclude irrelevant s3 objects with source name in key, e.g. for foo/bar exclude foo/bar_baz/ key
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.0]
+## [2.5.0]
 
 ### Added
 

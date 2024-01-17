@@ -1722,8 +1722,9 @@ class OneAlyx(One):
         self._update_cache_from_records(sessions=session, datasets=datasets.copy())
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
+        assert set(datasets.index.unique('eid')) == {eid}
         datasets = util.filter_datasets(
-            datasets, assert_unique=False, wildcards=self.wildcards, **filters)
+            datasets.droplevel('eid'), assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
