@@ -796,6 +796,13 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.one._update_cache_from_records(unknown=datasets)
         self.assertIsNone(self.one._update_cache_from_records(datasets=None))
+        # Absent cache table
+        self.one.load_cache(tables_dir='/foo')
+        self.one._update_cache_from_records(sessions=session, datasets=dataset)
+        self.assertTrue(all(self.one._cache.sessions == pd.DataFrame([session])))
+        self.assertEqual(1, len(self.one._cache.datasets))
+        self.assertEqual(self.one._cache.datasets.squeeze().name, dataset.name)
+        self.assertCountEqual(self.one._cache.datasets.squeeze().to_dict(), dataset.to_dict())
 
     def test_save_loaded_ids(self):
         """Test One.save_loaded_ids and logic within One._check_filesystem"""
