@@ -1,27 +1,34 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.6.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.5]
 
 ### Modified
 
-- one.load_dataset
-  - add an option to skip computing hash for existing files when loading datasets `check_hash=False`
-  - check filesize before computing hash for performance
+- HOTFIX: no eid in frame index when calling list_datasets with eid and details = True
 
-### Added
+## [2.5.4]
 
-- one.remote.aws.get_s3_allen() convenience function to interact with Allen Institute S3 bucket for atlases
+### Modified
+
+- HOTFIX: initialize empty One cache tables with correct columns
+
+## [2.5.3]
+
+### Modified
+
+- HOTFIX: support non-zero-padded sequence paths in ConvertersMixin.path2ref, e.g. subject/2020-01-01/1
 
 ## [2.5.2]
 
 ### Modified
 
-- handle data urls that have URL parts before 'aggregates/' in OneAlyx.list_aggregates method
+- HOTFIX: handle data urls that have URL parts before 'aggregates/' in OneAlyx.list_aggregates method
 
 ## [2.5.1]
 
 ### Modified
 
-- exclude irrelevant s3 objects with source name in key, e.g. for foo/bar exclude foo/bar_baz/ key
+- HOTFIX: exclude irrelevant s3 objects with source name in key, e.g. for foo/bar exclude foo/bar_baz/ key
 
 ## [2.5.0]
 

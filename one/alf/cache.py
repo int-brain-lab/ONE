@@ -31,7 +31,7 @@ from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
 from one.converters import session_record2path
 
-__all__ = ['make_parquet_db', 'remove_missing_datasets']
+__all__ = ['make_parquet_db', 'remove_missing_datasets', 'DATASETS_COLUMNS', 'SESSIONS_COLUMNS']
 _logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
