@@ -68,6 +68,16 @@ class TestONECache(unittest.TestCase):
         self.one = ONE(mode='local', cache_dir=self.tempdir.name)
         # Create dset files from cache
         util.create_file_tree(self.one)
+        # here we create some variations to get coverage over more case
+        # the 10 first records will have the right file size (0) but the wrong hash
+        # the next 10 records will have the right file size (0) but the correct empty file md5
+        # all remaining records have NaN in file_size and None in hash (default cache table)
+        cols = self.one._cache['datasets'].columns
+        self.one._cache['datasets'].iloc[:20, cols.get_loc('file_size')] = 0
+        self.one._cache['datasets'].iloc[:20, cols.get_loc('hash')]\
+            = 'd41d8cd98f00b204e9800998ecf8427e'  # empty hash correct
+        self.one._cache['datasets'].iloc[:10, cols.get_loc('hash')]\
+            = 'd41d8cda454aaaa4e9800998ecf8497e'  # wrong hash
 
     def tearDown(self) -> None:
         while Path(self.one.cache_dir).joinpath('.cache.lock').exists():
