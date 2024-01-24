@@ -153,25 +153,28 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.get_aws_access_keys" title="one.remote.aws.get_aws_access_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_aws_access_keys</span></code></a></p></td>
 <td><p>Query Alyx database to get credentials in the json field of an aws repository.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_from_alyx" title="one.remote.aws.get_s3_from_alyx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_from_alyx</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_allen" title="one.remote.aws.get_s3_allen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_allen</span></code></a></p></td>
+<td><p>Retrieve the Allen public S3 service resource.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_from_alyx" title="one.remote.aws.get_s3_from_alyx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_from_alyx</span></code></a></p></td>
 <td><p>Create an S3 resource instance using credentials from an Alyx data repository.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_public" title="one.remote.aws.get_s3_public"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_public</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_public" title="one.remote.aws.get_s3_public"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_public</span></code></a></p></td>
 <td><p>Retrieve the IBL public S3 service resource.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_virtual_host" title="one.remote.aws.get_s3_virtual_host"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_virtual_host</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.get_s3_virtual_host" title="one.remote.aws.get_s3_virtual_host"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_s3_virtual_host</span></code></a></p></td>
 <td><p>Convert a given bucket URI to a generic Amazon virtual host URL.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.is_folder" title="one.remote.aws.is_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_folder</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.is_folder" title="one.remote.aws.is_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_folder</span></code></a></p></td>
 <td><p>Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.s3_download_file" title="one.remote.aws.s3_download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s3_download_file</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.s3_download_file" title="one.remote.aws.s3_download_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s3_download_file</span></code></a></p></td>
 <td><p>Downloads a file from an S3 instance to a local folder.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.s3_download_folder" title="one.remote.aws.s3_download_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s3_download_folder</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.s3_download_folder" title="one.remote.aws.s3_download_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">s3_download_folder</span></code></a></p></td>
 <td><p>Downloads S3 folder content to a local folder.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.remote.aws.url2uri" title="one.remote.aws.url2uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url2uri</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.remote.aws.url2uri" title="one.remote.aws.url2uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url2uri</span></code></a></p></td>
 <td><p>Convert a generic Amazon virtual host URL to an S3 URI.</p></td>
 </tr>
 </tbody>
@@ -260,6 +263,21 @@ URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <dt class="sig sig-object py" id="one.remote.aws.get_s3_public">
 <span class="sig-name descname"><span class="pre">get_s3_public</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_public"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_public" title="Link to this definition"></a></dt>
 <dd><p>Retrieve the IBL public S3 service resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>s3.ServiceResource</em> – An S3 ServiceResource instance with the provided.</p></li>
+<li><p><em>str</em> – The name of the S3 bucket.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.remote.aws.get_s3_allen">
+<span class="sig-name descname"><span class="pre">get_s3_allen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_allen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_allen" title="Link to this definition"></a></dt>
+<dd><p>Retrieve the Allen public S3 service resource.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">

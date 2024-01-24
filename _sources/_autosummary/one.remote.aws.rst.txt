@@ -15,6 +15,7 @@ one.remote.aws
       :nosignatures:
    
       get_aws_access_keys
+      get_s3_allen
       get_s3_from_alyx
       get_s3_public
       get_s3_virtual_host

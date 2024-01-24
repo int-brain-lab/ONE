@@ -278,6 +278,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">aws</span><span class="o">.</span><span class="n">url2uri</span><span class="p">(</span><span class="n">url</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span>
         <span class="n">uri</span><span class="p">,</span> <span class="n">loc</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">url2uri</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">return_location</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="s1">&#39;eu-east-1&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUtils.test_get_ibl_s3">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_ibl_s3">[docs]</a>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;boto3.Session&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_get_ibl_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
+        <span class="n">s3</span><span class="p">,</span> <span class="n">bucket</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_public</span><span class="p">()</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">session_mock</span><span class="p">()</span><span class="o">.</span><span class="n">resource</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">s3</span><span class="p">,</span> <span class="n">resource</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="s1">&#39;ibl-brain-wide-map-public&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUtils.test_get_allen_s3">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_allen_s3">[docs]</a>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;boto3.Session&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_get_allen_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
+        <span class="n">s3</span><span class="p">,</span> <span class="n">bucket</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_allen</span><span class="p">()</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">session_mock</span><span class="p">()</span><span class="o">.</span><span class="n">resource</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">s3</span><span class="p">,</span> <span class="n">resource</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="s1">&#39;allen-brain-cell-atlas&#39;</span><span class="p">)</span></div>
 </div>
 
 

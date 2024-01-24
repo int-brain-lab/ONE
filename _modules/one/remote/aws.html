@@ -291,6 +291,26 @@
 
 
 
+<div class="viewcode-block" id="get_s3_allen">
+<a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_allen">[docs]</a>
+<span class="k">def</span> <span class="nf">get_s3_allen</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve the Allen public S3 service resource.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    s3.ServiceResource</span>
+<span class="sd">        An S3 ServiceResource instance with the provided.</span>
+<span class="sd">    str</span>
+<span class="sd">        The name of the S3 bucket.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">S3_BUCKET_ALLEN</span> <span class="o">=</span> <span class="s1">&#39;allen-brain-cell-atlas&#39;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">s3</span><span class="p">,</span> <span class="n">S3_BUCKET_ALLEN</span></div>
+
+
+
 <div class="viewcode-block" id="get_s3_from_alyx">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_from_alyx">[docs]</a>
 <span class="k">def</span> <span class="nf">get_s3_from_alyx</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">REPO_DEFAULT</span><span class="p">):</span>
