@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.5.5]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.6.0]
+
+### Modified
+- `one.load_dataset`
+  - add an option to skip computing hash for existing files when loading datasets `check_hash=False`
+  - check filesize before computing hash for performance
+
+
+## [2.5.5]
 
 ### Modified
 

@@ -143,6 +143,20 @@ class TestUtils(unittest.TestCase):
         uri, loc = aws.url2uri(url, return_location=True)
         self.assertEqual(loc, 'eu-east-1')
 
+    @mock.patch('boto3.Session')
+    def test_get_ibl_s3(self, session_mock):
+        s3, bucket = aws.get_s3_public()
+        resource = session_mock().resource
+        self.assertIs(s3, resource())
+        self.assertEqual(bucket, 'ibl-brain-wide-map-public')
+
+    @mock.patch('boto3.Session')
+    def test_get_allen_s3(self, session_mock):
+        s3, bucket = aws.get_s3_allen()
+        resource = session_mock().resource
+        self.assertIs(s3, resource())
+        self.assertEqual(bucket, 'allen-brain-cell-atlas')
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
