@@ -687,7 +687,7 @@ def remove_uuid_recursive(folder, dry=False) -> None:
 
 
 def next_num_folder(session_date_folder: Union[str, Path]) -> str:
-    """Return the next number for a session given a session_date_folder"""
+    """Return the next number for a session given a session_date_folder."""
     session_date_folder = Path(session_date_folder)
     if not session_date_folder.exists():
         return '001'
@@ -701,7 +701,7 @@ def next_num_folder(session_date_folder: Union[str, Path]) -> str:
 
 
 def remove_empty_folders(folder: Union[str, Path]) -> None:
-    """Will iteratively remove any children empty folders"""
+    """Iteratively remove any empty child folders."""
     all_folders = sorted(x for x in Path(folder).rglob('*') if x.is_dir())
     for f in reversed(all_folders):  # Reversed sorted ensures we remove deepest first
         try:
@@ -712,8 +712,9 @@ def remove_empty_folders(folder: Union[str, Path]) -> None:
 
 def filter_by(alf_path, wildcards=True, **kwargs):
     """
-    Given a path and optional filters, returns all ALF files and their associated parts. The
-    filters constitute a logical AND.  For all but `extra`, if a list is provided, one or more
+    Given a path and optional filters, returns all ALF files and their associated parts.
+
+    The filters constitute a logical AND.  For all but `extra`, if a list is provided, one or more
     elements must match (a logical OR).
 
     Parameters
