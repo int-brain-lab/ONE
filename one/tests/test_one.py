@@ -52,6 +52,7 @@ from one.util import (
 )
 import one.params
 import one.alf.exceptions as alferr
+from one.alf import spec
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
@@ -241,6 +242,32 @@ class TestONECache(unittest.TestCase):
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
         self.assertEqual(4, len(verifiable))
+
+        # QC
+        datasets.loc[:, 'qc'] = ['NOT_SET', 'PASS', 'WARNING', 'FAIL', 'CRITICAL']
+        verifiable = filter_datasets(datasets, assert_unique=False)
+        self.assertEqual(4, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc < 'CRITICAL'), 'did not exclude CRITICAL QC by default')
+
+        # 'ignore_qc_not_set' kwarg should ignore records without QC
+        verifiable = filter_datasets(datasets, assert_unique=False, ignore_qc_not_set=True)
+        self.assertEqual(3, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc > 'NOT_SET'), 'did not exclude NOT_SET QC datasets')
+
+        # Check QC input types
+        verifiable = filter_datasets(datasets, assert_unique=False, qc='PASS')
+        self.assertEqual(2, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc < 'WARNING'))
+
+        verifiable = filter_datasets(datasets, assert_unique=False, qc=30)
+        self.assertEqual(3, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc < 'FAIL'))
+
+        verifiable = filter_datasets(datasets, qc=spec.QC.PASS, ignore_qc_not_set=True)
+        self.assertEqual(1, len(verifiable))
+        self.assertTrue(all(verifiable['qc'] == 'PASS'))
+
+        datasets.iat[-1, -1] = 'PASS'  # set CRITICAL dataset to PASS so not excluded by default
 
         # Revisions
         revisions = [

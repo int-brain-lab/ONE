@@ -14,7 +14,7 @@ from packaging import version
 
 import one.alf.exceptions as alferr
 from one.alf.files import rel_path_parts, get_session_path, get_alf_path, remove_uuid_string
-from one.alf.spec import FILE_SPEC, regex as alf_regex
+from one.alf.spec import QC, FILE_SPEC, regex as alf_regex
 
 logger = logging.getLogger(__name__)
 
@@ -283,8 +283,9 @@ def _file_spec(**kwargs):
     return filespec
 
 
-def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
-                    revision_last_before=True, assert_unique=True, wildcards=False):
+def filter_datasets(
+        all_datasets, filename=None, collection=None, revision=None, revision_last_before=True,
+        qc=QC.FAIL, ignore_qc_not_set=False, assert_unique=True, wildcards=False):
     """
     Filter the datasets cache table by the relative path (dataset name, collection and revision).
     When None is passed, all values will match.  To match on empty parts, use an empty string.
@@ -305,6 +306,11 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
         When true and no exact match exists, the (lexicographically) previous revision is used
         instead.  When false the revision string is matched like collection and filename,
         with regular expressions permitted.
+    qc : str, int, one.alf.spec.QC
+        Returns datasets at or below this QC level.  Integer values should correspond to the QC
+        enumeration NOT the qc category column codes in the pandas table.
+    ignore_qc_not_set : bool
+        When true, do not return datasets for which QC is NOT_SET.
     assert_unique : bool
         When true an error is raised if multiple collections or datasets are found.
     wildcards : bool
@@ -333,6 +339,14 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
     Filter by filename parts
 
     >>> datasets = filter_datasets(all_datasets, dict(object='spikes', attribute='times'))
+
+    Filter by QC outcome - datasets with WARNING or better
+
+    >>> datasets filter_datasets(all_datasets, qc='WARNING')
+
+    Filter by QC outcome and ignore datasets with unset QC - datasets with PASS only
+
+    >>> datasets filter_datasets(all_datasets, qc='PASS', ignore_qc_not_set=True)
 
     Notes
     -----
@@ -368,7 +382,17 @@ def filter_datasets(all_datasets, filename=None, collection=None, revision=None,
 
     # Build regex string
     pattern = alf_regex('^' + spec_str, **regex_args)
-    match = all_datasets[all_datasets['rel_path'].str.match(pattern)]
+    path_match = all_datasets['rel_path'].str.match(pattern)
+
+    # Test on QC outcome
+    if not isinstance(qc, QC):  # cast to QC enum for validation
+        qc = QC[qc] if isinstance(qc, str) else QC(qc)
+    qc_match = all_datasets['qc'].le(qc.name)
+    if ignore_qc_not_set:
+        qc_match &= all_datasets['qc'].ne('NOT_SET')
+
+    # Filter datasets on path and QC
+    match = all_datasets[path_match & qc_match]
     if len(match) == 0 or not (revision_last_before or assert_unique):
         return match
 
@@ -558,7 +582,7 @@ def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
     return table
 
 
-def patch_cache(table: pd.DataFrame, min_api_version=None) -> pd.DataFrame:
+def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.DataFrame:
     """Reformat older cache tables to comply with this version of ONE.
 
     Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'
@@ -570,10 +594,18 @@ def patch_cache(table: pd.DataFrame, min_api_version=None) -> pd.DataFrame:
         A cache table (from One._cache).
     min_api_version : str
         The minimum API version supported by this cache table.
+    name : {'dataset', 'session'} str
+        The name of the table.
     """
     min_version = version.parse(min_api_version or '0.0.0')
     table = cache_int2str(table)
     # Rename project column
     if min_version < version.Version('1.13.0') and 'project' in table.columns:
         table.rename(columns={'project': 'projects'}, inplace=True)
+    if name == 'datasets' and min_version < version.Version('2.0.0') and 'qc' not in table.columns:
+        qc_categories = [e.name for e in sorted(QC)]
+        qc = pd.Categorical.from_codes(
+            np.zeros(len(table.index), dtype=int), categories=qc_categories, ordered=True
+        )
+        table = table.assign(qc=qc)
     return table

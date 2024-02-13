@@ -135,7 +135,7 @@ class One(ConversionMixin):
                 cache.set_index(idx_columns, inplace=True)
 
             # Patch older tables
-            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'))
+            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'), table)
 
             # Check sorted
             # Sorting makes MultiIndex indexing O(N) -> O(1)
@@ -732,8 +732,9 @@ class One(ConversionMixin):
         >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
         """
         datasets = self._cache['datasets']
-        filter_args = dict(collection=collection, filename=filename, wildcards=self.wildcards,
-                           revision=revision, revision_last_before=False, assert_unique=False)
+        filter_args = dict(
+            collection=collection, filename=filename, wildcards=self.wildcards,
+            revision=revision, revision_last_before=False, assert_unique=False)
         if not eid:
             datasets = util.filter_datasets(datasets, **filter_args)
             return datasets.copy() if details else datasets['rel_path'].unique().tolist()

@@ -464,10 +464,10 @@ class AlyxClient:
     """
     _token = None
     _headers = {}  # Headers for REST requests only
-    """str: The Alyx username"""
     user = None
-    """str: The Alyx database URL"""
+    """str: The Alyx username."""
     base_url = None
+    """str: The Alyx database URL."""
 
     def __init__(self, base_url=None, username=None, password=None,
                  cache_dir=None, silent=False, cache_rest='GET'):
@@ -1012,7 +1012,7 @@ class AlyxClient:
             pprint(list(endpoint_scheme.keys()))
             self.print_endpoint_info(endpoint)
             return
-        # make sure the the desired action exists, if not throw an informative error
+        # make sure the desired action exists, if not throw an informative error
         if action not in endpoint_scheme:
             raise ValueError('Action "' + action + '" for REST endpoint "' + endpoint + '" does ' +
                              'not exist. Available actions are: ' +
@@ -1053,26 +1053,26 @@ class AlyxClient:
         if not isinstance(id, str) and id is not None:
             id = str(id)  # e.g. may be uuid.UUID
         if action == 'read':
-            assert (endpoint_scheme[action]['action'] == 'get')
+            assert endpoint_scheme[action]['action'] == 'get'
             return self.get('/' + endpoint + '/' + id.split('/')[-1], **cache_args)
         elif action == 'create':
-            assert (endpoint_scheme[action]['action'] == 'post')
+            assert endpoint_scheme[action]['action'] == 'post'
             return self.post('/' + endpoint, data=data, files=files)
         elif action == 'delete':
-            assert (endpoint_scheme[action]['action'] == 'delete')
+            assert endpoint_scheme[action]['action'] == 'delete'
             return self.delete('/' + endpoint + '/' + id.split('/')[-1])
         elif action == 'partial_update':
-            assert (endpoint_scheme[action]['action'] == 'patch')
+            assert endpoint_scheme[action]['action'] == 'patch'
             return self.patch('/' + endpoint + '/' + id.split('/')[-1], data=data, files=files)
         elif action == 'update':
-            assert (endpoint_scheme[action]['action'] == 'put')
+            assert endpoint_scheme[action]['action'] == 'put'
             return self.put('/' + endpoint + '/' + id.split('/')[-1], data=data, files=files)
 
     # JSON field interface convenience methods
     def _check_inputs(self, endpoint: str) -> None:
         # make sure the queried endpoint exists, if not throw an informative error
         if endpoint not in self.rest_schemes.keys():
-            av = [k for k in self.rest_schemes.keys() if not k.startswith('_') and k]
+            av = (k for k in self.rest_schemes.keys() if not k.startswith('_') and k)
             raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +
                              'endpoints are \n       ' + '\n       '.join(av))
         return

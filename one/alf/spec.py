@@ -1,6 +1,7 @@
 """The complete ALF specification descriptors and validators."""
 import re
 import textwrap
+from enum import IntEnum
 from uuid import UUID
 from typing import Union
 
@@ -122,6 +123,18 @@ _DEFAULT = (
     ('extra', r'[.\w-]+'),  # brackets
     ('extension', r'\w+')
 )
+
+
+class QC(IntEnum):
+    """Data QC outcomes.
+
+    This enumeration is used by the Alyx database.  NB: Pandas cache tables use different codes.
+    """
+    CRITICAL = 50
+    FAIL = 40
+    WARNING = 30
+    NOT_SET = 0
+    PASS = 10
 
 
 def path_pattern() -> str:

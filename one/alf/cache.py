@@ -27,6 +27,7 @@ import pandas as pd
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
+from one.alf.spec import QC
 from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
 from one.converters import session_record2path
@@ -38,14 +39,17 @@ _logger = logging.getLogger(__name__)
 # Global variables
 # -------------------------------------------------------------------------------------------------
 
+QC_TYPE = pd.CategoricalDtype(categories=[e.name for e in sorted(QC)], ordered=True)
+"""pandas.api.types.CategoricalDtype : The cache table QC column data type."""
+
 SESSIONS_COLUMNS = (
     'id',               # int64
-    'lab',
-    'subject',
+    'lab',              # str
+    'subject',          # str
     'date',             # datetime.date
     'number',           # int
-    'task_protocol',
-    'projects',
+    'task_protocol',    # str
+    'projects',         # str
 )
 
 DATASETS_COLUMNS = (
@@ -64,7 +68,7 @@ DATASETS_COLUMNS = (
 # -------------------------------------------------------------------------------------------------
 
 def _ses_str_id(session_path):
-    """Returns a str id from a session path in the form '(lab/)subject/date/number'"""
+    """Returns a str id from a session path in the form '(lab/)subject/date/number'."""
     return Path(*filter(None, session_path_parts(session_path, assert_valid=True))).as_posix()
 
 
@@ -140,7 +144,7 @@ def _metadata(origin):
     Parameters
     ----------
     origin : str, pathlib.Path
-        Path to full directory, or computer name / db name
+        Path to full directory, or computer name / db name.
     """
     return {
         'date_created': datetime.datetime.now().isoformat(sep=' ', timespec='minutes'),
@@ -150,17 +154,17 @@ def _metadata(origin):
 
 def _make_sessions_df(root_dir) -> pd.DataFrame:
     """
-    Given a root directory, recursively finds all sessions and returns a sessions DataFrame
+    Given a root directory, recursively finds all sessions and returns a sessions DataFrame.
 
     Parameters
     ----------
     root_dir : str, pathlib.Path
-        The folder to look for sessions
+        The folder to look for sessions.
 
     Returns
     -------
     pandas.DataFrame
-        A pandas DataFrame of session info
+        A pandas DataFrame of session info.
     """
     rows = []
     for full_path in iter_sessions(root_dir):
@@ -176,19 +180,19 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
 
 def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     """
-    Given a root directory, recursively finds all datasets and returns a datasets DataFrame
+    Given a root directory, recursively finds all datasets and returns a datasets DataFrame.
 
     Parameters
     ----------
     root_dir : str, pathlib.Path
-        The folder to look for sessions
+        The folder to look for sessions.
     hash_files : bool
-        If True, an MD5 is computed for each file and stored in the 'hash' column
+        If True, an MD5 is computed for each file and stored in the 'hash' column.
 
     Returns
     -------
     pandas.DataFrame
-        A pandas DataFrame of dataset info
+        A pandas DataFrame of dataset info.
     """
     df = pd.DataFrame([], columns=DATASETS_COLUMNS)
     # Go through sessions and append datasets
@@ -216,7 +220,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
         root directory.
     hash_ids : bool
         If True, experiment and dataset IDs will be UUIDs generated from the system and relative
-        paths (required for use with ONE API)
+        paths (required for use with ONE API).
     hash_files : bool
         If True, an MD5 hash is computed for each dataset and stored in the datasets table.
         This will substantially increase cache generation time.
@@ -227,9 +231,9 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
     Returns
     -------
     pathlib.Path
-        The full path of the saved sessions parquet table
+        The full path of the saved sessions parquet table.
     pathlib.Path
-        The full path of the saved datasets parquet table
+        The full path of the saved datasets parquet table.
     """
     root_dir = Path(root_dir).resolve()
 
