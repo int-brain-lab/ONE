@@ -18,6 +18,9 @@ from one.alf.spec import QC, FILE_SPEC, regex as alf_regex
 
 logger = logging.getLogger(__name__)
 
+QC_TYPE = pd.CategoricalDtype(categories=[e.name for e in sorted(QC)], ordered=True)
+"""pandas.api.types.CategoricalDtype: The cache table QC column data type."""
+
 
 def Listable(t):
     """Return a typing.Union if the input and sequence of input."""
@@ -602,10 +605,7 @@ def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.Data
     # Rename project column
     if min_version < version.Version('1.13.0') and 'project' in table.columns:
         table.rename(columns={'project': 'projects'}, inplace=True)
-    if name == 'datasets' and min_version < version.Version('2.0.0') and 'qc' not in table.columns:
-        qc_categories = [e.name for e in sorted(QC)]
-        qc = pd.Categorical.from_codes(
-            np.zeros(len(table.index), dtype=int), categories=qc_categories, ordered=True
-        )
+    if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
+        qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
         table = table.assign(qc=qc)
     return table

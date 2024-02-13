@@ -1,14 +1,14 @@
-"""Tests for ONE-api"""
+"""Tests for ONE-api."""
 import os
 import json
 from pathlib import Path
 
-"""int: Flag for skipping tests that require an http connection"""
+"""int: Flag for skipping tests that require an http connection."""
 OFFLINE_ONLY = int(os.getenv('OFFLINE_ONLY', '0'))
 
 
 def _get_test_db():
-    """Load test database credentials for testing ONE api
+    """Load test database credentials for testing ONE api.
 
     Allows users to test ONE using their own Alyx database.  The tests use two databases: the
     first for tests requiring POST requests; the second for tests that do not affect the database.

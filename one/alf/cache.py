@@ -27,7 +27,6 @@ import pandas as pd
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
-from one.alf.spec import QC
 from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
 from one.converters import session_record2path
@@ -38,9 +37,6 @@ _logger = logging.getLogger(__name__)
 # -------------------------------------------------------------------------------------------------
 # Global variables
 # -------------------------------------------------------------------------------------------------
-
-QC_TYPE = pd.CategoricalDtype(categories=[e.name for e in sorted(QC)], ordered=True)
-"""pandas.api.types.CategoricalDtype : The cache table QC column data type."""
 
 SESSIONS_COLUMNS = (
     'id',               # int64
