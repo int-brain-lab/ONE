@@ -54,21 +54,21 @@ def ses2records(ses: dict):
 
     # Extract datasets table
     def _to_record(d):
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id'] = d['id']
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=d['id'])
         rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = get_alf_path(remove_uuid_string(file_path))
         rec['session_path'] = get_session_path(file_path).as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_revision'] == 'True'
+        rec['qc'] = d.get('qc', 'NOT_SET')
         return rec
 
     if not ses.get('data_dataset_session_related'):
         return session, pd.DataFrame()
     records = map(_to_record, ses['data_dataset_session_related'])
     index = ['eid', 'id']
-    datasets = pd.DataFrame(records).set_index(index).sort_index()
+    datasets = pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
     return session, datasets
 
 
@@ -109,15 +109,16 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
             rec['session_path'] = rec['session_path'].as_posix()
         rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
         rec['default_revision'] = d['default_dataset']
+        rec['qc'] = d.get('qc')
         for field in additional or []:
             rec[field] = d.get(field)
         records.append(rec)
 
     index = ['eid', 'id']
     if not records:
-        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision')
+        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision', 'qc')
         return pd.DataFrame(columns=keys).set_index(index)
-    return pd.DataFrame(records).set_index(index).sort_index()
+    return pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
 
 
 def parse_id(method):
@@ -151,9 +152,7 @@ def parse_id(method):
 
 
 def refresh(method):
-    """
-    Refresh cache depending of query_type kwarg.
-    """
+    """Refresh cache depending on query_type kwarg."""
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
