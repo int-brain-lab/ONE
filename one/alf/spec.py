@@ -136,6 +136,38 @@ class QC(IntEnum):
     NOT_SET = 0
     PASS = 10
 
+    @staticmethod
+    def validate(v):
+        """
+        Validate QC input and return equivalent enumeration.
+
+        Parameters
+        ----------
+        v : int, str, QC
+            A QC enumeration, or equivalent int value or name.
+
+        Returns
+        -------
+        QC
+            The enumeration.
+
+        Raises
+        ------
+        ValueError
+            An invalid QC value was passed.
+        """
+        if isinstance(v, QC):
+            return v
+        elif isinstance(v, str):
+            if v.isnumeric():
+                return QC(int(v))
+            try:
+                return QC[v.upper()]
+            except KeyError:
+                raise ValueError(f'{v} is not a valid QC')
+        else:
+            return QC(v)
+
 
 def path_pattern() -> str:
     """Returns a template string representing the where the ALF parts lie in an ALF path.

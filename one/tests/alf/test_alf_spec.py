@@ -226,6 +226,17 @@ class TestALFSpec(unittest.TestCase):
         with self.assertRaises(ValueError):
             alf_spec.describe('dimensions', width=5)
 
+    def test_qc_validate(self):
+        """Test for one.alf.spec.QC.validate enumeration method."""
+        value = alf_spec.QC.FAIL
+        self.assertIs(alf_spec.QC.validate(value), value)
+        self.assertIs(alf_spec.QC.validate('40'), value)
+        self.assertIs(alf_spec.QC.validate(40), value)
+        self.assertIs(alf_spec.QC.validate('FAIL'), value)
+        self.assertRaises(ValueError, alf_spec.QC.validate, 'ERROR')
+        value = alf_spec.QC.CRITICAL
+        self.assertIs(alf_spec.QC.validate('critical'), value)
+
 
 class TestALFErr(unittest.TestCase):
     """Tests for one.alf.exceptions"""
