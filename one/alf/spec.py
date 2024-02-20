@@ -131,10 +131,18 @@ class QC(IntEnum):
     This enumeration is used by the Alyx database.  NB: Pandas cache tables use different codes.
     """
     CRITICAL = 50
+    """Dataset practically unusable, e.g. clock can't be aligned; data missing or inaccurate."""
     FAIL = 40
+    """Dataset does not meet expected standards, e.g. trial event timings different to protocol."""
     WARNING = 30
+    """
+    Dataset has minor quality issues, e.g. relatively high SNR, that should not affect most
+    analyses.
+    """
     NOT_SET = 0
+    """Dataset quality has not been assessed."""
     PASS = 10
+    """Dataset considered 'gold-standard', e.g. tight trial event timings, low recorded SNR."""
 
     @staticmethod
     def validate(v):

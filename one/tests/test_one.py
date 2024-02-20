@@ -133,7 +133,7 @@ class TestONECache(unittest.TestCase):
 
         # Search datasets
         query = 'spikes.depths'
-        eids = one.search(data=query)
+        eids = one.search(dataset=query)
         self.assertTrue(eids)
         expected = [
             'd3372b15-f696-4279-9be5-98f15783b5bb',
@@ -142,13 +142,26 @@ class TestONECache(unittest.TestCase):
         ]
         self.assertEqual(eids, expected)
 
+        # Search QC + dataset
+        query = ['spikes.depths', 'spikes.times']
+        eid = eids[0]
+        idx = (eid, 'a563480a-6a57-4221-b630-c7be49732ae5')
+        one._cache['datasets'].loc[idx, 'qc'] = 'FAIL'  # Set QC for 1 spikes.times dataset to FAIL
+        eids = one.search(data=query, qc='WARNING')
+        self.assertEqual(eids, expected[1:], 'failed to filter FAIL QC')
+
+        # Search QC only - the one session with no WARNING or lower datasets should be excluded
+        one._cache['datasets'].loc[eid, 'qc'] = 'FAIL'
+        self.assertNotIn(eid, one.search(qc='WARNING'))
+
         # Filter non-existent
         # Set exist for one of the eids to false
+        query = 'spikes.depths'
         mask = (one._cache['datasets']['rel_path'].str.contains(query))
         i = one._cache['datasets'][mask].index[0]
         one._cache['datasets'].loc[i, 'exists'] = False
 
-        self.assertTrue(len(eids) == len(one.search(data=query)) + 1)
+        self.assertTrue(len(expected) == len(one.search(data=query)) + 1)
 
         # Search task_protocol
         eids = one.search(task='habituation')
@@ -987,6 +1000,7 @@ class TestOneAlyx(unittest.TestCase):
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
         self.assertTrue(datasets.default_revision.all())
+        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
 
         # Check behaviour when no datasets present
         ses['data_dataset_session_related'] = []
@@ -1005,6 +1019,7 @@ class TestOneAlyx(unittest.TestCase):
         expected = self.one._cache['datasets'].columns
         self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
+        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
 
         # Test extracts additional fields
         fields = ('url', 'auto_datetime')
