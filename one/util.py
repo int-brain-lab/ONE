@@ -387,8 +387,7 @@ def filter_datasets(
     path_match = all_datasets['rel_path'].str.match(pattern)
 
     # Test on QC outcome
-    if not isinstance(qc, QC):  # cast to QC enum for validation
-        qc = QC[qc] if isinstance(qc, str) else QC(qc)
+    qc = QC.validate(qc)
     qc_match = all_datasets['qc'].le(qc.name)
     if ignore_qc_not_set:
         qc_match &= all_datasets['qc'].ne('NOT_SET')

@@ -42,7 +42,7 @@ class One(ConversionMixin):
     """An API for searching and loading data on a local filesystem"""
     _search_terms = (
         'dataset', 'date_range', 'laboratory', 'number',
-        'projects', 'subject', 'task_protocol', 'dataset_qc'
+        'projects', 'subject', 'task_protocol', 'dataset_qc_lte'
     )
 
     uuid_filenames = None

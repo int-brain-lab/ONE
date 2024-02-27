@@ -147,12 +147,12 @@ class TestONECache(unittest.TestCase):
         eid = eids[0]
         idx = (eid, 'a563480a-6a57-4221-b630-c7be49732ae5')
         one._cache['datasets'].loc[idx, 'qc'] = 'FAIL'  # Set QC for 1 spikes.times dataset to FAIL
-        eids = one.search(data=query, qc='WARNING')
+        eids = one.search(dataset=query, dataset_qc='WARNING')
         self.assertEqual(eids, expected[1:], 'failed to filter FAIL QC')
 
         # Search QC only - the one session with no WARNING or lower datasets should be excluded
         one._cache['datasets'].loc[eid, 'qc'] = 'FAIL'
-        self.assertNotIn(eid, one.search(qc='WARNING'))
+        self.assertNotIn(eid, one.search(dataset_qc='WARNING'))
 
         # Filter non-existent
         # Set exist for one of the eids to false
@@ -161,7 +161,7 @@ class TestONECache(unittest.TestCase):
         i = one._cache['datasets'][mask].index[0]
         one._cache['datasets'].loc[i, 'exists'] = False
 
-        self.assertTrue(len(expected) == len(one.search(data=query)) + 1)
+        self.assertTrue(len(expected) == len(one.search(dataset=query)) + 1)
 
         # Search task_protocol
         eids = one.search(task='habituation')
@@ -876,7 +876,8 @@ class TestONECache(unittest.TestCase):
         dset.name = (eid, str(uuid4()))
         old_cache = self.one._cache['datasets']
         try:
-            self.one._cache['datasets'] = pd.concat([self.one._cache.datasets, dset.to_frame().T])
+            datasets = pd.concat([self.one._cache.datasets, dset.to_frame().T]).astype(old_cache.dtypes)
+            self.one._cache['datasets'] = datasets
             dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
             new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
             loaded = self.one._cache['_loaded_datasets']
@@ -1266,7 +1267,8 @@ class TestOneAlyx(unittest.TestCase):
                                            'trials.table.3ef042c6-82a4-426c-9aa9-be3b48d86652.pqt',
                                'data_repository': 'aws_aggregates',
                                'exists': True}],
-             'default_dataset': True},
+             'default_dataset': True,
+             'qc': 'NOT_SET'},
             {'url': '7bdb08d6-b166-43d8-8981-816cf616d291',
              'session': None, 'file_size': '', 'hash': '',
              'file_records': [{'data_url': 'https://ibl.flatironinstitute.org/'
@@ -1274,7 +1276,8 @@ class TestOneAlyx(unittest.TestCase):
                                            'trials.table.7bdb08d6-b166-43d8-8981-816cf616d291.pqt',
                                'data_repository': 'flatiron_aggregates',
                                'exists': True}],
-             'default_dataset': True},
+             'default_dataset': True,
+             'qc': 'NOT_SET'},
         ]
         with mock.patch.object(self.one.alyx, 'rest', return_value=mock_ds):
             self.assertEqual(len(self.one.list_aggregates('subjects')), 2)
@@ -1459,6 +1462,7 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search_terms(self):
         """Test OneAlyx.search_terms"""
+        assert self.one.mode != 'remote'
         search1 = self.one.search_terms()
         self.assertIn('dataset', search1)
 
@@ -1633,7 +1637,7 @@ class TestOneDownload(unittest.TestCase):
             # Check output filename
             _, local = method.call_args.args
             self.assertTrue(local.as_posix().startswith(self.one.cache_dir.as_posix()))
-            self.assertTrue(local.as_posix().endswith(dsets.iloc[-1, -1]))
+            self.assertTrue(local.as_posix().endswith(dsets.iloc[-1]['rel_path']))
             # Check keep_uuid = True
             self.one._download_datasets(dsets, keep_uuid=True)
             _, local = method.call_args.args
@@ -1642,7 +1646,7 @@ class TestOneDownload(unittest.TestCase):
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
         rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0])
-        # need to find the index of matching aws repo, this is not constant accross releases
+        # need to find the index of matching aws repo, this is not constant across releases
         iaws = list(map(lambda x: x['data_repository'].startswith('aws'),
                         rec['file_records'])).index(True)
         rec['file_records'][iaws]['exists'] = False  # Set AWS file record to non-existent
@@ -1816,7 +1820,7 @@ class TestOneSetup(unittest.TestCase):
             pars = one.params.get(url)
             self.assertFalse('ALYX_PWD' in pars.as_dict())
         self.assertEqual(one_obj.alyx._par.ALYX_URL, url)
-        client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
+        client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}'.replace(':', '_'))
         self.assertEqual(len(list(client_pars)), 1)
         # Save ALYX_PWD into params and see if setup modifies it
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):

@@ -30,6 +30,7 @@ from iblutil.io.hashfile import md5
 from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
 from one.converters import session_record2path
+from one.util import QC_TYPE
 
 __all__ = ['make_parquet_db', 'remove_missing_datasets', 'DATASETS_COLUMNS', 'SESSIONS_COLUMNS']
 _logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ DATASETS_COLUMNS = (
     'file_size',        # file size in bytes
     'hash',             # sha1/md5, computed in load function
     'exists',           # bool
+    'qc',               # one.util.QC_TYPE
 )
 
 
@@ -91,7 +93,8 @@ def _get_dataset_info(full_ses_path, rel_dset_path, ses_eid=None, compute_hash=F
         'rel_path': Path(rel_dset_path).as_posix(),
         'file_size': file_size,
         'hash': md5(full_dset_path) if compute_hash else None,
-        'exists': True
+        'exists': True,
+        'qc': 'NOT_SET'
     }
 
 
@@ -190,7 +193,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     pandas.DataFrame
         A pandas DataFrame of dataset info.
     """
-    df = pd.DataFrame([], columns=DATASETS_COLUMNS)
+    df = pd.DataFrame([], columns=DATASETS_COLUMNS).astype({'qc': QC_TYPE})
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
         rows = []
@@ -200,7 +203,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
             rows.append(file_info)
         df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS)),
                        ignore_index=True, verify_integrity=True)
-    return df
+    return df.astype({'qc': QC_TYPE})
 
 
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):
