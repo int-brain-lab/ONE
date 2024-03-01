@@ -190,17 +190,17 @@ class RegistrationClient:
 
     def find_files(self, session_path):
         """
-        Returns an generator of file names that match one of the dataset type patterns in Alyx
+        Returns a generator of file names that match one of the dataset type patterns in Alyx.
 
         Parameters
         ----------
         session_path : str, pathlib.Path
-            The session path to search
+            The session path to search.
 
         Yields
         -------
         pathlib.Path
-            File paths that match the dataset type patterns in Alyx
+            File paths that match the dataset type patterns in Alyx.
         """
         session_path = Path(session_path)
         for p in session_path.rglob('*.*.*'):

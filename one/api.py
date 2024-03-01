@@ -12,6 +12,7 @@ from uuid import UUID
 from urllib.error import URLError
 import time
 import threading
+import os
 
 import pandas as pd
 import numpy as np
@@ -34,19 +35,19 @@ import one.util as util
 
 _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
-"""int: The number of download threads"""
-N_THREADS = 4
+N_THREADS = os.environ.get('ONE_HTTP_DL_THREADS', 4)
+"""int: The number of download threads."""
 
 
 class One(ConversionMixin):
-    """An API for searching and loading data on a local filesystem"""
+    """An API for searching and loading data on a local filesystem."""
     _search_terms = (
         'dataset', 'date_range', 'laboratory', 'number',
         'projects', 'subject', 'task_protocol', 'dataset_qc_lte'
     )
 
     uuid_filenames = None
-    """bool: whether datasets on disk have a UUID in their filename"""
+    """bool: whether datasets on disk have a UUID in their filename."""
 
     def __init__(self, cache_dir=None, mode='auto', wildcards=True, tables_dir=None):
         """An API for searching and loading data on a local filesystem
@@ -87,16 +88,16 @@ class One(ConversionMixin):
 
     @property
     def offline(self):
-        """bool: True if mode is local or no Web client set"""
+        """bool: True if mode is local or no Web client set."""
         return self.mode == 'local' or not getattr(self, '_web_client', False)
 
     @util.refresh
     def search_terms(self, query_type=None) -> tuple:
-        """List the search term keyword args for use in the search method"""
+        """List the search term keyword args for use in the search method."""
         return self._search_terms
 
     def _reset_cache(self):
-        """Replace the cache object with a Bunch that contains the right fields"""
+        """Replace the cache object with a Bunch that contains the right fields."""
         self._cache = Bunch({'_meta': {
             'expired': False,
             'created_time': None,
@@ -215,18 +216,18 @@ class One(ConversionMixin):
             lock_file.unlink()
 
     def refresh_cache(self, mode='auto'):
-        """Check and reload cache tables
+        """Check and reload cache tables.
 
         Parameters
         ----------
         mode : {'local', 'refresh', 'auto', 'remote'}
             Options are 'local' (don't reload); 'refresh' (reload); 'auto' (reload if expired);
-            'remote' (don't reload)
+            'remote' (don't reload).
 
         Returns
         -------
         datetime.datetime
-            Loaded timestamp
+            Loaded timestamp.
         """
         # NB: Currently modified table will be lost if called with 'refresh';
         # May be instances where modified cache is saved then immediately replaced with a new
@@ -540,7 +541,7 @@ class One(ConversionMixin):
         eids = sessions.index.to_list()
 
         if details:
-            return eids, sessions.reset_index(drop=True).to_dict('records', Bunch)
+            return eids, sessions.reset_index(drop=True).to_dict('records', into=Bunch)
         else:
             return eids
 
@@ -1269,7 +1270,7 @@ class One(ConversionMixin):
         # Make list of metadata Bunches out of the table
         records = (present_datasets
                    .reset_index(names='id')
-                   .to_dict('records', Bunch))
+                   .to_dict('records', into=Bunch))
 
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]

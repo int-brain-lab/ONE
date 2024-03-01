@@ -980,7 +980,7 @@ class AlyxClient:
             Option file(s) to upload.
         no_cache : bool
             If true the `list` and `read` actions are performed without returning the cache.
-        **kwargs
+        kwargs
             Filters as per the Alyx REST documentation
             cf. https://openalyx.internationalbrainlab.org/docs/
 
