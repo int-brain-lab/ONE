@@ -195,11 +195,13 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(filename, '_ibl_spikes.times_ephysClock_minutes.ssv')
         filename = alf_spec.to_alf('wheel', 'timestamps', '.npy', 'ibl', 'bpod', ('raw', 'v12'))
         self.assertEqual(filename, '_ibl_wheel.timestamps_bpod.raw.v12.npy')
+        filename = alf_spec.to_alf('obj', 'attr_timestamps', '.npy')
+        self.assertEqual(filename, 'obj.attr_timestamps.npy')
+        filename = alf_spec.to_alf('obj', 'foo_bar_intervals', '.npy')
+        self.assertEqual(filename, 'obj.fooBar_intervals.npy')
 
         with self.assertRaises(TypeError):
             alf_spec.to_alf('spikes', 'times', '')
-        with self.assertRaises(ValueError):
-            alf_spec.to_alf('spikes', 'foo_bar', 'npy')
         with self.assertRaises(ValueError):
             alf_spec.to_alf('spikes.times', 'fooBar', 'npy')
         with self.assertRaises(ValueError):

@@ -425,8 +425,6 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
         raise TypeError('An extension must be provided')
     elif extension.startswith('.'):
         extension = extension[1:]
-    if re.search('_(?!times$|intervals)', attribute):
-        raise ValueError('Object attributes must not contain underscores')
     if any(pt is not None and '.' in pt for pt in
            (object, attribute, namespace, extension, timescale)):
         raise ValueError('ALF parts must not contain a period (`.`)')
@@ -438,6 +436,10 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
     if timescale:
         timescale = filter(None, [timescale] if isinstance(timescale, str) else timescale)
         timescale = '_'.join(map(_dromedary, timescale))
+    # Convert attribute to camel case, leaving '_times', etc. in tact
+    times_re = re.search('_(times|timestamps|intervals)$', attribute)
+    idx = times_re.start() if times_re else len(attribute)
+    attribute = _dromedary(attribute[:idx]) + attribute[idx:]
     object = _dromedary(object)
 
     # Optional extras may be provided as string or tuple of strings

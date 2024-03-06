@@ -150,7 +150,7 @@ class RegistrationClient:
             An optional date for the session.  If None the current time is used.
         register : bool
             If true, create session record on Alyx database.
-        **kwargs
+        kwargs
             Optional arguments for RegistrationClient.register_session.
 
         Returns
@@ -421,7 +421,7 @@ class RegistrationClient:
         exists : bool
             Whether files exist in the repository. May be set to False when registering files
             before copying to the repository.
-        **kwargs
+        kwargs
             Extra arguments directly passed as REST request data to /register-files endpoint.
 
         Returns
