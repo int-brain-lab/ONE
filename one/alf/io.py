@@ -375,7 +375,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
     return [alfpath.joinpath(f) for f in files_alf], attributes
 
 
-def iter_sessions(root_dir, lab_folders=False):
+def iter_sessions(root_dir, pattern='*'):
     """
     Recursively iterate over session paths in a given directory.
 
@@ -383,16 +383,25 @@ def iter_sessions(root_dir, lab_folders=False):
     ----------
     root_dir : str, pathlib.Path
         The folder to look for sessions.
-    lab_folders : bool
-        If true, glob pattern reflects `root_dir` containing <lab>/Subjects folders. This is
-        slightly more performant when Subjects folders present.
+    pattern : str
+        Glob pattern to use. Default searches all folders.  Providing a more specific pattern makes
+        this more performant (see examples).
 
     Yields
     -------
     pathlib.Path
         The next session path in lexicographical order.
+
+    Examples
+    --------
+    Efficient iteration when `root_dir` contains <lab>/Subjects folders
+
+    >>> sessions = list(iter_sessions(root_dir, pattern='*/Subjects/*/????-??-??/*'))
+
+    Efficient iteration when `root_dir` contains subject folders
+
+    >>> sessions = list(iter_sessions(root_dir, pattern='*/????-??-??/*'))
     """
-    pattern = ('*/Subjects/' if lab_folders else '') + '*/????-??-??/*'
     if spec.is_session_path(root_dir):
         yield root_dir
     for path in sorted(Path(root_dir).rglob(pattern)):

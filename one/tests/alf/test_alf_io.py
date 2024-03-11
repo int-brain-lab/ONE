@@ -677,13 +677,13 @@ class TestALFFolders(unittest.TestCase):
         self.assertFalse(next(valid_sessions, False))
         # makes sure that the session path returns itself on the iterator
         self.assertEqual(self.session_path, next(alfio.iter_sessions(self.session_path)))
-        # test lab_folders arg
-        valid_sessions = alfio.iter_sessions(self.tempdir.name, lab_folders=True)
+        # test pattern arg
+        valid_sessions = alfio.iter_sessions(self.tempdir.name, pattern='*/Subjects/*/????-??-??/*')
         self.assertEqual(self.session_path, next(valid_sessions))
         subjects_path = Path(self.tempdir.name, 'fakelab', 'Subjects')
-        valid_sessions = alfio.iter_sessions(subjects_path, lab_folders=False)
+        valid_sessions = alfio.iter_sessions(subjects_path, pattern='*/????-??-??/*')
         self.assertEqual(self.session_path, next(valid_sessions))
-        valid_sessions = alfio.iter_sessions(subjects_path, lab_folders=True)
+        valid_sessions = alfio.iter_sessions(subjects_path, pattern='*/Subjects/*/????-??-??/*')
         self.assertFalse(next(valid_sessions, False))
 
     def test_iter_datasets(self):
