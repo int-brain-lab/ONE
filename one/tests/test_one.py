@@ -1,6 +1,6 @@
-"""Unit tests for the one.api module
+"""Unit tests for the one.api module.
 
-Wherever possible the ONE tests should not rely on an internet connection
+Wherever possible the ONE tests should not rely on an internet connection.
 
 Fixture locations:
 
@@ -21,9 +21,9 @@ Note ONE and AlyxClient use caching:
 
 - When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
   databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
-  or mock iblutil.io.params.getfile to return a temporary cache directory
+  or mock iblutil.io.params.getfile to return a temporary cache directory.
 - An One object created through the one.api.ONE function, make sure you restore the
-  properties to their original state on teardown, or call one.api.ONE.cache_clear()
+  properties to their original state on teardown, or call one.api.ONE.cache_clear().
 
 """
 import datetime
@@ -876,7 +876,8 @@ class TestONECache(unittest.TestCase):
         dset.name = (eid, str(uuid4()))
         old_cache = self.one._cache['datasets']
         try:
-            datasets = pd.concat([self.one._cache.datasets, dset.to_frame().T]).astype(old_cache.dtypes)
+            datasets = [self.one._cache.datasets, dset.to_frame().T]
+            datasets = pd.concat(datasets).astype(old_cache.dtypes)
             self.one._cache['datasets'] = datasets
             dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
             new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
@@ -1820,7 +1821,8 @@ class TestOneSetup(unittest.TestCase):
             pars = one.params.get(url)
             self.assertFalse('ALYX_PWD' in pars.as_dict())
         self.assertEqual(one_obj.alyx._par.ALYX_URL, url)
-        client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}'.replace(':', '_'))
+        client = f'.{one_obj.alyx.base_url.split("/")[-1]}'.replace(':', '_')
+        client_pars = Path(self.tempdir.name).rglob(client)
         self.assertEqual(len(list(client_pars)), 1)
         # Save ALYX_PWD into params and see if setup modifies it
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):

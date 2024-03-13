@@ -77,7 +77,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.client = registration.RegistrationClient(one=self.one)
 
     def test_water_administration(self):
-        """Test for RegistrationClient.register_water_administration"""
+        """Test for RegistrationClient.register_water_administration."""
         record = self.client.register_water_administration(self.subject, 35.10000000235)
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['water_administered'], 35.1)
@@ -105,7 +105,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_water_administration(self.subject, 3.6, session=ses['url'])
 
     def test_register_weight(self):
-        """Test for RegistrationClient.register_weight"""
+        """Test for RegistrationClient.register_weight."""
         record = self.client.register_weight(self.subject, 35.10000000235)
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['weight'], 35.1)
@@ -115,7 +115,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.register_weight(self.subject, 0.0)
 
     def test_ensure_ISO8601(self):
-        """Test for RegistrationClient.ensure_ISO8601"""
+        """Test for RegistrationClient.ensure_ISO8601."""
         date = datetime.datetime(2021, 7, 14, 15, 53, 15, 525119)
         self.assertEqual(self.client.ensure_ISO8601(date), '2021-07-14T15:53:15.525119')
         self.assertEqual(self.client.ensure_ISO8601(date.date()), '2021-07-14T00:00:00')
@@ -125,7 +125,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.ensure_ISO8601(f'{date:%D}')
 
     def test_exists(self):
-        """Test for RegistrationClient.assert_exists"""
+        """Test for RegistrationClient.assert_exists."""
         # Check user endpoint
         with self.assertRaises(alferr.AlyxSubjectNotFound):
             self.client.assert_exists('foobar', 'subjects')
@@ -142,7 +142,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.client.assert_exists('foobar', 'subjects')
 
     def test_find_files(self):
-        """Test for RegistrationClient.find_files"""
+        """Test for RegistrationClient.find_files."""
         # Remove a dataset type from the client to check that the dataset(s) are ignored
         existing = (x['filename_pattern'] and any(self.session_path.rglob(x['filename_pattern']))
                     for x in self.client.dtypes)
@@ -154,7 +154,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertFalse(fnmatch.filter([x.name for x in files], removed['filename_pattern']))
 
     def test_create_new_session(self):
-        """Test for RegistrationClient.create_new_session"""
+        """Test for RegistrationClient.create_new_session."""
         # Check register = True
         session_path, eid = self.client.create_new_session(
             self.subject, date='2020-01-01', projects='ibl_neuropixel_brainwide_01'
@@ -173,7 +173,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertIsNone(eid)
 
     def test_register_session(self):
-        """Test for RegistrationClient.register_session"""
+        """Test for RegistrationClient.register_session."""
         # Find some datasets to create
         datasets = self.one.list_datasets(self.one.search(dataset='raw')[0])
         session_path = self.one.alyx.cache_dir.joinpath(
@@ -204,7 +204,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(start_time, ses['start_time'])
 
     def test_create_sessions(self):
-        """Test for RegistrationClient.create_sessions"""
+        """Test for RegistrationClient.create_sessions."""
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
         session_path.mkdir(parents=True)
         session_path.joinpath('create_me.flag').touch()
@@ -223,7 +223,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(session_paths[0], session_path)
 
     def test_register_files(self):
-        """Test for RegistrationClient.register_files"""
+        """Test for RegistrationClient.register_files."""
         # Test a few things not checked in register_session
         session_path, eid = self.client.create_new_session(self.subject)
 
@@ -245,7 +245,8 @@ class TestRegistrationClient(unittest.TestCase):
         ambiguous = self.client.dtypes[-1]['filename_pattern'].replace('*', 'npy')
         files = [session_path.joinpath('wheel.position.xxx'),  # Unknown ext
                  session_path.joinpath('foo.bar.npy'),  # Unknown dtype
-                 session_path.joinpath(ambiguous)  # Ambiguous dtype
+                 session_path.joinpath(ambiguous),  # Ambiguous dtype
+                 session_path.with_name('foo').joinpath('spikes.times.npy')  # Invalid session
                  ]
         version = ['1.2.9'] * len(files)
         with self.assertLogs('one.registration', logging.DEBUG) as dbg:
@@ -253,7 +254,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.assertIn('wheel.position.xxx: No matching extension', dbg.records[0].message)
             self.assertRegex(dbg.records[1].message, 'No dataset type .* "foo.bar.npy"')
             self.assertRegex(dbg.records[2].message, f'Multiple matching .* "{ambiguous}"')
-        self.assertFalse(len(rec))
+        self.assertEqual([None] * len(files), rec)
 
         # Check the handling of revisions
         rec, = self.client.register_files(str(file_name))
@@ -365,7 +366,7 @@ class TestRegistrationClient(unittest.TestCase):
             self.assertRaises(HTTPError, self.client.register_files, file_list=[file])
 
     def test_next_revision(self):
-        """Test RegistrationClient._next_revision method"""
+        """Test RegistrationClient._next_revision method."""
         self.assertEqual('2020-01-01a', self.client._next_revision('2020-01-01'))
         reserved = ['2020-01-01a', '2020-01-01b']
         self.assertEqual('2020-01-01c', self.client._next_revision('2020-01-01', reserved))
@@ -374,7 +375,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertRaises(TypeError, self.client._next_revision, '2020-01-01', alpha='do')
 
     def test_instantiation(self):
-        """Test RegistrationClient.__init__ with no args"""
+        """Test RegistrationClient.__init__ with no args."""
         with unittest.mock.patch('one.registration.ONE') as mk:
             client = registration.RegistrationClient()
         self.assertIsInstance(client.one, unittest.mock.MagicMock)
