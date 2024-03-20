@@ -222,6 +222,29 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(ses[0]['number'], int(session_path.parts[-1]))
         self.assertEqual(session_paths[0], session_path)
 
+    def test_check_protected(self):
+        """Test for RegistrationClient.check_protected_files"""
+
+        session_path, eid = self.client.create_new_session(self.subject)
+        file_name = session_path.joinpath('wheel.timestamps.npy')
+        file_name.touch()
+
+        # register a dataset
+        rec, = self.client.register_files(str(file_name))
+
+        # Check if it is protected, it shouldn't be, response 200
+        protected = self.client.check_protected_files(str(file_name))
+        self.assertEqual(protected['status_code'], 200)
+
+        # Add a protected tag to all the datasets
+        tag = self.tag['name']
+        self.one.alyx.rest('datasets', 'partial_update', id=rec['id'], data={'tags': [tag]})
+
+        # check protected
+        protected = self.client.check_protected_files(str(file_name))
+        self.assertEqual(protected['status_code'], 403)
+        self.assertEqual(protected['error'], 'One or more datasets is protected')
+
     def test_register_files(self):
         """Test for RegistrationClient.register_files"""
         # Test a few things not checked in register_session
