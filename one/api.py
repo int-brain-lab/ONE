@@ -12,6 +12,7 @@ from uuid import UUID
 from urllib.error import URLError
 import time
 import threading
+import os
 
 import pandas as pd
 import numpy as np
@@ -27,25 +28,26 @@ import one.alf.io as alfio
 import one.alf.files as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
-from .alf.spec import is_uuid_string
+from .alf.spec import is_uuid_string, QC
 from . import __version__
 from one.converters import ConversionMixin, session_record2path
 import one.util as util
 
 _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
-"""int: The number of download threads"""
-N_THREADS = 4
+N_THREADS = os.environ.get('ONE_HTTP_DL_THREADS', 4)
+"""int: The number of download threads."""
 
 
 class One(ConversionMixin):
-    """An API for searching and loading data on a local filesystem"""
+    """An API for searching and loading data on a local filesystem."""
     _search_terms = (
-        'dataset', 'date_range', 'laboratory', 'number', 'projects', 'subject', 'task_protocol'
+        'dataset', 'date_range', 'laboratory', 'number',
+        'projects', 'subject', 'task_protocol', 'dataset_qc_lte'
     )
 
     uuid_filenames = None
-    """bool: whether datasets on disk have a UUID in their filename"""
+    """bool: whether datasets on disk have a UUID in their filename."""
 
     def __init__(self, cache_dir=None, mode='auto', wildcards=True, tables_dir=None):
         """An API for searching and loading data on a local filesystem
@@ -86,16 +88,16 @@ class One(ConversionMixin):
 
     @property
     def offline(self):
-        """bool: True if mode is local or no Web client set"""
+        """bool: True if mode is local or no Web client set."""
         return self.mode == 'local' or not getattr(self, '_web_client', False)
 
     @util.refresh
     def search_terms(self, query_type=None) -> tuple:
-        """List the search term keyword args for use in the search method"""
+        """List the search term keyword args for use in the search method."""
         return self._search_terms
 
     def _reset_cache(self):
-        """Replace the cache object with a Bunch that contains the right fields"""
+        """Replace the cache object with a Bunch that contains the right fields."""
         self._cache = Bunch({'_meta': {
             'expired': False,
             'created_time': None,
@@ -135,7 +137,7 @@ class One(ConversionMixin):
                 cache.set_index(idx_columns, inplace=True)
 
             # Patch older tables
-            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'))
+            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'), table)
 
             # Check sorted
             # Sorting makes MultiIndex indexing O(N) -> O(1)
@@ -214,18 +216,18 @@ class One(ConversionMixin):
             lock_file.unlink()
 
     def refresh_cache(self, mode='auto'):
-        """Check and reload cache tables
+        """Check and reload cache tables.
 
         Parameters
         ----------
         mode : {'local', 'refresh', 'auto', 'remote'}
             Options are 'local' (don't reload); 'refresh' (reload); 'auto' (reload if expired);
-            'remote' (don't reload)
+            'remote' (don't reload).
 
         Returns
         -------
         datetime.datetime
-            Loaded timestamp
+            Loaded timestamp.
         """
         # NB: Currently modified table will be lost if called with 'refresh';
         # May be instances where modified cache is saved then immediately replaced with a new
@@ -253,13 +255,13 @@ class One(ConversionMixin):
         strict : bool
             If not True, the columns don't need to match.  Extra columns in input tables are
             dropped and missing columns are added and filled with np.nan.
-        **kwargs
-            pandas.DataFrame or pandas.Series to insert/update for each table
+        kwargs
+            pandas.DataFrame or pandas.Series to insert/update for each table.
 
         Returns
         -------
         datetime.datetime:
-            A timestamp of when the cache was updated
+            A timestamp of when the cache was updated.
 
         Example
         -------
@@ -272,7 +274,7 @@ class One(ConversionMixin):
             When strict is True the input columns must exactly match those oo the cache table,
             including the order.
         KeyError
-            One or more of the keyword arguments does not match a table in One._cache
+            One or more of the keyword arguments does not match a table in One._cache.
         """
         updated = None
         for table, records in kwargs.items():
@@ -389,9 +391,9 @@ class One(ConversionMixin):
 
             one.search_terms()
 
-        For all of the search parameters, a single value or list may be provided.  For `dataset`,
-        the sessions returned will contain all listed datasets.  For the other parameters,
-        the session must contain at least one of the entries.
+        For all search parameters, a single value or list may be provided.  For `dataset`, the
+        sessions returned will contain all listed datasets.  For the other parameters, the session
+        must contain at least one of the entries.
 
         For all but `date_range` and `number`, any field that contains the search string is
         returned.  Wildcards are not permitted, however if wildcards property is True, regular
@@ -403,6 +405,10 @@ class One(ConversionMixin):
             One or more dataset names. Returns sessions containing all these datasets.
             A dataset matches if it contains the search string e.g. 'wheel.position' matches
             '_ibl_wheel.position.npy'.
+        dataset_qc_lte : str, int, one.alf.spec.QC
+            A dataset QC value, returns sessions with datasets at or below this QC value, including
+            those with no QC set.  If `dataset` not passed, sessions with any passing QC datasets
+            are returned, otherwise all matching datasets must have the QC value or below.
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
@@ -450,10 +456,20 @@ class One(ConversionMixin):
 
         >>> eids = one.search(date='2023-01-01', lab='churchlandlab', dataset=['trials', 'spikes'])
 
+        Search for sessions containing trials and spike data where QC for both are WARNING or less.
+
+        >>> eids = one.search(dataset_qc_lte='WARNING', dataset=['trials', 'spikes'])
+
+        Search for sessions with any datasets that have a QC of PASS or NOT_SET.
+
+        >>> eids = one.search(dataset_qc_lte='PASS')
+
         Notes
         -----
         - In default and local mode, most queries are case-sensitive partial matches. When lists
           are provided, the search is a logical OR, except for `datasets`, which is a logical AND.
+        - If `dataset_qc` and `datasets` are defined, the QC criterion only applies to the provided
+          datasets and all must pass for a session to be returned.
         - All search terms are true for a session to be returned, i.e. subject matches AND project
           matches, etc.
         - In remote mode most queries are case-insensitive partial matches.
@@ -496,18 +512,22 @@ class One(ConversionMixin):
             elif key == 'number':
                 query = util.ensure_list(value)
                 sessions = sessions[sessions[key].isin(map(int, query))]
-            # Dataset check is biggest so this should be done last
-            elif key == 'dataset':
-                query = util.ensure_list(value)
+            # Dataset/QC check is biggest so this should be done last
+            elif key == 'dataset' or (key == 'dataset_qc_lte' and 'dataset' not in queries):
                 datasets = self._cache['datasets']
+                qc = QC.validate(queries.get('dataset_qc_lte', 'FAIL')).name  # validate value
                 has_dset = sessions.index.isin(datasets.index.get_level_values('eid'))
                 datasets = datasets.loc[(sessions.index.values[has_dset], ), :]
+                query = util.ensure_list(value if key == 'dataset' else '')
                 # For each session check any dataset both contains query and exists
                 mask = (
                     (datasets
                         .groupby('eid', sort=False)
-                        .apply(lambda x: all_present(x['rel_path'], query, x['exists'])))
+                        .apply(lambda x: all_present(
+                            x['rel_path'], query, x['exists'] & x['qc'].le(qc))
+                        ))
                 )
+
                 # eids of matching dataset records
                 idx = mask[mask].index
 
@@ -521,7 +541,7 @@ class One(ConversionMixin):
         eids = sessions.index.to_list()
 
         if details:
-            return eids, sessions.reset_index(drop=True).to_dict('records', Bunch)
+            return eids, sessions.reset_index(drop=True).to_dict('records', into=Bunch)
         else:
             return eids
 
@@ -676,12 +696,15 @@ class One(ConversionMixin):
         return self._cache['sessions']['subject'].sort_values().unique().tolist()
 
     @util.refresh
-    def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
-                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
+    def list_datasets(
+            self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
+            ignore_qc_not_set=False, details=False, query_type=None
+    ) -> Union[np.ndarray, pd.DataFrame]:
         """
-        Given an eid, return the datasets for those sessions.  If no eid is provided,
-        a list of all datasets is returned.  When details is false, a sorted array of unique
-        datasets is returned (their relative paths).
+        Given an eid, return the datasets for those sessions.
+
+        If no eid is provided, a list of all datasets is returned.  When details is false, a sorted
+        array of unique datasets is returned (their relative paths).
 
         Parameters
         ----------
@@ -698,6 +721,11 @@ class One(ConversionMixin):
         revision : str
             Filters datasets and returns only the ones matching the revision.
             Supports asterisks as wildcards.
+        qc : str, int, one.alf.spec.QC
+            Returns datasets at or below this QC level.  Integer values should correspond to the QC
+            enumeration NOT the qc category column codes in the pandas table.
+        ignore_qc_not_set : bool
+            When true, do not return datasets for which QC is NOT_SET.
         details : bool
             When true, a pandas DataFrame is returned, otherwise a numpy array of
             relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
@@ -732,8 +760,10 @@ class One(ConversionMixin):
         >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
         """
         datasets = self._cache['datasets']
-        filter_args = dict(collection=collection, filename=filename, wildcards=self.wildcards,
-                           revision=revision, revision_last_before=False, assert_unique=False)
+        filter_args = dict(
+            collection=collection, filename=filename, wildcards=self.wildcards, revision=revision,
+            revision_last_before=False, assert_unique=False, qc=qc,
+            ignore_qc_not_set=ignore_qc_not_set)
         if not eid:
             datasets = util.filter_datasets(datasets, **filter_args)
             return datasets.copy() if details else datasets['rel_path'].unique().tolist()
@@ -753,8 +783,9 @@ class One(ConversionMixin):
     def list_collections(self, eid=None, filename=None, collection=None, revision=None,
                          details=False, query_type=None) -> Union[np.ndarray, dict]:
         """
-        List the collections for a given experiment.  If no experiment ID is given,
-        all collections are returned.
+        List the collections for a given experiment.
+
+        If no experiment ID is given, all collections are returned.
 
         Parameters
         ----------
@@ -823,14 +854,15 @@ class One(ConversionMixin):
     def list_revisions(self, eid=None, filename=None, collection=None, revision=None,
                        details=False, query_type=None):
         """
-        List the revisions for a given experiment.  If no experiment id is given,
-        all collections are returned.
+        List the revisions for a given experiment.
+
+        If no experiment id is given, all collections are returned.
 
         Parameters
         ----------
         eid : str, UUID, Path, dict
             Experiment session identifier; may be a UUID, URL, experiment reference string
-            details dict or Path
+            details dict or Path.
         filename : str, dict, list
             Filters datasets and returns only the revisions containing matching datasets.
             Supports lists asterisks as wildcards.  May be a dict of ALF parts.
@@ -840,14 +872,14 @@ class One(ConversionMixin):
             Filter by a given pattern. Supports asterisks as wildcards.
         details : bool
             If true a dict of pandas datasets tables is returned with collections as keys,
-            otherwise a numpy array of unique collections
+            otherwise a numpy array of unique collections.
         query_type : str
-            Query cache ('local') or Alyx database ('remote')
+            Query cache ('local') or Alyx database ('remote').
 
         Returns
         -------
         list, dict
-            A list of unique collections or dict of datasets tables
+            A list of unique collections or dict of datasets tables.
 
         Examples
         --------
@@ -894,8 +926,9 @@ class One(ConversionMixin):
                     download_only: bool = False,
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
-        Load all attributes of an ALF object from a Session ID and an object name.  Any datasets
-        with matching object name will be loaded.
+        Load all attributes of an ALF object from a Session ID and an object name.
+
+        Any datasets with matching object name will be loaded.
 
         Parameters
         ----------
@@ -914,18 +947,18 @@ class One(ConversionMixin):
             returned (usually the most recent revision).  Regular expressions/wildcards not
             permitted.
         query_type : str
-            Query cache ('local') or Alyx database ('remote')
+            Query cache ('local') or Alyx database ('remote').
         download_only : bool
             When true the data are downloaded and the file path is returned. NB: The order of the
             file path list is undefined.
-        **kwargs
+        kwargs
             Additional filters for datasets, including namespace and timescale. For full list
-            see the one.alf.spec.describe function.
+            see the :func:`one.alf.spec.describe` function.
 
         Returns
         -------
         one.alf.io.AlfBunch, list
-            An ALF bunch or if download_only is True, a list of Paths objects
+            An ALF bunch or if download_only is True, a list of Paths objects.
 
         Examples
         --------
@@ -1237,7 +1270,7 @@ class One(ConversionMixin):
         # Make list of metadata Bunches out of the table
         records = (present_datasets
                    .reset_index(names='id')
-                   .to_dict('records', Bunch))
+                   .to_dict('records', into=Bunch))
 
         # Ensure result same length as input datasets list
         files = [None if not here else files.pop(0) for here in present]
@@ -1706,9 +1739,13 @@ class OneAlyx(One):
         return out
 
     @util.refresh
-    def list_datasets(self, eid=None, filename=None, collection=None, revision=None,
-                      details=False, query_type=None) -> Union[np.ndarray, pd.DataFrame]:
-        filters = dict(collection=collection, filename=filename, revision=revision)
+    def list_datasets(
+            self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
+            ignore_qc_not_set=False, details=False, query_type=None
+    ) -> Union[np.ndarray, pd.DataFrame]:
+        filters = dict(
+            collection=collection, filename=filename, revision=revision,
+            qc=qc, ignore_qc_not_set=ignore_qc_not_set)
         if (query_type or self.mode) != 'remote':
             return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         elif not eid:
@@ -1953,6 +1990,8 @@ class OneAlyx(One):
             '_ibl_wheel.position.npy'. C.f. `datasets` argument.
         datasets : str, list
             One or more exact dataset names. Returns insertions containing all these datasets.
+        dataset_qc_lte : int, str, one.alf.spec.QC
+            The maximum QC value for associated datasets.
         dataset_types : str, list
             One or more dataset_types (exact matching).
         details : bool

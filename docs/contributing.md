@@ -23,3 +23,21 @@ python ./make-script.py -d
 
 The HTML files are placed in `docs/_build/html/`.
 
+# Contributing to code
+
+Always branch off branch `main` before commiting changes, then push to remote and open a PR into `main`.
+A developer will then approve the PR and release.
+
+## Releasing (developers only)
+
+Note that in order to trigger a pypi release the tag must begin with 'v', e.g. `v2.8.0`.
+
+```shell
+git checkout -b release/X.X.X origin/<branch>
+git checkout origin/main
+git merge release/X.X.X
+git tag vX.X.X
+git push origin --tags
+git push origin
+git branch -d release/X.X.X
+```

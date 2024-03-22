@@ -104,7 +104,7 @@ class TestAuthentication(unittest.TestCase):
         # Test download cache tables
         self.ac.logout()
         self.assertFalse(self.ac.is_logged_in)
-        url = self.ac.get('cache/info')['location']
+        url = self.ac.get('cache/info').get('location')
         self.ac.download_cache_tables(url)
         self.assertTrue(self.ac.is_logged_in)
 

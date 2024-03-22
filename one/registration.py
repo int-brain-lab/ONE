@@ -150,7 +150,7 @@ class RegistrationClient:
             An optional date for the session.  If None the current time is used.
         register : bool
             If true, create session record on Alyx database.
-        **kwargs
+        kwargs
             Optional arguments for RegistrationClient.register_session.
 
         Returns
@@ -190,17 +190,17 @@ class RegistrationClient:
 
     def find_files(self, session_path):
         """
-        Returns an generator of file names that match one of the dataset type patterns in Alyx
+        Returns a generator of file names that match one of the dataset type patterns in Alyx.
 
         Parameters
         ----------
         session_path : str, pathlib.Path
-            The session path to search
+            The session path to search.
 
         Yields
         -------
         pathlib.Path
-            File paths that match the dataset type patterns in Alyx
+            File paths that match the dataset type patterns in Alyx.
         """
         session_path = Path(session_path)
         for p in session_path.rglob('*.*.*'):
@@ -421,7 +421,7 @@ class RegistrationClient:
         exists : bool
             Whether files exist in the repository. May be set to False when registering files
             before copying to the repository.
-        **kwargs
+        kwargs
             Extra arguments directly passed as REST request data to /register-files endpoint.
 
         Returns
@@ -446,8 +446,10 @@ class RegistrationClient:
         """
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
-        if isinstance(file_list, (str, pathlib.Path)):
+        if single_file := isinstance(file_list, (str, pathlib.Path)):
             file_list = [file_list]
+        else:
+            file_list = list(file_list)  # Ensure not generator
 
         if versions is None or isinstance(versions, str):
             versions = itertools.repeat(versions)
@@ -457,6 +459,9 @@ class RegistrationClient:
         # Filter valid files and sort by session
         for fn, ver in zip(map(pathlib.Path, file_list), versions):
             session_path = get_session_path(fn)
+            if not session_path:
+                _logger.debug(f'{fn}: Invalid session path')
+                continue
             if fn.suffix not in self.file_extensions:
                 _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
                 continue
@@ -469,7 +474,7 @@ class RegistrationClient:
             V[session_path].append(ver)
 
         # For each unique session, make a separate POST request
-        records = []
+        records = [None] * (len(F) if dry else len(file_list))  # If dry return data per session
         for session_path, files in F.items():
             # this is the generic relative path: subject/yyyy-mm-dd/NNN
             details = session_path_parts(session_path.as_posix(), as_dict=True, assert_valid=True)
@@ -501,8 +506,15 @@ class RegistrationClient:
             if details['lab'] and 'labs' not in kwargs:
                 r_['labs'] = details['lab']
             # If dry, store POST data, otherwise store resulting file records
+            if dry:
+                records[list(F).index(session_path)] = r_
+                continue
             try:
-                records.append(r_ if dry else self.one.alyx.post('/register-file', data=r_))
+                response = self.one.alyx.post('/register-file', data=r_)
+                # Ensure we keep the order of the output records: the files missing will remain
+                # as None type
+                for f, r in zip(files, response):
+                    records[file_list.index(session_path / f)] = r
             except requests.exceptions.HTTPError as err:
                 # 403 response when datasets already registered and protected by tags
                 err_message = err.response.json()
@@ -602,7 +614,9 @@ class RegistrationClient:
                 r_['filesizes'] = [session_path.joinpath(p).stat().st_size for p in new_file_list]
                 r_['check_protected'] = False  # Speed things up by ignoring server-side checks
 
-                records.append(self.one.alyx.post('/register-file', data=r_))
+                response = self.one.alyx.post('/register-file', data=r_)
+                for f, r in zip(files, response):  # Populate records list in correct order
+                    records[file_list.index(session_path / f)] = r
                 files = new_file_list
 
             # Log file names
@@ -610,7 +624,7 @@ class RegistrationClient:
             for p in files:
                 _logger.info(f'ALYX REGISTERED DATA: {p}')
 
-        return records[0] if len(F.keys()) == 1 else records
+        return records[0] if single_file else records
 
     @staticmethod
     def _next_revision(revision: str, reserved: list = None, alpha: str = 'a') -> str:

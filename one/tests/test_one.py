@@ -1,6 +1,6 @@
-"""Unit tests for the one.api module
+"""Unit tests for the one.api module.
 
-Wherever possible the ONE tests should not rely on an internet connection
+Wherever possible the ONE tests should not rely on an internet connection.
 
 Fixture locations:
 
@@ -21,9 +21,9 @@ Note ONE and AlyxClient use caching:
 
 - When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
   databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
-  or mock iblutil.io.params.getfile to return a temporary cache directory
+  or mock iblutil.io.params.getfile to return a temporary cache directory.
 - An One object created through the one.api.ONE function, make sure you restore the
-  properties to their original state on teardown, or call one.api.ONE.cache_clear()
+  properties to their original state on teardown, or call one.api.ONE.cache_clear().
 
 """
 import datetime
@@ -52,6 +52,7 @@ from one.util import (
 )
 import one.params
 import one.alf.exceptions as alferr
+from one.alf import spec
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
@@ -132,7 +133,7 @@ class TestONECache(unittest.TestCase):
 
         # Search datasets
         query = 'spikes.depths'
-        eids = one.search(data=query)
+        eids = one.search(dataset=query)
         self.assertTrue(eids)
         expected = [
             'd3372b15-f696-4279-9be5-98f15783b5bb',
@@ -141,13 +142,26 @@ class TestONECache(unittest.TestCase):
         ]
         self.assertEqual(eids, expected)
 
+        # Search QC + dataset
+        query = ['spikes.depths', 'spikes.times']
+        eid = eids[0]
+        idx = (eid, 'a563480a-6a57-4221-b630-c7be49732ae5')
+        one._cache['datasets'].loc[idx, 'qc'] = 'FAIL'  # Set QC for 1 spikes.times dataset to FAIL
+        eids = one.search(dataset=query, dataset_qc='WARNING')
+        self.assertEqual(eids, expected[1:], 'failed to filter FAIL QC')
+
+        # Search QC only - the one session with no WARNING or lower datasets should be excluded
+        one._cache['datasets'].loc[eid, 'qc'] = 'FAIL'
+        self.assertNotIn(eid, one.search(dataset_qc='WARNING'))
+
         # Filter non-existent
         # Set exist for one of the eids to false
+        query = 'spikes.depths'
         mask = (one._cache['datasets']['rel_path'].str.contains(query))
         i = one._cache['datasets'][mask].index[0]
         one._cache['datasets'].loc[i, 'exists'] = False
 
-        self.assertTrue(len(eids) == len(one.search(data=query)) + 1)
+        self.assertTrue(len(expected) == len(one.search(dataset=query)) + 1)
 
         # Search task_protocol
         eids = one.search(task='habituation')
@@ -241,6 +255,32 @@ class TestONECache(unittest.TestCase):
         verifiable = filter_datasets(datasets, dataset, None, None,
                                      assert_unique=False, revision_last_before=False)
         self.assertEqual(4, len(verifiable))
+
+        # QC
+        datasets.loc[:, 'qc'] = ['NOT_SET', 'PASS', 'WARNING', 'FAIL', 'CRITICAL']
+        verifiable = filter_datasets(datasets, assert_unique=False)
+        self.assertEqual(4, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc < 'CRITICAL'), 'did not exclude CRITICAL QC by default')
+
+        # 'ignore_qc_not_set' kwarg should ignore records without QC
+        verifiable = filter_datasets(datasets, assert_unique=False, ignore_qc_not_set=True)
+        self.assertEqual(3, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc > 'NOT_SET'), 'did not exclude NOT_SET QC datasets')
+
+        # Check QC input types
+        verifiable = filter_datasets(datasets, assert_unique=False, qc='PASS')
+        self.assertEqual(2, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc < 'WARNING'))
+
+        verifiable = filter_datasets(datasets, assert_unique=False, qc=30)
+        self.assertEqual(3, len(verifiable), 'failed to filter QC value')
+        self.assertTrue(all(verifiable.qc < 'FAIL'))
+
+        verifiable = filter_datasets(datasets, qc=spec.QC.PASS, ignore_qc_not_set=True)
+        self.assertEqual(1, len(verifiable))
+        self.assertTrue(all(verifiable['qc'] == 'PASS'))
+
+        datasets.iat[-1, -1] = 'PASS'  # set CRITICAL dataset to PASS so not excluded by default
 
         # Revisions
         revisions = [
@@ -836,7 +876,9 @@ class TestONECache(unittest.TestCase):
         dset.name = (eid, str(uuid4()))
         old_cache = self.one._cache['datasets']
         try:
-            self.one._cache['datasets'] = pd.concat([self.one._cache.datasets, dset.to_frame().T])
+            datasets = [self.one._cache.datasets, dset.to_frame().T]
+            datasets = pd.concat(datasets).astype(old_cache.dtypes)
+            self.one._cache['datasets'] = datasets
             dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
             new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
             loaded = self.one._cache['_loaded_datasets']
@@ -960,6 +1002,7 @@ class TestOneAlyx(unittest.TestCase):
         self.assertCountEqual(expected, datasets.columns)
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
         self.assertTrue(datasets.default_revision.all())
+        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
 
         # Check behaviour when no datasets present
         ses['data_dataset_session_related'] = []
@@ -978,6 +1021,7 @@ class TestOneAlyx(unittest.TestCase):
         expected = self.one._cache['datasets'].columns
         self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
         self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
+        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
 
         # Test extracts additional fields
         fields = ('url', 'auto_datetime')
@@ -1224,7 +1268,8 @@ class TestOneAlyx(unittest.TestCase):
                                            'trials.table.3ef042c6-82a4-426c-9aa9-be3b48d86652.pqt',
                                'data_repository': 'aws_aggregates',
                                'exists': True}],
-             'default_dataset': True},
+             'default_dataset': True,
+             'qc': 'NOT_SET'},
             {'url': '7bdb08d6-b166-43d8-8981-816cf616d291',
              'session': None, 'file_size': '', 'hash': '',
              'file_records': [{'data_url': 'https://ibl.flatironinstitute.org/'
@@ -1232,7 +1277,8 @@ class TestOneAlyx(unittest.TestCase):
                                            'trials.table.7bdb08d6-b166-43d8-8981-816cf616d291.pqt',
                                'data_repository': 'flatiron_aggregates',
                                'exists': True}],
-             'default_dataset': True},
+             'default_dataset': True,
+             'qc': 'NOT_SET'},
         ]
         with mock.patch.object(self.one.alyx, 'rest', return_value=mock_ds):
             self.assertEqual(len(self.one.list_aggregates('subjects')), 2)
@@ -1417,6 +1463,7 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search_terms(self):
         """Test OneAlyx.search_terms"""
+        assert self.one.mode != 'remote'
         search1 = self.one.search_terms()
         self.assertIn('dataset', search1)
 
@@ -1591,7 +1638,7 @@ class TestOneDownload(unittest.TestCase):
             # Check output filename
             _, local = method.call_args.args
             self.assertTrue(local.as_posix().startswith(self.one.cache_dir.as_posix()))
-            self.assertTrue(local.as_posix().endswith(dsets.iloc[-1, -1]))
+            self.assertTrue(local.as_posix().endswith(dsets.iloc[-1]['rel_path']))
             # Check keep_uuid = True
             self.one._download_datasets(dsets, keep_uuid=True)
             _, local = method.call_args.args
@@ -1600,7 +1647,7 @@ class TestOneDownload(unittest.TestCase):
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
         rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0])
-        # need to find the index of matching aws repo, this is not constant accross releases
+        # need to find the index of matching aws repo, this is not constant across releases
         iaws = list(map(lambda x: x['data_repository'].startswith('aws'),
                         rec['file_records'])).index(True)
         rec['file_records'][iaws]['exists'] = False  # Set AWS file record to non-existent
@@ -1774,7 +1821,8 @@ class TestOneSetup(unittest.TestCase):
             pars = one.params.get(url)
             self.assertFalse('ALYX_PWD' in pars.as_dict())
         self.assertEqual(one_obj.alyx._par.ALYX_URL, url)
-        client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
+        client = f'.{one_obj.alyx.base_url.split("/")[-1]}'.replace(':', '_')
+        client_pars = Path(self.tempdir.name).rglob(client)
         self.assertEqual(len(list(client_pars)), 1)
         # Save ALYX_PWD into params and see if setup modifies it
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):

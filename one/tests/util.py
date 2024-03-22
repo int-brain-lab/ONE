@@ -10,6 +10,7 @@ from iblutil.io.parquet import str2np
 from iblutil.io.params import set_hidden
 
 import one.params
+from one.util import QC_TYPE
 
 
 def set_up_env() -> tempfile.TemporaryDirectory:
@@ -149,11 +150,12 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         'file_size': None,
         'hash': None,
         'exists': True,
+        'qc': 'NOT_SET',
         'eid': str(uuid4()),
         'id': map(str, (uuid4() for _ in rel_path))
     }
 
-    return pd.DataFrame(data=d).set_index(['eid', 'id'])
+    return pd.DataFrame(data=d).astype({'qc': QC_TYPE}).set_index(['eid', 'id'])
 
 
 def create_schema_cache(param_dir=None):
