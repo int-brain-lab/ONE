@@ -2025,7 +2025,7 @@ class OneAlyx(One):
 
             one.search_terms(query_type='remote')
 
-        For all of the search parameters, a single value or list may be provided.  For `dataset`,
+        For all search parameters, a single value or list may be provided.  For `dataset`,
         the sessions returned will contain all listed datasets.  For the other parameters,
         the session must contain at least one of the entries.
 
@@ -2067,7 +2067,9 @@ class OneAlyx(One):
         dataset_types : str, list
             One or more of dataset_types.
         datasets : str, list
-            One or more (exact) dataset names. Returns insertions containing all of these datasets.
+            One or more (exact) dataset names. Returns sessions containing all of these datasets.
+        dataset_qc_lte : int, str, one.alf.spec.QC
+            The maximum QC value for associated datasets.
         details : bool
             If true also returns a dict of dataset details.
         query_type : str, None
