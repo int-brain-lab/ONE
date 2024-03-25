@@ -222,6 +222,53 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(ses[0]['number'], int(session_path.parts[-1]))
         self.assertEqual(session_paths[0], session_path)
 
+    def test_prepare_files(self):
+        """Test for RegistrationClient.prepare_files"""
+
+        session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
+        session_path_2 = session_path.parent / next_num_folder(session_path)
+        file_list = [session_path.joinpath('wheel.position.npy'),
+                     session_path.joinpath('wheel.timestamps.npy'),
+                     session_path_2.joinpath('wheel.position.npy')]
+
+        # Test with file list and version is None
+        F, V, _, _ = self.client.prepare_files(file_list)
+        self.assertTrue(len(F), 2)
+        self.assertListEqual(sorted(list(F.keys())), sorted([session_path, session_path_2]))
+        for sess, n in zip([session_path, session_path_2], [2, 1]):
+            self.assertTrue(len(F[sess]), n)
+            self.assertTrue(len(V[sess]), n)
+            self.assertIsNone(V[session_path][0])
+
+        # Test with specifying version
+        versions = ['1.2.2', 'v1.2', '1.3.4']
+        _, V, _, _ = self.client.prepare_files(file_list, versions=versions)
+        self.assertListEqual(V[session_path], versions[:-1])
+        self.assertListEqual(V[session_path_2], [versions[-1]])
+
+    def test_check_protected(self):
+        """Test for RegistrationClient.check_protected_files"""
+
+        session_path, eid = self.client.create_new_session(self.subject)
+        file_name = session_path.joinpath('wheel.timestamps.npy')
+        file_name.touch()
+
+        # register a dataset
+        rec = self.client.register_files(str(file_name))
+
+        # Check if it is protected, it shouldn't be, response 200
+        protected = self.client.check_protected_files(str(file_name))
+        self.assertEqual(protected['status_code'], 200)
+
+        # Add a protected tag to all the datasets
+        tag = self.tag['name']
+        self.one.alyx.rest('datasets', 'partial_update', id=rec['id'], data={'tags': [tag]})
+
+        # check protected
+        protected = self.client.check_protected_files(str(file_name))
+        self.assertEqual(protected['status_code'], 403)
+        self.assertEqual(protected['error'], 'One or more datasets is protected')
+
     def test_register_files(self):
         """Test for RegistrationClient.register_files."""
         # Test a few things not checked in register_session
