@@ -257,7 +257,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual([None] * len(files), rec)
 
         # Check the handling of revisions
-        rec, = self.client.register_files(str(file_name))
+        rec = self.client.register_files(str(file_name))
         # Add a protected tag to all the datasets
         tag = self.tag['name']
         self.one.alyx.rest('datasets', 'partial_update', id=rec['id'], data={'tags': [tag]})
