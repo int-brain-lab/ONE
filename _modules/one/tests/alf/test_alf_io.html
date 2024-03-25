@@ -78,6 +78,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
 </ul>
 
@@ -854,7 +855,7 @@
 <div class="viewcode-block" id="TestALFFolders.test_next_num_folder">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_next_num_folder">[docs]</a>
     <span class="k">def</span> <span class="nf">test_next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.next_num_folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.next_num_folder.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">rmdir</span><span class="p">()</span>  <span class="c1"># Remove &#39;001&#39; folder</span>
         <span class="n">next_num</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="n">next_num</span><span class="p">)</span>
@@ -883,7 +884,7 @@
 <div class="viewcode-block" id="TestALFFolders.test_remove_empty_folders">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_remove_empty_folders">[docs]</a>
     <span class="k">def</span> <span class="nf">test_remove_empty_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.remove_empty_folders&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.remove_empty_folders.&quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;glob_dir&#39;</span>
         <span class="n">root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
         <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;empty0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -897,7 +898,7 @@
 <div class="viewcode-block" id="TestALFFolders.test_iter_sessions">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_sessions">[docs]</a>
     <span class="k">def</span> <span class="nf">test_iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.iter_sessions&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.iter_sessions.&quot;&quot;&quot;</span>
         <span class="c1"># Create invalid session folder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;bad_session&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
 
@@ -905,13 +906,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
         <span class="c1"># makes sure that the session path returns itself on the iterator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)))</span>
+        <span class="c1"># test pattern arg</span>
+        <span class="n">valid_sessions</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/Subjects/*/????-??-??/*&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">))</span>
+        <span class="n">subjects_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;fakelab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">)</span>
+        <span class="n">valid_sessions</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="n">subjects_path</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/????-??-??/*&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">))</span>
+        <span class="n">valid_sessions</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="n">subjects_path</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/Subjects/*/????-??-??/*&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestALFFolders.test_iter_datasets">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_datasets">[docs]</a>
     <span class="k">def</span> <span class="nf">test_iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.iter_datasets&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.iter_datasets.&quot;&quot;&quot;</span>
         <span class="c1"># Create valid dataset</span>
         <span class="n">dset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="s1">&#39;object.attribute.ext&#39;</span><span class="p">)</span>
         <span class="n">dset</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
@@ -925,7 +935,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">exit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 

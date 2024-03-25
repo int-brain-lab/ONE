@@ -5,6 +5,13 @@ one.api
 
    
    
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      N_THREADS
+   
    
 
    

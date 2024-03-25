@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -138,8 +139,8 @@
              
   <section id="module-one.tests.test_one">
 <span id="one-tests-test-one"></span><h1>one.tests.test_one<a class="headerlink" href="#module-one.tests.test_one" title="Link to this heading"></a></h1>
-<p>Unit tests for the one.api module</p>
-<p>Wherever possible the ONE tests should not rely on an internet connection</p>
+<p>Unit tests for the one.api module.</p>
+<p>Wherever possible the ONE tests should not rely on an internet connection.</p>
 <p>Fixture locations:</p>
 <ul class="simple">
 <li><p>The cache tables for the public test instance are in tests/fixtures/</p></li>
@@ -159,9 +160,9 @@ decorator.</p></li>
 <ul class="simple">
 <li><p>When verifying remote changes via the rest method, use the no_cache flag to ensure the remote
 databaseis queried.  You can clear the cache using AlyxClient.clear_rest_cache(),
-or mock iblutil.io.params.getfile to return a temporary cache directory</p></li>
+or mock iblutil.io.params.getfile to return a temporary cache directory.</p></li>
 <li><p>An One object created through the one.api.ONE function, make sure you restore the
-properties to their original state on teardown, or call one.api.ONE.cache_clear()</p></li>
+properties to their original state on teardown, or call one.api.ONE.cache_clear().</p></li>
 </ul>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">

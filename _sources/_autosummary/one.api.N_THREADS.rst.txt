@@ -1,0 +1,6 @@
+one.api.N\_THREADS
+==================
+
+.. currentmodule:: one.api
+
+.. autodata:: N_THREADS

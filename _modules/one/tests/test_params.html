@@ -78,6 +78,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
 </ul>
 
@@ -131,7 +132,7 @@
     <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">par_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">TEST_DB_1</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">][</span><span class="mi">8</span><span class="p">:]</span>  <span class="c1"># URL without schema</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">TEST_DB_1</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">][</span><span class="mi">8</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>  <span class="c1"># URL without schema</span>
         <span class="c1"># Change the location of the parameters to our temp dir</span>
         <span class="n">get_file</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_file_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;iblutil.io.params.getfile&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">get_file</span><span class="p">)</span>

@@ -78,6 +78,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -120,6 +121,7 @@
 <span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">URLError</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -135,27 +137,28 @@
 <span class="kn">import</span> <span class="nn">one.alf.files</span> <span class="k">as</span> <span class="nn">alfiles</span>
 <span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
 <span class="kn">from</span> <span class="nn">.alf.cache</span> <span class="kn">import</span> <span class="n">make_parquet_db</span><span class="p">,</span> <span class="n">DATASETS_COLUMNS</span><span class="p">,</span> <span class="n">SESSIONS_COLUMNS</span>
-<span class="kn">from</span> <span class="nn">.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid_string</span>
+<span class="kn">from</span> <span class="nn">.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">QC</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">one.converters</span> <span class="kn">import</span> <span class="n">ConversionMixin</span><span class="p">,</span> <span class="n">session_record2path</span>
 <span class="kn">import</span> <span class="nn">one.util</span> <span class="k">as</span> <span class="nn">util</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ONE&#39;</span><span class="p">,</span> <span class="s1">&#39;One&#39;</span><span class="p">,</span> <span class="s1">&#39;OneAlyx&#39;</span><span class="p">]</span>
-<span class="sd">&quot;&quot;&quot;int: The number of download threads&quot;&quot;&quot;</span>
-<span class="n">N_THREADS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">N_THREADS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ONE_HTTP_DL_THREADS&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;int: The number of download threads.&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="One">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One">[docs]</a>
 <span class="k">class</span> <span class="nc">One</span><span class="p">(</span><span class="n">ConversionMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem.&quot;&quot;&quot;</span>
     <span class="n">_search_terms</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span>
+        <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;date_range&#39;</span><span class="p">,</span> <span class="s1">&#39;laboratory&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset_qc_lte&#39;</span>
     <span class="p">)</span>
 
     <span class="n">uuid_filenames</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;bool: whether datasets on disk have a UUID in their filename&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bool: whether datasets on disk have a UUID in their filename.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem</span>
@@ -196,19 +199,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">offline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: True if mode is local or no Web client set&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: True if mode is local or no Web client set.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_web_client&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="One.search_terms">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.search_terms">[docs]</a>
     <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;List the search term keyword args for use in the search method&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List the search term keyword args for use in the search method.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_terms</span></div>
 
 
     <span class="k">def</span> <span class="nf">_reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -250,7 +253,7 @@
                 <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Patch older tables</span>
-            <span class="n">cache</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">patch_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">))</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">patch_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">),</span> <span class="n">table</span><span class="p">)</span>
 
             <span class="c1"># Check sorted</span>
             <span class="c1"># Sorting makes MultiIndex indexing O(N) -&gt; O(1)</span>
@@ -335,18 +338,18 @@
 <div class="viewcode-block" id="One.refresh_cache">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.refresh_cache">[docs]</a>
     <span class="k">def</span> <span class="nf">refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check and reload cache tables</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check and reload cache tables.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        mode : {&#39;local&#39;, &#39;refresh&#39;, &#39;auto&#39;, &#39;remote&#39;}</span>
 <span class="sd">            Options are &#39;local&#39; (don&#39;t reload); &#39;refresh&#39; (reload); &#39;auto&#39; (reload if expired);</span>
-<span class="sd">            &#39;remote&#39; (don&#39;t reload)</span>
+<span class="sd">            &#39;remote&#39; (don&#39;t reload).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        datetime.datetime</span>
-<span class="sd">            Loaded timestamp</span>
+<span class="sd">            Loaded timestamp.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># NB: Currently modified table will be lost if called with &#39;refresh&#39;;</span>
         <span class="c1"># May be instances where modified cache is saved then immediately replaced with a new</span>
@@ -375,13 +378,13 @@
 <span class="sd">        strict : bool</span>
 <span class="sd">            If not True, the columns don&#39;t need to match.  Extra columns in input tables are</span>
 <span class="sd">            dropped and missing columns are added and filled with np.nan.</span>
-<span class="sd">        **kwargs</span>
-<span class="sd">            pandas.DataFrame or pandas.Series to insert/update for each table</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            pandas.DataFrame or pandas.Series to insert/update for each table.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        datetime.datetime:</span>
-<span class="sd">            A timestamp of when the cache was updated</span>
+<span class="sd">            A timestamp of when the cache was updated.</span>
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
@@ -394,7 +397,7 @@
 <span class="sd">            When strict is True the input columns must exactly match those oo the cache table,</span>
 <span class="sd">            including the order.</span>
 <span class="sd">        KeyError</span>
-<span class="sd">            One or more of the keyword arguments does not match a table in One._cache</span>
+<span class="sd">            One or more of the keyword arguments does not match a table in One._cache.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">updated</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -516,9 +519,9 @@
 
 <span class="sd">            one.search_terms()</span>
 
-<span class="sd">        For all of the search parameters, a single value or list may be provided.  For `dataset`,</span>
-<span class="sd">        the sessions returned will contain all listed datasets.  For the other parameters,</span>
-<span class="sd">        the session must contain at least one of the entries.</span>
+<span class="sd">        For all search parameters, a single value or list may be provided.  For `dataset`, the</span>
+<span class="sd">        sessions returned will contain all listed datasets.  For the other parameters, the session</span>
+<span class="sd">        must contain at least one of the entries.</span>
 
 <span class="sd">        For all but `date_range` and `number`, any field that contains the search string is</span>
 <span class="sd">        returned.  Wildcards are not permitted, however if wildcards property is True, regular</span>
@@ -530,6 +533,10 @@
 <span class="sd">            One or more dataset names. Returns sessions containing all these datasets.</span>
 <span class="sd">            A dataset matches if it contains the search string e.g. &#39;wheel.position&#39; matches</span>
 <span class="sd">            &#39;_ibl_wheel.position.npy&#39;.</span>
+<span class="sd">        dataset_qc_lte : str, int, one.alf.spec.QC</span>
+<span class="sd">            A dataset QC value, returns sessions with datasets at or below this QC value, including</span>
+<span class="sd">            those with no QC set.  If `dataset` not passed, sessions with any passing QC datasets</span>
+<span class="sd">            are returned, otherwise all matching datasets must have the QC value or below.</span>
 <span class="sd">        date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp</span>
 <span class="sd">            A single date to search or a list of 2 dates that define the range (inclusive).  To</span>
 <span class="sd">            define only the upper or lower date bound, set the other element to None.</span>
@@ -577,10 +584,20 @@
 
 <span class="sd">        &gt;&gt;&gt; eids = one.search(date=&#39;2023-01-01&#39;, lab=&#39;churchlandlab&#39;, dataset=[&#39;trials&#39;, &#39;spikes&#39;])</span>
 
+<span class="sd">        Search for sessions containing trials and spike data where QC for both are WARNING or less.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(dataset_qc_lte=&#39;WARNING&#39;, dataset=[&#39;trials&#39;, &#39;spikes&#39;])</span>
+
+<span class="sd">        Search for sessions with any datasets that have a QC of PASS or NOT_SET.</span>
+
+<span class="sd">        &gt;&gt;&gt; eids = one.search(dataset_qc_lte=&#39;PASS&#39;)</span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        - In default and local mode, most queries are case-sensitive partial matches. When lists</span>
 <span class="sd">          are provided, the search is a logical OR, except for `datasets`, which is a logical AND.</span>
+<span class="sd">        - If `dataset_qc` and `datasets` are defined, the QC criterion only applies to the provided</span>
+<span class="sd">          datasets and all must pass for a session to be returned.</span>
 <span class="sd">        - All search terms are true for a session to be returned, i.e. subject matches AND project</span>
 <span class="sd">          matches, etc.</span>
 <span class="sd">        - In remote mode most queries are case-insensitive partial matches.</span>
@@ -623,18 +640,22 @@
             <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span>
                 <span class="n">query</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 <span class="n">sessions</span> <span class="o">=</span> <span class="n">sessions</span><span class="p">[</span><span class="n">sessions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">query</span><span class="p">))]</span>
-            <span class="c1"># Dataset check is biggest so this should be done last</span>
-            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="c1"># Dataset/QC check is biggest so this should be done last</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;dataset_qc_lte&#39;</span> <span class="ow">and</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">):</span>
                 <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
+                <span class="n">qc</span> <span class="o">=</span> <span class="n">QC</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">queries</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dataset_qc_lte&#39;</span><span class="p">,</span> <span class="s1">&#39;FAIL&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># validate value</span>
                 <span class="n">has_dset</span> <span class="o">=</span> <span class="n">sessions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;eid&#39;</span><span class="p">))</span>
                 <span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">sessions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">has_dset</span><span class="p">],</span> <span class="p">),</span> <span class="p">:]</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">value</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="c1"># For each session check any dataset both contains query and exists</span>
                 <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">datasets</span>
                         <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                        <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">all_present</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="n">query</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">])))</span>
+                        <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">all_present</span><span class="p">(</span>
+                            <span class="n">x</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="n">query</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;qc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">le</span><span class="p">(</span><span class="n">qc</span><span class="p">))</span>
+                        <span class="p">))</span>
                 <span class="p">)</span>
+
                 <span class="c1"># eids of matching dataset records</span>
                 <span class="n">idx</span> <span class="o">=</span> <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
 
@@ -648,7 +669,7 @@
         <span class="n">eids</span> <span class="o">=</span> <span class="n">sessions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">eids</span><span class="p">,</span> <span class="n">sessions</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">,</span> <span class="n">Bunch</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">eids</span><span class="p">,</span> <span class="n">sessions</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">Bunch</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">eids</span></div>
 
@@ -812,12 +833,15 @@
 <div class="viewcode-block" id="One.list_datasets">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.list_datasets">[docs]</a>
     <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="n">QC</span><span class="o">.</span><span class="n">FAIL</span><span class="p">,</span>
+            <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given an eid, return the datasets for those sessions.  If no eid is provided,</span>
-<span class="sd">        a list of all datasets is returned.  When details is false, a sorted array of unique</span>
-<span class="sd">        datasets is returned (their relative paths).</span>
+<span class="sd">        Given an eid, return the datasets for those sessions.</span>
+
+<span class="sd">        If no eid is provided, a list of all datasets is returned.  When details is false, a sorted</span>
+<span class="sd">        array of unique datasets is returned (their relative paths).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -834,6 +858,11 @@
 <span class="sd">        revision : str</span>
 <span class="sd">            Filters datasets and returns only the ones matching the revision.</span>
 <span class="sd">            Supports asterisks as wildcards.</span>
+<span class="sd">        qc : str, int, one.alf.spec.QC</span>
+<span class="sd">            Returns datasets at or below this QC level.  Integer values should correspond to the QC</span>
+<span class="sd">            enumeration NOT the qc category column codes in the pandas table.</span>
+<span class="sd">        ignore_qc_not_set : bool</span>
+<span class="sd">            When true, do not return datasets for which QC is NOT_SET.</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            When true, a pandas DataFrame is returned, otherwise a numpy array of</span>
 <span class="sd">            relative paths (collection/revision/filename) - see one.alf.spec.describe for details.</span>
@@ -868,8 +897,10 @@
 <span class="sd">        &gt;&gt;&gt; datasets = one.list_datasets(eid, {&#39;object&#39;: [&#39;wheel&#39;, &#39;trial?&#39;]})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
-        <span class="n">filter_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">,</span>
-                           <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span> <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">filter_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
+            <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="n">qc</span><span class="p">,</span>
+            <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="n">ignore_qc_not_set</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
             <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">filter_args</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">datasets</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
@@ -892,8 +923,9 @@
     <span class="k">def</span> <span class="nf">list_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        List the collections for a given experiment.  If no experiment ID is given,</span>
-<span class="sd">        all collections are returned.</span>
+<span class="sd">        List the collections for a given experiment.</span>
+
+<span class="sd">        If no experiment ID is given, all collections are returned.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -965,14 +997,15 @@
     <span class="k">def</span> <span class="nf">list_revisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        List the revisions for a given experiment.  If no experiment id is given,</span>
-<span class="sd">        all collections are returned.</span>
+<span class="sd">        List the revisions for a given experiment.</span>
+
+<span class="sd">        If no experiment id is given, all collections are returned.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        eid : str, UUID, Path, dict</span>
 <span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
-<span class="sd">            details dict or Path</span>
+<span class="sd">            details dict or Path.</span>
 <span class="sd">        filename : str, dict, list</span>
 <span class="sd">            Filters datasets and returns only the revisions containing matching datasets.</span>
 <span class="sd">            Supports lists asterisks as wildcards.  May be a dict of ALF parts.</span>
@@ -982,14 +1015,14 @@
 <span class="sd">            Filter by a given pattern. Supports asterisks as wildcards.</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            If true a dict of pandas datasets tables is returned with collections as keys,</span>
-<span class="sd">            otherwise a numpy array of unique collections</span>
+<span class="sd">            otherwise a numpy array of unique collections.</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list, dict</span>
-<span class="sd">            A list of unique collections or dict of datasets tables</span>
+<span class="sd">            A list of unique collections or dict of datasets tables.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1039,8 +1072,9 @@
                     <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load all attributes of an ALF object from a Session ID and an object name.  Any datasets</span>
-<span class="sd">        with matching object name will be loaded.</span>
+<span class="sd">        Load all attributes of an ALF object from a Session ID and an object name.</span>
+
+<span class="sd">        Any datasets with matching object name will be loaded.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1059,18 +1093,18 @@
 <span class="sd">            returned (usually the most recent revision).  Regular expressions/wildcards not</span>
 <span class="sd">            permitted.</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
+<span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).</span>
 <span class="sd">        download_only : bool</span>
 <span class="sd">            When true the data are downloaded and the file path is returned. NB: The order of the</span>
 <span class="sd">            file path list is undefined.</span>
-<span class="sd">        **kwargs</span>
+<span class="sd">        kwargs</span>
 <span class="sd">            Additional filters for datasets, including namespace and timescale. For full list</span>
-<span class="sd">            see the one.alf.spec.describe function.</span>
+<span class="sd">            see the :func:`one.alf.spec.describe` function.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        one.alf.io.AlfBunch, list</span>
-<span class="sd">            An ALF bunch or if download_only is True, a list of Paths objects</span>
+<span class="sd">            An ALF bunch or if download_only is True, a list of Paths objects.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1388,7 +1422,7 @@
         <span class="c1"># Make list of metadata Bunches out of the table</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">(</span><span class="n">present_datasets</span>
                    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-                   <span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">,</span> <span class="n">Bunch</span><span class="p">))</span>
+                   <span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">Bunch</span><span class="p">))</span>
 
         <span class="c1"># Ensure result same length as input datasets list</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">here</span> <span class="k">else</span> <span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">here</span> <span class="ow">in</span> <span class="n">present</span><span class="p">]</span>
@@ -1884,9 +1918,13 @@
 <div class="viewcode-block" id="OneAlyx.list_datasets">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.list_datasets">[docs]</a>
     <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-        <span class="n">filters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="n">QC</span><span class="o">.</span><span class="n">FAIL</span><span class="p">,</span>
+            <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
+            <span class="n">qc</span><span class="o">=</span><span class="n">qc</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="n">ignore_qc_not_set</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;remote&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">details</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
@@ -2146,6 +2184,8 @@
 <span class="sd">            &#39;_ibl_wheel.position.npy&#39;. C.f. `datasets` argument.</span>
 <span class="sd">        datasets : str, list</span>
 <span class="sd">            One or more exact dataset names. Returns insertions containing all these datasets.</span>
+<span class="sd">        dataset_qc_lte : int, str, one.alf.spec.QC</span>
+<span class="sd">            The maximum QC value for associated datasets.</span>
 <span class="sd">        dataset_types : str, list</span>
 <span class="sd">            One or more dataset_types (exact matching).</span>
 <span class="sd">        details : bool</span>
@@ -2221,7 +2261,7 @@
 
 <span class="sd">            one.search_terms(query_type=&#39;remote&#39;)</span>
 
-<span class="sd">        For all of the search parameters, a single value or list may be provided.  For `dataset`,</span>
+<span class="sd">        For all search parameters, a single value or list may be provided.  For `dataset`,</span>
 <span class="sd">        the sessions returned will contain all listed datasets.  For the other parameters,</span>
 <span class="sd">        the session must contain at least one of the entries.</span>
 
@@ -2263,7 +2303,9 @@
 <span class="sd">        dataset_types : str, list</span>
 <span class="sd">            One or more of dataset_types.</span>
 <span class="sd">        datasets : str, list</span>
-<span class="sd">            One or more (exact) dataset names. Returns insertions containing all of these datasets.</span>
+<span class="sd">            One or more (exact) dataset names. Returns sessions containing all of these datasets.</span>
+<span class="sd">        dataset_qc_lte : int, str, one.alf.spec.QC</span>
+<span class="sd">            The maximum QC value for associated datasets.</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            If true also returns a dict of dataset details.</span>
 <span class="sd">        query_type : str, None</span>

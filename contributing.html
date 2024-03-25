@@ -86,6 +86,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#running-locally">Running locally</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#contributing-to-code">Contributing to code</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#releasing-developers-only">Releasing (developers only)</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
 </ul>
 
@@ -139,6 +143,24 @@ External users should open a pull request to this branch.</p>
 </pre></div>
 </div>
 <p>The HTML files are placed in <code class="docutils literal notranslate"><span class="pre">docs/_build/html/</span></code>.</p>
+</section>
+</section>
+<section id="contributing-to-code">
+<h1>Contributing to code<a class="headerlink" href="#contributing-to-code" title="Link to this heading"></a></h1>
+<p>Always branch off branch <code class="docutils literal notranslate"><span class="pre">main</span></code> before commiting changes, then push to remote and open a PR into <code class="docutils literal notranslate"><span class="pre">main</span></code>.
+A developer will then approve the PR and release.</p>
+<section id="releasing-developers-only">
+<h2>Releasing (developers only)<a class="headerlink" href="#releasing-developers-only" title="Link to this heading"></a></h2>
+<p>Note that in order to trigger a pypi release the tag must begin with ‘v’, e.g. <code class="docutils literal notranslate"><span class="pre">v2.8.0</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>release/X.X.X<span class="w"> </span>origin/&lt;branch&gt;
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main
+git<span class="w"> </span>merge<span class="w"> </span>release/X.X.X
+git<span class="w"> </span>tag<span class="w"> </span>vX.X.X
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>--tags
+git<span class="w"> </span>push<span class="w"> </span>origin
+git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>release/X.X.X
+</pre></div>
+</div>
 </section>
 </section>
 

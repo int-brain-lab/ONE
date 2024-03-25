@@ -1,0 +1,6 @@
+one.util.QC\_TYPE
+=================
+
+.. currentmodule:: one.util
+
+.. autodata:: QC_TYPE

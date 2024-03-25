@@ -95,10 +95,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-get-information-about-a-session-from-an-experiment-id">How do I get information about a session from an experiment ID?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches">How do I search for sessions with the exact subject name (excluding partial matches)?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-are-my-search-results-inconsistent-and-or-seem-to-change">Why are my search results inconsistent and/or seem to change?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-load-datasets-that-pass-quality-control">How do I load datasets that pass quality control</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
 </ul>
 
@@ -339,6 +341,22 @@ or provided a different tag (see <a class="reference internal" href="#how-do-i-d
 <p>Second, there are minor differences between the default/local modes and remote mode. Namely that in remote mode
 queries are generally case-insensitive.  See the ‘gotcha’ section of
 ‘<a class="reference internal" href="#notebooks/one_search/one_search.html#Gotchas"><span class="xref myst">Searching with ONE</span></a>’ for more information.</p>
+</section>
+<section id="how-do-i-load-datasets-that-pass-quality-control">
+<h2>How do I load datasets that pass quality control<a class="headerlink" href="#how-do-i-load-datasets-that-pass-quality-control" title="Link to this heading"></a></h2>
+<p>You can first filter sessions by those that the supplied datasets with QC level WARNING or less:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+<span class="c1"># In local and auto mode</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">],</span> <span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+<span class="c1"># In remote mode</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials.table.pqt&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">],</span> <span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can then load the datasets with list_datasets and load_datasets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">dsets</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 

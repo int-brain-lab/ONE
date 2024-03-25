@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -354,7 +355,13 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 
 <span class="c1"># All datasets with &#39;raw&#39; in the name:</span>
 <span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;*raw*&#39;</span><span class="p">)</span>
-<br/></pre></div>
+
+<span class="c1"># All datasets with a QC value less than or equal to &#39;WARNING&#39; (i.e. includes &#39;PASS&#39;, &#39;NOT_SET&#39; also):</span>
+<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+
+<span class="c1"># All QC&#39;d datasets with a value less than or equal to &#39;WARNING&#39; (i.e. &#39;WARNING&#39; or &#39;PASS&#39;):</span>
+<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
 </div>
 </div>
 <p>Note that for <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code> and <code class="docutils literal notranslate"><span class="pre">list_collections</span></code> a provided revision name can’t include wildcards.</p>
@@ -442,12 +449,12 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 </section>
 <section id="Combining-with-load-methods">
 <h2>Combining with load methods<a class="headerlink" href="#Combining-with-load-methods" title="Link to this heading"></a></h2>
-<p>The list methods are useful in combination with the load methods. For example, the output of the <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code> method can be a direct input of the <code class="docutils literal notranslate"><span class="pre">load_datasets</span></code> method:</p>
+<p>The list methods are useful in combination with the load methods. For example, the output of the <code class="docutils literal notranslate"><span class="pre">list_datasets</span></code> method can be a direct input of the <code class="docutils literal notranslate"><span class="pre">load_datasets</span></code> method. Here we load all spike and cluster datasets where the QC is either PASS or NOT_SET:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*spikes*&#39;</span><span class="p">,</span> <span class="s1">&#39;*clusters*&#39;</span><span class="p">],</span> <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">data</span><span class="p">,</span> <span class="n">records</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span>
 </pre></div>
 </div>

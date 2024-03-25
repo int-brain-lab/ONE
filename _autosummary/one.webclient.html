@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Contributing to documentation" href="../contributing.html" />
-    <link rel="prev" title="one.util" href="one.util.html" /> 
+    <link rel="prev" title="one.util.QC_TYPE" href="one.util.QC_TYPE.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -104,6 +104,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -340,7 +341,7 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.user">
 <span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.webclient.AlyxClient.user" title="Link to this definition"></a></dt>
-<dd><p>The Alyx database URL</p>
+<dd><p>The Alyx username.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -351,7 +352,13 @@ See <a class="reference external" href="https://openalyx.internationalbrainlab.o
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.base_url">
 <span class="sig-name descname"><span class="pre">base_url</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.webclient.AlyxClient.base_url" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>The Alyx database URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.rest_schemes">
@@ -624,7 +631,7 @@ alyx_client.rest(endpoint, action): lists fields and URL</p>
 <li><p><strong>data</strong> (<em>dict</em>) – Data dictionary for actions ‘update’, ‘partial_update’ and ‘create’.</p></li>
 <li><p><strong>files</strong> (<em>dict</em><em>, </em><em>tuple</em>) – Option file(s) to upload.</p></li>
 <li><p><strong>no_cache</strong> (<em>bool</em>) – If true the <cite>list</cite> and <cite>read</cite> actions are performed without returning the cache.</p></li>
-<li><p><strong>**kwargs</strong> – Filters as per the Alyx REST documentation
+<li><p><strong>kwargs</strong> – Filters as per the Alyx REST documentation
 cf. <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs/">https://openalyx.internationalbrainlab.org/docs/</a></p></li>
 </ul>
 </dd>
@@ -750,7 +757,7 @@ given JSON field, use <cite>json_field_remove_key</cite>.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.util.html" class="btn btn-neutral float-left" title="one.util" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.util.QC_TYPE.html" class="btn btn-neutral float-left" title="one.util.QC_TYPE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing to documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

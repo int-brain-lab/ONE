@@ -102,6 +102,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -166,13 +167,13 @@ For a full overview of the scope of the format, see:</p>
 <td><p>Reads all files sharing the same object name.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.next_num_folder" title="one.alf.io.next_num_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_num_folder</span></code></a></p></td>
-<td><p>Return the next number for a session given a session_date_folder</p></td>
+<td><p>Return the next number for a session given a session_date_folder.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.read_ts" title="one.alf.io.read_ts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_ts</span></code></a></p></td>
 <td><p>Load time-series from ALF format</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_empty_folders" title="one.alf.io.remove_empty_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_folders</span></code></a></p></td>
-<td><p>Will iteratively remove any children empty folders</p></td>
+<td><p>Iteratively remove any empty child folders.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
 <td><p>(DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</p></td>
@@ -348,16 +349,29 @@ so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</ci
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.iter_sessions">
-<span class="sig-name descname"><span class="pre">iter_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#iter_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.iter_sessions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">iter_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'*'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#iter_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.iter_sessions" title="Link to this definition"></a></dt>
 <dd><p>Recursively iterate over session paths in a given directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for sessions.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for sessions.</p></li>
+<li><p><strong>pattern</strong> (<em>str</em>) – Glob pattern to use. Default searches all folders.  Providing a more specific pattern makes
+this more performant (see examples).</p></li>
+</ul>
 </dd>
 <dt class="field-even">Yields<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>pathlib.Path</em> – The next session path in lexicographical order.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>Efficient iteration when <cite>root_dir</cite> contains &lt;lab&gt;/Subjects folders</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sessions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/Subjects/*/????-??-??/*&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Efficient iteration when <cite>root_dir</cite> contains subject folders</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sessions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/????-??-??/*&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -529,20 +543,20 @@ format in <cite>clusters.ccfLocation.metadata.json</cite></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.next_num_folder">
 <span class="sig-name descname"><span class="pre">next_num_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_date_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#next_num_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.next_num_folder" title="Link to this definition"></a></dt>
-<dd><p>Return the next number for a session given a session_date_folder</p>
+<dd><p>Return the next number for a session given a session_date_folder.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.remove_empty_folders">
 <span class="sig-name descname"><span class="pre">remove_empty_folders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#remove_empty_folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.remove_empty_folders" title="Link to this definition"></a></dt>
-<dd><p>Will iteratively remove any children empty folders</p>
+<dd><p>Iteratively remove any empty child folders.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.filter_by">
 <span class="sig-name descname"><span class="pre">filter_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wildcards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#filter_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.filter_by" title="Link to this definition"></a></dt>
-<dd><p>Given a path and optional filters, returns all ALF files and their associated parts. The
-filters constitute a logical AND.  For all but <cite>extra</cite>, if a list is provided, one or more
+<dd><p>Given a path and optional filters, returns all ALF files and their associated parts.</p>
+<p>The filters constitute a logical AND.  For all but <cite>extra</cite>, if a list is provided, one or more
 elements must match (a logical OR).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
