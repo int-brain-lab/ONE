@@ -8,6 +8,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 - support for pandas v3.0.0
 - one.alf.spec.QC enumeration
 - ONE_HTTP_DL_THREADS environment variable allows user to specify maximum number of threads to use
+- RegistrationClient.check_protected_files method to determine which datasets are protected on Alyx before registration
 - github workflow for releasing to PyPi
 
 ### Modified
