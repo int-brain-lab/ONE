@@ -413,8 +413,9 @@ class RegistrationClient:
 
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
-        if isinstance(file_list, (str, pathlib.Path)):
+        if single_file := isinstance(file_list, (str, pathlib.Path)):
             file_list = [file_list]
+        file_list = list(map(pathlib.Path, file_list))  # Ensure list of path objects
 
         if versions is None or isinstance(versions, str):
             versions = itertools.repeat(versions)
@@ -422,8 +423,11 @@ class RegistrationClient:
             versions = itertools.cycle(versions)
 
         # Filter valid files and sort by session
-        for fn, ver in zip(map(pathlib.Path, file_list), versions):
+        for fn, ver in zip(file_list, versions):
             session_path = get_session_path(fn)
+            if not session_path:
+                _logger.debug(f'{fn}: Invalid session path')
+                continue
             if fn.suffix not in self.file_extensions:
                 _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
                 continue
@@ -509,7 +513,8 @@ class RegistrationClient:
         Returns
         -------
         list of dicts, dict
-            A list of newly created Alyx dataset records or the registration data if dry.
+            A list of newly created Alyx dataset records or the registration data if dry. If
+            a single file is passed in, a single dict is returned.
 
         Notes
         -----
