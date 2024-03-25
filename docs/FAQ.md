@@ -194,3 +194,20 @@ or provided a different tag (see [this question](#how-do-i-download-the-datasets
 Second, there are minor differences between the default/local modes and remote mode. Namely that in remote mode
 queries are generally case-insensitive.  See the 'gotcha' section of
 '[Searching with ONE](notebooks/one_search/one_search.html#Gotchas)' for more information.
+
+## How do I load datasets that pass quality control
+You can first filter sessions by those that the supplied datasets with QC level WARNING or less:
+
+```python
+one = ONE()
+# In local and auto mode
+eids = one.search(dataset=['trials', 'spikes'], dataset_qc_lte='WARNING')
+# In remote mode
+eids = one.search(datasets=['trials.table.pqt', 'spikes.times.npy'], dataset_qc_lte='WARNING')
+```
+
+You can then load the datasets with list_datasets and load_datasets:
+```python
+dsets = one.list_datasets(eid, qc='WARNING', ignore_qc_not_set=True)
+data, info = one.load_datasets(eid, dsets)
+```

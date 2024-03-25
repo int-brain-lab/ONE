@@ -631,7 +631,7 @@ class TestALFFolders(unittest.TestCase):
             obj.unlink() if obj.is_file() else obj.rmdir()
 
     def test_next_num_folder(self):
-        """Test for one.alf.io.next_num_folder"""
+        """Test for one.alf.io.next_num_folder."""
         self.session_path.rmdir()  # Remove '001' folder
         next_num = alfio.next_num_folder(self.session_path.parent)
         self.assertEqual('001', next_num)
@@ -657,7 +657,7 @@ class TestALFFolders(unittest.TestCase):
             alfio.next_num_folder(self.session_path.parent)
 
     def test_remove_empty_folders(self):
-        """Test for one.alf.io.remove_empty_folders"""
+        """Test for one.alf.io.remove_empty_folders."""
         root = Path(self.tempdir.name) / 'glob_dir'
         root.mkdir()
         root.joinpath('empty0').mkdir(exist_ok=True)
@@ -668,7 +668,7 @@ class TestALFFolders(unittest.TestCase):
         self.assertTrue(len(list(root.glob('*'))) == 1)
 
     def test_iter_sessions(self):
-        """Test for one.alf.io.iter_sessions"""
+        """Test for one.alf.io.iter_sessions."""
         # Create invalid session folder
         self.session_path.parent.parent.joinpath('bad_session').mkdir()
 
@@ -677,9 +677,18 @@ class TestALFFolders(unittest.TestCase):
         self.assertFalse(next(valid_sessions, False))
         # makes sure that the session path returns itself on the iterator
         self.assertEqual(self.session_path, next(alfio.iter_sessions(self.session_path)))
+        # test pattern arg
+        valid_sessions = alfio.iter_sessions(
+            self.tempdir.name, pattern='*/Subjects/*/????-??-??/*')
+        self.assertEqual(self.session_path, next(valid_sessions))
+        subjects_path = Path(self.tempdir.name, 'fakelab', 'Subjects')
+        valid_sessions = alfio.iter_sessions(subjects_path, pattern='*/????-??-??/*')
+        self.assertEqual(self.session_path, next(valid_sessions))
+        valid_sessions = alfio.iter_sessions(subjects_path, pattern='*/Subjects/*/????-??-??/*')
+        self.assertFalse(next(valid_sessions, False))
 
     def test_iter_datasets(self):
-        """Test for one.alf.io.iter_datasets"""
+        """Test for one.alf.io.iter_datasets."""
         # Create valid dataset
         dset = self.session_path.joinpath('collection', 'object.attribute.ext')
         dset.parent.mkdir()
@@ -691,5 +700,5 @@ class TestALFFolders(unittest.TestCase):
         self.assertEqual([Path(*dset.parts[-2:])], ses_files)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)

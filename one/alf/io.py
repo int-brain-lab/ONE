@@ -375,7 +375,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
     return [alfpath.joinpath(f) for f in files_alf], attributes
 
 
-def iter_sessions(root_dir):
+def iter_sessions(root_dir, pattern='*'):
     """
     Recursively iterate over session paths in a given directory.
 
@@ -383,15 +383,28 @@ def iter_sessions(root_dir):
     ----------
     root_dir : str, pathlib.Path
         The folder to look for sessions.
+    pattern : str
+        Glob pattern to use. Default searches all folders.  Providing a more specific pattern makes
+        this more performant (see examples).
 
     Yields
     -------
     pathlib.Path
         The next session path in lexicographical order.
+
+    Examples
+    --------
+    Efficient iteration when `root_dir` contains <lab>/Subjects folders
+
+    >>> sessions = list(iter_sessions(root_dir, pattern='*/Subjects/*/????-??-??/*'))
+
+    Efficient iteration when `root_dir` contains subject folders
+
+    >>> sessions = list(iter_sessions(root_dir, pattern='*/????-??-??/*'))
     """
     if spec.is_session_path(root_dir):
         yield root_dir
-    for path in sorted(Path(root_dir).rglob('*')):
+    for path in sorted(Path(root_dir).rglob(pattern)):
         if path.is_dir() and spec.is_session_path(path):
             yield path
 
@@ -687,7 +700,7 @@ def remove_uuid_recursive(folder, dry=False) -> None:
 
 
 def next_num_folder(session_date_folder: Union[str, Path]) -> str:
-    """Return the next number for a session given a session_date_folder"""
+    """Return the next number for a session given a session_date_folder."""
     session_date_folder = Path(session_date_folder)
     if not session_date_folder.exists():
         return '001'
@@ -701,7 +714,7 @@ def next_num_folder(session_date_folder: Union[str, Path]) -> str:
 
 
 def remove_empty_folders(folder: Union[str, Path]) -> None:
-    """Will iteratively remove any children empty folders"""
+    """Iteratively remove any empty child folders."""
     all_folders = sorted(x for x in Path(folder).rglob('*') if x.is_dir())
     for f in reversed(all_folders):  # Reversed sorted ensures we remove deepest first
         try:
@@ -712,8 +725,9 @@ def remove_empty_folders(folder: Union[str, Path]) -> None:
 
 def filter_by(alf_path, wildcards=True, **kwargs):
     """
-    Given a path and optional filters, returns all ALF files and their associated parts. The
-    filters constitute a logical AND.  For all but `extra`, if a list is provided, one or more
+    Given a path and optional filters, returns all ALF files and their associated parts.
+
+    The filters constitute a logical AND.  For all but `extra`, if a list is provided, one or more
     elements must match (a logical OR).
 
     Parameters
