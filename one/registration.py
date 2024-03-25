@@ -439,7 +439,7 @@ class RegistrationClient:
             F[session_path].append(fn.relative_to(session_path))
             V[session_path].append(ver)
 
-        return F, V
+        return F, V, single_file
 
     def check_protected_files(self, file_list, created_by=None):
         """
@@ -461,7 +461,7 @@ class RegistrationClient:
         """
 
         # Validate files and rearrange into list per session
-        F, _ = self.prepare_files(file_list)
+        F, _, single_file = self.prepare_files(file_list)
 
         # For each unique session, make a separate POST request
         records = []
@@ -476,7 +476,7 @@ class RegistrationClient:
                   }
             records.append(self.one.alyx.get('/check-protected', data=r_, clobber=True))
 
-        return records[0] if len(F.keys()) == 1 else records
+        return records[0] if single_file else records
 
     def register_files(self, file_list,
                        versions=None, default=True, created_by=None, server_only=False,
@@ -532,7 +532,7 @@ class RegistrationClient:
             Revision protected (403 status code)
         """
 
-        F, V = self.prepare_files(file_list, versions=versions)
+        F, V, single_file = self.prepare_files(file_list, versions=versions)
 
         # For each unique session, make a separate POST request
         records = [None] * (len(F) if dry else len(file_list))  # If dry return data per session
