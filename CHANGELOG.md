@@ -1,11 +1,33 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.6.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.7.0]
+This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC filters. This version no longer supports 'data' search filter.
+
+### Added
+
+- support for Alyx v2.0.0
+- support for pandas v3.0.0
+- one.alf.spec.QC enumeration
+- ONE_HTTP_DL_THREADS environment variable allows user to specify maximum number of threads to use
+- github workflow for releasing to PyPi
 
 ### Modified
-- `one.load_dataset`
+
+- support 'qc' category field in dataset cache table
+- One.search supports ´dataset_qc_lte` filter
+- One.list_datasets supports ´dataset_qc_lte` and `ignore_qc_not_set` filters
+- one.alf.io.iter_sessions pattern arg to make more performant
+
+### Removed
+
+- One.search no longer supports 'data' filter: kwarg must be 'dataset'
+
+## [2.6.0]
+
+### Modified
+
+- One.load_dataset
   - add an option to skip computing hash for existing files when loading datasets `check_hash=False`
   - check filesize before computing hash for performance
-
 
 ## [2.5.5]
 

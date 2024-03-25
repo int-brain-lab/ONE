@@ -195,11 +195,13 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(filename, '_ibl_spikes.times_ephysClock_minutes.ssv')
         filename = alf_spec.to_alf('wheel', 'timestamps', '.npy', 'ibl', 'bpod', ('raw', 'v12'))
         self.assertEqual(filename, '_ibl_wheel.timestamps_bpod.raw.v12.npy')
+        filename = alf_spec.to_alf('obj', 'attr_timestamps', '.npy')
+        self.assertEqual(filename, 'obj.attr_timestamps.npy')
+        filename = alf_spec.to_alf('obj', 'foo_bar_intervals', '.npy')
+        self.assertEqual(filename, 'obj.fooBar_intervals.npy')
 
         with self.assertRaises(TypeError):
             alf_spec.to_alf('spikes', 'times', '')
-        with self.assertRaises(ValueError):
-            alf_spec.to_alf('spikes', 'foo_bar', 'npy')
         with self.assertRaises(ValueError):
             alf_spec.to_alf('spikes.times', 'fooBar', 'npy')
         with self.assertRaises(ValueError):
@@ -225,6 +227,17 @@ class TestALFSpec(unittest.TestCase):
         self.assertTrue(x.upper() in sysout.getvalue() for x in alf_spec.SPEC_DESCRIPTION.keys())
         with self.assertRaises(ValueError):
             alf_spec.describe('dimensions', width=5)
+
+    def test_qc_validate(self):
+        """Test for one.alf.spec.QC.validate enumeration method."""
+        value = alf_spec.QC.FAIL
+        self.assertIs(alf_spec.QC.validate(value), value)
+        self.assertIs(alf_spec.QC.validate('40'), value)
+        self.assertIs(alf_spec.QC.validate(40), value)
+        self.assertIs(alf_spec.QC.validate('FAIL'), value)
+        self.assertRaises(ValueError, alf_spec.QC.validate, 'ERROR')
+        value = alf_spec.QC.CRITICAL
+        self.assertIs(alf_spec.QC.validate('critical'), value)
 
 
 class TestALFErr(unittest.TestCase):

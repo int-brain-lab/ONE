@@ -19,7 +19,7 @@ class TestParamSetup(unittest.TestCase):
     def setUp(self) -> None:
         self.par_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.par_dir.cleanup)
-        self.url = TEST_DB_1['base_url'][8:]  # URL without schema
+        self.url = TEST_DB_1['base_url'][8:].replace(':', '_')  # URL without schema
         # Change the location of the parameters to our temp dir
         get_file = partial(util.get_file, self.par_dir.name)
         self.get_file_mock = mock.patch('iblutil.io.params.getfile', new=get_file)

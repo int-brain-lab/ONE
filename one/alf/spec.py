@@ -1,6 +1,7 @@
 """The complete ALF specification descriptors and validators."""
 import re
 import textwrap
+from enum import IntEnum
 from uuid import UUID
 from typing import Union
 
@@ -122,6 +123,58 @@ _DEFAULT = (
     ('extra', r'[.\w-]+'),  # brackets
     ('extension', r'\w+')
 )
+
+
+class QC(IntEnum):
+    """Data QC outcomes.
+
+    This enumeration is used by the Alyx database.  NB: Pandas cache tables use different codes.
+    """
+    CRITICAL = 50
+    """Dataset practically unusable, e.g. clock can't be aligned; data missing or inaccurate."""
+    FAIL = 40
+    """Dataset does not meet expected standards, e.g. trial event timings different to protocol."""
+    WARNING = 30
+    """
+    Dataset has minor quality issues, e.g. relatively high SNR, that should not affect most
+    analyses.
+    """
+    NOT_SET = 0
+    """Dataset quality has not been assessed."""
+    PASS = 10
+    """Dataset considered 'gold-standard', e.g. tight trial event timings, low recorded SNR."""
+
+    @staticmethod
+    def validate(v):
+        """
+        Validate QC input and return equivalent enumeration.
+
+        Parameters
+        ----------
+        v : int, str, QC
+            A QC enumeration, or equivalent int value or name.
+
+        Returns
+        -------
+        QC
+            The enumeration.
+
+        Raises
+        ------
+        ValueError
+            An invalid QC value was passed.
+        """
+        if isinstance(v, QC):
+            return v
+        elif isinstance(v, str):
+            if v.isnumeric():
+                return QC(int(v))
+            try:
+                return QC[v.upper()]
+            except KeyError:
+                raise ValueError(f'{v} is not a valid QC')
+        else:
+            return QC(v)
 
 
 def path_pattern() -> str:
@@ -372,8 +425,6 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
         raise TypeError('An extension must be provided')
     elif extension.startswith('.'):
         extension = extension[1:]
-    if re.search('_(?!times$|intervals)', attribute):
-        raise ValueError('Object attributes must not contain underscores')
     if any(pt is not None and '.' in pt for pt in
            (object, attribute, namespace, extension, timescale)):
         raise ValueError('ALF parts must not contain a period (`.`)')
@@ -385,6 +436,10 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
     if timescale:
         timescale = filter(None, [timescale] if isinstance(timescale, str) else timescale)
         timescale = '_'.join(map(_dromedary, timescale))
+    # Convert attribute to camel case, leaving '_times', etc. in tact
+    times_re = re.search('_(times|timestamps|intervals)$', attribute)
+    idx = times_re.start() if times_re else len(attribute)
+    attribute = _dromedary(attribute[:idx]) + attribute[idx:]
     object = _dromedary(object)
 
     # Optional extras may be provided as string or tuple of strings
