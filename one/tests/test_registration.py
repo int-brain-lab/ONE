@@ -232,7 +232,7 @@ class TestRegistrationClient(unittest.TestCase):
                      session_path_2.joinpath('wheel.position.npy')]
 
         # Test with file list and version is None
-        F, V, _ = self.client.prepare_files(file_list)
+        F, V, _, _ = self.client.prepare_files(file_list)
         self.assertTrue(len(F), 2)
         self.assertListEqual(sorted(list(F.keys())), sorted([session_path, session_path_2]))
         for sess, n in zip([session_path, session_path_2], [2, 1]):
@@ -242,7 +242,7 @@ class TestRegistrationClient(unittest.TestCase):
 
         # Test with specifying version
         versions = ['1.2.2', 'v1.2', '1.3.4']
-        _, V, _ = self.client.prepare_files(file_list, versions=versions)
+        _, V, _, _ = self.client.prepare_files(file_list, versions=versions)
         self.assertListEqual(V[session_path], versions[:-1])
         self.assertListEqual(V[session_path_2], [versions[-1]])
 
@@ -254,7 +254,7 @@ class TestRegistrationClient(unittest.TestCase):
         file_name.touch()
 
         # register a dataset
-        rec, = self.client.register_files(str(file_name))
+        rec = self.client.register_files(str(file_name))
 
         # Check if it is protected, it shouldn't be, response 200
         protected = self.client.check_protected_files(str(file_name))

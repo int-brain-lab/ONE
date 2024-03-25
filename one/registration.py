@@ -406,13 +406,19 @@ class RegistrationClient:
 
         Returns
         -------
-        list of dicts, list of dicts
+        list of dicts
             A dict containing a list of files for each session
+        list of dicts
             A dict containg a list of versions for each session
+        list
+            A list of files converted to paths
+        bool
+            A boolean indicating if input was a single file
         """
 
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
+
         if single_file := isinstance(file_list, (str, pathlib.Path)):
             file_list = [file_list]
         file_list = list(map(pathlib.Path, file_list))  # Ensure list of path objects
@@ -439,7 +445,7 @@ class RegistrationClient:
             F[session_path].append(fn.relative_to(session_path))
             V[session_path].append(ver)
 
-        return F, V, single_file
+        return F, V, file_list, single_file
 
     def check_protected_files(self, file_list, created_by=None):
         """
@@ -461,7 +467,7 @@ class RegistrationClient:
         """
 
         # Validate files and rearrange into list per session
-        F, _, single_file = self.prepare_files(file_list)
+        F, _, _, single_file = self.prepare_files(file_list)
 
         # For each unique session, make a separate POST request
         records = []
@@ -532,7 +538,7 @@ class RegistrationClient:
             Revision protected (403 status code)
         """
 
-        F, V, single_file = self.prepare_files(file_list, versions=versions)
+        F, V, file_list, single_file = self.prepare_files(file_list, versions=versions)
 
         # For each unique session, make a separate POST request
         records = [None] * (len(F) if dry else len(file_list))  # If dry return data per session
