@@ -392,6 +392,51 @@ class RegistrationClient:
             session['data_dataset_session_related'] = ensure_list(recs)
         return session, recs
 
+    def prepare_files(self, file_list, versions=None):
+        """
+        Validates file list for registration and splits files into a list of files per
+        session path.
+
+        Parameters
+        ----------
+        file_list : list, str, pathlib.Path
+            A filepath (or list thereof) of ALF datasets to register to Alyx.
+        versions : str, list of str
+            Optional version tags.
+
+        Returns
+        -------
+        list of dicts, list of dicts
+            A dict containing a list of files for each session
+            A dict containg a list of versions for each session
+        """
+
+        F = defaultdict(list)  # empty map whose keys will be session paths
+        V = defaultdict(list)  # empty map for versions
+        if isinstance(file_list, (str, pathlib.Path)):
+            file_list = [file_list]
+
+        if versions is None or isinstance(versions, str):
+            versions = itertools.repeat(versions)
+        else:
+            versions = itertools.cycle(versions)
+
+        # Filter valid files and sort by session
+        for fn, ver in zip(map(pathlib.Path, file_list), versions):
+            session_path = get_session_path(fn)
+            if fn.suffix not in self.file_extensions:
+                _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
+                continue
+            try:
+                get_dataset_type(fn, self.dtypes)
+            except ValueError as ex:
+                _logger.debug('%s', ex.args[0])
+                continue
+            F[session_path].append(fn.relative_to(session_path))
+            V[session_path].append(ver)
+
+        return F, V
+
     def check_protected_files(self, file_list, created_by=None):
         """
         Check whether a set of files associated to a session are protected
@@ -411,23 +456,8 @@ class RegistrationClient:
             403 is returned.
         """
 
-        F = defaultdict(list)  # empty map whose keys will be session paths
-
-        if isinstance(file_list, (str, pathlib.Path)):
-            file_list = [file_list]
-
-        # Filter valid files and sort by session
-        for fn in map(pathlib.Path, file_list):
-            session_path = get_session_path(fn)
-            if fn.suffix not in self.file_extensions:
-                _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
-                continue
-            try:
-                get_dataset_type(fn, self.dtypes)
-            except ValueError as ex:
-                _logger.debug('%s', ex.args[0])
-                continue
-            F[session_path].append(fn.relative_to(session_path))
+        # Validate files and rearrange into list per session
+        F, _ = self.prepare_files(file_list)
 
         # For each unique session, make a separate POST request
         records = []
@@ -496,29 +526,8 @@ class RegistrationClient:
             Server side database error (500 status code)
             Revision protected (403 status code)
         """
-        F = defaultdict(list)  # empty map whose keys will be session paths
-        V = defaultdict(list)  # empty map for versions
-        if isinstance(file_list, (str, pathlib.Path)):
-            file_list = [file_list]
 
-        if versions is None or isinstance(versions, str):
-            versions = itertools.repeat(versions)
-        else:
-            versions = itertools.cycle(versions)
-
-        # Filter valid files and sort by session
-        for fn, ver in zip(map(pathlib.Path, file_list), versions):
-            session_path = get_session_path(fn)
-            if fn.suffix not in self.file_extensions:
-                _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
-                continue
-            try:
-                get_dataset_type(fn, self.dtypes)
-            except ValueError as ex:
-                _logger.debug('%s', ex.args[0])
-                continue
-            F[session_path].append(fn.relative_to(session_path))
-            V[session_path].append(ver)
+        F, V = self.prepare_files(file_list, versions=versions)
 
         # For each unique session, make a separate POST request
         records = []
