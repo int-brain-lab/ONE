@@ -258,6 +258,7 @@ class TestREST(unittest.TestCase):
         self.addCleanup(self.alyx.rest, 'insertions', 'delete', id=probe_insertion['id'])
         trajectory = self.alyx.rest('trajectories', 'create', data={
             'probe_insertion': probe_insertion['id'],
+            'chronic_insertion': None,
             'x': 1500,
             'y': -2000,
             'z': 0,
