@@ -578,6 +578,8 @@ class RegistrationClient:
                 continue
             try:
                 response = self.one.alyx.post('/register-file', data=r_)
+                if not isinstance(response, list):
+                    response = [response]
                 # Ensure we keep the order of the output records: the files missing will remain
                 # as None type
                 for f, r in zip(files, response):
