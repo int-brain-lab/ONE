@@ -520,6 +520,10 @@ class TestsLoadFile(unittest.TestCase):
         self.xyz = Path(self.tmpdir.name) / 'foo.baz.xyz'
         with open(self.xyz, 'wb') as f:
             f.write(b'\x00\x00')
+        self.npz1 = Path(self.tmpdir.name) / 'foo.baz.npz'
+        np.savez_compressed(self.npz1, np.random.rand(5))
+        self.npz2 = Path(self.tmpdir.name) / 'foo.bar.npz'
+        np.savez_compressed(self.npz2, np.random.rand(5), np.random.rand(5))
 
     def test_load_file_content(self):
         """Test for one.alf.io.load_file_content"""
@@ -550,6 +554,13 @@ class TestsLoadFile(unittest.TestCase):
         # Load YAML file
         loaded = alfio.load_file_content(str(self.yaml))
         self.assertCountEqual(loaded.keys(), ['a', 'b'])
+        # Load npz file
+        loaded = alfio.load_file_content(str(self.npz1))
+        self.assertIsInstance(loaded, np.ndarray, 'failed to unpack')
+        self.assertEqual(loaded.shape, (5,))
+        loaded = alfio.load_file_content(str(self.npz2))
+        self.assertIsInstance(loaded, np.lib.npyio.NpzFile, 'failed to return npz array')
+        self.assertEqual(loaded['arr_0'].shape, (5,))
 
     def tearDown(self) -> None:
         self.tmpdir.cleanup()

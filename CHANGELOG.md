@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.7.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.8.0]
+This version of ONE adds support for loading .npz files.
+
+### Modified
+
+- one.alf.io.load_fil_content loads npz files and returns only array if single compressed array with default name of 'arr_0'.
+
+## [2.7.0]
 This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC filters. This version no longer supports 'data' search filter.
 
 ### Added
