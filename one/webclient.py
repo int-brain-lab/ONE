@@ -658,7 +658,8 @@ class AlyxClient:
             password = getpass(f'Enter Alyx password for "{username}":')
         try:
             credentials = {'username': username, 'password': password}
-            rep = requests.post(self.base_url + '/auth-token', data=credentials)
+            # Wait 3.05 seconds for handshake; 1 second for first byte
+            rep = requests.post(self.base_url + '/auth-token', data=credentials, timeout=(3.05, 1))
         except requests.exceptions.ConnectionError:
             raise ConnectionError(
                 f"Can't connect to {self.base_url}.\n" +
