@@ -4,7 +4,7 @@ This version of ONE adds support for loading .npz files.
 
 ### Modified
 
-- one.alf.io.load_fil_content loads npz files and returns only array if single compressed array with default name of 'arr_0'.
+- one.alf.io.load_file_content loads npz files and returns only array if single compressed array with default name of 'arr_0'.
 - log warning when instantiating RegistrationClient with AlyxClient REST cache active
 
 ## [2.7.0]
