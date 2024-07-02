@@ -1338,7 +1338,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(171, len(dsets))  # this may change after a BWM release or patch
+        self.assertEqual(183, len(dsets))  # this may change after a BWM release or patch
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
         # Test missing eid
@@ -1355,12 +1355,12 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(171, len(dsets))  # this may change after a BWM release or patch
+        self.assertEqual(183, len(dsets))  # this may change after a BWM release or patch
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(20, len(dsets))
+        self.assertEqual(24, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
