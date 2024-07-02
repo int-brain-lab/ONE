@@ -17,7 +17,7 @@
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../../_static/copybutton.js?v=f281be69"></script>
@@ -1515,7 +1515,7 @@
 <span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
 <span class="sd">        download_only : bool</span>
 <span class="sd">            When true the data are downloaded and the file path is returned.</span>
-<span class="sd">        **kwargs</span>
+<span class="sd">        kwargs</span>
 <span class="sd">            Additional filters for datasets, including namespace and timescale. For full list</span>
 <span class="sd">            see the one.alf.spec.describe function.</span>
 
@@ -1552,18 +1552,19 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="nb">object</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">alfiles</span><span class="o">.</span><span class="n">rel_path_parts</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">rel_path</span><span class="p">]</span>
-        <span class="n">unique_objects</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">)</span>
 
         <span class="c1"># For those that don&#39;t exist, download them</span>
         <span class="n">offline</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span>
         <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">)</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALF collection &quot;</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s1">&quot; not found on disk&#39;</span><span class="p">)</span>
+        <span class="c1"># Remove missing items</span>
+        <span class="n">files</span><span class="p">,</span> <span class="n">parts</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">download_only</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">files</span>
 
+        <span class="n">unique_objects</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">wildcards</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wildcards</span><span class="p">)</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">obj</span><span class="p">:</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_object</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">obj</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1585,7 +1586,7 @@
 <span class="sd">        silent : (False) bool</span>
 <span class="sd">            When True will prompt for cache_dir, if cache_dir is None, and overwrite cache if any.</span>
 <span class="sd">            When False will use cwd for cache_dir, if cache_dir is None, and use existing cache.</span>
-<span class="sd">        **kwargs</span>
+<span class="sd">        kwargs</span>
 <span class="sd">            Optional arguments to pass to one.alf.cache.make_parquet_db.</span>
 
 <span class="sd">        Returns</span>
@@ -2698,7 +2699,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        base_url : str</span>
 <span class="sd">            An Alyx database URL.  If None, the current default database is used.</span>
-<span class="sd">        **kwargs</span>
+<span class="sd">        kwargs</span>
 <span class="sd">            Optional arguments to pass to one.params.setup.</span>
 
 <span class="sd">        Returns</span>
@@ -3008,7 +3009,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    **kwargs</span>
+<span class="sd">    kwargs</span>
 <span class="sd">        See one.params.setup.</span>
 
 <span class="sd">    Returns</span>

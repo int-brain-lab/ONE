@@ -19,7 +19,7 @@
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../../_static/copybutton.js?v=f281be69"></script>
@@ -269,7 +269,7 @@ dict_keys([&#39;intervals&#39;, &#39;intervals_bpod&#39;, &#39;rewardVolume&#39;
 <section id="Revisions">
 <h2>Revisions<a class="headerlink" href="#Revisions" title="Link to this heading"></a></h2>
 <p>Revisions provide an optional way to organize data by version. The version label is arbitrary, however the folder must start and end with pound signs and is typically an ISO date, e.g. “#2021-01-01#”. Unlike collections, if a specified revision is not found, the previous revision will be returned. The revisions are ordered lexicographically.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">probe1_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2021-03-15a&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2021-03-15a&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -516,7 +516,6 @@ load_dataset(eid: Union[str, pathlib.Path, uuid.UUID], dataset: str, collection:
     spike_times = one.load_dataset(eid &#39;spikes.times.npy&#39;, collection=&#39;alf/probe01&#39;)
     old_spikes = one.load_dataset(eid, &#39;spikes.times.npy&#39;,
                                   collection=&#39;alf/probe01&#39;, revision=&#39;2020-08-31&#39;)
-
 </pre></div></div>
 </div>
 </section>

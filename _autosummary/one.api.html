@@ -18,7 +18,7 @@
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=f281be69"></script>
@@ -793,7 +793,7 @@ returned (usually the most recent revision).  Regular expressions/wildcards not
 permitted.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
-<li><p><strong>**kwargs</strong> – Additional filters for datasets, including namespace and timescale. For full list
+<li><p><strong>kwargs</strong> – Additional filters for datasets, including namespace and timescale. For full list
 see the one.alf.spec.describe function.</p></li>
 </ul>
 </dd>
@@ -830,7 +830,7 @@ see the one.alf.spec.describe function.</p></li>
 <li><p><strong>cache_dir</strong> (<em>pathlib.Path</em><em>, </em><em>str</em>) – A path to the ALF data directory.</p></li>
 <li><p><strong>silent</strong> (<em>(</em><em>False</em><em>) </em><em>bool</em>) – When True will prompt for cache_dir, if cache_dir is None, and overwrite cache if any.
 When False will use cwd for cache_dir, if cache_dir is None, and use existing cache.</p></li>
-<li><p><strong>**kwargs</strong> – Optional arguments to pass to one.alf.cache.make_parquet_db.</p></li>
+<li><p><strong>kwargs</strong> – Optional arguments to pass to one.alf.cache.make_parquet_db.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1250,7 +1250,7 @@ interpreted as regular expressions. To turn this off set one.wildcards to False.
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>base_url</strong> (<em>str</em>) – An Alyx database URL.  If None, the current default database is used.</p></li>
-<li><p><strong>**kwargs</strong> – Optional arguments to pass to one.params.setup.</p></li>
+<li><p><strong>kwargs</strong> – Optional arguments to pass to one.params.setup.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
