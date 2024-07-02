@@ -94,6 +94,9 @@ class RegistrationClient:
         self.one = one
         if not one:
             self.one = ONE(cache_rest=None)
+        elif one.alyx.cache_mode == 'GET':
+            _logger.warning('AlyxClient REST cache active; '
+                            'this may cause issues with registration.')
         self.dtypes = list(map(Bunch, self.one.alyx.rest('dataset-types', 'list')))
         self.registration_patterns = [
             dt['filename_pattern'] for dt in self.dtypes if dt['filename_pattern']]

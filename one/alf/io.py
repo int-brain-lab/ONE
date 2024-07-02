@@ -307,6 +307,10 @@ def load_file_content(fil):
         return jsonable.read(fil)
     if fil.suffix == '.npy':
         return _ensure_flat(np.load(file=fil, allow_pickle=True))
+    if fil.suffix == '.npz':
+        arr = np.load(file=fil)
+        # If single array with the default name ('arr_0') return individual array
+        return arr['arr_0'] if set(arr.files) == {'arr_0'} else arr
     if fil.suffix == '.pqt':
         return parquet.load(fil)[0]
     if fil.suffix == '.ssv':

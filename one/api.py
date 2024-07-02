@@ -1357,7 +1357,7 @@ class One(ConversionMixin):
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
             When true the data are downloaded and the file path is returned.
-        **kwargs
+        kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
 
@@ -1394,18 +1394,19 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(object or '')
         parts = [alfiles.rel_path_parts(x) for x in datasets.rel_path]
-        unique_objects = set(x[3] or '' for x in parts)
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
         files = self._check_filesystem(datasets, offline=offline)
-        files = [x for x in files if x]
-        if not files:
+        if not any(files):
             raise alferr.ALFObjectNotFound(f'ALF collection "{collection}" not found on disk')
+        # Remove missing items
+        files, parts = zip(*[(x, y) for x, y in zip(files, parts) if x])
 
         if download_only:
             return files
 
+        unique_objects = set(x[3] or '' for x in parts)
         kwargs.update(wildcards=self.wildcards)
         collection = {
             obj: alfio.load_object([x for x, y in zip(files, parts) if y[3] == obj], **kwargs)
@@ -1424,7 +1425,7 @@ class One(ConversionMixin):
         silent : (False) bool
             When True will prompt for cache_dir, if cache_dir is None, and overwrite cache if any.
             When False will use cwd for cache_dir, if cache_dir is None, and use existing cache.
-        **kwargs
+        kwargs
             Optional arguments to pass to one.alf.cache.make_parquet_db.
 
         Returns
@@ -2498,7 +2499,7 @@ class OneAlyx(One):
         ----------
         base_url : str
             An Alyx database URL.  If None, the current default database is used.
-        **kwargs
+        kwargs
             Optional arguments to pass to one.params.setup.
 
         Returns
@@ -2785,7 +2786,7 @@ def _setup(**kwargs):
 
     Parameters
     ----------
-    **kwargs
+    kwargs
         See one.params.setup.
 
     Returns
