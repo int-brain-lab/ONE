@@ -579,7 +579,10 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
             # Expand timeseries if necessary
             out[key] = ts2vec(out[key], n_samples)
     if status != 0:
-        print_sizes = '\n'.join(f'{v.shape},\t{k}' for k, v in out.items())
+        supported = (np.ndarray, pd.DataFrame)
+        print_sizes = '\n'.join(
+            f'{v.shape},\t{k}' for k, v in out.items() if isinstance(v, supported)
+        )
         _logger.warning(f'Inconsistent dimensions for object: {object} \n{print_sizes}')
     return out
 
