@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.8.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.8.1]
+
+### Modified
+
+- HOTFIX: fix error when sizing npz objects in alf.io.load_object
+
+## [2.8.0]
 This version of ONE adds support for loading .npz files.
 
 ### Modified
