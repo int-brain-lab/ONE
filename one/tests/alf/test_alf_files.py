@@ -160,6 +160,12 @@ class TestAlfParse(unittest.TestCase):
             self.assertEqual(tup[1], files.add_uuid_string(tup[0], _uuid))
             self.assertEqual(tup[1], files.add_uuid_string(tup[0], str(_uuid)))
 
+        _uuid2 = uuid.uuid4()
+        with self.assertLogs(files.__name__, level=10) as cm:
+            expected = Path(f'/titi/tutu.part1.part1.{_uuid2}.json')
+            self.assertEqual(expected, files.add_uuid_string(file_with_uuid, _uuid2))
+            self.assertRegex(cm.output[0], 'Replacing [a-f0-9-]+ with [a-f0-9-]+')
+
         with self.assertRaises(ValueError):
             files.add_uuid_string('/foo/bar.npy', 'fake')
 
@@ -224,6 +230,18 @@ class TestALFGet(unittest.TestCase):
         self.assertEqual(files.get_alf_path(path), path)
         path = '/trials.intervals_bpod.npy'
         self.assertEqual(files.get_alf_path(path), 'trials.intervals_bpod.npy')
+
+    def test_without_revision(self):
+        """Test for one.alf.files.without_revision function."""
+        path = '/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/alf/#2020-01-01#/obj.attr.ext'
+        out = files.without_revision(path)
+        expected = Path(path.replace('/#2020-01-01#', ''))
+        self.assertIsInstance(out, Path)
+        self.assertEqual(expected, out, 'failed to remove revision folder')
+        self.assertEqual(expected, files.without_revision(out))  # should do nothing to path
+        with self.assertRaises(ValueError) as cm:
+            files.without_revision('foo/bar/baz.npy')
+        self.assertRegex(str(cm.exception), 'Invalid ALF')
 
 
 if __name__ == "__main__":

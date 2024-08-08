@@ -711,5 +711,51 @@ class TestALFFolders(unittest.TestCase):
         self.assertEqual([Path(*dset.parts[-2:])], ses_files)
 
 
+class TestFindVariants(unittest.TestCase):
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.tmp = Path(tmp.name)
+        self.addCleanup(tmp.cleanup)
+
+        # Create tree
+        self.session_path = self.tmp / 'subject' / '2020-01-01' / '001'
+        self.dsets = [
+            self.session_path.joinpath('_x_foo.bar.npy'),
+            self.session_path.joinpath('#2021-01-01#', 'foo.bar.npy'),
+            self.session_path.joinpath(f'bar.baz.{uuid.uuid4()}.npy'),
+            self.session_path.joinpath(f'bar.baz_y.{uuid.uuid4()}.npy'),
+            self.session_path.joinpath('#2021-01-01#', f'bar.baz.{uuid.uuid4()}.npy'),
+            self.session_path.joinpath('task_00', 'x.y.z'),
+            self.session_path.joinpath('x.y.z'),
+        ]
+        for f in self.dsets:
+            f.parent.mkdir(exist_ok=True, parents=True)
+            f.touch()
+
+    def test_unique(self):
+        """Test for one.alf.io.find_variants function."""
+        dupes = alfio.find_variants(self.dsets)
+        self.assertCountEqual(self.dsets, dupes.keys(), 'expected keys to match input files')
+        self.assertFalse(any(map(any, dupes.values())), 'expected no duplicates')
+
+        # With extra=False should treat files with extra parts as a variant
+        dupes = alfio.find_variants(self.dsets, extra=False)
+        # 'bar.baz.abc.npy' is a variant of '#revision#/bar.baz.def.npy' and vice versa
+        self.assertEqual(dupes[self.dsets[2]], [self.dsets[4]])
+        self.assertEqual(dupes[self.dsets[4]], [self.dsets[2]])
+        # Expect all other datasets to be considered unique
+        others = [v for k, v in dupes.items() if k not in (self.dsets[2], self.dsets[4])]
+        self.assertFalse(any(map(any, others)))
+
+        # Treat other file parts as variants
+        files = [self.dsets[0], self.dsets[2], self.dsets[-1]]
+        dupes = alfio.find_variants(files, namespace=False, timescale=False, extra=False)
+        expected_files = (self.dsets[1:2], self.dsets[3:5], [])  # expected variants for each file
+        for key, expected in zip(files, expected_files):
+            with self.subTest(key=key):
+                self.assertCountEqual(dupes[self.session_path.joinpath(key)], expected)
+
+
 if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)

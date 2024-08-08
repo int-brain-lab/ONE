@@ -14,6 +14,8 @@ import re
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import Union
+from functools import partial
+from itertools import chain
 import warnings
 
 import numpy as np
@@ -342,7 +344,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
         An ALF object name to filter by
     wildcards : bool
         If true uses unix shell style pattern matching, otherwise uses regular expressions
-    **kwargs
+    kwargs
         Other ALF parts to filter, including namespace, attribute, etc.
 
     Returns
@@ -446,7 +448,7 @@ def exists(alfpath, object, attributes=None, **kwargs) -> bool:
         Wanted attributes
     wildcards : bool
         If true uses unix shell style pattern matching, otherwise uses regular expressions
-    **kwargs
+    kwargs
         Other ALF parts to filter by
 
     Returns
@@ -496,7 +498,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         and timescale.
     wildcards : bool
         If true uses unix shell style pattern matching, otherwise uses regular expressions.
-    **kwargs
+    kwargs
         Other ALF parts to filter by.
 
     Returns
@@ -832,3 +834,85 @@ def filter_by(alf_path, wildcards=True, **kwargs):
                     break
 
     return alf_files, [tuple(attr.values()) for attr in attributes]
+
+
+def find_variants(file_list, namespace=True, timescale=True, extra=True, extension=True):
+    """
+    Find variant datasets.
+
+    Finds any datasets on disk that are considered a variant of the input datasets. At minimum, a
+    dataset is uniquely defined by session path, collection, object and attribute. Therefore,
+    datasets with the same name and collection in a different revision folder are considered a
+    variant. If any of the keyword arguments are set to False, those parts are ignored when
+    comparing datasets.
+
+    Parameters
+    ----------
+    file_list : list of str, list of pathlib.Path
+        A list of ALF paths to find variants of.
+    namespace : bool
+        If true, treat datasets with a different namespace as unique.
+    timescale : bool
+        If true, treat datasets with a different timescale as unique.
+    extra : bool
+        If true, treat datasets with a different extra parts as unique.
+    extension : bool
+        If true, treat datasets with a different extension as unique.
+
+    Returns
+    -------
+    Dict[pathlib.Path, list of pathlib.Path]
+        A map of input file paths to a list variant dataset paths.
+
+    Raises
+    ------
+    ValueError
+        One or more input file paths are not valid ALF datasets.
+
+    Examples
+    --------
+    Find all datasets with an identical name and collection in a different revision folder
+
+    >>> find_variants(['/sub/2020-10-01/001/alf/#2020-01-01#/obj.attr.npy'])
+    {Path('/sub/2020-10-01/001/alf/#2020-01-01#/obj.attr.npy'): [
+        Path('/sub/2020-10-01/001/alf/obj.attr.npy')
+    ]}
+
+    Find all datasets with different namespace or revision
+
+    >>> find_variants(['/sub/2020-10-01/001/alf/#2020-01-01#/obj.attr.npy'], namespace=False)
+    {Path('/sub/2020-10-01/001/#2020-01-01#/obj.attr.npy'): [
+        Path('/sub/2020-10-01/001/#2020-01-01#/_ns_obj.attr.npy'),
+        Path('/sub/2020-10-01/001/obj.attr.npy'),
+    ]}
+
+    """
+    # Parse into individual ALF parts
+    to_parts_dict = partial(files.full_path_parts, as_dict=True)
+    uParts = map(to_parts_dict, file_list)
+    # Initialize map of unique files to their duplicates
+    duplicates = {}
+    # Determine which parts to filter
+    variables = locals()
+    filters = {'namespace', 'timescale', 'extra', 'extension'}
+    to_compare = ('lab', 'subject', 'date', 'number', 'collection', 'object', 'attribute',
+                  *(arg for arg in filters if variables[arg]))
+
+    def parts_match(parts, file):
+        """Compare a file's unique parts to a given file"""
+        other = to_parts_dict(file)
+        return all(parts[k] == other[k] for k in to_compare)
+
+    # iterate over unique files and their parts
+    for f, parts in zip(map(Path, file_list), uParts):
+        # first glob for files matching object.attribute (including revisions)
+        pattern = f'*{parts["object"]}.{parts["attribute"]}*'
+        # this works because revision will always be last folder;
+        # i.e. revisions can't contain collections
+        globbed = map(files.without_revision(f).parent.glob, (pattern, '#*#/' + pattern))
+        globbed = chain.from_iterable(globbed)  # unite revision and non-revision globs
+        # refine duplicates based on other parts (this also ensures we don't catch similar objects)
+        globbed = filter(partial(parts_match, parts), globbed)
+        # key = f.relative_to(one.alf.files.get_session_path(f)).as_posix()
+        duplicates[f] = [x for x in globbed if x != f]  # map file to list of its duplicates
+    return duplicates
