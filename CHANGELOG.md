@@ -1,5 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.8.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.9.0]
+This version adds a couple of new ALF functions.
+
+### Added 
+
+- one.alf.io.find_variants allows one to find similar datasets on disk, such as revisions
+- one.alf.files.without_revision returns a file path without the revision folder
+
+### Modified
+
+- one.alf.files.add_uuid_string will now replace a UUID in a filename if one already present.
+
+## [2.8.1]
 
 ### Modified
 
