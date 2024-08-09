@@ -410,13 +410,13 @@ class RegistrationClient:
         Returns
         -------
         list of dicts
-            A dict containing a list of files for each session
+            A dict containing a list of files for each session.
         list of dicts
-            A dict containg a list of versions for each session
+            A dict containing a list of versions for each session.
         list
-            A list of files converted to paths
+            A list of files converted to paths.
         bool
-            A boolean indicating if input was a single file
+            A boolean indicating if input was a single file.
         """
 
         F = defaultdict(list)  # empty map whose keys will be session paths

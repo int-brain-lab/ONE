@@ -407,9 +407,13 @@ def add_uuid_string(file_path, uuid):
     if isinstance(file_path, str):
         file_path = Path(file_path)
     name_parts = file_path.stem.split('.')
-    if uuid == name_parts[-1]:
-        _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
-        return file_path
+    if spec.is_uuid(name_parts[-1]):
+        *name_parts, old_uuid = name_parts
+        if old_uuid == uuid:
+            _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
+            return file_path
+        else:
+            _logger.debug('Replacing %s with %s in %s', old_uuid, uuid, file_path)
     return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
 
 
@@ -448,13 +452,13 @@ def remove_uuid_string(file_path):
     return file_path
 
 
-def padded_sequence(filepath):
+def padded_sequence(file_path):
     """
     Ensures a file path contains a zero-padded experiment sequence folder.
 
     Parameters
     ----------
-    filepath : str, pathlib.Path, pathlib.PurePath
+    file_path : str, pathlib.Path, pathlib.PurePath
         A session or file path to convert.
 
     Returns
@@ -465,20 +469,45 @@ def padded_sequence(filepath):
 
     Examples
     --------
-    >>> filepath = '/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml'
-    >>> padded_sequence(filepath)
+    >>> file_path = '/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml'
+    >>> padded_sequence(file_path)
     pathlib.Path('/iblrigdata/subject/2023-01-01/001/_ibl_experiment.description.yaml')
 
     Supports folders and will not affect already padded paths
 
     >>> session_path = pathlib.PurePosixPath('subject/2023-01-01/001')
-    >>> padded_sequence(filepath)
+    >>> padded_sequence(file_path)
     pathlib.PurePosixPath('subject/2023-01-01/001')
     """
-    if isinstance(filepath, str):
-        filepath = Path(filepath)
-    if (session_path := get_session_path(filepath)) is None:
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+    if (session_path := get_session_path(file_path)) is None:
         raise ValueError('path must include a valid ALF session path, e.g. subject/YYYY-MM-DD/N')
-    idx = len(filepath.parts) - len(session_path.parts)
+    idx = len(file_path.parts) - len(session_path.parts)
     sequence = str(int(session_path.parts[-1])).zfill(3)  # zero-pad if necessary
-    return filepath.parents[idx].joinpath(sequence, filepath.relative_to(session_path))
+    return file_path.parents[idx].joinpath(sequence, file_path.relative_to(session_path))
+
+
+def without_revision(file_path):
+    """
+    Return file path without a revision folder.
+
+    Parameters
+    ----------
+    file_path : str, pathlib.Path
+        A valid ALF dataset path.
+
+    Returns
+    -------
+    pathlib.Path
+        The input file path without a revision folder.
+
+    Examples
+    --------
+    >>> without_revision('/lab/Subjects/subject/2023-01-01/001/collection/#revision#/obj.attr.ext')
+    Path('/lab/Subjects/subject/2023-01-01/001/collection/obj.attr.ext')
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+    *_, collection, revision = folder_parts(file_path.parent)
+    return get_session_path(file_path).joinpath(*filter(None, (collection, file_path.name)))
