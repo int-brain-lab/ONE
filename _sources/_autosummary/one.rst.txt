@@ -26,13 +26,13 @@
    :template: custom-module-template.rst
    :recursive:
 
-   one.alf
-   one.api
-   one.converters
-   one.params
-   one.registration
-   one.remote
-   one.tests
-   one.util
-   one.webclient
+   alf
+   api
+   converters
+   params
+   registration
+   remote
+   tests
+   util
+   webclient
 

@@ -18,6 +18,7 @@ one.alf.io
       dataframe
       exists
       filter_by
+      find_variants
       iter_datasets
       iter_sessions
       load_file_content

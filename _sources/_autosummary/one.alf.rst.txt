@@ -26,9 +26,9 @@ one.alf
    :template: custom-module-template.rst
    :recursive:
 
-   one.alf.cache
-   one.alf.exceptions
-   one.alf.files
-   one.alf.io
-   one.alf.spec
+   cache
+   exceptions
+   files
+   io
+   spec
 

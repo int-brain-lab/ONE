@@ -26,13 +26,13 @@ one.tests
    :template: custom-module-template.rst
    :recursive:
 
-   one.tests.alf
-   one.tests.remote
-   one.tests.test_alyxclient
-   one.tests.test_alyxrest
-   one.tests.test_converters
-   one.tests.test_one
-   one.tests.test_params
-   one.tests.test_registration
-   one.tests.util
+   alf
+   remote
+   test_alyxclient
+   test_alyxrest
+   test_converters
+   test_one
+   test_params
+   test_registration
+   util
 

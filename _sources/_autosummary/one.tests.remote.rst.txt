@@ -26,7 +26,7 @@ one.tests.remote
    :template: custom-module-template.rst
    :recursive:
 
-   one.tests.remote.test_aws
-   one.tests.remote.test_base
-   one.tests.remote.test_globus
+   test_aws
+   test_base
+   test_globus
 

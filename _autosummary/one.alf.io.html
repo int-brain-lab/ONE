@@ -154,40 +154,43 @@ For a full overview of the scope of the format, see:</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.filter_by" title="one.alf.io.filter_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_by</span></code></a></p></td>
 <td><p>Given a path and optional filters, returns all ALF files and their associated parts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.iter_datasets" title="one.alf.io.iter_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_datasets</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.find_variants" title="one.alf.io.find_variants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_variants</span></code></a></p></td>
+<td><p>Find variant datasets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.iter_datasets" title="one.alf.io.iter_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_datasets</span></code></a></p></td>
 <td><p>Iterate over all files in a session, and yield relative dataset paths.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.iter_sessions" title="one.alf.io.iter_sessions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_sessions</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.iter_sessions" title="one.alf.io.iter_sessions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_sessions</span></code></a></p></td>
 <td><p>Recursively iterate over session paths in a given directory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.load_file_content" title="one.alf.io.load_file_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_file_content</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.load_file_content" title="one.alf.io.load_file_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_file_content</span></code></a></p></td>
 <td><p>Returns content of files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.load_object" title="one.alf.io.load_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_object</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.load_object" title="one.alf.io.load_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_object</span></code></a></p></td>
 <td><p>Reads all files sharing the same object name.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.next_num_folder" title="one.alf.io.next_num_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_num_folder</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.next_num_folder" title="one.alf.io.next_num_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_num_folder</span></code></a></p></td>
 <td><p>Return the next number for a session given a session_date_folder.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.read_ts" title="one.alf.io.read_ts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_ts</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.read_ts" title="one.alf.io.read_ts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_ts</span></code></a></p></td>
 <td><p>Load time-series from ALF format</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_empty_folders" title="one.alf.io.remove_empty_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_folders</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_empty_folders" title="one.alf.io.remove_empty_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_folders</span></code></a></p></td>
 <td><p>Iteratively remove any empty child folders.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
 <td><p>(DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_recursive" title="one.alf.io.remove_uuid_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_recursive</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_recursive" title="one.alf.io.remove_uuid_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_recursive</span></code></a></p></td>
 <td><p>(DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.save_metadata" title="one.alf.io.save_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_metadata</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.save_metadata" title="one.alf.io.save_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_metadata</span></code></a></p></td>
 <td><p>Writes a meta data file matching a current ALF file object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.save_object_npy" title="one.alf.io.save_object_npy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_object_npy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.save_object_npy" title="one.alf.io.save_object_npy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_object_npy</span></code></a></p></td>
 <td><p>Saves a dictionary in <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">ALF format</a> using object as object name and dictionary keys as attribute names.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.ts2vec" title="one.alf.io.ts2vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ts2vec</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.ts2vec" title="one.alf.io.ts2vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ts2vec</span></code></a></p></td>
 <td><p>Interpolate a continuous timeseries of the shape (2, 2)</p></td>
 </tr>
 </tbody>
@@ -399,7 +402,7 @@ this more performant (see examples).</p></li>
 <li><p><strong>object</strong> (<em>str</em>) – ALF object name</p></li>
 <li><p><strong>attributes</strong> (<em>str</em><em>, </em><em>list</em>) – Wanted attributes</p></li>
 <li><p><strong>wildcards</strong> (<em>bool</em>) – If true uses unix shell style pattern matching, otherwise uses regular expressions</p></li>
-<li><p><strong>**kwargs</strong> – Other ALF parts to filter by</p></li>
+<li><p><strong>kwargs</strong> – Other ALF parts to filter by</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -430,7 +433,7 @@ ALF files returned.</p></li>
 any eventual parts separated by a dot. Use True to shorten the keys to the attribute
 and timescale.</p></li>
 <li><p><strong>wildcards</strong> (<em>bool</em>) – If true uses unix shell style pattern matching, otherwise uses regular expressions.</p></li>
-<li><p><strong>**kwargs</strong> – Other ALF parts to filter by.</p></li>
+<li><p><strong>kwargs</strong> – Other ALF parts to filter by.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -604,6 +607,53 @@ NB: Wild cards not permitted here.</p></li>
 <p>Filter all files using a regular expression</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">filter_by</span><span class="p">(</span><span class="n">alf_path</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;^wheel.*&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">filter_by</span><span class="p">(</span><span class="n">alf_path</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;^wheel$&#39;</span><span class="p">,</span> <span class="s1">&#39;.*Moves&#39;</span><span class="p">],</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.io.find_variants">
+<span class="sig-name descname"><span class="pre">find_variants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timescale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#find_variants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.find_variants" title="Link to this definition"></a></dt>
+<dd><p>Find variant datasets.</p>
+<p>Finds any datasets on disk that are considered a variant of the input datasets. At minimum, a
+dataset is uniquely defined by session path, collection, object and attribute. Therefore,
+datasets with the same name and collection in a different revision folder are considered a
+variant. If any of the keyword arguments are set to False, those parts are ignored when
+comparing datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_list</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>list</em><em> of </em><em>pathlib.Path</em>) – A list of ALF paths to find variants of.</p></li>
+<li><p><strong>namespace</strong> (<em>bool</em>) – If true, treat datasets with a different namespace as unique.</p></li>
+<li><p><strong>timescale</strong> (<em>bool</em>) – If true, treat datasets with a different timescale as unique.</p></li>
+<li><p><strong>extra</strong> (<em>bool</em>) – If true, treat datasets with a different extra parts as unique.</p></li>
+<li><p><strong>extension</strong> (<em>bool</em>) – If true, treat datasets with a different extension as unique.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A map of input file paths to a list variant dataset paths.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[pathlib.Path, list of pathlib.Path]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – One or more input file paths are not valid ALF datasets.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all datasets with an identical name and collection in a different revision folder</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">find_variants</span><span class="p">([</span><span class="s1">&#39;/sub/2020-10-01/001/alf/#2020-01-01#/obj.attr.npy&#39;</span><span class="p">])</span>
+<span class="go">{Path(&#39;/sub/2020-10-01/001/alf/#2020-01-01#/obj.attr.npy&#39;): [</span>
+<span class="go">    Path(&#39;/sub/2020-10-01/001/alf/obj.attr.npy&#39;)</span>
+<span class="go">]}</span>
+</pre></div>
+</div>
+<p>Find all datasets with different namespace or revision</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">find_variants</span><span class="p">([</span><span class="s1">&#39;/sub/2020-10-01/001/alf/#2020-01-01#/obj.attr.npy&#39;</span><span class="p">],</span> <span class="n">namespace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">{Path(&#39;/sub/2020-10-01/001/#2020-01-01#/obj.attr.npy&#39;): [</span>
+<span class="go">    Path(&#39;/sub/2020-10-01/001/#2020-01-01#/_ns_obj.attr.npy&#39;),</span>
+<span class="go">    Path(&#39;/sub/2020-10-01/001/obj.attr.npy&#39;),</span>
+<span class="go">]}</span>
 </pre></div>
 </div>
 </dd></dl>

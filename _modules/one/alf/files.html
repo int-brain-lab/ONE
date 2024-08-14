@@ -539,9 +539,13 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="n">name_parts</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">uuid</span> <span class="o">==</span> <span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;UUID already found in file name: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: IGNORE&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">file_path</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="o">*</span><span class="n">name_parts</span><span class="p">,</span> <span class="n">old_uuid</span> <span class="o">=</span> <span class="n">name_parts</span>
+        <span class="k">if</span> <span class="n">old_uuid</span> <span class="o">==</span> <span class="n">uuid</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;UUID already found in file name: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: IGNORE&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Replacing </span><span class="si">%s</span><span class="s1"> with </span><span class="si">%s</span><span class="s1"> in </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">old_uuid</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}{</span><span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
@@ -586,13 +590,13 @@
 
 <div class="viewcode-block" id="padded_sequence">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.padded_sequence">[docs]</a>
-<span class="k">def</span> <span class="nf">padded_sequence</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">padded_sequence</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ensures a file path contains a zero-padded experiment sequence folder.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    filepath : str, pathlib.Path, pathlib.PurePath</span>
+<span class="sd">    file_path : str, pathlib.Path, pathlib.PurePath</span>
 <span class="sd">        A session or file path to convert.</span>
 
 <span class="sd">    Returns</span>
@@ -603,23 +607,51 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; filepath = &#39;/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml&#39;</span>
-<span class="sd">    &gt;&gt;&gt; padded_sequence(filepath)</span>
+<span class="sd">    &gt;&gt;&gt; file_path = &#39;/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml&#39;</span>
+<span class="sd">    &gt;&gt;&gt; padded_sequence(file_path)</span>
 <span class="sd">    pathlib.Path(&#39;/iblrigdata/subject/2023-01-01/001/_ibl_experiment.description.yaml&#39;)</span>
 
 <span class="sd">    Supports folders and will not affect already padded paths</span>
 
 <span class="sd">    &gt;&gt;&gt; session_path = pathlib.PurePosixPath(&#39;subject/2023-01-01/001&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; padded_sequence(filepath)</span>
+<span class="sd">    &gt;&gt;&gt; padded_sequence(file_path)</span>
 <span class="sd">    pathlib.PurePosixPath(&#39;subject/2023-01-01/001&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">session_path</span> <span class="o">:=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">session_path</span> <span class="o">:=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;path must include a valid ALF session path, e.g. subject/YYYY-MM-DD/N&#39;</span><span class="p">)</span>
-    <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
     <span class="n">sequence</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># zero-pad if necessary</span>
-    <span class="k">return</span> <span class="n">filepath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">filepath</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">file_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="without_revision">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.files.html#one.alf.files.without_revision">[docs]</a>
+<span class="k">def</span> <span class="nf">without_revision</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return file path without a revision folder.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str, pathlib.Path</span>
+<span class="sd">        A valid ALF dataset path.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The input file path without a revision folder.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; without_revision(&#39;/lab/Subjects/subject/2023-01-01/001/collection/#revision#/obj.attr.ext&#39;)</span>
+<span class="sd">    Path(&#39;/lab/Subjects/subject/2023-01-01/001/collection/obj.attr.ext&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">revision</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span></div>
 
 </pre></div>
 
