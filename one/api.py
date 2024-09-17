@@ -1810,6 +1810,9 @@ class OneAlyx(One):
         records['relation'] = records['rel_path'].map(
             lambda x: x.split('aggregates')[-1].split('/')[1].lower()
         )
+        records['rel_path'] = records['rel_path'].map(
+            lambda x: '/'.join(x.split('/')[1:]) if 'public' in x else x
+        )
         records = records[records['relation'] == relation.lower()]
 
         def path2id(p) -> str:
