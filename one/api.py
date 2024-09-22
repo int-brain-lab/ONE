@@ -563,6 +563,9 @@ class One(ConversionMixin):
             repository
         update_exists : bool
             If true, the cache is updated to reflect the filesystem
+        check_hash : bool
+            Consider dataset missing if local file hash does not match. In online mode, the dataset
+            will be re-downloaded.
 
         Returns
         -------
@@ -924,6 +927,7 @@ class One(ConversionMixin):
                     revision: Optional[str] = None,
                     query_type: Optional[str] = None,
                     download_only: bool = False,
+                    check_hash: bool = True,
                     **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
         """
         Load all attributes of an ALF object from a Session ID and an object name.
@@ -951,6 +955,9 @@ class One(ConversionMixin):
         download_only : bool
             When true the data are downloaded and the file path is returned. NB: The order of the
             file path list is undefined.
+        check_hash : bool
+            Consider dataset missing if local file hash does not match. In online mode, the dataset
+            will be re-downloaded.
         kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the :func:`one.alf.spec.describe` function.
@@ -996,7 +1003,7 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
-        files = self._check_filesystem(datasets, offline=offline)
+        files = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
         files = [x for x in files if x]
         if not files:
             raise alferr.ALFObjectNotFound(f'ALF object "{obj}" not found on disk')
@@ -1015,7 +1022,7 @@ class One(ConversionMixin):
                      revision: Optional[str] = None,
                      query_type: Optional[str] = None,
                      download_only: bool = False,
-                     **kwargs) -> Any:
+                     check_hash: bool = True) -> Any:
         """
         Load a single dataset for a given session id and dataset name.
 
@@ -1040,6 +1047,9 @@ class One(ConversionMixin):
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
             When true the data are downloaded and the file path is returned.
+        check_hash : bool
+            Consider dataset missing if local file hash does not match. In online mode, the dataset
+            will be re-downloaded.
 
         Returns
         -------
@@ -1099,7 +1109,8 @@ class One(ConversionMixin):
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
         # Check files exist / download remote files
-        file, = self._check_filesystem(datasets, **kwargs)
+        offline = None if query_type == 'auto' else self.mode == 'local'
+        file, = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
 
         if not file:
             raise alferr.ALFObjectNotFound('Dataset not found')
@@ -1117,7 +1128,7 @@ class One(ConversionMixin):
                       query_type: Optional[str] = None,
                       assert_present=True,
                       download_only: bool = False,
-                      **kwargs) -> Any:
+                      check_hash: bool = True) -> Any:
         """
         Load datasets for a given session id.  Returns two lists the length of datasets.  The
         first is the data (or file paths if download_data is false), the second is a list of
@@ -1146,6 +1157,9 @@ class One(ConversionMixin):
             If true, missing datasets raises and error, otherwise None is returned
         download_only : bool
             When true the data are downloaded and the file path is returned.
+        check_hash : bool
+            Consider dataset missing if local file hash does not match. In online mode, the dataset
+            will be re-downloaded.
 
         Returns
         -------
@@ -1257,7 +1271,8 @@ class One(ConversionMixin):
                 _logger.warning(message)
 
         # Check files exist / download remote files
-        files = self._check_filesystem(present_datasets, **kwargs)
+        offline = None if query_type == 'auto' else self.mode == 'local'
+        files = self._check_filesystem(present_datasets, offline=offline, check_hash=check_hash)
 
         if any(x is None for x in files):
             missing_list = ', '.join(x for x, y in zip(present_datasets.rel_path, files) if not y)
@@ -1284,7 +1299,8 @@ class One(ConversionMixin):
     def load_dataset_from_id(self,
                              dset_id: Union[str, UUID],
                              download_only: bool = False,
-                             details: bool = False) -> Any:
+                             details: bool = False,
+                             check_hash: bool = True) -> Any:
         """
         Load a dataset given a dataset UUID.
 
@@ -1296,6 +1312,9 @@ class One(ConversionMixin):
             If true the dataset is downloaded (if necessary) and the filepath returned.
         details : bool
             If true a pandas Series is returned in addition to the data.
+        check_hash : bool
+            Consider dataset missing if local file hash does not match. In online mode, the dataset
+            will be re-downloaded.
 
         Returns
         -------
@@ -1314,7 +1333,7 @@ class One(ConversionMixin):
         except KeyError:
             raise alferr.ALFObjectNotFound('Dataset not found')
 
-        filepath, = self._check_filesystem(dataset)
+        filepath, = self._check_filesystem(dataset, check_hash=check_hash)
         if not filepath:
             raise alferr.ALFObjectNotFound('Dataset not found')
         output = filepath if download_only else alfio.load_file_content(filepath)
@@ -1332,6 +1351,7 @@ class One(ConversionMixin):
                         revision: Optional[str] = None,
                         query_type: Optional[str] = None,
                         download_only: bool = False,
+                        check_hash: bool = True,
                         **kwargs) -> Union[Bunch, List[Path]]:
         """
         Load all objects in an ALF collection from a Session ID.  Any datasets with matching object
@@ -1357,6 +1377,9 @@ class One(ConversionMixin):
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
             When true the data are downloaded and the file path is returned.
+        check_hash : bool
+            Consider dataset missing if local file hash does not match. In online mode, the dataset
+            will be re-downloaded.
         kwargs
             Additional filters for datasets, including namespace and timescale. For full list
             see the one.alf.spec.describe function.
@@ -1397,7 +1420,7 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
-        files = self._check_filesystem(datasets, offline=offline)
+        files = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
         if not any(files):
             raise alferr.ALFObjectNotFound(f'ALF collection "{collection}" not found on disk')
         # Remove missing items
@@ -1456,7 +1479,8 @@ class One(ConversionMixin):
 
 @lru_cache(maxsize=1)
 def ONE(*, mode='auto', wildcards=True, **kwargs):
-    """ONE API factory
+    """ONE API factory.
+
     Determine which class to instantiate depending on parameters passed.
 
     Parameters
@@ -1509,10 +1533,10 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 
 
 class OneAlyx(One):
-    """An API for searching and loading data through the Alyx database"""
+    """An API for searching and loading data through the Alyx database."""
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
                  mode='auto', wildcards=True, tables_dir=None, **kwargs):
-        """An API for searching and loading data through the Alyx database
+        """An API for searching and loading data through the Alyx database.
 
         Parameters
         ----------
@@ -2566,14 +2590,14 @@ class OneAlyx(One):
         Parameters
         ----------
         path_obj : str, pathlib.Path, list
-            Local path or list of local paths
+            Local path or list of local paths.
         query_type : str
-            If set to 'remote', will force database connection
+            If set to 'remote', will force database connection.
 
         Returns
         -------
         str, list
-            An eid or list of eids
+            An eid or list of eids.
         """
         # If path_obj is a list recurse through it and return a list
         if isinstance(path_obj, list):
