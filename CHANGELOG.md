@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.9.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.9.1]
+
+### Modified
+
+- HOTFIX: When downloading cache only authenticate Alyx when necessary
+- HOTFIX: Ensure http data server URL does not end in slash
+- Explicit kwargs in load_* methods to avoid user confusion (e.g. no 'namespace' kwarg for `load_dataset`)
+
+## [2.9.0]
 This version adds a couple of new ALF functions.
 
 ### Added 

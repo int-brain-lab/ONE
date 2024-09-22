@@ -187,12 +187,12 @@ class ConversionMixin:
         Parameters
         ----------
         path_obj : pathlib.Path, str
-            Local path or list of local paths
+            Local path or list of local paths.
 
         Returns
         -------
         eid, list
-            Experiment ID (eid) string or list of eids
+            Experiment ID (eid) string or list of eids.
         """
         # else ensure the path ends with mouse,date, number
         session_path = get_session_path(path_obj)
