@@ -1293,7 +1293,7 @@ class TestOneAlyx(unittest.TestCase):
 
         # Touch a file to ensure that we do not try downloading
         expected = self.one.cache_dir.joinpath(
-            'cortexlab/Subjects/ZM_1085/_ibl_subjectTraining.table.pqt')
+            'aggregates/Subjects/mainenlab/ZM_1085/_ibl_subjectTraining.table.pqt')
         expected.parent.mkdir(parents=True), expected.touch()
 
         # Test loading with different input dataset formats
