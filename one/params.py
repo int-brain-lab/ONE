@@ -122,22 +122,25 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {'CLIENT_MAP': dict()})
 
     if not silent:
+        prompt = 'Param %s, current value is ["%s"]:'
         par = iopar.as_dict(par_default)
-        for k in par.keys():
+        # Iterate through non-password pars
+        for k in filter(lambda k: 'PWD' not in k, par.keys()):
             cpar = _get_current_par(k, par_current)
-            # Prompt for database URL; skip if client url already provided
-            if k == 'ALYX_URL':
-                if not client:
-                    par[k] = input(f'Param {k}, current value is ["{str(cpar)}"]:') or cpar
-                    if '://' not in par[k]:
-                        par[k] = 'https://' + par[k]
-                    url_parsed = urlsplit(par[k])
-                    if not (url_parsed.netloc and re.match('https?', url_parsed.scheme)):
-                        raise ValueError(f'{k} must be valid HTTP URL')
+            # Prompt for database and FI URL
+            if 'URL' in k:
+                if k == 'ALYX_URL' and client:
+                    continue  # skip if client url already provided
+                par[k] = input(prompt % (k, cpar)).strip().rstrip('/') or cpar
+                if '://' not in par[k]:
+                    par[k] = 'https://' + par[k]
+                url_parsed = urlsplit(par[k])
+                if not (url_parsed.netloc and re.match('https?', url_parsed.scheme)):
+                    raise ValueError(f'{k} must be valid HTTP URL')
+                if k == 'ALYX_URL':
                     client = par[k]
-            # Iterate through other non-password pars
-            elif 'PWD' not in k:
-                par[k] = input(f'Param {k}, current value is ["{str(cpar)}"]:') or cpar
+            else:
+                par[k] = input(prompt % (k, cpar)).strip() or cpar
 
         cpar = _get_current_par('HTTP_DATA_SERVER_PWD', par_current)
         prompt = f'Enter the FlatIron HTTP password for {par["HTTP_DATA_SERVER_LOGIN"]} '\
@@ -179,12 +182,12 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
             print('SETUP ABANDONED.  Please re-run.')
             return par_current
     else:
-        par = par_current
-        if any(v for k, v in cache_map.CLIENT_MAP.items() if k != client_key):
-            warnings.warn('Warning: the directory provided is already a cache for another URL.')
         # Precedence: user provided cache_dir; previously defined; the default location
         default_cache_dir = Path(CACHE_DIR_DEFAULT, client_key)
         cache_dir = cache_dir or cache_map.CLIENT_MAP.get(client_key, default_cache_dir)
+        par = par_current
+        if any(v for k, v in cache_map.CLIENT_MAP.items() if k != client_key and v == cache_dir):
+            warnings.warn('Warning: the directory provided is already a cache for another URL.')
 
     # Update and save parameters
     Path(cache_dir).mkdir(exist_ok=True, parents=True)

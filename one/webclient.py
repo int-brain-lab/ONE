@@ -791,14 +791,16 @@ class AlyxClient:
         -------
             List of parquet table file paths.
         """
-        # query the database for the latest cache; expires=None overrides cached response
-        if not self.is_logged_in:
-            self.authenticate()
         source = str(source or f'{self.base_url}/cache.zip')
         destination = destination or self.cache_dir
         Path(destination).mkdir(exist_ok=True, parents=True)
 
-        headers = self._headers if source.startswith(self.base_url) else None
+        headers = None
+        if source.startswith(self.base_url):
+            if not self.is_logged_in:
+                self.authenticate()
+            headers = self._headers
+
         with tempfile.TemporaryDirectory(dir=destination) as tmp:
             file = http_download_file(source,
                                       headers=headers,
