@@ -692,6 +692,9 @@
 <span class="sd">            repository</span>
 <span class="sd">        update_exists : bool</span>
 <span class="sd">            If true, the cache is updated to reflect the filesystem</span>
+<span class="sd">        check_hash : bool</span>
+<span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
+<span class="sd">            will be re-downloaded.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1070,6 +1073,7 @@
                     <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all attributes of an ALF object from a Session ID and an object name.</span>
@@ -1097,6 +1101,9 @@
 <span class="sd">        download_only : bool</span>
 <span class="sd">            When true the data are downloaded and the file path is returned. NB: The order of the</span>
 <span class="sd">            file path list is undefined.</span>
+<span class="sd">        check_hash : bool</span>
+<span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
+<span class="sd">            will be re-downloaded.</span>
 <span class="sd">        kwargs</span>
 <span class="sd">            Additional filters for datasets, including namespace and timescale. For full list</span>
 <span class="sd">            see the :func:`one.alf.spec.describe` function.</span>
@@ -1142,7 +1149,7 @@
 
         <span class="c1"># For those that don&#39;t exist, download them</span>
         <span class="n">offline</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_hash</span><span class="p">)</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALF object &quot;</span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s1">&quot; not found on disk&#39;</span><span class="p">)</span>
@@ -1164,7 +1171,7 @@
                      <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+                     <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a single dataset for a given session id and dataset name.</span>
 
@@ -1189,6 +1196,9 @@
 <span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
 <span class="sd">        download_only : bool</span>
 <span class="sd">            When true the data are downloaded and the file path is returned.</span>
+<span class="sd">        check_hash : bool</span>
+<span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
+<span class="sd">            will be re-downloaded.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1248,7 +1258,8 @@
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dataset &quot;</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&quot; not found&#39;</span><span class="p">)</span>
 
         <span class="c1"># Check files exist / download remote files</span>
-        <span class="n">file</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">offline</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span>
+        <span class="n">file</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_hash</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">file</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="s1">&#39;Dataset not found&#39;</span><span class="p">)</span>
@@ -1269,7 +1280,7 @@
                       <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                       <span class="n">assert_present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                       <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+                      <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load datasets for a given session id.  Returns two lists the length of datasets.  The</span>
 <span class="sd">        first is the data (or file paths if download_data is false), the second is a list of</span>
@@ -1298,6 +1309,9 @@
 <span class="sd">            If true, missing datasets raises and error, otherwise None is returned</span>
 <span class="sd">        download_only : bool</span>
 <span class="sd">            When true the data are downloaded and the file path is returned.</span>
+<span class="sd">        check_hash : bool</span>
+<span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
+<span class="sd">            will be re-downloaded.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1409,7 +1423,8 @@
                 <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
         <span class="c1"># Check files exist / download remote files</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">present_datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">offline</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">present_datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_hash</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">):</span>
             <span class="n">missing_list</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">present_datasets</span><span class="o">.</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="p">)</span>
@@ -1439,7 +1454,8 @@
     <span class="k">def</span> <span class="nf">load_dataset_from_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                              <span class="n">dset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">],</span>
                              <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                             <span class="n">details</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+                             <span class="n">details</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                             <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a dataset given a dataset UUID.</span>
 
@@ -1451,6 +1467,9 @@
 <span class="sd">            If true the dataset is downloaded (if necessary) and the filepath returned.</span>
 <span class="sd">        details : bool</span>
 <span class="sd">            If true a pandas Series is returned in addition to the data.</span>
+<span class="sd">        check_hash : bool</span>
+<span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
+<span class="sd">            will be re-downloaded.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1469,7 +1488,7 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="s1">&#39;Dataset not found&#39;</span><span class="p">)</span>
 
-        <span class="n">filepath</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">filepath</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_hash</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="s1">&#39;Dataset not found&#39;</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">filepath</span> <span class="k">if</span> <span class="n">download_only</span> <span class="k">else</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
@@ -1490,6 +1509,7 @@
                         <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all objects in an ALF collection from a Session ID.  Any datasets with matching object</span>
@@ -1515,6 +1535,9 @@
 <span class="sd">            Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)</span>
 <span class="sd">        download_only : bool</span>
 <span class="sd">            When true the data are downloaded and the file path is returned.</span>
+<span class="sd">        check_hash : bool</span>
+<span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
+<span class="sd">            will be re-downloaded.</span>
 <span class="sd">        kwargs</span>
 <span class="sd">            Additional filters for datasets, including namespace and timescale. For full list</span>
 <span class="sd">            see the one.alf.spec.describe function.</span>
@@ -1555,7 +1578,7 @@
 
         <span class="c1"># For those that don&#39;t exist, download them</span>
         <span class="n">offline</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filesystem</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">offline</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_hash</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALF collection &quot;</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s1">&quot; not found on disk&#39;</span><span class="p">)</span>
         <span class="c1"># Remove missing items</span>
@@ -1621,7 +1644,8 @@
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.ONE">[docs]</a>
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">ONE</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;ONE API factory</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ONE API factory.</span>
+
 <span class="sd">    Determine which class to instantiate depending on parameters passed.</span>
 
 <span class="sd">    Parameters</span>
@@ -1677,10 +1701,10 @@
 <div class="viewcode-block" id="OneAlyx">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx">[docs]</a>
 <span class="k">class</span> <span class="nc">OneAlyx</span><span class="p">(</span><span class="n">One</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1985,13 +2009,13 @@
                    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                    <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;did&#39;</span><span class="p">}))</span>
-        <span class="c1"># Since rel_path for public FI file records starts with public/aggregates instead of just</span>
-        <span class="c1"># aggregates as is the case for internal FI file records, as well as public and internal</span>
-        <span class="c1"># AWS file records, we need to make sure to use the file path part after &#39;aggregates&#39;</span>
-        <span class="c1"># and not simply the second part, as relation.</span>
+        <span class="c1"># Since rel_path for public FI file records starts with &#39;public/aggregates&#39; instead of just</span>
+        <span class="c1"># &#39;aggregates&#39;, we should discard the file path parts before &#39;aggregates&#39; (if present)</span>
+        <span class="n">records</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^[\w\/]+(?=aggregates\/)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># The relation is the first part after &#39;aggregates&#39;, i.e. the second part</span>
         <span class="n">records</span><span class="p">[</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;aggregates&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="p">)</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;aggregates&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
         <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">records</span><span class="p">[</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">relation</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
 
         <span class="k">def</span> <span class="nf">path2id</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2769,14 +2793,14 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        path_obj : str, pathlib.Path, list</span>
-<span class="sd">            Local path or list of local paths</span>
+<span class="sd">            Local path or list of local paths.</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            If set to &#39;remote&#39;, will force database connection</span>
+<span class="sd">            If set to &#39;remote&#39;, will force database connection.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str, list</span>
-<span class="sd">            An eid or list of eids</span>
+<span class="sd">            An eid or list of eids.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If path_obj is a list recurse through it and return a list</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>

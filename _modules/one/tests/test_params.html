@@ -177,7 +177,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">ALYX_LOGIN</span><span class="p">,</span> <span class="s1">&#39;mistake&#39;</span><span class="p">)</span>
 
         <span class="c1"># Check that raises ValueError when bad URL provided</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;ftp://&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;ftp://foo.bar.org&#39;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">),</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.params.input&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mock_input</span><span class="p">):</span>
             <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
