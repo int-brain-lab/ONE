@@ -1249,14 +1249,15 @@ class TestOneAlyx(unittest.TestCase):
         """Test OneAlyx.list_aggregates"""
         # Test listing by relation
         datasets = self.one.list_aggregates('subjects')
-        self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects')))
+        self.assertTrue(all(datasets['rel_path'].str.startswith('aggregates/Subjects')))
         self.assertIn('exists_aws', datasets.columns)
         self.assertIn('session_path', datasets.columns)
         self.assertTrue(all(datasets['session_path'] == ''))
         self.assertTrue(self.one.list_aggregates('foobar').empty)
         # Test filtering with an identifier
         datasets = self.one.list_aggregates('subjects', 'ZM_1085')
-        self.assertTrue(all(datasets['rel_path'].str.startswith('cortexlab/Subjects/ZM_1085')))
+        expected = 'aggregates/Subjects/mainenlab/ZM_1085'
+        self.assertTrue(all(datasets['rel_path'].str.startswith(expected)))
         self.assertTrue(self.one.list_aggregates('subjects', 'foobar').empty)
         # Test that additional parts of data path are correctly removed
         # specifically /public in FI openalyx file rec
