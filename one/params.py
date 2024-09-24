@@ -182,12 +182,12 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
             print('SETUP ABANDONED.  Please re-run.')
             return par_current
     else:
-        par = par_current
-        if any(v for k, v in cache_map.CLIENT_MAP.items() if k != client_key):
-            warnings.warn('Warning: the directory provided is already a cache for another URL.')
         # Precedence: user provided cache_dir; previously defined; the default location
         default_cache_dir = Path(CACHE_DIR_DEFAULT, client_key)
         cache_dir = cache_dir or cache_map.CLIENT_MAP.get(client_key, default_cache_dir)
+        par = par_current
+        if any(v for k, v in cache_map.CLIENT_MAP.items() if k != client_key and v == cache_dir):
+            warnings.warn('Warning: the directory provided is already a cache for another URL.')
 
     # Update and save parameters
     Path(cache_dir).mkdir(exist_ok=True, parents=True)

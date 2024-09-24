@@ -5,6 +5,8 @@
 
 - HOTFIX: When downloading cache only authenticate Alyx when necessary
 - HOTFIX: Ensure http data server URL does not end in slash
+- HOTFIX: Handle public aggregate dataset relative paths
+- HOTFIX: No longer warns in silent mode when no param conflicts present
 - Explicit kwargs in load_* methods to avoid user confusion (e.g. no 'namespace' kwarg for `load_dataset`)
 
 ## [2.9.0]

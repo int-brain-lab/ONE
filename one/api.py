@@ -1827,16 +1827,13 @@ class OneAlyx(One):
                    .reset_index(level=0)
                    .drop('eid', axis=1)
                    .rename_axis(index={'id': 'did'}))
-        # Since rel_path for public FI file records starts with public/aggregates instead of just
-        # aggregates as is the case for internal FI file records, as well as public and internal
-        # AWS file records, we need to make sure to use the file path part after 'aggregates'
-        # and not simply the second part, as relation.
+        # Since rel_path for public FI file records starts with 'public/aggregates' instead of just
+        # 'aggregates', we should discard the file path parts before 'aggregates' (if present)
+        records['rel_path'] = records['rel_path'].str.replace(
+            r'^[\w\/]+(?=aggregates\/)', '', n=1, regex=True)
+        # The relation is the first part after 'aggregates', i.e. the second part
         records['relation'] = records['rel_path'].map(
-            lambda x: x.split('aggregates')[-1].split('/')[1].lower()
-        )
-        records['rel_path'] = records['rel_path'].map(
-            lambda x: '/'.join(x.split('/')[1:]) if 'public' in x else x
-        )
+            lambda x: x.split('aggregates')[-1].split('/')[1].lower())
         records = records[records['relation'] == relation.lower()]
 
         def path2id(p) -> str:

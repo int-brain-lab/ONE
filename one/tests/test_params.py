@@ -61,7 +61,7 @@ class TestParamSetup(unittest.TestCase):
             self.assertNotEqual(cache.ALYX_LOGIN, 'mistake')
 
         # Check that raises ValueError when bad URL provided
-        self.url = 'ftp://'
+        self.url = 'ftp://foo.bar.org'
         with self.assertRaises(ValueError), mock.patch('one.params.input', new=self._mock_input):
             one.params.setup()
 
