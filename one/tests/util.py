@@ -116,7 +116,8 @@ def setup_test_params(token=False, cache_dir=None):
 def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
                              revisions=('', '2020-01-08', '2021-07-06'),
                              object='spikes',
-                             attributes=('times', 'waveforems')):
+                             attributes=('times', 'waveforems'),
+                             touch_path=None):
     """Returns a datasets cache DataFrame containing datasets with revision folders.
 
     As there are no revised datasets on the test databases, this function acts as a fixture for
@@ -132,6 +133,8 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         An ALF object
     attributes : tuple
         A list of ALF attributes
+    touch_path : pathlib.Path, str
+        If provided, files are created in this directory.
 
     Returns
     -------
@@ -154,6 +157,12 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         'eid': str(uuid4()),
         'id': map(str, (uuid4() for _ in rel_path))
     }
+
+    if touch_path:
+        for p in rel_path:
+            path = Path(touch_path).joinpath(d['session_path'] + '/' + p)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.touch()
 
     return pd.DataFrame(data=d).astype({'qc': QC_TYPE}).set_index(['eid', 'id'])
 
