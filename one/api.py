@@ -701,7 +701,7 @@ class One(ConversionMixin):
     @util.refresh
     def list_datasets(
             self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
-            ignore_qc_not_set=False, details=False, query_type=None
+            ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False
     ) -> Union[np.ndarray, pd.DataFrame]:
         """
         Given an eid, return the datasets for those sessions.
@@ -734,6 +734,9 @@ class One(ConversionMixin):
             relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
         query_type : str
             Query cache ('local') or Alyx database ('remote').
+        default_revisions_only : bool
+            When true, only matching datasets that are considered default revisions are returned.
+            If no 'default_revision' column is present, and ALFError is raised.
 
         Returns
         -------
@@ -763,6 +766,11 @@ class One(ConversionMixin):
         >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
         """
         datasets = self._cache['datasets']
+        if default_revisions_only:
+            if 'default_revision' not in datasets.columns:
+                raise alferr.ALFError('No default revisions specified')
+            datasets = datasets[datasets['default_revision']]
+
         filter_args = dict(
             collection=collection, filename=filename, wildcards=self.wildcards, revision=revision,
             revision_last_before=False, assert_unique=False, qc=qc,
@@ -1766,11 +1774,11 @@ class OneAlyx(One):
     @util.refresh
     def list_datasets(
             self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
-            ignore_qc_not_set=False, details=False, query_type=None
+            ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False
     ) -> Union[np.ndarray, pd.DataFrame]:
         filters = dict(
-            collection=collection, filename=filename, revision=revision,
-            qc=qc, ignore_qc_not_set=ignore_qc_not_set)
+            collection=collection, filename=filename, revision=revision, qc=qc,
+            ignore_qc_not_set=ignore_qc_not_set, default_revisions_only=default_revisions_only)
         if (query_type or self.mode) != 'remote':
             return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         elif not eid:
@@ -1785,6 +1793,7 @@ class OneAlyx(One):
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         assert set(datasets.index.unique('eid')) == {eid}
+        del filters['default_revisions_only']
         datasets = util.filter_datasets(
             datasets.droplevel('eid'), assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path

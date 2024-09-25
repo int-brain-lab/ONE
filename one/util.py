@@ -445,7 +445,11 @@ def filter_datasets(
             else:
                 return match
 
-    return filter_revision_last_before(match, revision, assert_unique=assert_unique)
+    match = filter_revision_last_before(match, revision, assert_unique=assert_unique)
+    if assert_unique and len(match) > 1:
+        _list = '"' + '", "'.join(match['rel_path']) + '"'
+        raise alferr.ALFMultipleObjectsFound(_list)
+    return match
 
 
 def filter_revision_last_before(

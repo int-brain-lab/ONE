@@ -147,7 +147,7 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
     d = {
         'rel_path': rel_path,
         'session_path': 'subject/1900-01-01/001',
-        'file_size': None,
+        'file_size': 0,
         'hash': None,
         'exists': True,
         'qc': 'NOT_SET',
