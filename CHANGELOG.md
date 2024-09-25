@@ -1,5 +1,17 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.9.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.0]
+This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
+
+### Modified
+
+- sub-collections no longer captured when filtering with filename that starts with wildcard in wildcard mode
+- bugfix of spurious error raised when loading dataset with a revision provided
+
+### Added
+
+- one.alf.exceptions.ALFWarning category allows users to filter warnings relating to mixed revisions
+
+## [2.9.1]
 
 ### Modified
 
@@ -7,7 +19,7 @@
 - HOTFIX: Ensure http data server URL does not end in slash
 - HOTFIX: Handle public aggregate dataset relative paths
 - HOTFIX: No longer warns in silent mode when no param conflicts present
-- Explicit kwargs in load_* methods to avoid user confusion (e.g. no 'namespace' kwarg for `load_dataset`)
+- explicit kwargs in load_* methods to avoid user confusion (e.g. no 'namespace' kwarg for `load_dataset`)
 
 ## [2.9.0]
 This version adds a couple of new ALF functions.

@@ -293,15 +293,22 @@ class TestONECache(unittest.TestCase):
         datasets['rel_path'] = revisions
 
         # Should return last revision before date for each collection/dataset
+        # These comprise mixed revisions which should trigger ALF warning
         revision = '2020-09-06'
-        verifiable = filter_datasets(datasets, None, None, revision, assert_unique=False)
+        expected_warn = 'Multiple revisions: "2020-08-31", "2020-01-01"'
+        with self.assertWarnsRegex(alferr.ALFWarning, expected_warn):
+            verifiable = filter_datasets(datasets, None, None, revision, assert_unique=False)
         self.assertEqual(2, len(verifiable))
         self.assertTrue(all(x.split('#')[1] < revision for x in verifiable['rel_path']))
 
-        # Should return single dataset with last revision when default specified
-        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
-                            assert_unique=True, wildcards=True, revision_last_before=True)
+        # with no default_revisions column there should be a warning about return latest revision
+        # when no revision is provided.
+        with self.assertWarnsRegex(alferr.ALFWarning, 'No default revision for dataset'):
+            verifiable = filter_datasets(
+                datasets, '*spikes.times*', 'alf/probe00', None,
+                assert_unique=True, wildcards=True, revision_last_before=True)
+            self.assertEqual(1, len(verifiable))
+            self.assertTrue(verifiable['rel_path'].str.contains('#2021-xx-xx#').all())
 
         # Should return matching revision
         verifiable = filter_datasets(datasets, None, None, r'2020-08-\d{2}',
@@ -342,8 +349,8 @@ class TestONECache(unittest.TestCase):
                                      assert_unique=True, wildcards=True, revision_last_before=True)
         self.assertEqual(verifiable.rel_path.to_list(),
                          ['alf/probe00/#2020-01-01#/spikes.times.npy'])
-        # When revision_last_before is false, expect multiple objects error
-        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+        # When revision_last_before is false, expect multiple revisions error
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
             filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
                             assert_unique=True, wildcards=True, revision_last_before=False)
 
@@ -355,11 +362,28 @@ class TestONECache(unittest.TestCase):
                                      assert_unique=False, wildcards=True)
         self.assertTrue(len(verifiable) == 2)
         # As dict with list (should act as logical OR)
+        kwargs = dict(assert_unique=False, revision_last_before=False, wildcards=True)
         dataset = dict(attribute=['timestamp?', 'raw'])
-        verifiable = filter_datasets(datasets, dataset, None, None,
-                                     assert_unique=False, revision_last_before=False,
-                                     wildcards=True)
+        verifiable = filter_datasets(datasets, dataset, None, None, **kwargs)
         self.assertEqual(4, len(verifiable))
+
+        # Test handling greedy captures of collection parts when there are wildcards at the start
+        # of the filename patten.
+
+        # Add some identical files that exist in collections and sub-collections
+        # (i.e. raw_ephys_data, raw_ephys_data/probe00, raw_ephys_data/probe01)
+        all_datasets = self.one._cache.datasets
+        meta_datasets = all_datasets[all_datasets.rel_path.str.contains('meta')].copy()
+        datasets = pd.concat([datasets, meta_datasets])
+
+        # Matching *meta should not capture raw_ephys_data/probe00, etc.
+        verifiable = filter_datasets(datasets, '*.meta', 'raw_ephys_data', None, **kwargs)
+        expected = ['raw_ephys_data/_spikeglx_ephysData_g0_t0.nidq.meta']
+        self.assertCountEqual(expected, verifiable.rel_path)
+        verifiable = filter_datasets(datasets, '*.meta', 'raw_ephys_data/probe??', None, **kwargs)
+        self.assertEqual(2, len(verifiable))
+        verifiable = filter_datasets(datasets, '*.meta', 'raw_ephys_data*', None, **kwargs)
+        self.assertEqual(3, len(verifiable))
 
     def test_list_datasets(self):
         """Test One.list_datasets"""
@@ -1974,13 +1998,14 @@ class TestOneMisc(unittest.TestCase):
                                                  revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
-        # Test assert unique
+        # Remove one of the datasets' revisions to test assert unique on mixed revisions
+        df_mixed = df.drop((df['revision'] == '2020-01-08').idxmax())
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_revision_last_before(df, revision='2020-09-01', assert_unique=True)
+            filter_revision_last_before(df_mixed, revision='2020-09-01', assert_consistent=True)
 
         # Test with default revisions
         df['default_revision'] = False
-        with self.assertLogs(logging.getLogger('one.util')):
+        with self.assertWarnsRegex(alferr.ALFWarning, 'No default revision for dataset'):
             verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
@@ -1991,8 +2016,10 @@ class TestOneMisc(unittest.TestCase):
 
         # Add unique default revisions
         df.iloc[[0, 4], -1] = True
-        verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
-        self.assertTrue(len(verifiable) == 2)
+        # Should log mixed revisions
+        with self.assertWarnsRegex(alferr.ALFWarning, 'Multiple revisions'):
+            verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
+        self.assertEqual(2, len(verifiable))
         self.assertCountEqual(verifiable['rel_path'], df['rel_path'].iloc[[0, 4]])
 
         # Add multiple default revisions
