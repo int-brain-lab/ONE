@@ -28,10 +28,10 @@ import one.alf.io as alfio
 import one.alf.files as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
-from .alf.spec import is_uuid_string, QC
+from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path
-import one.util as util
+from one import util
 
 _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
@@ -1138,9 +1138,11 @@ class One(ConversionMixin):
                       download_only: bool = False,
                       check_hash: bool = True) -> Any:
         """
-        Load datasets for a given session id.  Returns two lists the length of datasets.  The
-        first is the data (or file paths if download_data is false), the second is a list of
-        meta data Bunches.  If assert_present is false, missing data will be returned as None.
+        Load datasets for a given session id.
+
+        Returns two lists the length of datasets.  The first is the data (or file paths if
+        download_data is false), the second is a list of meta data Bunches.  If assert_present is
+        false, missing data will be returned as None.
 
         Parameters
         ----------
@@ -1172,9 +1174,9 @@ class One(ConversionMixin):
         Returns
         -------
         list
-            A list of data (or file paths) the length of datasets
+            A list of data (or file paths) the length of datasets.
         list
-            A list of meta data Bunches. If assert_present is False, missing data will be None
+            A list of meta data Bunches. If assert_present is False, missing data will be None.
 
         Notes
         -----
@@ -1186,6 +1188,8 @@ class One(ConversionMixin):
           revision as separate keyword arguments.
         - To ensure you are loading the correct revision, use the revisions kwarg instead of
           relative paths.
+        - To load an exact revision (i.e. not the last revision before a given date), pass in
+          a list of relative paths or a data frame.
 
         Raises
         ------
@@ -1228,8 +1232,25 @@ class One(ConversionMixin):
 
         if isinstance(datasets, str):
             raise TypeError('`datasets` must be a non-string iterable')
-        # Check input args
-        collections, revisions = _verify_specifiers([collections, revisions])
+
+        # Check if rel paths have been used (e.g. the output of list_datasets)
+        is_frame = isinstance(datasets, pd.DataFrame)
+        if is_rel_paths := (is_frame or any('/' in x for x in datasets)):
+            if not (collections, revisions) == (None, None):
+                raise ValueError(
+                    'collection and revision kwargs must be None when dataset is a relative path')
+            if is_frame:
+                if 'eid' in datasets.index.names:
+                    assert set(datasets.index.get_level_values('eid')) == {eid}
+                datasets = datasets['rel_path'].tolist()
+            datasets = list(map(partial(alfiles.rel_path_parts, as_dict=True), datasets))
+            if len(datasets) > 0:
+                # Extract collection and revision from each of the parsed datasets
+                # None -> '' ensures exact collections and revisions are used in filter
+                # NB: f user passes in dicts, any collection/revision keys will be ignored.
+                collections, revisions = zip(
+                    *((x.pop('collection') or '', x.pop('revision') or '') for x in datasets)
+                )
 
         # Short circuit
         query_type = query_type or self.mode
@@ -1243,16 +1264,24 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             return None, all_datasets.iloc[0:0]  # Return empty
 
-        # Filter and load missing
-        if self.wildcards:  # Append extension wildcard if 'object.attribute' string
-            datasets = [x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
-                        for x in datasets]
+        # More input validation
+        input_types = [(isinstance(x, str), isinstance(x, dict)) for x in datasets]
+        if not all(map(any, input_types)) or not any(map(all, zip(*input_types))):
+            raise ValueError('`datasets` must be iterable of only str or only dicts')
+        if self.wildcards and input_types[0][0]:  # if wildcards and input is iter of str
+            # Append extension wildcard if 'object.attribute' string
+            datasets = [
+                x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
+                for x in datasets
+            ]
+
+        # Check input args
+        collections, revisions = _verify_specifiers([collections, revisions])
+
         # If collections provided in datasets list, e.g. [collection/x.y.z], do not assert unique
-        validate = not any(('/' if isinstance(d, str) else 'collection') in d for d in datasets)
-        if not validate and not all(x is None for x in collections + revisions):
-            raise ValueError(
-                'collection and revision kwargs must be None when dataset is a relative path')
-        ops = dict(wildcards=self.wildcards, assert_unique=validate)
+        # If not a dataframe, use revision last before (we've asserted no revision in rel_path)
+        ops = dict(
+            wildcards=self.wildcards, assert_unique=True, revision_last_before=not is_rel_paths)
         slices = [util.filter_datasets(all_datasets, x, y, z, **ops)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
@@ -1260,18 +1289,21 @@ class One(ConversionMixin):
 
         # Check if user is blindly downloading all data and warn of non-default revisions
         if 'default_revision' in present_datasets and \
-                not any(revisions) and not all(present_datasets['default_revision']):
+                is_rel_paths and not all(present_datasets['default_revision']):
             old = present_datasets.loc[~present_datasets['default_revision'], 'rel_path'].to_list()
             warnings.warn(
                 'The following datasets may have been revised and ' +
                 'are therefore not recommended for analysis:\n\t' +
                 '\n\t'.join(old) + '\n'
-                'To avoid this warning, specify the revision as a kwarg or use load_dataset.'
+                'To avoid this warning, specify the revision as a kwarg or use load_dataset.',
+                alferr.ALFWarning
             )
 
         if not all(present):
-            missing_list = ', '.join(x for x, y in zip(datasets, present) if not y)
-            # FIXME include collection and revision also
+            missing_list = (x if isinstance(x, str) else to_alf(**x) for x in datasets)
+            missing_list = ('/'.join(filter(None, [c, f'#{r}#' if r else None, d]))
+                            for c, r, d in zip(collections, revisions, missing_list))
+            missing_list = ', '.join(x for x, y in zip(missing_list, present) if not y)
             message = f'The following datasets are not in the cache: {missing_list}'
             if assert_present:
                 raise alferr.ALFObjectNotFound(message)

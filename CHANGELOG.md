@@ -7,6 +7,7 @@ This version improves behaviour of loading revisions and loading datasets from l
 - sub-collections no longer captured when filtering with filename that starts with wildcard in wildcard mode
 - bugfix of spurious error raised when loading dataset with a revision provided
 - default_revisions_only parameter in One.list_datasets filters non-default datasets
+- permit data frame input to One.load_datasets and load precise relative paths provided (instead of default revisions)
 
 ### Added
 

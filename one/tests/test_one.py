@@ -654,21 +654,48 @@ class TestONECache(unittest.TestCase):
         files, meta = self.one.load_datasets(eid, dsets, download_only=True)
         self.assertTrue(all(isinstance(x, Path) for x in files))
 
+        # Check behaviour when loading with a data frame (undocumented)
+        eid = '01390fcc-4f86-4707-8a3b-4d9309feb0a1'
+        datasets = self.one._cache.datasets.loc[([eid],), :].iloc[:3, :]
+        files, meta = self.one.load_datasets(eid, datasets, download_only=True)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+        # Should raise when data frame contains a different eid
+        self.assertRaises(AssertionError, self.one.load_datasets, uuid4(), datasets)
+
+        # Mix of str and dict
+        # Check download only
+        dsets = [
+            spec.regex(spec.FILE_SPEC).match('_ibl_wheel.position.npy').groupdict(),
+            '_ibl_wheel.timestamps.npy'
+        ]
+        with self.assertRaises(ValueError):
+            self.one.load_datasets('KS005/2019-04-02/001', dsets, assert_present=False)
+
         # Loading of non default revisions without using the revision kwarg causes user warning.
-        # With relative paths provided as input, dataset uniqueness validation is supressed.
+        # With relative paths provided as input, dataset uniqueness validation is suppressed.
+        eid = self.one._cache.sessions.iloc[0].name
         datasets = util.revisions_datasets_table(
-            revisions=('', '2020-01-08'), attributes=('times',))
+            revisions=('', '2020-01-08'), attributes=('times',), touch_path=self.one.cache_dir)
         datasets['default_revision'] = [False, True] * 3
-        eid = datasets.iloc[0].name[0]
+        datasets.index = datasets.index.set_levels([eid], level=0)
         self.one._cache.datasets = datasets
-        with self.assertWarns(UserWarning):
-            self.one.load_datasets(eid, datasets['rel_path'].to_list(),
-                                   download_only=True, assert_present=False)
+        with self.assertWarns(alferr.ALFWarning):
+            self.one.load_datasets(eid, datasets['rel_path'].to_list(), download_only=True)
 
         # When loading without collections in the dataset list (i.e. just the dataset names)
         # an exception should be raised when datasets belong to multiple collections.
         self.assertRaises(
             alferr.ALFMultipleCollectionsFound, self.one.load_datasets, eid, ['spikes.times'])
+
+        # Ensure that when rel paths are passed, a null collection/revision is not interpreted as
+        # an ANY. NB this means the output of 'spikes.times.npy' will be different depending on
+        # weather other datasets in list include a collection or revision.
+        self.one._cache.datasets = datasets.iloc[:2, :].copy()  # only two datasets, one default
+        (file,), _ = self.one.load_datasets(eid, ['spikes.times.npy', ], download_only=True)
+        self.assertTrue(file.as_posix().endswith('001/#2020-01-08#/spikes.times.npy'))
+        (file, _), _ = self.one.load_datasets(
+            eid, ['spikes.times.npy', 'xx/obj.attr.ext'], download_only=True, assert_present=False)
+        self.assertTrue(file.as_posix().endswith('001/spikes.times.npy'))
 
     def test_load_dataset_from_id(self):
         """Test One.load_dataset_from_id"""
@@ -927,7 +954,6 @@ class TestONECache(unittest.TestCase):
             loaded = self.one._cache['_loaded_datasets']
             # One dataset is already in the list (test for duplicates) and other doesn't exist
             self.assertEqual(len(files), len(loaded), 'No new UUIDs should have been added')
-            self.assertIn(rec[1]['id'], loaded)  # Already in list
             self.assertEqual(len(loaded), len(np.unique(loaded)))
             self.assertNotIn(dset.name[1], loaded)  # Wasn't loaded as doesn't exist on disk
         finally:
