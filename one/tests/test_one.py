@@ -57,6 +57,95 @@ from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
 
+class TestLoadDatasets(unittest.TestCase):
+    """The purpose of this test is to check the behaviour of the load_datasets method
+    in the ONE class, in the presence of various combinations of default_revision and
+    revisions mix for an object.
+    """
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        dsets = [
+            'alf/probe00/pykilosort/channels.brainLocationIds_ccf_2017.npy',
+            'alf/probe00/pykilosort/channels.localCoordinates.npy',
+            'alf/probe00/pykilosort/channels.mlapdv.npy',
+            'alf/probe00/pykilosort/channels.rawInd.npy',
+            'alf/probe00/pykilosort/#2024-05-06#/channels.brainLocationIds_ccf_2017.npy',
+            'alf/probe00/pykilosort/#2024-05-06#/channels.labels.npy',
+            # note that this one only exists in latest revision
+            'alf/probe00/pykilosort/#2024-05-06#/channels.localCoordinates.npy',
+            'alf/probe00/pykilosort/#2024-05-06#/channels.mlapdv.npy',
+            'alf/probe00/pykilosort/#2024-05-06#/channels.rawInd.npy',
+        ]
+        self.session_stub = 'subject/2022-02-22/001'
+        session_path = Path(self.td.name).joinpath(self.session_stub)
+        for dset in dsets:
+            session_path.joinpath(dset).parent.mkdir(parents=True, exist_ok=True)
+            session_path.joinpath(dset).touch()
+        One.setup(self.td.name, hash_files=False)
+        self.one = ONE(mode='local', cache_dir=self.td.name)
+
+        # ['file_size', 'hash', 'default_revision', 'qc', 'exists_flatiron',
+        #  'exists_aws', 'exists', 'session_path', 'rel_path'],
+        self._set_default(old=False)
+
+    def _set_default(self, old=False):
+        self.one._cache.datasets['default_revision'] = not old
+        for i, rec in self.one._cache.datasets.iterrows():
+            if '2024-05-06' in rec['rel_path']:
+                self.one._cache.datasets.loc[i, 'default_revision'] = old
+
+    def tearDown(self):
+        self.td.cleanup()
+
+    def test_load_datasets_relative_paths_default_oldest(self):
+        """In this case we have default datasets with a mixed revision"""
+        one = self.one
+        eid = self.session_stub
+        one._cache.datasets['default_revision'] = one._cache.datasets['rel_path'].apply(
+            lambda x: '#2024-05-06#' not in x)
+        inew = (one._cache.datasets['rel_path'] ==
+                'alf/probe00/pykilosort/#2024-05-06#/channels.labels.npy')
+        one._cache.datasets.loc[inew, 'default_revision'] = True
+        # consistent revision with inconsistent defaults: this passes and outputs all new files
+        dsets = one.list_datasets(
+            eid, collection='alf/probe00/pykilosort', filename='channels*', revision='2024-05-06')
+        files, _ = one.load_datasets(id=self.session_stub, datasets=dsets, download_only=True)
+        # TODO: should there be a way to specify to load only the
+        #  defaults datasets ? Should it be the default behaviour ?
+
+    def test_load_datasets_relative_paths_default_latest(self):
+        one = self.one
+        eid = self.session_stub
+        one._cache.datasets['default_revision'] = one._cache.datasets[
+            'rel_path'].apply(lambda x: '#2024-05-06#' in x)
+        # FIXME replace with [True, False] when the bug is fixed
+        for i, details in enumerate([False]):
+            with self.subTest(details=details):
+                dsets = one.list_datasets(
+                    eid, collection='alf/probe00/pykilosort', revision='2024-05-06',
+                    filename='channels*', details=details
+                )
+                # just feeding the datasets with no other argument, we should recover the files
+                files, _ = one.load_datasets(eid, dsets, download_only=True)
+                self.assertEqual(len(files), len(dsets))
+        # this should fail with ValueError: collection and
+        # revision kwargs must be None when dataset is a relative path
+        with self.assertRaises(ValueError):
+            one.load_datasets(eid, dsets, download_only=True, revisions='2024-05-06')
+        # this should work with revision last before
+        files, _ = one.load_datasets(
+            eid, ['channels.labels'], download_only=True, revisions='2024-10-10')
+        self.assertEqual(len(files), 1)
+        # this should fail as channels.labels is only in the latest revision 2024-05-06
+        with self.assertRaises(alferr.ALFObjectNotFound):
+            one.load_datasets(eid, ['channels.labels'], download_only=True, revisions='2023-10-10')
+        # FIXME: this should not return multiple objects found
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
+            files, _ = one.load_datasets(
+                eid, ['channels.mlapdv'], download_only=True, revisions='2023-10-10')
+            # FIXME: this assertion should pass instead: self.assertTrue(len(files) == 1)
+
+
 class TestONECache(unittest.TestCase):
     """Test methods that use sessions and datasets tables.
     This class loads the parquet tables from the fixtures and builds a file tree in a temp folder
