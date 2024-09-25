@@ -426,6 +426,25 @@ class TestONECache(unittest.TestCase):
             self.assertIsInstance(dsets, list)
             self.assertTrue(len(dsets) == np.unique(dsets).size)
 
+        # Test default_revisions_only=True
+        with self.assertRaises(alferr.ALFError):  # should raise as no 'default_revision' column
+            self.one.list_datasets('KS005/2019-04-02/001', default_revisions_only=True)
+        # Add the column and add some alternates
+        datasets = util.revisions_datasets_table(collections=['alf'], revisions=['', '2023-01-01'])
+        datasets['default_revision'] = [False, True] * 2
+        self.one._cache.datasets['default_revision'] = True
+        self.one._cache.datasets = pd.concat([self.one._cache.datasets, datasets]).sort_index()
+        eid, *_ = datasets.index.get_level_values(0)
+        dsets = self.one.list_datasets(eid, 'spikes.*', default_revisions_only=False)
+        self.assertEqual(4, len(dsets))
+        dsets = self.one.list_datasets(eid, 'spikes.*', default_revisions_only=True)
+        self.assertEqual(2, len(dsets))
+        self.assertTrue(all('#2023-01-01#' in x for x in dsets))
+        # Should be the same with details=True
+        dsets = self.one.list_datasets(eid, 'spikes.*', default_revisions_only=True, details=True)
+        self.assertEqual(2, len(dsets))
+        self.assertTrue(all('#2023-01-01#' in x for x in dsets.rel_path))
+
     def test_list_collections(self):
         """Test One.list_collections"""
         # Test no eid
@@ -1994,8 +2013,7 @@ class TestOneMisc(unittest.TestCase):
         """Test one.util.filter_revision_last_before"""
         datasets = util.revisions_datasets_table()
         df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
-        verifiable = filter_revision_last_before(df,
-                                                 revision='2020-09-01', assert_unique=False)
+        verifiable = filter_revision_last_before(df, revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
         # Remove one of the datasets' revisions to test assert unique on mixed revisions
