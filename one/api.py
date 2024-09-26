@@ -287,9 +287,10 @@ class One(ConversionMixin):
             if not strict:
                 # Deal with case where there are extra columns in the cache
                 extra_columns = set(self._cache[table].columns) - set(records.columns)
-                for col in extra_columns:
-                    n = list(self._cache[table].columns).index(col)
-                    records.insert(n, col, np.nan)
+                column_ids = map(list(self._cache[table].columns).index, extra_columns)
+                for col, n in sorted(zip(extra_columns, column_ids), key=lambda x: x[1]):
+                    val = records.get('exists', True) if col.startswith('exists_') else np.nan
+                    records.insert(n, col, val)
                 # Drop any extra columns in the records that aren't in cache table
                 to_drop = set(records.columns) - set(self._cache[table].columns)
                 records.drop(to_drop, axis=1, inplace=True)
@@ -302,7 +303,8 @@ class One(ConversionMixin):
             to_assign = records[~to_update]
             if isinstance(self._cache[table].index, pd.MultiIndex) and not to_assign.empty:
                 # Concatenate and sort (no other way for non-unique index within MultiIndex)
-                self._cache[table] = pd.concat([self._cache[table], to_assign]).sort_index()
+                frames = filter(lambda x: not x.empty, [self._cache[table], to_assign])
+                self._cache[table] = pd.concat(frames).sort_index()
             else:
                 for index, record in to_assign.iterrows():
                     self._cache[table].loc[index, :] = record[self._cache[table].columns].values

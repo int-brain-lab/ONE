@@ -392,8 +392,8 @@ def filter_datasets(
         # Convert to regex if necessary and assert end of string
         flagless_token = re.escape(r'(?s:')  # fnmatch.translate may wrap input in flagless group
         # If there is a wildcard at the start of the filename we must exclude capture of slashes to
-        # avoid capture of collection part, e.g. * -> .* -> [^/]+ (one or more non-slash chars)
-        exclude_slash = partial(re.sub, fr'^({flagless_token})?\.[*?]', r'\g<1>[^/]+')
+        # avoid capture of collection part, e.g. * -> .* -> [^/]* (one or more non-slash chars)
+        exclude_slash = partial(re.sub, fr'^({flagless_token})?\.\*', r'\g<1>[^/]*')
         spec_str += '|'.join(
             exclude_slash(fnmatch.translate(x)) if wildcards else x + '$'
             for x in ensure_list(filename)

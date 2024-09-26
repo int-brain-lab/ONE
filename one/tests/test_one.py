@@ -906,13 +906,24 @@ class TestONECache(unittest.TestCase):
         # Check behaviour when columns don't match
         datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
         datasets['extra_column'] = True
+        self.one._cache.datasets['foo_bar'] = 12  # this column is missing in our new records
         self.one._cache.datasets['new_column'] = False
-        self.addCleanup(self.one._cache.datasets.drop, 'new_column', axis=1, inplace=True)
+        self.addCleanup(self.one._cache.datasets.drop, 'foo_bar', axis=1, inplace=True)
+        # An exception is exists_* as the Alyx cache contains exists_aws and exists_flatiron
+        # These should simply be filled with the values of exists as Alyx won't return datasets
+        # that don't exist on FlatIron and if they don't exist on AWS it falls back to this.
+        self.one._cache.datasets['exists_aws'] = False
         with self.assertRaises(AssertionError):
             self.one._update_cache_from_records(datasets=datasets, strict=True)
         self.one._update_cache_from_records(datasets=datasets)
         verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
         self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        self.one._update_cache_from_records(datasets=datasets)
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists_aws']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        # If the extra column does not start with 'exists' it should be set to NaN
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'foo_bar']
+        self.assertTrue(np.isnan(verifiable).all())
 
         # Check fringe cases
         with self.assertRaises(KeyError):

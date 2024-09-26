@@ -727,7 +727,7 @@ class TestFindVariants(unittest.TestCase):
             self.session_path.joinpath(f'bar.baz_y.{uuid.uuid4()}.npy'),
             self.session_path.joinpath('#2021-01-01#', f'bar.baz.{uuid.uuid4()}.npy'),
             self.session_path.joinpath('task_00', 'x.y.z'),
-            self.session_path.joinpath('x.y.z'),
+            self.session_path.joinpath('x.y.z')
         ]
         for f in self.dsets:
             f.parent.mkdir(exist_ok=True, parents=True)
