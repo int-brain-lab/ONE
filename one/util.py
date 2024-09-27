@@ -60,8 +60,8 @@ def ses2records(ses: dict):
         rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = get_alf_path(remove_uuid_string(file_path))
-        rec['session_path'] = get_session_path(file_path).as_posix()
-        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        session_path = get_session_path(file_path).as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
         rec['default_revision'] = d['default_revision'] == 'True'
         rec['qc'] = d.get('qc', 'NOT_SET')
         return rec
@@ -106,10 +106,10 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = get_alf_path(data_url.path.strip('/'))
         file_path = remove_uuid_string(file_path).as_posix()
-        rec['session_path'] = get_session_path(file_path) or ''
-        if rec['session_path']:
-            rec['session_path'] = rec['session_path'].as_posix()
-        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        session_path = get_session_path(file_path) or ''
+        if session_path:
+            session_path = session_path.as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
         rec['default_revision'] = d['default_dataset']
         rec['qc'] = d.get('qc')
         for field in additional or []:
@@ -677,4 +677,6 @@ def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.Data
     if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
         qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
         table = table.assign(qc=qc)
+    if name == 'datasets' and 'session_path' in table.columns:  # TODO add version here?
+        table = table.drop('session_path', axis=1)
     return table

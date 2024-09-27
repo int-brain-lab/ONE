@@ -131,7 +131,7 @@ class One(ConversionMixin):
 
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
-                idx_columns = cache.filter(regex=INDEX_KEY).columns.tolist()
+                idx_columns = sorted(cache.filter(regex=INDEX_KEY).columns)
                 if len(idx_columns) == 0:
                     raise KeyError('Failed to set index')
                 cache.set_index(idx_columns, inplace=True)
@@ -575,12 +575,18 @@ class One(ConversionMixin):
         """
         if isinstance(datasets, pd.Series):
             datasets = pd.DataFrame([datasets])
+            assert datasets.index.nlevels <= 2
+            idx_names = ['eid', 'id'] if datasets.index.nlevels == 2 else ['id']
+            datasets.index.set_names(idx_names, inplace=True)
         elif not isinstance(datasets, pd.DataFrame):
             # Cast set of dicts (i.e. from REST datasets endpoint)
             datasets = util.datasets2records(list(datasets))
+        else:
+            datasets = datasets.copy()
         indices_to_download = []  # indices of datasets that need (re)downloading
         files = []  # file path list to return
         # If the session_path field is missing from the datasets table, fetch from sessions table
+        # Typically only aggregate frames contain this column
         if 'session_path' not in datasets.columns:
             if 'eid' not in datasets.index.names:
                 # Get slice of full frame with eid in index
@@ -647,12 +653,12 @@ class One(ConversionMixin):
 
         if self.record_loaded:
             loaded = np.fromiter(map(bool, files), bool)
-            loaded_ids = np.array(datasets.index.to_list())[loaded]
+            loaded_ids = datasets.index.get_level_values('id')[loaded].to_numpy()
             if '_loaded_datasets' not in self._cache:
                 self._cache['_loaded_datasets'] = np.unique(loaded_ids)
             else:
                 loaded_set = np.hstack([self._cache['_loaded_datasets'], loaded_ids])
-                self._cache['_loaded_datasets'] = np.unique(loaded_set, axis=0)
+                self._cache['_loaded_datasets'] = np.unique(loaded_set)
 
         # Return full list of file paths
         return files
@@ -1013,6 +1019,9 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
+        if datasets.index.nlevels == 1:
+            # Reinstate eid index
+            datasets = pd.concat({str(eid): datasets}, names=['eid'])
         files = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
         files = [x for x in files if x]
         if not files:
@@ -1117,6 +1126,9 @@ class One(ConversionMixin):
                                         wildcards=self.wildcards, assert_unique=assert_unique)
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
+        if datasets.index.nlevels == 1:
+            # Reinstate eid index
+            datasets = pd.concat({str(eid): datasets}, names=['eid'])
 
         # Check files exist / download remote files
         offline = None if query_type == 'auto' else self.mode == 'local'
@@ -1288,6 +1300,9 @@ class One(ConversionMixin):
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
         present_datasets = pd.concat(slices)
+        if present_datasets.index.nlevels == 1:
+            # Reinstate eid index
+            present_datasets = pd.concat({str(eid): present_datasets}, names=['eid'])
 
         # Check if user is blindly downloading all data and warn of non-default revisions
         if 'default_revision' in present_datasets and \
@@ -1326,7 +1341,7 @@ class One(ConversionMixin):
 
         # Make list of metadata Bunches out of the table
         records = (present_datasets
-                   .reset_index(names='id')
+                   .reset_index(names=['eid', 'id'])
                    .to_dict('records', into=Bunch))
 
         # Ensure result same length as input datasets list
@@ -1459,6 +1474,9 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(object or '')
         parts = [alfiles.rel_path_parts(x) for x in datasets.rel_path]
+        if datasets.index.nlevels == 1:
+            # Reinstate eid index
+            datasets = pd.concat({str(eid): datasets}, names=['eid'])
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
@@ -1868,8 +1886,7 @@ class OneAlyx(One):
         all_aggregates = self.alyx.rest('datasets', 'list', django=query)
         records = (util.datasets2records(all_aggregates)
                    .reset_index(level=0)
-                   .drop('eid', axis=1)
-                   .rename_axis(index={'id': 'did'}))
+                   .drop('eid', axis=1))
         # Since rel_path for public FI file records starts with 'public/aggregates' instead of just
         # 'aggregates', we should discard the file path parts before 'aggregates' (if present)
         records['rel_path'] = records['rel_path'].str.replace(
@@ -1890,11 +1907,6 @@ class OneAlyx(One):
             # NB: We avoid exact matches as most users will only include subject, not lab/subject
             records = records[records['identifier'].str.contains(identifier)]
 
-        # Add exists_aws field for download method
-        for i, rec in records.iterrows():
-            fr = next(x['file_records'] for x in all_aggregates if x['url'].endswith(i))
-            records.loc[i, 'exists_aws'] = any(
-                x['data_repository'].startswith('aws') and x['exists'] for x in fr)
         return util.filter_datasets(records, filename=dataset, revision=revision,
                                     wildcards=True, assert_unique=assert_unique)
 
@@ -1950,6 +1962,7 @@ class OneAlyx(One):
             raise alferr.ALFObjectNotFound(
                 f'{dataset or "dataset"} not found for {relation}/{identifier}')
         # update_exists=False because these datasets are not in the cache table
+        records['session_path'] = ''  # explicitly add session path column
         file, = self._check_filesystem(records, update_exists=False)
         if not file:
             raise alferr.ALFObjectNotFound('Dataset file not found on disk')
@@ -2286,9 +2299,12 @@ class OneAlyx(One):
         try:
             if not isinstance(dsets, pd.DataFrame):
                 raise TypeError('Input datasets must be a pandas data frame for AWS download.')
-            if 'exists_aws' in dsets and np.all(np.equal(dsets['exists_aws'].values, True)):
-                _logger.info('Downloading from AWS')
-                return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+            assert 'exists_aws' not in dsets or np.all(np.equal(dsets['exists_aws'].values, True))
+            _logger.debug('Downloading from AWS')
+            files = self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+            # Trigger fallback download of any files missing on AWS
+            assert all(files), f'{sum(map(bool, files))} datasets not found on AWS'
+            return files
         except Exception as ex:
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
@@ -2338,15 +2354,18 @@ class OneAlyx(One):
             # Fetch file record path
             record = next((x for x in record['file_records']
                            if x['data_repository'].startswith('aws') and x['exists']), None)
-            if not record and update_exists and 'exists_aws' in self._cache['datasets']:
-                _logger.debug('Updating exists field')
-                self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
-                self._cache['_meta']['modified_time'] = datetime.now()
+            if not record:
+                if update_exists and 'exists_aws' in self._cache['datasets']:
+                    _logger.debug('Updating exists field')
+                    self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
+                    self._cache['_meta']['modified_time'] = datetime.now()
                 out_files.append(None)
                 continue
+            assert record['relative_path'].endswith(dset['rel_path']), \
+                f'Relative path for dataset {uuid} does not match Alyx record'
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
             source_path = alfiles.add_uuid_string(source_path, uuid)
-            local_path = self.cache_dir.joinpath(dset['session_path'], dset['rel_path'])
+            local_path = self.cache_dir.joinpath(record['relative_path'])
             if keep_uuid is True or (keep_uuid is None and self.uuid_filenames is True):
                 local_path = alfiles.add_uuid_string(local_path, uuid)
             local_path.parent.mkdir(exist_ok=True, parents=True)

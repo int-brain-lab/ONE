@@ -81,7 +81,6 @@ class TestsONEParquet(unittest.TestCase):
         print('Datasets dataframe')
         print(df)
         dset_info = df.loc[0].to_dict()
-        self.assertEqual(dset_info['session_path'], self.rel_ses_path[:-1])
         self.assertEqual(dset_info['rel_path'], self.rel_ses_files[0].as_posix())
         self.assertTrue(dset_info['file_size'] > 0)
         self.assertFalse(df.rel_path.str.contains('invalid').any())
@@ -100,7 +99,6 @@ class TestsONEParquet(unittest.TestCase):
         df_dsets, metadata2 = parquet.load(fn_dsets)
         self.assertEqual(metadata2, metadata_exp)
         dset_info = df_dsets.loc[0].to_dict()
-        self.assertEqual(dset_info['session_path'], self.rel_ses_path[:-1])
         self.assertEqual(dset_info['rel_path'], self.rel_ses_files[0].as_posix())
 
         # Check behaviour when no files found
@@ -115,12 +113,9 @@ class TestsONEParquet(unittest.TestCase):
             apt.make_parquet_db(self.tmpdir, hash_ids=False, lab='another')
 
         # Create some more datasets in a session folder outside of a lab directory
-        dsets = revisions_datasets_table()
         with tempfile.TemporaryDirectory() as tdir:
-            for session_path, rel_path in dsets[['session_path', 'rel_path']].values:
-                filepath = Path(tdir).joinpath(session_path, rel_path)
-                filepath.parent.mkdir(exist_ok=True, parents=True)
-                filepath.touch()
+            session_path = Path(tdir).joinpath('subject', '1900-01-01', '001')
+            _ = revisions_datasets_table(touch_path=session_path)  # create some files
             fn_ses, _ = apt.make_parquet_db(tdir, hash_ids=False, lab='another')
             df_ses, _ = parquet.load(fn_ses)
             self.assertTrue((df_ses['lab'] == 'another').all())

@@ -525,12 +525,13 @@ class TestONECache(unittest.TestCase):
 
     def test_check_filesystem(self):
         """Test for One._check_filesystem.
+
         Most is already covered by other tests, this checks that it can deal with dataset frame
         without eid index and without a session_path column.
         """
         # Get two eids to test
         eids = self.one._cache['datasets'].index.get_level_values(0)[[0, -1]]
-        datasets = self.one._cache['datasets'].loc[eids].drop('session_path', axis=1)
+        datasets = self.one._cache['datasets'].loc[eids]
         files = self.one._check_filesystem(datasets)
         self.assertEqual(53, len(files))
         # Expect same number of unique session paths as eids
@@ -540,7 +541,7 @@ class TestONECache(unittest.TestCase):
         session_parts = self.one._cache['sessions'].loc[eids, ['subject', 'date', 'number']].values
         self.assertCountEqual(expected, map(lambda x: f'{x[0]}/{x[1]}/{x[2]:03}', session_parts))
         # Attempt the same with the eid index missing
-        datasets = datasets.droplevel(0).drop('session_path', axis=1)
+        datasets = datasets.droplevel(0)
         self.assertEqual(files, self.one._check_filesystem(datasets))
         # Test with uuid_filenames as True
         self.one.uuid_filenames = True
@@ -675,7 +676,7 @@ class TestONECache(unittest.TestCase):
         # With relative paths provided as input, dataset uniqueness validation is suppressed.
         eid = self.one._cache.sessions.iloc[0].name
         datasets = util.revisions_datasets_table(
-            revisions=('', '2020-01-08'), attributes=('times',), touch_path=self.one.cache_dir)
+            revisions=('', '2020-01-08'), attributes=('times',), touch_path=self.one.eid2path(eid))
         datasets['default_revision'] = [False, True] * 3
         datasets.index = datasets.index.set_levels([eid], level=0)
         self.one._cache.datasets = datasets
@@ -958,7 +959,8 @@ class TestONECache(unittest.TestCase):
         old_cache = self.one._cache['datasets']
         try:
             datasets = [self.one._cache.datasets, dset.to_frame().T]
-            datasets = pd.concat(datasets).astype(old_cache.dtypes)
+            datasets = pd.concat(datasets).astype(old_cache.dtypes).sort_index()
+            datasets.index.set_names(('eid', 'id'), inplace=True)
             self.one._cache['datasets'] = datasets
             dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
             new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
@@ -1330,9 +1332,6 @@ class TestOneAlyx(unittest.TestCase):
         # Test listing by relation
         datasets = self.one.list_aggregates('subjects')
         self.assertTrue(all(datasets['rel_path'].str.startswith('aggregates/Subjects')))
-        self.assertIn('exists_aws', datasets.columns)
-        self.assertIn('session_path', datasets.columns)
-        self.assertTrue(all(datasets['session_path'] == ''))
         self.assertTrue(self.one.list_aggregates('foobar').empty)
         # Test filtering with an identifier
         datasets = self.one.list_aggregates('subjects', 'ZM_1085')
@@ -1700,6 +1699,8 @@ class TestOneDownload(unittest.TestCase):
         rec = self.one.list_datasets(self.eid, details=True)
         rec = rec[rec.rel_path.str.contains('00/pykilosort/channels.brainLocation')]
         rec['exists_aws'] = False  # Ensure we use FlatIron for this
+        rec = pd.concat({str(self.eid): rec}, names=['eid'])
+
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
@@ -1710,8 +1711,11 @@ class TestOneDownload(unittest.TestCase):
     def test_download_aws(self):
         """Test for OneAlyx._download_aws method."""
         # Test download datasets via AWS
-        dsets = self.one.list_datasets(self.eid, details=True)
-        file = self.one.cache_dir / dsets['rel_path'].values[0]
+        dsets = self.one.list_datasets(
+            self.eid, filename='*wiring.json', collection='raw_ephys_data/probe??', details=True)
+        dsets = pd.concat({str(self.eid): dsets}, names=['eid'])
+
+        file = self.one.eid2path(self.eid) / dsets['rel_path'].values[0]
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
                 mock.patch('one.remote.aws.s3_download_file', return_value=file) as method:
             self.one._download_datasets(dsets)
@@ -1723,23 +1727,25 @@ class TestOneDownload(unittest.TestCase):
             # Check keep_uuid = True
             self.one._download_datasets(dsets, keep_uuid=True)
             _, local = method.call_args.args
-            self.assertIn(dsets.iloc[-1].name, local.name)
+            self.assertIn(dsets.iloc[-1].name[1], local.name)
 
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
-        rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0])
+        rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0][1])
         # need to find the index of matching aws repo, this is not constant across releases
         iaws = list(map(lambda x: x['data_repository'].startswith('aws'),
                         rec['file_records'])).index(True)
         rec['file_records'][iaws]['exists'] = False  # Set AWS file record to non-existent
+        self.one._cache.datasets['exists_aws'] = True  # Only changes column if exists
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[rec]), \
                 self.assertLogs('one.api', logging.DEBUG) as log:
-            self.assertEqual([None], self.one._download_datasets(dsets))
-            self.assertRegex(log.output[-1], 'Updating exists field')
+            # should still download file via fallback method
+            self.assertEqual([file], self.one._download_datasets(dsets))
+            self.assertRegex(log.output[1], 'Updating exists field')
             datasets = self.one._cache['datasets']
             self.assertFalse(
-                datasets.loc[pd.IndexSlice[:, dsets.index[0]], 'exists_aws'].any()
+                datasets.loc[pd.IndexSlice[:, dsets.index[0][1]], 'exists_aws'].any()
             )
 
         # Check falls back to HTTP when error raised
