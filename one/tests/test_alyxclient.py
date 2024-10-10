@@ -51,10 +51,17 @@ class TestAuthentication(unittest.TestCase):
             ac.authenticate()
             mock_input.assert_not_called()
         self.assertTrue(ac.is_logged_in)
+
+        # When password is None and in silent mode, there should be a warning
+        # followed by a failed login attempt
+        ac._par = ac._par.set('ALYX_PWD', None)
+        ac.logout()
+        with self.assertWarns(UserWarning), self.assertRaises(requests.HTTPError):
+            self.ac.authenticate(password=None)
+
         # Test using input args
         ac._par = iopar.from_dict({k: v for k, v in ac._par.as_dict().items()
                                    if k not in login_keys})
-        ac.logout()
         with mock.patch('builtins.input') as mock_input:
             ac.authenticate(TEST_DB_2['username'], TEST_DB_2['password'], cache_token=False)
             mock_input.assert_not_called()
@@ -76,6 +83,16 @@ class TestAuthentication(unittest.TestCase):
         with mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']) as mock_pwd:
             ac.authenticate(cache_token=True, force=True)
             mock_pwd.assert_called()
+        # If a password is passed, should always force re-authentication
+        rep = requests.Response()
+        rep.status_code = 200
+        rep.json = lambda **_: {'token': 'abc'}
+        assert self.ac.is_logged_in
+        with mock.patch('one.webclient.requests.post', return_value=rep) as m:
+            self.ac.authenticate(password='foo', force=False)
+            expected = {'username': TEST_DB_2['username'], 'password': 'foo'}
+            m.assert_called_once_with(TEST_DB_2['base_url'] + '/auth-token', data=expected)
+
         # Check non-silent double logout
         ac.logout()
         ac.logout()  # Shouldn't complain
