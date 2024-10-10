@@ -552,9 +552,8 @@ class One(ConversionMixin):
 
         Given a set of datasets, check whether records correctly reflect the filesystem.
         Called by load methods, this returns a list of file paths to load and return.
-        TODO This needs changing; overload for downloading?
-         This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
-         update and save tables.  Download_datasets can also call this function.
+        This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
+        update and save tables.  Download_datasets may also call this function.
 
         Parameters
         ----------

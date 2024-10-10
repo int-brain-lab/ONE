@@ -677,6 +677,6 @@ def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.Data
     if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
         qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
         table = table.assign(qc=qc)
-    if name == 'datasets' and 'session_path' in table.columns:  # TODO add version here?
+    if name == 'datasets' and 'session_path' in table.columns:
         table = table.drop('session_path', axis=1)
     return table
