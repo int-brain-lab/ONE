@@ -534,15 +534,37 @@ class TestONECache(unittest.TestCase):
         datasets = self.one._cache['datasets'].loc[eids]
         files = self.one._check_filesystem(datasets)
         self.assertEqual(53, len(files))
+
         # Expect same number of unique session paths as eids
         session_paths = set(map(lambda p: p.parents[1], files))
         self.assertEqual(len(eids), len(session_paths))
         expected = map(lambda x: '/'.join(x.parts[-3:]), session_paths)
         session_parts = self.one._cache['sessions'].loc[eids, ['subject', 'date', 'number']].values
         self.assertCountEqual(expected, map(lambda x: f'{x[0]}/{x[1]}/{x[2]:03}', session_parts))
-        # Attempt the same with the eid index missing
+
+        # Test a very rare occurence of a missing dataset with eid index missing
+        # but session_path column present
+        idx = self.one._cache.datasets.index[(i := 5)]  # pick a random dataset to make vanish
+        _eid2path = {
+            e: self.one.eid2path(e).relative_to(self.one.cache_dir).as_posix() for e in eids
+        }
+        session_paths = list(map(_eid2path.get, datasets.index.get_level_values(0)))
+        datasets['session_path'] = session_paths
         datasets = datasets.droplevel(0)
+        files[(i := 5)].unlink()
+        # For this check the current state should be exists==True in the main cache
+        assert self.one._cache.datasets.loc[idx, 'exists'].all()
+        _files = self.one._check_filesystem(datasets, update_exists=True)
+        self.assertIsNone(_files[i])
+        self.assertFalse(
+            self.one._cache.datasets.loc[idx, 'exists'].all(), 'failed to update cache exists')
+        files[i].touch()  # restore file for next check
+
+        # Attempt to load datasets with both eid index
+        # and session_path column missing (most common)
+        datasets = datasets.drop('session_path', axis=1)
         self.assertEqual(files, self.one._check_filesystem(datasets))
+
         # Test with uuid_filenames as True
         self.one.uuid_filenames = True
         try:

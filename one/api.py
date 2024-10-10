@@ -626,20 +626,6 @@ class One(ConversionMixin):
                 files.append(None)
                 # Add this index to list of datasets that need downloading
                 indices_to_download.append(i)
-            if rec['exists'] != file.exists():
-                with warnings.catch_warnings():
-                    # Suppress future warning: exist column should always be present
-                    msg = '.*indexing on a MultiIndex with a nested sequence of labels.*'
-                    warnings.filterwarnings('ignore', message=msg)
-                    datasets.at[i, 'exists'] = not rec['exists']
-                    if update_exists:
-                        _logger.debug('Updating exists field')
-                        if isinstance(i, tuple):
-                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
-                        else:  # eid index level missing in datasets input
-                            i = pd.IndexSlice[:, i]
-                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
-                        self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
@@ -649,6 +635,24 @@ class One(ConversionMixin):
             # Add each downloaded file to the output list of files
             for i, file in zip(indices_to_download, new_files):
                 files[datasets.index.get_loc(i)] = file
+
+        # NB: Currently if not offline and a remote file is missing, an exception will be raised
+        # before we reach this point. This could change in the future.
+        exists = list(map(bool, files))
+        if not all(datasets['exists'] == exists):
+            with warnings.catch_warnings():
+                # Suppress future warning: exist column should always be present
+                msg = '.*indexing on a MultiIndex with a nested sequence of labels.*'
+                warnings.filterwarnings('ignore', message=msg)
+                datasets['exists'] = exists
+                if update_exists:
+                    _logger.debug('Updating exists field')
+                    i = datasets.index
+                    if i.nlevels == 1:
+                        # eid index level missing in datasets input
+                        i = pd.IndexSlice[:, i]
+                    self._cache['datasets'].loc[i, 'exists'] = exists
+                    self._cache['_meta']['modified_time'] = datetime.now()
 
         if self.record_loaded:
             loaded = np.fromiter(map(bool, files), bool)
