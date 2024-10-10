@@ -9,6 +9,10 @@ This version improves behaviour of loading revisions and loading datasets from l
 - default_revisions_only parameter in One.list_datasets filters non-default datasets
 - permit data frame input to One.load_datasets and load precise relative paths provided (instead of default revisions)
 - redundent session_path column has been dropped from the datasets cache table
+- bugfix in one.params.setup: suggest previous cache dir if available instead of always the default
+- bugfix in one.params.setup: remove all extrenuous parameters (i.e. TOKEN) when running setup in silent mode
+- warn user to reauthenticate when password is None in silent mode
+- always force authentication when password passed, even when token cached
 
 ### Added
 
