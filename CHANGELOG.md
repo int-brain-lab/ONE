@@ -5,9 +5,15 @@ This version drops support for python 3.9 and below, and ONE is now in remote mo
 ### Modified
 
 - Supports python >= 3.10 only
+- OneAlyx uses remote mode by default, instead of auto
+- OneAlyx.search now updates the cache tables in remote mode as paginated sessions are accessed
+
+### Added
+
+- one.alf.cache.remove_cache_table_files and One.\_remove_cache_table_files for deleting cache table files
 
 ## [2.10.0]
-This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
+This version fixes issues with Alyx authentication in silent mode, and improves behaviour of loading revisions.
 
 ### Modified
 

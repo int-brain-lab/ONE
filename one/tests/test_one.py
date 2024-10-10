@@ -1419,7 +1419,7 @@ class TestOneAlyx(unittest.TestCase):
 class TestOneRemote(unittest.TestCase):
     """Test remote queries using OpenAlyx"""
     def setUp(self) -> None:
-        self.one = OneAlyx(**TEST_DB_2)
+        self.one = OneAlyx(**TEST_DB_2, mode='auto')
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
         self.pid = 'da8dfec1-d265-44e8-84ce-6ae9c109b8bd'
         # Set cache directory to a temp dir to ensure that we re-download files
@@ -1634,7 +1634,7 @@ class TestOneDownload(unittest.TestCase):
         self.patch = mock.patch('one.params.iopar.getfile',
                                 new=partial(util.get_file, self.tempdir.name))
         self.patch.start()
-        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
+        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name, mode='auto')
         self.fid = '17ab5b57-aaf6-4016-9251-66daadc200c7'  # File record of channels.brainLocation
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
@@ -1976,7 +1976,7 @@ class TestOneSetup(unittest.TestCase):
             self.assertIsInstance(one_obj, One)
 
             # The offline param was given, raise deprecation warning (via log)
-            with self.assertWarns(DeprecationWarning):
+            with self.assertWarns(FutureWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
 
             # Test setup with virtual ONE method
