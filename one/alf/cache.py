@@ -30,7 +30,7 @@ from iblutil.io.hashfile import md5
 from one.alf.io import iter_sessions, iter_datasets
 from one.alf.files import session_path_parts, get_alf_path
 from one.converters import session_record2path
-from one.util import QC_TYPE
+from one.util import QC_TYPE, patch_cache
 
 __all__ = ['make_parquet_db', 'remove_missing_datasets', 'DATASETS_COLUMNS', 'SESSIONS_COLUMNS']
 _logger = logging.getLogger(__name__)
@@ -52,7 +52,6 @@ SESSIONS_COLUMNS = (
 DATASETS_COLUMNS = (
     'id',               # int64
     'eid',              # int64
-    'session_path',     # relative to the root
     'rel_path',         # relative to the session path, includes the filename
     'file_size',        # file size in bytes
     'hash',             # sha1/md5, computed in load function
@@ -89,7 +88,6 @@ def _get_dataset_info(full_ses_path, rel_dset_path, ses_eid=None, compute_hash=F
     return {
         'id': Path(rel_ses_path, rel_dset_path).as_posix(),
         'eid': str(ses_eid),
-        'session_path': str(rel_ses_path),
         'rel_path': Path(rel_dset_path).as_posix(),
         'file_size': file_size,
         'hash': md5(full_dset_path) if compute_hash else None,
@@ -297,18 +295,30 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
     if tables is None:
         tables = {}
         for name in ('datasets', 'sessions'):
-            tables[name], _ = parquet.load(cache_dir / f'{name}.pqt')
-    to_delete = []
+            table, m = parquet.load(cache_dir / f'{name}.pqt')
+            tables[name] = patch_cache(table, m.get('min_api_version'), name)
+
+    INDEX_KEY = '.?id'
+    for name in tables:
+        # Set the appropriate index if none already set
+        if isinstance(tables[name].index, pd.RangeIndex):
+            idx_columns = sorted(tables[name].filter(regex=INDEX_KEY).columns)
+            tables[name].set_index(idx_columns, inplace=True)
+
+    to_delete = set()
     gen_path = partial(session_record2path, root_dir=cache_dir)
-    sessions = sorted(map(lambda x: gen_path(x[1]), tables['sessions'].iterrows()))
+    # map of session path to eid
+    sessions = {gen_path(rec): eid for eid, rec in tables['sessions'].iterrows()}
     for session_path in iter_sessions(cache_dir):
-        rel_session_path = session_path.relative_to(cache_dir).as_posix()
-        datasets = tables['datasets'][tables['datasets']['session_path'] == rel_session_path]
+        try:
+            datasets = tables['datasets'].loc[sessions[session_path]]
+        except KeyError:
+            datasets = tables['datasets'].iloc[0:0, :]
         for dataset in iter_datasets(session_path):
             if dataset.as_posix() not in datasets['rel_path']:
-                to_delete.append(session_path.joinpath(dataset))
+                to_delete.add(session_path.joinpath(dataset))
         if session_path not in sessions and remove_empty_sessions:
-            to_delete.append(session_path)
+            to_delete.add(session_path)
 
     if dry:
         print('The following session and datasets would be removed:', end='\n\t')

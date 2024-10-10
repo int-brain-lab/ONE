@@ -11,6 +11,7 @@ from iblutil.io.params import set_hidden
 
 import one.params
 from one.util import QC_TYPE
+from one.converters import session_record2path
 
 
 def set_up_env() -> tempfile.TemporaryDirectory:
@@ -68,7 +69,8 @@ def create_file_tree(one):
 
     """
     # Create dset files from cache
-    for session_path, rel_path in one._cache.datasets[['session_path', 'rel_path']].values:
+    for (eid, _), rel_path in one._cache.datasets['rel_path'].items():
+        session_path = session_record2path(one._cache.sessions.loc[eid])
         filepath = Path(one.cache_dir).joinpath(session_path, rel_path)
         filepath.parent.mkdir(exist_ok=True, parents=True)
         filepath.touch()
@@ -139,7 +141,7 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
     Returns
     -------
     pd.DataFrame
-        A datasets cache table containing datasets made from the input names
+        A datasets cache table containing datasets made from the input names.
 
     """
     rel_path = []
@@ -149,7 +151,6 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
                 rel_path.append('/'.join(x for x in (collec, rev, f'{object}.{attr}.npy') if x))
     d = {
         'rel_path': rel_path,
-        'session_path': 'subject/1900-01-01/001',
         'file_size': 0,
         'hash': None,
         'exists': True,
@@ -160,7 +161,7 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
 
     if touch_path:
         for p in rel_path:
-            path = Path(touch_path).joinpath(d['session_path'] + '/' + p)
+            path = Path(touch_path).joinpath(p)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.touch()
 

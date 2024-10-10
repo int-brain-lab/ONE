@@ -107,7 +107,7 @@ class TestGlobus(unittest.TestCase):
         # Only test this on windows
         if sys.platform == 'win32':
             actual = globus.as_globus_path('/foo/bar')
-            self.assertEqual(actual, f'/{Path.cwd().drive[0]}/foo/bar')
+            self.assertEqual(actual, f'/{Path.cwd().drive[0].upper()}/foo/bar')
 
         # On all systems an explicit Windows path should be converted to a POSIX one
         actual = globus.as_globus_path(PureWindowsPath('E:\\FlatIron\\integration'))
