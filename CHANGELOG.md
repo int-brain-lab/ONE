@@ -1,6 +1,6 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.0]
-This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
+This version fixes issues with Alyx authentication in silent mode, and improves behaviour of loading revisions. Additionally the default query mode has changed to 'remote'.
 
 ### Modified
 
@@ -15,6 +15,7 @@ This version improves behaviour of loading revisions and loading datasets from l
 - always force authentication when password passed, even when token cached
 - bugfix: negative indexing of paginated response objects now functions correctly
 - deprecate one.util.ensure_list; moved to iblutil.util.ensure_list
+- OneAlyx uses remote mode by default, instead of auto
 
 ### Added
 
