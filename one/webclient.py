@@ -40,6 +40,7 @@ from collections.abc import Mapping
 from typing import Optional
 from datetime import datetime, timedelta
 from pathlib import Path
+from weakref import ReferenceType
 import warnings
 import hashlib
 import zipfile
@@ -206,6 +207,23 @@ class _PaginatedResponse(Mapping):
         # fill the cache with results of the query
         for i in range(self.limit):
             self._cache[i] = rep['results'][i]
+        self._callbacks = set()
+
+    def add_callback(self, cb):
+        """Add a callback function to use each time a new page is fetched.
+
+        The callback function will be called with the page results each time :meth:`populate`
+        is called.
+
+        Parameters
+        ----------
+        cb : callable
+            A callable that takes the results of each paginated resonse.
+        """
+        if not callable(cb):
+            raise TypeError(f'Expected type "callable", got "{type(cb)}" instead')
+        else:
+            self._callbacks.add(cb)
 
     def __len__(self):
         return self.count
@@ -222,6 +240,16 @@ class _PaginatedResponse(Mapping):
         return self._cache[item]
 
     def populate(self, idx):
+        """Populate response cache with new page of results.
+
+        Fetches the specific page of results containing the index passed and populates
+        stores the results in the :prop:`_cache` property.
+
+        Parameters
+        ----------
+        idx : int
+            The index of a given record to fetch.
+        """
         offset = self.limit * math.floor(idx / self.limit)
         query = update_url_params(self.query, {'limit': self.limit, 'offset': offset})
         res = self.alyx._generic_request(requests.get, query, **self._cache_args)
@@ -231,6 +259,21 @@ class _PaginatedResponse(Mapping):
                 f'results may be inconsistent', RuntimeWarning)
         for i, r in enumerate(res['results'][:self.count - offset]):
             self._cache[i + offset] = res['results'][i]
+        # Notify callbacks
+        pending_removal = []
+        for callback in self._callbacks:
+            # Handle weak reference callbacks first
+            if isinstance(callback, ReferenceType):
+                wf = callback
+                if (callback := wf()) is None:
+                    pending_removal.append(wf)
+                    continue
+            callback(res['results'])
+        for wf in pending_removal:
+            self._callbacks.discard(wf)
+        # When cache is complete, clear our callbacks
+        if all(reversed(self._cache)):
+            self._callbacks.clear()
 
     def __iter__(self):
         for i in range(self.count):
