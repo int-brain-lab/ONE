@@ -13,6 +13,7 @@ This version improves behaviour of loading revisions and loading datasets from l
 - bugfix in one.params.setup: remove all extrenuous parameters (i.e. TOKEN) when running setup in silent mode
 - warn user to reauthenticate when password is None in silent mode
 - always force authentication when password passed, even when token cached
+- bugfix: negative indexing of paginated response objects now functions correctly
 
 ### Added
 
