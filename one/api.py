@@ -236,7 +236,8 @@ class One(ConversionMixin):
         if mode in {'local', 'remote'}:
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
+            loaded_time = self._cache['_meta']['loaded_time']
+            if not loaded_time or (datetime.now() - loaded_time >= self.cache_expiry):
                 _logger.info('Cache expired, refreshing')
                 self.load_cache()
         elif mode == 'refresh':
