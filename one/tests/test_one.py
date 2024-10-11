@@ -1475,8 +1475,17 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search(self):
         """Test OneAlyx.search method in remote mode."""
+        # Modify sessions dataframe so we can check that the records get updated
+        records = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
+        self.one._cache.sessions.loc[records.index, 'lab'] = 'foolab'  # change a field
+        self.one._cache.sessions.drop(self.eid, inplace=True)  # remove a row
+
+        # Check remote seach of subject
         eids = self.one.search(subject='SWC_043', query_type='remote')
         self.assertIn(self.eid, list(eids))
+        updated = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
+        self.assertCountEqual(eids, updated.index)
+        self.assertFalse('foolab' in updated['lab'])
 
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
@@ -1501,10 +1510,20 @@ class TestOneRemote(unittest.TestCase):
         dates = set(map(lambda x: self.one.get_details(x)['date'], eids))
         self.assertTrue(dates <= set(date_range))
 
-        # Test limit arg and LazyId
+        # Test limit arg, LazyId, and update with paginated response callback
+        self.one._reset_cache()  # Remove sessions table
+        assert self.one._cache.sessions.empty
         eids = self.one.search(date='2020-03-23', limit=2, query_type='remote')
+        self.assertEqual(2, len(self.one._cache.sessions),
+                         'failed to update cache with first page of search results')
         self.assertIsInstance(eids, LazyId)
+        assert len(eids) > 5, 'in order to check paginated response callback we need several pages'
+        e = eids[-3]  # access an uncached value
+        self.assertEqual(
+            4, len(self.one._cache.sessions), 'failed to update cache after page access')
+        self.assertTrue(e in self.one._cache.sessions.index)
         self.assertTrue(all(len(x) == 36 for x in eids))
+        self.assertEqual(len(eids), len(self.one._cache.sessions))
 
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')

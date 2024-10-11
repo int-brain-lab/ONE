@@ -3,6 +3,7 @@ import collections.abc
 import urllib.parse
 import warnings
 import logging
+from weakref import WeakMethod
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
 from inspect import unwrap
@@ -98,14 +99,17 @@ class One(ConversionMixin):
 
     def _reset_cache(self):
         """Replace the cache object with a Bunch that contains the right fields."""
-        self._cache = Bunch({'_meta': {
-            'expired': False,
-            'created_time': None,
-            'loaded_time': None,
-            'modified_time': None,
-            'saved_time': None,
-            'raw': {}  # map of original table metadata
-        }})
+        self._cache = Bunch({
+            'datasets': pd.DataFrame(columns=DATASETS_COLUMNS).set_index(['eid', 'id']),
+            'sessions': pd.DataFrame(columns=SESSIONS_COLUMNS).set_index('id'),
+            '_meta': {
+                'expired': False,
+                'created_time': None,
+                'loaded_time': None,
+                'modified_time': None,
+                'saved_time': None,
+                'raw': {}}  # map of original table metadata
+        })
 
     def load_cache(self, tables_dir=None, **kwargs):
         """
@@ -187,7 +191,7 @@ class One(ConversionMixin):
             If True, the cache is saved regardless of modification time.
         """
         TIMEOUT = 5  # Delete lock file this many seconds after creation/modification or waiting
-        lock_file = Path(self.cache_dir).joinpath('.cache.lock')
+        lock_file = Path(self.cache_dir).joinpath('.cache.lock')  # TODO use iblutil method here
         save_dir = Path(save_dir or self.cache_dir)
         meta = self._cache['_meta']
         modified = meta.get('modified_time') or datetime.min
@@ -2271,6 +2275,18 @@ class OneAlyx(One):
             params.pop('django')
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+
+        # Update cache table with results
+        if len(ses) == 0:
+            pass  # no need to update cache here
+        elif isinstance(ses, list):  # not a paginated response
+            self._update_sessions_table(ses)
+        else:
+            # populate first page
+            self._update_sessions_table(ses._cache[:ses.limit])
+            # Add callback for updating cache on future fetches
+            ses.add_callback(WeakMethod(self._update_sessions_table))
+
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         if not details:
@@ -2283,6 +2299,22 @@ class OneAlyx(One):
             return records
 
         return eids, util.LazyId(ses, func=_add_date)
+
+    def _update_sessions_table(self, session_records):
+        """Update the sessions tables with a list of session records.
+
+        Parameters
+        ----------
+        session_records : list of dict
+            A list of session records from the /sessions list endpoint.
+
+        Returns
+        -------
+        datetime.datetime:
+            A timestamp of when the cache was updated.
+        """
+        df = pd.DataFrame(next(zip(*map(util.ses2records, session_records))))
+        return self._update_cache_from_records(sessions=df)
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
