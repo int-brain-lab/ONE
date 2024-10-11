@@ -213,9 +213,12 @@ class _PaginatedResponse(Mapping):
     def __getitem__(self, item):
         if isinstance(item, slice):
             while None in self._cache[item]:
-                self.populate(item.start + self._cache[item].index(None))
+                # If slice start index is -ve, convert to +ve index
+                i = self.count + item.start if item.start < 0 else item.start
+                self.populate(i + self._cache[item].index(None))
         elif self._cache[item] is None:
-            self.populate(item)
+            # If index is -ve, convert to +ve
+            self.populate(self.count + item if item < 0 else item)
         return self._cache[item]
 
     def populate(self, idx):

@@ -1,6 +1,7 @@
 """Unit tests for the one.webclient module"""
 import unittest
 from unittest import mock
+import urllib.parse
 import random
 import os
 import one.webclient as wc
@@ -478,6 +479,82 @@ class TestMisc(unittest.TestCase):
             self.assertTrue(str(ac.cache_dir).endswith('foobar'))
         finally:
             ac._par = ac._par.set('CACHE_DIR', prev_path)
+
+    def test_paginated_response(self):
+        """Test the _PaginatedResponse class."""
+        alyx = mock.Mock(spec_set=ac)
+        N, lim = 2000, 250  # 2000 results, 250 records per page
+        url = ac.base_url + f'/?foo=bar&offset={lim}&limit={lim}'
+        res = {'count': N, 'next': url, 'previous': None, 'results': []}
+        res['results'] = [{'id': i} for i in range(lim)]
+        alyx._generic_request.return_value = res
+        # Check initialization
+        pg = wc._PaginatedResponse(alyx, res, cache_args=dict(clobber=True))
+        self.assertEqual(pg.count, N)
+        self.assertEqual(len(pg), N)
+        self.assertEqual(pg.limit, lim)
+        self.assertEqual(len(pg._cache), N)
+        self.assertEqual(pg._cache[:lim], res['results'])
+        self.assertTrue(not any(pg._cache[lim:]))
+        self.assertIs(pg.alyx, alyx)
+
+        # Check fetching cached item with +ve int
+        self.assertEqual({'id': 1}, pg[1])
+        alyx._generic_request.assert_not_called()
+        # Check fetching cached item with +ve slice
+        self.assertEqual([{'id': 1}, {'id': 2}], pg[1:3])
+        alyx._generic_request.assert_not_called()
+        # Check fetching cached item with -ve int
+        self.assertEqual({'id': 100}, pg[-1900])
+        alyx._generic_request.assert_not_called()
+        # Check fetching cached item with -ve slice
+        self.assertEqual([{'id': 100}, {'id': 101}], pg[-1900:-1898])
+        alyx._generic_request.assert_not_called()
+        # Check fetching uncached item with +ve int
+        n = offset = lim
+        res['results'] = [{'id': i} for i in range(offset, offset + lim)]
+        assert not any(pg._cache[offset:offset + lim])
+        self.assertEqual({'id': lim}, pg[n])
+        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        alyx._generic_request.assert_called_once_with(requests.get, mock.ANY, clobber=True)
+        self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        # Check fetching uncached item with -ve int
+        offset = lim * 3
+        res['results'] = [{'id': i} for i in range(offset, offset + lim)]
+        n = offset - N + 2
+        assert not any(pg._cache[offset:offset + lim])
+        self.assertEqual({'id': N + n}, pg[n])
+        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
+        self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        # Check fetching uncached item with +ve slice
+        offset = lim * 5
+        res['results'] = [{'id': i} for i in range(offset, offset + lim)]
+        n = offset + 20
+        assert not any(pg._cache[offset:offset + lim])
+        self.assertEqual([{'id': n}, {'id': n + 1}], pg[n:n + 2])
+        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
+        self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        # Check fetching uncached item with -ve slice
+        offset = N - lim
+        res['results'] = [{'id': i} for i in range(offset, offset + lim)]
+        assert not any(pg._cache[offset:offset + lim])
+        self.assertEqual([{'id': N - 2}, {'id': N - 1}], pg[-2:])
+        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
+        self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        # At this point, there should be a certain number of None values left
+        self.assertEqual(expected_calls := 4, alyx._generic_request.call_count)
+        self.assertEqual((expected_calls + 1) * lim, sum(list(map(bool, pg._cache))))
+
+    def _check_get_query(self, call_args, limit, offset):
+        """Check URL get query contains the expected limit and offset params."""
+        (_, url), _ = call_args
+        self.assertTrue(url.startswith(ac.base_url))
+        query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+        expected = {'foo': ['bar'], 'offset': [str(offset)], 'limit': [str(limit)]}
+        self.assertDictEqual(query, expected)
 
 
 if __name__ == '__main__':
