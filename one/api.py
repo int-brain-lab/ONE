@@ -20,7 +20,7 @@ import requests.exceptions
 import packaging.version
 
 from iblutil.io import parquet, hashfile
-from iblutil.util import Bunch, flatten
+from iblutil.util import Bunch, flatten, ensure_list
 
 import one.params
 import one.webclient as wc
@@ -503,7 +503,7 @@ class One(ConversionMixin):
                 return ([], None) if details else []
             # String fields
             elif key in ('subject', 'task_protocol', 'laboratory', 'projects'):
-                query = '|'.join(util.ensure_list(value))
+                query = '|'.join(ensure_list(value))
                 key = 'lab' if key == 'laboratory' else key
                 mask = sessions[key].str.contains(query, regex=self.wildcards)
                 sessions = sessions[mask.astype(bool, copy=False)]
@@ -512,7 +512,7 @@ class One(ConversionMixin):
                 session_date = pd.to_datetime(sessions['date'])
                 sessions = sessions[(session_date >= start) & (session_date <= end)]
             elif key == 'number':
-                query = util.ensure_list(value)
+                query = ensure_list(value)
                 sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset/QC check is biggest so this should be done last
             elif key == 'dataset' or (key == 'dataset_qc_lte' and 'dataset' not in queries):
@@ -520,7 +520,7 @@ class One(ConversionMixin):
                 qc = QC.validate(queries.get('dataset_qc_lte', 'FAIL')).name  # validate value
                 has_dset = sessions.index.isin(datasets.index.get_level_values('eid'))
                 datasets = datasets.loc[(sessions.index.values[has_dset], ), :]
-                query = util.ensure_list(value if key == 'dataset' else '')
+                query = ensure_list(value if key == 'dataset' else '')
                 # For each session check any dataset both contains query and exists
                 mask = (
                     (datasets
@@ -2271,7 +2271,7 @@ class OneAlyx(One):
 
         def _add_date(records):
             """Add date field for compatibility with One.search output."""
-            for s in util.ensure_list(records):
+            for s in ensure_list(records):
                 s['date'] = datetime.fromisoformat(s['start_time']).date()
             return records
 
@@ -2343,7 +2343,7 @@ class OneAlyx(One):
         assert self.mode != 'local'
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
-        uuids = [util.ensure_list(x.name)[-1] for x in dsets]
+        uuids = [ensure_list(x.name)[-1] for x in dsets]
         # If number of UUIDs is too high, fetch in loop to avoid 414 HTTP status code
         remote_records = []
         N = 100  # Number of UUIDs per query
@@ -2417,7 +2417,7 @@ class OneAlyx(One):
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)  # NB: URL will always be returned but may not exist
-                did = util.ensure_list(dset.name)[-1]
+                did = ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
                 repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
                 url = next(
@@ -2431,7 +2431,7 @@ class OneAlyx(One):
             _logger.debug('Updating cache')
             # NB: This will be considerably easier when IndexSlice supports Ellipsis
             idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
-            self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
+            self._cache['datasets'].loc[(*idx, *ensure_list(did)), 'exists'] = False
             self._cache['_meta']['modified_time'] = datetime.now()
 
         return url
@@ -2525,7 +2525,7 @@ class OneAlyx(One):
         """
         assert not self.offline
         # Ensure all target directories exist
-        [Path(x).mkdir(parents=True, exist_ok=True) for x in set(util.ensure_list(target_dir))]
+        [Path(x).mkdir(parents=True, exist_ok=True) for x in set(ensure_list(target_dir))]
 
         # download file(s) from url(s), returns file path(s) with UUID
         local_path, md5 = self.alyx.download_file(url, target_dir=target_dir, return_md5=True)
@@ -2534,7 +2534,7 @@ class OneAlyx(One):
         if isinstance(url, (tuple, list)):
             assert (file_size is None) or len(file_size) == len(url)
             assert (hash is None) or len(hash) == len(url)
-        for args in zip(*map(util.ensure_list, (file_size, md5, hash, local_path, url))):
+        for args in zip(*map(ensure_list, (file_size, md5, hash, local_path, url))):
             self._check_hash_and_file_size_mismatch(*args)
 
         # check if we are keeping the uuid on the list of file names

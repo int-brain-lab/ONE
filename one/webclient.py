@@ -54,7 +54,7 @@ from pprint import pprint
 import one.params
 from iblutil.io import hashfile
 from iblutil.io.params import set_hidden
-from one.util import ensure_list
+from iblutil.util import ensure_list
 import concurrent.futures
 _logger = logging.getLogger(__name__)
 

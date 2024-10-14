@@ -14,6 +14,7 @@ This version improves behaviour of loading revisions and loading datasets from l
 - warn user to reauthenticate when password is None in silent mode
 - always force authentication when password passed, even when token cached
 - bugfix: negative indexing of paginated response objects now functions correctly
+- deprecate one.util.ensure_list; moved to iblutil.util.ensure_list
 
 ### Added
 

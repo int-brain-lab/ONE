@@ -11,6 +11,7 @@ from datetime import datetime
 
 import pandas as pd
 from iblutil.io import parquet
+from iblutil.util import ensure_list as _ensure_list
 import numpy as np
 from packaging import version
 
@@ -96,7 +97,7 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
     """
     records = []
 
-    for d in ensure_list(datasets):
+    for d in _ensure_list(datasets):
         file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
         if not file_record:
             continue  # Ignore files that are not accessible
@@ -396,7 +397,7 @@ def filter_datasets(
         exclude_slash = partial(re.sub, fr'^({flagless_token})?\.\*', r'\g<1>[^/]*')
         spec_str += '|'.join(
             exclude_slash(fnmatch.translate(x)) if wildcards else x + '$'
-            for x in ensure_list(filename)
+            for x in _ensure_list(filename)
         )
 
     # If matching revision name, add to regex string
@@ -408,7 +409,7 @@ def filter_datasets(
             continue
         if wildcards:
             # Convert to regex, remove \\Z which asserts end of string
-            v = (fnmatch.translate(x).replace('\\Z', '') for x in ensure_list(v))
+            v = (fnmatch.translate(x).replace('\\Z', '') for x in _ensure_list(v))
         if not isinstance(v, str):
             regex_args[k] = '|'.join(v)  # logical OR
 
@@ -592,7 +593,10 @@ def autocomplete(term, search_terms) -> str:
 
 def ensure_list(value):
     """Ensure input is a list."""
-    return [value] if isinstance(value, (str, dict)) or not isinstance(value, Iterable) else value
+    warnings.warn(
+        'one.util.ensure_list is deprecated, use iblutil.util.ensure_list instead',
+        DeprecationWarning)
+    return _ensure_list(value)
 
 
 class LazyId(Mapping):

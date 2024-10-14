@@ -48,7 +48,7 @@ from one import __version__
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id, autocomplete, LazyId, datasets2records
+    filter_revision_last_before, parse_id, autocomplete, LazyId, datasets2records, ensure_list
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -1564,7 +1564,7 @@ class TestOneRemote(unittest.TestCase):
                           dataset=['wheel.times'], query_type='remote')
 
     def test_search_terms(self):
-        """Test OneAlyx.search_terms"""
+        """Test OneAlyx.search_terms."""
         assert self.one.mode != 'remote'
         search1 = self.one.search_terms()
         self.assertIn('dataset', search1)
@@ -1582,7 +1582,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertIn('model', search5)
 
     def test_load_dataset(self):
-        """Test OneAlyx.load_dataset"""
+        """Test OneAlyx.load_dataset."""
         file = self.one.load_dataset(self.eid, '_spikeglx_sync.channels.npy',
                                      collection='raw_ephys_data', query_type='remote',
                                      download_only=True)
@@ -1598,7 +1598,7 @@ class TestOneRemote(unittest.TestCase):
                                   collection='alf', query_type='remote')
 
     def test_load_object(self):
-        """Test OneAlyx.load_object"""
+        """Test OneAlyx.load_object."""
         files = self.one.load_object(self.eid, 'wheel',
                                      collection='alf', query_type='remote',
                                      download_only=True)
@@ -1608,7 +1608,7 @@ class TestOneRemote(unittest.TestCase):
         )
 
     def test_get_details(self):
-        """Test OneAlyx.get_details"""
+        """Test OneAlyx.get_details."""
         det = self.one.get_details(self.eid, query_type='remote')
         self.assertIsInstance(det, dict)
         self.assertEqual('SWC_043', det['subject'])
@@ -1625,7 +1625,7 @@ class TestOneRemote(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
-    """Test downloading datasets using OpenAlyx"""
+    """Test downloading datasets using OpenAlyx."""
     tempdir = None
     one = None
 
@@ -1639,7 +1639,7 @@ class TestOneDownload(unittest.TestCase):
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
     def test_download_datasets(self):
-        """Test OneAlyx._download_dataset, _download_file and _dset2url"""
+        """Test OneAlyx._download_dataset, _download_file and _dset2url."""
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
@@ -1782,6 +1782,7 @@ class TestOneDownload(unittest.TestCase):
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.
+
         This method is also tested in test_download_datasets.
         """
         did = '4a1500c2-60f3-418f-afa2-c752bb1890f0'
@@ -1804,7 +1805,7 @@ class TestOneDownload(unittest.TestCase):
 
 
 class TestOneSetup(unittest.TestCase):
-    """Test parameter setup upon ONE instantiation and calling setup methods"""
+    """Test parameter setup upon ONE instantiation and calling setup methods."""
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
@@ -1815,7 +1816,7 @@ class TestOneSetup(unittest.TestCase):
         self.addCleanup(patch.stop)
 
     def test_local_cache_setup_prompt(self):
-        """Test One.setup"""
+        """Test One.setup."""
         path = Path(self.tempdir.name).joinpath('subject', '2020-01-01', '1', 'spikes.times.npy')
         path.parent.mkdir(parents=True)
         path.touch()
@@ -1839,6 +1840,7 @@ class TestOneSetup(unittest.TestCase):
 
     def test_setup_silent(self):
         """Test setting up parameters with silent flag.
+
         - Mock getfile to return temp dir as param file location
         - Mock input function as fail safe in case function erroneously prompts user for input
         """
@@ -1869,6 +1871,7 @@ class TestOneSetup(unittest.TestCase):
 
     def test_setup_username(self):
         """Test setting up parameters with a provided username.
+
         - Mock getfile to return temp dir as param file location
         - Mock input function as fail safe in case function erroneously prompts user for input
         - Mock requests.post returns a fake user authentication response
@@ -1897,14 +1900,14 @@ class TestOneSetup(unittest.TestCase):
 
     @unittest.skipIf(OFFLINE_ONLY, 'online only test')
     def test_static_setup(self):
-        """Test OneAlyx.setup"""
+        """Test OneAlyx.setup."""
         with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.webclient.getpass', return_value='international'):
             one_obj = OneAlyx.setup(silent=True)
         self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
     def test_setup(self):
-        """Test one.params.setup"""
+        """Test one.params.setup."""
         url = TEST_DB_1['base_url']
 
         def mock_input(prompt):
@@ -1948,7 +1951,7 @@ class TestOneSetup(unittest.TestCase):
         self.assertTrue(getattr(mock_input, 'conflict_warn', False))
 
     def test_patch_params(self):
-        """Test patching legacy params to the new location"""
+        """Test patching legacy params to the new location."""
         # Save some old-style params
         old_pars = one.params.default().set('HTTP_DATA_SERVER', 'openalyx.org')
         # Save a REST query in the old location
@@ -1965,7 +1968,7 @@ class TestOneSetup(unittest.TestCase):
         self.assertTrue(any(one_obj.alyx.cache_dir.joinpath('.rest').glob('*')))
 
     def test_one_factory(self):
-        """Tests the ONE class factory"""
+        """Tests the ONE class factory."""
         with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.params.input', new=self.assertFalse):
             # Cache dir not in client cache map; use One (light)
@@ -1999,9 +2002,9 @@ class TestOneSetup(unittest.TestCase):
 
 
 class TestOneMisc(unittest.TestCase):
-    """Test functions in one.util"""
+    """Test functions in one.util."""
     def test_validate_date_range(self):
-        """Test one.util.validate_date_range"""
+        """Test one.util.validate_date_range."""
         # Single string date
         actual = validate_date_range('2020-01-01')  # On this day
         expected = (pd.Timestamp('2020-01-01 00:00:00'),
@@ -2044,7 +2047,7 @@ class TestOneMisc(unittest.TestCase):
             validate_date_range(['2020-01-01', '2019-09-06', '2021-10-04'])
 
     def test_index_last_before(self):
-        """Test one.util.index_last_before"""
+        """Test one.util.index_last_before."""
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
         verifiable = index_last_before(revisions, '2021-01-01')
         self.assertEqual(0, verifiable)
@@ -2061,7 +2064,7 @@ class TestOneMisc(unittest.TestCase):
         self.assertEqual(0, verifiable, 'should return most recent')
 
     def test_collection_spec(self):
-        """Test one.util._collection_spec"""
+        """Test one.util._collection_spec."""
         # Test every combination of input
         inputs = []
         _collection = {None: '({collection}/)?', '': '', '-': '{collection}/'}
@@ -2075,7 +2078,7 @@ class TestOneMisc(unittest.TestCase):
                 self.assertEqual(expected, verifiable)
 
     def test_revision_last_before(self):
-        """Test one.util.filter_revision_last_before"""
+        """Test one.util.filter_revision_last_before."""
         datasets = util.revisions_datasets_table()
         df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
         verifiable = filter_revision_last_before(df, revision='2020-09-01', assert_unique=False)
@@ -2111,7 +2114,7 @@ class TestOneMisc(unittest.TestCase):
             filter_revision_last_before(df.copy(), assert_unique=True)
 
     def test_parse_id(self):
-        """Test one.util.parse_id"""
+        """Test one.util.parse_id."""
         obj = unittest.mock.MagicMock()  # Mock object to decorate
         obj.to_eid.return_value = 'parsed_id'  # Method to be called
         input = 'subj/date/num'  # Input id to pass to `to_eid`
@@ -2125,7 +2128,7 @@ class TestOneMisc(unittest.TestCase):
             parse_id(obj.method)(obj, input)
 
     def test_autocomplete(self):
-        """Test one.util.autocomplete"""
+        """Test one.util.autocomplete."""
         search_terms = ('subject', 'date_range', 'dataset', 'dataset_type')
         self.assertEqual('subject', autocomplete('Subj', search_terms))
         self.assertEqual('dataset', autocomplete('dataset', search_terms))
@@ -2135,7 +2138,7 @@ class TestOneMisc(unittest.TestCase):
             autocomplete('dat', search_terms)
 
     def test_LazyID(self):
-        """Test one.util.LazyID"""
+        """Test one.util.LazyID."""
         uuids = [
             'c1a2758d-3ce5-4fa7-8d96-6b960f029fa9',
             '0780da08-a12b-452a-b936-ebc576aa7670',
@@ -2149,3 +2152,12 @@ class TestOneMisc(unittest.TestCase):
         self.assertEqual(ez[0:2], uuids[0:2])
         ez = LazyId([{'id': x} for x in uuids])
         self.assertCountEqual(map(str, ez), uuids)
+
+    def test_ensure_list(self):
+        """Test one.util.ensure_list.
+
+        This function has now moved therefore we simply check for deprecation warning.
+        """
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(['123'], ensure_list('123'))
+            self.assertIs(x := ['123'], ensure_list(x))
