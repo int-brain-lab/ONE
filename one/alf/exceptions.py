@@ -1,4 +1,4 @@
-"""ALyx File related errors.
+"""ALyx File related errors and warnings.
 
 A set of Alyx and ALF related error classes which provide a more verbose description of the raised
 issues.
@@ -82,3 +82,8 @@ class ALFMultipleRevisionsFound(ALFError):
     explanation = ('The matching object/file(s) belong to more than one revision.  '
                    'Multiple datasets in different revision folders were found with no default '
                    'specified.')
+
+
+class ALFWarning(Warning):
+    """Cautions when loading ALF datasets."""
+    pass

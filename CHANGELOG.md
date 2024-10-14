@@ -1,5 +1,26 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.9.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.0]
+This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
+
+### Modified
+
+- sub-collections no longer captured when filtering with filename that starts with wildcard in wildcard mode
+- bugfix of spurious error raised when loading dataset with a revision provided
+- default_revisions_only parameter in One.list_datasets filters non-default datasets
+- permit data frame input to One.load_datasets and load precise relative paths provided (instead of default revisions)
+- redundent session_path column has been dropped from the datasets cache table
+- bugfix in one.params.setup: suggest previous cache dir if available instead of always the default
+- bugfix in one.params.setup: remove all extrenuous parameters (i.e. TOKEN) when running setup in silent mode
+- warn user to reauthenticate when password is None in silent mode
+- always force authentication when password passed, even when token cached
+- bugfix: negative indexing of paginated response objects now functions correctly
+- deprecate one.util.ensure_list; moved to iblutil.util.ensure_list
+
+### Added
+
+- one.alf.exceptions.ALFWarning category allows users to filter warnings relating to mixed revisions
+
+## [2.9.1]
 
 ### Modified
 
@@ -7,7 +28,7 @@
 - HOTFIX: Ensure http data server URL does not end in slash
 - HOTFIX: Handle public aggregate dataset relative paths
 - HOTFIX: No longer warns in silent mode when no param conflicts present
-- Explicit kwargs in load_* methods to avoid user confusion (e.g. no 'namespace' kwarg for `load_dataset`)
+- explicit kwargs in load_* methods to avoid user confusion (e.g. no 'namespace' kwarg for `load_dataset`)
 
 ## [2.9.0]
 This version adds a couple of new ALF functions.

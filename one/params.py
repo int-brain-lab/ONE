@@ -158,7 +158,8 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
 
         # Prompt for cache directory (default may have changed after prompt)
         client_key = _key_from_url(par.ALYX_URL)
-        cache_dir = cache_dir or Path(CACHE_DIR_DEFAULT, client_key)
+        def_cache_dir = cache_map.CLIENT_MAP.get(client_key) or Path(CACHE_DIR_DEFAULT, client_key)
+        cache_dir = cache_dir or def_cache_dir
         prompt = f'Enter the location of the download cache, current value is ["{cache_dir}"]:'
         cache_dir = input(prompt) or cache_dir
 
@@ -185,7 +186,9 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
         # Precedence: user provided cache_dir; previously defined; the default location
         default_cache_dir = Path(CACHE_DIR_DEFAULT, client_key)
         cache_dir = cache_dir or cache_map.CLIENT_MAP.get(client_key, default_cache_dir)
-        par = par_current
+        # Use current params but drop any extras (such as the TOKEN or ALYX_PWD field)
+        keep_keys = par_default.as_dict().keys()
+        par = iopar.from_dict({k: v for k, v in par_current.as_dict().items() if k in keep_keys})
         if any(v for k, v in cache_map.CLIENT_MAP.items() if k != client_key and v == cache_dir):
             warnings.warn('Warning: the directory provided is already a cache for another URL.')
 

@@ -2,7 +2,7 @@
 import unittest
 from unittest import mock
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from uuid import UUID
+from uuid import UUID, uuid4
 import datetime
 
 import pandas as pd
@@ -116,11 +116,17 @@ class TestConverters(unittest.TestCase):
         self.assertTrue(file.as_posix().endswith(rec['rel_path']))
 
         # Test URL
-        parts = add_uuid_string(file, '94285bfd-7500-4583-83b1-906c420cc667').parts[-7:]
+        uuid = '6cbb724e-c7ec-4eab-b24b-555001502d10'
+        parts = add_uuid_string(file, uuid).parts[-7:]
         url = TEST_DB_2['base_url'] + '/'.join(('', *parts))
         rec = self.one.path2record(url)
         self.assertIsInstance(rec, pd.Series)
         self.assertTrue(file.as_posix().endswith(rec['rel_path']))
+        # With a UUID missing from cache, should return None
+        uuid = '94285bfd-7500-4583-83b1-906c420cc667'
+        parts = add_uuid_string(file, uuid).parts[-7:]
+        url = TEST_DB_2['base_url'] + '/'.join(('', *parts))
+        self.assertIsNone(self.one.path2record(url))
 
         file = file.parent / '_fake_obj.attr.npy'
         self.assertIsNone(self.one.path2record(file))
@@ -277,14 +283,18 @@ class TestOnlineConverters(unittest.TestCase):
         # As pd.DataFrame
         idx = rec.rel_path == 'alf/probe00/_phy_spikes_subset.channels.npy'
         path = self.one.record2path(rec[idx])
-        self.assertEqual(expected, path)
+        self.assertEqual([expected], path)
+        # Test validation
+        self.assertRaises(AssertionError, self.one.record2path, rec[idx].droplevel(0))  # no eid
+        self.assertRaises(TypeError, self.one.record2path, rec[idx].to_dict())
+        unknown = rec[idx].squeeze().rename(index=(str(uuid4()), data_id))
+        self.assertRaises(ValueError, self.one.record2path, unknown)  # unknown eid
         # With UUID in file name
         try:
             self.one.uuid_filenames = True
             expected = expected.with_suffix(f'.{data_id}.npy')
-            self.assertEqual(expected, self.one.record2path(rec[idx]))  # as pd.DataFrame
+            self.assertEqual([expected], self.one.record2path(rec[idx]))  # as pd.DataFrame
             self.assertEqual(expected, self.one.record2path(rec[idx].squeeze()))  # as pd.Series
-            self.assertEqual(expected, self.one.record2path(rec[idx].droplevel(0)))  # no eid
         finally:
             self.one.uuid_filenames = False
 

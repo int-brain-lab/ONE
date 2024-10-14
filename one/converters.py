@@ -13,15 +13,14 @@ import datetime
 from uuid import UUID
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
-from urllib.parse import urlsplit
 from typing import Optional, Union, Mapping, List, Iterable as Iter
 
 import pandas as pd
 from iblutil.util import Bunch
 
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.files import get_session_path, add_uuid_string, session_path_parts, remove_uuid_string
-from .util import Listable, ensure_list
+from one.alf.files import get_session_path, add_uuid_string, session_path_parts, get_alf_path
+from .util import Listable
 
 
 def recurse(func):
@@ -232,39 +231,43 @@ class ConversionMixin:
             A cache file record
         """
         is_session = is_session_path(path)
-        rec = self._cache['sessions' if is_session else 'datasets']
-        if rec.empty:
-            return
-        # if (rec := self._cache['datasets']).empty:  # py 3.8
-        #     return
+        if self._cache['sessions' if is_session else 'datasets'].empty:
+            return  # short circuit: no records in the cache
 
         if is_session_path(path):
             lab, subject, date, number = session_path_parts(path)
-            rec = rec[
-                (rec['lab'] == lab) & (rec['subject'] == subject) &
-                (rec['number'] == int(number)) &
-                (rec['date'] == datetime.date.fromisoformat(date))
+            df = self._cache['sessions']
+            rec = df[
+                (df['lab'] == lab) & (df['subject'] == subject) &
+                (df['number'] == int(number)) &
+                (df['date'] == datetime.date.fromisoformat(date))
             ]
             return None if rec.empty else rec.squeeze()
 
-        # Deal with file path
-        if isinstance(path, str) and path.startswith('http'):
-            # Remove the UUID from path
-            path = urlsplit(path).path.strip('/')
-            path = remove_uuid_string(PurePosixPath(path))
-            session_path = get_session_path(path).as_posix()
-        else:
-            # No way of knowing root session path parts without cache tables
-            eid = self.path2eid(path)
-            session_series = self.list_datasets(eid, details=True).session_path
-            if not eid or session_series.empty:
+        # Deal with dataset path
+        if isinstance(path, str):
+            path = Path(path)
+        # If there's a UUID in the path, use that to fetch the record
+        name_parts = path.stem.split('.')
+        if is_uuid_string(uuid := name_parts[-1]):
+            try:
+                return self._cache['datasets'].loc[pd.IndexSlice[:, uuid], :].squeeze()
+            except KeyError:
                 return
-            session_path, *_ = session_series
 
-        rec = rec[rec['session_path'] == session_path]
-        rec = rec[rec['rel_path'].apply(lambda x: path.as_posix().endswith(x))]
+        # Fetch via session record
+        eid = self.path2eid(path)
+        df = self.list_datasets(eid, details=True)
+        if not eid or df.empty:
+            return
+
+        # Find row where relative path matches
+        rec = df[df['rel_path'] == path.relative_to(get_session_path(path)).as_posix()]
         assert len(rec) < 2, 'Multiple records found'
-        return None if rec.empty else rec.squeeze()
+        if rec.empty:
+            return None
+        # Convert slice to series and reinstate eid index if dropped
+        return rec.squeeze().rename(index=(eid, rec.index.get_level_values('id')[0]))
 
     @recurse
     def path2url(self, filepath):
@@ -313,19 +316,18 @@ class ConversionMixin:
                 session_spec = '{lab}/Subjects/{subject}/{date}/{number:03d}'
                 url = record.get('session_path') or session_spec.format(**record)
                 return webclient.rel_path2url(url)
-            uuid = ensure_list(record.name)[-1]  # may be (eid, did) or simply did
         else:
             raise TypeError(
                 f'record must be pandas.DataFrame or pandas.Series, got {type(record)} instead')
-
-        session_path, rel_path = record[['session_path', 'rel_path']].to_numpy().flatten()
-        url = PurePosixPath(session_path, rel_path)
+        assert isinstance(record.name, tuple) and len(record.name) == 2
+        eid, uuid = record.name  # must be (eid, did)
+        session_path = self.eid2path(eid)
+        url = PurePosixPath(get_alf_path(session_path), record['rel_path'])
         return webclient.rel_path2url(add_uuid_string(url, uuid).as_posix())
 
     def record2path(self, dataset) -> Optional[Path]:
         """
-        Given a set of dataset records, checks the corresponding exists flag in the cache
-        correctly reflects the files system.
+        Given a set of dataset records, returns the corresponding paths
 
         Parameters
         ----------
@@ -337,13 +339,19 @@ class ConversionMixin:
         pathlib.Path
             File path for the record
         """
-        assert isinstance(dataset, pd.Series) or len(dataset) == 1
-        session_path, rel_path = dataset[['session_path', 'rel_path']].to_numpy().flatten()
-        file = Path(self.cache_dir, session_path, rel_path)
+        if isinstance(dataset, pd.DataFrame):
+            return [self.record2path(r) for _, r in dataset.iterrows()]
+        elif not isinstance(dataset, pd.Series):
+            raise TypeError(
+                f'record must be pandas.DataFrame or pandas.Series, got {type(dataset)} instead')
+        assert isinstance(dataset.name, tuple) and len(dataset.name) == 2
+        eid, uuid = dataset.name  # must be (eid, did)
+        if not (session_path := self.eid2path(eid)):
+            raise ValueError(f'Failed to determine session path for eid "{eid}"')
+        file = session_path / dataset['rel_path']
         if self.uuid_filenames:
-            i = dataset.name if isinstance(dataset, pd.Series) else dataset.index[0]
-            file = add_uuid_string(file, i[1] if isinstance(i, tuple) else i)
-        return file  # files[0] if len(datasets) == 1 else files
+            file = add_uuid_string(file, uuid)
+        return file
 
     @recurse
     def eid2ref(self, eid: Union[str, Iter], as_dict=True, parse=True) \

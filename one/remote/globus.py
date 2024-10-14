@@ -97,12 +97,12 @@ import globus_sdk
 from globus_sdk import TransferAPIError, GlobusAPIError, NetworkError, GlobusTimeoutError, \
     GlobusConnectionError, GlobusConnectionTimeoutError, GlobusSDKUsageError, NullAuthorizer
 from iblutil.io import params as iopar
+from iblutil.util import ensure_list
 
 from one.alf.spec import is_uuid
 from one.alf.files import remove_uuid_string
 import one.params
 from one.webclient import AlyxClient
-from one.util import ensure_list
 from .base import DownloadClient, load_client_params, save_client_params
 
 __all__ = ['Globus', 'get_lab_from_endpoint_id', 'as_globus_path']
