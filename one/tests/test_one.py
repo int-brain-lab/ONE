@@ -53,6 +53,7 @@ from one.util import (
 import one.params
 import one.alf.exceptions as alferr
 from one.alf import spec
+from one.alf.files import get_alf_path
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
@@ -1664,18 +1665,16 @@ class TestOneDownload(unittest.TestCase):
                                 new=partial(util.get_file, self.tempdir.name))
         self.patch.start()
         self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name, mode='auto')
-        self.fid = '17ab5b57-aaf6-4016-9251-66daadc200c7'  # File record of channels.brainLocation
+        self.fid = '6f175a7a-e20b-4622-81fc-08947a4fd1d3'  # File record of wiring.json
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
+        self.did = 'd693fbf9-2f90-4123-839e-41474c44742d'
 
     def test_download_datasets(self):
         """Test OneAlyx._download_dataset, _download_file and _dset2url."""
         det = self.one.get_details(self.eid, True)
-        rec = next(x for x in det['data_dataset_session_related']
-                   if 'channels.brainLocation' in x['dataset_type'])
+        rec = next(x for x in det['data_dataset_session_related'] if x['id'] == self.did)
         # FIXME hack because data_url may be AWS
-        from one.alf.files import get_alf_path
         rec['data_url'] = self.one.alyx.rel_path2url(get_alf_path(rec['data_url']))
-        # FIXME order may not be stable, this only works
         file = self.one._download_dataset(rec)
         self.assertIsInstance(file, Path)
         self.assertTrue(file.exists())
@@ -1714,10 +1713,10 @@ class TestOneDownload(unittest.TestCase):
         if fi != 0:
             rec['file_records'] = [rec['file_records'].pop(fi), *rec['file_records']]
         file = self.one._download_dataset(rec, keep_uuid=True)
-        self.assertEqual(str(file).split('.')[2], rec['url'].split('/')[-1])
+        self.assertEqual(file.stem.split('.')[-1], rec['url'].split('/')[-1])
 
         # Check list input
-        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[0]]
+        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[1]]
         files = self.one._download_dataset(recs)
         self.assertIsInstance(files, list)
         self.assertTrue(all(isinstance(x, Path) for x in files))
@@ -1725,7 +1724,7 @@ class TestOneDownload(unittest.TestCase):
         # Check Series input
         r_ = datasets2records(rec).squeeze()
         file = self.one._download_dataset(r_)
-        self.assertIn('channels.brainLocation', file.as_posix())
+        self.assertIn('imec0.wiring.json', file.name)
 
         # Check behaviour when URL invalid
         did = rec['url'].split('/')[-1]
@@ -1747,10 +1746,11 @@ class TestOneDownload(unittest.TestCase):
             file = self.one._download_dataset(path)
             self.assertIsNone(file)
 
+        # Check data frame record
         rec = self.one.list_datasets(self.eid, details=True)
-        rec = rec[rec.rel_path.str.contains('00/pykilosort/channels.brainLocation')]
-        rec['exists_aws'] = False  # Ensure we use FlatIron for this
-        rec = pd.concat({str(self.eid): rec}, names=['eid'])
+        rec = rec[rec.rel_path.str.contains('00/_spikeglx_ephysData_g0_t0.imec0.wiring')]
+        rec.loc[self.did, 'exist_aws'] = False  # Ensure we use FlatIron for this
+        rec = pd.concat({str(self.eid): rec}, names=['eid'])  # Add back eid index
 
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
@@ -1765,6 +1765,7 @@ class TestOneDownload(unittest.TestCase):
         dsets = self.one.list_datasets(
             self.eid, filename='*wiring.json', collection='raw_ephys_data/probe??', details=True)
         dsets = pd.concat({str(self.eid): dsets}, names=['eid'])
+        assert len(dsets) == 2
 
         file = self.one.eid2path(self.eid) / dsets['rel_path'].values[0]
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
