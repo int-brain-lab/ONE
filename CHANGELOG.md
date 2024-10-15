@@ -32,6 +32,7 @@ This version fixes issues with Alyx authentication in silent mode, and improves 
 ### Added
 
 - one.alf.exceptions.ALFWarning category allows users to filter warnings relating to mixed revisions
+- one.alf.cache.remove_cache_table_files and One._remove_cache_table_files for deleting cache table files
 
 ## [2.9.1]
 
