@@ -28,7 +28,8 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.path as alfiles
 import one.alf.exceptions as alferr
-from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
+from .alf.cache import (
+    make_parquet_db, remove_cache_table_files, DATASETS_COLUMNS, SESSIONS_COLUMNS)
 from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path
@@ -110,6 +111,24 @@ class One(ConversionMixin):
                 'saved_time': None,
                 'raw': {}}  # map of original table metadata
         })
+
+    def _remove_cache_table_files(self, tables=None):
+        """Delete cache tables on disk.
+
+        Parameters
+        ----------
+        tables : list of str
+            A list of table names to removes, e.g. ['sessions', 'datasets'].
+            If None, the currently loaded table names are removed. NB: This
+            will also delete the cache_info.json metadata file.
+
+        Returns
+        -------
+        list of pathlib.Path
+            A list of the removed files.
+        """
+        tables = tables or filter(lambda x: x[0] != '_', self._cache)
+        return remove_cache_table_files(self._tables_dir, tables)
 
     def load_cache(self, tables_dir=None, **kwargs):
         """
