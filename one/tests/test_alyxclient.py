@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 import urllib.parse
 import random
+import weakref
 import os
 import one.webclient as wc
 import one.params
@@ -498,12 +499,24 @@ class TestMisc(unittest.TestCase):
         self.assertTrue(not any(pg._cache[lim:]))
         self.assertIs(pg.alyx, alyx)
 
+        # Check adding callbacks
+        self.assertRaises(TypeError, pg.add_callback, None)
+        wf = mock.Mock(spec_set=weakref.ref)
+        cb1, cb2 = mock.MagicMock(), wf()
+        pg.add_callback(cb1)
+        pg.add_callback(wf)
+        self.assertEqual(2, len(pg._callbacks))
+
         # Check fetching cached item with +ve int
         self.assertEqual({'id': 1}, pg[1])
         alyx._generic_request.assert_not_called()
+        for cb in [cb1, cb2]:
+            cb.assert_not_called()
         # Check fetching cached item with +ve slice
         self.assertEqual([{'id': 1}, {'id': 2}], pg[1:3])
         alyx._generic_request.assert_not_called()
+        for cb in [cb1, cb2]:
+            cb.assert_not_called()
         # Check fetching cached item with -ve int
         self.assertEqual({'id': 100}, pg[-1900])
         alyx._generic_request.assert_not_called()
@@ -518,6 +531,10 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(res['results'], pg._cache[offset:offset + lim])
         alyx._generic_request.assert_called_once_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        for cb in [cb1, cb2]:
+            cb.assert_called_once_with(res['results'])
+        # Check that dead weakreaf will be removed from the list on next call
+        wf.return_value = None
         # Check fetching uncached item with -ve int
         offset = lim * 3
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
@@ -527,6 +544,7 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(res['results'], pg._cache[offset:offset + lim])
         alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        self.assertEqual(1, len(pg._callbacks), 'failed to remove weakref callback')
         # Check fetching uncached item with +ve slice
         offset = lim * 5
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
@@ -547,6 +565,10 @@ class TestMisc(unittest.TestCase):
         # At this point, there should be a certain number of None values left
         self.assertEqual(expected_calls := 4, alyx._generic_request.call_count)
         self.assertEqual((expected_calls + 1) * lim, sum(list(map(bool, pg._cache))))
+
+        # Check callbacks cleared when cache fully populated
+        self.assertTrue(all(map(bool, pg)))
+        self.assertEqual(0, len(pg._callbacks))
 
     def _check_get_query(self, call_args, limit, offset):
         """Check URL get query contains the expected limit and offset params."""

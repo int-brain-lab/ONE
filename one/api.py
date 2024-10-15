@@ -3,6 +3,7 @@ import collections.abc
 import urllib.parse
 import warnings
 import logging
+from weakref import WeakMethod
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
 from inspect import unwrap
@@ -27,7 +28,8 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.files as alfiles
 import one.alf.exceptions as alferr
-from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
+from .alf.cache import (
+    make_parquet_db, remove_cache_table_files, DATASETS_COLUMNS, SESSIONS_COLUMNS)
 from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path
@@ -49,7 +51,7 @@ class One(ConversionMixin):
     uuid_filenames = None
     """bool: whether datasets on disk have a UUID in their filename."""
 
-    def __init__(self, cache_dir=None, mode='auto', wildcards=True, tables_dir=None):
+    def __init__(self, cache_dir=None, mode='local', wildcards=True, tables_dir=None):
         """An API for searching and loading data on a local filesystem
 
         Parameters
@@ -98,14 +100,35 @@ class One(ConversionMixin):
 
     def _reset_cache(self):
         """Replace the cache object with a Bunch that contains the right fields."""
-        self._cache = Bunch({'_meta': {
-            'expired': False,
-            'created_time': None,
-            'loaded_time': None,
-            'modified_time': None,
-            'saved_time': None,
-            'raw': {}  # map of original table metadata
-        }})
+        self._cache = Bunch({
+            'datasets': pd.DataFrame(columns=DATASETS_COLUMNS).set_index(['eid', 'id']),
+            'sessions': pd.DataFrame(columns=SESSIONS_COLUMNS).set_index('id'),
+            '_meta': {
+                'expired': False,
+                'created_time': None,
+                'loaded_time': None,
+                'modified_time': None,
+                'saved_time': None,
+                'raw': {}}  # map of original table metadata
+        })
+
+    def _remove_cache_table_files(self, tables=None):
+        """Delete cache tables on disk.
+
+        Parameters
+        ----------
+        tables : list of str
+            A list of table names to removes, e.g. ['sessions', 'datasets'].
+            If None, the currently loaded table names are removed. NB: This
+            will also delete the cache_info.json metadata file.
+
+        Returns
+        -------
+        list of pathlib.Path
+            A list of the removed files.
+        """
+        tables = tables or filter(lambda x: x[0] != '_', self._cache)
+        return remove_cache_table_files(self._tables_dir, tables)
 
     def load_cache(self, tables_dir=None, **kwargs):
         """
@@ -146,13 +169,10 @@ class One(ConversionMixin):
 
             self._cache[table] = cache
 
-        if len(self._cache) == 1:
+        if meta['loaded_time'] is None:
             # No tables present
             meta['expired'] = True
             meta['raw'] = {}
-            self._cache.update({
-                'datasets': pd.DataFrame(columns=DATASETS_COLUMNS).set_index(['eid', 'id']),
-                'sessions': pd.DataFrame(columns=SESSIONS_COLUMNS).set_index('id')})
             if self.offline:  # In online mode, the cache tables should be downloaded later
                 warnings.warn(f'No cache tables found in {self._tables_dir}')
         created = [datetime.fromisoformat(x['date_created'])
@@ -187,7 +207,7 @@ class One(ConversionMixin):
             If True, the cache is saved regardless of modification time.
         """
         TIMEOUT = 5  # Delete lock file this many seconds after creation/modification or waiting
-        lock_file = Path(self.cache_dir).joinpath('.cache.lock')
+        lock_file = Path(self.cache_dir).joinpath('.cache.lock')  # TODO use iblutil method here
         save_dir = Path(save_dir or self.cache_dir)
         meta = self._cache['_meta']
         modified = meta.get('modified_time') or datetime.min
@@ -236,7 +256,8 @@ class One(ConversionMixin):
         if mode in {'local', 'remote'}:
             pass
         elif mode == 'auto':
-            if datetime.now() - self._cache['_meta']['loaded_time'] >= self.cache_expiry:
+            loaded_time = self._cache['_meta']['loaded_time']
+            if not loaded_time or (datetime.now() - loaded_time >= self.cache_expiry):
                 _logger.info('Cache expired, refreshing')
                 self.load_cache()
         elif mode == 'refresh':
@@ -497,7 +518,6 @@ class One(ConversionMixin):
         search_terms = self.search_terms(query_type='local')
         queries = {util.autocomplete(k, search_terms): v for k, v in kwargs.items()}
         for key, value in sorted(queries.items(), key=sort_fcn):
-            # key = util.autocomplete(key)  # Validate and get full name
             # No matches; short circuit
             if sessions.size == 0:
                 return ([], None) if details else []
@@ -1541,7 +1561,7 @@ class One(ConversionMixin):
 
 
 @lru_cache(maxsize=1)
-def ONE(*, mode='auto', wildcards=True, **kwargs):
+def ONE(*, mode='remote', wildcards=True, **kwargs):
     """ONE API factory.
 
     Determine which class to instantiate depending on parameters passed.
@@ -1579,7 +1599,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
     if kwargs.pop('offline', False):
         _logger.warning('the offline kwarg will probably be removed. '
                         'ONE is now offline by default anyway')
-        warnings.warn('"offline" param will be removed; use mode="local"', DeprecationWarning)
+        warnings.warn('"offline" param will be removed; use mode="local"', FutureWarning)
         mode = 'local'
 
     if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
@@ -1598,7 +1618,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 class OneAlyx(One):
     """An API for searching and loading data through the Alyx database."""
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
-                 mode='auto', wildcards=True, tables_dir=None, **kwargs):
+                 mode='remote', wildcards=True, tables_dir=None, **kwargs):
         """An API for searching and loading data through the Alyx database.
 
         Parameters
@@ -2264,6 +2284,18 @@ class OneAlyx(One):
             params.pop('django')
         # Make GET request
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
+
+        # Update cache table with results
+        if len(ses) == 0:
+            pass  # no need to update cache here
+        elif isinstance(ses, list):  # not a paginated response
+            self._update_sessions_table(ses)
+        else:
+            # populate first page
+            self._update_sessions_table(ses._cache[:ses.limit])
+            # Add callback for updating cache on future fetches
+            ses.add_callback(WeakMethod(self._update_sessions_table))
+
         # LazyId only transforms records when indexed
         eids = util.LazyId(ses)
         if not details:
@@ -2276,6 +2308,22 @@ class OneAlyx(One):
             return records
 
         return eids, util.LazyId(ses, func=_add_date)
+
+    def _update_sessions_table(self, session_records):
+        """Update the sessions tables with a list of session records.
+
+        Parameters
+        ----------
+        session_records : list of dict
+            A list of session records from the /sessions list endpoint.
+
+        Returns
+        -------
+        datetime.datetime:
+            A timestamp of when the cache was updated.
+        """
+        df = pd.DataFrame(next(zip(*map(util.ses2records, session_records))))
+        return self._update_cache_from_records(sessions=df)
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
         """
