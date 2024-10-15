@@ -32,7 +32,9 @@ from one.alf.files import session_path_parts, get_alf_path
 from one.converters import session_record2path
 from one.util import QC_TYPE, patch_cache
 
-__all__ = ['make_parquet_db', 'remove_missing_datasets', 'DATASETS_COLUMNS', 'SESSIONS_COLUMNS']
+__all__ = [
+    'make_parquet_db', 'remove_missing_datasets', 'remove_cache_table_files',
+    'DATASETS_COLUMNS', 'SESSIONS_COLUMNS']
 _logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
@@ -338,3 +340,30 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
                 path = path.parent
 
     return sorted(to_delete)
+
+
+def remove_cache_table_files(folder, tables=('sessions', 'datasets')):
+    """Delete cache tables on disk.
+
+    Parameters
+    ----------
+    folder : pathlib.Path
+        The directory path containing cache tables to remove.
+    tables : list of str
+        A list of table names to remove, e.g. ['sessions', 'datasets'].
+        NB: This will also delete the cache_info.json metadata file.
+
+    Returns
+    -------
+    list of pathlib.Path
+        A list of the removed files.
+    """
+    filenames = ('cache_info.json', *(f'{t}.pqt' for t in tables))
+    removed = []
+    for file in map(folder.joinpath, filenames):
+        if file.exists():
+            file.unlink()
+            removed.append(file)
+        else:
+            _logger.warning('%s not found', file)
+    return removed

@@ -60,6 +60,7 @@ from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
 class TestONECache(unittest.TestCase):
     """Test methods that use sessions and datasets tables.
+
     This class loads the parquet tables from the fixtures and builds a file tree in a temp folder
     """
     tempdir = None
@@ -1019,6 +1020,19 @@ class TestONECache(unittest.TestCase):
             ids, filename = self.one.save_loaded_ids()
         self.assertEqual(ids, [])
         self.assertIsNone(filename)
+
+    def test_remove_cache_table_files(self):
+        """Test One._remove_cache_table_files method."""
+        root = self.one._tables_dir
+        for name in ('cache_info.json', 'foo.pqt'):
+            root.joinpath(name).touch()
+        removed = self.one._remove_cache_table_files()
+        expected = ['sessions.pqt', 'datasets.pqt', 'cache_info.json']
+        self.assertCountEqual(expected, [str(x.relative_to(root)) for x in removed])
+        with self.assertLogs('one.alf.cache', 30) as cm:
+            removed = self.one._remove_cache_table_files(tables=('foo',))
+        self.assertEqual([root / 'foo.pqt'], removed)
+        self.assertIn('cache_info.json not found', cm.records[0].message)
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
