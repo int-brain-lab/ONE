@@ -150,13 +150,10 @@ class One(ConversionMixin):
 
             self._cache[table] = cache
 
-        if len(self._cache) == 1:
+        if meta['loaded_time'] is None:
             # No tables present
             meta['expired'] = True
             meta['raw'] = {}
-            self._cache.update({
-                'datasets': pd.DataFrame(columns=DATASETS_COLUMNS).set_index(['eid', 'id']),
-                'sessions': pd.DataFrame(columns=SESSIONS_COLUMNS).set_index('id')})
             if self.offline:  # In online mode, the cache tables should be downloaded later
                 warnings.warn(f'No cache tables found in {self._tables_dir}')
         created = [datetime.fromisoformat(x['date_created'])
@@ -502,7 +499,6 @@ class One(ConversionMixin):
         search_terms = self.search_terms(query_type='local')
         queries = {util.autocomplete(k, search_terms): v for k, v in kwargs.items()}
         for key, value in sorted(queries.items(), key=sort_fcn):
-            # key = util.autocomplete(key)  # Validate and get full name
             # No matches; short circuit
             if sessions.size == 0:
                 return ([], None) if details else []
