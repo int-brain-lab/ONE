@@ -10,7 +10,7 @@ from iblutil.io.parquet import str2np
 from iblutil.io.params import set_hidden
 
 import one.params
-from one.util import QC_TYPE
+from one.alf.cache import QC_TYPE
 from one.converters import session_record2path
 
 

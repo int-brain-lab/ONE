@@ -3,7 +3,7 @@ numpy>=1.18
 pandas>=1.5.0
 tqdm>=4.32.1
 requests>=2.22.0
-iblutil>=1.13.0
+iblutil>=1.14.0
 packaging
 boto3
 pyyaml
