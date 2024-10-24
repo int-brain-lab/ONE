@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
+This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
+
+### Modified
+
+- Supports python >= 3.10 only
+
+## [2.10.0]
 This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
 
 ### Modified
