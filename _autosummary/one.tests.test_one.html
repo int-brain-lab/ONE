@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.test_one &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -174,16 +172,16 @@ properties to their original state on teardown, or call one.api.ONE.cache_clear(
 <td><p>This could be an offline test.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_one.TestOneDownload" title="one.tests.test_one.TestOneDownload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestOneDownload</span></code></a></p></td>
-<td><p>Test downloading datasets using OpenAlyx</p></td>
+<td><p>Test downloading datasets using OpenAlyx.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_one.TestOneMisc" title="one.tests.test_one.TestOneMisc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestOneMisc</span></code></a></p></td>
-<td><p>Test functions in one.util</p></td>
+<td><p>Test functions in one.util.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_one.TestOneRemote" title="one.tests.test_one.TestOneRemote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestOneRemote</span></code></a></p></td>
 <td><p>Test remote queries using OpenAlyx</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_one.TestOneSetup" title="one.tests.test_one.TestOneSetup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestOneSetup</span></code></a></p></td>
-<td><p>Test parameter setup upon ONE instantiation and calling setup methods</p></td>
+<td><p>Test parameter setup upon ONE instantiation and calling setup methods.</p></td>
 </tr>
 </tbody>
 </table>
@@ -267,8 +265,8 @@ This class loads the parquet tables from the fixtures and builds a file tree in 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_check_filesystem">
 <span class="sig-name descname"><span class="pre">test_check_filesystem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_check_filesystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_check_filesystem" title="Link to this definition"></a></dt>
-<dd><p>Test for One._check_filesystem.
-Most is already covered by other tests, this checks that it can deal with dataset frame
+<dd><p>Test for One._check_filesystem.</p>
+<p>Most is already covered by other tests, this checks that it can deal with dataset frame
 without eid index and without a session_path column.</p>
 </dd></dl>
 
@@ -494,25 +492,25 @@ dicts as input.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_search_terms">
 <span class="sig-name descname"><span class="pre">test_search_terms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_search_terms" title="Link to this definition"></a></dt>
-<dd><p>Test OneAlyx.search_terms</p>
+<dd><p>Test OneAlyx.search_terms.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_load_dataset">
 <span class="sig-name descname"><span class="pre">test_load_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_load_dataset" title="Link to this definition"></a></dt>
-<dd><p>Test OneAlyx.load_dataset</p>
+<dd><p>Test OneAlyx.load_dataset.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_load_object">
 <span class="sig-name descname"><span class="pre">test_load_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_load_object" title="Link to this definition"></a></dt>
-<dd><p>Test OneAlyx.load_object</p>
+<dd><p>Test OneAlyx.load_object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneRemote.test_get_details">
 <span class="sig-name descname"><span class="pre">test_get_details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneRemote.test_get_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneRemote.test_get_details" title="Link to this definition"></a></dt>
-<dd><p>Test OneAlyx.get_details</p>
+<dd><p>Test OneAlyx.get_details.</p>
 </dd></dl>
 
 </dd></dl>
@@ -521,7 +519,7 @@ dicts as input.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneDownload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Test downloading datasets using OpenAlyx</p>
+<p>Test downloading datasets using OpenAlyx.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.tempdir">
 <span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestOneDownload.tempdir" title="Link to this definition"></a></dt>
@@ -541,7 +539,7 @@ dicts as input.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.test_download_datasets">
 <span class="sig-name descname"><span class="pre">test_download_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload.test_download_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload.test_download_datasets" title="Link to this definition"></a></dt>
-<dd><p>Test OneAlyx._download_dataset, _download_file and _dset2url</p>
+<dd><p>Test OneAlyx._download_dataset, _download_file and _dset2url.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -553,8 +551,8 @@ dicts as input.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneDownload.test_tag_mismatched_file_record">
 <span class="sig-name descname"><span class="pre">test_tag_mismatched_file_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneDownload.test_tag_mismatched_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneDownload.test_tag_mismatched_file_record" title="Link to this definition"></a></dt>
-<dd><p>Test for OneAlyx._tag_mismatched_file_record.
-This method is also tested in test_download_datasets.</p>
+<dd><p>Test for OneAlyx._tag_mismatched_file_record.</p>
+<p>This method is also tested in test_download_datasets.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -569,7 +567,7 @@ This method is also tested in test_download_datasets.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Test parameter setup upon ONE instantiation and calling setup methods</p>
+<p>Test parameter setup upon ONE instantiation and calling setup methods.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.setUp" title="Link to this definition"></a></dt>
@@ -579,48 +577,52 @@ This method is also tested in test_download_datasets.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_local_cache_setup_prompt">
 <span class="sig-name descname"><span class="pre">test_local_cache_setup_prompt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_local_cache_setup_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_local_cache_setup_prompt" title="Link to this definition"></a></dt>
-<dd><p>Test One.setup</p>
+<dd><p>Test One.setup.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_setup_silent">
 <span class="sig-name descname"><span class="pre">test_setup_silent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_setup_silent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_setup_silent" title="Link to this definition"></a></dt>
-<dd><p>Test setting up parameters with silent flag.
-- Mock getfile to return temp dir as param file location
-- Mock input function as fail safe in case function erroneously prompts user for input</p>
+<dd><p>Test setting up parameters with silent flag.</p>
+<ul class="simple">
+<li><p>Mock getfile to return temp dir as param file location</p></li>
+<li><p>Mock input function as fail safe in case function erroneously prompts user for input</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_setup_username">
 <span class="sig-name descname"><span class="pre">test_setup_username</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_setup_username"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_setup_username" title="Link to this definition"></a></dt>
-<dd><p>Test setting up parameters with a provided username.
-- Mock getfile to return temp dir as param file location
-- Mock input function as fail safe in case function erroneously prompts user for input
-- Mock requests.post returns a fake user authentication response</p>
+<dd><p>Test setting up parameters with a provided username.</p>
+<ul class="simple">
+<li><p>Mock getfile to return temp dir as param file location</p></li>
+<li><p>Mock input function as fail safe in case function erroneously prompts user for input</p></li>
+<li><p>Mock requests.post returns a fake user authentication response</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_static_setup">
 <span class="sig-name descname"><span class="pre">test_static_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_static_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_static_setup" title="Link to this definition"></a></dt>
-<dd><p>Test OneAlyx.setup</p>
+<dd><p>Test OneAlyx.setup.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_setup">
 <span class="sig-name descname"><span class="pre">test_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_setup" title="Link to this definition"></a></dt>
-<dd><p>Test one.params.setup</p>
+<dd><p>Test one.params.setup.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_patch_params">
 <span class="sig-name descname"><span class="pre">test_patch_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_patch_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_patch_params" title="Link to this definition"></a></dt>
-<dd><p>Test patching legacy params to the new location</p>
+<dd><p>Test patching legacy params to the new location.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_one_factory">
 <span class="sig-name descname"><span class="pre">test_one_factory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_one_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_one_factory" title="Link to this definition"></a></dt>
-<dd><p>Tests the ONE class factory</p>
+<dd><p>Tests the ONE class factory.</p>
 </dd></dl>
 
 </dd></dl>
@@ -629,47 +631,54 @@ This method is also tested in test_download_datasets.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestOneMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Test functions in one.util</p>
+<p>Test functions in one.util.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_validate_date_range">
 <span class="sig-name descname"><span class="pre">test_validate_date_range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_validate_date_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_validate_date_range" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.validate_date_range</p>
+<dd><p>Test one.util.validate_date_range.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_index_last_before">
 <span class="sig-name descname"><span class="pre">test_index_last_before</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_index_last_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_index_last_before" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.index_last_before</p>
+<dd><p>Test one.util.index_last_before.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_collection_spec">
 <span class="sig-name descname"><span class="pre">test_collection_spec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_collection_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_collection_spec" title="Link to this definition"></a></dt>
-<dd><p>Test one.util._collection_spec</p>
+<dd><p>Test one.util._collection_spec.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_revision_last_before">
 <span class="sig-name descname"><span class="pre">test_revision_last_before</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_revision_last_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_revision_last_before" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.filter_revision_last_before</p>
+<dd><p>Test one.util.filter_revision_last_before.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_parse_id">
 <span class="sig-name descname"><span class="pre">test_parse_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_parse_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_parse_id" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.parse_id</p>
+<dd><p>Test one.util.parse_id.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_autocomplete">
 <span class="sig-name descname"><span class="pre">test_autocomplete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_autocomplete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_autocomplete" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.autocomplete</p>
+<dd><p>Test one.util.autocomplete.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_LazyID">
 <span class="sig-name descname"><span class="pre">test_LazyID</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_LazyID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_LazyID" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.LazyID</p>
+<dd><p>Test one.util.LazyID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneMisc.test_ensure_list">
+<span class="sig-name descname"><span class="pre">test_ensure_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneMisc.test_ensure_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneMisc.test_ensure_list" title="Link to this definition"></a></dt>
+<dd><p>Test one.util.ensure_list.</p>
+<p>This function has now moved therefore we simply check for deprecation warning.</p>
 </dd></dl>
 
 </dd></dl>

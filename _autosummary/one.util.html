@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.util &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -341,7 +339,9 @@ When revision_last_before is true, None means return latest revision.</p>
 not permitted.</p></li>
 <li><p><strong>revision_last_before</strong> (<em>bool</em>) – When true and no exact match exists, the (lexicographically) previous revision is used
 instead.  When false the revision string is matched like collection and filename,
-with regular expressions permitted.</p></li>
+with regular expressions permitted.  NB: When true and <cite>revision</cite> is None the default
+revision is returned which may not be the last revision. If no default is defined, the
+last revision is returned.</p></li>
 <li><p><strong>qc</strong> (<em>str</em><em>, </em><em>int</em><em>, </em><a class="reference internal" href="one.alf.spec.html#one.alf.spec.QC" title="one.alf.spec.QC"><em>one.alf.spec.QC</em></a>) – Returns datasets at or below this QC level.  Integer values should correspond to the QC
 enumeration NOT the qc category column codes in the pandas table.</p></li>
 <li><p><strong>ignore_qc_not_set</strong> (<em>bool</em>) – When true, do not return datasets for which QC is NOT_SET.</p></li>
@@ -382,6 +382,25 @@ enumeration NOT the qc category column codes in the pandas table.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="n">filter_datasets</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound" title="one.alf.exceptions.ALFMultipleCollectionsFound"><strong>one.alf.exceptions.ALFMultipleCollectionsFound</strong></a> – The matching list of datasets have more than one unique collection and <cite>assert_unique</cite> is
+    True.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleRevisionsFound" title="one.alf.exceptions.ALFMultipleRevisionsFound"><strong>one.alf.exceptions.ALFMultipleRevisionsFound</strong></a> – When <cite>revision_last_before</cite> is false, the matching list of datasets have more than one
+    unique revision.  When <cite>revision_last_before</cite> is true, a ‘default_revision’ column exists,
+    and no revision is passed, this error means that one or more matching datasets have
+    multiple revisions specified as the default. This is typically an error in the cache table
+    itself as all datasets should have one and only one default revision specified.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleObjectsFound" title="one.alf.exceptions.ALFMultipleObjectsFound"><strong>one.alf.exceptions.ALFMultipleObjectsFound</strong></a> – The matching list of datasets have more than one unique filename and both <cite>assert_unique</cite>
+    and <cite>revision_last_before</cite> are true.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><strong>one.alf.exceptions.ALFError</strong></a> – When both <cite>assert_unique</cite> and <cite>revision_last_before</cite> is true, and a ‘default_revision’
+    column exists but <cite>revision</cite> is None; one or more matching datasets have no default
+    revision specified. This is typically an error in the cache table itself as all datasets
+    should have one and only one default revision specified.</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li><p>It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
@@ -392,7 +411,7 @@ must use two separate queries.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.util.filter_revision_last_before">
-<span class="sig-name descname"><span class="pre">filter_revision_last_before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_unique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#filter_revision_last_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.filter_revision_last_before" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filter_revision_last_before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_unique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_consistent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/util.html#filter_revision_last_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.util.filter_revision_last_before" title="Link to this definition"></a></dt>
 <dd><p>Filter datasets by revision, returning previous revision in ordered list if revision
 doesn’t exactly match.</p>
 <dl class="field-list simple">
@@ -402,6 +421,8 @@ doesn’t exactly match.</p>
 <li><p><strong>revision</strong> (<em>str</em>) – A revision string to match (regular expressions not permitted).</p></li>
 <li><p><strong>assert_unique</strong> (<em>bool</em>) – When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
 default revisions are found; an alferr.ALFError when no default revision is found.</p></li>
+<li><p><strong>assert_consistent</strong> (<em>bool</em>) – Will raise alferr.ALFMultipleRevisionsFound if matching revision is different between
+datasets.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -410,7 +431,30 @@ default revisions are found; an alferr.ALFError when no default revision is foun
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleRevisionsFound" title="one.alf.exceptions.ALFMultipleRevisionsFound"><strong>one.alf.exceptions.ALFMultipleRevisionsFound</strong></a> – When the ‘default_revision’ column exists and no revision is passed, this error means that
+    one or more matching datasets have multiple revisions specified as the default. This is
+    typically an error in the cache table itself as all datasets should have one and only one
+    default revision specified.
+    When <cite>assert_consistent</cite> is True, this error may mean that the matching datasets have
+    mixed revisions.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFMultipleObjectsFound" title="one.alf.exceptions.ALFMultipleObjectsFound"><strong>one.alf.exceptions.ALFMultipleObjectsFound</strong></a> – The matching list of datasets have more than one unique filename and both <cite>assert_unique</cite>
+    and <cite>revision_last_before</cite> are true.</p></li>
+<li><p><a class="reference internal" href="one.alf.exceptions.html#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><strong>one.alf.exceptions.ALFError</strong></a> – When both <cite>assert_unique</cite> and <cite>revision_last_before</cite> is true, and a ‘default_revision’
+    column exists but <cite>revision</cite> is None; one or more matching datasets have no default
+    revision specified. This is typically an error in the cache table itself as all datasets
+    should have one and only one default revision specified.</p></li>
+</ul>
+</dd>
 </dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>When <cite>revision</cite> is not None, the default revision value is not used. If an older revision is
+the default one (uncommon), passing in a revision may lead to a newer revision being returned
+than if revision is None.</p></li>
+<li><p>A view is returned if a revision column is present, otherwise a copy is returned.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">

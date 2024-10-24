@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
@@ -5,23 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.alf.test_cache &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../../../../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -206,7 +204,6 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Datasets dataframe&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="n">dset_info</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rel_path</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;invalid&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">())</span></div>
@@ -228,7 +225,6 @@
         <span class="n">df_dsets</span><span class="p">,</span> <span class="n">metadata2</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn_dsets</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">metadata2</span><span class="p">,</span> <span class="n">metadata_exp</span><span class="p">)</span>
         <span class="n">dset_info</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dset_info</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
 
         <span class="c1"># Check behaviour when no files found</span>
@@ -243,12 +239,9 @@
             <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;another&#39;</span><span class="p">)</span>
 
         <span class="c1"># Create some more datasets in a session folder outside of a lab directory</span>
-        <span class="n">dsets</span> <span class="o">=</span> <span class="n">revisions_datasets_table</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">dsets</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
-                <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tdir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
-                <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">filepath</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+            <span class="n">session_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tdir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">revisions_datasets_table</span><span class="p">(</span><span class="n">touch_path</span><span class="o">=</span><span class="n">session_path</span><span class="p">)</span>  <span class="c1"># create some files</span>
             <span class="n">fn_ses</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;another&#39;</span><span class="p">)</span>
             <span class="n">df_ses</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn_ses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="n">df_ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;another&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span></div>

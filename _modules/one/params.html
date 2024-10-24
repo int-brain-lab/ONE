@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,23 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.params &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -272,7 +270,8 @@
 
         <span class="c1"># Prompt for cache directory (default may have changed after prompt)</span>
         <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
+        <span class="n">def_cache_dir</span> <span class="o">=</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">def_cache_dir</span>
         <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Enter the location of the download cache, current value is [&quot;</span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">&quot;]:&#39;</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cache_dir</span>
 
@@ -299,7 +298,9 @@
         <span class="c1"># Precedence: user provided cache_dir; previously defined; the default location</span>
         <span class="n">default_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_key</span><span class="p">,</span> <span class="n">default_cache_dir</span><span class="p">)</span>
-        <span class="n">par</span> <span class="o">=</span> <span class="n">par_current</span>
+        <span class="c1"># Use current params but drop any extras (such as the TOKEN or ALYX_PWD field)</span>
+        <span class="n">keep_keys</span> <span class="o">=</span> <span class="n">par_default</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">par_current</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keep_keys</span><span class="p">})</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">client_key</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">==</span> <span class="n">cache_dir</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Warning: the directory provided is already a cache for another URL.&#39;</span><span class="p">)</span>
 

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -6,23 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.alf.exceptions &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -135,7 +133,7 @@
              
   <section id="module-one.alf.exceptions">
 <span id="one-alf-exceptions"></span><h1>one.alf.exceptions<a class="headerlink" href="#module-one.alf.exceptions" title="Link to this heading"></a></h1>
-<p>ALyx File related errors.</p>
+<p>ALyx File related errors and warnings.</p>
 <p>A set of Alyx and ALF related error classes which provide a more verbose description of the raised
 issues.</p>
 <p class="rubric">Exceptions</p>
@@ -156,7 +154,10 @@ issues.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFObjectNotFound" title="one.alf.exceptions.ALFObjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFObjectNotFound</span></code></a>(*args[, terse])</p></td>
 <td><p>'Object not found' error</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlyxSubjectNotFound</span></code></a>(*args[, terse])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFWarning" title="one.alf.exceptions.ALFWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFWarning</span></code></a></p></td>
+<td><p>Cautions when loading ALF datasets.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlyxSubjectNotFound</span></code></a>(*args[, terse])</p></td>
 <td><p>'Subject not found' error</p></td>
 </tr>
 </tbody>
@@ -243,6 +244,13 @@ the same explanation.</p>
 <span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">matching</span> <span class="pre">object/file(s)</span> <span class="pre">belong</span> <span class="pre">to</span> <span class="pre">more</span> <span class="pre">than</span> <span class="pre">one</span> <span class="pre">revision.</span>&#160; <span class="pre">Multiple</span> <span class="pre">datasets</span> <span class="pre">in</span> <span class="pre">different</span> <span class="pre">revision</span> <span class="pre">folders</span> <span class="pre">were</span> <span class="pre">found</span> <span class="pre">with</span> <span class="pre">no</span> <span class="pre">default</span> <span class="pre">specified.'</span></em><a class="headerlink" href="#one.alf.exceptions.ALFMultipleRevisionsFound.explanation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="one.alf.exceptions.ALFWarning">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFWarning</span></span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFWarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFWarning" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
+<p>Cautions when loading ALF datasets.</p>
 </dd></dl>
 
 </section>
