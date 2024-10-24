@@ -1,6 +1,15 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.0]
-This version fixes issues with Alyx authentication in silent mode, and improves behaviour of loading revisions. Additionally the default query mode has changed to 'remote'.
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
+This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
+
+### Modified
+
+- Supports python >= 3.10 only
+- OneAlyx uses remote mode by default, instead of auto
+- one.alf.cache.remove_cache_table_files and One.\_remove_cache_table_files for deleting cache table files
+
+## [2.10.0]
+This version fixes issues with Alyx authentication in silent mode, and improves behaviour of loading revisions.
 
 ### Modified
 
@@ -15,12 +24,10 @@ This version fixes issues with Alyx authentication in silent mode, and improves 
 - always force authentication when password passed, even when token cached
 - bugfix: negative indexing of paginated response objects now functions correctly
 - deprecate one.util.ensure_list; moved to iblutil.util.ensure_list
-- OneAlyx uses remote mode by default, instead of auto
 
 ### Added
 
 - one.alf.exceptions.ALFWarning category allows users to filter warnings relating to mixed revisions
-- one.alf.cache.remove_cache_table_files and One._remove_cache_table_files for deleting cache table files
 
 ## [2.9.1]
 
