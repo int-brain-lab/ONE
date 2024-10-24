@@ -53,12 +53,14 @@ from one.util import (
 import one.params
 import one.alf.exceptions as alferr
 from one.alf import spec
+from one.alf.files import get_alf_path
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
 
 class TestONECache(unittest.TestCase):
     """Test methods that use sessions and datasets tables.
+
     This class loads the parquet tables from the fixtures and builds a file tree in a temp folder
     """
     tempdir = None
@@ -1019,6 +1021,19 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(ids, [])
         self.assertIsNone(filename)
 
+    def test_remove_cache_table_files(self):
+        """Test One._remove_cache_table_files method."""
+        root = self.one._tables_dir
+        for name in ('cache_info.json', 'foo.pqt'):
+            root.joinpath(name).touch()
+        removed = self.one._remove_cache_table_files()
+        expected = ['sessions.pqt', 'datasets.pqt', 'cache_info.json']
+        self.assertCountEqual(expected, [str(x.relative_to(root)) for x in removed])
+        with self.assertLogs('one.alf.cache', 30) as cm:
+            removed = self.one._remove_cache_table_files(tables=('foo',))
+        self.assertEqual([root / 'foo.pqt'], removed)
+        self.assertIn('cache_info.json not found', cm.records[0].message)
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneAlyx(unittest.TestCase):
@@ -1419,7 +1434,7 @@ class TestOneAlyx(unittest.TestCase):
 class TestOneRemote(unittest.TestCase):
     """Test remote queries using OpenAlyx"""
     def setUp(self) -> None:
-        self.one = OneAlyx(**TEST_DB_2)
+        self.one = OneAlyx(**TEST_DB_2, mode='auto')
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
         self.pid = 'da8dfec1-d265-44e8-84ce-6ae9c109b8bd'
         # Set cache directory to a temp dir to ensure that we re-download files
@@ -1470,8 +1485,17 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search(self):
         """Test OneAlyx.search method in remote mode."""
+        # Modify sessions dataframe so we can check that the records get updated
+        records = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
+        self.one._cache.sessions.loc[records.index, 'lab'] = 'foolab'  # change a field
+        self.one._cache.sessions.drop(self.eid, inplace=True)  # remove a row
+
+        # Check remote seach of subject
         eids = self.one.search(subject='SWC_043', query_type='remote')
         self.assertIn(self.eid, list(eids))
+        updated = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
+        self.assertCountEqual(eids, updated.index)
+        self.assertFalse('foolab' in updated['lab'])
 
         eids, det = self.one.search(subject='SWC_043', query_type='remote', details=True)
         correct = len(det) == len(eids) and 'url' in det[0] and det[0]['url'].endswith(eids[0])
@@ -1496,10 +1520,20 @@ class TestOneRemote(unittest.TestCase):
         dates = set(map(lambda x: self.one.get_details(x)['date'], eids))
         self.assertTrue(dates <= set(date_range))
 
-        # Test limit arg and LazyId
+        # Test limit arg, LazyId, and update with paginated response callback
+        self.one._reset_cache()  # Remove sessions table
+        assert self.one._cache.sessions.empty
         eids = self.one.search(date='2020-03-23', limit=2, query_type='remote')
+        self.assertEqual(2, len(self.one._cache.sessions),
+                         'failed to update cache with first page of search results')
         self.assertIsInstance(eids, LazyId)
+        assert len(eids) > 5, 'in order to check paginated response callback we need several pages'
+        e = eids[-3]  # access an uncached value
+        self.assertEqual(
+            4, len(self.one._cache.sessions), 'failed to update cache after page access')
+        self.assertTrue(e in self.one._cache.sessions.index)
         self.assertTrue(all(len(x) == 36 for x in eids))
+        self.assertEqual(len(eids), len(self.one._cache.sessions))
 
         # Test laboratory kwarg
         eids = self.one.search(laboratory='hoferlab', query_type='remote')
@@ -1634,19 +1668,17 @@ class TestOneDownload(unittest.TestCase):
         self.patch = mock.patch('one.params.iopar.getfile',
                                 new=partial(util.get_file, self.tempdir.name))
         self.patch.start()
-        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
-        self.fid = '17ab5b57-aaf6-4016-9251-66daadc200c7'  # File record of channels.brainLocation
+        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name, mode='auto')
+        self.fid = '6f175a7a-e20b-4622-81fc-08947a4fd1d3'  # File record of wiring.json
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
+        self.did = 'd693fbf9-2f90-4123-839e-41474c44742d'
 
     def test_download_datasets(self):
         """Test OneAlyx._download_dataset, _download_file and _dset2url."""
         det = self.one.get_details(self.eid, True)
-        rec = next(x for x in det['data_dataset_session_related']
-                   if 'channels.brainLocation' in x['dataset_type'])
+        rec = next(x for x in det['data_dataset_session_related'] if x['id'] == self.did)
         # FIXME hack because data_url may be AWS
-        from one.alf.files import get_alf_path
         rec['data_url'] = self.one.alyx.rel_path2url(get_alf_path(rec['data_url']))
-        # FIXME order may not be stable, this only works
         file = self.one._download_dataset(rec)
         self.assertIsInstance(file, Path)
         self.assertTrue(file.exists())
@@ -1685,10 +1717,10 @@ class TestOneDownload(unittest.TestCase):
         if fi != 0:
             rec['file_records'] = [rec['file_records'].pop(fi), *rec['file_records']]
         file = self.one._download_dataset(rec, keep_uuid=True)
-        self.assertEqual(str(file).split('.')[2], rec['url'].split('/')[-1])
+        self.assertEqual(file.stem.split('.')[-1], rec['url'].split('/')[-1])
 
         # Check list input
-        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[0]]
+        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[1]]
         files = self.one._download_dataset(recs)
         self.assertIsInstance(files, list)
         self.assertTrue(all(isinstance(x, Path) for x in files))
@@ -1696,7 +1728,7 @@ class TestOneDownload(unittest.TestCase):
         # Check Series input
         r_ = datasets2records(rec).squeeze()
         file = self.one._download_dataset(r_)
-        self.assertIn('channels.brainLocation', file.as_posix())
+        self.assertIn('imec0.wiring.json', file.name)
 
         # Check behaviour when URL invalid
         did = rec['url'].split('/')[-1]
@@ -1718,10 +1750,11 @@ class TestOneDownload(unittest.TestCase):
             file = self.one._download_dataset(path)
             self.assertIsNone(file)
 
+        # Check data frame record
         rec = self.one.list_datasets(self.eid, details=True)
-        rec = rec[rec.rel_path.str.contains('00/pykilosort/channels.brainLocation')]
-        rec['exists_aws'] = False  # Ensure we use FlatIron for this
-        rec = pd.concat({str(self.eid): rec}, names=['eid'])
+        rec = rec[rec.rel_path.str.contains('00/_spikeglx_ephysData_g0_t0.imec0.wiring')]
+        rec.loc[self.did, 'exist_aws'] = False  # Ensure we use FlatIron for this
+        rec = pd.concat({str(self.eid): rec}, names=['eid'])  # Add back eid index
 
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
@@ -1736,6 +1769,7 @@ class TestOneDownload(unittest.TestCase):
         dsets = self.one.list_datasets(
             self.eid, filename='*wiring.json', collection='raw_ephys_data/probe??', details=True)
         dsets = pd.concat({str(self.eid): dsets}, names=['eid'])
+        assert len(dsets) == 2
 
         file = self.one.eid2path(self.eid) / dsets['rel_path'].values[0]
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
@@ -1976,7 +2010,7 @@ class TestOneSetup(unittest.TestCase):
             self.assertIsInstance(one_obj, One)
 
             # The offline param was given, raise deprecation warning (via log)
-            with self.assertWarns(DeprecationWarning):
+            with self.assertWarns(FutureWarning):
                 ONE(offline=True, cache_dir=self.tempdir.name)
 
             # Test setup with virtual ONE method
