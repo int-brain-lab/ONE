@@ -1,14 +1,17 @@
 """Decorators and small standalone functions for api module."""
+import re
 import logging
 import urllib.parse
-from functools import wraps
+import fnmatch
+import warnings
+from functools import wraps, partial
 from typing import Sequence, Union, Iterable, Optional, List
 from collections.abc import Mapping
-import fnmatch
 from datetime import datetime
 
 import pandas as pd
 from iblutil.io import parquet
+from iblutil.util import ensure_list as _ensure_list
 import numpy as np
 from packaging import version
 
@@ -58,8 +61,8 @@ def ses2records(ses: dict):
         rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = get_alf_path(remove_uuid_string(file_path))
-        rec['session_path'] = get_session_path(file_path).as_posix()
-        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        session_path = get_session_path(file_path).as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
         rec['default_revision'] = d['default_revision'] == 'True'
         rec['qc'] = d.get('qc', 'NOT_SET')
         return rec
@@ -94,7 +97,7 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
     """
     records = []
 
-    for d in ensure_list(datasets):
+    for d in _ensure_list(datasets):
         file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
         if not file_record:
             continue  # Ignore files that are not accessible
@@ -104,10 +107,10 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = get_alf_path(data_url.path.strip('/'))
         file_path = remove_uuid_string(file_path).as_posix()
-        rec['session_path'] = get_session_path(file_path) or ''
-        if rec['session_path']:
-            rec['session_path'] = rec['session_path'].as_posix()
-        rec['rel_path'] = file_path[len(rec['session_path']):].strip('/')
+        session_path = get_session_path(file_path) or ''
+        if session_path:
+            session_path = session_path.as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
         rec['default_revision'] = d['default_dataset']
         rec['qc'] = d.get('qc')
         for field in additional or []:
@@ -307,7 +310,9 @@ def filter_datasets(
     revision_last_before : bool
         When true and no exact match exists, the (lexicographically) previous revision is used
         instead.  When false the revision string is matched like collection and filename,
-        with regular expressions permitted.
+        with regular expressions permitted.  NB: When true and `revision` is None the default
+        revision is returned which may not be the last revision. If no default is defined, the
+        last revision is returned.
     qc : str, int, one.alf.spec.QC
         Returns datasets at or below this QC level.  Integer values should correspond to the QC
         enumeration NOT the qc category column codes in the pandas table.
@@ -350,6 +355,26 @@ def filter_datasets(
 
     >>> datasets filter_datasets(all_datasets, qc='PASS', ignore_qc_not_set=True)
 
+    Raises
+    ------
+    one.alf.exceptions.ALFMultipleCollectionsFound
+        The matching list of datasets have more than one unique collection and `assert_unique` is
+        True.
+    one.alf.exceptions.ALFMultipleRevisionsFound
+        When `revision_last_before` is false, the matching list of datasets have more than one
+        unique revision.  When `revision_last_before` is true, a 'default_revision' column exists,
+        and no revision is passed, this error means that one or more matching datasets have
+        multiple revisions specified as the default. This is typically an error in the cache table
+        itself as all datasets should have one and only one default revision specified.
+    one.alf.exceptions.ALFMultipleObjectsFound
+        The matching list of datasets have more than one unique filename and both `assert_unique`
+        and `revision_last_before` are true.
+    one.alf.exceptions.ALFError
+        When both `assert_unique` and `revision_last_before` is true, and a 'default_revision'
+        column exists but `revision` is None; one or more matching datasets have no default
+        revision specified. This is typically an error in the cache table itself as all datasets
+        should have one and only one default revision specified.
+
     Notes
     -----
     - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
@@ -365,9 +390,15 @@ def filter_datasets(
         spec_str += _file_spec(**filename)
         regex_args.update(**filename)
     else:
-        # Convert to regex is necessary and assert end of string
-        filename = [fnmatch.translate(x) if wildcards else x + '$' for x in ensure_list(filename)]
-        spec_str += '|'.join(filename)
+        # Convert to regex if necessary and assert end of string
+        flagless_token = re.escape(r'(?s:')  # fnmatch.translate may wrap input in flagless group
+        # If there is a wildcard at the start of the filename we must exclude capture of slashes to
+        # avoid capture of collection part, e.g. * -> .* -> [^/]* (one or more non-slash chars)
+        exclude_slash = partial(re.sub, fr'^({flagless_token})?\.\*', r'\g<1>[^/]*')
+        spec_str += '|'.join(
+            exclude_slash(fnmatch.translate(x)) if wildcards else x + '$'
+            for x in _ensure_list(filename)
+        )
 
     # If matching revision name, add to regex string
     if not revision_last_before:
@@ -378,7 +409,7 @@ def filter_datasets(
             continue
         if wildcards:
             # Convert to regex, remove \\Z which asserts end of string
-            v = (fnmatch.translate(x).replace('\\Z', '') for x in ensure_list(v))
+            v = (fnmatch.translate(x).replace('\\Z', '') for x in _ensure_list(v))
         if not isinstance(v, str):
             regex_args[k] = '|'.join(v)  # logical OR
 
@@ -393,33 +424,37 @@ def filter_datasets(
         qc_match &= all_datasets['qc'].ne('NOT_SET')
 
     # Filter datasets on path and QC
-    match = all_datasets[path_match & qc_match]
+    match = all_datasets[path_match & qc_match].copy()
     if len(match) == 0 or not (revision_last_before or assert_unique):
         return match
 
-    revisions = [rel_path_parts(x)[1] or '' for x in match.rel_path.values]
+    # Extract revision to separate column
+    if 'revision' not in match.columns:
+        match['revision'] = match.rel_path.map(lambda x: rel_path_parts(x)[1] or '')
     if assert_unique:
         collections = set(rel_path_parts(x)[0] or '' for x in match.rel_path.values)
         if len(collections) > 1:
             _list = '"' + '", "'.join(collections) + '"'
             raise alferr.ALFMultipleCollectionsFound(_list)
         if not revision_last_before:
-            if filename and len(match) > 1:
+            if len(set(match['revision'])) > 1:
+                _list = '"' + '", "'.join(set(match['revision'])) + '"'
+                raise alferr.ALFMultipleRevisionsFound(_list)
+            if len(match) > 1:
                 _list = '"' + '", "'.join(match['rel_path']) + '"'
                 raise alferr.ALFMultipleObjectsFound(_list)
-            if len(set(revisions)) > 1:
-                _list = '"' + '", "'.join(set(revisions)) + '"'
-                raise alferr.ALFMultipleRevisionsFound(_list)
             else:
                 return match
-        elif filename and len(set(revisions)) != len(revisions):
-            _list = '"' + '", "'.join(match['rel_path']) + '"'
-            raise alferr.ALFMultipleObjectsFound(_list)
 
-    return filter_revision_last_before(match, revision, assert_unique=assert_unique)
+    match = filter_revision_last_before(match, revision, assert_unique=assert_unique)
+    if assert_unique and len(match) > 1:
+        _list = '"' + '", "'.join(match['rel_path']) + '"'
+        raise alferr.ALFMultipleObjectsFound(_list)
+    return match
 
 
-def filter_revision_last_before(datasets, revision=None, assert_unique=True):
+def filter_revision_last_before(
+        datasets, revision=None, assert_unique=True, assert_consistent=False):
     """
     Filter datasets by revision, returning previous revision in ordered list if revision
     doesn't exactly match.
@@ -433,43 +468,80 @@ def filter_revision_last_before(datasets, revision=None, assert_unique=True):
     assert_unique : bool
         When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
         default revisions are found; an alferr.ALFError when no default revision is found.
+    assert_consistent : bool
+        Will raise alferr.ALFMultipleRevisionsFound if matching revision is different between
+        datasets.
 
     Returns
     -------
     pd.DataFrame
         A datasets DataFrame with 0 or 1 row per unique dataset.
+
+    Raises
+    ------
+    one.alf.exceptions.ALFMultipleRevisionsFound
+        When the 'default_revision' column exists and no revision is passed, this error means that
+        one or more matching datasets have multiple revisions specified as the default. This is
+        typically an error in the cache table itself as all datasets should have one and only one
+        default revision specified.
+        When `assert_consistent` is True, this error may mean that the matching datasets have
+        mixed revisions.
+    one.alf.exceptions.ALFMultipleObjectsFound
+        The matching list of datasets have more than one unique filename and both `assert_unique`
+        and `revision_last_before` are true.
+    one.alf.exceptions.ALFError
+        When both `assert_unique` and `revision_last_before` is true, and a 'default_revision'
+        column exists but `revision` is None; one or more matching datasets have no default
+        revision specified. This is typically an error in the cache table itself as all datasets
+        should have one and only one default revision specified.
+
+    Notes
+    -----
+    - When `revision` is not None, the default revision value is not used. If an older revision is
+      the default one (uncommon), passing in a revision may lead to a newer revision being returned
+      than if revision is None.
+    - A view is returned if a revision column is present, otherwise a copy is returned.
     """
     def _last_before(df):
         """Takes a DataFrame with only one dataset and multiple revisions, returns matching row"""
-        if revision is None and 'default_revision' in df.columns:
-            if assert_unique and sum(df.default_revision) > 1:
-                revisions = df['revision'][df.default_revision.values]
-                rev_list = '"' + '", "'.join(revisions) + '"'
-                raise alferr.ALFMultipleRevisionsFound(rev_list)
-            if sum(df.default_revision) == 1:
-                return df[df.default_revision]
-            if len(df) == 1:  # This may be the case when called from load_datasets
-                return df  # It's not the default be there's only one available revision
-            # default_revision column all False; default isn't copied to remote repository
+        if revision is None:
             dset_name = df['rel_path'].iloc[0]
-            if assert_unique:
-                raise alferr.ALFError(f'No default revision for dataset {dset_name}')
-            else:
-                logger.warning(f'No default revision for dataset {dset_name}; using most recent')
+            if 'default_revision' in df.columns:
+                if assert_unique and sum(df.default_revision) > 1:
+                    revisions = df['revision'][df.default_revision.values]
+                    rev_list = '"' + '", "'.join(revisions) + '"'
+                    raise alferr.ALFMultipleRevisionsFound(rev_list)
+                if sum(df.default_revision) == 1:
+                    return df[df.default_revision]
+                if len(df) == 1:  # This may be the case when called from load_datasets
+                    return df  # It's not the default but there's only one available revision
+                # default_revision column all False; default isn't copied to remote repository
+                if assert_unique:
+                    raise alferr.ALFError(f'No default revision for dataset {dset_name}')
+            warnings.warn(
+                f'No default revision for dataset {dset_name}; using most recent',
+                alferr.ALFWarning)
         # Compare revisions lexicographically
-        if assert_unique and len(df['revision'].unique()) > 1:
-            rev_list = '"' + '", "'.join(df['revision'].unique()) + '"'
-            raise alferr.ALFMultipleRevisionsFound(rev_list)
-        # Square brackets forces 1 row DataFrame returned instead of Series
         idx = index_last_before(df['revision'].tolist(), revision)
-        # return df.iloc[slice(0, 0) if idx is None else [idx], :]
+        # Square brackets forces 1 row DataFrame returned instead of Series
         return df.iloc[slice(0, 0) if idx is None else [idx], :]
 
-    with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
-        datasets['revision'] = [rel_path_parts(x)[1] or '' for x in datasets.rel_path]
+    # Extract revision to separate column
+    if 'revision' not in datasets.columns:
+        with pd.option_context('mode.chained_assignment', None):  # FIXME Explicitly copy?
+            datasets['revision'] = datasets.rel_path.map(lambda x: rel_path_parts(x)[1] or '')
+    # Group by relative path (sans revision)
     groups = datasets.rel_path.str.replace('#.*#/', '', regex=True).values
     grouped = datasets.groupby(groups, group_keys=False)
-    return grouped.apply(_last_before)
+    filtered = grouped.apply(_last_before)
+    # Raise if matching revision is different between datasets
+    if len(filtered['revision'].unique()) > 1:
+        rev_list = '"' + '", "'.join(filtered['revision'].unique()) + '"'
+        if assert_consistent:
+            raise alferr.ALFMultipleRevisionsFound(rev_list)
+        else:
+            warnings.warn(f'Multiple revisions: {rev_list}', alferr.ALFWarning)
+    return filtered
 
 
 def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
@@ -521,7 +593,10 @@ def autocomplete(term, search_terms) -> str:
 
 def ensure_list(value):
     """Ensure input is a list."""
-    return [value] if isinstance(value, (str, dict)) or not isinstance(value, Iterable) else value
+    warnings.warn(
+        'one.util.ensure_list is deprecated, use iblutil.util.ensure_list instead',
+        DeprecationWarning)
+    return _ensure_list(value)
 
 
 class LazyId(Mapping):
@@ -606,4 +681,6 @@ def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.Data
     if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
         qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
         table = table.assign(qc=qc)
+    if name == 'datasets' and 'session_path' in table.columns:
+        table = table.drop('session_path', axis=1)
     return table

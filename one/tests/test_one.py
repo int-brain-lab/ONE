@@ -48,7 +48,7 @@ from one import __version__
 from one.api import ONE, One, OneAlyx
 from one.util import (
     ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id, autocomplete, LazyId, datasets2records
+    filter_revision_last_before, parse_id, autocomplete, LazyId, datasets2records, ensure_list
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -293,15 +293,22 @@ class TestONECache(unittest.TestCase):
         datasets['rel_path'] = revisions
 
         # Should return last revision before date for each collection/dataset
+        # These comprise mixed revisions which should trigger ALF warning
         revision = '2020-09-06'
-        verifiable = filter_datasets(datasets, None, None, revision, assert_unique=False)
+        expected_warn = 'Multiple revisions: "2020-08-31", "2020-01-01"'
+        with self.assertWarnsRegex(alferr.ALFWarning, expected_warn):
+            verifiable = filter_datasets(datasets, None, None, revision, assert_unique=False)
         self.assertEqual(2, len(verifiable))
         self.assertTrue(all(x.split('#')[1] < revision for x in verifiable['rel_path']))
 
-        # Should return single dataset with last revision when default specified
-        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
-                            assert_unique=True, wildcards=True, revision_last_before=True)
+        # with no default_revisions column there should be a warning about return latest revision
+        # when no revision is provided.
+        with self.assertWarnsRegex(alferr.ALFWarning, 'No default revision for dataset'):
+            verifiable = filter_datasets(
+                datasets, '*spikes.times*', 'alf/probe00', None,
+                assert_unique=True, wildcards=True, revision_last_before=True)
+            self.assertEqual(1, len(verifiable))
+            self.assertTrue(verifiable['rel_path'].str.contains('#2021-xx-xx#').all())
 
         # Should return matching revision
         verifiable = filter_datasets(datasets, None, None, r'2020-08-\d{2}',
@@ -342,8 +349,8 @@ class TestONECache(unittest.TestCase):
                                      assert_unique=True, wildcards=True, revision_last_before=True)
         self.assertEqual(verifiable.rel_path.to_list(),
                          ['alf/probe00/#2020-01-01#/spikes.times.npy'])
-        # When revision_last_before is false, expect multiple objects error
-        with self.assertRaises(alferr.ALFMultipleObjectsFound):
+        # When revision_last_before is false, expect multiple revisions error
+        with self.assertRaises(alferr.ALFMultipleRevisionsFound):
             filter_datasets(datasets, '*spikes.times*', 'alf/probe00', None,
                             assert_unique=True, wildcards=True, revision_last_before=False)
 
@@ -355,11 +362,28 @@ class TestONECache(unittest.TestCase):
                                      assert_unique=False, wildcards=True)
         self.assertTrue(len(verifiable) == 2)
         # As dict with list (should act as logical OR)
+        kwargs = dict(assert_unique=False, revision_last_before=False, wildcards=True)
         dataset = dict(attribute=['timestamp?', 'raw'])
-        verifiable = filter_datasets(datasets, dataset, None, None,
-                                     assert_unique=False, revision_last_before=False,
-                                     wildcards=True)
+        verifiable = filter_datasets(datasets, dataset, None, None, **kwargs)
         self.assertEqual(4, len(verifiable))
+
+        # Test handling greedy captures of collection parts when there are wildcards at the start
+        # of the filename patten.
+
+        # Add some identical files that exist in collections and sub-collections
+        # (i.e. raw_ephys_data, raw_ephys_data/probe00, raw_ephys_data/probe01)
+        all_datasets = self.one._cache.datasets
+        meta_datasets = all_datasets[all_datasets.rel_path.str.contains('meta')].copy()
+        datasets = pd.concat([datasets, meta_datasets])
+
+        # Matching *meta should not capture raw_ephys_data/probe00, etc.
+        verifiable = filter_datasets(datasets, '*.meta', 'raw_ephys_data', None, **kwargs)
+        expected = ['raw_ephys_data/_spikeglx_ephysData_g0_t0.nidq.meta']
+        self.assertCountEqual(expected, verifiable.rel_path)
+        verifiable = filter_datasets(datasets, '*.meta', 'raw_ephys_data/probe??', None, **kwargs)
+        self.assertEqual(2, len(verifiable))
+        verifiable = filter_datasets(datasets, '*.meta', 'raw_ephys_data*', None, **kwargs)
+        self.assertEqual(3, len(verifiable))
 
     def test_list_datasets(self):
         """Test One.list_datasets"""
@@ -401,6 +425,25 @@ class TestONECache(unittest.TestCase):
             dsets = self.one.list_datasets(eid, details=False)
             self.assertIsInstance(dsets, list)
             self.assertTrue(len(dsets) == np.unique(dsets).size)
+
+        # Test default_revisions_only=True
+        with self.assertRaises(alferr.ALFError):  # should raise as no 'default_revision' column
+            self.one.list_datasets('KS005/2019-04-02/001', default_revisions_only=True)
+        # Add the column and add some alternates
+        datasets = util.revisions_datasets_table(collections=['alf'], revisions=['', '2023-01-01'])
+        datasets['default_revision'] = [False, True] * 2
+        self.one._cache.datasets['default_revision'] = True
+        self.one._cache.datasets = pd.concat([self.one._cache.datasets, datasets]).sort_index()
+        eid, *_ = datasets.index.get_level_values(0)
+        dsets = self.one.list_datasets(eid, 'spikes.*', default_revisions_only=False)
+        self.assertEqual(4, len(dsets))
+        dsets = self.one.list_datasets(eid, 'spikes.*', default_revisions_only=True)
+        self.assertEqual(2, len(dsets))
+        self.assertTrue(all('#2023-01-01#' in x for x in dsets))
+        # Should be the same with details=True
+        dsets = self.one.list_datasets(eid, 'spikes.*', default_revisions_only=True, details=True)
+        self.assertEqual(2, len(dsets))
+        self.assertTrue(all('#2023-01-01#' in x for x in dsets.rel_path))
 
     def test_list_collections(self):
         """Test One.list_collections"""
@@ -482,23 +525,46 @@ class TestONECache(unittest.TestCase):
 
     def test_check_filesystem(self):
         """Test for One._check_filesystem.
+
         Most is already covered by other tests, this checks that it can deal with dataset frame
         without eid index and without a session_path column.
         """
         # Get two eids to test
         eids = self.one._cache['datasets'].index.get_level_values(0)[[0, -1]]
-        datasets = self.one._cache['datasets'].loc[eids].drop('session_path', axis=1)
+        datasets = self.one._cache['datasets'].loc[eids]
         files = self.one._check_filesystem(datasets)
         self.assertEqual(53, len(files))
+
         # Expect same number of unique session paths as eids
         session_paths = set(map(lambda p: p.parents[1], files))
         self.assertEqual(len(eids), len(session_paths))
         expected = map(lambda x: '/'.join(x.parts[-3:]), session_paths)
         session_parts = self.one._cache['sessions'].loc[eids, ['subject', 'date', 'number']].values
         self.assertCountEqual(expected, map(lambda x: f'{x[0]}/{x[1]}/{x[2]:03}', session_parts))
-        # Attempt the same with the eid index missing
-        datasets = datasets.droplevel(0).drop('session_path', axis=1)
+
+        # Test a very rare occurence of a missing dataset with eid index missing
+        # but session_path column present
+        idx = self.one._cache.datasets.index[(i := 5)]  # pick a random dataset to make vanish
+        _eid2path = {
+            e: self.one.eid2path(e).relative_to(self.one.cache_dir).as_posix() for e in eids
+        }
+        session_paths = list(map(_eid2path.get, datasets.index.get_level_values(0)))
+        datasets['session_path'] = session_paths
+        datasets = datasets.droplevel(0)
+        files[(i := 5)].unlink()
+        # For this check the current state should be exists==True in the main cache
+        assert self.one._cache.datasets.loc[idx, 'exists'].all()
+        _files = self.one._check_filesystem(datasets, update_exists=True)
+        self.assertIsNone(_files[i])
+        self.assertFalse(
+            self.one._cache.datasets.loc[idx, 'exists'].all(), 'failed to update cache exists')
+        files[i].touch()  # restore file for next check
+
+        # Attempt to load datasets with both eid index
+        # and session_path column missing (most common)
+        datasets = datasets.drop('session_path', axis=1)
         self.assertEqual(files, self.one._check_filesystem(datasets))
+
         # Test with uuid_filenames as True
         self.one.uuid_filenames = True
         try:
@@ -611,21 +677,48 @@ class TestONECache(unittest.TestCase):
         files, meta = self.one.load_datasets(eid, dsets, download_only=True)
         self.assertTrue(all(isinstance(x, Path) for x in files))
 
+        # Check behaviour when loading with a data frame (undocumented)
+        eid = '01390fcc-4f86-4707-8a3b-4d9309feb0a1'
+        datasets = self.one._cache.datasets.loc[([eid],), :].iloc[:3, :]
+        files, meta = self.one.load_datasets(eid, datasets, download_only=True)
+        self.assertTrue(all(isinstance(x, Path) for x in files))
+        # Should raise when data frame contains a different eid
+        self.assertRaises(AssertionError, self.one.load_datasets, uuid4(), datasets)
+
+        # Mix of str and dict
+        # Check download only
+        dsets = [
+            spec.regex(spec.FILE_SPEC).match('_ibl_wheel.position.npy').groupdict(),
+            '_ibl_wheel.timestamps.npy'
+        ]
+        with self.assertRaises(ValueError):
+            self.one.load_datasets('KS005/2019-04-02/001', dsets, assert_present=False)
+
         # Loading of non default revisions without using the revision kwarg causes user warning.
-        # With relative paths provided as input, dataset uniqueness validation is supressed.
+        # With relative paths provided as input, dataset uniqueness validation is suppressed.
+        eid = self.one._cache.sessions.iloc[0].name
         datasets = util.revisions_datasets_table(
-            revisions=('', '2020-01-08'), attributes=('times',))
+            revisions=('', '2020-01-08'), attributes=('times',), touch_path=self.one.eid2path(eid))
         datasets['default_revision'] = [False, True] * 3
-        eid = datasets.iloc[0].name[0]
+        datasets.index = datasets.index.set_levels([eid], level=0)
         self.one._cache.datasets = datasets
-        with self.assertWarns(UserWarning):
-            self.one.load_datasets(eid, datasets['rel_path'].to_list(),
-                                   download_only=True, assert_present=False)
+        with self.assertWarns(alferr.ALFWarning):
+            self.one.load_datasets(eid, datasets['rel_path'].to_list(), download_only=True)
 
         # When loading without collections in the dataset list (i.e. just the dataset names)
         # an exception should be raised when datasets belong to multiple collections.
         self.assertRaises(
             alferr.ALFMultipleCollectionsFound, self.one.load_datasets, eid, ['spikes.times'])
+
+        # Ensure that when rel paths are passed, a null collection/revision is not interpreted as
+        # an ANY. NB this means the output of 'spikes.times.npy' will be different depending on
+        # weather other datasets in list include a collection or revision.
+        self.one._cache.datasets = datasets.iloc[:2, :].copy()  # only two datasets, one default
+        (file,), _ = self.one.load_datasets(eid, ['spikes.times.npy', ], download_only=True)
+        self.assertTrue(file.as_posix().endswith('001/#2020-01-08#/spikes.times.npy'))
+        (file, _), _ = self.one.load_datasets(
+            eid, ['spikes.times.npy', 'xx/obj.attr.ext'], download_only=True, assert_present=False)
+        self.assertTrue(file.as_posix().endswith('001/spikes.times.npy'))
 
     def test_load_dataset_from_id(self):
         """Test One.load_dataset_from_id"""
@@ -836,13 +929,24 @@ class TestONECache(unittest.TestCase):
         # Check behaviour when columns don't match
         datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
         datasets['extra_column'] = True
+        self.one._cache.datasets['foo_bar'] = 12  # this column is missing in our new records
         self.one._cache.datasets['new_column'] = False
-        self.addCleanup(self.one._cache.datasets.drop, 'new_column', axis=1, inplace=True)
+        self.addCleanup(self.one._cache.datasets.drop, 'foo_bar', axis=1, inplace=True)
+        # An exception is exists_* as the Alyx cache contains exists_aws and exists_flatiron
+        # These should simply be filled with the values of exists as Alyx won't return datasets
+        # that don't exist on FlatIron and if they don't exist on AWS it falls back to this.
+        self.one._cache.datasets['exists_aws'] = False
         with self.assertRaises(AssertionError):
             self.one._update_cache_from_records(datasets=datasets, strict=True)
         self.one._update_cache_from_records(datasets=datasets)
         verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
         self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        self.one._update_cache_from_records(datasets=datasets)
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists_aws']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        # If the extra column does not start with 'exists' it should be set to NaN
+        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'foo_bar']
+        self.assertTrue(np.isnan(verifiable).all())
 
         # Check fringe cases
         with self.assertRaises(KeyError):
@@ -877,14 +981,14 @@ class TestONECache(unittest.TestCase):
         old_cache = self.one._cache['datasets']
         try:
             datasets = [self.one._cache.datasets, dset.to_frame().T]
-            datasets = pd.concat(datasets).astype(old_cache.dtypes)
+            datasets = pd.concat(datasets).astype(old_cache.dtypes).sort_index()
+            datasets.index.set_names(('eid', 'id'), inplace=True)
             self.one._cache['datasets'] = datasets
             dsets = [dset['rel_path'], '_ibl_trials.feedback_times.npy']
             new_files, rec = self.one.load_datasets(eid, dsets, assert_present=False)
             loaded = self.one._cache['_loaded_datasets']
             # One dataset is already in the list (test for duplicates) and other doesn't exist
             self.assertEqual(len(files), len(loaded), 'No new UUIDs should have been added')
-            self.assertIn(rec[1]['id'], loaded)  # Already in list
             self.assertEqual(len(loaded), len(np.unique(loaded)))
             self.assertNotIn(dset.name[1], loaded)  # Wasn't loaded as doesn't exist on disk
         finally:
@@ -1250,9 +1354,6 @@ class TestOneAlyx(unittest.TestCase):
         # Test listing by relation
         datasets = self.one.list_aggregates('subjects')
         self.assertTrue(all(datasets['rel_path'].str.startswith('aggregates/Subjects')))
-        self.assertIn('exists_aws', datasets.columns)
-        self.assertIn('session_path', datasets.columns)
-        self.assertTrue(all(datasets['session_path'] == ''))
         self.assertTrue(self.one.list_aggregates('foobar').empty)
         # Test filtering with an identifier
         datasets = self.one.list_aggregates('subjects', 'ZM_1085')
@@ -1463,7 +1564,7 @@ class TestOneRemote(unittest.TestCase):
                           dataset=['wheel.times'], query_type='remote')
 
     def test_search_terms(self):
-        """Test OneAlyx.search_terms"""
+        """Test OneAlyx.search_terms."""
         assert self.one.mode != 'remote'
         search1 = self.one.search_terms()
         self.assertIn('dataset', search1)
@@ -1481,7 +1582,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertIn('model', search5)
 
     def test_load_dataset(self):
-        """Test OneAlyx.load_dataset"""
+        """Test OneAlyx.load_dataset."""
         file = self.one.load_dataset(self.eid, '_spikeglx_sync.channels.npy',
                                      collection='raw_ephys_data', query_type='remote',
                                      download_only=True)
@@ -1497,7 +1598,7 @@ class TestOneRemote(unittest.TestCase):
                                   collection='alf', query_type='remote')
 
     def test_load_object(self):
-        """Test OneAlyx.load_object"""
+        """Test OneAlyx.load_object."""
         files = self.one.load_object(self.eid, 'wheel',
                                      collection='alf', query_type='remote',
                                      download_only=True)
@@ -1507,7 +1608,7 @@ class TestOneRemote(unittest.TestCase):
         )
 
     def test_get_details(self):
-        """Test OneAlyx.get_details"""
+        """Test OneAlyx.get_details."""
         det = self.one.get_details(self.eid, query_type='remote')
         self.assertIsInstance(det, dict)
         self.assertEqual('SWC_043', det['subject'])
@@ -1524,7 +1625,7 @@ class TestOneRemote(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
-    """Test downloading datasets using OpenAlyx"""
+    """Test downloading datasets using OpenAlyx."""
     tempdir = None
     one = None
 
@@ -1538,7 +1639,7 @@ class TestOneDownload(unittest.TestCase):
         self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
 
     def test_download_datasets(self):
-        """Test OneAlyx._download_dataset, _download_file and _dset2url"""
+        """Test OneAlyx._download_dataset, _download_file and _dset2url."""
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related']
                    if 'channels.brainLocation' in x['dataset_type'])
@@ -1620,6 +1721,8 @@ class TestOneDownload(unittest.TestCase):
         rec = self.one.list_datasets(self.eid, details=True)
         rec = rec[rec.rel_path.str.contains('00/pykilosort/channels.brainLocation')]
         rec['exists_aws'] = False  # Ensure we use FlatIron for this
+        rec = pd.concat({str(self.eid): rec}, names=['eid'])
+
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
@@ -1630,8 +1733,11 @@ class TestOneDownload(unittest.TestCase):
     def test_download_aws(self):
         """Test for OneAlyx._download_aws method."""
         # Test download datasets via AWS
-        dsets = self.one.list_datasets(self.eid, details=True)
-        file = self.one.cache_dir / dsets['rel_path'].values[0]
+        dsets = self.one.list_datasets(
+            self.eid, filename='*wiring.json', collection='raw_ephys_data/probe??', details=True)
+        dsets = pd.concat({str(self.eid): dsets}, names=['eid'])
+
+        file = self.one.eid2path(self.eid) / dsets['rel_path'].values[0]
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
                 mock.patch('one.remote.aws.s3_download_file', return_value=file) as method:
             self.one._download_datasets(dsets)
@@ -1643,23 +1749,25 @@ class TestOneDownload(unittest.TestCase):
             # Check keep_uuid = True
             self.one._download_datasets(dsets, keep_uuid=True)
             _, local = method.call_args.args
-            self.assertIn(dsets.iloc[-1].name, local.name)
+            self.assertIn(dsets.iloc[-1].name[1], local.name)
 
         # Test behaviour when dataset not remotely accessible
         dsets = dsets[:1].copy()
-        rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0])
+        rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0][1])
         # need to find the index of matching aws repo, this is not constant across releases
         iaws = list(map(lambda x: x['data_repository'].startswith('aws'),
                         rec['file_records'])).index(True)
         rec['file_records'][iaws]['exists'] = False  # Set AWS file record to non-existent
+        self.one._cache.datasets['exists_aws'] = True  # Only changes column if exists
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[rec]), \
                 self.assertLogs('one.api', logging.DEBUG) as log:
-            self.assertEqual([None], self.one._download_datasets(dsets))
-            self.assertRegex(log.output[-1], 'Updating exists field')
+            # should still download file via fallback method
+            self.assertEqual([file], self.one._download_datasets(dsets))
+            self.assertRegex(log.output[1], 'Updating exists field')
             datasets = self.one._cache['datasets']
             self.assertFalse(
-                datasets.loc[pd.IndexSlice[:, dsets.index[0]], 'exists_aws'].any()
+                datasets.loc[pd.IndexSlice[:, dsets.index[0][1]], 'exists_aws'].any()
             )
 
         # Check falls back to HTTP when error raised
@@ -1674,6 +1782,7 @@ class TestOneDownload(unittest.TestCase):
 
     def test_tag_mismatched_file_record(self):
         """Test for OneAlyx._tag_mismatched_file_record.
+
         This method is also tested in test_download_datasets.
         """
         did = '4a1500c2-60f3-418f-afa2-c752bb1890f0'
@@ -1696,7 +1805,7 @@ class TestOneDownload(unittest.TestCase):
 
 
 class TestOneSetup(unittest.TestCase):
-    """Test parameter setup upon ONE instantiation and calling setup methods"""
+    """Test parameter setup upon ONE instantiation and calling setup methods."""
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
@@ -1707,7 +1816,7 @@ class TestOneSetup(unittest.TestCase):
         self.addCleanup(patch.stop)
 
     def test_local_cache_setup_prompt(self):
-        """Test One.setup"""
+        """Test One.setup."""
         path = Path(self.tempdir.name).joinpath('subject', '2020-01-01', '1', 'spikes.times.npy')
         path.parent.mkdir(parents=True)
         path.touch()
@@ -1731,6 +1840,7 @@ class TestOneSetup(unittest.TestCase):
 
     def test_setup_silent(self):
         """Test setting up parameters with silent flag.
+
         - Mock getfile to return temp dir as param file location
         - Mock input function as fail safe in case function erroneously prompts user for input
         """
@@ -1761,6 +1871,7 @@ class TestOneSetup(unittest.TestCase):
 
     def test_setup_username(self):
         """Test setting up parameters with a provided username.
+
         - Mock getfile to return temp dir as param file location
         - Mock input function as fail safe in case function erroneously prompts user for input
         - Mock requests.post returns a fake user authentication response
@@ -1789,14 +1900,14 @@ class TestOneSetup(unittest.TestCase):
 
     @unittest.skipIf(OFFLINE_ONLY, 'online only test')
     def test_static_setup(self):
-        """Test OneAlyx.setup"""
+        """Test OneAlyx.setup."""
         with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.webclient.getpass', return_value='international'):
             one_obj = OneAlyx.setup(silent=True)
         self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
     def test_setup(self):
-        """Test one.params.setup"""
+        """Test one.params.setup."""
         url = TEST_DB_1['base_url']
 
         def mock_input(prompt):
@@ -1840,7 +1951,7 @@ class TestOneSetup(unittest.TestCase):
         self.assertTrue(getattr(mock_input, 'conflict_warn', False))
 
     def test_patch_params(self):
-        """Test patching legacy params to the new location"""
+        """Test patching legacy params to the new location."""
         # Save some old-style params
         old_pars = one.params.default().set('HTTP_DATA_SERVER', 'openalyx.org')
         # Save a REST query in the old location
@@ -1857,7 +1968,7 @@ class TestOneSetup(unittest.TestCase):
         self.assertTrue(any(one_obj.alyx.cache_dir.joinpath('.rest').glob('*')))
 
     def test_one_factory(self):
-        """Tests the ONE class factory"""
+        """Tests the ONE class factory."""
         with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.params.input', new=self.assertFalse):
             # Cache dir not in client cache map; use One (light)
@@ -1891,9 +2002,9 @@ class TestOneSetup(unittest.TestCase):
 
 
 class TestOneMisc(unittest.TestCase):
-    """Test functions in one.util"""
+    """Test functions in one.util."""
     def test_validate_date_range(self):
-        """Test one.util.validate_date_range"""
+        """Test one.util.validate_date_range."""
         # Single string date
         actual = validate_date_range('2020-01-01')  # On this day
         expected = (pd.Timestamp('2020-01-01 00:00:00'),
@@ -1936,7 +2047,7 @@ class TestOneMisc(unittest.TestCase):
             validate_date_range(['2020-01-01', '2019-09-06', '2021-10-04'])
 
     def test_index_last_before(self):
-        """Test one.util.index_last_before"""
+        """Test one.util.index_last_before."""
         revisions = ['2021-01-01', '2020-08-01', '', '2020-09-30']
         verifiable = index_last_before(revisions, '2021-01-01')
         self.assertEqual(0, verifiable)
@@ -1953,7 +2064,7 @@ class TestOneMisc(unittest.TestCase):
         self.assertEqual(0, verifiable, 'should return most recent')
 
     def test_collection_spec(self):
-        """Test one.util._collection_spec"""
+        """Test one.util._collection_spec."""
         # Test every combination of input
         inputs = []
         _collection = {None: '({collection}/)?', '': '', '-': '{collection}/'}
@@ -1967,20 +2078,20 @@ class TestOneMisc(unittest.TestCase):
                 self.assertEqual(expected, verifiable)
 
     def test_revision_last_before(self):
-        """Test one.util.filter_revision_last_before"""
+        """Test one.util.filter_revision_last_before."""
         datasets = util.revisions_datasets_table()
         df = datasets[datasets.rel_path.str.startswith('alf/probe00')].copy()
-        verifiable = filter_revision_last_before(df,
-                                                 revision='2020-09-01', assert_unique=False)
+        verifiable = filter_revision_last_before(df, revision='2020-09-01', assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
-        # Test assert unique
+        # Remove one of the datasets' revisions to test assert unique on mixed revisions
+        df_mixed = df.drop((df['revision'] == '2020-01-08').idxmax())
         with self.assertRaises(alferr.ALFMultipleRevisionsFound):
-            filter_revision_last_before(df, revision='2020-09-01', assert_unique=True)
+            filter_revision_last_before(df_mixed, revision='2020-09-01', assert_consistent=True)
 
         # Test with default revisions
         df['default_revision'] = False
-        with self.assertLogs(logging.getLogger('one.util')):
+        with self.assertWarnsRegex(alferr.ALFWarning, 'No default revision for dataset'):
             verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
         self.assertTrue(len(verifiable) == 2)
 
@@ -1991,8 +2102,10 @@ class TestOneMisc(unittest.TestCase):
 
         # Add unique default revisions
         df.iloc[[0, 4], -1] = True
-        verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
-        self.assertTrue(len(verifiable) == 2)
+        # Should log mixed revisions
+        with self.assertWarnsRegex(alferr.ALFWarning, 'Multiple revisions'):
+            verifiable = filter_revision_last_before(df.copy(), assert_unique=True)
+        self.assertEqual(2, len(verifiable))
         self.assertCountEqual(verifiable['rel_path'], df['rel_path'].iloc[[0, 4]])
 
         # Add multiple default revisions
@@ -2001,7 +2114,7 @@ class TestOneMisc(unittest.TestCase):
             filter_revision_last_before(df.copy(), assert_unique=True)
 
     def test_parse_id(self):
-        """Test one.util.parse_id"""
+        """Test one.util.parse_id."""
         obj = unittest.mock.MagicMock()  # Mock object to decorate
         obj.to_eid.return_value = 'parsed_id'  # Method to be called
         input = 'subj/date/num'  # Input id to pass to `to_eid`
@@ -2015,7 +2128,7 @@ class TestOneMisc(unittest.TestCase):
             parse_id(obj.method)(obj, input)
 
     def test_autocomplete(self):
-        """Test one.util.autocomplete"""
+        """Test one.util.autocomplete."""
         search_terms = ('subject', 'date_range', 'dataset', 'dataset_type')
         self.assertEqual('subject', autocomplete('Subj', search_terms))
         self.assertEqual('dataset', autocomplete('dataset', search_terms))
@@ -2025,7 +2138,7 @@ class TestOneMisc(unittest.TestCase):
             autocomplete('dat', search_terms)
 
     def test_LazyID(self):
-        """Test one.util.LazyID"""
+        """Test one.util.LazyID."""
         uuids = [
             'c1a2758d-3ce5-4fa7-8d96-6b960f029fa9',
             '0780da08-a12b-452a-b936-ebc576aa7670',
@@ -2039,3 +2152,12 @@ class TestOneMisc(unittest.TestCase):
         self.assertEqual(ez[0:2], uuids[0:2])
         ez = LazyId([{'id': x} for x in uuids])
         self.assertCountEqual(map(str, ez), uuids)
+
+    def test_ensure_list(self):
+        """Test one.util.ensure_list.
+
+        This function has now moved therefore we simply check for deprecation warning.
+        """
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(['123'], ensure_list('123'))
+            self.assertIs(x := ['123'], ensure_list(x))

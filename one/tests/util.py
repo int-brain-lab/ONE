@@ -11,6 +11,7 @@ from iblutil.io.params import set_hidden
 
 import one.params
 from one.util import QC_TYPE
+from one.converters import session_record2path
 
 
 def set_up_env() -> tempfile.TemporaryDirectory:
@@ -68,7 +69,8 @@ def create_file_tree(one):
 
     """
     # Create dset files from cache
-    for session_path, rel_path in one._cache.datasets[['session_path', 'rel_path']].values:
+    for (eid, _), rel_path in one._cache.datasets['rel_path'].items():
+        session_path = session_record2path(one._cache.sessions.loc[eid])
         filepath = Path(one.cache_dir).joinpath(session_path, rel_path)
         filepath.parent.mkdir(exist_ok=True, parents=True)
         filepath.touch()
@@ -116,7 +118,8 @@ def setup_test_params(token=False, cache_dir=None):
 def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
                              revisions=('', '2020-01-08', '2021-07-06'),
                              object='spikes',
-                             attributes=('times', 'waveforems')):
+                             attributes=('times', 'waveforems'),
+                             touch_path=None):
     """Returns a datasets cache DataFrame containing datasets with revision folders.
 
     As there are no revised datasets on the test databases, this function acts as a fixture for
@@ -132,11 +135,13 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         An ALF object
     attributes : tuple
         A list of ALF attributes
+    touch_path : pathlib.Path, str
+        If provided, files are created in this directory.
 
     Returns
     -------
     pd.DataFrame
-        A datasets cache table containing datasets made from the input names
+        A datasets cache table containing datasets made from the input names.
 
     """
     rel_path = []
@@ -146,14 +151,19 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
                 rel_path.append('/'.join(x for x in (collec, rev, f'{object}.{attr}.npy') if x))
     d = {
         'rel_path': rel_path,
-        'session_path': 'subject/1900-01-01/001',
-        'file_size': None,
+        'file_size': 0,
         'hash': None,
         'exists': True,
         'qc': 'NOT_SET',
         'eid': str(uuid4()),
         'id': map(str, (uuid4() for _ in rel_path))
     }
+
+    if touch_path:
+        for p in rel_path:
+            path = Path(touch_path).joinpath(p)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.touch()
 
     return pd.DataFrame(data=d).astype({'qc': QC_TYPE}).set_index(['eid', 'id'])
 

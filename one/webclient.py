@@ -54,7 +54,7 @@ from pprint import pprint
 import one.params
 from iblutil.io import hashfile
 from iblutil.io.params import set_hidden
-from one.util import ensure_list
+from iblutil.util import ensure_list
 import concurrent.futures
 _logger = logging.getLogger(__name__)
 
@@ -213,9 +213,12 @@ class _PaginatedResponse(Mapping):
     def __getitem__(self, item):
         if isinstance(item, slice):
             while None in self._cache[item]:
-                self.populate(item.start + self._cache[item].index(None))
+                # If slice start index is -ve, convert to +ve index
+                i = self.count + item.start if item.start < 0 else item.start
+                self.populate(i + self._cache[item].index(None))
         elif self._cache[item] is None:
-            self.populate(item)
+            # If index is -ve, convert to +ve
+            self.populate(self.count + item if item < 0 else item)
         return self._cache[item]
 
     def populate(self, idx):
@@ -642,6 +645,11 @@ class AlyxClient:
         if username is None and not self.silent:
             username = input('Enter Alyx username:')
 
+        # If user passes in a password, force re-authentication even if token cached
+        if password is not None:
+            if not force:
+                _logger.debug('Forcing token request with provided password')
+            force = True
         # Check if token cached
         if not force and getattr(self._par, 'TOKEN', False) and username in self._par.TOKEN:
             self._token = self._par.TOKEN[username]
@@ -654,8 +662,17 @@ class AlyxClient:
         # Get password
         if password is None:
             password = getattr(self._par, 'ALYX_PWD', None)
-        if password is None and not self.silent:
-            password = getpass(f'Enter Alyx password for "{username}":')
+        if password is None:
+            if self.silent:
+                warnings.warn(
+                    'No password or cached token in silent mode. '
+                    'Please run the following to re-authenticate:\n\t'
+                    'AlyxClient(silent=False).authenticate'
+                    '(username=<username>, force=True)', UserWarning)
+            else:
+                password = getpass(f'Enter Alyx password for "{username}":')
+        # Remove previous token
+        self._clear_token(username)
         try:
             credentials = {'username': username, 'password': password}
             rep = requests.post(self.base_url + '/auth-token', data=credentials)
@@ -692,14 +709,12 @@ class AlyxClient:
         if not self.silent:
             print(f'Connected to {self.base_url} as user "{self.user}"')
 
-    def logout(self):
-        """Log out from Alyx.
-        Deletes the cached authentication token for the currently logged-in user.
+    def _clear_token(self, username):
+        """Remove auth token from client params.
+
+        Deletes the cached authentication token for a given user.
         """
-        if not self.is_logged_in:
-            return
         par = one.params.get(client=self.base_url, silent=True)
-        username = self.user
         # Remove token from cache
         if getattr(par, 'TOKEN', False) and username in par.TOKEN:
             del par.TOKEN[username]
@@ -708,10 +723,20 @@ class AlyxClient:
         if getattr(self._par, 'TOKEN', False) and username in self._par.TOKEN:
             del self._par.TOKEN[username]
         # Remove token from object
-        self.user = None
         self._token = None
         if self._headers and 'Authorization' in self._headers:
             del self._headers['Authorization']
+
+    def logout(self):
+        """Log out from Alyx.
+
+        Deletes the cached authentication token for the currently logged-in user
+        and clears the REST cache.
+        """
+        if not self.is_logged_in:
+            return
+        self._clear_token(username := self.user)
+        self.user = None
         self.clear_rest_cache()
         if not self.silent:
             print(f'{username} logged out from {self.base_url}')

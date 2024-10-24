@@ -20,7 +20,7 @@ import requests.exceptions
 import packaging.version
 
 from iblutil.io import parquet, hashfile
-from iblutil.util import Bunch, flatten
+from iblutil.util import Bunch, flatten, ensure_list
 
 import one.params
 import one.webclient as wc
@@ -28,10 +28,10 @@ import one.alf.io as alfio
 import one.alf.files as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
-from .alf.spec import is_uuid_string, QC
+from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path
-import one.util as util
+from one import util
 
 _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
@@ -131,7 +131,7 @@ class One(ConversionMixin):
 
             # Set the appropriate index if none already set
             if isinstance(cache.index, pd.RangeIndex):
-                idx_columns = cache.filter(regex=INDEX_KEY).columns.tolist()
+                idx_columns = sorted(cache.filter(regex=INDEX_KEY).columns)
                 if len(idx_columns) == 0:
                     raise KeyError('Failed to set index')
                 cache.set_index(idx_columns, inplace=True)
@@ -287,9 +287,10 @@ class One(ConversionMixin):
             if not strict:
                 # Deal with case where there are extra columns in the cache
                 extra_columns = set(self._cache[table].columns) - set(records.columns)
-                for col in extra_columns:
-                    n = list(self._cache[table].columns).index(col)
-                    records.insert(n, col, np.nan)
+                column_ids = map(list(self._cache[table].columns).index, extra_columns)
+                for col, n in sorted(zip(extra_columns, column_ids), key=lambda x: x[1]):
+                    val = records.get('exists', True) if col.startswith('exists_') else np.nan
+                    records.insert(n, col, val)
                 # Drop any extra columns in the records that aren't in cache table
                 to_drop = set(records.columns) - set(self._cache[table].columns)
                 records.drop(to_drop, axis=1, inplace=True)
@@ -302,7 +303,8 @@ class One(ConversionMixin):
             to_assign = records[~to_update]
             if isinstance(self._cache[table].index, pd.MultiIndex) and not to_assign.empty:
                 # Concatenate and sort (no other way for non-unique index within MultiIndex)
-                self._cache[table] = pd.concat([self._cache[table], to_assign]).sort_index()
+                frames = filter(lambda x: not x.empty, [self._cache[table], to_assign])
+                self._cache[table] = pd.concat(frames).sort_index()
             else:
                 for index, record in to_assign.iterrows():
                     self._cache[table].loc[index, :] = record[self._cache[table].columns].values
@@ -501,7 +503,7 @@ class One(ConversionMixin):
                 return ([], None) if details else []
             # String fields
             elif key in ('subject', 'task_protocol', 'laboratory', 'projects'):
-                query = '|'.join(util.ensure_list(value))
+                query = '|'.join(ensure_list(value))
                 key = 'lab' if key == 'laboratory' else key
                 mask = sessions[key].str.contains(query, regex=self.wildcards)
                 sessions = sessions[mask.astype(bool, copy=False)]
@@ -510,7 +512,7 @@ class One(ConversionMixin):
                 session_date = pd.to_datetime(sessions['date'])
                 sessions = sessions[(session_date >= start) & (session_date <= end)]
             elif key == 'number':
-                query = util.ensure_list(value)
+                query = ensure_list(value)
                 sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset/QC check is biggest so this should be done last
             elif key == 'dataset' or (key == 'dataset_qc_lte' and 'dataset' not in queries):
@@ -518,7 +520,7 @@ class One(ConversionMixin):
                 qc = QC.validate(queries.get('dataset_qc_lte', 'FAIL')).name  # validate value
                 has_dset = sessions.index.isin(datasets.index.get_level_values('eid'))
                 datasets = datasets.loc[(sessions.index.values[has_dset], ), :]
-                query = util.ensure_list(value if key == 'dataset' else '')
+                query = ensure_list(value if key == 'dataset' else '')
                 # For each session check any dataset both contains query and exists
                 mask = (
                     (datasets
@@ -550,9 +552,8 @@ class One(ConversionMixin):
 
         Given a set of datasets, check whether records correctly reflect the filesystem.
         Called by load methods, this returns a list of file paths to load and return.
-        TODO This needs changing; overload for downloading?
-         This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
-         update and save tables.  Download_datasets can also call this function.
+        This changes datasets frame, calls _update_cache(sessions=None, datasets=None) to
+        update and save tables.  Download_datasets may also call this function.
 
         Parameters
         ----------
@@ -573,12 +574,18 @@ class One(ConversionMixin):
         """
         if isinstance(datasets, pd.Series):
             datasets = pd.DataFrame([datasets])
+            assert datasets.index.nlevels <= 2
+            idx_names = ['eid', 'id'] if datasets.index.nlevels == 2 else ['id']
+            datasets.index.set_names(idx_names, inplace=True)
         elif not isinstance(datasets, pd.DataFrame):
             # Cast set of dicts (i.e. from REST datasets endpoint)
             datasets = util.datasets2records(list(datasets))
+        else:
+            datasets = datasets.copy()
         indices_to_download = []  # indices of datasets that need (re)downloading
         files = []  # file path list to return
         # If the session_path field is missing from the datasets table, fetch from sessions table
+        # Typically only aggregate frames contain this column
         if 'session_path' not in datasets.columns:
             if 'eid' not in datasets.index.names:
                 # Get slice of full frame with eid in index
@@ -619,20 +626,6 @@ class One(ConversionMixin):
                 files.append(None)
                 # Add this index to list of datasets that need downloading
                 indices_to_download.append(i)
-            if rec['exists'] != file.exists():
-                with warnings.catch_warnings():
-                    # Suppress future warning: exist column should always be present
-                    msg = '.*indexing on a MultiIndex with a nested sequence of labels.*'
-                    warnings.filterwarnings('ignore', message=msg)
-                    datasets.at[i, 'exists'] = not rec['exists']
-                    if update_exists:
-                        _logger.debug('Updating exists field')
-                        if isinstance(i, tuple):
-                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
-                        else:  # eid index level missing in datasets input
-                            i = pd.IndexSlice[:, i]
-                            self._cache['datasets'].loc[i, 'exists'] = not rec['exists']
-                        self._cache['_meta']['modified_time'] = datetime.now()
 
         # If online and we have datasets to download, call download_datasets with these datasets
         if not (offline or self.offline) and indices_to_download:
@@ -643,14 +636,32 @@ class One(ConversionMixin):
             for i, file in zip(indices_to_download, new_files):
                 files[datasets.index.get_loc(i)] = file
 
+        # NB: Currently if not offline and a remote file is missing, an exception will be raised
+        # before we reach this point. This could change in the future.
+        exists = list(map(bool, files))
+        if not all(datasets['exists'] == exists):
+            with warnings.catch_warnings():
+                # Suppress future warning: exist column should always be present
+                msg = '.*indexing on a MultiIndex with a nested sequence of labels.*'
+                warnings.filterwarnings('ignore', message=msg)
+                datasets['exists'] = exists
+                if update_exists:
+                    _logger.debug('Updating exists field')
+                    i = datasets.index
+                    if i.nlevels == 1:
+                        # eid index level missing in datasets input
+                        i = pd.IndexSlice[:, i]
+                    self._cache['datasets'].loc[i, 'exists'] = exists
+                    self._cache['_meta']['modified_time'] = datetime.now()
+
         if self.record_loaded:
             loaded = np.fromiter(map(bool, files), bool)
-            loaded_ids = np.array(datasets.index.to_list())[loaded]
+            loaded_ids = datasets.index.get_level_values('id')[loaded].to_numpy()
             if '_loaded_datasets' not in self._cache:
                 self._cache['_loaded_datasets'] = np.unique(loaded_ids)
             else:
                 loaded_set = np.hstack([self._cache['_loaded_datasets'], loaded_ids])
-                self._cache['_loaded_datasets'] = np.unique(loaded_set, axis=0)
+                self._cache['_loaded_datasets'] = np.unique(loaded_set)
 
         # Return full list of file paths
         return files
@@ -701,7 +712,7 @@ class One(ConversionMixin):
     @util.refresh
     def list_datasets(
             self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
-            ignore_qc_not_set=False, details=False, query_type=None
+            ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False
     ) -> Union[np.ndarray, pd.DataFrame]:
         """
         Given an eid, return the datasets for those sessions.
@@ -734,6 +745,9 @@ class One(ConversionMixin):
             relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
         query_type : str
             Query cache ('local') or Alyx database ('remote').
+        default_revisions_only : bool
+            When true, only matching datasets that are considered default revisions are returned.
+            If no 'default_revision' column is present, and ALFError is raised.
 
         Returns
         -------
@@ -763,6 +777,11 @@ class One(ConversionMixin):
         >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
         """
         datasets = self._cache['datasets']
+        if default_revisions_only:
+            if 'default_revision' not in datasets.columns:
+                raise alferr.ALFError('No default revisions specified')
+            datasets = datasets[datasets['default_revision']]
+
         filter_args = dict(
             collection=collection, filename=filename, wildcards=self.wildcards, revision=revision,
             revision_last_before=False, assert_unique=False, qc=qc,
@@ -1003,6 +1022,9 @@ class One(ConversionMixin):
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
+        if datasets.index.nlevels == 1:
+            # Reinstate eid index
+            datasets = pd.concat({str(eid): datasets}, names=['eid'])
         files = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
         files = [x for x in files if x]
         if not files:
@@ -1107,6 +1129,9 @@ class One(ConversionMixin):
                                         wildcards=self.wildcards, assert_unique=assert_unique)
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
+        if datasets.index.nlevels == 1:
+            # Reinstate eid index
+            datasets = pd.concat({str(eid): datasets}, names=['eid'])
 
         # Check files exist / download remote files
         offline = None if query_type == 'auto' else self.mode == 'local'
@@ -1130,9 +1155,11 @@ class One(ConversionMixin):
                       download_only: bool = False,
                       check_hash: bool = True) -> Any:
         """
-        Load datasets for a given session id.  Returns two lists the length of datasets.  The
-        first is the data (or file paths if download_data is false), the second is a list of
-        meta data Bunches.  If assert_present is false, missing data will be returned as None.
+        Load datasets for a given session id.
+
+        Returns two lists the length of datasets.  The first is the data (or file paths if
+        download_data is false), the second is a list of meta data Bunches.  If assert_present is
+        false, missing data will be returned as None.
 
         Parameters
         ----------
@@ -1164,9 +1191,9 @@ class One(ConversionMixin):
         Returns
         -------
         list
-            A list of data (or file paths) the length of datasets
+            A list of data (or file paths) the length of datasets.
         list
-            A list of meta data Bunches. If assert_present is False, missing data will be None
+            A list of meta data Bunches. If assert_present is False, missing data will be None.
 
         Notes
         -----
@@ -1178,6 +1205,8 @@ class One(ConversionMixin):
           revision as separate keyword arguments.
         - To ensure you are loading the correct revision, use the revisions kwarg instead of
           relative paths.
+        - To load an exact revision (i.e. not the last revision before a given date), pass in
+          a list of relative paths or a data frame.
 
         Raises
         ------
@@ -1220,8 +1249,25 @@ class One(ConversionMixin):
 
         if isinstance(datasets, str):
             raise TypeError('`datasets` must be a non-string iterable')
-        # Check input args
-        collections, revisions = _verify_specifiers([collections, revisions])
+
+        # Check if rel paths have been used (e.g. the output of list_datasets)
+        is_frame = isinstance(datasets, pd.DataFrame)
+        if is_rel_paths := (is_frame or any('/' in x for x in datasets)):
+            if not (collections, revisions) == (None, None):
+                raise ValueError(
+                    'collection and revision kwargs must be None when dataset is a relative path')
+            if is_frame:
+                if 'eid' in datasets.index.names:
+                    assert set(datasets.index.get_level_values('eid')) == {eid}
+                datasets = datasets['rel_path'].tolist()
+            datasets = list(map(partial(alfiles.rel_path_parts, as_dict=True), datasets))
+            if len(datasets) > 0:
+                # Extract collection and revision from each of the parsed datasets
+                # None -> '' ensures exact collections and revisions are used in filter
+                # NB: f user passes in dicts, any collection/revision keys will be ignored.
+                collections, revisions = zip(
+                    *((x.pop('collection') or '', x.pop('revision') or '') for x in datasets)
+                )
 
         # Short circuit
         query_type = query_type or self.mode
@@ -1235,35 +1281,49 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             return None, all_datasets.iloc[0:0]  # Return empty
 
-        # Filter and load missing
-        if self.wildcards:  # Append extension wildcard if 'object.attribute' string
-            datasets = [x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
-                        for x in datasets]
+        # More input validation
+        input_types = [(isinstance(x, str), isinstance(x, dict)) for x in datasets]
+        if not all(map(any, input_types)) or not any(map(all, zip(*input_types))):
+            raise ValueError('`datasets` must be iterable of only str or only dicts')
+        if self.wildcards and input_types[0][0]:  # if wildcards and input is iter of str
+            # Append extension wildcard if 'object.attribute' string
+            datasets = [
+                x + ('.*' if isinstance(x, str) and len(x.split('.')) == 2 else '')
+                for x in datasets
+            ]
+
+        # Check input args
+        collections, revisions = _verify_specifiers([collections, revisions])
+
         # If collections provided in datasets list, e.g. [collection/x.y.z], do not assert unique
-        validate = not any(('/' if isinstance(d, str) else 'collection') in d for d in datasets)
-        if not validate and not all(x is None for x in collections + revisions):
-            raise ValueError(
-                'collection and revision kwargs must be None when dataset is a relative path')
-        ops = dict(wildcards=self.wildcards, assert_unique=validate)
+        # If not a dataframe, use revision last before (we've asserted no revision in rel_path)
+        ops = dict(
+            wildcards=self.wildcards, assert_unique=True, revision_last_before=not is_rel_paths)
         slices = [util.filter_datasets(all_datasets, x, y, z, **ops)
                   for x, y, z in zip(datasets, collections, revisions)]
         present = [len(x) == 1 for x in slices]
         present_datasets = pd.concat(slices)
+        if present_datasets.index.nlevels == 1:
+            # Reinstate eid index
+            present_datasets = pd.concat({str(eid): present_datasets}, names=['eid'])
 
         # Check if user is blindly downloading all data and warn of non-default revisions
         if 'default_revision' in present_datasets and \
-                not any(revisions) and not all(present_datasets['default_revision']):
+                is_rel_paths and not all(present_datasets['default_revision']):
             old = present_datasets.loc[~present_datasets['default_revision'], 'rel_path'].to_list()
             warnings.warn(
                 'The following datasets may have been revised and ' +
                 'are therefore not recommended for analysis:\n\t' +
                 '\n\t'.join(old) + '\n'
-                'To avoid this warning, specify the revision as a kwarg or use load_dataset.'
+                'To avoid this warning, specify the revision as a kwarg or use load_dataset.',
+                alferr.ALFWarning
             )
 
         if not all(present):
-            missing_list = ', '.join(x for x, y in zip(datasets, present) if not y)
-            # FIXME include collection and revision also
+            missing_list = (x if isinstance(x, str) else to_alf(**x) for x in datasets)
+            missing_list = ('/'.join(filter(None, [c, f'#{r}#' if r else None, d]))
+                            for c, r, d in zip(collections, revisions, missing_list))
+            missing_list = ', '.join(x for x, y in zip(missing_list, present) if not y)
             message = f'The following datasets are not in the cache: {missing_list}'
             if assert_present:
                 raise alferr.ALFObjectNotFound(message)
@@ -1284,7 +1344,7 @@ class One(ConversionMixin):
 
         # Make list of metadata Bunches out of the table
         records = (present_datasets
-                   .reset_index(names='id')
+                   .reset_index(names=['eid', 'id'])
                    .to_dict('records', into=Bunch))
 
         # Ensure result same length as input datasets list
@@ -1417,6 +1477,9 @@ class One(ConversionMixin):
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(object or '')
         parts = [alfiles.rel_path_parts(x) for x in datasets.rel_path]
+        if datasets.index.nlevels == 1:
+            # Reinstate eid index
+            datasets = pd.concat({str(eid): datasets}, names=['eid'])
 
         # For those that don't exist, download them
         offline = None if query_type == 'auto' else self.mode == 'local'
@@ -1766,11 +1829,11 @@ class OneAlyx(One):
     @util.refresh
     def list_datasets(
             self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
-            ignore_qc_not_set=False, details=False, query_type=None
+            ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False
     ) -> Union[np.ndarray, pd.DataFrame]:
         filters = dict(
-            collection=collection, filename=filename, revision=revision,
-            qc=qc, ignore_qc_not_set=ignore_qc_not_set)
+            collection=collection, filename=filename, revision=revision, qc=qc,
+            ignore_qc_not_set=ignore_qc_not_set, default_revisions_only=default_revisions_only)
         if (query_type or self.mode) != 'remote':
             return super().list_datasets(eid, details=details, query_type=query_type, **filters)
         elif not eid:
@@ -1785,6 +1848,7 @@ class OneAlyx(One):
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         assert set(datasets.index.unique('eid')) == {eid}
+        del filters['default_revisions_only']
         datasets = util.filter_datasets(
             datasets.droplevel('eid'), assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
@@ -1825,8 +1889,7 @@ class OneAlyx(One):
         all_aggregates = self.alyx.rest('datasets', 'list', django=query)
         records = (util.datasets2records(all_aggregates)
                    .reset_index(level=0)
-                   .drop('eid', axis=1)
-                   .rename_axis(index={'id': 'did'}))
+                   .drop('eid', axis=1))
         # Since rel_path for public FI file records starts with 'public/aggregates' instead of just
         # 'aggregates', we should discard the file path parts before 'aggregates' (if present)
         records['rel_path'] = records['rel_path'].str.replace(
@@ -1847,11 +1910,6 @@ class OneAlyx(One):
             # NB: We avoid exact matches as most users will only include subject, not lab/subject
             records = records[records['identifier'].str.contains(identifier)]
 
-        # Add exists_aws field for download method
-        for i, rec in records.iterrows():
-            fr = next(x['file_records'] for x in all_aggregates if x['url'].endswith(i))
-            records.loc[i, 'exists_aws'] = any(
-                x['data_repository'].startswith('aws') and x['exists'] for x in fr)
         return util.filter_datasets(records, filename=dataset, revision=revision,
                                     wildcards=True, assert_unique=assert_unique)
 
@@ -1907,6 +1965,7 @@ class OneAlyx(One):
             raise alferr.ALFObjectNotFound(
                 f'{dataset or "dataset"} not found for {relation}/{identifier}')
         # update_exists=False because these datasets are not in the cache table
+        records['session_path'] = ''  # explicitly add session path column
         file, = self._check_filesystem(records, update_exists=False)
         if not file:
             raise alferr.ALFObjectNotFound('Dataset file not found on disk')
@@ -2212,7 +2271,7 @@ class OneAlyx(One):
 
         def _add_date(records):
             """Add date field for compatibility with One.search output."""
-            for s in util.ensure_list(records):
+            for s in ensure_list(records):
                 s['date'] = datetime.fromisoformat(s['start_time']).date()
             return records
 
@@ -2243,9 +2302,12 @@ class OneAlyx(One):
         try:
             if not isinstance(dsets, pd.DataFrame):
                 raise TypeError('Input datasets must be a pandas data frame for AWS download.')
-            if 'exists_aws' in dsets and np.all(np.equal(dsets['exists_aws'].values, True)):
-                _logger.info('Downloading from AWS')
-                return self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+            assert 'exists_aws' not in dsets or np.all(np.equal(dsets['exists_aws'].values, True))
+            _logger.debug('Downloading from AWS')
+            files = self._download_aws(map(lambda x: x[1], dsets.iterrows()), **kwargs)
+            # Trigger fallback download of any files missing on AWS
+            assert all(files), f'{sum(map(bool, files))} datasets not found on AWS'
+            return files
         except Exception as ex:
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
@@ -2281,7 +2343,7 @@ class OneAlyx(One):
         assert self.mode != 'local'
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
-        uuids = [util.ensure_list(x.name)[-1] for x in dsets]
+        uuids = [ensure_list(x.name)[-1] for x in dsets]
         # If number of UUIDs is too high, fetch in loop to avoid 414 HTTP status code
         remote_records = []
         N = 100  # Number of UUIDs per query
@@ -2295,15 +2357,18 @@ class OneAlyx(One):
             # Fetch file record path
             record = next((x for x in record['file_records']
                            if x['data_repository'].startswith('aws') and x['exists']), None)
-            if not record and update_exists and 'exists_aws' in self._cache['datasets']:
-                _logger.debug('Updating exists field')
-                self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
-                self._cache['_meta']['modified_time'] = datetime.now()
+            if not record:
+                if update_exists and 'exists_aws' in self._cache['datasets']:
+                    _logger.debug('Updating exists field')
+                    self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
+                    self._cache['_meta']['modified_time'] = datetime.now()
                 out_files.append(None)
                 continue
+            assert record['relative_path'].endswith(dset['rel_path']), \
+                f'Relative path for dataset {uuid} does not match Alyx record'
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
             source_path = alfiles.add_uuid_string(source_path, uuid)
-            local_path = self.cache_dir.joinpath(dset['session_path'], dset['rel_path'])
+            local_path = self.cache_dir.joinpath(record['relative_path'])
             if keep_uuid is True or (keep_uuid is None and self.uuid_filenames is True):
                 local_path = alfiles.add_uuid_string(local_path, uuid)
             local_path.parent.mkdir(exist_ok=True, parents=True)
@@ -2352,7 +2417,7 @@ class OneAlyx(One):
                 did = dset['id']
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)  # NB: URL will always be returned but may not exist
-                did = util.ensure_list(dset.name)[-1]
+                did = ensure_list(dset.name)[-1]
             else:  # from datasets endpoint
                 repo = getattr(getattr(self._web_client, '_par', None), 'HTTP_DATA_SERVER', None)
                 url = next(
@@ -2366,7 +2431,7 @@ class OneAlyx(One):
             _logger.debug('Updating cache')
             # NB: This will be considerably easier when IndexSlice supports Ellipsis
             idx = [slice(None)] * int(self._cache['datasets'].index.nlevels / 2)
-            self._cache['datasets'].loc[(*idx, *util.ensure_list(did)), 'exists'] = False
+            self._cache['datasets'].loc[(*idx, *ensure_list(did)), 'exists'] = False
             self._cache['_meta']['modified_time'] = datetime.now()
 
         return url
@@ -2460,7 +2525,7 @@ class OneAlyx(One):
         """
         assert not self.offline
         # Ensure all target directories exist
-        [Path(x).mkdir(parents=True, exist_ok=True) for x in set(util.ensure_list(target_dir))]
+        [Path(x).mkdir(parents=True, exist_ok=True) for x in set(ensure_list(target_dir))]
 
         # download file(s) from url(s), returns file path(s) with UUID
         local_path, md5 = self.alyx.download_file(url, target_dir=target_dir, return_md5=True)
@@ -2469,7 +2534,7 @@ class OneAlyx(One):
         if isinstance(url, (tuple, list)):
             assert (file_size is None) or len(file_size) == len(url)
             assert (hash is None) or len(hash) == len(url)
-        for args in zip(*map(util.ensure_list, (file_size, md5, hash, local_path, url))):
+        for args in zip(*map(ensure_list, (file_size, md5, hash, local_path, url))):
             self._check_hash_and_file_size_mismatch(*args)
 
         # check if we are keeping the uuid on the list of file names

@@ -23,14 +23,13 @@ import shutil
 import requests.exceptions
 
 from iblutil.io import hashfile
-from iblutil.util import Bunch
+from iblutil.util import Bunch, ensure_list
 
 import one.alf.io as alfio
 from one.alf.files import session_path_parts, get_session_path, folder_parts, filename_parts
 from one.alf.spec import is_valid
 import one.alf.exceptions as alferr
 from one.api import ONE
-from one.util import ensure_list
 from one.webclient import no_cache
 
 _logger = logging.getLogger(__name__)
