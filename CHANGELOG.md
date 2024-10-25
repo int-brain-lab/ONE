@@ -5,6 +5,7 @@
 
 - prompt user to strip quotation marks if used during ONE setup
 - indicate when downloading from S3
+- added 'keep_eid_index' kwarg to One.list_datasets which will return the data frame with the eid index level reinstated
 
 ## [2.10.0]
 This version improves behaviour of loading revisions and loading datasets from list_datasets output. 

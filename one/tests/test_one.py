@@ -404,6 +404,11 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(27, len(dsets))
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
+        # Test keep_eid_index parameter
+        dsets = self.one.list_datasets('KS005/2019-04-02/001', details=True, keep_eid_index=True)
+        self.assertEqual(27, len(dsets))
+        self.assertEqual(2, dsets.index.nlevels, 'details data frame should be with eid index')
+
         # Test filters
         filename = {'attribute': ['times', 'intervals'], 'extension': 'npy'}
         dsets = self.one.list_datasets('ZFM-01935/2021-02-05/001', filename)
