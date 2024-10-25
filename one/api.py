@@ -1839,10 +1839,12 @@ class OneAlyx(One):
             collection=collection, filename=filename, revision=revision, qc=qc,
             ignore_qc_not_set=ignore_qc_not_set, default_revisions_only=default_revisions_only)
         if (query_type or self.mode) != 'remote':
-            return super().list_datasets(eid, details=details, query_type=query_type, **filters)
+            return super().list_datasets(eid, details=details, keep_eid_index=keep_eid_index,
+                                         query_type=query_type, **filters)
         elif not eid:
             warnings.warn('Unable to list all remote datasets')
-            return super().list_datasets(eid, details=details, query_type=query_type, **filters)
+            return super().list_datasets(eid, details=details, keep_eid_index=keep_eid_index,
+                                         query_type=query_type, **filters)
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
