@@ -124,6 +124,7 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
     if not silent:
         prompt = 'Param %s, current value is ["%s"]:'
         par = iopar.as_dict(par_default)
+        quotes = '"\'`'
         # Iterate through non-password pars
         for k in filter(lambda k: 'PWD' not in k, par.keys()):
             cpar = _get_current_par(k, par_current)
@@ -137,10 +138,18 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
                 url_parsed = urlsplit(par[k])
                 if not (url_parsed.netloc and re.match('https?', url_parsed.scheme)):
                     raise ValueError(f'{k} must be valid HTTP URL')
-                if k == 'ALYX_URL':
-                    client = par[k]
             else:
                 par[k] = input(prompt % (k, cpar)).strip() or cpar
+            # Check whether user erroneously entered quotation marks
+            # Prompting the user here (hopefully) corrects them before they input a password
+            # where the use of quotation marks may be legitimate
+            if par[k] and len(par[k]) >= 2 and par[k][0] in quotes and par[k][-1] in quotes:
+                warnings.warn('Do not use quotation marks with input answers', UserWarning)
+                ans = input('Strip quotation marks from response? [Y/n]:').strip() or 'y'
+                if ans.lower()[0] == 'y':
+                    par[k] = par[k].strip(quotes)
+            if k == 'ALYX_URL':
+                client = par[k]
 
         cpar = _get_current_par('HTTP_DATA_SERVER_PWD', par_current)
         prompt = f'Enter the FlatIron HTTP password for {par["HTTP_DATA_SERVER_LOGIN"]} '\

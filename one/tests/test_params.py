@@ -57,8 +57,16 @@ class TestParamSetup(unittest.TestCase):
         # Check verification prompt
         resp_map = {'ALYX_LOGIN': 'mistake', 'settings correct?': 'N'}
         with mock.patch('one.params.input', new=partial(self._mock_input, **resp_map)):
-            cache = one.params.setup()
-            self.assertNotEqual(cache.ALYX_LOGIN, 'mistake')
+            one.params.setup()
+            par = one.params.get(self.url, silent=True)
+            self.assertNotEqual(par.ALYX_LOGIN, 'mistake')
+
+        # Check prompt when quotation marks used
+        resp_map = {'ALYX_LOGIN': '"foo"', 'Strip quotation marks': 'y', 'settings correct?': 'Y'}
+        with mock.patch('one.params.input', new=partial(self._mock_input, **resp_map)):
+            self.assertWarnsRegex(UserWarning, 'quotation marks', one.params.setup)
+            par = one.params.get(self.url, silent=True)
+            self.assertEqual(par.ALYX_LOGIN, 'foo', 'failed to strip quotes from user input')
 
         # Check that raises ValueError when bad URL provided
         self.url = 'ftp://foo.bar.org'

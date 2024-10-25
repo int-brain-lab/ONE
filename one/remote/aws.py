@@ -254,7 +254,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=F
             _logger.debug(f"{destination} exists and match size -- skipping")
             return destination
         with tqdm(total=filesize, unit='B',
-                  unit_scale=True, desc=str(destination)) as t:
+                  unit_scale=True, desc=f'(S3) {destination}') as t:
             file_object.download_file(Filename=str(destination), Callback=_callback_hook(t))
     except (NoCredentialsError, PartialCredentialsError) as ex:
         raise ex  # Credentials need updating in Alyx # pragma: no cover
