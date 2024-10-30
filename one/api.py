@@ -2373,8 +2373,9 @@ class OneAlyx(One):
             assert record['relative_path'].endswith(dset['rel_path']), \
                 f'Relative path for dataset {uuid} does not match Alyx record'
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
+            local_path = self.cache_dir.joinpath(alfiles.get_alf_path(source_path))
+            # Add UUIDs to filenames, if required
             source_path = alfiles.add_uuid_string(source_path, uuid)
-            local_path = self.cache_dir.joinpath(record['relative_path'])
             if keep_uuid is True or (keep_uuid is None and self.uuid_filenames is True):
                 local_path = alfiles.add_uuid_string(local_path, uuid)
             local_path.parent.mkdir(exist_ok=True, parents=True)
