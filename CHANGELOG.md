@@ -1,5 +1,14 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.1]
+
+### Modified
+
+- prompt user to strip quotation marks if used during ONE setup
+- indicate when downloading from S3
+- added 'keep_eid_index' kwarg to One.list_datasets which will return the data frame with the eid index level reinstated
+- HOTFIX: include Subject/lab part in destination path when downloading from S3
+
+## [2.10.0]
 This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
 
 ### Modified
