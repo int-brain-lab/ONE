@@ -57,6 +57,7 @@ This version fixes issues with Alyx authentication in silent mode, and improves 
 - always force authentication when password passed, even when token cached
 - bugfix: negative indexing of paginated response objects now functions correctly
 - deprecate one.util.ensure_list; moved to iblutil.util.ensure_list
+- OneAlyx uses remote mode by default, instead of auto
 
 ### Added
 
