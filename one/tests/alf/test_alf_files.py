@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path, PureWindowsPath
 import uuid
 
-import one.alf.files as files
+import one.alf.path as files
 
 
 class TestAlfParse(unittest.TestCase):
@@ -244,5 +244,17 @@ class TestALFGet(unittest.TestCase):
         self.assertRegex(str(cm.exception), 'Invalid ALF')
 
 
-if __name__ == "__main__":
+class TestFilesDeprecation(unittest.TestCase):
+    """Test files module warns of deprecation."""
+
+    @staticmethod
+    def _some_function(p):
+        import one.alf.files
+        return one.alf.files.full_path_parts(p) if p else None
+
+    def test_deprecation(self):
+        self.assertWarns(FutureWarning, self._some_function, None)
+
+
+if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)

@@ -100,7 +100,7 @@ from iblutil.io import params as iopar
 from iblutil.util import ensure_list
 
 from one.alf.spec import is_uuid
-from one.alf.files import remove_uuid_string
+from one.alf.path import remove_uuid_string
 import one.params
 from one.webclient import AlyxClient
 from .base import DownloadClient, load_client_params, save_client_params

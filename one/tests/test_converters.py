@@ -9,7 +9,7 @@ import pandas as pd
 
 from one.api import ONE
 from one import converters
-from one.alf.files import add_uuid_string
+from one.alf.path import add_uuid_string
 from . import util, OFFLINE_ONLY, TEST_DB_2
 
 

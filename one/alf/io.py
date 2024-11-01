@@ -26,7 +26,7 @@ from iblutil.util import Bunch
 from iblutil.io import parquet
 from iblutil.io import jsonable
 from .exceptions import ALFObjectNotFound
-from . import files, spec
+from . import spec, path as files
 from .spec import FILE_SPEC
 
 _logger = logging.getLogger(__name__)

@@ -16,7 +16,7 @@ import numpy as np
 from packaging import version
 
 import one.alf.exceptions as alferr
-from one.alf.files import rel_path_parts, get_session_path, get_alf_path, remove_uuid_string
+from one.alf.path import rel_path_parts, get_session_path, get_alf_path, remove_uuid_string
 from one.alf.spec import QC, FILE_SPEC, regex as alf_regex
 
 logger = logging.getLogger(__name__)

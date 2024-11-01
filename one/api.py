@@ -25,7 +25,7 @@ from iblutil.util import Bunch, flatten, ensure_list
 import one.params
 import one.webclient as wc
 import one.alf.io as alfio
-import one.alf.files as alfiles
+import one.alf.path as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import make_parquet_db, DATASETS_COLUMNS, SESSIONS_COLUMNS
 from .alf.spec import is_uuid_string, QC, to_alf

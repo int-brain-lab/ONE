@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.10.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.0]
+This version deprecates one.alf.files in preperation for replacing with one.alf.path in version 3.
+
+### Modified
+
+- one.alf.files has been deprecated and moved to one.alf.path
+
+## [2.10.1]
 
 ### Modified
 
@@ -9,7 +16,7 @@
 - HOTFIX: include Subject/lab part in destination path when downloading from S3
 
 ## [2.10.0]
-This version improves behaviour of loading revisions and loading datasets from list_datasets output. 
+This version improves behaviour of loading revisions and loading datasets from list_datasets output.
 
 ### Modified
 
@@ -42,7 +49,7 @@ This version improves behaviour of loading revisions and loading datasets from l
 ## [2.9.0]
 This version adds a couple of new ALF functions.
 
-### Added 
+### Added
 
 - one.alf.io.find_variants allows one to find similar datasets on disk, such as revisions
 - one.alf.files.without_revision returns a file path without the revision folder
@@ -64,7 +71,7 @@ This version of ONE adds support for loading .npz files.
 
 - one.alf.io.load_file_content loads npz files and returns only array if single compressed array with default name of 'arr_0'.
 - log warning when instantiating RegistrationClient with AlyxClient REST cache active
-- bugfix in load_collection when one or more files missing 
+- bugfix in load_collection when one or more files missing
 
 ## [2.7.0]
 This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC filters. This version no longer supports 'data' search filter.
@@ -238,7 +245,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 
 ### Modified
 
-- HOTFIX: AWS S3 resource returned unsigned if 'public' in bucket name and no credentials on Alyx 
+- HOTFIX: AWS S3 resource returned unsigned if 'public' in bucket name and no credentials on Alyx
 
 ## [1.21.2]
 
@@ -320,7 +327,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 
 ### Added
 
-- registration client checks for protected datasets and moves them to new revision when registering files 
+- registration client checks for protected datasets and moves them to new revision when registering files
 
 ### Removed
 
@@ -380,7 +387,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 - bugfix: username now passed to parameter setup routine
 - in silent mode if token invalid the user is logged out to remove old token from param file
 - root_dir now optional input for session_record2path
-- do not check for recent cache upon instantiation in remote mode 
+- do not check for recent cache upon instantiation in remote mode
 
 ## [1.13.0]
 
@@ -480,7 +487,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 ### Modified
 
 - HOTFIX: OneAlyx._download_datasets deals gracefully with empty datasets frame
-- removed try-assert-catch logic from One._download_datasets to improve error stack 
+- removed try-assert-catch logic from One._download_datasets to improve error stack
 
 ## [1.8.0]
 
@@ -602,7 +609,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 - runtime warning when remote list count changes
 
 ### Added
-- alf.io function to return valid session paths within a directory 
+- alf.io function to return valid session paths within a directory
 
 ## [1.2.1]
 
@@ -785,7 +792,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 ### Removed
 
  - removed load method
- 
+
 ### Modified
 
  - support for multiple configured databases in params
