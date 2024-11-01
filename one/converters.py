@@ -19,7 +19,7 @@ import pandas as pd
 from iblutil.util import Bunch
 
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.files import get_session_path, add_uuid_string, session_path_parts, get_alf_path
+from one.alf.path import get_session_path, add_uuid_string, session_path_parts, get_alf_path
 from .util import Listable
 
 

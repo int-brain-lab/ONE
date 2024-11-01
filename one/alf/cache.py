@@ -28,7 +28,7 @@ from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
 from one.alf.io import iter_sessions, iter_datasets
-from one.alf.files import session_path_parts, get_alf_path
+from one.alf.path import session_path_parts, get_alf_path
 from one.converters import session_record2path
 from one.util import QC_TYPE, patch_cache
 
