@@ -110,7 +110,7 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 
-<span class="kn">import</span> <span class="nn">one.alf.files</span> <span class="k">as</span> <span class="nn">files</span>
+<span class="kn">import</span> <span class="nn">one.alf.path</span> <span class="k">as</span> <span class="nn">files</span>
 
 
 <div class="viewcode-block" id="TestAlfParse">
@@ -393,7 +393,25 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="TestFilesDeprecation">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestFilesDeprecation">[docs]</a>
+<span class="k">class</span> <span class="nc">TestFilesDeprecation</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test files module warns of deprecation.&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_some_function</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">one.alf.files</span>
+        <span class="k">return</span> <span class="n">one</span><span class="o">.</span><span class="n">alf</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">full_path_parts</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span> <span class="k">else</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TestFilesDeprecation.test_deprecation">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestFilesDeprecation.test_deprecation">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_deprecation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">FutureWarning</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_some_function</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">exit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 

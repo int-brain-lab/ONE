@@ -9,23 +9,6 @@ one.alf.files
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :nosignatures:
-   
-      add_uuid_string
-      filename_parts
-      folder_parts
-      full_path_parts
-      get_alf_path
-      get_session_path
-      padded_sequence
-      rel_path_parts
-      remove_uuid_string
-      session_path_parts
-      without_revision
-   
    
 
    

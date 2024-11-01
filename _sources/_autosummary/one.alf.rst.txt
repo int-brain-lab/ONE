@@ -30,5 +30,6 @@ one.alf
    exceptions
    files
    io
+   path
    spec
 

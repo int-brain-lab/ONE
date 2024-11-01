@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.alf.path &mdash; ONE  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="one.alf.spec" href="one.alf.spec.html" />
+    <link rel="prev" title="one.alf.io" href="one.alf.io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="one.html">one</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="one.alf.html">one.alf</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="one.alf.cache.html">one.alf.cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.alf.exceptions.html">one.alf.exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.alf.files.html">one.alf.files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.alf.io.html">one.alf.io</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">one.alf.path</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.alf.spec.html">one.alf.spec</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="one.api.html">one.api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.converters.html">one.converters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.remote.html">one.remote</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.tests.html">one.tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.util.html">one.util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one.webclient.html">one.webclient</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="one.html">one</a></li>
+          <li class="breadcrumb-item"><a href="one.alf.html">one.alf</a></li>
+      <li class="breadcrumb-item active">one.alf.path</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/one.alf.path.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-one.alf.path">
+<span id="one-alf-path"></span><h1>one.alf.path<a class="headerlink" href="#module-one.alf.path" title="Link to this heading"></a></h1>
+<p>Module for identifying and parsing ALF file names.</p>
+<dl class="simple">
+<dt>An ALF file has the following components (those in brackets are optional):</dt><dd><p>(_namespace_)object.attribute(_timescale)(.extra.parts).ext</p>
+</dd>
+<dt>Note the following:</dt><dd><p>Object attributes may not contain an underscore unless followed by ‘times’ or ‘intervals’.
+A namespace must not contain extra underscores (i.e. <cite>name_space</cite> and <cite>__namespace__</cite> are not
+valid).
+ALF files must always have an extension.</p>
+</dd>
+<dt>For more information, see the following documentation:</dt><dd><p><a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">https://int-brain-lab.github.io/ONE/alf_intro.html</a></p>
+</dd>
+</dl>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.path.add_uuid_string" title="one.alf.path.add_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_uuid_string</span></code></a></p></td>
+<td><p>Add a UUID to the filename of an ALF path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.path.filename_parts" title="one.alf.path.filename_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filename_parts</span></code></a></p></td>
+<td><p>Return the parsed elements of a given ALF filename.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.path.folder_parts" title="one.alf.path.folder_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">folder_parts</span></code></a></p></td>
+<td><p>Parse all folder parts, including session, collection and revision.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.path.full_path_parts" title="one.alf.path.full_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">full_path_parts</span></code></a></p></td>
+<td><p>Parse all filename and folder parts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.path.get_alf_path" title="one.alf.path.get_alf_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_alf_path</span></code></a></p></td>
+<td><p>Returns the ALF part of a path or filename.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.path.get_session_path" title="one.alf.path.get_session_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_session_path</span></code></a></p></td>
+<td><p>Returns the session path from any filepath if the date/number pattern is found, including the root directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.path.padded_sequence" title="one.alf.path.padded_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">padded_sequence</span></code></a></p></td>
+<td><p>Ensures a file path contains a zero-padded experiment sequence folder.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.path.rel_path_parts" title="one.alf.path.rel_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel_path_parts</span></code></a></p></td>
+<td><p>Parse a relative path into the relevant parts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.path.remove_uuid_string" title="one.alf.path.remove_uuid_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_string</span></code></a></p></td>
+<td><p>Remove UUID from a filename of an ALF path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.path.session_path_parts" title="one.alf.path.session_path_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_path_parts</span></code></a></p></td>
+<td><p>Parse a session path into the relevant parts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.path.without_revision" title="one.alf.path.without_revision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">without_revision</span></code></a></p></td>
+<td><p>Return file path without a revision folder.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.rel_path_parts">
+<span class="sig-name descname"><span class="pre">rel_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rel_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/path.html#rel_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.rel_path_parts" title="Link to this definition"></a></dt>
+<dd><p>Parse a relative path into the relevant parts.</p>
+<dl class="simple">
+<dt>A relative path follows the pattern</dt><dd><p>(collection/)(#revision#/)_namespace_object.attribute_timescale.extra.extension</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rel_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A relative path string.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – If true, an OrderedDict of parts are returned with the keys (‘lab’, ‘subject’, ‘date’,
+‘number’), otherwise a tuple of values are returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – If true a ValueError is raised when the session cannot be parsed, otherwise an empty
+dict of tuple of Nones is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.session_path_parts">
+<span class="sig-name descname"><span class="pre">session_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/path.html#session_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.session_path_parts" title="Link to this definition"></a></dt>
+<dd><p>Parse a session path into the relevant parts.</p>
+<dl class="simple">
+<dt>Return keys:</dt><dd><ul class="simple">
+<li><p>lab</p></li>
+<li><p>subject</p></li>
+<li><p>date</p></li>
+<li><p>number</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A session path string.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – If true, an OrderedDict of parts are returned with the keys (‘lab’, ‘subject’, ‘date’,
+‘number’), otherwise a tuple of values are returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – If true a ValueError is raised when the session cannot be parsed, otherwise an empty
+dict of tuple of Nones is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Invalid ALF session path (assert_valid is True).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.filename_parts">
+<span class="sig-name descname"><span class="pre">filename_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/one/alf/path.html#filename_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.filename_parts" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed elements of a given ALF filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The name of the file.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>namespace</strong> (<em>str</em>) – The _namespace_ or None if not present.</p></li>
+<li><p><strong>object</strong> (<em>str</em>) – ALF object.</p></li>
+<li><p><strong>attribute</strong> (<em>str</em>) – The ALF attribute.</p></li>
+<li><p><strong>timescale</strong> (<em>str</em>) – The ALF _timescale or None if not present.</p></li>
+<li><p><strong>extra</strong> (<em>str</em>) – Any extra parts to the filename, or None if not present.</p></li>
+<li><p><strong>extension</strong> (<em>str</em>) – The file extension.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_namespace_obj.times_timescale.extra.foo.ext&#39;</span><span class="p">)</span>
+<span class="go">(&#39;namespace&#39;, &#39;obj&#39;, &#39;times&#39;, &#39;timescale&#39;, &#39;extra.foo&#39;, &#39;ext&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">{&#39;namespace&#39;: None,</span>
+<span class="go"> &#39;object&#39;: &#39;spikes&#39;,</span>
+<span class="go"> &#39;attribute&#39;: &#39;clusters&#39;,</span>
+<span class="go"> &#39;timescale&#39;: None,</span>
+<span class="go"> &#39;extra&#39;: None,</span>
+<span class="go"> &#39;extension&#39;: &#39;npy&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;spikes.times_ephysClock.npy&#39;</span><span class="p">)</span>
+<span class="go">(None, &#39;spikes&#39;, &#39;times&#39;, &#39;ephysClock&#39;, None, &#39;npy&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_iblmic_audioSpectrogram.frequencies.npy&#39;</span><span class="p">)</span>
+<span class="go">(&#39;iblmic&#39;, &#39;audioSpectrogram&#39;, &#39;frequencies&#39;, None, None, &#39;npy&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec.wiring.json&#39;</span><span class="p">)</span>
+<span class="go">(&#39;spikeglx&#39;, &#39;ephysData_g0_t0&#39;, &#39;imec&#39;, None, &#39;wiring&#39;, &#39;json&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec0.lf.bin&#39;</span><span class="p">)</span>
+<span class="go">(&#39;spikeglx&#39;, &#39;ephysData_g0_t0&#39;, &#39;imec0&#39;, None, &#39;lf&#39;, &#39;bin&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_ibl_trials.goCue_times_bpod.csv&#39;</span><span class="p">)</span>
+<span class="go">(&#39;ibl&#39;, &#39;trials&#39;, &#39;goCue_times&#39;, &#39;bpod&#39;, None, &#39;csv&#39;)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF dataset (assert_valid is True).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.full_path_parts">
+<span class="sig-name descname"><span class="pre">full_path_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/one/alf/path.html#full_path_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.full_path_parts" title="Link to this definition"></a></dt>
+<dd><p>Parse all filename and folder parts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path.</em>) – The ALF path</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">full_path_parts</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="s1">&#39;lab/Subjects/subject/2020-01-01/001/collection/#revision#/&#39;</span>
+<span class="gp">... </span>   <span class="s1">&#39;_namespace_obj.times_timescale.extra.foo.ext&#39;</span><span class="p">)</span>
+<span class="go">(&#39;lab&#39;, &#39;subject&#39;, &#39;2020-01-01&#39;, &#39;001&#39;, &#39;collection&#39;, &#39;revision&#39;,</span>
+<span class="go">&#39;namespace&#39;, &#39;obj&#39;, &#39;times&#39;,&#39;timescale&#39;, &#39;extra.foo&#39;, &#39;ext&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_path_parts</span><span class="p">(</span><span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">{&#39;lab&#39;: None,</span>
+<span class="go"> &#39;subject&#39;: None,</span>
+<span class="go"> &#39;date&#39;: None,</span>
+<span class="go"> &#39;number&#39;: None,</span>
+<span class="go"> &#39;collection&#39;: None,</span>
+<span class="go"> &#39;revision&#39;: None,</span>
+<span class="go"> &#39;namespace&#39;: None,</span>
+<span class="go"> &#39;object&#39;: &#39;spikes&#39;,</span>
+<span class="go"> &#39;attribute&#39;: &#39;clusters&#39;,</span>
+<span class="go"> &#39;timescale&#39;: None,</span>
+<span class="go"> &#39;extra&#39;: None,</span>
+<span class="go"> &#39;extension&#39;: &#39;npy&#39;}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.folder_parts">
+<span class="sig-name descname"><span class="pre">folder_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/one/alf/path.html#folder_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.folder_parts" title="Link to this definition"></a></dt>
+<dd><p>Parse all folder parts, including session, collection and revision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The ALF folder path.</p></li>
+<li><p><strong>as_dict</strong> (<em>bool</em>) – When true a dict of matches is returned.</p></li>
+<li><p><strong>assert_valid</strong> (<em>bool</em>) – When true an exception is raised when the filename cannot be parsed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict if as_dict is true, or a tuple of parsed values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>OrderedDict, tuple</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder_parts</span><span class="p">(</span><span class="s1">&#39;lab/Subjects/subject/2020-01-01/001/collection/#revision#&#39;</span><span class="p">)</span>
+<span class="go">(&#39;lab&#39;, &#39;subject&#39;, &#39;2020-01-01&#39;, &#39;001&#39;, &#39;collection&#39;, &#39;revision&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">folder_parts</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;lab/Subjects/subject/2020-01-01/001&#39;</span><span class="p">),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">{&#39;lab&#39;: &#39;lab&#39;,</span>
+<span class="go"> &#39;subject&#39;: &#39;subject&#39;,</span>
+<span class="go"> &#39;date&#39;: &#39;2020-01-01&#39;,</span>
+<span class="go"> &#39;number&#39;: &#39;001&#39;,</span>
+<span class="go"> &#39;collection&#39;: None,</span>
+<span class="go"> &#39;revision&#39;: None}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – Invalid ALF path (assert_valid is True).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.get_session_path">
+<span class="sig-name descname"><span class="pre">get_session_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/alf/path.html#get_session_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.get_session_path" title="Link to this definition"></a></dt>
+<dd><p>Returns the session path from any filepath if the date/number pattern is found,
+including the root directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The session path part of the input path or None if path invalid.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pathlib.Path</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_session_path</span><span class="p">(</span><span class="s1">&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_session_path</span><span class="p">(</span><span class="s1">&#39;C:\Data\subject</span><span class="se">\202</span><span class="s1">0-01-01</span><span class="se">\1\t</span><span class="s1">rials.intervals.npy&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;C:/Data/subject/2020-01-01/1&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.get_alf_path">
+<span class="sig-name descname"><span class="pre">get_alf_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/alf/path.html#get_alf_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.get_alf_path" title="Link to this definition"></a></dt>
+<dd><p>Returns the ALF part of a path or filename.
+Attempts to return the first valid part of the path, first searching for a session path,
+then relative path (collection/revision/filename), then just the filename.  If all invalid,
+None is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A string containing the full ALF path, session path, relative path or filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_alf_path</span><span class="p">(</span><span class="s1">&#39;etc/etc/lab/Subjects/subj/2021-01-21/001&#39;</span><span class="p">)</span>
+<span class="go">&#39;lab/Subjects/subj/2021-01-21/001/collection/file.attr.ext&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_alf_path</span><span class="p">(</span><span class="s1">&#39;etc/etc/subj/2021-01-21/001/collection/file.attr.ext&#39;</span><span class="p">)</span>
+<span class="go">&#39;subj/2021-01-21/001/collection/file.attr.ext&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_alf_path</span><span class="p">(</span><span class="s1">&#39;collection/file.attr.ext&#39;</span><span class="p">)</span>
+<span class="go">&#39;collection/file.attr.ext&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.add_uuid_string">
+<span class="sig-name descname"><span class="pre">add_uuid_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/path.html#add_uuid_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.add_uuid_string" title="Link to this definition"></a></dt>
+<dd><p>Add a UUID to the filename of an ALF path.</p>
+<p>Adds a UUID to an ALF filename as an extra part, e.g.
+‘obj.attr.ext’ -&gt; ‘obj.attr.a976e418-c8b8-4d24-be47-d05120b18341.ext’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – An ALF path to add the UUID to.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The UUID to add.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Path or PurePath object with a UUID in the filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path, pathlib.PurePath</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/path/to/trials.intervals.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;a976e418-c8b8-4d24-be47-d05120b18341&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – <cite>uuid</cite> must be a valid hyphen-separated hexadecimal UUID.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.files.remove_uuid_string</span></code>, <a class="reference internal" href="one.alf.spec.html#one.alf.spec.is_uuid" title="one.alf.spec.is_uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.spec.is_uuid</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.remove_uuid_string">
+<span class="sig-name descname"><span class="pre">remove_uuid_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/path.html#remove_uuid_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.remove_uuid_string" title="Link to this definition"></a></dt>
+<dd><p>Remove UUID from a filename of an ALF path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – An ALF path to add the UUID to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Path or PurePath object without a UUID in the filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path, pathlib.PurePath</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/trials.intervals.npy&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/path/to/trials.intervals.npy&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/path/to/trials.intervals.npy&#39;)</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">one.alf.files.add_uuid_string</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.padded_sequence">
+<span class="sig-name descname"><span class="pre">padded_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/path.html#padded_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.padded_sequence" title="Link to this definition"></a></dt>
+<dd><p>Ensures a file path contains a zero-padded experiment sequence folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>pathlib.PurePath</em>) – A session or file path to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same path but with the experiment sequence folder zero-padded.  If a PurePath was
+passed, a PurePath will be returned, otherwise a Path object is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path, pathlib.PurePath</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file_path</span> <span class="o">=</span> <span class="s1">&#39;/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">padded_sequence</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+<span class="go">pathlib.Path(&#39;/iblrigdata/subject/2023-01-01/001/_ibl_experiment.description.yaml&#39;)</span>
+</pre></div>
+</div>
+<p>Supports folders and will not affect already padded paths</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;subject/2023-01-01/001&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">padded_sequence</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+<span class="go">pathlib.PurePosixPath(&#39;subject/2023-01-01/001&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.alf.path.without_revision">
+<span class="sig-name descname"><span class="pre">without_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/path.html#without_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.path.without_revision" title="Link to this definition"></a></dt>
+<dd><p>Return file path without a revision folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A valid ALF dataset path.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input file path without a revision folder.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pathlib.Path</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">without_revision</span><span class="p">(</span><span class="s1">&#39;/lab/Subjects/subject/2023-01-01/001/collection/#revision#/obj.attr.ext&#39;</span><span class="p">)</span>
+<span class="go">Path(&#39;/lab/Subjects/subject/2023-01-01/001/collection/obj.attr.ext&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one.alf.io.html" class="btn btn-neutral float-left" title="one.alf.io" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.alf.spec.html" class="btn btn-neutral float-right" title="one.alf.spec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
