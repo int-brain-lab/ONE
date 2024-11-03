@@ -55,6 +55,7 @@ import one.alf.exceptions as alferr
 from one.converters import datasets2records
 from one.alf import spec
 from one.alf.files import get_alf_path
+from one.alf.cache import EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
@@ -910,8 +911,28 @@ class TestONECache(unittest.TestCase):
             self.assertFalse(lock_file.exists(), 'failed to remove stale lock file')
             time_mock.sleep.assert_called()
 
+    def test_reset_cache(self):
+        """Test One._reset_cache method, namely that cache types are correct."""
+        # Assert cache dtypes are indeed what are expected
+        self.one._reset_cache()
+        self.assertCountEqual(['datasets', 'sessions', '_meta'], self.one._cache.keys())
+        self.assertTrue(self.one._cache.datasets.empty)
+        self.assertCountEqual(EMPTY_SESSIONS_FRAME.columns, self.one._cache.sessions.columns)
+        self.assertTrue(self.one._cache.sessions.empty)
+        self.assertCountEqual(EMPTY_DATASETS_FRAME.columns, self.one._cache.datasets.columns)
+        # Check sessions data frame types
+        sessions_types = EMPTY_SESSIONS_FRAME.reset_index().dtypes.to_dict()
+        s_types = self.one._cache.sessions.reset_index().dtypes.to_dict()
+        self.assertDictEqual(sessions_types, s_types)
+        # Check datasets data frame types
+        datasets_types = EMPTY_DATASETS_FRAME.reset_index().dtypes.to_dict()
+        d_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, d_types)
+
     def test_update_cache_from_records(self):
         """Test One._update_cache_from_records"""
+        sessions_types = self.one._cache.sessions.reset_index().dtypes.to_dict()
+        datasets_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
         # Update with single record (pandas.Series), one exists, one doesn't
         session = self.one._cache.sessions.iloc[0].squeeze()
         session.name = str(uuid4())  # New record
@@ -921,6 +942,11 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(session.name in self.one._cache.sessions.index)
         updated, = dataset['exists'] == self.one._cache.datasets.loc[dataset.name, 'exists']
         self.assertTrue(updated)
+        # Check that the updated data frame has kept its original dtypes
+        types = self.one._cache.sessions.reset_index().dtypes.to_dict()
+        self.assertDictEqual(sessions_types, types)
+        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, types)
 
         # Update a number of records
         datasets = self.one._cache.datasets.iloc[:3].copy()
@@ -928,17 +954,21 @@ class TestONECache(unittest.TestCase):
         # Make one of the datasets a new record
         idx = datasets.index.values
         idx[-1] = (idx[-1][0], str(uuid4()))
-        datasets.index = pd.MultiIndex.from_tuples(idx)
+        datasets.index = pd.MultiIndex.from_tuples(idx, names=('eid', 'id'))
         self.one._update_cache_from_records(datasets=datasets)
         self.assertTrue(idx[-1] in self.one._cache.datasets.index)
         verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
         self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        # Check that the updated data frame has kept its original dtypes
+        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, types)
 
         # Check behaviour when columns don't match
         datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
         datasets['extra_column'] = True
         self.one._cache.datasets['foo_bar'] = 12  # this column is missing in our new records
         self.one._cache.datasets['new_column'] = False
+        expected_datasets_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
         self.addCleanup(self.one._cache.datasets.drop, 'foo_bar', axis=1, inplace=True)
         # An exception is exists_* as the Alyx cache contains exists_aws and exists_flatiron
         # These should simply be filled with the values of exists as Alyx won't return datasets
@@ -955,6 +985,11 @@ class TestONECache(unittest.TestCase):
         # If the extra column does not start with 'exists' it should be set to NaN
         verifiable = self.one._cache.datasets.loc[datasets.index.values, 'foo_bar']
         self.assertTrue(np.isnan(verifiable).all())
+        # Check that the missing columns were updated to nullable fields
+        expected_datasets_types.update(
+            foo_bar=pd.Int64Dtype(), exists_aws=pd.BooleanDtype(), new_column=pd.BooleanDtype())
+        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(expected_datasets_types, types)
 
         # Check fringe cases
         with self.assertRaises(KeyError):
@@ -962,11 +997,15 @@ class TestONECache(unittest.TestCase):
         self.assertIsNone(self.one._update_cache_from_records(datasets=None))
         # Absent cache table
         self.one.load_cache(tables_dir='/foo')
+        sessions_types = self.one._cache.sessions.reset_index().dtypes.to_dict()
+        datasets_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
         self.one._update_cache_from_records(sessions=session, datasets=dataset)
         self.assertTrue(all(self.one._cache.sessions == pd.DataFrame([session])))
         self.assertEqual(1, len(self.one._cache.datasets))
         self.assertEqual(self.one._cache.datasets.squeeze().name, dataset.name)
         self.assertCountEqual(self.one._cache.datasets.squeeze().to_dict(), dataset.to_dict())
+        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, types)
 
     def test_save_loaded_ids(self):
         """Test One.save_loaded_ids and logic within One._check_filesystem"""
@@ -1334,7 +1373,7 @@ class TestOneAlyx(unittest.TestCase):
         # specifically /public in FI openalyx file rec
         mock_ds = [
             {'url': '3ef042c6-82a4-426c-9aa9-be3b48d86652',
-             'session': None, 'file_size': '', 'hash': '',
+             'session': None, 'file_size': None, 'hash': '',
              'file_records': [{'data_url': 'https://ibl-brain-wide-map-public.s3.amazonaws.com/'
                                            'aggregates/Subjects/cortexlab/KS051/'
                                            'trials.table.3ef042c6-82a4-426c-9aa9-be3b48d86652.pqt',
@@ -1343,7 +1382,7 @@ class TestOneAlyx(unittest.TestCase):
              'default_dataset': True,
              'qc': 'NOT_SET'},
             {'url': '7bdb08d6-b166-43d8-8981-816cf616d291',
-             'session': None, 'file_size': '', 'hash': '',
+             'session': None, 'file_size': None, 'hash': '',
              'file_records': [{'data_url': 'https://ibl.flatironinstitute.org/'
                                            'public/aggregates/Subjects/mrsicflogellab/IBL_005/'
                                            'trials.table.7bdb08d6-b166-43d8-8981-816cf616d291.pqt',
@@ -1353,7 +1392,11 @@ class TestOneAlyx(unittest.TestCase):
              'qc': 'NOT_SET'},
         ]
         with mock.patch.object(self.one.alyx, 'rest', return_value=mock_ds):
-            self.assertEqual(len(self.one.list_aggregates('subjects')), 2)
+            dsets = self.one.list_aggregates('subjects')
+            self.assertEqual(len(dsets), 2)
+            # Should handle null file_size values correctly
+            self.assertIsInstance(dsets.file_size.dtype, pd.UInt64Dtype)
+            self.assertTrue(dsets.file_size.isna().all())
 
     def test_load_aggregate(self):
         """Test OneAlyx.load_aggregate"""
