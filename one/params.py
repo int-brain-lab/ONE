@@ -297,7 +297,7 @@ def get_cache_dir(client=None) -> Path:
         The download cache path
     """
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
-    client = _key_from_url(client) if client else cache_map.DEFAULT
+    client = _key_from_url(client) if client else getattr(cache_map, 'DEFAULT', None)
     cache_dir = Path(cache_map.CLIENT_MAP[client] if cache_map else CACHE_DIR_DEFAULT)
     cache_dir.mkdir(exist_ok=True, parents=True)
     return cache_dir
