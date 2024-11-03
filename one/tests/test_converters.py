@@ -10,6 +10,7 @@ import pandas as pd
 from one.api import ONE
 from one import converters
 from one.alf.path import add_uuid_string
+from one.alf.cache import EMPTY_DATASETS_FRAME
 from . import util, OFFLINE_ONLY, TEST_DB_2
 
 
@@ -343,6 +344,55 @@ class TestOnlineConverters(unittest.TestCase):
         expected_keys = {'id', 'name', 'model', 'serial'}
         for d in det:
             self.assertTrue(set(d.keys()) >= expected_keys)
+
+    def test_ses2records(self):
+        """Test one.converters.ses2records function."""
+        ses = self.one.alyx.rest('sessions', 'read', id=self.eid)
+        session, datasets = converters.ses2records(ses)
+
+        # Verify returned tables are compatible with cache tables
+        self.assertIsInstance(session, pd.Series)
+        self.assertIsInstance(datasets, pd.DataFrame)
+        self.assertEqual(session.name, self.eid)
+        self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
+        self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
+        expected = list(EMPTY_DATASETS_FRAME.columns) + ['default_revision']
+        self.assertCountEqual(expected, datasets.columns)
+        self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
+        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
+
+        # Check behaviour when no datasets present
+        ses['data_dataset_session_related'] = []
+        _, datasets = converters.ses2records(ses)
+        self.assertTrue(datasets.empty)
+
+    def test_datasets2records(self):
+        """Test one.converters.datasets2records function."""
+        dsets = self.one.alyx.rest('datasets', 'list', session=self.eid)
+        datasets = converters.datasets2records(dsets)
+
+        # Verify returned tables are compatible with cache tables
+        self.assertIsInstance(datasets, pd.DataFrame)
+        self.assertTrue(len(datasets) >= len(dsets))
+        expected = list(EMPTY_DATASETS_FRAME.columns) + ['default_revision']
+        self.assertCountEqual(expected, datasets.columns)
+        self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
+        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
+
+        # Test extracts additional fields
+        fields = ('url', 'auto_datetime')
+        datasets = converters.datasets2records(dsets, additional=fields)
+        self.assertTrue(set(datasets.columns) >= set(fields))
+        self.assertTrue(all(datasets['url'].str.startswith('http')))
+
+        # Test single input
+        dataset = converters.datasets2records(dsets[0])
+        self.assertTrue(len(dataset) == 1)
+        # Test records when data missing
+        for fr in dsets[0]['file_records']:
+            fr['exists'] = False
+        empty = converters.datasets2records(dsets[0])
+        self.assertTrue(isinstance(empty, pd.DataFrame) and empty.empty)
 
 
 class TestAlyx2Path(unittest.TestCase):

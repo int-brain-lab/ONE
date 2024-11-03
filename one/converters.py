@@ -10,17 +10,19 @@ There are multiple ways to uniquely identify an experiment:
 import re
 import functools
 import datetime
+import urllib.parse
 from uuid import UUID
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union, Mapping, List, Iterable as Iter
 
 import pandas as pd
-from iblutil.util import Bunch
+from iblutil.util import Bunch, Listable, ensure_list
 
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.path import get_session_path, add_uuid_string, session_path_parts, get_alf_path
-from .util import Listable
+from one.alf.cache import QC_TYPE, EMPTY_DATASETS_FRAME
+from one.alf.path import (
+    get_session_path, add_uuid_string, session_path_parts, get_alf_path, remove_uuid_string)
 
 
 def recurse(func):
@@ -738,3 +740,97 @@ def session_record2path(session, root_dir=None):
     elif isinstance(root_dir, str):
         root_dir = Path(root_dir)
     return Path(root_dir).joinpath(rel_path)
+
+
+def ses2records(ses: dict):
+    """Extract session cache record and datasets cache from a remote session data record.
+
+    Parameters
+    ----------
+    ses : dict
+        Session dictionary from Alyx REST endpoint.
+
+    Returns
+    -------
+    pd.Series
+        Session record.
+    pd.DataFrame
+        Datasets frame.
+    """
+    # Extract session record
+    eid = ses['url'][-36:]
+    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
+    session_data = {k: v for k, v in ses.items() if k in session_keys}
+    session = (
+        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
+    )
+    session['projects'] = ','.join(session.pop('projects'))
+    session['date'] = datetime.datetime.fromisoformat(session['date']).date()
+
+    # Extract datasets table
+    def _to_record(d):
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=d['id'])
+        rec['eid'] = session.name
+        file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
+        file_path = get_alf_path(remove_uuid_string(file_path))
+        session_path = get_session_path(file_path).as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
+        rec['default_revision'] = d['default_revision'] == 'True'
+        rec['qc'] = d.get('qc', 'NOT_SET')
+        return rec
+
+    if not ses.get('data_dataset_session_related'):
+        return session, EMPTY_DATASETS_FRAME.copy()
+    records = map(_to_record, ses['data_dataset_session_related'])
+    index = ['eid', 'id']
+    datasets = pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
+    return session, datasets
+
+
+def datasets2records(datasets, additional=None) -> pd.DataFrame:
+    """Extract datasets DataFrame from one or more Alyx dataset records.
+
+    Parameters
+    ----------
+    datasets : dict, list
+        One or more records from the Alyx 'datasets' endpoint.
+    additional : list of str
+        A set of optional fields to extract from dataset records.
+
+    Returns
+    -------
+    pd.DataFrame
+        Datasets frame.
+
+    Examples
+    --------
+    >>> datasets = ONE().alyx.rest('datasets', 'list', subject='foobar')
+    >>> df = datasets2records(datasets)
+    """
+    records = []
+
+    for d in ensure_list(datasets):
+        file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
+        if not file_record:
+            continue  # Ignore files that are not accessible
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
+        rec['id'] = d['url'][-36:]
+        rec['eid'] = (d['session'] or '')[-36:]
+        data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
+        file_path = get_alf_path(data_url.path.strip('/'))
+        file_path = remove_uuid_string(file_path).as_posix()
+        session_path = get_session_path(file_path) or ''
+        if session_path:
+            session_path = session_path.as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
+        rec['default_revision'] = d['default_dataset']
+        rec['qc'] = d.get('qc')
+        for field in additional or []:
+            rec[field] = d.get(field)
+        records.append(rec)
+
+    index = ['eid', 'id']
+    if not records:
+        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision', 'qc')
+        return pd.DataFrame(columns=keys).set_index(index)
+    return pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})

@@ -11,7 +11,6 @@ Examples
 >>> one = One(cache_dir=cache_dir)
 """
 
-
 # -------------------------------------------------------------------------------------------------
 # Imports
 # -------------------------------------------------------------------------------------------------
@@ -24,42 +23,57 @@ import warnings
 import logging
 
 import pandas as pd
+import numpy as np
+from packaging import version
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
+from one.alf.spec import QC
 from one.alf.io import iter_sessions, iter_datasets
 from one.alf.path import session_path_parts, get_alf_path
-from one.converters import session_record2path
-from one.util import QC_TYPE, patch_cache
 
-__all__ = [
-    'make_parquet_db', 'remove_missing_datasets', 'remove_cache_table_files',
-    'DATASETS_COLUMNS', 'SESSIONS_COLUMNS']
+__all__ = ['make_parquet_db', 'patch_cache', 'remove_missing_datasets',
+           'remove_cache_table_files', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME', 'QC_TYPE']
 _logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
 # Global variables
 # -------------------------------------------------------------------------------------------------
 
-SESSIONS_COLUMNS = (
-    'id',               # int64
-    'lab',              # str
-    'subject',          # str
-    'date',             # datetime.date
-    'number',           # int
-    'task_protocol',    # str
-    'projects',         # str
-)
+QC_TYPE = pd.CategoricalDtype(categories=[e.name for e in sorted(QC)], ordered=True)
+"""pandas.api.types.CategoricalDtype: The cache table QC column data type."""
 
-DATASETS_COLUMNS = (
-    'id',               # int64
-    'eid',              # int64
-    'rel_path',         # relative to the session path, includes the filename
-    'file_size',        # file size in bytes
-    'hash',             # sha1/md5, computed in load function
-    'exists',           # bool
-    'qc',               # one.util.QC_TYPE
-)
+SESSIONS_COLUMNS = {
+    'id': object,                 # str
+    'lab': object,                # str
+    'subject': object,            # str
+    'date': object,               # datetime.date
+    'number': np.uint16,          # int
+    'task_protocol': object,      # str
+    'projects': object            # str
+}
+"""dict: A map of sessions table fields and their data types."""
+
+DATASETS_COLUMNS = {
+    'eid': object,                # str
+    'id': object,                 # str
+    'rel_path': object,           # relative to the session path, includes the filename
+    'file_size': 'UInt64',        # file size in bytes (nullable)
+    'hash': object,               # sha1/md5, computed in load function
+    'exists': bool,               # bool
+    'qc': QC_TYPE                 # one.alf.spec.QC enumeration
+}
+"""dict: A map of datasets table fields and their data types."""
+
+EMPTY_DATASETS_FRAME = (pd.DataFrame(columns=DATASETS_COLUMNS)
+                        .astype(DATASETS_COLUMNS)
+                        .set_index(['eid', 'id']))
+"""pandas.DataFrame: An empty datasets dataframe with correct columns and dtypes."""
+
+EMPTY_SESSIONS_FRAME = (pd.DataFrame(columns=SESSIONS_COLUMNS)
+                        .astype(SESSIONS_COLUMNS)
+                        .set_index('id'))
+"""pandas.DataFrame: An empty sessions dataframe with correct columns and dtypes."""
 
 
 # -------------------------------------------------------------------------------------------------
@@ -103,8 +117,7 @@ def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, keep_old=False):
     toUUID = partial(uuid.uuid3, base_id)  # MD5 hash from base uuid and rel session path string
     if keep_old:
         df[f'{id_key}_'] = df[id_key].copy()
-    df[id_key] = df[id_key].apply(lambda x: str(toUUID(x)))
-    assert len(df[id_key].unique()) == len(df[id_key])  # WARNING This fails :(
+    df.loc[:, id_key] = df.groupby(id_key)[id_key].transform(lambda x: str(toUUID(x.name)))
     return df
 
 
@@ -173,7 +186,7 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
         ses_info = _get_session_info(rel_path)
         assert set(ses_info.keys()) <= set(SESSIONS_COLUMNS)
         rows.append(ses_info)
-    df = pd.DataFrame(rows, columns=SESSIONS_COLUMNS)
+    df = pd.DataFrame(rows, columns=SESSIONS_COLUMNS).astype(SESSIONS_COLUMNS)
     return df
 
 
@@ -193,7 +206,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     pandas.DataFrame
         A pandas DataFrame of dataset info.
     """
-    df = pd.DataFrame([], columns=DATASETS_COLUMNS).astype({'qc': QC_TYPE})
+    df = EMPTY_DATASETS_FRAME.copy()
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
         rows = []
@@ -201,7 +214,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
             file_info = _get_dataset_info(session_path, rel_dset_path, compute_hash=hash_files)
             assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
             rows.append(file_info)
-        df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS)),
+        df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS).astype(DATASETS_COLUMNS)),
                        ignore_index=True, verify_integrity=True)
     return df.astype({'qc': QC_TYPE})
 
@@ -308,6 +321,7 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
             tables[name].set_index(idx_columns, inplace=True)
 
     to_delete = set()
+    from one.converters import session_record2path  # imported here due to circular imports
     gen_path = partial(session_record2path, root_dir=cache_dir)
     # map of session path to eid
     sessions = {gen_path(rec): eid for eid, rec in tables['sessions'].iterrows()}
@@ -367,3 +381,53 @@ def remove_cache_table_files(folder, tables=('sessions', 'datasets')):
         else:
             _logger.warning('%s not found', file)
     return removed
+
+
+def _cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
+    """Convert int ids to str ids for cache table.
+
+    Parameters
+    ----------
+    table : pd.DataFrame
+        A cache table (from One._cache).
+
+    """
+    # Convert integer uuids to str uuids
+    if table.index.nlevels < 2 or not any(x.endswith('_0') for x in table.index.names):
+        return table
+    table = table.reset_index()
+    int_cols = table.filter(regex=r'_\d{1}$').columns.sort_values()
+    assert not len(int_cols) % 2, 'expected even number of columns ending in _0 or _1'
+    names = sorted(set(c.rsplit('_', 1)[0] for c in int_cols.values))
+    for i, name in zip(range(0, len(int_cols), 2), names):
+        table[name] = parquet.np2str(table[int_cols[i:i + 2]])
+    table = table.drop(int_cols, axis=1).set_index(names)
+    return table
+
+
+def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.DataFrame:
+    """Reformat older cache tables to comply with this version of ONE.
+
+    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'
+    column to 'projects'; 3. add QC column; 4. drop session_path column.
+
+    Parameters
+    ----------
+    table : pd.DataFrame
+        A cache table (from One._cache).
+    min_api_version : str
+        The minimum API version supported by this cache table.
+    name : {'dataset', 'session'} str
+        The name of the table.
+    """
+    min_version = version.parse(min_api_version or '0.0.0')
+    table = _cache_int2str(table)
+    # Rename project column
+    if min_version < version.Version('1.13.0') and 'project' in table.columns:
+        table.rename(columns={'project': 'projects'}, inplace=True)
+    if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
+        qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
+        table = table.assign(qc=qc)
+    if name == 'datasets' and 'session_path' in table.columns:
+        table = table.drop('session_path', axis=1)
+    return table

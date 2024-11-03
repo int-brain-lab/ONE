@@ -47,11 +47,12 @@ from iblutil.util import Bunch
 from one import __version__
 from one.api import ONE, One, OneAlyx
 from one.util import (
-    ses2records, validate_date_range, index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id, autocomplete, LazyId, datasets2records, ensure_list
+    validate_date_range, index_last_before, filter_datasets, _collection_spec,
+    filter_revision_last_before, parse_id, autocomplete, LazyId, ensure_list
 )
 import one.params
 import one.alf.exceptions as alferr
+from one.converters import datasets2records
 from one.alf import spec
 from one.alf.files import get_alf_path
 from . import util
@@ -1110,57 +1111,6 @@ class TestOneAlyx(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.one.dataset2type(bad_id)
 
-    def test_ses2records(self):
-        """Test one.util.ses2records"""
-        eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
-        ses = self.one.alyx.rest('sessions', 'read', id=eid)
-        session, datasets = ses2records(ses)
-
-        # Verify returned tables are compatible with cache tables
-        self.assertIsInstance(session, pd.Series)
-        self.assertIsInstance(datasets, pd.DataFrame)
-        self.assertEqual(session.name, eid)
-        self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
-        self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
-        expected = [x for x in self.one._cache['datasets'].columns] + ['default_revision']
-        self.assertCountEqual(expected, datasets.columns)
-        self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
-        self.assertTrue(datasets.default_revision.all())
-        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
-
-        # Check behaviour when no datasets present
-        ses['data_dataset_session_related'] = []
-        _, datasets = ses2records(ses)
-        self.assertTrue(datasets.empty)
-
-    def test_datasets2records(self):
-        """Test one.util.datasets2records"""
-        eid = '8dd0fcb0-1151-4c97-ae35-2e2421695ad7'
-        dsets = self.one.alyx.rest('datasets', 'list', session=eid)
-        datasets = datasets2records(dsets)
-
-        # Verify returned tables are compatible with cache tables
-        self.assertIsInstance(datasets, pd.DataFrame)
-        self.assertTrue(len(datasets) >= len(dsets))
-        expected = self.one._cache['datasets'].columns
-        self.assertCountEqual(expected, (x for x in datasets.columns if x != 'default_revision'))
-        self.assertEqual(tuple(datasets.index.names), ('eid', 'id'))
-        self.assertIsInstance(datasets.qc.dtype, pd.CategoricalDtype)
-
-        # Test extracts additional fields
-        fields = ('url', 'auto_datetime')
-        datasets = datasets2records(dsets, additional=fields)
-        self.assertTrue(set(datasets.columns) >= set(fields))
-        self.assertTrue(all(datasets['url'].str.startswith('http')))
-
-        # Test single input
-        dataset = datasets2records(dsets[0])
-        self.assertTrue(len(dataset) == 1)
-        # Test records when data missing
-        dsets[0]['file_records'][0]['exists'] = False
-        empty = datasets2records(dsets[0])
-        self.assertTrue(isinstance(empty, pd.DataFrame) and len(empty) == 0)
-
     def test_pid2eid(self):
         """Test OneAlyx.pid2eid"""
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
@@ -1469,7 +1419,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(len(dsets), 0)
 
         # Test empty datasets
-        with mock.patch('one.util.ses2records', return_value=(pd.DataFrame(), pd.DataFrame())):
+        with mock.patch('one.api.ses2records', return_value=(pd.DataFrame(), pd.DataFrame())):
             dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
             self.assertIsInstance(dsets, pd.DataFrame)
             self.assertEqual(len(dsets), 0)
