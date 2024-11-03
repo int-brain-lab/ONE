@@ -1877,6 +1877,20 @@ class TestOneSetup(unittest.TestCase):
         one_obj = One.setup(cache_dir=self.tempdir.name, silent=True)
         assert len(one_obj.list_datasets()) == 2
 
+    def test_local_tables_only(self):
+        """Test first time instantiation of ONE with only tables_dir arg.
+
+        Previously this would have raised and AttributeError as cache_map.DEFAULT
+        doesn't exist on a new install.
+        """
+        # Expect warning as table_dir empty
+        with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
+                self.assertWarns(UserWarning):
+            # Should instantiate without error
+            one_obj = One(tables_dir=Path(self.tempdir.name, 'tables'))
+        self.assertEqual(self.tempdir.name, str(one_obj.cache_dir))
+        self.assertEqual('tables', one_obj._tables_dir.name)
+
     def test_setup_silent(self):
         """Test setting up parameters with silent flag.
 
