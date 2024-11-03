@@ -1,127 +1,21 @@
 """Decorators and small standalone functions for api module."""
 import re
 import logging
-import urllib.parse
 import fnmatch
 import warnings
 from functools import wraps, partial
-from typing import Sequence, Union, Iterable, Optional, List
+from typing import Iterable, Optional, List
 from collections.abc import Mapping
-from datetime import datetime
 
 import pandas as pd
-from iblutil.io import parquet
 from iblutil.util import ensure_list as _ensure_list
 import numpy as np
-from packaging import version
 
 import one.alf.exceptions as alferr
-from one.alf.path import rel_path_parts, get_session_path, get_alf_path, remove_uuid_string
+from one.alf.path import rel_path_parts
 from one.alf.spec import QC, FILE_SPEC, regex as alf_regex
 
 logger = logging.getLogger(__name__)
-
-QC_TYPE = pd.CategoricalDtype(categories=[e.name for e in sorted(QC)], ordered=True)
-"""pandas.api.types.CategoricalDtype: The cache table QC column data type."""
-
-
-def Listable(t):
-    """Return a typing.Union if the input and sequence of input."""
-    return Union[t, Sequence[t]]
-
-
-def ses2records(ses: dict):
-    """Extract session cache record and datasets cache from a remote session data record.
-
-    Parameters
-    ----------
-    ses : dict
-        Session dictionary from Alyx REST endpoint.
-
-    Returns
-    -------
-    pd.Series
-        Session record.
-    pd.DataFrame
-        Datasets frame.
-    """
-    # Extract session record
-    eid = ses['url'][-36:]
-    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
-    session_data = {k: v for k, v in ses.items() if k in session_keys}
-    session = (
-        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
-    )
-    session['projects'] = ','.join(session.pop('projects'))
-    session['date'] = datetime.fromisoformat(session['date']).date()
-
-    # Extract datasets table
-    def _to_record(d):
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=d['id'])
-        rec['eid'] = session.name
-        file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
-        file_path = get_alf_path(remove_uuid_string(file_path))
-        session_path = get_session_path(file_path).as_posix()
-        rec['rel_path'] = file_path[len(session_path):].strip('/')
-        rec['default_revision'] = d['default_revision'] == 'True'
-        rec['qc'] = d.get('qc', 'NOT_SET')
-        return rec
-
-    if not ses.get('data_dataset_session_related'):
-        return session, pd.DataFrame()
-    records = map(_to_record, ses['data_dataset_session_related'])
-    index = ['eid', 'id']
-    datasets = pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
-    return session, datasets
-
-
-def datasets2records(datasets, additional=None) -> pd.DataFrame:
-    """Extract datasets DataFrame from one or more Alyx dataset records.
-
-    Parameters
-    ----------
-    datasets : dict, list
-        One or more records from the Alyx 'datasets' endpoint.
-    additional : list of str
-        A set of optional fields to extract from dataset records.
-
-    Returns
-    -------
-    pd.DataFrame
-        Datasets frame.
-
-    Examples
-    --------
-    >>> datasets = ONE().alyx.rest('datasets', 'list', subject='foobar')
-    >>> df = datasets2records(datasets)
-    """
-    records = []
-
-    for d in _ensure_list(datasets):
-        file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
-        if not file_record:
-            continue  # Ignore files that are not accessible
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id'] = d['url'][-36:]
-        rec['eid'] = (d['session'] or '')[-36:]
-        data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
-        file_path = get_alf_path(data_url.path.strip('/'))
-        file_path = remove_uuid_string(file_path).as_posix()
-        session_path = get_session_path(file_path) or ''
-        if session_path:
-            session_path = session_path.as_posix()
-        rec['rel_path'] = file_path[len(session_path):].strip('/')
-        rec['default_revision'] = d['default_dataset']
-        rec['qc'] = d.get('qc')
-        for field in additional or []:
-            rec[field] = d.get(field)
-        records.append(rec)
-
-    index = ['eid', 'id']
-    if not records:
-        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision', 'qc')
-        return pd.DataFrame(columns=keys).set_index(index)
-    return pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
 
 
 def parse_id(method):
@@ -634,53 +528,3 @@ class LazyId(Mapping):
             return [LazyId.ses2eid(x) for x in ses]
         else:
             return ses.get('id', None) or ses['url'].split('/').pop()
-
-
-def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
-    """Convert int ids to str ids for cache table.
-
-    Parameters
-    ----------
-    table : pd.DataFrame
-        A cache table (from One._cache).
-
-    """
-    # Convert integer uuids to str uuids
-    if table.index.nlevels < 2 or not any(x.endswith('_0') for x in table.index.names):
-        return table
-    table = table.reset_index()
-    int_cols = table.filter(regex=r'_\d{1}$').columns.sort_values()
-    assert not len(int_cols) % 2, 'expected even number of columns ending in _0 or _1'
-    names = sorted(set(c.rsplit('_', 1)[0] for c in int_cols.values))
-    for i, name in zip(range(0, len(int_cols), 2), names):
-        table[name] = parquet.np2str(table[int_cols[i:i + 2]])
-    table = table.drop(int_cols, axis=1).set_index(names)
-    return table
-
-
-def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.DataFrame:
-    """Reformat older cache tables to comply with this version of ONE.
-
-    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'
-    column to 'projects'.
-
-    Parameters
-    ----------
-    table : pd.DataFrame
-        A cache table (from One._cache).
-    min_api_version : str
-        The minimum API version supported by this cache table.
-    name : {'dataset', 'session'} str
-        The name of the table.
-    """
-    min_version = version.parse(min_api_version or '0.0.0')
-    table = cache_int2str(table)
-    # Rename project column
-    if min_version < version.Version('1.13.0') and 'project' in table.columns:
-        table.rename(columns={'project': 'projects'}, inplace=True)
-    if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
-        qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
-        table = table.assign(qc=qc)
-    if name == 'datasets' and 'session_path' in table.columns:
-        table = table.drop('session_path', axis=1)
-    return table

@@ -21,7 +21,7 @@ import requests.exceptions
 import packaging.version
 
 from iblutil.io import parquet, hashfile
-from iblutil.util import Bunch, flatten, ensure_list
+from iblutil.util import Bunch, flatten, ensure_list, Listable
 
 import one.params
 import one.webclient as wc
@@ -29,10 +29,12 @@ import one.alf.io as alfio
 import one.alf.path as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import (
-    make_parquet_db, remove_cache_table_files, DATASETS_COLUMNS, SESSIONS_COLUMNS)
+    make_parquet_db, patch_cache, remove_cache_table_files,
+    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME
+)
 from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
-from one.converters import ConversionMixin, session_record2path
+from one.converters import ConversionMixin, session_record2path, ses2records, datasets2records
 from one import util
 
 _logger = logging.getLogger(__name__)
@@ -101,8 +103,8 @@ class One(ConversionMixin):
     def _reset_cache(self):
         """Replace the cache object with a Bunch that contains the right fields."""
         self._cache = Bunch({
-            'datasets': pd.DataFrame(columns=DATASETS_COLUMNS).set_index(['eid', 'id']),
-            'sessions': pd.DataFrame(columns=SESSIONS_COLUMNS).set_index('id'),
+            'datasets': EMPTY_DATASETS_FRAME.copy(),
+            'sessions': EMPTY_SESSIONS_FRAME.copy(),
             '_meta': {
                 'expired': False,
                 'created_time': None,
@@ -160,7 +162,7 @@ class One(ConversionMixin):
                 cache.set_index(idx_columns, inplace=True)
 
             # Patch older tables
-            cache = util.patch_cache(cache, meta['raw'][table].get('min_api_version'), table)
+            cache = patch_cache(cache, meta['raw'][table].get('min_api_version'), table)
 
             # Check sorted
             # Sorting makes MultiIndex indexing O(N) -> O(1)
@@ -173,6 +175,9 @@ class One(ConversionMixin):
             # No tables present
             meta['expired'] = True
             meta['raw'] = {}
+            self._cache.update({
+                'datasets': EMPTY_DATASETS_FRAME.copy(),
+                'sessions': EMPTY_SESSIONS_FRAME.copy()})
             if self.offline:  # In online mode, the cache tables should be downloaded later
                 warnings.warn(f'No cache tables found in {self._tables_dir}')
         created = [datetime.fromisoformat(x['date_created'])
@@ -286,7 +291,7 @@ class One(ConversionMixin):
 
         Example
         -------
-        >>> session, datasets = util.ses2records(self.get_details(eid, full=True))
+        >>> session, datasets = ses2records(self.get_details(eid, full=True))
         ... self._update_cache_from_records(sessions=session, datasets=datasets)
 
         Raises
@@ -599,7 +604,7 @@ class One(ConversionMixin):
             datasets.index.set_names(idx_names, inplace=True)
         elif not isinstance(datasets, pd.DataFrame):
             # Cast set of dicts (i.e. from REST datasets endpoint)
-            datasets = util.datasets2records(list(datasets))
+            datasets = datasets2records(list(datasets))
         else:
             datasets = datasets.copy()
         indices_to_download = []  # indices of datasets that need (re)downloading
@@ -1868,7 +1873,7 @@ class OneAlyx(One):
         eid = self.to_eid(eid)  # Ensure we have a UUID str list
         if not eid:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
-        session, datasets = util.ses2records(self.alyx.rest('sessions', 'read', id=eid))
+        session, datasets = ses2records(self.alyx.rest('sessions', 'read', id=eid))
         # Add to cache tables
         self._update_cache_from_records(sessions=session, datasets=datasets.copy())
         if datasets is None or datasets.empty:
@@ -1915,7 +1920,7 @@ class OneAlyx(One):
         """
         query = 'session__isnull,True'  # ',data_repository_name__endswith,aggregates'
         all_aggregates = self.alyx.rest('datasets', 'list', django=query)
-        records = (util.datasets2records(all_aggregates)
+        records = (datasets2records(all_aggregates)
                    .reset_index(level=0)
                    .drop('eid', axis=1))
         # Since rel_path for public FI file records starts with 'public/aggregates' instead of just
@@ -2330,7 +2335,7 @@ class OneAlyx(One):
         datetime.datetime:
             A timestamp of when the cache was updated.
         """
-        df = pd.DataFrame(next(zip(*map(util.ses2records, session_records))))
+        df = pd.DataFrame(next(zip(*map(ses2records, session_records))))
         return self._update_cache_from_records(sessions=df)
 
     def _download_datasets(self, dsets, **kwargs) -> List[Path]:
@@ -2663,7 +2668,7 @@ class OneAlyx(One):
 
     @util.refresh
     @util.parse_id
-    def eid2path(self, eid, query_type=None) -> util.Listable(Path):
+    def eid2path(self, eid, query_type=None) -> Listable(Path):
         """
         From an experiment ID gets the local session path
 
@@ -2702,7 +2707,7 @@ class OneAlyx(One):
                 str(ses[0]['number']).zfill(3))
 
     @util.refresh
-    def path2eid(self, path_obj: Union[str, Path], query_type=None) -> util.Listable(Path):
+    def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(Path):
         """
         From a local path, gets the experiment ID
 
@@ -2806,7 +2811,7 @@ class OneAlyx(One):
             restriction = f'session__id,{eid},dataset_type__name__in,{dataset_type}'
         else:
             raise TypeError('dataset_type must be a str or str list')
-        datasets = util.datasets2records(self.alyx.rest('datasets', 'list', django=restriction))
+        datasets = datasets2records(self.alyx.rest('datasets', 'list', django=restriction))
         return datasets if details else datasets['rel_path'].sort_values().values
 
     def dataset2type(self, dset) -> str:
