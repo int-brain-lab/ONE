@@ -30,8 +30,7 @@ import one.alf.path as alfiles
 import one.alf.exceptions as alferr
 from .alf.cache import (
     make_parquet_db, patch_cache, remove_cache_table_files,
-    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME
-)
+    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME)
 from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path, ses2records, datasets2records
