@@ -310,30 +310,33 @@ class One(ConversionMixin):
                 raise KeyError(f'Table "{table}" not in cache')
             if isinstance(records, pd.Series):
                 records = pd.DataFrame([records])
+                records.index.set_names(self._cache[table].index.names, inplace=True)
             if not strict:
                 # Deal with case where there are extra columns in the cache
-                extra_columns = set(self._cache[table].columns) - set(records.columns)
+                extra_columns = list(set(self._cache[table].columns) - set(records.columns))
+                # Convert these columns to nullable, if required
+                cache_columns = self._cache[table][extra_columns]
+                self._cache[table][extra_columns] = cache_columns.convert_dtypes()
                 column_ids = map(list(self._cache[table].columns).index, extra_columns)
                 for col, n in sorted(zip(extra_columns, column_ids), key=lambda x: x[1]):
-                    val = records.get('exists', True) if col.startswith('exists_') else np.nan
+                    dtype = self._cache[table][col].dtype
+                    nan = getattr(dtype, 'na_value', np.nan)
+                    val = records.get('exists', True) if col.startswith('exists_') else nan
                     records.insert(n, col, val)
                 # Drop any extra columns in the records that aren't in cache table
                 to_drop = set(records.columns) - set(self._cache[table].columns)
                 records.drop(to_drop, axis=1, inplace=True)
                 records = records.reindex(columns=self._cache[table].columns)
             assert set(self._cache[table].columns) == set(records.columns)
+            records = records.astype(self._cache[table].dtypes)
             # Update existing rows
             to_update = records.index.isin(self._cache[table].index)
             self._cache[table].loc[records.index[to_update], :] = records[to_update]
             # Assign new rows
             to_assign = records[~to_update]
-            if isinstance(self._cache[table].index, pd.MultiIndex) and not to_assign.empty:
-                # Concatenate and sort (no other way for non-unique index within MultiIndex)
-                frames = filter(lambda x: not x.empty, [self._cache[table], to_assign])
-                self._cache[table] = pd.concat(frames).sort_index()
-            else:
-                for index, record in to_assign.iterrows():
-                    self._cache[table].loc[index, :] = record[self._cache[table].columns].values
+            frames = [self._cache[table], to_assign]
+            # Concatenate and sort
+            self._cache[table] = pd.concat(frames).sort_index()
             updated = datetime.now()
         self._cache['_meta']['modified_time'] = updated
         return updated

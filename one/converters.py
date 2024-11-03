@@ -20,7 +20,7 @@ import pandas as pd
 from iblutil.util import Bunch, Listable, ensure_list
 
 from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.cache import QC_TYPE, EMPTY_DATASETS_FRAME
+from one.alf.cache import EMPTY_DATASETS_FRAME
 from one.alf.path import (
     get_session_path, add_uuid_string, session_path_parts, get_alf_path, remove_uuid_string)
 
@@ -783,7 +783,8 @@ def ses2records(ses: dict):
         return session, EMPTY_DATASETS_FRAME.copy()
     records = map(_to_record, ses['data_dataset_session_related'])
     index = ['eid', 'id']
-    datasets = pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
+    dtypes = EMPTY_DATASETS_FRAME.dtypes
+    datasets = pd.DataFrame(records).astype(dtypes).set_index(index).sort_index()
     return session, datasets
 
 
@@ -829,8 +830,7 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
             rec[field] = d.get(field)
         records.append(rec)
 
-    index = ['eid', 'id']
     if not records:
-        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision', 'qc')
-        return pd.DataFrame(columns=keys).set_index(index)
-    return pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
+        return EMPTY_DATASETS_FRAME
+    index = EMPTY_DATASETS_FRAME.index.names
+    return pd.DataFrame(records).set_index(index).sort_index().astype(EMPTY_DATASETS_FRAME.dtypes)
