@@ -49,7 +49,7 @@ class One(ConversionMixin):
     uuid_filenames = None
     """bool: whether datasets on disk have a UUID in their filename."""
 
-    def __init__(self, cache_dir=None, mode='auto', wildcards=True, tables_dir=None):
+    def __init__(self, cache_dir=None, mode='local', wildcards=True, tables_dir=None):
         """An API for searching and loading data on a local filesystem
 
         Parameters
@@ -1544,7 +1544,7 @@ class One(ConversionMixin):
 
 
 @lru_cache(maxsize=1)
-def ONE(*, mode='auto', wildcards=True, **kwargs):
+def ONE(*, mode='remote', wildcards=True, **kwargs):
     """ONE API factory.
 
     Determine which class to instantiate depending on parameters passed.
@@ -1582,7 +1582,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
     if kwargs.pop('offline', False):
         _logger.warning('the offline kwarg will probably be removed. '
                         'ONE is now offline by default anyway')
-        warnings.warn('"offline" param will be removed; use mode="local"', DeprecationWarning)
+        warnings.warn('"offline" param will be removed; use mode="local"', FutureWarning)
         mode = 'local'
 
     if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
@@ -1601,7 +1601,7 @@ def ONE(*, mode='auto', wildcards=True, **kwargs):
 class OneAlyx(One):
     """An API for searching and loading data through the Alyx database."""
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
-                 mode='auto', wildcards=True, tables_dir=None, **kwargs):
+                 mode='remote', wildcards=True, tables_dir=None, **kwargs):
         """An API for searching and loading data through the Alyx database.
 
         Parameters
