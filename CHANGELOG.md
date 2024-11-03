@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
+This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
+
+### Modified
+
+- supports python >= 3.10 only
+
+## [2.11.0]
 This version deprecates one.alf.files in preperation for replacing with one.alf.path in version 3.
 
 ### Modified
