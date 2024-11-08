@@ -87,3 +87,9 @@ class ALFMultipleRevisionsFound(ALFError):
 class ALFWarning(Warning):
     """Cautions when loading ALF datasets."""
     pass
+
+
+class ALFInvalid(ALFError, ValueError):
+    """ALF path invalid."""
+    explanation = ('The file path provided is does not match the ALF path specification defined '
+                   'in `one.alf.spec`.')

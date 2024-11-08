@@ -26,7 +26,7 @@ from iblutil.io import hashfile
 from iblutil.util import Bunch, ensure_list
 
 import one.alf.io as alfio
-from one.alf.path import session_path_parts, get_session_path, folder_parts, filename_parts
+from one.alf.path import ALFPath, session_path_parts, ensure_alf_path, folder_parts
 from one.alf.spec import is_valid
 import one.alf.exceptions as alferr
 from one.api import ONE
@@ -61,14 +61,13 @@ def get_dataset_type(filename, dtypes):
         filename matches multiple dataset types
     """
     dataset_types = []
-    if isinstance(filename, str):
-        filename = PurePosixPath(filename)
+    filename = ensure_alf_path(filename)
     for dt in dtypes:
         if not dt.filename_pattern.strip():
             # If the filename pattern is null, check whether the filename object.attribute matches
             # the dataset type name.
             if is_valid(filename.name):
-                obj_attr = '.'.join(filename_parts(filename.name)[1:3])
+                obj_attr = '.'.join(filename.dataset_name_parts[1:3])
             else:  # will match name against filename sans extension
                 obj_attr = filename.stem
             if dt.name == obj_attr:
@@ -131,12 +130,13 @@ class RegistrationClient:
             if dry:
                 records.append(print(flag_file))
                 continue
-            _logger.info('creating session for ' + str(flag_file.parent))
+            session_path = ALFPath(flag_file.parent)
+            _logger.info('creating session for ' + str(session_path))
             # providing a false flag stops the registration after session creation
-            session_info, _ = self.register_session(flag_file.parent, file_list=register_files)
+            session_info, _ = self.register_session(session_path, file_list=register_files)
             records.append(session_info)
             flag_file.unlink()
-        return [ff.parent for ff in flag_files], records
+        return [ALFPath(ff.parent) for ff in flag_files], records
 
     def create_new_session(self, subject, session_root=None, date=None, register=True, **kwargs):
         """Create a new local session folder and optionally create session record on Alyx.
@@ -204,9 +204,9 @@ class RegistrationClient:
         pathlib.Path
             File paths that match the dataset type patterns in Alyx.
         """
-        session_path = Path(session_path)
-        for p in session_path.rglob('*.*.*'):
-            if p.is_file() and any(p.name.endswith(ext) for ext in self.file_extensions):
+        session_path = ALFPath(session_path)
+        for p in session_path.iter_datasets(recursive=True):
+            if any(p.name.endswith(ext) for ext in self.file_extensions):
                 try:
                     get_dataset_type(p, self.dtypes)
                     yield p
@@ -341,8 +341,7 @@ class RegistrationClient:
         ConnectionError
             Failed to connect to Alyx, most likely due to a bad internet connection.
         """
-        if isinstance(ses_path, str):
-            ses_path = Path(ses_path)
+        ses_path = ALFPath(ses_path)
         details = session_path_parts(ses_path.as_posix(), as_dict=True, assert_valid=True)
         # query alyx endpoints for subject, error if not found
         self.assert_exists(details['subject'], 'subjects')
@@ -423,7 +422,7 @@ class RegistrationClient:
 
         if single_file := isinstance(file_list, (str, pathlib.Path)):
             file_list = [file_list]
-        file_list = list(map(pathlib.Path, file_list))  # Ensure list of path objects
+        file_list = list(map(ALFPath, file_list))  # Ensure list of path objects
 
         if versions is None or isinstance(versions, str):
             versions = itertools.repeat(versions)
@@ -432,7 +431,7 @@ class RegistrationClient:
 
         # Filter valid files and sort by session
         for fn, ver in zip(file_list, versions):
-            session_path = get_session_path(fn)
+            session_path = fn.session_path()
             if not session_path:
                 _logger.debug(f'{fn}: Invalid session path')
                 continue
