@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
+This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
+
+### Modified
+
+- supports python >= 3.10 only
+
+## [2.11.2]
 
 ### Modified
 
