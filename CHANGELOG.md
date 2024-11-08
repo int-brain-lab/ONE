@@ -7,7 +7,7 @@ This version drops support for python 3.9 and below, and ONE is now in remote mo
 - supports python >= 3.10 only
 - OneAlyx uses remote mode by default, instead of auto
 - OneAlyx.search now updates the cache tables in remote mode as paginated sessions are accessed
-- Datasets table file_size column nullable by default
+- datasets table file_size column nullable by default
 
 ### Added
 
