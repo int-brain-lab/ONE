@@ -13,6 +13,11 @@ This version drops support for python 3.9 and below, and ONE is now in remote mo
 
 - one.alf.cache.remove_cache_table_files and One.\_remove_cache_table_files for deleting cache table files
 - one.alf.cache.EMPTY_DATASETS_FRAME and EMPTY_SESSION_FRAME vars for table column, index, and dtype template
+- pyproject.toml replaces deprecated setup file
+
+### Removed
+
+- setup.py
 
 ## [2.11.2]
 
