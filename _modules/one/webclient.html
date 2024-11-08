@@ -722,7 +722,7 @@
         <span class="n">rest_query</span> <span class="o">=</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
             <span class="n">rest_query</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">rest_query</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rest_query</span><span class="si">}</span><span class="s2">, headers: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rest_query</span><span class="si">}</span><span class="s1">, headers: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span>
@@ -813,8 +813,8 @@
             <span class="n">rep</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s1">&#39;/auth-token&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Can&#39;t connect to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
-                <span class="s2">&quot;Check your internet connections and Alyx database firewall&quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t connect to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s1">.</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                <span class="s1">&#39;Check your internet connections and Alyx database firewall&#39;</span>
             <span class="p">)</span>
         <span class="c1"># Assign token or raise exception on auth error</span>
         <span class="k">if</span> <span class="n">rep</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
@@ -987,6 +987,7 @@
 
     <span class="k">def</span> <span class="nf">_validate_file_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Asserts that URL matches HTTP_DATA_SERVER parameter.</span>
+
 <span class="sd">        Currently only one remote HTTP server is supported for a given AlyxClient instance.  If</span>
 <span class="sd">        the URL contains only the relative path part, the full URL is returned.</span>
 
@@ -1234,7 +1235,7 @@
                 <span class="k">if</span> <span class="s1">&#39;django&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
                 <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">pk,</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="c1"># otherwise, look for a dictionary of filter terms</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -1303,7 +1304,7 @@
         <span class="c1"># Prepare data to patch</span>
         <span class="n">patch_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
         <span class="c1"># Upload new extended_qc to session</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">patch_dict</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">patch_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span></div>
 
 
@@ -1352,7 +1353,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Current json field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> does not contains a dict, aborting update&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Current json field &quot;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&quot; does not contains a dict, aborting update&#39;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">current</span>
 
@@ -1410,7 +1411,7 @@
                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: Key not found in endpoint </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1"> field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">current</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing key from dict: &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removing key from dict: &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="c1"># Re-write contents without removed key</span>
         <span class="n">written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span>
