@@ -1855,8 +1855,10 @@ class OneAlyx(One):
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         assert set(datasets.index.unique('eid')) == {eid}
         del filters['default_revisions_only']
+        if not keep_eid_index and 'eid' in datasets.index.names:
+            datasets = datasets.droplevel('eid')
         datasets = util.filter_datasets(
-            datasets.droplevel('eid'), assert_unique=False, wildcards=self.wildcards, **filters)
+            datasets, assert_unique=False, wildcards=self.wildcards, **filters)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 

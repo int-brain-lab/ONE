@@ -1448,6 +1448,11 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(183, len(dsets))  # this may change after a BWM release or patch
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
+        # Test keep_eid_index
+        dsets = self.one.list_datasets(
+            self.eid, details=True, query_type='remote', keep_eid_index=True)
+        self.assertEqual(2, dsets.index.nlevels, 'details data frame should be with eid index')
+
         # Test missing eid
         dsets = self.one.list_datasets('FMR019/2021-03-18/008', details=True, query_type='remote')
         self.assertIsInstance(dsets, pd.DataFrame)

@@ -1,6 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.0]
-This version deprecates one.alf.files in preperation for replacing with one.alf.path in version 3.
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.1]
+
+### Modified
+
+- HOTFIX: consistent behaviour in OneAlyx.list_datasets when keep_eid_index == True
+
+## [2.11.0]
+This version deprecates one.alf.files in preparation for replacing with one.alf.path in version 3.
 
 ### Modified
 
@@ -24,9 +30,9 @@ This version improves behaviour of loading revisions and loading datasets from l
 - bugfix of spurious error raised when loading dataset with a revision provided
 - default_revisions_only parameter in One.list_datasets filters non-default datasets
 - permit data frame input to One.load_datasets and load precise relative paths provided (instead of default revisions)
-- redundent session_path column has been dropped from the datasets cache table
+- redundant session_path column has been dropped from the datasets cache table
 - bugfix in one.params.setup: suggest previous cache dir if available instead of always the default
-- bugfix in one.params.setup: remove all extrenuous parameters (i.e. TOKEN) when running setup in silent mode
+- bugfix in one.params.setup: remove all extraneous parameters (i.e. TOKEN) when running setup in silent mode
 - warn user to reauthenticate when password is None in silent mode
 - always force authentication when password passed, even when token cached
 - bugfix: negative indexing of paginated response objects now functions correctly
@@ -102,7 +108,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 
 - One.load_dataset
   - add an option to skip computing hash for existing files when loading datasets `check_hash=False`
-  - check filesize before computing hash for performance
+  - check file size before computing hash for performance
 
 ## [2.5.5]
 
@@ -320,7 +326,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 
 - RegistrationClient.find_files is now itself a generator method (previously returned a generator)
 - exists kwarg in RegistrationClient.register_files
-- support for loading 'table' attribute as dataframe with extra ALF parts
+- support for loading 'table' attribute as data frame with extra ALF parts
 - bugfix: tag assertion should expect list of tags in cache info
 
 ## [1.17.0]
@@ -361,7 +367,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 
 ### Modified
 
-- squeeze pandas dataframe on csv_read
+- squeeze pandas data frame on csv_read
 - load_cache now public method; option to load specific remote cache with tag arg
 - fix incorrect error message in one.alf.exceptions.ALFMultipleObjectsFound
 
@@ -537,7 +543,7 @@ This version of ONE adds support for Alyx 2.0.0 and pandas 3.0.0 with dataset QC
 
 ### Modified
 
-- rest command loging includes the whole json field on error
+- rest command logging includes the whole json field on error
 - added silent option to instantiate One on local files
 
 ## [1.6.0]
