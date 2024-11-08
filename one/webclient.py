@@ -589,7 +589,7 @@ class AlyxClient:
         rest_query = rest_query.replace(self.base_url, '')
         if not rest_query.startswith('/'):
             rest_query = '/' + rest_query
-        _logger.debug(f"{self.base_url + rest_query}, headers: {self._headers}")
+        _logger.debug(f'{self.base_url + rest_query}, headers: {self._headers}')
         headers = self._headers.copy()
         if files is None:
             data = json.dumps(data) if isinstance(data, dict) or isinstance(data, list) else data
@@ -678,8 +678,8 @@ class AlyxClient:
             rep = requests.post(self.base_url + '/auth-token', data=credentials)
         except requests.exceptions.ConnectionError:
             raise ConnectionError(
-                f"Can't connect to {self.base_url}.\n" +
-                "Check your internet connections and Alyx database firewall"
+                f'Can\'t connect to {self.base_url}.\n' +
+                'Check your internet connections and Alyx database firewall'
             )
         # Assign token or raise exception on auth error
         if rep.ok:
@@ -839,6 +839,7 @@ class AlyxClient:
 
     def _validate_file_url(self, url):
         """Asserts that URL matches HTTP_DATA_SERVER parameter.
+
         Currently only one remote HTTP server is supported for a given AlyxClient instance.  If
         the URL contains only the relative path part, the full URL is returned.
 
@@ -1069,7 +1070,7 @@ class AlyxClient:
                 if 'django' in kwargs.keys():
                     kwargs['django'] = kwargs['django'] + ','
                 else:
-                    kwargs['django'] = ""
+                    kwargs['django'] = ''
                 kwargs['django'] = f"{kwargs['django']}pk,{id}"
             # otherwise, look for a dictionary of filter terms
             if kwargs:
@@ -1135,7 +1136,7 @@ class AlyxClient:
         # Prepare data to patch
         patch_dict = {field_name: data}
         # Upload new extended_qc to session
-        ret = self.rest(endpoint, "partial_update", id=uuid, data=patch_dict)
+        ret = self.rest(endpoint, 'partial_update', id=uuid, data=patch_dict)
         return ret[field_name]
 
     def json_field_update(
@@ -1181,7 +1182,7 @@ class AlyxClient:
 
         if not isinstance(current, dict):
             _logger.warning(
-                f'Current json field {field_name} does not contains a dict, aborting update'
+                f'Current json field "{field_name}" does not contains a dict, aborting update'
             )
             return current
 
@@ -1236,7 +1237,7 @@ class AlyxClient:
                 f'{key}: Key not found in endpoint {endpoint} field {field_name}'
             )
             return current
-        _logger.info(f"Removing key from dict: '{key}'")
+        _logger.info(f'Removing key from dict: "{key}"')
         current.pop(key)
         # Re-write contents without removed key
         written = self.json_field_write(
