@@ -48,6 +48,15 @@ Usually you can re-run your setup with the following command:
 from one.api import ONE
 ONE.setup(base_url='https://alyx.example.com')
 ```
+#### ⚠️<span style="color: red;"> Note: 'alyx.example.com' is just an example URL - replace with your actual database URL</span>
+
+## How do I reset my ONE parameters to use Open Alyx?
+To reset your ONE configuration to use the public Open Alyx database with default settings:
+```python
+from one.api import ONE
+ONE.setup(base_url='https://openalyx.internationalbrainlab.org', make_default=True)
+```
+**Note**: The `make_default=True` argument saves these settings as your default configuration. This means future ONE instances will use these settings unless specified otherwise.
 
 ## How do I change my download (a.k.a. cache) directory?
 To **permanently** change the directory, simply re-run the setup routine:
@@ -64,6 +73,8 @@ from one.api import ONE
 
 one = ONE(base_url='https://alyx.example.com', cache_dir=Path.home() / 'new_download_dir')
 ```
+#### ⚠️<span style="color: red;"> Note: 'alyx.example.com' is just an example URL - replace with your actual database URL</span>
+
 **NB**: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the `tables_dir` kwarg.
 
 ## How do I load cache tables from a different location?
