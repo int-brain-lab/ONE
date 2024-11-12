@@ -24,20 +24,20 @@ Note: There are two different definitions of caches that are used in ONE2:
 This is refreshed every night and uploaded to Flatiron and downloaded onto your computer
 every 24hr (this is what the datetime object returned as output of the `ONE().refresh_cache('remote')`
 command is showing, i.e. when this cache was last updated).
-This table is used in all one.search, one.load, one.list functions. When doing 
-`ONE().refresh_cache('remote')`, you are basically forcing ONE to re-download this table 
+This table is used in all one.search, one.load, one.list functions. When doing
+`ONE().refresh_cache('remote')`, you are basically forcing ONE to re-download this table
 regardless of when it was last downloaded from Flatiron.
 
-2. When running remote queries (anything that uses `one.alyx.rest(....)`), 
-ONE stores the results of these queries for 24 hours, so that if you 
-repeatedly make the same query over and over you don't hit the database 
+2. When running remote queries (anything that uses `one.alyx.rest(....)`),
+ONE stores the results of these queries for 24 hours, so that if you
+repeatedly make the same query over and over you don't hit the database
 each time but can use the local cached result.
 A problem can arise if something on the Alyx database changes in between the same query:
     - For example, at time X a given query returns an empty result (e.g. no histology session for a given subject).
     At time X+1, data is registered onto Alyx.
     At time X+2, you run the same query again.
-    Because you had already made the query earlier, ONE uses the local result that 
-    it had previously and displays that there isn't a histology session. 
+    Because you had already made the query earlier, ONE uses the local result that
+    it had previously and displays that there isn't a histology session.
     To circumvent this, use the `no_cache=True` argument in `one.alyx.rest(..., no_cache=True)` or
     the `no_cache` web client context.  More information can be found [here](https://int-brain-lab.github.io/ONE/notebooks/one_modes.html#REST-caching).
     Use this only if necessary, as these methods are not optimized.
@@ -48,7 +48,7 @@ Usually you can re-run your setup with the following command:
 from one.api import ONE
 ONE.setup(base_url='https://alyx.example.com')
 ```
-#### ⚠️<span style="color: red;"> Note: 'alyx.example.com' is just an example URL - replace with your actual database URL</span>
+⚠️<span style="color: red;"> Note: 'alyx.example.com' is just an example URL - replace with your actual database URL</span>
 
 ## How do I reset my ONE parameters to use Open Alyx?
 To reset your ONE configuration to use the public Open Alyx database with default settings:
@@ -73,9 +73,9 @@ from one.api import ONE
 
 one = ONE(base_url='https://alyx.example.com', cache_dir=Path.home() / 'new_download_dir')
 ```
-#### ⚠️<span style="color: red;"> Note: 'alyx.example.com' is just an example URL - replace with your actual database URL</span>
+⚠️<span style="color: red;"> Note: 'alyx.example.com' is just an example URL - replace with your actual database URL</span>
 
-**NB**: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the `tables_dir` kwarg.
+**Note**: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the `tables_dir` kwarg.
 
 ## How do I load cache tables from a different location?
 By default, the cache tables are in the cache_dir root.  You can load cache tables in a different location in the following two ways:
@@ -88,7 +88,7 @@ one = ONE(tables_dir=Path.home() / 'tables_dir')
 # 2. Specify location after instantiation
 one.load_cache(Path.home() / 'tables_dir')
 ```
-**NB**: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set `mode='local'`.
+**Note**: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set `mode='local'`.
 
 ## How do check who I'm logged in as?
 ```python
@@ -114,15 +114,15 @@ one.alyx.authenticate(username='other_user', cache_token=False, force=True)
 ```
 
 ## What to do if I am seeing a certificate error?
-If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few 
-lines of the traceback should like this: 
+If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few
+lines of the traceback should like this:
 ```powershell
 File "C:\Users\User\anaconda3\envs\ONE\lib\urllib\request.py", line 1351, in do_open
     raise URLError(err)
 urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>
 ```
 This has a relatively easy fix:
-* Open `Microsoft Edge` or `Internet Explorer` and navigate to the URL https://alyx.internationalbrainlab.org, or whichever alyx 
+* Open `Microsoft Edge` or `Internet Explorer` and navigate to the URL https://alyx.internationalbrainlab.org, or whichever alyx
 site you are attempting to access with ONE (no need to log in)
 * Reattempt to run any ONE query or setup on the command line
   * Simply visiting the website with a Microsoft web browser should be enough to get the site's certificate to be stored properly.
@@ -150,7 +150,7 @@ You can check your version with the following: `print(ONE.version)`.\
 The latest version can be found in the CHANGELOG, [here](https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md). \
 To update to the latest available version run `pip install -U ONE-api`.
 
-## How do I use ONE in a read-only environment? 
+## How do I use ONE in a read-only environment?
 To use ONE without any write access or internet access, simply instantiate in local mode:
 ```python
 from one.api import ONE
@@ -166,7 +166,7 @@ one = ONE(base_url='https://openalyx.internationalbrainlab.org', cache_rest=None
 assert one.offline and one.alyx.cache_mode is None
 ```
 
-## Why does the search return a LazyID object? 
+## Why does the search return a LazyID object?
 When in remote mode using one.search or one.search_insertions, a LazyID object is returned instead of a list.
 It behaves exactly the same as a list (you can index, slice and get its length).  Instead of retrieving all the
 values from the database query it will fetch only the items you index from the list.  This greatly speeds up
