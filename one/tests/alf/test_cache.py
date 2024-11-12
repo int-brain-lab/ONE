@@ -17,13 +17,13 @@ class TestsONEParquet(unittest.TestCase):
     """Tests for the make_parquet_db function and its helpers"""
     rel_ses_path = 'mylab/Subjects/mysub/2021-02-28/001/'
     ses_info = {
+        'id': 'mylab/mysub/2021-02-28/001',
         'lab': 'mylab',
         'subject': 'mysub',
         'date': datetime.date.fromisoformat('2021-02-28'),
         'number': int('001'),
         'projects': '',
         'task_protocol': '',
-        'id': 'mylab/mysub/2021-02-28/001',
     }
     rel_ses_files = [Path('alf/spikes.clusters.npy'), Path('alf/spikes.times.npy')]
 
@@ -50,7 +50,7 @@ class TestsONEParquet(unittest.TestCase):
         second_session.joinpath('.invalid').touch()
 
     def test_parse(self):
-        self.assertEqual(apt._get_session_info(self.rel_ses_path), self.ses_info)
+        self.assertEqual(apt._get_session_info(self.rel_ses_path), tuple(self.ses_info.values()))
         self.assertTrue(
             self.full_ses_path.as_posix().endswith(self.rel_ses_path[:-1]))
 
