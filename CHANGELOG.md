@@ -14,6 +14,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - bugfix: one.alf.path.full_path_parts didn't always raise when invalid path passed
 - one.alf.path module containing ALFPath class
 - ALF cache table generation has lower memory footprint
+- setup in silent mode now uses defaults if base url matches default one
 
 ### Added
 
