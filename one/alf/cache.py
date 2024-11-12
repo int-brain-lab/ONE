@@ -86,14 +86,32 @@ def _ses_str_id(session_path):
 
 
 def _get_session_info(rel_ses_path):
-    """Parse a relative session path."""
-    out = session_path_parts(rel_ses_path, as_dict=True, assert_valid=True)
-    out['id'] = _ses_str_id(rel_ses_path)
-    out['date'] = pd.to_datetime(out['date']).date()
-    out['number'] = int(out['number'])
-    out['task_protocol'] = ''
-    out['projects'] = ''
-    return out
+    """Parse a relative session path.
+
+    Parameters
+    ----------
+    rel_ses_path : _type_
+        _description_
+
+    Returns
+    -------
+    str
+        Experiment ID expressed as a relative session posix path.
+    str
+        The lab name (empty str).
+    datetime.date
+        The session date.
+    int
+        The session number.
+    str
+        The task protocol (empty str).
+    str
+        The associated project (empty str).
+    """
+    lab, subject, s_date, num = session_path_parts(rel_ses_path, as_dict=False, assert_valid=True)
+    eid = _ses_str_id(rel_ses_path)
+    s_date = pd.to_datetime(s_date).date()
+    return eid, lab or '', subject, s_date, int(num), '', ''
 
 
 def _get_dataset_info(dset_path, ses_eid=None, compute_hash=False):
@@ -110,22 +128,26 @@ def _get_dataset_info(dset_path, ses_eid=None, compute_hash=False):
 
     Returns
     -------
-    dict
-        A dataset record.
-
-    TODO Return tuples for more memory-efficient cache generation.
+    str, uuid.UUID
+        The session uuid.
+    str
+        The dataset ID expressed as a posix path relative to the session.
+    str
+        The dataset posix path, relative to the session.
+    int
+        The dataset file size.
+    str
+        The file hash, or empty str if `compute_hash` is false.
+    True
+        Whether the file exists.
+    str
+        The QC value for the dataset ('NOT_SET').
     """
     rel_dset_path = get_alf_path(dset_path.relative_to_session())
     ses_eid = ses_eid or _ses_str_id(dset_path.session_path())
-    return {
-        'id': rel_dset_path,
-        'eid': ses_eid or pd.NA,
-        'rel_path': rel_dset_path,
-        'file_size': dset_path.stat().st_size,
-        'hash': md5(dset_path) if compute_hash else '',
-        'exists': True,
-        'qc': 'NOT_SET'
-    }
+    file_size = dset_path.stat().st_size
+    file_hash = md5(dset_path) if compute_hash else ''
+    return ses_eid or pd.NA, rel_dset_path, rel_dset_path, file_size, file_hash, True, 'NOT_SET'
 
 
 def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, keep_old=False):
@@ -200,7 +222,7 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
         rel_path = get_alf_path(full_path)
         # A dict of session info extracted from path
         ses_info = _get_session_info(rel_path)
-        assert set(ses_info.keys()) <= set(SESSIONS_COLUMNS)
+        assert len(ses_info) == len(SESSIONS_COLUMNS)
         rows.append(ses_info)
     df = pd.DataFrame(rows, columns=SESSIONS_COLUMNS).astype(SESSIONS_COLUMNS)
     return df
@@ -222,17 +244,14 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     pandas.DataFrame
         A pandas DataFrame of dataset info.
     """
-    df = EMPTY_DATASETS_FRAME.copy()
     # Go through sessions and append datasets
+    rows = []
     for session_path in iter_sessions(root_dir):
-        rows = []
         for dset_path in session_path.iter_datasets(recursive=True):
             file_info = _get_dataset_info(dset_path, compute_hash=hash_files)
-            assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
+            assert len(file_info) == len(DATASETS_COLUMNS)
             rows.append(file_info)
-        df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS).astype(DATASETS_COLUMNS)),
-                       ignore_index=True, verify_integrity=True)
-    return df.astype({'qc': QC_TYPE})
+    return pd.DataFrame(rows, columns=DATASETS_COLUMNS).astype(DATASETS_COLUMNS)
 
 
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):
@@ -265,7 +284,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
     """
     root_dir = Path(root_dir).resolve()
 
-    # Make the dataframes.
+    # Make the data frames.
     df_ses = _make_sessions_df(root_dir)
     df_dsets = _make_datasets_df(root_dir, hash_files=hash_files)
 

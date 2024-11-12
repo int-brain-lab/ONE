@@ -13,13 +13,14 @@ Also adds a new ALFPath class to replace alf path functions.
 - paths returned by One methods and functions in one.alf.io are now ALFPath instances
 - bugfix: one.alf.path.full_path_parts didn't always raise when invalid path passed
 - one.alf.path module containing ALFPath class
-- one.alf.exceptions.InvalidALF exception
+- ALF cache table generation has lower memory footprint
 
 ### Added
 
 - one.alf.cache.remove_cache_table_files and One.\_remove_cache_table_files for deleting cache table files
 - one.alf.cache.EMPTY_DATASETS_FRAME and EMPTY_SESSION_FRAME vars for table column, index, and dtype template
 - pyproject.toml replaces deprecated setup file
+- one.alf.exceptions.InvalidALF exception
 
 ### Removed
 
