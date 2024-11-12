@@ -1,0 +1,6 @@
+one.alf.cache.DATASETS\_COLUMNS
+===============================
+
+.. currentmodule:: one.alf.cache
+
+.. autodata:: DATASETS_COLUMNS

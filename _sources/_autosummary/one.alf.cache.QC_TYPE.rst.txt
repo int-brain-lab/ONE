@@ -1,0 +1,6 @@
+one.alf.cache.QC\_TYPE
+======================
+
+.. currentmodule:: one.alf.cache
+
+.. autodata:: QC_TYPE

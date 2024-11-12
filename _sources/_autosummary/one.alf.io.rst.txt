@@ -26,7 +26,6 @@ one.alf.io
       next_num_folder
       read_ts
       remove_empty_folders
-      remove_uuid_file
       remove_uuid_recursive
       save_metadata
       save_object_npy

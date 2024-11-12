@@ -1,0 +1,6 @@
+one.alf.cache.EMPTY\_SESSIONS\_FRAME
+====================================
+
+.. currentmodule:: one.alf.cache
+
+.. autodata:: EMPTY_SESSIONS_FRAME

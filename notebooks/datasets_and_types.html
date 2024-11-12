@@ -120,12 +120,12 @@ datasets_and_types.ipynb"><button id="github">Github link</button></a><section i
 <h1>Datasets and their types<a class="headerlink" href="#Datasets-and-their-types" title="Link to this heading"></a></h1>
 <p>A dataset typically contains a single signal or data source, either values or times. When creating a new dataset, first familiarize yourself with the <a class="reference external" href="../alf_intro.html">ALF specification</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">from</span> <span class="nn">one.alf</span> <span class="kn">import</span> <span class="n">spec</span>
-<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">filename_parts</span>
+<span class="kn">from</span> <span class="nn">one.alf.path</span> <span class="kn">import</span> <span class="n">ALFPath</span>
 </pre></div>
 </div>
 </div>
@@ -184,10 +184,10 @@ remember we count arrays starting from 0.
 </div>
 <p>Parsing a new file into its constituent parts ensures the dataset is correct</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">parts</span> <span class="o">=</span> <span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_ibl_spikes.times_ephysClock.raw.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">parts</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;_ibl_spikes.times_ephysClock.raw.npy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">parse_alf_name</span><span class="p">()</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
 </pre></div>
 </div>

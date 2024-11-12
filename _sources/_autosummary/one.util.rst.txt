@@ -5,13 +5,6 @@ one.util
 
    
    
-   .. rubric:: Module attributes
-
-   .. autosummary::
-      :toctree:
-   
-      QC_TYPE
-   
    
 
    
@@ -21,18 +14,13 @@ one.util
    .. autosummary::
       :nosignatures:
    
-      Listable
       autocomplete
-      cache_int2str
-      datasets2records
       ensure_list
       filter_datasets
       filter_revision_last_before
       index_last_before
       parse_id
-      patch_cache
       refresh
-      ses2records
       validate_date_range
    
    

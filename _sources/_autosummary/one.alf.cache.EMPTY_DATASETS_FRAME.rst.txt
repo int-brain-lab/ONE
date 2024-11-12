@@ -1,0 +1,6 @@
+one.alf.cache.EMPTY\_DATASETS\_FRAME
+====================================
+
+.. currentmodule:: one.alf.cache
+
+.. autodata:: EMPTY_DATASETS_FRAME

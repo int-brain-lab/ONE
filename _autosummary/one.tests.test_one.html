@@ -189,8 +189,8 @@ properties to their original state on teardown, or call one.api.ONE.cache_clear(
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestONECache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Test methods that use sessions and datasets tables.
-This class loads the parquet tables from the fixtures and builds a file tree in a temp folder</p>
+<p>Test methods that use sessions and datasets tables.</p>
+<p>This class loads the parquet tables from the fixtures and builds a file tree in a temp folder</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.tempdir">
 <span class="sig-name descname"><span class="pre">tempdir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#one.tests.test_one.TestONECache.tempdir" title="Link to this definition"></a></dt>
@@ -319,6 +319,12 @@ without eid index and without a session_path column.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_reset_cache">
+<span class="sig-name descname"><span class="pre">test_reset_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_reset_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_reset_cache" title="Link to this definition"></a></dt>
+<dd><p>Test One._reset_cache method, namely that cache types are correct.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_update_cache_from_records">
 <span class="sig-name descname"><span class="pre">test_update_cache_from_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_update_cache_from_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_update_cache_from_records" title="Link to this definition"></a></dt>
 <dd><p>Test One._update_cache_from_records</p>
@@ -328,6 +334,12 @@ without eid index and without a session_path column.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_save_loaded_ids">
 <span class="sig-name descname"><span class="pre">test_save_loaded_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_save_loaded_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_save_loaded_ids" title="Link to this definition"></a></dt>
 <dd><p>Test One.save_loaded_ids and logic within One._check_filesystem</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestONECache.test_remove_cache_table_files">
+<span class="sig-name descname"><span class="pre">test_remove_cache_table_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestONECache.test_remove_cache_table_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestONECache.test_remove_cache_table_files" title="Link to this definition"></a></dt>
+<dd><p>Test One._remove_cache_table_files method.</p>
 </dd></dl>
 
 </dd></dl>
@@ -369,18 +381,6 @@ without eid index and without a session_path column.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_dataset2type">
 <span class="sig-name descname"><span class="pre">test_dataset2type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_dataset2type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_dataset2type" title="Link to this definition"></a></dt>
 <dd><p>Test for OneAlyx.dataset2type</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_ses2records">
-<span class="sig-name descname"><span class="pre">test_ses2records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_ses2records" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.ses2records</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_one.TestOneAlyx.test_datasets2records">
-<span class="sig-name descname"><span class="pre">test_datasets2records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneAlyx.test_datasets2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneAlyx.test_datasets2records" title="Link to this definition"></a></dt>
-<dd><p>Test one.util.datasets2records</p>
 </dd></dl>
 
 <dl class="py method">
@@ -578,6 +578,14 @@ dicts as input.</p>
 <dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_local_cache_setup_prompt">
 <span class="sig-name descname"><span class="pre">test_local_cache_setup_prompt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_local_cache_setup_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_local_cache_setup_prompt" title="Link to this definition"></a></dt>
 <dd><p>Test One.setup.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_one.TestOneSetup.test_local_tables_only">
+<span class="sig-name descname"><span class="pre">test_local_tables_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_one.html#TestOneSetup.test_local_tables_only"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_one.TestOneSetup.test_local_tables_only" title="Link to this definition"></a></dt>
+<dd><p>Test first time instantiation of ONE with only tables_dir arg.</p>
+<p>Previously this would have raised and AttributeError as cache_map.DEFAULT
+doesn’t exist on a new install.</p>
 </dd></dl>
 
 <dl class="py method">

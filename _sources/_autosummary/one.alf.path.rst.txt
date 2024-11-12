@@ -15,6 +15,7 @@ one.alf.path
       :nosignatures:
    
       add_uuid_string
+      ensure_alf_path
       filename_parts
       folder_parts
       full_path_parts
@@ -29,6 +30,18 @@ one.alf.path
    
 
    
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+   
+      ALFPath
+      PosixALFPath
+      PureALFPath
+      PurePosixALFPath
+      PureWindowsALFPath
+      WindowsALFPath
    
    
 

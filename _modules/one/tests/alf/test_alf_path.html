@@ -1,0 +1,870 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>one.tests.alf.test_alf_path &mdash; ONE  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ONE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using ONE to access data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../one_reference.html">Introduction to ONE (Open Neurophysiology Environment)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../one_installation.html">ONE installation and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_quickstart.html">ONE Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_search/one_search.html">Searching with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_list/one_list.html">Listing with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_load/one_load.html">Loading with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/experiment_ids.html">Experiment IDs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE with Alyx</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_modes.html">ONE API modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/one_advanced/one_advanced.html">ONE REST queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/useful_alyx_queries.html">Useful Alyx REST queries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Using ONE to share data</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/recording_data_access.html">Recording data access</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ALF</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../alf_intro.html">ALyx Filenames (ALF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html#contributing-to-code">Contributing to code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ONE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">one.tests.alf.test_alf_path</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for one.tests.alf.test_alf_path</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the one.alf.path module.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">GeneratorType</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">,</span> <span class="n">PureWindowsPath</span><span class="p">,</span> <span class="n">PurePosixPath</span>
+
+<span class="kn">from</span> <span class="nn">one.alf</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">one.alf.path</span> <span class="kn">import</span> <span class="n">ALFPath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">,</span> <span class="n">ensure_alf_path</span>
+<span class="kn">from</span> <span class="nn">one.alf.exceptions</span> <span class="kn">import</span> <span class="n">ALFInvalid</span>
+
+
+<div class="viewcode-block" id="TestALFParse">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse">[docs]</a>
+<span class="k">class</span> <span class="nc">TestALFParse</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for ALF parsing methods&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestALFParse.test_filename_parts">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_filename_parts">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_filename_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.filename_parts&quot;&quot;&quot;</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_namespace_obj.times_timescale.extra.foo.ext&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;namespace&#39;</span><span class="p">,</span> <span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;timescale&#39;</span><span class="p">,</span> <span class="s1">&#39;extra.foo&#39;</span><span class="p">,</span> <span class="s1">&#39;ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;namespace&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;attribute&#39;</span><span class="p">:</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;timescale&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;spikes.times_ephysClock.npy&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;ephysClock&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;npy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_iblmic_audioSpectrogram.frequencies.npy&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;iblmic&#39;</span><span class="p">,</span> <span class="s1">&#39;audioSpectrogram&#39;</span><span class="p">,</span> <span class="s1">&#39;frequencies&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;npy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec.wiring.json&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;spikeglx&#39;</span><span class="p">,</span> <span class="s1">&#39;ephysData_g0_t0&#39;</span><span class="p">,</span> <span class="s1">&#39;imec&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;wiring&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_spikeglx_ephysData_g0_t0.imec0.lf.bin&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;spikeglx&#39;</span><span class="p">,</span> <span class="s1">&#39;ephysData_g0_t0&#39;</span><span class="p">,</span> <span class="s1">&#39;imec0&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;lf&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_ibl_trials.goCue_times_bpod.csv&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ibl&#39;</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;goCue_times&#39;</span><span class="p">,</span> <span class="s1">&#39;bpod&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;csv&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;badfile&#39;</span><span class="p">)</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;badfile&#39;</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">verifiable</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_rel_path_parts">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_rel_path_parts">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_rel_path_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.rel_path_parts&quot;&quot;&quot;</span>
+        <span class="n">alf_str</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext&#39;</span><span class="p">)</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rel_path_parts</span><span class="p">(</span><span class="n">alf_str</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="s1">&#39;revision&#39;</span><span class="p">,</span> <span class="s1">&#39;namespace&#39;</span><span class="p">,</span> <span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;timescale&#39;</span><span class="p">,</span> <span class="s1">&#39;extra.foo&#39;</span><span class="p">,</span> <span class="s1">&#39;ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="c1"># Check as_dict</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rel_path_parts</span><span class="p">(</span><span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;collection&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;revision&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;namespace&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;attribute&#39;</span><span class="p">:</span> <span class="s1">&#39;clusters&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;timescale&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">verifiable</span><span class="p">)</span>
+
+        <span class="c1"># Check assert valid</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">rel_path_parts</span><span class="p">(</span><span class="s1">&#39;bad/badfile&#39;</span><span class="p">)</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rel_path_parts</span><span class="p">(</span><span class="s1">&#39;bad/badfile&#39;</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">verifiable</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_session_path_parts">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_session_path_parts">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_session_path_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.session_path_parts&quot;&quot;&quot;</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="s1">&#39;/home/user/Data/labname/Subjects/subject/2020-01-01/001/alf&#39;</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;labname&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="s1">&#39;001&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="c1"># Check Path as input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">session_path_parts</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">session_path</span><span class="p">))))</span>
+        <span class="c1"># Check parse fails</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="s1">&#39;/home/user/Data/labname/2020-01-01/alf/001/&#39;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">),</span> <span class="n">parsed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_folder_parts">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_folder_parts">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_folder_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.folder_parts&quot;&quot;&quot;</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="s1">&#39;/home/user/Data/labname/Subjects/subject/2020-01-01/001/collection/#revision#/&#39;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">folder_parts</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
+        <span class="n">expected_values</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="s1">&#39;revision&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected_values</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="s1">&#39;/home/user/Data/labname/Subjects/subject/2020-01-01/001&#39;</span>
+        <span class="n">expected_values</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected_values</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">folder_parts</span><span class="p">(</span><span class="n">alfpath</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_full_path_parts">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_full_path_parts">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_full_path_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.full_path_parts&quot;&quot;&quot;</span>
+        <span class="n">fullpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="s1">&#39;/home/user/Data/labname/Subjects/subject/2020-01-01/001/&#39;</span>
+            <span class="s1">&#39;collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext&#39;</span>
+        <span class="p">)</span>
+        <span class="c1"># As dict</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">full_path_parts</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="s1">&#39;revision&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;namespace&#39;</span><span class="p">,</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span> <span class="s1">&#39;attribute&#39;</span><span class="p">,</span> <span class="s1">&#39;timescale&#39;</span><span class="p">,</span> <span class="s1">&#39;extra&#39;</span><span class="p">,</span> <span class="s1">&#39;extension&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected_keys</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="c1"># As tuple</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">full_path_parts</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">expected_keys</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+
+        <span class="c1"># Folders only</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">full_path_parts</span><span class="p">(</span><span class="n">fullpath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">out</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">6</span><span class="p">:]))</span>
+
+        <span class="c1"># Filename only</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">full_path_parts</span><span class="p">(</span><span class="n">fullpath</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">out</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">6</span><span class="p">:]))</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_isdatetime">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_isdatetime">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_isdatetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path._isdatetime&quot;&quot;&quot;</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;açsldfkça&#39;</span><span class="p">,</span> <span class="s1">&#39;12312&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;01-01-2020&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-12-32&#39;</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">_isdatetime</span><span class="p">(</span><span class="n">i</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_add_uuid">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_add_uuid">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_add_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.add_uuid_string.&quot;&quot;&quot;</span>
+        <span class="n">_uuid</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span>
+
+        <span class="n">file_with_uuid</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/titi/tutu.part1.part1.</span><span class="si">{</span><span class="n">_uuid</span><span class="si">}</span><span class="s1">.json&#39;</span>
+        <span class="n">inout</span> <span class="o">=</span> <span class="p">[(</span><span class="n">file_with_uuid</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_with_uuid</span><span class="p">)),</span>
+                 <span class="p">(</span><span class="s1">&#39;/tutu/tata.json&#39;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/tutu/tata.</span><span class="si">{</span><span class="n">_uuid</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">)),</span>
+                 <span class="p">(</span><span class="s1">&#39;/tutu/tata.part1.json&#39;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/tutu/tata.part1.</span><span class="si">{</span><span class="n">_uuid</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">))]</span>
+        <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">inout</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">path</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_uuid</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">path</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">_uuid</span><span class="p">)))</span>
+
+        <span class="n">_uuid2</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/titi/tutu.part1.part1.</span><span class="si">{</span><span class="n">_uuid2</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">file_with_uuid</span><span class="p">,</span> <span class="n">_uuid2</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRegex</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;Replacing [a-f0-9-]+ with [a-f0-9-]+&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="s1">&#39;/foo/bar.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;fake&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_remove_uuid">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_remove_uuid">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_remove_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.remove_uuid_string.&quot;&quot;&quot;</span>
+        <span class="c1"># First test with full file</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="s1">&#39;/tmp/Subjects/CSHL063/2020-09-12/001/raw_ephys_data/probe00/&#39;</span> \
+                    <span class="s1">&#39;_spikeglx_sync.channels.probe00.89c861ea-66aa-4729-a808-e79f84d08b81.npy&#39;</span>
+        <span class="n">desired_output</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_spikeglx_sync.channels.probe00.npy&#39;</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">desired_output</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">desired_output</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">desired_output</span><span class="p">))</span>
+
+        <span class="c1"># Test with just file name</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="s1">&#39;toto.89c861ea-66aa-4729-a808-e79f84d08b81.npy&#39;</span>
+        <span class="n">desired_output</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;toto.npy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">desired_output</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFParse.test_padded_sequence">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_padded_sequence">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_padded_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.padded_sequence.&quot;&quot;&quot;</span>
+        <span class="c1"># Test with pure path file input</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">PureWindowsPath</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;F:\ScanImageAcquisitions\subject\2023-01-01\1\foo\bar.baz&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">PureWindowsPath</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;F:\ScanImageAcquisitions\subject\2023-01-01\001\foo\bar.baz&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">padded_sequence</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Test with str input session path</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="s1">&#39;/mnt/s0/Data/Subjects/subject/2023-01-01/001&#39;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/subject/2023-01-01/001&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">padded_sequence</span><span class="p">(</span><span class="n">session_path</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="c1"># Test invalid ALF session path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">padded_sequence</span><span class="p">,</span> <span class="s1">&#39;/foo/bar/baz&#39;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestALFGet">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet">[docs]</a>
+<span class="k">class</span> <span class="nc">TestALFGet</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for path extraction functions&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestALFGet.test_get_session_folder">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet.test_get_session_folder">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_session_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.get_session_folder&quot;&quot;&quot;</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data/&#39;</span>
+                    <span class="s1">&#39;_iblrig_micData.raw.wav&#39;</span><span class="p">),</span>
+               <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001&#39;</span><span class="p">),</span>
+               <span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data&#39;</span>
+               <span class="s1">&#39;/_iblrig_micData.raw.wav&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001&#39;</span><span class="p">,)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001&#39;</span><span class="p">),</span>
+               <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001&#39;</span><span class="p">),</span>
+               <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001&#39;</span><span class="p">),</span>
+               <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001&#39;</span><span class="p">),)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">get_session_path</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="c1"># Test if None is passed</span>
+        <span class="n">no_out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">get_session_path</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">no_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFGet.test_get_alf_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet.test_get_alf_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_alf_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.get_alf_path&quot;&quot;&quot;</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/&#39;</span>
+            <span class="s1">&#39;raw_behavior_data/_iblrig_micData.raw.wav&#39;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">get_alf_path</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]))</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="s1">&#39;collection/trials.intervals_bpod.npy&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">get_alf_path</span><span class="p">(</span><span class="n">alfpath</span><span class="p">),</span> <span class="n">alfpath</span><span class="p">)</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="s1">&#39;/trials.intervals_bpod.npy&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">get_alf_path</span><span class="p">(</span><span class="n">alfpath</span><span class="p">),</span> <span class="s1">&#39;trials.intervals_bpod.npy&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFGet.test_without_revision">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet.test_without_revision">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_without_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.without_revision function.&quot;&quot;&quot;</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="s1">&#39;/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/alf/#2020-01-01#/obj.attr.ext&#39;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">without_revision</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">alfpath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/#2020-01-01#&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="s1">&#39;failed to remove revision folder&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">without_revision</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>  <span class="c1"># should do nothing to path</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">):</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">without_revision</span><span class="p">(</span><span class="s1">&#39;foo/bar/baz.npy&#39;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestALFPath">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath">[docs]</a>
+<span class="k">class</span> <span class="nc">TestALFPath</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for ALFPath class methods.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestALFPath.setUp">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.setUp">[docs]</a>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+            <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;alf&#39;</span><span class="p">,</span> <span class="s1">&#39;#2020-01-01#&#39;</span><span class="p">,</span> <span class="s1">&#39;obj.attr.ext&#39;</span>
+        <span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_is_valid_alf">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_is_valid_alf">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_is_valid_alf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.is_valid_alf and ALFPath.is_valid_alf methods.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">PureALFPath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">PureALFPath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;foo.npy&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ALFPath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;foo.npy&#39;</span><span class="p">)))</span>
+        <span class="c1"># A session path with invalid subject name should return False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">PureALFPath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">(</span><span class="s1">&#39;abc-@/2020-01-01/001&#39;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">tmp_session</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span>
+                <span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
+            <span class="c1"># An ostensibly valid file that is actually a folder should be invalid</span>
+            <span class="p">(</span><span class="n">fake_file</span> <span class="o">:=</span> <span class="n">tmp_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;obj.attr.ext&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">fake_file</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">PureALFPath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fake_file</span><span class="p">)))</span>
+            <span class="c1"># An ostensibly valid folder that is actually a file should be invalid</span>
+            <span class="p">(</span><span class="n">fake_folder</span> <span class="o">:=</span> <span class="n">tmp_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;#2020-01-01#&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ALFPath</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fake_folder</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">PureALFPath</span><span class="p">(</span><span class="n">fake_folder</span><span class="p">)</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">())</span>
+        <span class="c1"># If it doesn&#39;t exist it should still be considered valid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">tmp_session</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_is_dataset">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_is_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_is_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.is_dataset method.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_session_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_session_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_session_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.session_path method.&quot;&quot;&quot;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">session_path</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_without_revision">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_without_revision">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_without_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.without_revision method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test with dataset</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">without_revision</span><span class="p">())</span>
+        <span class="c1"># Test with revision folder</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">without_revision</span><span class="p">())</span>
+        <span class="c1"># Test with other folder</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">without_revision</span><span class="p">())</span>
+        <span class="c1"># Test with invalid path</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;foo.npy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">without_revision</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_revision">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_revision">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_revision method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test dataset with revision</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;#bar#&#39;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_revision</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">))</span>
+        <span class="c1"># Test dataset without revision</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;#baz#&#39;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_revision</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">))</span>
+        <span class="c1"># Test revision folder</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;#bar#&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">with_revision</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">))</span>
+        <span class="c1"># Test non-revision folder</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;#bar#&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">with_revision</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">))</span>
+        <span class="c1"># Test path relative to session (currently not supported due to spec ambiguity)</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_revision</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_padded_sequence">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_padded_sequence">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_padded_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_padded_sequence method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test already padded</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_padded_sequence</span><span class="p">())</span>
+        <span class="c1"># Test not padded</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_padded_sequence</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_relative_to_session">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_relative_to_session">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_relative_to_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.relative_to_session method.&quot;&quot;&quot;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">expected</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_session_path_short">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_session_path_short">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_session_path_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.session_path_short method.&quot;&quot;&quot;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;subject/1900-01-01/001&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">session_path_short</span><span class="p">())</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;labname/subject/1900-01-01/001&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">session_path_short</span><span class="p">(</span><span class="n">include_lab</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_without_lab">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_without_lab">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_without_lab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.without_lab method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test with lab</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;labname/Subjects/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">without_lab</span><span class="p">())</span>
+        <span class="c1"># Test without lab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">expected</span><span class="o">.</span><span class="n">without_lab</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_relative_to_lab">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_relative_to_lab">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_relative_to_lab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test ALFPath.relative_to_lab method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test with lab</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">relative_to_lab</span><span class="p">())</span>
+        <span class="c1"># Test without lab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">expected</span><span class="o">.</span><span class="n">relative_to_lab</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_without_uuid">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_without_uuid">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_without_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.without_uuid method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test file without uuid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">without_uuid</span><span class="p">())</span>
+        <span class="c1"># Test file with uuid</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;obj.attr.</span><span class="si">{</span><span class="n">uuid4</span><span class="p">()</span><span class="si">}</span><span class="s1">.ext&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">without_uuid</span><span class="p">())</span>
+        <span class="c1"># Test folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">without_uuid</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_uuid">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_uuid">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_uuid method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test file without uuid</span>
+        <span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;obj.attr.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s1">.ext&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">))</span>
+        <span class="c1"># Test file with uuid</span>
+        <span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">expected</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;obj.attr.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s1">.ext&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="p">)</span>
+        <span class="c1"># Test folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_is_session_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_is_session_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_is_session_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test PureALFPath and ALFPath.is_session_path methods.&quot;&quot;&quot;</span>
+        <span class="c1"># Check PureALFPath w/o system calls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">PureALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">())</span>
+        <span class="c1"># Check ALFPath method with system call</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">tmp_session</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span>
+                <span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">tmp_session</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">())</span>
+            <span class="c1"># An ostensibly valid session path that is actually a file should be invalid</span>
+            <span class="n">tmp_session</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">tmp_session</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">tmp_session</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_iter_datasets">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_iter_datasets">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test ALFPath.iter_datasets method.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">tmp_session</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span>
+                <span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
+            <span class="n">tmp_session</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;foo.bar&#39;</span><span class="p">,</span> <span class="s1">&#39;obj.attr.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;bar.baz.foo&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/foo.baz.bar&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;alf&#39;</span><span class="p">):</span>
+                    <span class="n">tmp_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+                <span class="n">tmp_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+            <span class="n">dsets</span> <span class="o">=</span> <span class="n">tmp_session</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="n">GeneratorType</span><span class="p">)</span>
+            <span class="n">dsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsets</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">tmp_session</span> <span class="o">/</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;bar.baz.foo&#39;</span><span class="p">,</span> <span class="s1">&#39;obj.attr.ext&#39;</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">dsets</span><span class="p">)</span>  <span class="c1"># NB: Order important here</span>
+            <span class="c1"># Check recursive</span>
+            <span class="n">dsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tmp_session</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dsets</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">tmp_session</span> <span class="o">/</span> <span class="s1">&#39;alf/foo.baz.bar&#39;</span><span class="p">,</span> <span class="n">dsets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_object">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_object">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_object method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test without namespace</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;foo.attr.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_object</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+        <span class="c1"># Test with namespace</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_ns_obj.attr.ext&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_ns_bar.attr.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_object</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">with_object</span><span class="p">,</span> <span class="s1">&#39;obj&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_namespace">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_namespace">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_namespace method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test without namespace</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_ns_obj.attr.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_namespace</span><span class="p">(</span><span class="s1">&#39;ns&#39;</span><span class="p">))</span>
+        <span class="c1"># Test with namespace</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_foo_obj.attr.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_namespace</span><span class="p">(</span><span class="s1">&#39;ns&#39;</span><span class="p">))</span>
+        <span class="c1"># Test removing namespace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_namespace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">with_namespace</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_attribute">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_attribute">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_attribute method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test without timescale</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.foo.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_attribute</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+        <span class="c1"># Test with timescale</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr_times_barClock.ext&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.foo_barClock.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_attribute</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">with_attribute</span><span class="p">,</span> <span class="s1">&#39;attr&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_timescale">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_timescale">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_timescale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_timescale method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test without timescale</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr_foo.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_timescale</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+        <span class="c1"># Test with timescale</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr_times_barClock.ext&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr_times_foo.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_timescale</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+        <span class="c1"># Test removing timescale</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr_times.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_timescale</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">with_timescale</span><span class="p">,</span> <span class="s1">&#39;bpod&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_extra">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_extra">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_extra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_extra method.&quot;&quot;&quot;</span>
+        <span class="c1"># Test without extra</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr.extra.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_extra</span><span class="p">(</span><span class="s1">&#39;extra&#39;</span><span class="p">))</span>
+        <span class="c1"># Test with extra</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">expected</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr.foo.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_extra</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+        <span class="c1"># Test append</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">expected</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;obj.attr.foo.extra.ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_extra</span><span class="p">(</span><span class="s1">&#39;extra&#39;</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="c1"># Test list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_extra</span><span class="p">([</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;extra&#39;</span><span class="p">]))</span>
+        <span class="c1"># Test removing extra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_extra</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">with_extra</span><span class="p">,</span> <span class="s1">&#39;extra&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_with_extension">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_extension">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_with_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for PureALFPath.with_extension method.&quot;&quot;&quot;</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_extension</span><span class="p">(</span><span class="s1">&#39;npy&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_extension</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ALFInvalid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">with_extension</span><span class="p">,</span> <span class="s1">&#39;ext&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_parts_properties">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_parts_properties">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_parts_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the PureALFPath ALF dataset part properties.&quot;&quot;&quot;</span>
+        <span class="c1"># Namespace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;ns&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;_ns_obj.attr&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;_ns_foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="c1"># Object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">object</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">object</span><span class="p">)</span>
+        <span class="c1"># Attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;attr&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">attribute</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">attribute</span><span class="p">)</span>
+        <span class="c1"># Timescale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">timescale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;bpod&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;obj.attr_times_bpod&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">timescale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">timescale</span><span class="p">)</span>
+        <span class="c1"># Extra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;foo.bar&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;obj.att.foo.bar&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+        <span class="c1"># dataset_name_parts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="s1">&#39;attr&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;ext&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">)</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_ns_obj.attr_times_bpod.foo.bar.ext&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ns&#39;</span><span class="p">,</span> <span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="s1">&#39;attr_times&#39;</span><span class="p">,</span> <span class="s1">&#39;bpod&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">,</span> <span class="s1">&#39;ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">)</span>
+        <span class="c1"># session_parts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">session_parts</span><span class="p">)</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">),</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">session_parts</span><span class="p">)</span>
+        <span class="c1"># alf_parts</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;_ns_obj.attr_times_bpod.foo.bar.ext&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="s1">&#39;alf&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;ns&#39;</span><span class="p">,</span> <span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="s1">&#39;attr_times&#39;</span><span class="p">,</span> <span class="s1">&#39;bpod&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">,</span> <span class="s1">&#39;ext&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">alf_parts</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">alf_parts</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_parse_alf_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_parse_alf_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_parse_alf_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test PureALFPath.parse_alf_path method.&quot;&quot;&quot;</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;labname&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf&#39;</span><span class="p">,</span>
+            <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;attr&#39;</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;ext&#39;</span><span class="p">)</span>
+        <span class="c1"># NB: We assertEqual instead of assertDictEqual because the order must always be correct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="c1"># With session path</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">session_path</span><span class="p">()</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">()</span>
+        <span class="n">_expected</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">expected</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">4</span><span class="p">:]}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="c1"># With dataset name</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">PureALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">()</span>
+        <span class="n">_expected</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">expected</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:</span><span class="mi">6</span><span class="p">]}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="c1"># With invalid path</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">PureALFPath</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;foo/bar/Subjects/baz.pie&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">()</span>
+        <span class="n">_expected</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_parse_alf_name">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_parse_alf_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_parse_alf_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test PureALFPath.parse_alf_name method.&quot;&quot;&quot;</span>
+        <span class="c1"># With dataset name</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">parse_alf_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;obj&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;attr&#39;</span><span class="p">,</span>
+            <span class="n">timescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;ext&#39;</span><span class="p">)</span>
+        <span class="c1"># NB: We assertEqual instead of assertDictEqual because the order must always be correct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span>
+        <span class="c1"># With invalid dataset path</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">PureALFPath</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;foo/bar/Subjects/baz.pie&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">parse_alf_name</span><span class="p">()</span>
+        <span class="n">_expected</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestALFPath.test_ensure_alf_path">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_ensure_alf_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_ensure_alf_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.path.ensure_alf_path function.&quot;&quot;&quot;</span>
+        <span class="c1"># Check str -&gt; ALFPath</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">,</span> <span class="s1">&#39;failed to cast str to ALFPath&#39;</span><span class="p">)</span>
+        <span class="c1"># Check ALFPath -&gt; ALFPath</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">,</span> <span class="s1">&#39;expected identity behaviour&#39;</span><span class="p">)</span>
+        <span class="c1"># Check PureALFPath -&gt; PureALFPath</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">PureALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
+        <span class="c1"># Check PureWindowsPath -&gt; PureWindowsALFPath</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">PureWindowsPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">PureWindowsPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
+        <span class="c1"># Check PurePosixPath -&gt; PurePosixALFPath</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
+        <span class="c1"># Check arbitrary PurePath -&gt; PureALFPath</span>
+
+        <span class="k">class</span> <span class="nc">ArbitraryPurePath</span><span class="p">(</span><span class="n">PurePath</span><span class="p">):</span>
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">_parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="o">.</span><span class="n">_flavour</span><span class="o">.</span><span class="n">parse_parts</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">ArbitraryPurePath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">)</span>
+        <span class="c1"># Check Path -&gt; ALFPath</span>
+        <span class="n">alfpath</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
+        <span class="c1"># Check operation on list</span>
+        <span class="n">alfpaths</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">alfpath</span><span class="p">],</span> <span class="n">alfpaths</span><span class="p">)</span>
+        <span class="c1"># Check assertions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="n">ensure_alf_path</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">exit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, International Brain Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

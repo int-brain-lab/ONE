@@ -126,13 +126,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the make_parquet_db function and its helpers&quot;&quot;&quot;</span>
     <span class="n">rel_ses_path</span> <span class="o">=</span> <span class="s1">&#39;mylab/Subjects/mysub/2021-02-28/001/&#39;</span>
     <span class="n">ses_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab/mysub/2021-02-28/001&#39;</span><span class="p">,</span>
         <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab&#39;</span><span class="p">,</span>
         <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;mysub&#39;</span><span class="p">,</span>
         <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2021-02-28&#39;</span><span class="p">),</span>
         <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;001&#39;</span><span class="p">),</span>
         <span class="s1">&#39;projects&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;task_protocol&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab/mysub/2021-02-28/001&#39;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">rel_ses_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;alf/spikes.clusters.npy&#39;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;alf/spikes.times.npy&#39;</span><span class="p">)]</span>
 
@@ -164,7 +164,7 @@
 <div class="viewcode-block" id="TestsONEParquet.test_parse">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parse">[docs]</a>
     <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_get_session_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_get_session_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">full_ses_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span></div>
 

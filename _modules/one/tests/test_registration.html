@@ -370,7 +370,7 @@
 <div class="viewcode-block" id="TestRegistrationClient.test_prepare_files">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_prepare_files">[docs]</a>
     <span class="k">def</span> <span class="nf">test_prepare_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.prepare_files&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.prepare_files method.&quot;&quot;&quot;</span>
 
         <span class="n">session_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="n">session_path_2</span> <span class="o">=</span> <span class="n">session_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">next_num_folder</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
@@ -397,7 +397,7 @@
 <div class="viewcode-block" id="TestRegistrationClient.test_check_protected">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_check_protected">[docs]</a>
     <span class="k">def</span> <span class="nf">test_check_protected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.check_protected_files&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for RegistrationClient.check_protected_files method.&quot;&quot;&quot;</span>
 
         <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">)</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;wheel.timestamps.npy&#39;</span><span class="p">)</span>

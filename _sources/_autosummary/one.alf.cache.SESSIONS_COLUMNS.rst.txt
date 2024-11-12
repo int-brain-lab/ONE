@@ -1,0 +1,6 @@
+one.alf.cache.SESSIONS\_COLUMNS
+===============================
+
+.. currentmodule:: one.alf.cache
+
+.. autodata:: SESSIONS_COLUMNS

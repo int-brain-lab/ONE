@@ -89,6 +89,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#one.converters.path_from_dataset"><code class="docutils literal notranslate"><span class="pre">path_from_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.converters.path_from_filerecord"><code class="docutils literal notranslate"><span class="pre">path_from_filerecord()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.converters.session_record2path"><code class="docutils literal notranslate"><span class="pre">session_record2path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.converters.ses2records"><code class="docutils literal notranslate"><span class="pre">ses2records()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.converters.datasets2records"><code class="docutils literal notranslate"><span class="pre">datasets2records()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="one.params.html">one.params</a></li>
@@ -148,20 +150,26 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.one_path_from_dataset" title="one.converters.one_path_from_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_path_from_dataset</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.datasets2records" title="one.converters.datasets2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets2records</span></code></a></p></td>
+<td><p>Extract datasets DataFrame from one or more Alyx dataset records.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.converters.one_path_from_dataset" title="one.converters.one_path_from_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_path_from_dataset</span></code></a></p></td>
 <td><p>Returns local one file path from a dset record or a list of dsets records from REST.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.converters.parse_values" title="one.converters.parse_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_values</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.parse_values" title="one.converters.parse_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_values</span></code></a></p></td>
 <td><p>Convert str values in reference dict to appropriate type.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.path_from_dataset" title="one.converters.path_from_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_from_dataset</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.converters.path_from_dataset" title="one.converters.path_from_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_from_dataset</span></code></a></p></td>
 <td><p>Returns the local file path from a dset record from a REST query.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.converters.path_from_filerecord" title="one.converters.path_from_filerecord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_from_filerecord</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.path_from_filerecord" title="one.converters.path_from_filerecord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_from_filerecord</span></code></a></p></td>
 <td><p>Returns a data file Path constructed from an Alyx file record.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.recurse" title="one.converters.recurse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recurse</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.converters.recurse" title="one.converters.recurse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recurse</span></code></a></p></td>
 <td><p>Decorator to call decorated function recursively if first arg is non-string iterable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.converters.ses2records" title="one.converters.ses2records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ses2records</span></code></a></p></td>
+<td><p>Extract session cache record and datasets cache from a remote session data record.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.converters.session_record2path" title="one.converters.session_record2path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_record2path</span></code></a></p></td>
 <td><p>Convert a session record into a path.</p></td>
@@ -239,17 +247,17 @@ iterated over.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.eid2path">
-<span class="sig-name descname"><span class="pre">eid2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.eid2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.eid2path" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">eid2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath"><span class="pre">ALFPath</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath"><span class="pre">ALFPath</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.eid2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.eid2path" title="Link to this definition"></a></dt>
 <dd><p>From an experiment id or a list of experiment ids, gets the local cache path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>eid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – Experiment ID (UUID) or list of UUIDs</p>
+<dd class="field-odd"><p><strong>eid</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – Experiment ID (UUID) or list of UUIDs.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A session path</p>
+<dd class="field-even"><p>A session path.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -275,13 +283,13 @@ iterated over.</p>
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.path2record">
 <span class="sig-name descname"><span class="pre">path2record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.path2record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.path2record" title="Link to this definition"></a></dt>
 <dd><p>Convert a file or session path to a dataset or session cache record.</p>
-<p>NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pattern</p>
+<p>NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pattern.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Local path or HTTP URL</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Local path or HTTP URL.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A cache file record</p>
+<dd class="field-even"><p>A cache file record.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pandas.Series</p>
@@ -326,17 +334,17 @@ iterated over.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.converters.ConversionMixin.record2path">
-<span class="sig-name descname"><span class="pre">record2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.record2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.record2path" title="Link to this definition"></a></dt>
-<dd><p>Given a set of dataset records, returns the corresponding paths</p>
+<span class="sig-name descname"><span class="pre">record2path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath"><span class="pre">ALFPath</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/converters.html#ConversionMixin.record2path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ConversionMixin.record2path" title="Link to this definition"></a></dt>
+<dd><p>Given a set of dataset records, returns the corresponding paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<em>pd.DataFrame</em><em>, </em><em>pd.Series</em>) – A datasets dataframe slice</p>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>pd.DataFrame</em><em>, </em><em>pd.Series</em>) – A datasets dataframe slice.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>File path for the record</p>
+<dd class="field-even"><p>File path for the record.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -422,7 +430,7 @@ the form yyyy-mm-dd_n_subject.</p>
 <dd class="field-even"><p>Path object(s) for the experiment session(s).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -562,14 +570,14 @@ Unlike <cite>to_eid</cite>, this function does not require ONE, and the dataset 
 <dd class="field-even"><p>The local path for a given dataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.converters.path_from_dataset">
-<span class="sig-name descname"><span class="pre">path_from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PurePosixPath('/')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#path_from_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.path_from_dataset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">path_from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PurePosixALFPath('/')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#path_from_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.path_from_dataset" title="Link to this definition"></a></dt>
 <dd><p>Returns the local file path from a dset record from a REST query.
 Unlike <cite>to_eid</cite>, this function does not require ONE, and the dataset may not exist.</p>
 <dl class="field-list simple">
@@ -586,17 +594,17 @@ repository.</p></li>
 <dd class="field-even"><p>File path or list of paths.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path, list</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a>, list</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.converters.path_from_filerecord">
-<span class="sig-name descname"><span class="pre">path_from_filerecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PurePosixPath('/')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#path_from_filerecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.path_from_filerecord" title="Link to this definition"></a></dt>
-<dd><p>Returns a data file Path constructed from an Alyx file record.  The Path type returned
-depends on the type of root_path: If root_path is a string a Path object is returned,
-otherwise if the root_path is a PurePath, the same path type is returned.</p>
+<span class="sig-name descname"><span class="pre">path_from_filerecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PurePosixALFPath('/')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#path_from_filerecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.path_from_filerecord" title="Link to this definition"></a></dt>
+<dd><p>Returns a data file Path constructed from an Alyx file record.</p>
+<p>The Path type returned depends on the type of root_path: If root_path is a string an ALFPath
+object is returned, otherwise if the root_path is a PurePath, a PureALFPath is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -609,7 +617,7 @@ otherwise if the root_path is a PurePath, the same path type is returned.</p>
 <dd class="field-even"><p>A filepath as a pathlib object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -631,7 +639,7 @@ root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm
 <dd class="field-even"><p>A constructed path of the session.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path, Pathlib.PurePath</p>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a>, <a class="reference internal" href="one.alf.path.html#one.alf.path.PureALFPath" title="one.alf.path.PureALFPath">one.alf.path.PureALFPath</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -643,6 +651,49 @@ root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm
 <span class="gp">... </span>          <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;ALK01&#39;</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">session_record2path</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/home/user&#39;</span><span class="p">))</span>
 <span class="go">Path(&#39;/home/user/foo/Subjects/ALK01/2020-01-01/001&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.converters.ses2records">
+<span class="sig-name descname"><span class="pre">ses2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#ses2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.ses2records" title="Link to this definition"></a></dt>
+<dd><p>Extract session cache record and datasets cache from a remote session data record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ses</strong> (<em>dict</em>) – Session dictionary from Alyx REST endpoint.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pd.Series</em> – Session record.</p></li>
+<li><p><em>pd.DataFrame</em> – Datasets frame.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.converters.datasets2records">
+<span class="sig-name descname"><span class="pre">datasets2records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/converters.html#datasets2records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.datasets2records" title="Link to this definition"></a></dt>
+<dd><p>Extract datasets DataFrame from one or more Alyx dataset records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>dict</em><em>, </em><em>list</em>) – One or more records from the Alyx ‘datasets’ endpoint.</p></li>
+<li><p><strong>additional</strong> (<em>list</em><em> of </em><em>str</em>) – A set of optional fields to extract from dataset records.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Datasets frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

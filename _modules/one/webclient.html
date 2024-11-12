@@ -147,6 +147,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">ReferenceType</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
@@ -316,6 +317,23 @@
         <span class="c1"># fill the cache with results of the query</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">add_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a callback function to use each time a new page is fetched.</span>
+
+<span class="sd">        The callback function will be called with the page results each time :meth:`populate`</span>
+<span class="sd">        is called.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cb : callable</span>
+<span class="sd">            A callable that takes the results of each paginated resonse.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expected type &quot;callable&quot;, got &quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cb</span><span class="p">)</span><span class="si">}</span><span class="s1">&quot; instead&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cb</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span>
@@ -332,6 +350,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Populate response cache with new page of results.</span>
+
+<span class="sd">        Fetches the specific page of results containing the index passed and populates</span>
+<span class="sd">        stores the results in the :prop:`_cache` property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        idx : int</span>
+<span class="sd">            The index of a given record to fetch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">idx</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">update_url_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="n">offset</span><span class="p">})</span>
         <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_args</span><span class="p">)</span>
@@ -341,6 +369,21 @@
                 <span class="sa">f</span><span class="s1">&#39;results may be inconsistent&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][:</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="n">offset</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+        <span class="c1"># Notify callbacks</span>
+        <span class="n">pending_removal</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">:</span>
+            <span class="c1"># Handle weak reference callbacks first</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">ReferenceType</span><span class="p">):</span>
+                <span class="n">wf</span> <span class="o">=</span> <span class="n">callback</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">callback</span> <span class="o">:=</span> <span class="n">wf</span><span class="p">())</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pending_removal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="n">callback</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">wf</span> <span class="ow">in</span> <span class="n">pending_removal</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+        <span class="c1"># When cache is complete, clear our callbacks</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
