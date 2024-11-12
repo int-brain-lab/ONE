@@ -342,6 +342,28 @@ def check_cache_conflict(cache_dir):
         assert not any(x == str(cache_dir) for x in cache_map.values())
 
 
+def delete_params(base_url=None):
+    """Delete parameter files.
+
+    This will fully reset the ONE database and remote client parameters.
+
+    Parameters
+    ----------
+    base_url : str, optional
+        If provided, delete specific database parameters. If None, all parameters are removed.
+    """
+    if base_url:
+        client_key = _key_from_url(base_url)
+        params_file = Path(iopar.getfile(f'{_PAR_ID_STR}/{client_key}'))
+        if params_file.exists():
+            params_file.unlink()
+        else:
+            warnings.warn(f'{base_url}: params file not found')
+    else:
+        if (params_dir := get_params_dir()).exists():
+            shutil.rmtree(params_dir)
+
+
 def _patch_params(par):
     """
     Patch previous version of parameters, if required.

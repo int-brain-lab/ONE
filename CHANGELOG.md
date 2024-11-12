@@ -22,6 +22,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - one.alf.cache.EMPTY_DATASETS_FRAME and EMPTY_SESSION_FRAME vars for table column, index, and dtype template
 - pyproject.toml replaces deprecated setup file
 - one.alf.exceptions.InvalidALF exception
+- one.params.delete_params
 
 ### Removed
 
