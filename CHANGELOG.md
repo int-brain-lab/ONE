@@ -1,13 +1,19 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
 This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
+Also adds a new ALFPath class to replace alf path functions.
 
 ### Modified
 
 - supports python >= 3.10 only
 - OneAlyx uses remote mode by default, instead of auto
 - OneAlyx.search now updates the cache tables in remote mode as paginated sessions are accessed
-- Datasets table file_size column nullable by default
+- datasets table file_size column nullable by default
+- one.alf.io.save_metadata now returns the saved filepath
+- paths returned by One methods and functions in one.alf.io are now ALFPath instances
+- bugfix: one.alf.path.full_path_parts didn't always raise when invalid path passed
+- one.alf.path module containing ALFPath class
+- one.alf.exceptions.InvalidALF exception
 
 ### Added
 
@@ -18,6 +24,8 @@ This version drops support for python 3.9 and below, and ONE is now in remote mo
 ### Removed
 
 - setup.py
+- one.alf.files; use one.alf.path instead
+- one.alf.io.remove_uuid_file
 
 ## [2.11.1]
 

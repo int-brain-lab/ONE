@@ -11,6 +11,7 @@ from one.api import ONE
 from one import converters
 from one.alf.path import add_uuid_string
 from one.alf.cache import EMPTY_DATASETS_FRAME
+from one.alf.path import ALFPath, PurePosixALFPath, PureWindowsALFPath
 from . import util, OFFLINE_ONLY, TEST_DB_2
 
 
@@ -78,8 +79,9 @@ class TestConverters(unittest.TestCase):
         """Test for ConversionMixin.eid2path"""
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.eid2path(eid)
-        expected = Path(self.tempdir.name).joinpath(
+        expected = ALFPath(self.tempdir.name).joinpath(
             'mainenlab', 'Subjects', 'ZFM-01935', '2021-02-05', '001')
+        self.assertIsInstance(verifiable, ALFPath)
         self.assertEqual(expected, verifiable)
 
         with self.assertRaises(ValueError):
@@ -276,10 +278,10 @@ class TestOnlineConverters(unittest.TestCase):
         # As pd.Series
         alf_path = ('hoferlab/Subjects/SWC_043/2020-09-21/001/'
                     'alf/probe00/_phy_spikes_subset.channels.npy')
-        expected = Path(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
+        expected = ALFPath(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
         data_id = '00c234a3-a4ff-4f97-a522-939d15528a45'
         path = self.one.record2path(rec.loc[(self.eid, data_id)])
-        self.assertIsInstance(path, Path)
+        self.assertIsInstance(path, ALFPath)
         self.assertEqual(expected, path)
         # As pd.DataFrame
         idx = rec.rel_path == 'alf/probe00/_phy_spikes_subset.channels.npy'
@@ -295,15 +297,18 @@ class TestOnlineConverters(unittest.TestCase):
             self.one.uuid_filenames = True
             expected = expected.with_suffix(f'.{data_id}.npy')
             self.assertEqual([expected], self.one.record2path(rec[idx]))  # as pd.DataFrame
-            self.assertEqual(expected, self.one.record2path(rec[idx].squeeze()))  # as pd.Series
+            verifiable = self.one.record2path(rec[idx].squeeze())
+            self.assertEqual(expected, verifiable)  # as pd.Series
+            self.assertIsInstance(verifiable, ALFPath)
         finally:
             self.one.uuid_filenames = False
 
     def test_eid2path(self):
         """Test for OneAlyx.eid2path"""
         verifiable = self.one.eid2path(self.eid, query_type='remote')
-        expected = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
-                                                     '2020-09-21', '001',)
+        expected = ALFPath(self.one.cache_dir).joinpath(
+            'hoferlab', 'Subjects', 'SWC_043', '2020-09-21', '001',)
+        self.assertIsInstance(verifiable, ALFPath)
         self.assertEqual(expected, verifiable)
 
         with self.assertRaises(ValueError):
@@ -428,6 +433,7 @@ class TestAlyx2Path(unittest.TestCase):
         # Test one_path_from_dataset
         root = PurePosixPath('/one_root')
         testable = converters.one_path_from_dataset(self.dset, one_cache=root)
+        self.assertIsInstance(testable, PurePosixALFPath)
         self.assertEqual(str(testable), one_path)
         # Check list input
         testable = converters.one_path_from_dataset([self.dset], one_cache=root)
@@ -435,12 +441,13 @@ class TestAlyx2Path(unittest.TestCase):
         # Check handles string inputs
         testable = converters.one_path_from_dataset(self.dset, one_cache='/one_root')
         self.assertTrue(hasattr(testable, 'is_absolute'), 'Failed to return Path object')
+        self.assertIsInstance(testable, ALFPath)
         self.assertEqual(str(testable).replace('\\', '/'), one_path)
 
         # Test one_path_from_dataset using Windows path
         one_path = PureWindowsPath(r'C:/Users/User/')
         testable = converters.one_path_from_dataset(self.dset, one_cache=one_path)
-        self.assertIsInstance(testable, PureWindowsPath)
+        self.assertIsInstance(testable, PureWindowsALFPath)
         self.assertTrue(str(testable).startswith(str(one_path)))
         self.assertTrue('hoferlab/Subjects' in testable.as_posix())
         # Check repository arg
@@ -451,7 +458,7 @@ class TestAlyx2Path(unittest.TestCase):
         # Tests path_from_filerecord: when given a string, a system path object should be returned
         fr = self.dset['file_records'][0]
         testable = converters.path_from_filerecord(fr, root_path='C:\\')
-        self.assertIsInstance(testable, Path)
+        self.assertIsInstance(testable, ALFPath)
         # Check list
         testable = converters.path_from_filerecord([fr], root_path='C:\\')
         self.assertIsInstance(testable, list)
@@ -464,11 +471,13 @@ class TestAlyx2Path(unittest.TestCase):
         """Test for one.converters.session_record2path"""
         rec = {'subject': 'ALK01', 'date': '2020-01-01', 'number': 1}
         path = converters.session_record2path(rec)
-        self.assertEqual(path, PurePosixPath('ALK01/2020-01-01/001'))
+        self.assertIsInstance(path, PurePosixALFPath)
+        self.assertEqual(path, PurePosixALFPath('ALK01/2020-01-01/001'))
 
         rec = {'date': datetime.datetime.fromisoformat('2020-01-01').date(),
                'number': '001', 'lab': 'foo', 'subject': 'ALK01'}
         path = converters.session_record2path(rec, str(Path.home()))
+        self.assertIsInstance(path, ALFPath)
         self.assertEqual(path, Path.home() / 'foo/Subjects/ALK01/2020-01-01/001')
 
 
