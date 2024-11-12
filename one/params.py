@@ -239,6 +239,7 @@ def get(client=None, silent=False, username=None):
     IBLParams
         A Params object for the AlyxClient.
     """
+    client = client or get_default_client(include_schema=True)
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
     # If there are no params for this client, run setup routine
