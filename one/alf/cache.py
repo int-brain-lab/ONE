@@ -29,7 +29,7 @@ from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
 from one.alf.spec import QC
-from one.alf.io import iter_sessions, iter_datasets
+from one.alf.io import iter_sessions
 from one.alf.path import session_path_parts, get_alf_path
 
 __all__ = ['make_parquet_db', 'patch_cache', 'remove_missing_datasets',
@@ -96,17 +96,33 @@ def _get_session_info(rel_ses_path):
     return out
 
 
-def _get_dataset_info(full_ses_path, rel_dset_path, ses_eid=None, compute_hash=False):
-    rel_ses_path = get_alf_path(full_ses_path)
-    full_dset_path = Path(full_ses_path, rel_dset_path).as_posix()
-    file_size = Path(full_dset_path).stat().st_size
-    ses_eid = ses_eid or _ses_str_id(rel_ses_path)
+def _get_dataset_info(dset_path, ses_eid=None, compute_hash=False):
+    """Create dataset record from local path.
+
+    Parameters
+    ----------
+    dset_path : one.alf.ALFPath
+        A full ALF path.
+    ses_eid : str, UUID, optional
+        A session uuid.
+    compute_hash : bool, optional
+        Whether to compute a file hash.
+
+    Returns
+    -------
+    dict
+        A dataset record.
+
+    TODO Return tuples for more memory-efficient cache generation.
+    """
+    rel_dset_path = get_alf_path(dset_path.relative_to_session())
+    ses_eid = ses_eid or _ses_str_id(dset_path.session_path())
     return {
-        'id': Path(rel_ses_path, rel_dset_path).as_posix(),
-        'eid': str(ses_eid),
-        'rel_path': Path(rel_dset_path).as_posix(),
-        'file_size': file_size,
-        'hash': md5(full_dset_path) if compute_hash else None,
+        'id': rel_dset_path,
+        'eid': ses_eid or pd.NA,
+        'rel_path': rel_dset_path,
+        'file_size': dset_path.stat().st_size,
+        'hash': md5(dset_path) if compute_hash else '',
         'exists': True,
         'qc': 'NOT_SET'
     }
@@ -117,7 +133,7 @@ def _rel_path_to_uuid(df, id_key='rel_path', base_id=None, keep_old=False):
     toUUID = partial(uuid.uuid3, base_id)  # MD5 hash from base uuid and rel session path string
     if keep_old:
         df[f'{id_key}_'] = df[id_key].copy()
-    df.loc[:, id_key] = df.groupby(id_key)[id_key].transform(lambda x: str(toUUID(x.name)))
+    df.loc[:, id_key] = df.groupby(id_key)[id_key].transform(lambda x: toUUID(x.name))
     return df
 
 
@@ -210,8 +226,8 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     # Go through sessions and append datasets
     for session_path in iter_sessions(root_dir):
         rows = []
-        for rel_dset_path in iter_datasets(session_path):
-            file_info = _get_dataset_info(session_path, rel_dset_path, compute_hash=hash_files)
+        for dset_path in session_path.iter_datasets(recursive=True):
+            file_info = _get_dataset_info(dset_path, compute_hash=hash_files)
             assert set(file_info.keys()) <= set(DATASETS_COLUMNS)
             rows.append(file_info)
         df = pd.concat((df, pd.DataFrame(rows, columns=DATASETS_COLUMNS).astype(DATASETS_COLUMNS)),
@@ -256,6 +272,9 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
     # Add integer id columns
     if hash_ids and len(df_ses) > 0:
         df_ses, df_dsets = _ids_to_uuid(df_ses, df_dsets)
+        # For parquet all indices must be str
+        df_ses.index = df_ses.index.map(str)
+        df_dsets.index = df_dsets.index.map(lambda x: tuple(map(str, x)))
 
     if lab:  # Fill in lab name field
         assert not df_ses['lab'].any() or (df_ses['lab'] == 'lab').all(), 'lab name conflict'
@@ -330,9 +349,9 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
             datasets = tables['datasets'].loc[sessions[session_path]]
         except KeyError:
             datasets = tables['datasets'].iloc[0:0, :]
-        for dataset in iter_datasets(session_path):
-            if dataset.as_posix() not in datasets['rel_path']:
-                to_delete.add(session_path.joinpath(dataset))
+        for dataset in session_path.iter_datasets():
+            if dataset.relative_to_session().as_posix() not in datasets['rel_path']:
+                to_delete.add(dataset)
         if session_path not in sessions and remove_empty_sessions:
             to_delete.add(session_path)
 

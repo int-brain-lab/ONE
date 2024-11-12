@@ -223,7 +223,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(session_paths[0], session_path)
 
     def test_prepare_files(self):
-        """Test for RegistrationClient.prepare_files"""
+        """Test for RegistrationClient.prepare_files method."""
 
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
         session_path_2 = session_path.parent / next_num_folder(session_path)
@@ -247,7 +247,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertListEqual(V[session_path_2], [versions[-1]])
 
     def test_check_protected(self):
-        """Test for RegistrationClient.check_protected_files"""
+        """Test for RegistrationClient.check_protected_files method."""
 
         session_path, eid = self.client.create_new_session(self.subject)
         file_name = session_path.joinpath('wheel.timestamps.npy')

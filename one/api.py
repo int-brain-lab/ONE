@@ -28,10 +28,10 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.path as alfiles
 import one.alf.exceptions as alferr
+from one.alf.path import ALFPath
 from .alf.cache import (
     make_parquet_db, patch_cache, remove_cache_table_files,
-    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME
-)
+    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME)
 from .alf.spec import is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path, ses2records, datasets2records
@@ -377,7 +377,7 @@ class One(ConversionMixin):
             self._cache['_loaded_datasets'] = np.array([])
         return ids, filename
 
-    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
+    def _download_datasets(self, dsets, **kwargs) -> List[ALFPath]:
         """
         Download several datasets given a set of datasets.
 
@@ -386,31 +386,31 @@ class One(ConversionMixin):
         Parameters
         ----------
         dsets : list
-            List of dataset dictionaries from an Alyx REST query OR URL strings
+            List of dataset dictionaries from an Alyx REST query OR URL strings.
 
         Returns
         -------
-        list of pathlib.Path
-            A local file path list
+        list of one.alf.path.ALFPath
+            A local file path list.
         """
         # Looking to entirely remove method
         pass
 
-    def _download_dataset(self, dset, cache_dir=None, **kwargs) -> Path:
+    def _download_dataset(self, dset, cache_dir=None, **kwargs) -> ALFPath:
         """
-        Download a dataset from an Alyx REST dictionary
+        Download a dataset from an Alyx REST dictionary.
 
         Parameters
         ----------
         dset : pandas.Series, dict, str
-            A single dataset dictionary from an Alyx REST query OR URL string
+            A single dataset dictionary from an Alyx REST query OR URL string.
         cache_dir : str, pathlib.Path
-            The root directory to save the data in (home/downloads by default)
+            The root directory to save the data in (home/downloads by default).
 
         Returns
         -------
-        pathlib.Path
-            The local file path
+        one.alf.path.ALFPath
+            The local file path.
         """
         pass  # pragma: no cover
 
@@ -586,19 +586,19 @@ class One(ConversionMixin):
         Parameters
         ----------
         datasets : pandas.Series, pandas.DataFrame, list of dicts
-            A list or DataFrame of dataset records
+            A list or DataFrame of dataset records.
         offline : bool, None
             If false and Web client present, downloads the missing datasets from a remote
-            repository
+            repository.
         update_exists : bool
-            If true, the cache is updated to reflect the filesystem
+            If true, the cache is updated to reflect the filesystem.
         check_hash : bool
             Consider dataset missing if local file hash does not match. In online mode, the dataset
             will be re-downloaded.
 
         Returns
         -------
-        A list of file paths for the datasets (None elements for non-existent datasets)
+        A list of one.alf.path.ALFPath for the datasets (None elements for non-existent datasets).
         """
         if isinstance(datasets, pd.Series):
             datasets = pd.DataFrame([datasets])
@@ -633,9 +633,9 @@ class One(ConversionMixin):
 
         # First go through datasets and check if file exists and hash matches
         for i, rec in datasets.iterrows():
-            file = Path(self.cache_dir, *rec[['session_path', 'rel_path']])
+            file = ALFPath(self.cache_dir, *rec[['session_path', 'rel_path']])
             if self.uuid_filenames:
-                file = alfiles.add_uuid_string(file, i[1] if isinstance(i, tuple) else i)
+                file = file.with_uuid(i[1] if isinstance(i, tuple) else i)
             if file.exists():
                 # Check if there's a hash mismatch
                 # If so, add this index to list of datasets that need downloading
@@ -987,7 +987,7 @@ class One(ConversionMixin):
                     query_type: Optional[str] = None,
                     download_only: bool = False,
                     check_hash: bool = True,
-                    **kwargs) -> Union[alfio.AlfBunch, List[Path]]:
+                    **kwargs) -> Union[alfio.AlfBunch, List[ALFPath]]:
         """
         Load all attributes of an ALF object from a Session ID and an object name.
 
@@ -1024,7 +1024,7 @@ class One(ConversionMixin):
         Returns
         -------
         one.alf.io.AlfBunch, list
-            An ALF bunch or if download_only is True, a list of Paths objects.
+            An ALF bunch or if download_only is True, a list of one.alf.path.ALFPath objects.
 
         Examples
         --------
@@ -1113,8 +1113,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        np.ndarray, pathlib.Path
-            Dataset or a Path object if download_only is true.
+        np.ndarray, one.alf.path.ALFPath
+            Dataset or a ALFPath object if download_only is true.
 
         Examples
         --------
@@ -1412,7 +1412,7 @@ class One(ConversionMixin):
 
         Returns
         -------
-        np.ndarray, pathlib.Path
+        np.ndarray, one.alf.path.ALFPath
             Dataset data (or filepath if download_only) and dataset record if details is True.
         """
         if isinstance(dset_id, UUID):
@@ -1446,7 +1446,7 @@ class One(ConversionMixin):
                         query_type: Optional[str] = None,
                         download_only: bool = False,
                         check_hash: bool = True,
-                        **kwargs) -> Union[Bunch, List[Path]]:
+                        **kwargs) -> Union[Bunch, List[ALFPath]]:
         """
         Load all objects in an ALF collection from a Session ID.  Any datasets with matching object
         name(s) will be loaded.  Returns a bunch of objects.
@@ -1480,8 +1480,8 @@ class One(ConversionMixin):
 
         Returns
         -------
-        Bunch of one.alf.io.AlfBunch, list of pathlib.Path
-            A Bunch of objects or if download_only is True, a list of Paths objects
+        Bunch of one.alf.io.AlfBunch, list of one.alf.path.ALFPath
+            A Bunch of objects or if download_only is True, a list of ALFPath objects.
 
         Examples
         --------
@@ -1973,8 +1973,8 @@ class OneAlyx(One):
 
         Returns
         -------
-        pandas.DataFrame, pathlib.Path
-            Dataset or a Path object if download_only is true.
+        pandas.DataFrame, one.alf.path.ALFPath
+            Dataset or a ALFPath object if download_only is true.
 
         Raises
         ------
@@ -2341,7 +2341,7 @@ class OneAlyx(One):
         df = pd.DataFrame(next(zip(*map(ses2records, session_records))))
         return self._update_cache_from_records(sessions=df)
 
-    def _download_datasets(self, dsets, **kwargs) -> List[Path]:
+    def _download_datasets(self, dsets, **kwargs) -> List[ALFPath]:
         """
         Download a single or multitude of datasets if stored on AWS, otherwise calls
         OneAlyx._download_dataset.
@@ -2356,7 +2356,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        list of pathlib.Path
+        list of one.alf.path.ALFPath
             A list of local file paths.
         """
         # determine whether to remove the UUID after download, this may be overridden by user
@@ -2376,7 +2376,7 @@ class OneAlyx(One):
             _logger.debug(ex)
         return self._download_dataset(dsets, **kwargs)
 
-    def _download_aws(self, dsets, update_exists=True, keep_uuid=None, **_) -> List[Path]:
+    def _download_aws(self, dsets, update_exists=True, keep_uuid=None, **_) -> List[ALFPath]:
         """
         Download datasets from an AWS S3 instance using boto3.
 
@@ -2393,7 +2393,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        list of pathlib.Path
+        list of one.alf.path.ALFPath
             A list the length of `dsets` of downloaded dataset file paths. Missing datasets are
             returned as None.
 
@@ -2439,7 +2439,7 @@ class OneAlyx(One):
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(aws.s3_download_file(
                 source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
-        return out_files
+        return [ALFPath(x) if x else x for x in out_files]
 
     def _dset2url(self, dset, update_cache=True):
         """
@@ -2501,7 +2501,8 @@ class OneAlyx(One):
 
         return url
 
-    def _download_dataset(self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[Path]:
+    def _download_dataset(
+            self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[ALFPath]:
         """
         Download a single or multitude of dataset from an Alyx REST dictionary.
 
@@ -2518,7 +2519,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        list of pathlib.Path
+        list of one.alf.path.ALFPath
             A local file path or list of paths.
         """
         cache_dir = cache_dir or self.cache_dir
@@ -2539,7 +2540,7 @@ class OneAlyx(One):
             target_dir.append(str(Path(cache_dir, alfiles.get_alf_path(_path)).parent))
         files = self._download_file(valid_urls, target_dir, **kwargs)
         # Return list of file paths or None if we failed to extract URL from dataset
-        return [None if not x else files.pop(0) for x in url]
+        return [None if not x else ALFPath(files.pop(0)) for x in url]
 
     def _tag_mismatched_file_record(self, url):
         fr = self.alyx.rest('files', 'list',
@@ -2580,7 +2581,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        pathlib.Path or list of pathlib.Path
+        one.alf.path.ALFPath or list of one.alf.path.ALFPath
             The file path of the downloaded file or files.
 
         Example
@@ -2671,7 +2672,7 @@ class OneAlyx(One):
 
     @util.refresh
     @util.parse_id
-    def eid2path(self, eid, query_type=None) -> Listable(Path):
+    def eid2path(self, eid, query_type=None) -> Listable(ALFPath):
         """
         From an experiment ID gets the local session path
 
@@ -2681,12 +2682,12 @@ class OneAlyx(One):
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         query_type : str
-            If set to 'remote', will force database connection
+            If set to 'remote', will force database connection.
 
         Returns
         -------
-        pathlib.Path, list
-            A session path or list of session paths
+        one.alf.path.ALFPath, list
+            A session path or list of session paths.
         """
         # first try avoid hitting the database
         mode = query_type or self.mode
@@ -2705,12 +2706,12 @@ class OneAlyx(One):
         if len(ses) == 0:
             return None
         else:
-            return Path(self.cache_dir).joinpath(
+            return ALFPath(self.cache_dir).joinpath(
                 ses[0]['lab'], 'Subjects', ses[0]['subject'], ses[0]['start_time'][:10],
                 str(ses[0]['number']).zfill(3))
 
     @util.refresh
-    def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(Path):
+    def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(str):
         """
         From a local path, gets the experiment ID
 
@@ -2728,14 +2729,13 @@ class OneAlyx(One):
         """
         # If path_obj is a list recurse through it and return a list
         if isinstance(path_obj, list):
-            path_obj = [Path(x) for x in path_obj]
             eid_list = []
             unwrapped = unwrap(self.path2eid)
             for p in path_obj:
                 eid_list.append(unwrapped(self, p))
             return eid_list
-        # else ensure the path ends with mouse,date, number
-        path_obj = Path(path_obj)
+        # else ensure the path ends with mouse, date, number
+        path_obj = ALFPath(path_obj)
 
         # try the cached info to possibly avoid hitting database
         mode = query_type or self.mode
@@ -2744,7 +2744,7 @@ class OneAlyx(One):
             if cache_eid or mode == 'local':
                 return cache_eid
 
-        session_path = alfiles.get_session_path(path_obj)
+        session_path = path_obj.session_path()
         # if path does not have a date and a number return None
         if session_path is None:
             return None

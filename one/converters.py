@@ -13,7 +13,7 @@ import datetime
 import urllib.parse
 from uuid import UUID
 from inspect import unwrap
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Optional, Union, Mapping, List, Iterable as Iter
 
 import pandas as pd
@@ -22,7 +22,7 @@ from iblutil.util import Bunch, Listable, ensure_list
 from one.alf.spec import is_session_path, is_uuid_string
 from one.alf.cache import EMPTY_DATASETS_FRAME
 from one.alf.path import (
-    get_session_path, add_uuid_string, session_path_parts, get_alf_path, remove_uuid_string)
+    ALFPath, PurePosixALFPath, ensure_alf_path, get_session_path, get_alf_path, remove_uuid_string)
 
 
 def recurse(func):
@@ -152,19 +152,19 @@ class ConversionMixin:
             raise ValueError('Unrecognized experiment ID')
 
     @recurse
-    def eid2path(self, eid: str) -> Optional[Listable(Path)]:
+    def eid2path(self, eid: str) -> Optional[Listable(ALFPath)]:
         """
         From an experiment id or a list of experiment ids, gets the local cache path.
 
         Parameters
         ----------
         eid : str, uuid.UUID
-            Experiment ID (UUID) or list of UUIDs
+            Experiment ID (UUID) or list of UUIDs.
 
         Returns
         -------
-        pathlib.Path
-            A session path
+        one.alf.path.ALFPath
+            A session path.
         """
         # If not valid return None
         if not is_uuid_string(eid):
@@ -220,24 +220,25 @@ class ConversionMixin:
     def path2record(self, path) -> pd.Series:
         """Convert a file or session path to a dataset or session cache record.
 
-        NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
+        NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern.
 
         Parameters
         ----------
         path : str, pathlib.Path
-            Local path or HTTP URL
+            Local path or HTTP URL.
 
         Returns
         -------
         pandas.Series
-            A cache file record
+            A cache file record.
         """
+        path = ALFPath(path)
         is_session = is_session_path(path)
         if self._cache['sessions' if is_session else 'datasets'].empty:
             return  # short circuit: no records in the cache
 
         if is_session_path(path):
-            lab, subject, date, number = session_path_parts(path)
+            lab, subject, date, number = path.session_parts
             df = self._cache['sessions']
             rec = df[
                 (df['lab'] == lab) & (df['subject'] == subject) &
@@ -246,9 +247,6 @@ class ConversionMixin:
             ]
             return None if rec.empty else rec.squeeze()
 
-        # Deal with dataset path
-        if isinstance(path, str):
-            path = Path(path)
         # If there's a UUID in the path, use that to fetch the record
         name_parts = path.stem.split('.')
         if is_uuid_string(uuid := name_parts[-1]):
@@ -264,7 +262,7 @@ class ConversionMixin:
             return
 
         # Find row where relative path matches
-        rec = df[df['rel_path'] == path.relative_to(get_session_path(path)).as_posix()]
+        rec = df[df['rel_path'] == path.relative_to_session().as_posix()]
         assert len(rec) < 2, 'Multiple records found'
         if rec.empty:
             return None
@@ -324,22 +322,22 @@ class ConversionMixin:
         assert isinstance(record.name, tuple) and len(record.name) == 2
         eid, uuid = record.name  # must be (eid, did)
         session_path = self.eid2path(eid)
-        url = PurePosixPath(get_alf_path(session_path), record['rel_path'])
-        return webclient.rel_path2url(add_uuid_string(url, uuid).as_posix())
+        url = PurePosixALFPath(get_alf_path(session_path), record['rel_path'])
+        return webclient.rel_path2url(url.with_uuid(uuid).as_posix())
 
-    def record2path(self, dataset) -> Optional[Path]:
+    def record2path(self, dataset) -> Optional[ALFPath]:
         """
-        Given a set of dataset records, returns the corresponding paths
+        Given a set of dataset records, returns the corresponding paths.
 
         Parameters
         ----------
         dataset : pd.DataFrame, pd.Series
-            A datasets dataframe slice
+            A datasets dataframe slice.
 
         Returns
         -------
-        pathlib.Path
-            File path for the record
+        one.alf.path.ALFPath
+            File path for the record.
         """
         if isinstance(dataset, pd.DataFrame):
             return [self.record2path(r) for _, r in dataset.iterrows()]
@@ -352,7 +350,7 @@ class ConversionMixin:
             raise ValueError(f'Failed to determine session path for eid "{eid}"')
         file = session_path / dataset['rel_path']
         if self.uuid_filenames:
-            file = add_uuid_string(file, uuid)
+            file = file.with_uuid(uuid)
         return file
 
     @recurse
@@ -452,7 +450,7 @@ class ConversionMixin:
 
         Returns
         -------
-        pathlib.Path
+        one.alf.path.ALFPath
             Path object(s) for the experiment session(s).
 
         Examples
@@ -629,13 +627,13 @@ def one_path_from_dataset(dset, one_cache):
 
     Returns
     -------
-    pathlib.Path
+    one.alf.path.ALFPath
         The local path for a given dataset.
     """
     return path_from_dataset(dset, root_path=one_cache, uuid=False)
 
 
-def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=False):
+def path_from_dataset(dset, root_path=PurePosixALFPath('/'), repository=None, uuid=False):
     """
     Returns the local file path from a dset record from a REST query.
     Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
@@ -654,7 +652,7 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
 
     Returns
     -------
-    pathlib.Path, list
+    one.alf.path.ALFPath, list
         File path or list of paths.
     """
     if isinstance(dset, list):
@@ -667,11 +665,12 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
     return path_from_filerecord(fr, root_path=root_path, uuid=uuid)
 
 
-def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
+def path_from_filerecord(fr, root_path=PurePosixALFPath('/'), uuid=None):
     """
-    Returns a data file Path constructed from an Alyx file record.  The Path type returned
-    depends on the type of root_path: If root_path is a string a Path object is returned,
-    otherwise if the root_path is a PurePath, the same path type is returned.
+    Returns a data file Path constructed from an Alyx file record.
+
+    The Path type returned depends on the type of root_path: If root_path is a string an ALFPath
+    object is returned, otherwise if the root_path is a PurePath, a PureALFPath is returned.
 
     Parameters
     ----------
@@ -684,21 +683,18 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
 
     Returns
     -------
-    pathlib.Path
+    one.alf.path.ALFPath
         A filepath as a pathlib object.
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]
     repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # Remove slash at start, if any
-    file_path = PurePosixPath(repo_path, fr['relative_path'])
+    file_path = PurePosixALFPath(repo_path, fr['relative_path'])
     if root_path:
-        # NB: By checking for string we won't cast any PurePaths
-        if isinstance(root_path, str):
-            root_path = Path(root_path)
+        # NB: this function won't cast any PurePaths
+        root_path = ensure_alf_path(root_path)
         file_path = root_path / file_path
-    if uuid:
-        file_path = add_uuid_string(file_path, uuid)
-    return file_path
+    return file_path.with_uuid(uuid) if uuid else file_path
 
 
 def session_record2path(session, root_dir=None):
@@ -717,7 +713,7 @@ def session_record2path(session, root_dir=None):
 
     Returns
     -------
-    pathlib.Path, Pathlib.PurePath
+    one.alf.path.ALFPath, one.alf.path.PureALFPath
         A constructed path of the session.
 
     Examples
@@ -730,16 +726,14 @@ def session_record2path(session, root_dir=None):
     >>> session_record2path(record, Path('/home/user'))
     Path('/home/user/foo/Subjects/ALK01/2020-01-01/001')
     """
-    rel_path = PurePosixPath(
+    rel_path = PurePosixALFPath(
         session.get('lab') if session.get('lab') else '',
         'Subjects' if session.get('lab') else '',
         session['subject'], str(session['date']), str(session['number']).zfill(3)
     )
     if not root_dir:
         return rel_path
-    elif isinstance(root_dir, str):
-        root_dir = Path(root_dir)
-    return Path(root_dir).joinpath(rel_path)
+    return ensure_alf_path(root_dir).joinpath(rel_path)
 
 
 def ses2records(ses: dict):

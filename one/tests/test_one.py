@@ -54,7 +54,7 @@ import one.params
 import one.alf.exceptions as alferr
 from one.converters import datasets2records
 from one.alf import spec
-from one.alf.files import get_alf_path
+from one.alf.path import get_alf_path
 from one.alf.cache import EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME
 from . import util
 from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
