@@ -110,11 +110,18 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
     """
     # First get default parameters
     par_default = default()
-    client_key = _key_from_url(client or par_default.ALYX_URL)
+    default_url = par_default.ALYX_URL
+    client_key = _key_from_url(client or default_url)
 
     # If a client URL has been provided, set it as the default URL
-    par_default = par_default.set('ALYX_URL', client or par_default.ALYX_URL)
-    par_current = iopar.read(f'{_PAR_ID_STR}/{client_key}', par_default)
+    par_default = par_default.set('ALYX_URL', client or default_url)
+
+    # When silent=True, if setting up default database use default parameters
+    # instead of current ones to reset credentials
+    if silent and client_key == _key_from_url(default_url):
+        par_current = par_default
+    else:
+        par_current = iopar.read(f'{_PAR_ID_STR}/{client_key}', par_default)
     if username:
         par_current = par_current.set('ALYX_LOGIN', username)
 
@@ -232,6 +239,7 @@ def get(client=None, silent=False, username=None):
     IBLParams
         A Params object for the AlyxClient.
     """
+    client = client or get_default_client(include_schema=True)
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
     # If there are no params for this client, run setup routine
@@ -333,6 +341,28 @@ def check_cache_conflict(cache_dir):
     cache_map = getattr(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}), 'CLIENT_MAP', None)
     if cache_map:
         assert not any(x == str(cache_dir) for x in cache_map.values())
+
+
+def delete_params(base_url=None):
+    """Delete parameter files.
+
+    This will fully reset the ONE database and remote client parameters.
+
+    Parameters
+    ----------
+    base_url : str, optional
+        If provided, delete specific database parameters. If None, all parameters are removed.
+    """
+    if base_url:
+        client_key = _key_from_url(base_url)
+        params_file = Path(iopar.getfile(f'{_PAR_ID_STR}/{client_key}'))
+        if params_file.exists():
+            params_file.unlink()
+        else:
+            warnings.warn(f'{base_url}: params file not found')
+    else:
+        if (params_dir := get_params_dir()).exists():
+            shutil.rmtree(params_dir)
 
 
 def _patch_params(par):

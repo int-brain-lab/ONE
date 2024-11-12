@@ -1905,10 +1905,16 @@ class TestOneSetup(unittest.TestCase):
         client_pars = Path(self.tempdir.name).rglob(f'.{one_obj.alyx.base_url.split("/")[-1]}')
         self.assertEqual(len(list(client_pars)), 1)
 
-        # Check uses defaults on second instantiation
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
+            # Check uses defaults on second instantiation
             one_obj = ONE(mode='local')
-            self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
+            url = one.params.default().ALYX_URL
+            self.assertEqual(url, one_obj.alyx.base_url)
+            # With the default database in silent mode the defaults should be used
+            one.params.save(one_obj.alyx._par.set('ALYX_LOGIN', 'foobar'), url)
+            one.params.setup(url, silent=True)
+            one_obj = ONE(mode='local')
+            self.assertEqual(one.params.default().ALYX_LOGIN, one_obj.alyx._par.ALYX_LOGIN)
 
         # Check saves base_url arg
         with self.subTest('Test setup with base URL'):
@@ -1919,6 +1925,10 @@ class TestOneSetup(unittest.TestCase):
                 self.assertEqual(one_obj.alyx.base_url, TEST_DB_1['base_url'])
                 params_url = one.params.get(client=TEST_DB_1['base_url']).ALYX_URL
                 self.assertEqual(params_url, one_obj.alyx.base_url)
+                # With non-default database in silent mode the previous pars should be used
+                one.params.setup(params_url, silent=True)
+                user = one.params.get(client=params_url).ALYX_LOGIN
+                self.assertEqual(TEST_DB_1['username'], user)
 
     def test_setup_username(self):
         """Test setting up parameters with a provided username.

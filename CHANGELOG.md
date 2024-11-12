@@ -14,6 +14,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - bugfix: one.alf.path.full_path_parts didn't always raise when invalid path passed
 - one.alf.path module containing ALFPath class
 - ALF cache table generation has lower memory footprint
+- setup in silent mode now uses defaults if base url matches default one
 
 ### Added
 
@@ -21,6 +22,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - one.alf.cache.EMPTY_DATASETS_FRAME and EMPTY_SESSION_FRAME vars for table column, index, and dtype template
 - pyproject.toml replaces deprecated setup file
 - one.alf.exceptions.InvalidALF exception
+- one.params.delete_params
 
 ### Removed
 
