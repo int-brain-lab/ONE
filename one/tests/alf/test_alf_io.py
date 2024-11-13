@@ -594,25 +594,6 @@ class TestsLoadFileNonStandard(unittest.TestCase):
             self.assertEqual(loaded, self.sparse_npz)
 
 
-class TestUUID_Files(unittest.TestCase):
-
-    def test_remove_uuid_recusive(self):
-        uuid = '30c09473-4d3d-4f51-9910-c89a6840096e'
-        with tempfile.TemporaryDirectory() as dir:
-            f1 = Path(dir).joinpath(f'tutu.part1.part1.{uuid}.json')
-            f2 = Path(dir).joinpath('tata.part1.part1.json')
-            f3 = Path(dir).joinpath('toto.json')
-            f4 = Path(dir).joinpath('collection', f'tutu.part1.part1.{uuid}.json')
-            f1.touch()
-            f2.touch()
-            f2.touch()
-            f3.touch()
-            f4.parent.mkdir()
-            f4.touch()
-            alfio.remove_uuid_recursive(Path(dir))
-            self.assertFalse(len(list(Path(dir).rglob(f'*{uuid}*'))))
-
-
 class TestALFFolders(unittest.TestCase):
     tempdir = None
     session_path = None

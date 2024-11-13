@@ -48,7 +48,7 @@ from one import __version__
 from one.api import ONE, One, OneAlyx
 from one.util import (
     validate_date_range, index_last_before, filter_datasets, _collection_spec,
-    filter_revision_last_before, parse_id, autocomplete, LazyId, ensure_list
+    filter_revision_last_before, parse_id, autocomplete, LazyId
 )
 import one.params
 import one.alf.exceptions as alferr
@@ -2036,10 +2036,6 @@ class TestOneSetup(unittest.TestCase):
             one_obj = ONE(cache_dir=self.tempdir.name)
             self.assertIsInstance(one_obj, One)
 
-            # The offline param was given, raise deprecation warning (via log)
-            with self.assertWarns(FutureWarning):
-                ONE(offline=True, cache_dir=self.tempdir.name)
-
             # Test setup with virtual ONE method
             assert ONE.cache_info().currsize > 0
             ONE.setup(silent=True, make_default=True)
@@ -2214,11 +2210,6 @@ class TestOneMisc(unittest.TestCase):
         ez = LazyId([{'id': x} for x in uuids])
         self.assertCountEqual(map(str, ez), uuids)
 
-    def test_ensure_list(self):
-        """Test one.util.ensure_list.
 
-        This function has now moved therefore we simply check for deprecation warning.
-        """
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(['123'], ensure_list('123'))
-            self.assertIs(x := ['123'], ensure_list(x))
+if __name__ == '__main__':
+    unittest.main(exit=True, verbosity=2)
