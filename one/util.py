@@ -8,8 +8,8 @@ from typing import Iterable, Optional, List
 from collections.abc import Mapping
 
 import pandas as pd
-from iblutil.util import ensure_list as _ensure_list
 import numpy as np
+from iblutil.util import ensure_list
 
 import one.alf.exceptions as alferr
 from one.alf.path import rel_path_parts
@@ -291,7 +291,7 @@ def filter_datasets(
         exclude_slash = partial(re.sub, fr'^({flagless_token})?\.\*', r'\g<1>[^/]*')
         spec_str += '|'.join(
             exclude_slash(fnmatch.translate(x)) if wildcards else x + '$'
-            for x in _ensure_list(filename)
+            for x in ensure_list(filename)
         )
 
     # If matching revision name, add to regex string
@@ -303,7 +303,7 @@ def filter_datasets(
             continue
         if wildcards:
             # Convert to regex, remove \\Z which asserts end of string
-            v = (fnmatch.translate(x).replace('\\Z', '') for x in _ensure_list(v))
+            v = (fnmatch.translate(x).replace('\\Z', '') for x in ensure_list(v))
         if not isinstance(v, str):
             regex_args[k] = '|'.join(v)  # logical OR
 
@@ -483,14 +483,6 @@ def autocomplete(term, search_terms) -> str:
     elif next(full_key, None):
         raise ValueError(f'Ambiguous search term "{term}"')
     return key_
-
-
-def ensure_list(value):
-    """Ensure input is a list."""
-    warnings.warn(
-        'one.util.ensure_list is deprecated, use iblutil.util.ensure_list instead',
-        DeprecationWarning)
-    return _ensure_list(value)
 
 
 class LazyId(Mapping):

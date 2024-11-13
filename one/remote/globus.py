@@ -75,7 +75,7 @@ Temporarily change local data root path and synchronously download file
 >>> file = glo.download_file('path/to/file.ext', 'source_endpoint')
 Path('/path/to/new/location/path/to/file.ext')
 
-Await multiple tasks to complete by passing a list of Globus tranfer IDs
+Await multiple tasks to complete by passing a list of Globus transfer IDs
 
 >>> import asyncio
 >>> tasks = [asyncio.create_task(globus.task_wait_async(task_id))) for task_id in task_ids]
@@ -247,45 +247,6 @@ def get_token(client_id, refresh_tokens=True):
         return {k: globus_transfer_data.get(k) for k in fields}
     else:
         return dict.fromkeys(fields)
-
-
-def create_globus_client(client_name='default'):
-    """
-    Creates a Globus transfer client based on existing parameter file.
-
-    Parameters
-    ----------
-    client_name : str
-        Defines the parameter name to use (globus.client_name), e.g. 'default', 'admin'.
-
-    Returns
-    -------
-    globus_sdk.TransferClient
-        Globus transfer client instance.
-    """
-    msg = 'create_globus_client will be removed in the future, use Globus class instead.'
-    warnings.warn(msg, FutureWarning)
-    try:
-        globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}')
-    except (AttributeError, FileNotFoundError):
-        _setup(client_name, login=True, refresh_tokens=True)
-        globus_pars = load_client_params(f'{CLIENT_KEY}.{client_name}', assert_present=False) or {}
-
-    # Assert valid Globus client ID found
-    if not (globus_pars and 'GLOBUS_CLIENT_ID' in iopar.as_dict(globus_pars)
-            and is_uuid(globus_pars.GLOBUS_CLIENT_ID)):
-        raise ValueError(
-            'Invalid Globus client ID in client parameter file. Rerun Globus.setup'
-        )
-
-    if iopar.as_dict(globus_pars).get('refresh_token'):
-        client = globus_sdk.NativeAppAuthClient(globus_pars.GLOBUS_CLIENT_ID)
-        client.oauth2_start_flow(refresh_tokens=True)
-        authorizer = globus_sdk.RefreshTokenAuthorizer(globus_pars.refresh_token, client)
-        return globus_sdk.TransferClient(authorizer=authorizer)
-    else:
-        authorizer = globus_sdk.AccessTokenAuthorizer(globus_pars.access_token)
-        return globus_sdk.TransferClient(authorizer=authorizer)
 
 
 def _remove_token_fields(pars):
