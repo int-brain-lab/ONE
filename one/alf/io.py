@@ -666,27 +666,6 @@ def save_metadata(file_alf, dico) -> path.ALFPath:
     return file_meta_data
 
 
-def remove_uuid_recursive(folder, dry=False) -> None:
-    """
-    (DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.
-
-    Parameters
-    ----------
-    folder : str, pathlib.Path
-        A folder to recursively iterate, removing UUIDs from the file names.
-    dry : bool
-        If False renames the files on disk.
-    """
-    warnings.warn(
-        'remove_uuid_recursive is deprecated and will be removed in the next release',
-        DeprecationWarning)
-    for fn in path.ALFPath(folder).iter_datasets(recursive=True):
-        if (new_fn := fn.without_uuid()).name != fn.name:
-            print(new_fn)
-            if not dry:
-                fn.rename(new_fn)
-
-
 def next_num_folder(session_date_folder: Union[str, Path]) -> str:
     """Return the next number for a session given a session_date_folder."""
     session_date_folder = Path(session_date_folder)

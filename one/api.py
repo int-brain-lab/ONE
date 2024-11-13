@@ -1607,12 +1607,6 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
     One, OneAlyx
         An One instance if mode is 'local', otherwise an OneAlyx instance.
     """
-    if kwargs.pop('offline', False):
-        _logger.warning('the offline kwarg will probably be removed. '
-                        'ONE is now offline by default anyway')
-        warnings.warn('"offline" param will be removed; use mode="local"', FutureWarning)
-        mode = 'local'
-
     if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
             not kwargs.get('cache_dir', False)):
         return OneAlyx(mode=mode, wildcards=wildcards, **kwargs)

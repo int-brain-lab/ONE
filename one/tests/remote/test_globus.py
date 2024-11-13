@@ -179,38 +179,6 @@ class TestGlobus(unittest.TestCase):
             name = globus.get_lab_from_endpoint_id(alyx=ac)[0]
             self.assertEqual(name, 'mainenlab')
 
-    @mock.patch('one.remote.globus.globus_sdk')
-    def test_create_globus_client(self, globus_mock):
-        """Tests for one.remote.globus.create_globus_client function."""
-        # Check setup run when no params exist, check raises exception when missing params
-        gc_id = str(uuid.uuid4())
-        incomplete_pars = iopar.from_dict({'GLOBUS_CLIENT_ID': gc_id})
-        with mock.patch('one.remote.globus._setup') as setup_mock, \
-             self.assertRaises(ValueError), \
-             mock.patch('one.remote.base.load_client_params',
-                        side_effect=[AssertionError, incomplete_pars]):
-            globus.create_globus_client()
-            setup_mock.assert_called()
-
-        # Check behaviour with complete params
-        pars = iopar.from_dict({'GLOBUS_CLIENT_ID': gc_id, 'refresh_token': 456})
-        with mock.patch('one.remote.globus.load_client_params', return_value=pars) as par_mock:
-            client = globus.create_globus_client('admin')
-            par_mock.assert_called_once_with('globus.admin')
-        globus_mock.NativeAppAuthClient.assert_called_once_with(gc_id)
-        globus_mock.RefreshTokenAuthorizer.assert_called()
-        self.assertEqual(client, globus_mock.TransferClient())
-
-        # Check without refresh tokens
-        pars = pars.set('refresh_token', None).set('access_token', 456)
-        globus_mock.RefreshTokenAuthorizer.reset_mock()
-        with mock.patch('one.remote.globus.load_client_params', return_value=pars) as par_mock:
-            client = globus.create_globus_client('admin')
-            par_mock.assert_called_once_with('globus.admin')
-        globus_mock.AccessTokenAuthorizer.assert_called_once_with(456)
-        globus_mock.RefreshTokenAuthorizer.assert_not_called()
-        self.assertEqual(client, globus_mock.TransferClient())
-
     def test_remove_token_fields(self):
         """Test for one.remote.globus._remove_token_fields function."""
         par = iopar.from_dict({
@@ -306,7 +274,6 @@ class TestGlobusClient(_GlobusClientTest):
         TestGlobus.test_setup tests the setup function. Here we just check it's called.
         """
         with mock.patch('one.remote.globus._setup') as setup_mock, \
-                mock.patch('one.remote.globus.create_globus_client'), \
                 mock.patch('one.remote.globus.load_client_params', return_value=self.pars):
             self.assertIsInstance(globus.Globus.setup(), globus.Globus)
             setup_mock.assert_called_once()
