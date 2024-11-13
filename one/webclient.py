@@ -820,7 +820,8 @@ class AlyxClient:
 
         Returns
         -------
-        Local path(s) of downloaded file(s).
+        pathlib.Path, list of pathlib.Path
+            Local path(s) of downloaded file(s).
         """
         if isinstance(url, str):
             url = self._validate_file_url(url)
