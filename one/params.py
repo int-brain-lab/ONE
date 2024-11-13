@@ -153,7 +153,7 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
             if par[k] and len(par[k]) >= 2 and par[k][0] in quotes and par[k][-1] in quotes:
                 warnings.warn('Do not use quotation marks with input answers', UserWarning)
                 ans = input('Strip quotation marks from response? [Y/n]:').strip() or 'y'
-                if ans.lower()[0] == 'y':
+                if ans.casefold()[0] == 'y':
                     par[k] = par[k].strip(quotes)
             if k == 'ALYX_URL':
                 client = par[k]
@@ -185,17 +185,17 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
             answer = input(
                 'Warning: the directory provided is already a cache for another URL.  '
                 'This may cause conflicts.  Would you like to change the cache location? [Y/n]')
-            if answer and answer[0].lower() == 'n':
+            if answer and answer[0].casefold() == 'n':
                 break
             cache_dir = input(prompt) or cache_dir  # Prompt for another directory
 
         if make_default is None:
             answer = input('Would you like to set this URL as the default one? [Y/n]')
-            make_default = (answer or 'y')[0].lower() == 'y'
+            make_default = (answer or 'y')[0].casefold() == 'y'
 
         # Verify setup pars
         answer = input('Are the above settings correct? [Y/n]')
-        if answer and answer.lower()[0] == 'n':
+        if answer and answer.casefold()[0] == 'n':
             print('SETUP ABANDONED.  Please re-run.')
             return par_current
     else:

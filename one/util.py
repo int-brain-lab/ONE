@@ -472,11 +472,11 @@ def autocomplete(term, search_terms) -> str:
     """
     Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'.
     """
-    term = term.lower()
+    term = term.casefold()
     # Check if term already complete
     if term in search_terms:
         return term
-    full_key = (x for x in search_terms if x.lower().startswith(term))
+    full_key = (x for x in search_terms if x.casefold().startswith(term))
     key_ = next(full_key, None)
     if not key_:
         raise ValueError(f'Invalid search term "{term}", see `one.search_terms()`')

@@ -1926,13 +1926,13 @@ class OneAlyx(One):
             r'^[\w\/]+(?=aggregates\/)', '', n=1, regex=True)
         # The relation is the first part after 'aggregates', i.e. the second part
         records['relation'] = records['rel_path'].map(
-            lambda x: x.split('aggregates')[-1].split('/')[1].lower())
-        records = records[records['relation'] == relation.lower()]
+            lambda x: x.split('aggregates')[-1].split('/')[1].casefold())
+        records = records[records['relation'] == relation.casefold()]
 
         def path2id(p) -> str:
             """Extract identifier from relative path."""
             parts = alfiles.rel_path_parts(p)[0].split('/')
-            idx = list(map(str.lower, parts)).index(relation.lower()) + 1
+            idx = list(map(str.casefold, parts)).index(relation.casefold()) + 1
             return '/'.join(parts[idx:])
 
         records['identifier'] = records['rel_path'].map(path2id)

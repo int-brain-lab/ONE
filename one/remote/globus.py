@@ -241,7 +241,7 @@ def get_token(client_id, refresh_tokens=True):
     fields = ('refresh_token', 'access_token', 'expires_at_seconds')
     print('To get a new token, go to this URL and login: {0}'.format(authorize_url))
     auth_code = input('Enter the code you get after login here (press "c" to cancel): ').strip()
-    if auth_code and auth_code.lower() != 'c':
+    if auth_code and auth_code.casefold() != 'c':
         token_response = client.oauth2_exchange_code_for_tokens(auth_code)
         globus_transfer_data = token_response.by_resource_server['transfer.api.globus.org']
         return {k: globus_transfer_data.get(k) for k in fields}
