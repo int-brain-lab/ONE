@@ -15,6 +15,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - one.alf.path module containing ALFPath class
 - ALF cache table generation has lower memory footprint
 - setup in silent mode now uses defaults if base url matches default one
+- bugfix: error downloading from http server with keep_uuids=True
 
 ### Added
 

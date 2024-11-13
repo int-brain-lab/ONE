@@ -2522,7 +2522,8 @@ class OneAlyx(One):
             return
         if isinstance(url, str):
             target_dir = str(Path(cache_dir, alfiles.get_alf_path(url)).parent)
-            return self._download_file(url, target_dir, **kwargs)
+            file = self._download_file(url, target_dir, **kwargs)
+            return ALFPath(file) if file else None
         # must be list of URLs
         valid_urls = list(filter(None, url))
         if not valid_urls:
@@ -2558,6 +2559,7 @@ class OneAlyx(One):
     def _download_file(self, url, target_dir, keep_uuid=None, file_size=None, hash=None):
         """
         Downloads a single file or multitude of files from an HTTP webserver.
+
         The webserver in question is set by the AlyxClient object.
 
         Parameters
@@ -2575,7 +2577,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        one.alf.path.ALFPath or list of one.alf.path.ALFPath
+        pathlib.Path or list of pathlib.Path
             The file path of the downloaded file or files.
 
         Example
@@ -2599,7 +2601,7 @@ class OneAlyx(One):
 
         # check if we are keeping the uuid on the list of file names
         if keep_uuid is True or (keep_uuid is None and self.uuid_filenames):
-            return local_path
+            return list(local_path) if isinstance(local_path, tuple) else local_path
 
         # remove uuids from list of file names
         if isinstance(local_path, (list, tuple)):
