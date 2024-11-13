@@ -1972,14 +1972,14 @@ class TestOneSetup(unittest.TestCase):
         url = TEST_DB_1['base_url']
 
         def mock_input(prompt):
-            if prompt.lower().startswith('warning'):
+            if prompt.casefold().startswith('warning'):
                 if not getattr(mock_input, 'conflict_warn', False):    # Checks both responses
                     mock_input.conflict_warn = True
                     return 'y'
                 return 'n'
-            elif 'download cache' in prompt.lower():
+            elif 'download cache' in prompt.casefold():
                 return Path(self.tempdir.name).joinpath('downloads').as_posix()
-            elif 'url' in prompt.lower():
+            elif 'url' in prompt.casefold():
                 return url
             else:
                 return 'mock_input'
