@@ -28,9 +28,9 @@ class TestParamSetup(unittest.TestCase):
 
     def _mock_input(self, prompt, **kwargs):
         """Stub function for builtins.input"""
-        if prompt.lower().startswith('warning'):
+        if prompt.casefold().startswith('warning'):
             return 'n'
-        elif 'url' in prompt.lower():
+        elif 'url' in prompt.casefold():
             return self.url
         else:
             for k, v in kwargs.items():

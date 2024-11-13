@@ -16,6 +16,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - ALF cache table generation has lower memory footprint
 - setup in silent mode now uses defaults if base url matches default one
 - bugfix: error downloading from http server with keep_uuids=True
+- one.alf.spec.readableALF and one.alf.spec._dromedary preserve plural acronyms, e.g. 'ROIs'
 
 ### Added
 

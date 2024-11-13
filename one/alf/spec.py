@@ -246,13 +246,14 @@ def _dromedary(string) -> str:
     >>> _dromedary('motion_energy') == 'motionEnergy'
     >>> _dromedary('passive_RFM') == 'passive RFM'
     >>> _dromedary('FooBarBaz') == 'fooBarBaz'
+    >>> _dromedary('mpci ROIs') == 'mpciROIs'
 
     See Also
     --------
     readableALF
     """
     def _capitalize(x):
-        return x if x.isupper() else x.capitalize()
+        return x if re.match(r'^[A-Z]+s?$', x) else x.capitalize()
     if not string:  # short circuit on None and ''
         return string
     first, *other = re.split(r'[_\s]', string)
@@ -260,7 +261,7 @@ def _dromedary(string) -> str:
         # Already camel/Pascal case, ensure first letter lower case
         return first[0].lower() + first[1:]
     # Convert to camel case, preserving all-uppercase elements
-    first = first if first.isupper() else first.casefold()
+    first = first if re.match(r'^[A-Z]+s?$', first) else first.lower()
     return ''.join([first, *map(_capitalize, other)])
 
 
@@ -486,10 +487,10 @@ def readableALF(name: str, capitalize: bool = False) -> str:
     """
     words = []
     i = 0
-    matches = re.finditer(r'[A-Z](?=[a-z0-9])|(?<=[a-z0-9])[A-Z]', name)
+    matches = re.finditer(r'[A-Z](?=[a-rt-z0-9])|(?<=[a-z0-9])[A-Z]', name)
     for j in map(re.Match.start, matches):
         words.append(name[i:j])
         i = j
     words.append(name[i:])
-    display_str = ' '.join(map(lambda s: s if s.isupper() else s.lower(), words))
+    display_str = ' '.join(map(lambda s: s if re.match(r'^[A-Z]+s?$', s) else s.lower(), words))
     return display_str[0].upper() + display_str[1:] if capitalize else display_str

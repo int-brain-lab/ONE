@@ -102,7 +102,7 @@ def _cache_response(method):
             The REST response JSON either from cached file or directly from remote.
         """
         expires = expires or alyx_client.default_expiry
-        mode = (alyx_client.cache_mode or '').lower()
+        mode = (alyx_client.cache_mode or '').casefold()
         if args[0].__name__ != mode and mode != '*':
             return method(alyx_client, *args, **kwargs)
         # Check cache

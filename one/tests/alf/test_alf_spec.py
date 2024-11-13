@@ -128,6 +128,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(alf_spec._dromedary('passive_RFM'), 'passiveRFM')
         self.assertEqual(alf_spec._dromedary('ROI Motion Energy'), 'ROIMotionEnergy')
         self.assertEqual(alf_spec._dromedary(''), '')
+        self.assertEqual(alf_spec._dromedary('mpci ROIs'), 'mpciROIs')
 
     def test_readable_ALF(self):
         """Test for one.alf.spec.readableALF function."""
@@ -135,6 +136,7 @@ class TestALFSpec(unittest.TestCase):
         self.assertEqual(alf_spec.readableALF('ROIMotion'), 'ROI motion')
         self.assertEqual(alf_spec.readableALF('blueChipTime'), 'blue chip time')
         self.assertEqual(alf_spec.readableALF('someROIDataset'), 'some ROI dataset')
+        self.assertEqual(alf_spec.readableALF('someROIsDataset'), 'some ROIs dataset')
         self.assertEqual(alf_spec.readableALF('fooBAR'), 'foo BAR')
         self.assertEqual(alf_spec.readableALF('fooBAR', capitalize=True), 'Foo BAR')
 

@@ -211,9 +211,9 @@ def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
       returned resource will use an unsigned signature.
     """
     session_keys, bucket_name = get_aws_access_keys(alyx, repo_name)
-    no_creds = not any(filter(None, (v for k, v in session_keys.items() if 'key' in k.lower())))
+    no_creds = not any(filter(None, (v for k, v in session_keys.items() if 'key' in k.casefold())))
     session = boto3.Session(**session_keys)
-    if no_creds and 'public' in bucket_name.lower():
+    if no_creds and 'public' in bucket_name.casefold():
         config = Config(signature_version=UNSIGNED)
     else:
         config = None
