@@ -318,7 +318,7 @@ class TestRegistrationClient(unittest.TestCase):
         r, = self.client.register_files(file_list=[file])
         self.assertEqual(r['revision'], rev['name'])
         self.assertTrue(r['default'])
-        self.assertIsNone(r['collection'])
+        self.assertEqual('', r['collection'])
 
         # Register exact dataset revision again - it should append an 'a'
         # When we re-register the original it should move them into revision with today's date
@@ -337,7 +337,7 @@ class TestRegistrationClient(unittest.TestCase):
         file = files[1].parent.joinpath(f'#{r2["revision"]}#', file.name)
         self.assertTrue(file.exists())
 
-        self.assertIsNone(r3['revision'])
+        self.assertEqual('', r3['revision'])
         self.assertTrue(files[2].exists())
 
         # Protect the latest datasets
