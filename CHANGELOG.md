@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.2]
+
+### Modified
+
+- HOTFIX: non-default specified revisions are not ignored anymore (passed down revision argument)
+- Registration tests against Alyx > 3.2 expect empty strings as Null collections
+
+## [2.11.1]
 
 ### Modified
 
