@@ -116,6 +116,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -132,7 +133,7 @@
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">parquet</span>
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">jsonable</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ALFObjectNotFound</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">spec</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">spec</span><span class="p">,</span> <span class="n">path</span> <span class="k">as</span> <span class="n">files</span>
 <span class="kn">from</span> <span class="nn">.spec</span> <span class="kn">import</span> <span class="n">FILE_SPEC</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -257,21 +258,21 @@
 
 
 
-<span class="k">def</span> <span class="nf">_find_metadata</span><span class="p">(</span><span class="n">file_alf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_find_metadata</span><span class="p">(</span><span class="n">file_alf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    File path for an existing meta-data file for an alf_file</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file_alf : str, pathlib.Path</span>
-<span class="sd">        A path of existing ALF.</span>
+<span class="sd">        A path of existing ALF</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    one.alf.path.ALFPath</span>
-<span class="sd">        Path of meta-data file if exists.</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        Path of meta-data file if exists</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">file_alf</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">file_alf</span><span class="p">)</span>
+    <span class="n">file_alf</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_alf</span><span class="p">)</span>
     <span class="n">ns</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">file_alf</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
     <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">file_alf</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ns</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s1">*.metadata*.json&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
 
@@ -298,10 +299,11 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; t, d = read_ts(filename)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="c1"># alf format is object.attribute.extension, for example &#39;_ibl_wheel.position.npy&#39;</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">dataset_name_parts</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># looking for matching object with attribute timestamps: &#39;_ibl_wheel.timestamps.npy&#39;</span>
@@ -459,8 +461,8 @@
             <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">load_npz</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requires the pydata sparse package to load.&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span></div>
 
 
 
@@ -481,17 +483,17 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list of one.alf.path.ALFPath</span>
-<span class="sd">        A list of ALF paths.</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of ALF paths</span>
 <span class="sd">    tuple</span>
-<span class="sd">        A tuple of ALF attributes corresponding to the file paths.</span>
+<span class="sd">        A tuple of ALF attributes corresponding to the file paths</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ALFObjectNotFound</span>
 <span class="sd">        No matching ALF object was found in the alfpath directory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alfpath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
+    <span class="n">alfpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">files_alf</span> <span class="o">=</span> <span class="n">attributes</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">elif</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -501,7 +503,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">files_alf</span><span class="p">,</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">filter_by</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">object</span> <span class="o">=</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">object</span>
+        <span class="nb">object</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="n">alfpath</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">alfpath</span> <span class="o">=</span> <span class="n">alfpath</span><span class="o">.</span><span class="n">parent</span>
         <span class="n">files_alf</span><span class="p">,</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">filter_by</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -543,10 +545,10 @@
 <span class="sd">    &gt;&gt;&gt; sessions = list(iter_sessions(root_dir, pattern=&#39;*/????-??-??/*&#39;))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
-        <span class="k">yield</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">pattern</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+        <span class="k">yield</span> <span class="n">root_dir</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">pattern</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">path</span></div>
 
 
 
@@ -563,11 +565,12 @@
 
 <span class="sd">    Yields</span>
 <span class="sd">    -------</span>
-<span class="sd">    one.alf.path.ALFPath</span>
+<span class="sd">    pathlib.Path</span>
 <span class="sd">        The next dataset path (relative to the session path) in lexicographical order.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">yield</span> <span class="n">dataset</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span></div>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.*&#39;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">p</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span></div>
 
 
 
@@ -663,8 +666,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;If a directory is provided, the object name should be provided too&#39;</span><span class="p">)</span>
         <span class="n">files_alf</span><span class="p">,</span> <span class="n">parts</span> <span class="o">=</span> <span class="n">_ls</span><span class="p">(</span><span class="n">alfpath</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># A list of paths allows us to load an object from different revisions</span>
-        <span class="n">files_alf</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">alfpath</span><span class="p">))</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">dataset_name_parts</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files_alf</span><span class="p">]</span>
+        <span class="n">files_alf</span> <span class="o">=</span> <span class="n">alfpath</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">files</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files_alf</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="nb">object</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">)</span>
     <span class="c1"># Take attribute and timescale from parts list</span>
@@ -739,27 +742,27 @@
 <span class="sd">    Saves a dictionary in `ALF format`_ using object as object name and dictionary keys as</span>
 <span class="sd">    attribute names. Dimensions have to be consistent.</span>
 
-<span class="sd">    Simplified ALF example: _namespace_object.attribute.part1.part2.extension.</span>
+<span class="sd">    Simplified ALF example: _namespace_object.attribute.part1.part2.extension</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    alfpath : str, pathlib.Path</span>
-<span class="sd">        Path of the folder to save data to.</span>
+<span class="sd">        Path of the folder to save data to</span>
 <span class="sd">    dico : dict</span>
-<span class="sd">        Dictionary to save to npy; keys correspond to ALF attributes.</span>
+<span class="sd">        Dictionary to save to npy; keys correspond to ALF attributes</span>
 <span class="sd">    object : str</span>
-<span class="sd">        Name of the object to save.</span>
+<span class="sd">        Name of the object to save</span>
 <span class="sd">    parts : str, list, None</span>
-<span class="sd">        Extra parts to the ALF name.</span>
+<span class="sd">        Extra parts to the ALF name</span>
 <span class="sd">    namespace : str, None</span>
-<span class="sd">        The optional namespace of the object.</span>
+<span class="sd">        The optional namespace of the object</span>
 <span class="sd">    timescale : str, None</span>
-<span class="sd">        The optional timescale of the object.</span>
+<span class="sd">        The optional timescale of the object</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list of one.alf.path.ALFPath</span>
-<span class="sd">        List of written files.</span>
+<span class="sd">    list</span>
+<span class="sd">        List of written files</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -769,7 +772,7 @@
 <span class="sd">    .. _ALF format:</span>
 <span class="sd">        https://int-brain-lab.github.io/ONE/alf_intro.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alfpath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
+    <span class="n">alfpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">alfpath</span><span class="p">)</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">check_dimensions</span><span class="p">(</span><span class="n">dico</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Dimensions are not consistent to save all arrays in ALF format: &#39;</span> <span class="o">+</span>
@@ -786,7 +789,7 @@
 
 <div class="viewcode-block" id="save_metadata">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.save_metadata">[docs]</a>
-<span class="k">def</span> <span class="nf">save_metadata</span><span class="p">(</span><span class="n">file_alf</span><span class="p">,</span> <span class="n">dico</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">save_metadata</span><span class="p">(</span><span class="n">file_alf</span><span class="p">,</span> <span class="n">dico</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Writes a meta data file matching a current ALF file object.</span>
 
 <span class="sd">    For example given an alf file `clusters.ccfLocation.ssv` this will write a dictionary in JSON</span>
@@ -803,18 +806,42 @@
 <span class="sd">        Full path to the alf object</span>
 <span class="sd">    dico : dict, ALFBunch</span>
 <span class="sd">        Dictionary containing meta-data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">file_alf</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;ALF filename not valid&#39;</span>
+    <span class="n">file_meta_data</span> <span class="o">=</span> <span class="n">file_alf</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="n">file_alf</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;.metadata.json&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_meta_data</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+        <span class="n">fid</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dico</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="remove_uuid_file">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.io.html#one.alf.io.remove_uuid_file">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_uuid_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    (DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : str, pathlib.Path</span>
+<span class="sd">        An ALF path containing a UUID in the file name.</span>
+<span class="sd">    dry : bool</span>
+<span class="sd">        If False, the file is not renamed on disk.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    one.alf.path.ALFPath</span>
-<span class="sd">        The saved metadata file path.</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The new file path without the UUID in the file name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">file_alf</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">file_alf</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">file_alf</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">,</span> <span class="s1">&#39;ALF filename not valid&#39;</span>
-    <span class="n">file_meta_data</span> <span class="o">=</span> <span class="n">file_alf</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="n">file_alf</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;.metadata.json&#39;</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_meta_data</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
-        <span class="n">fid</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dico</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">file_meta_data</span></div>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s1">&#39;remove_uuid_file deprecated, use one.alf.files.remove_uuid_string instead&#39;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">new_path</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_path</span> <span class="o">==</span> <span class="n">file_path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">new_path</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry</span> <span class="ow">and</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">file_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_path</span></div>
 
 
 
@@ -834,11 +861,8 @@
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
         <span class="s1">&#39;remove_uuid_recursive is deprecated and will be removed in the next release&#39;</span><span class="p">,</span>
         <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">new_fn</span> <span class="o">:=</span> <span class="n">fn</span><span class="o">.</span><span class="n">without_uuid</span><span class="p">())</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">fn</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">new_fn</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">dry</span><span class="p">:</span>
-                <span class="n">fn</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">new_fn</span><span class="p">)</span></div>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.*&#39;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="n">dry</span><span class="p">))</span></div>
 
 
 
@@ -884,29 +908,29 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    alf_path : str, pathlib.Path</span>
-<span class="sd">        A path to a folder containing ALF datasets.</span>
+<span class="sd">        A path to a folder containing ALF datasets</span>
 <span class="sd">    wildcards : bool</span>
-<span class="sd">        If true, kwargs are matched as unix-style patterns, otherwise as regular expressions.</span>
+<span class="sd">        If true, kwargs are matched as unix-style patterns, otherwise as regular expressions</span>
 <span class="sd">    object : str, list</span>
-<span class="sd">        Filter by a given object (e.g. &#39;spikes&#39;).</span>
+<span class="sd">        Filter by a given object (e.g. &#39;spikes&#39;)</span>
 <span class="sd">    attribute : str, list</span>
-<span class="sd">        Filter by a given attribute (e.g. &#39;intervals&#39;).</span>
+<span class="sd">        Filter by a given attribute (e.g. &#39;intervals&#39;)</span>
 <span class="sd">    extension : str, list</span>
-<span class="sd">        Filter by extension (e.g. &#39;npy&#39;).</span>
+<span class="sd">        Filter by extension (e.g. &#39;npy&#39;)</span>
 <span class="sd">    namespace : str, list</span>
-<span class="sd">        Filter by a given namespace (e.g. &#39;ibl&#39;) or None for files without one.</span>
+<span class="sd">        Filter by a given namespace (e.g. &#39;ibl&#39;) or None for files without one</span>
 <span class="sd">    timescale : str, list</span>
-<span class="sd">        Filter by a given timescale (e.g. &#39;bpod&#39;) or None for files without one.</span>
+<span class="sd">        Filter by a given timescale (e.g. &#39;bpod&#39;) or None for files without one</span>
 <span class="sd">    extra : str, list</span>
 <span class="sd">        Filter by extra parameters (e.g. &#39;raw&#39;) or None for files without extra parts</span>
 <span class="sd">        NB: Wild cards not permitted here.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    alf_files : list of one.alf.path.ALFPath</span>
-<span class="sd">        A Path to a directory containing ALF files.</span>
+<span class="sd">    alf_files : str</span>
+<span class="sd">        A Path to a directory containing ALF files</span>
 <span class="sd">    attributes : list of dicts</span>
-<span class="sd">        A list of parsed file parts.</span>
+<span class="sd">        A list of parsed file parts</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -935,8 +959,8 @@
 <span class="sd">    &gt;&gt;&gt; filter_by(alf_path, object=&#39;^wheel.*&#39;, wildcards=False)</span>
 <span class="sd">    &gt;&gt;&gt; filter_by(alf_path, object=[&#39;^wheel$&#39;, &#39;.*Moves&#39;], wildcards=False)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alf_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">alf_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">alf_path</span><span class="p">)</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">()]</span>
-    <span class="n">attributes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="o">.</span><span class="n">parse_alf_name</span><span class="p">,</span> <span class="n">alf_files</span><span class="p">))</span>
+    <span class="n">alf_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">alf_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">files</span><span class="o">.</span><span class="n">filename_parts</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">alf_files</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="c1"># Validate keyword arguments against regex group names</span>
@@ -1032,6 +1056,9 @@
 <span class="sd">    ]}</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parse into individual ALF parts</span>
+    <span class="n">to_parts_dict</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">files</span><span class="o">.</span><span class="n">full_path_parts</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">uParts</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">to_parts_dict</span><span class="p">,</span> <span class="n">file_list</span><span class="p">)</span>
     <span class="c1"># Initialize map of unique files to their duplicates</span>
     <span class="n">duplicates</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># Determine which parts to filter</span>
@@ -1042,21 +1069,20 @@
 
     <span class="k">def</span> <span class="nf">parts_match</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare a file&#39;s unique parts to a given file&quot;&quot;&quot;</span>
-        <span class="n">other</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">()</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="n">to_parts_dict</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">other</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">to_compare</span><span class="p">)</span>
 
     <span class="c1"># iterate over unique files and their parts</span>
-    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">file_list</span><span class="p">):</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">parts</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="n">file_list</span><span class="p">),</span> <span class="n">uParts</span><span class="p">):</span>
         <span class="c1"># first glob for files matching object.attribute (including revisions)</span>
         <span class="n">pattern</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;*</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">*&#39;</span>
         <span class="c1"># this works because revision will always be last folder;</span>
         <span class="c1"># i.e. revisions can&#39;t contain collections</span>
-        <span class="n">globbed</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">without_revision</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">glob</span><span class="p">,</span> <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s1">&#39;#*#/&#39;</span> <span class="o">+</span> <span class="n">pattern</span><span class="p">))</span>
+        <span class="n">globbed</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">files</span><span class="o">.</span><span class="n">without_revision</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">glob</span><span class="p">,</span> <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s1">&#39;#*#/&#39;</span> <span class="o">+</span> <span class="n">pattern</span><span class="p">))</span>
         <span class="n">globbed</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">globbed</span><span class="p">)</span>  <span class="c1"># unite revision and non-revision globs</span>
         <span class="c1"># refine duplicates based on other parts (this also ensures we don&#39;t catch similar objects)</span>
         <span class="n">globbed</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">parts_match</span><span class="p">,</span> <span class="n">parts</span><span class="p">),</span> <span class="n">globbed</span><span class="p">)</span>
-        <span class="c1"># key = f.relative_to_session().as_posix()</span>
+        <span class="c1"># key = f.relative_to(one.alf.files.get_session_path(f)).as_posix()</span>
         <span class="n">duplicates</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">globbed</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">f</span><span class="p">]</span>  <span class="c1"># map file to list of its duplicates</span>
     <span class="k">return</span> <span class="n">duplicates</span></div>
 

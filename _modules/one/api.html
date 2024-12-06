@@ -110,7 +110,6 @@
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">WeakMethod</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span><span class="p">,</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">unwrap</span>
@@ -128,20 +127,17 @@
 <span class="kn">import</span> <span class="nn">packaging.version</span>
 
 <span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">parquet</span><span class="p">,</span> <span class="n">hashfile</span>
-<span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">Bunch</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">,</span> <span class="n">Listable</span>
+<span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">Bunch</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">ensure_list</span>
 
 <span class="kn">import</span> <span class="nn">one.params</span>
 <span class="kn">import</span> <span class="nn">one.webclient</span> <span class="k">as</span> <span class="nn">wc</span>
 <span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
 <span class="kn">import</span> <span class="nn">one.alf.path</span> <span class="k">as</span> <span class="nn">alfiles</span>
 <span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
-<span class="kn">from</span> <span class="nn">one.alf.path</span> <span class="kn">import</span> <span class="n">ALFPath</span>
-<span class="kn">from</span> <span class="nn">.alf.cache</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">make_parquet_db</span><span class="p">,</span> <span class="n">patch_cache</span><span class="p">,</span> <span class="n">remove_cache_table_files</span><span class="p">,</span>
-    <span class="n">EMPTY_DATASETS_FRAME</span><span class="p">,</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.alf.cache</span> <span class="kn">import</span> <span class="n">make_parquet_db</span><span class="p">,</span> <span class="n">DATASETS_COLUMNS</span><span class="p">,</span> <span class="n">SESSIONS_COLUMNS</span>
 <span class="kn">from</span> <span class="nn">.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">QC</span><span class="p">,</span> <span class="n">to_alf</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">one.converters</span> <span class="kn">import</span> <span class="n">ConversionMixin</span><span class="p">,</span> <span class="n">session_record2path</span><span class="p">,</span> <span class="n">ses2records</span><span class="p">,</span> <span class="n">datasets2records</span>
+<span class="kn">from</span> <span class="nn">one.converters</span> <span class="kn">import</span> <span class="n">ConversionMixin</span><span class="p">,</span> <span class="n">session_record2path</span>
 <span class="kn">from</span> <span class="nn">one</span> <span class="kn">import</span> <span class="n">util</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -162,7 +158,7 @@
     <span class="n">uuid_filenames</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;bool: whether datasets on disk have a UUID in their filename.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data on a local filesystem</span>
 
 <span class="sd">        Parameters</span>
@@ -214,35 +210,14 @@
 
     <span class="k">def</span> <span class="nf">_reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the cache object with a Bunch that contains the right fields.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span>
-            <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}}</span>  <span class="c1"># map of original table metadata</span>
-        <span class="p">})</span>
-
-    <span class="k">def</span> <span class="nf">_remove_cache_table_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete cache tables on disk.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        tables : list of str</span>
-<span class="sd">            A list of table names to removes, e.g. [&#39;sessions&#39;, &#39;datasets&#39;].</span>
-<span class="sd">            If None, the currently loaded table names are removed. NB: This</span>
-<span class="sd">            will also delete the cache_info.json metadata file.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        list of pathlib.Path</span>
-<span class="sd">            A list of the removed files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tables</span> <span class="o">=</span> <span class="n">tables</span> <span class="ow">or</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">remove_cache_table_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span><span class="p">,</span> <span class="n">tables</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span><span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;expired&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># map of original table metadata</span>
+        <span class="p">}})</span>
 
 <div class="viewcode-block" id="One.load_cache">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.One.load_cache">[docs]</a>
@@ -276,7 +251,7 @@
                 <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Patch older tables</span>
-            <span class="n">cache</span> <span class="o">=</span> <span class="n">patch_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">),</span> <span class="n">table</span><span class="p">)</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">patch_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">),</span> <span class="n">table</span><span class="p">)</span>
 
             <span class="c1"># Check sorted</span>
             <span class="c1"># Sorting makes MultiIndex indexing O(N) -&gt; O(1)</span>
@@ -285,13 +260,13 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span>
 
-        <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># No tables present</span>
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;expired&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-                <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">()})</span>
+                <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATASETS_COLUMNS</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]),</span>
+                <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">SESSIONS_COLUMNS</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)})</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offline</span><span class="p">:</span>  <span class="c1"># In online mode, the cache tables should be downloaded later</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No cache tables found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tables_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">created</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;date_created&#39;</span><span class="p">])</span>
@@ -330,7 +305,7 @@
 <span class="sd">            If True, the cache is saved regardless of modification time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Delete lock file this many seconds after creation/modification or waiting</span>
-        <span class="n">lock_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.cache.lock&#39;</span><span class="p">)</span>  <span class="c1"># TODO use iblutil method here</span>
+        <span class="n">lock_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.cache.lock&#39;</span><span class="p">)</span>
         <span class="n">save_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">save_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
         <span class="n">modified</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;modified_time&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span>
@@ -381,8 +356,7 @@
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;remote&#39;</span><span class="p">}:</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
-            <span class="n">loaded_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded_time</span> <span class="ow">or</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">loaded_time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_expiry</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_expiry</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Cache expired, refreshing&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;refresh&#39;</span><span class="p">:</span>
@@ -412,7 +386,7 @@
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
-<span class="sd">        &gt;&gt;&gt; session, datasets = ses2records(self.get_details(eid, full=True))</span>
+<span class="sd">        &gt;&gt;&gt; session, datasets = util.ses2records(self.get_details(eid, full=True))</span>
 <span class="sd">        ... self._update_cache_from_records(sessions=session, datasets=datasets)</span>
 
 <span class="sd">        Raises</span>
@@ -431,33 +405,30 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Table &quot;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">&quot; not in cache&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
                 <span class="n">records</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">records</span><span class="p">])</span>
-                <span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
                 <span class="c1"># Deal with case where there are extra columns in the cache</span>
-                <span class="n">extra_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
-                <span class="c1"># Convert these columns to nullable, if required</span>
-                <span class="n">cache_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">][</span><span class="n">extra_columns</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">][</span><span class="n">extra_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache_columns</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+                <span class="n">extra_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
                 <span class="n">column_ids</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">extra_columns</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">extra_columns</span><span class="p">,</span> <span class="n">column_ids</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-                    <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
-                    <span class="n">nan</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="s1">&#39;na_value&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                    <span class="n">val</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;exists_&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">nan</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;exists_&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                     <span class="n">records</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
                 <span class="c1"># Drop any extra columns in the records that aren&#39;t in cache table</span>
                 <span class="n">to_drop</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
                 <span class="n">records</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-            <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
             <span class="c1"># Update existing rows</span>
             <span class="n">to_update</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_update</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">to_update</span><span class="p">]</span>
             <span class="c1"># Assign new rows</span>
             <span class="n">to_assign</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="o">~</span><span class="n">to_update</span><span class="p">]</span>
-            <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">],</span> <span class="n">to_assign</span><span class="p">]</span>
-            <span class="c1"># Concatenate and sort</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">to_assign</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="c1"># Concatenate and sort (no other way for non-unique index within MultiIndex)</span>
+                <span class="n">frames</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">],</span> <span class="n">to_assign</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">to_assign</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="n">updated</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
         <span class="k">return</span> <span class="n">updated</span>
@@ -501,7 +472,7 @@
         <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">filename</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download several datasets given a set of datasets.</span>
 
@@ -510,31 +481,31 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dsets : list</span>
-<span class="sd">            List of dataset dictionaries from an Alyx REST query OR URL strings.</span>
+<span class="sd">            List of dataset dictionaries from an Alyx REST query OR URL strings</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list of one.alf.path.ALFPath</span>
-<span class="sd">            A local file path list.</span>
+<span class="sd">        list of pathlib.Path</span>
+<span class="sd">            A local file path list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Looking to entirely remove method</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ALFPath</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Download a dataset from an Alyx REST dictionary.</span>
+<span class="sd">        Download a dataset from an Alyx REST dictionary</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dset : pandas.Series, dict, str</span>
-<span class="sd">            A single dataset dictionary from an Alyx REST query OR URL string.</span>
+<span class="sd">            A single dataset dictionary from an Alyx REST query OR URL string</span>
 <span class="sd">        cache_dir : str, pathlib.Path</span>
-<span class="sd">            The root directory to save the data in (home/downloads by default).</span>
+<span class="sd">            The root directory to save the data in (home/downloads by default)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        one.alf.path.ALFPath</span>
-<span class="sd">            The local file path.</span>
+<span class="sd">        pathlib.Path</span>
+<span class="sd">            The local file path</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span>
 
@@ -652,6 +623,7 @@
         <span class="n">search_terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
         <span class="n">queries</span> <span class="o">=</span> <span class="p">{</span><span class="n">util</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">queries</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">sort_fcn</span><span class="p">):</span>
+            <span class="c1"># key = util.autocomplete(key)  # Validate and get full name</span>
             <span class="c1"># No matches; short circuit</span>
             <span class="k">if</span> <span class="n">sessions</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">([],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="p">[]</span>
@@ -713,19 +685,19 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        datasets : pandas.Series, pandas.DataFrame, list of dicts</span>
-<span class="sd">            A list or DataFrame of dataset records.</span>
+<span class="sd">            A list or DataFrame of dataset records</span>
 <span class="sd">        offline : bool, None</span>
 <span class="sd">            If false and Web client present, downloads the missing datasets from a remote</span>
-<span class="sd">            repository.</span>
+<span class="sd">            repository</span>
 <span class="sd">        update_exists : bool</span>
-<span class="sd">            If true, the cache is updated to reflect the filesystem.</span>
+<span class="sd">            If true, the cache is updated to reflect the filesystem</span>
 <span class="sd">        check_hash : bool</span>
 <span class="sd">            Consider dataset missing if local file hash does not match. In online mode, the dataset</span>
 <span class="sd">            will be re-downloaded.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        A list of one.alf.path.ALFPath for the datasets (None elements for non-existent datasets).</span>
+<span class="sd">        A list of file paths for the datasets (None elements for non-existent datasets)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
             <span class="n">datasets</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">datasets</span><span class="p">])</span>
@@ -734,7 +706,7 @@
             <span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="n">idx_names</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="c1"># Cast set of dicts (i.e. from REST datasets endpoint)</span>
-            <span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets2records</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">datasets</span><span class="p">))</span>
+            <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">datasets2records</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">datasets</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">indices_to_download</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># indices of datasets that need (re)downloading</span>
@@ -760,9 +732,9 @@
 
         <span class="c1"># First go through datasets and check if file exists and hash matches</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-            <span class="n">file</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">rec</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]])</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">rec</span><span class="p">[[</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">]])</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span><span class="p">:</span>
-                <span class="n">file</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span><span class="p">)</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">add_uuid_string</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="c1"># Check if there&#39;s a hash mismatch</span>
                 <span class="c1"># If so, add this index to list of datasets that need downloading</span>
@@ -1131,7 +1103,7 @@
                     <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                     <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]]:</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all attributes of an ALF object from a Session ID and an object name.</span>
 
@@ -1168,7 +1140,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        one.alf.io.AlfBunch, list</span>
-<span class="sd">            An ALF bunch or if download_only is True, a list of one.alf.path.ALFPath objects.</span>
+<span class="sd">            An ALF bunch or if download_only is True, a list of Paths objects.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1185,7 +1157,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query_type</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span>
-            <span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span> <span class="n">keep_eid_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span> <span class="n">keep_eid_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFObjectNotFound</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
@@ -1260,8 +1232,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray, one.alf.path.ALFPath</span>
-<span class="sd">            Dataset or a ALFPath object if download_only is true.</span>
+<span class="sd">        np.ndarray, pathlib.Path</span>
+<span class="sd">            Dataset or a Path object if download_only is true.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1565,7 +1537,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray, one.alf.path.ALFPath</span>
+<span class="sd">        np.ndarray, pathlib.Path</span>
 <span class="sd">            Dataset data (or filepath if download_only) and dataset record if details is True.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dset_id</span><span class="p">,</span> <span class="n">UUID</span><span class="p">):</span>
@@ -1602,7 +1574,7 @@
                         <span class="n">query_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">download_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                         <span class="n">check_hash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]]:</span>
+                        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all objects in an ALF collection from a Session ID.  Any datasets with matching object</span>
 <span class="sd">        name(s) will be loaded.  Returns a bunch of objects.</span>
@@ -1636,8 +1608,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Bunch of one.alf.io.AlfBunch, list of one.alf.path.ALFPath</span>
-<span class="sd">            A Bunch of objects or if download_only is True, a list of ALFPath objects.</span>
+<span class="sd">        Bunch of one.alf.io.AlfBunch, list of pathlib.Path</span>
+<span class="sd">            A Bunch of objects or if download_only is True, a list of Paths objects</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1735,7 +1707,7 @@
 <div class="viewcode-block" id="ONE">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.ONE">[docs]</a>
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">ONE</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">ONE</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ONE API factory.</span>
 
 <span class="sd">    Determine which class to instantiate depending on parameters passed.</span>
@@ -1773,7 +1745,7 @@
     <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;offline&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;the offline kwarg will probably be removed. &#39;</span>
                         <span class="s1">&#39;ONE is now offline by default anyway&#39;</span><span class="p">)</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;&quot;offline&quot; param will be removed; use mode=&quot;local&quot;&#39;</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;&quot;offline&quot; param will be removed; use mode=&quot;local&quot;&#39;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;base_url&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">))</span> <span class="ow">or</span>
@@ -1795,7 +1767,7 @@
 <span class="k">class</span> <span class="nc">OneAlyx</span><span class="p">(</span><span class="n">One</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An API for searching and loading data through the Alyx database.</span>
 
 <span class="sd">        Parameters</span>
@@ -2053,7 +2025,7 @@
         <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>  <span class="c1"># Ensure we have a UUID str list</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">eid</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="p">[]</span>  <span class="c1"># Return empty</span>
-        <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span> <span class="o">=</span> <span class="n">ses2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">eid</span><span class="p">))</span>
+        <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">ses2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">eid</span><span class="p">))</span>
         <span class="c1"># Add to cache tables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_from_records</span><span class="p">(</span><span class="n">sessions</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">datasets</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">datasets</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
@@ -2103,7 +2075,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;session__isnull,True&#39;</span>  <span class="c1"># &#39;,data_repository_name__endswith,aggregates&#39;</span>
         <span class="n">all_aggregates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
-        <span class="n">records</span> <span class="o">=</span> <span class="p">(</span><span class="n">datasets2records</span><span class="p">(</span><span class="n">all_aggregates</span><span class="p">)</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">datasets2records</span><span class="p">(</span><span class="n">all_aggregates</span><span class="p">)</span>
                    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                    <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
         <span class="c1"># Since rel_path for public FI file records starts with &#39;public/aggregates&#39; instead of just</span>
@@ -2156,8 +2128,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pandas.DataFrame, one.alf.path.ALFPath</span>
-<span class="sd">            Dataset or a ALFPath object if download_only is true.</span>
+<span class="sd">        pandas.DataFrame, pathlib.Path</span>
+<span class="sd">            Dataset or a Path object if download_only is true.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -2495,18 +2467,6 @@
             <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;django&#39;</span><span class="p">)</span>
         <span class="c1"># Make GET request</span>
         <span class="n">ses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_endpoint</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
-
-        <span class="c1"># Update cache table with results</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">pass</span>  <span class="c1"># no need to update cache here</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># not a paginated response</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_sessions_table</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># populate first page</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_sessions_table</span><span class="p">(</span><span class="n">ses</span><span class="o">.</span><span class="n">_cache</span><span class="p">[:</span><span class="n">ses</span><span class="o">.</span><span class="n">limit</span><span class="p">])</span>
-            <span class="c1"># Add callback for updating cache on future fetches</span>
-            <span class="n">ses</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_sessions_table</span><span class="p">))</span>
-
         <span class="c1"># LazyId only transforms records when indexed</span>
         <span class="n">eids</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
@@ -2521,23 +2481,7 @@
         <span class="k">return</span> <span class="n">eids</span><span class="p">,</span> <span class="n">util</span><span class="o">.</span><span class="n">LazyId</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">_add_date</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_update_sessions_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_records</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the sessions tables with a list of session records.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        session_records : list of dict</span>
-<span class="sd">            A list of session records from the /sessions list endpoint.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        datetime.datetime:</span>
-<span class="sd">            A timestamp of when the cache was updated.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">ses2records</span><span class="p">,</span> <span class="n">session_records</span><span class="p">))))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_from_records</span><span class="p">(</span><span class="n">sessions</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download a single or multitude of datasets if stored on AWS, otherwise calls</span>
 <span class="sd">        OneAlyx._download_dataset.</span>
@@ -2552,7 +2496,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list of one.alf.path.ALFPath</span>
+<span class="sd">        list of pathlib.Path</span>
 <span class="sd">            A list of local file paths.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># determine whether to remove the UUID after download, this may be overridden by user</span>
@@ -2572,7 +2516,7 @@
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_dataset</span><span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keep_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_aws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsets</span><span class="p">,</span> <span class="n">update_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keep_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download datasets from an AWS S3 instance using boto3.</span>
 
@@ -2589,7 +2533,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list of one.alf.path.ALFPath</span>
+<span class="sd">        list of pathlib.Path</span>
 <span class="sd">            A list the length of `dsets` of downloaded dataset file paths. Missing datasets are</span>
 <span class="sd">            returned as None.</span>
 
@@ -2635,7 +2579,7 @@
             <span class="n">local_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span>
                 <span class="n">source_path</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">update_exists</span><span class="p">))</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">ALFPath</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">out_files</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">out_files</span>
 
     <span class="k">def</span> <span class="nf">_dset2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2697,8 +2641,7 @@
 
         <span class="k">return</span> <span class="n">url</span>
 
-    <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_download_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dset</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download a single or multitude of dataset from an Alyx REST dictionary.</span>
 
@@ -2715,7 +2658,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list of one.alf.path.ALFPath</span>
+<span class="sd">        list of pathlib.Path</span>
 <span class="sd">            A local file path or list of paths.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
@@ -2736,7 +2679,7 @@
             <span class="n">target_dir</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">get_alf_path</span><span class="p">(</span><span class="n">_path</span><span class="p">))</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
         <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">valid_urls</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># Return list of file paths or None if we failed to extract URL from dataset</span>
-        <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="k">else</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">url</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="k">else</span> <span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">url</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_tag_mismatched_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="n">fr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
@@ -2777,7 +2720,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        one.alf.path.ALFPath or list of one.alf.path.ALFPath</span>
+<span class="sd">        pathlib.Path or list of pathlib.Path</span>
 <span class="sd">            The file path of the downloaded file or files.</span>
 
 <span class="sd">        Example</span>
@@ -2873,7 +2816,7 @@
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.eid2path">[docs]</a>
     <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">parse_id</span>
-    <span class="k">def</span> <span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Listable</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">util</span><span class="o">.</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From an experiment ID gets the local session path</span>
 
@@ -2883,12 +2826,12 @@
 <span class="sd">            Experiment session identifier; may be a UUID, URL, experiment reference string</span>
 <span class="sd">            details dict or Path.</span>
 <span class="sd">        query_type : str</span>
-<span class="sd">            If set to &#39;remote&#39;, will force database connection.</span>
+<span class="sd">            If set to &#39;remote&#39;, will force database connection</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        one.alf.path.ALFPath, list</span>
-<span class="sd">            A session path or list of session paths.</span>
+<span class="sd">        pathlib.Path, list</span>
+<span class="sd">            A session path or list of session paths</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># first try avoid hitting the database</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
@@ -2907,7 +2850,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
                 <span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;lab&#39;</span><span class="p">],</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;start_time&#39;</span><span class="p">][:</span><span class="mi">10</span><span class="p">],</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span></div>
 
@@ -2915,7 +2858,7 @@
 <div class="viewcode-block" id="OneAlyx.path2eid">
 <a class="viewcode-back" href="../../_autosummary/one.api.html#one.api.OneAlyx.path2eid">[docs]</a>
     <span class="nd">@util</span><span class="o">.</span><span class="n">refresh</span>
-    <span class="k">def</span> <span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Listable</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">util</span><span class="o">.</span><span class="n">Listable</span><span class="p">(</span><span class="n">Path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        From a local path, gets the experiment ID</span>
 
@@ -2933,13 +2876,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If path_obj is a list recurse through it and return a list</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">path_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">path_obj</span><span class="p">]</span>
             <span class="n">eid_list</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">unwrapped</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path2eid</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path_obj</span><span class="p">:</span>
                 <span class="n">eid_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unwrapped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">eid_list</span>
-        <span class="c1"># else ensure the path ends with mouse, date, number</span>
-        <span class="n">path_obj</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">path_obj</span><span class="p">)</span>
+        <span class="c1"># else ensure the path ends with mouse,date, number</span>
+        <span class="n">path_obj</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_obj</span><span class="p">)</span>
 
         <span class="c1"># try the cached info to possibly avoid hitting database</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">query_type</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
@@ -2948,7 +2892,7 @@
             <span class="k">if</span> <span class="n">cache_eid</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">cache_eid</span>
 
-        <span class="n">session_path</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">session_path</span><span class="p">()</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="n">alfiles</span><span class="o">.</span><span class="n">get_session_path</span><span class="p">(</span><span class="n">path_obj</span><span class="p">)</span>
         <span class="c1"># if path does not have a date and a number return None</span>
         <span class="k">if</span> <span class="n">session_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -3024,7 +2968,7 @@
             <span class="n">restriction</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;session__id,</span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s1">,dataset_type__name__in,</span><span class="si">{</span><span class="n">dataset_type</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;dataset_type must be a str or str list&#39;</span><span class="p">)</span>
-        <span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="n">restriction</span><span class="p">))</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">datasets2records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="n">restriction</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span></div>
 
 

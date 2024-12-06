@@ -93,7 +93,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#one.params.get_cache_dir"><code class="docutils literal notranslate"><span class="pre">get_cache_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.params.get_params_dir"><code class="docutils literal notranslate"><span class="pre">get_params_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.params.check_cache_conflict"><code class="docutils literal notranslate"><span class="pre">check_cache_conflict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#one.params.delete_params"><code class="docutils literal notranslate"><span class="pre">delete_params()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
@@ -166,25 +165,22 @@ caches file also sets the default client for when no url is provided.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.params.default" title="one.params.default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></a></p></td>
 <td><p>Default Web client parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.delete_params" title="one.params.delete_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_params</span></code></a></p></td>
-<td><p>Delete parameter files.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get" title="one.params.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get" title="one.params.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a></p></td>
 <td><p>Returns the AlyxClient parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get_cache_dir" title="one.params.get_cache_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cache_dir</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get_cache_dir" title="one.params.get_cache_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cache_dir</span></code></a></p></td>
 <td><p>Return the download directory for a given client.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get_default_client" title="one.params.get_default_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_default_client</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get_default_client" title="one.params.get_default_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_default_client</span></code></a></p></td>
 <td><p>Returns the default AlyxClient URL, or None if no default is set</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get_params_dir" title="one.params.get_params_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params_dir</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get_params_dir" title="one.params.get_params_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params_dir</span></code></a></p></td>
 <td><p>Return the path to the root ONE parameters directory</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.params.save" title="one.params.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.save" title="one.params.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a></p></td>
 <td><p>Save a set of parameters for a given client.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.setup" title="one.params.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.params.setup" title="one.params.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a></p></td>
 <td><p>Set up ONE parameters.</p></td>
 </tr>
 </tbody>
@@ -330,18 +326,6 @@ OneAlyx object or not.  It is also used when setting up params for a new client.
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>AssertionError</strong> – The directory is set as a cache for a Web client</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="one.params.delete_params">
-<span class="sig-name descname"><span class="pre">delete_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#delete_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.delete_params" title="Link to this definition"></a></dt>
-<dd><p>Delete parameter files.</p>
-<p>This will fully reset the ONE database and remote client parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>base_url</strong> (<em>str</em><em>, </em><em>optional</em>) – If provided, delete specific database parameters. If None, all parameters are removed.</p>
 </dd>
 </dl>
 </dd></dl>

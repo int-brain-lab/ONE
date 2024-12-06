@@ -22,7 +22,6 @@ one.alf.exceptions
    .. autosummary::
    
       ALFError
-      ALFInvalid
       ALFMultipleCollectionsFound
       ALFMultipleObjectsFound
       ALFMultipleRevisionsFound

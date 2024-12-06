@@ -28,6 +28,7 @@ one.alf
 
    cache
    exceptions
+   files
    io
    path
    spec

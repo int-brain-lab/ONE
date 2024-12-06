@@ -26,8 +26,8 @@ one.tests.alf
    :template: custom-module-template.rst
    :recursive:
 
+   test_alf_files
    test_alf_io
-   test_alf_path
    test_alf_spec
    test_cache
 

@@ -5,17 +5,6 @@ one.alf.cache
 
    
    
-   .. rubric:: Module attributes
-
-   .. autosummary::
-      :toctree:
-   
-      QC_TYPE
-      SESSIONS_COLUMNS
-      DATASETS_COLUMNS
-      EMPTY_DATASETS_FRAME
-      EMPTY_SESSIONS_FRAME
-   
    
 
    
@@ -26,8 +15,6 @@ one.alf.cache
       :nosignatures:
    
       make_parquet_db
-      patch_cache
-      remove_cache_table_files
       remove_missing_datasets
    
    

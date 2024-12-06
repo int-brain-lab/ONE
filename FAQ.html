@@ -81,7 +81,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-use-one-without-connecting-to-my-database">How do I use ONE without connecting to my database?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-are-my-recent-data-missing-from-my-cache-but-present-on-alyx">Why are my recent data missing from my cache but present on Alyx?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it">I made a mistake during setup and now can’t call setup, how do I fix it?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-do-i-reset-my-one-parameters-to-use-open-alyx">How do I reset my ONE parameters to use Open Alyx?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-change-my-download-a-k-a-cache-directory">How do I change my download (a.k.a. cache) directory?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-load-cache-tables-from-a-different-location">How do I load cache tables from a different location?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-check-who-i-m-logged-in-as">How do check who I’m logged in as?</a></li>
@@ -185,16 +184,6 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 <span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>⚠️<span style="color: red;"> Note: ‘alyx.example.com’ is just an example URL - replace with your actual database URL</span></p>
-</section>
-<section id="how-do-i-reset-my-one-parameters-to-use-open-alyx">
-<h2>How do I reset my ONE parameters to use Open Alyx?<a class="headerlink" href="#how-do-i-reset-my-one-parameters-to-use-open-alyx" title="Link to this heading"></a></h2>
-<p>To reset your ONE configuration to use the public Open Alyx database with default settings:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Note</strong>: The <code class="docutils literal notranslate"><span class="pre">make_default=True</span></code> argument saves these settings as your default configuration. This means future ONE instances will use these settings unless specified otherwise.</p>
 </section>
 <section id="how-do-i-change-my-download-a-k-a-cache-directory">
 <h2>How do I change my download (a.k.a. cache) directory?<a class="headerlink" href="#how-do-i-change-my-download-a-k-a-cache-directory" title="Link to this heading"></a></h2>
@@ -211,8 +200,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;new_download_dir&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>⚠️<span style="color: red;"> Note: ‘alyx.example.com’ is just an example URL - replace with your actual database URL</span></p>
-<p><strong>Note</strong>: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the <code class="docutils literal notranslate"><span class="pre">tables_dir</span></code> kwarg.</p>
+<p><strong>NB</strong>: This will (down)load the cache tables in the newly specified location.  To avoid this, specify the cache table location separately using the <code class="docutils literal notranslate"><span class="pre">tables_dir</span></code> kwarg.</p>
 </section>
 <section id="how-do-i-load-cache-tables-from-a-different-location">
 <h2>How do I load cache tables from a different location?<a class="headerlink" href="#how-do-i-load-cache-tables-from-a-different-location" title="Link to this heading"></a></h2>
@@ -226,7 +214,7 @@ Use this only if necessary, as these methods are not optimized.</p></li>
 <span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;tables_dir&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Note</strong>: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set <code class="docutils literal notranslate"><span class="pre">mode='local'</span></code>.</p>
+<p><strong>NB</strong>: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set <code class="docutils literal notranslate"><span class="pre">mode='local'</span></code>.</p>
 </section>
 <section id="how-do-check-who-i-m-logged-in-as">
 <h2>How do check who I’m logged in as?<a class="headerlink" href="#how-do-check-who-i-m-logged-in-as" title="Link to this heading"></a></h2>

@@ -222,18 +222,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># First get default parameters</span>
     <span class="n">par_default</span> <span class="o">=</span> <span class="n">default</span><span class="p">()</span>
-    <span class="n">default_url</span> <span class="o">=</span> <span class="n">par_default</span><span class="o">.</span><span class="n">ALYX_URL</span>
-    <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span> <span class="ow">or</span> <span class="n">default_url</span><span class="p">)</span>
+    <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span> <span class="ow">or</span> <span class="n">par_default</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
 
     <span class="c1"># If a client URL has been provided, set it as the default URL</span>
-    <span class="n">par_default</span> <span class="o">=</span> <span class="n">par_default</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_URL&#39;</span><span class="p">,</span> <span class="n">client</span> <span class="ow">or</span> <span class="n">default_url</span><span class="p">)</span>
-
-    <span class="c1"># When silent=True, if setting up default database use default parameters</span>
-    <span class="c1"># instead of current ones to reset credentials</span>
-    <span class="k">if</span> <span class="n">silent</span> <span class="ow">and</span> <span class="n">client_key</span> <span class="o">==</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">default_url</span><span class="p">):</span>
-        <span class="n">par_current</span> <span class="o">=</span> <span class="n">par_default</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">par_current</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">par_default</span><span class="p">)</span>
+    <span class="n">par_default</span> <span class="o">=</span> <span class="n">par_default</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_URL&#39;</span><span class="p">,</span> <span class="n">client</span> <span class="ow">or</span> <span class="n">par_default</span><span class="o">.</span><span class="n">ALYX_URL</span><span class="p">)</span>
+    <span class="n">par_current</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">par_default</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">username</span><span class="p">:</span>
         <span class="n">par_current</span> <span class="o">=</span> <span class="n">par_current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ALYX_LOGIN&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
 
@@ -354,7 +347,6 @@
 <span class="sd">    IBLParams</span>
 <span class="sd">        A Params object for the AlyxClient.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">client</span> <span class="o">=</span> <span class="n">client</span> <span class="ow">or</span> <span class="n">get_default_client</span><span class="p">(</span><span class="n">include_schema</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{})</span>
     <span class="c1"># If there are no params for this client, run setup routine</span>
@@ -429,7 +421,7 @@
 <span class="sd">        The download cache path</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cache_map</span> <span class="o">=</span> <span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">client</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cache_map</span><span class="p">,</span> <span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">DEFAULT</span>
     <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_map</span><span class="o">.</span><span class="n">CLIENT_MAP</span><span class="p">[</span><span class="n">client</span><span class="p">]</span> <span class="k">if</span> <span class="n">cache_map</span> <span class="k">else</span> <span class="n">CACHE_DIR_DEFAULT</span><span class="p">)</span>
     <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cache_dir</span></div>
@@ -471,31 +463,6 @@
     <span class="n">cache_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_CLIENT_ID_STR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">{}),</span> <span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cache_map</span><span class="p">:</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cache_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
-
-
-
-<div class="viewcode-block" id="delete_params">
-<a class="viewcode-back" href="../../_autosummary/one.params.html#one.params.delete_params">[docs]</a>
-<span class="k">def</span> <span class="nf">delete_params</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete parameter files.</span>
-
-<span class="sd">    This will fully reset the ONE database and remote client parameters.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    base_url : str, optional</span>
-<span class="sd">        If provided, delete specific database parameters. If None, all parameters are removed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">base_url</span><span class="p">:</span>
-        <span class="n">client_key</span> <span class="o">=</span> <span class="n">_key_from_url</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
-        <span class="n">params_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_PAR_ID_STR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">client_key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">params_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">params_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">: params file not found&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">params_dir</span> <span class="o">:=</span> <span class="n">get_params_dir</span><span class="p">())</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">params_dir</span><span class="p">)</span></div>
 
 
 
