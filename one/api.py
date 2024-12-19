@@ -415,7 +415,7 @@ class One(ConversionMixin):
         """
         pass  # pragma: no cover
 
-    def search(self, details=False, query_type=None, **kwargs):
+    def search(self, details=False, **kwargs):
         """
         Searches sessions matching the given criteria and returns a list of matching eids
 
@@ -458,8 +458,6 @@ class One(ConversionMixin):
             will be found).
         details : bool
             If true also returns a dict of dataset details.
-        query_type : str, None
-            Query cache ('local') or Alyx database ('remote').
 
         Returns
         -------
@@ -525,6 +523,7 @@ class One(ConversionMixin):
 
         # Validate and get full name for queries
         search_terms = self.search_terms(query_type='local')
+        kwargs.pop('query_type', None)  # used by subclasses
         queries = {util.autocomplete(k, search_terms): v for k, v in kwargs.items()}
         for key, value in sorted(queries.items(), key=sort_fcn):
             # No matches; short circuit
@@ -575,6 +574,106 @@ class One(ConversionMixin):
             return eids, sessions.reset_index(drop=True).to_dict('records', into=Bunch)
         else:
             return eids
+
+    def search_insertions(self, details=False, **kwargs):
+        """
+        Searches insertions matching the given criteria and returns a list of matching probe IDs.
+
+        For a list of search terms, use the method
+
+            one.search_terms(query_type='remote', endpoint='insertions')
+
+        All of the search parameters, apart from dataset and dataset type require a single value.
+        For dataset and dataset type, a single value or a list can be provided. Insertions
+        returned will contain all listed datasets.
+
+        Parameters
+        ----------
+        session : str
+            A session eid, returns insertions associated with the session.
+        name: str
+            An insertion label, returns insertions with specified name.
+        lab : str
+            A lab name, returns insertions associated with the lab.
+        subject : str
+            A subject nickname, returns insertions associated with the subject.
+        task_protocol : str
+            A task protocol name (can be partial, i.e. any task protocol containing that str
+            will be found).
+        project(s) : str
+            The project name (can be partial, i.e. any task protocol containing that str
+            will be found).
+        dataset : str, list
+            One or more dataset names. Returns sessions containing all these datasets.
+            A dataset matches if it contains the search string e.g. 'wheel.position' matches
+            '_ibl_wheel.position.npy'.
+        dataset_qc_lte : int, str, one.alf.spec.QC
+            The maximum QC value for associated datasets.
+        details : bool
+            If true also returns a dict of dataset details.
+
+        Returns
+        -------
+        list
+            List of probe IDs (pids).
+        (list of dicts)
+            If details is True, also returns a list of dictionaries, each entry corresponding to a
+            matching insertion.
+
+        Notes
+        -----
+        - This method does not use the local cache and therefore can not work in 'local' mode.
+
+        Examples
+        --------
+        List the insertions associated with a given subject
+
+        >>> ins = one.search_insertions(subject='SWC_043')
+        """
+        # Warn if no insertions table present
+        if (insertions := self._cache.get('insertions')) is None:
+            warnings.warn('No insertions data loaded.')
+            return ([], None) if details else []
+
+        # Validate and get full names
+        search_terms = ('model', 'name', 'json', 'serial', 'chronic_insertion')
+        search_terms += self._search_terms
+        kwargs.pop('query_type', None)  # used by subclasses
+        arguments = {util.autocomplete(key, search_terms): value for key, value in kwargs.items()}
+        # Apply session filters first
+        session_kwargs = {k: v for k, v in arguments.items() if k in self._search_terms}
+        if session_kwargs:
+            eids = self.search(**session_kwargs, details=False, query_type='local')
+            insertions = insertions.loc[eids]
+        # Apply insertion filters
+        # Iterate over search filters, reducing the insertions table
+        for key, value in sorted(filter(lambda x: x[0] not in session_kwargs, kwargs.items())):
+            if insertions.size == 0:
+                return ([], None) if details else []
+            # String fields
+            elif key in ('model', 'serial', 'name'):
+                query = '|'.join(ensure_list(value))
+                mask = insertions[key].str.contains(query, regex=self.wildcards)
+                insertions = insertions[mask.astype(bool, copy=False)]
+            else:
+                raise NotImplementedError(key)
+
+        # Return results
+        if insertions.size == 0:
+            return ([], None) if details else []
+        # Sort insertions
+        eids = insertions.index.get_level_values('eid').unique()
+        # NB: This will raise if no session in cache; may need to improve error handling here
+        sessions = self._cache['sessions'].loc[eids, ['date', 'subject', 'number']]
+        insertions = (insertions
+                      .join(sessions, how='inner')
+                      .sort_values(['date', 'subject', 'number', 'name'], ascending=False))
+        pids = insertions.index.get_level_values('id').to_list()
+
+        if details:  # TODO replicate Alyx records here
+            return pids, insertions.reset_index(drop=True).to_dict('records', into=Bunch)
+        else:
+            return pids
 
     def _check_filesystem(self, datasets, offline=None, update_exists=True, check_hash=True):
         """Update the local filesystem for the given datasets.
@@ -2136,9 +2235,9 @@ class OneAlyx(One):
         ... ins = one.search_insertions(django='datasets__tags__name,' + tag)
         """
         query_type = query_type or self.mode
-        if query_type == 'local' and 'insertions' not in self._cache.keys():
-            raise NotImplementedError('Searching on insertions required remote connection')
-        elif query_type == 'auto':
+        if query_type == 'local':
+            return super().search_insertions(details=details, query_type=query_type, **kwargs)
+        elif query_type == 'auto':  # NB behaviour here may change in the future
             _logger.debug('OneAlyx.search_insertions only supports remote queries')
             query_type = 'remote'
         # Get remote query params from REST endpoint
@@ -2165,11 +2264,47 @@ class OneAlyx(One):
             params.pop('django')
 
         ins = self.alyx.rest('insertions', 'list', **params)
+        # Update cache table with results
+        if len(ins) == 0:
+            pass  # no need to update cache here
+        elif isinstance(ins, list):  # not a paginated response
+            self._update_insetions_table(ins)
+        else:
+            # populate first page
+            self._update_insetions_table(ins._cache[:ins.limit])
+            # Add callback for updating cache on future fetches
+            ins.add_callback(WeakMethod(self._update_insetions_table))
+
         pids = util.LazyId(ins)
         if not details:
             return pids
 
         return pids, ins
+
+    def _update_insetions_table(self, insertions_records):
+        """Update the insertions tables with a list of insertions records.
+
+        Parameters
+        ----------
+        insertions_records : list of dict
+            A list of insertions records from the /insertions list endpoint.
+
+        Returns
+        -------
+        datetime.datetime
+            A timestamp of when the cache was updated.
+        """
+        df = (pd.DataFrame(insertions_records)
+              .drop(['session_info'], axis=1)
+              .rename({'session': 'eid'}, axis=1)
+              .set_index(['eid', 'id'])
+              .sort_index())
+        if 'insertions' not in self._cache:
+            self._cache['insertions'] = df.iloc[0:0]
+        # Build sessions table
+        session_records = (x['session_info'] for x in insertions_records)
+        sessions_df = pd.DataFrame(next(zip(*map(ses2records, session_records))))
+        return self._update_cache_from_records(insertions=df, sessions=sessions_df)
 
     def search(self, details=False, query_type=None, **kwargs):
         """
@@ -2330,7 +2465,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        datetime.datetime:
+        datetime.datetime
             A timestamp of when the cache was updated.
         """
         df = pd.DataFrame(next(zip(*map(ses2records, session_records))))

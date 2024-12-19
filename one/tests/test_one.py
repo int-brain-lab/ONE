@@ -90,19 +90,19 @@ class TestONECache(unittest.TestCase):
         self.tempdir.cleanup()
 
     def test_list_subjects(self):
-        """Test One.list_subejcts"""
+        """Test One.list_subejcts."""
         subjects = self.one.list_subjects()
         expected = ['KS005', 'ZFM-01935', 'ZM_1094', 'ZM_1150',
                     'ZM_1743', 'ZM_335', 'clns0730', 'flowers']
         self.assertCountEqual(expected, subjects)
 
     def test_offline_repr(self):
-        """Test for One.offline property"""
+        """Test for One.offline property."""
         self.assertTrue('offline' in str(self.one))
         self.assertTrue(str(self.tempdir.name) in str(self.one))
 
     def test_one_search(self):
-        """Test for One.search"""
+        """Test for One.search."""
         one = self.one
         # Search subject
         eids = one.search(subject='ZM_335')
@@ -211,6 +211,63 @@ class TestONECache(unittest.TestCase):
         eids, details = one.search(date='2019-04-10', lab='cortexlab', details=True)
         self.assertEqual(len(eids), len(details))
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
+
+    def test_search_insertions(self):
+        """Test for One.search_insertions."""
+        one = self.one
+        # Create some records (eids taken from sessions cache fixture)
+        insertions = [
+            {'model': '3A', 'name': 'probe00', 'json': {}, 'serial': '19051010091',
+             'chronic_insertion': None, 'datasets': [uuid4(), uuid4()], 'id': str(uuid4()),
+             'eid': '01390fcc-4f86-4707-8a3b-4d9309feb0a1'},
+            {'model': 'Fiber', 'name': 'fiber00', 'json': {}, 'serial': '18000010000',
+             'chronic_insertion': str(uuid4()), 'datasets': [], 'id': str(uuid4()),
+             'eid': 'aaf101c3-2581-450a-8abd-ddb8f557a5ad'}
+        ]
+        for i in range(2):
+            insertions.append({
+                'model': '3B2', 'name': f'probe{i:02}', 'json': {}, 'serial': f'19051010{i}90',
+                'chronic_insertion': None, 'datasets': [uuid4(), uuid4()], 'id': str(uuid4()),
+                'eid': '4e0b3320-47b7-416e-b842-c34dc9004cf8'
+            })
+        one._cache['insertions'] = pd.DataFrame(insertions).set_index(['eid', 'id']).sort_index()
+
+        # Search model
+        pids = one.search_insertions(model='3B2')
+        self.assertEqual(2, len(pids))
+        pids = one.search_insertions(model=['3B2', '3A'])
+        self.assertEqual(3, len(pids))
+
+        # Search name
+        pids = one.search_insertions(name='probe00')
+        self.assertEqual(2, len(pids))
+        pids = one.search_insertions(name='probe00', model='3B2')
+        self.assertEqual(1, len(pids))
+
+        # Search session details
+        pids = one.search_insertions(subject='flowers')
+        self.assertEqual(2, len(pids))
+        pids = one.search_insertions(subject='flowers', name='probe00')
+        self.assertEqual(1, len(pids))
+
+        # Unimplemented keys
+        self.assertRaises(NotImplementedError, one.search_insertions, json='foo')
+
+        # Details
+        pids, details = one.search_insertions(name='probe00', details=True)
+        self.assertEqual({'probe00'}, set(x['name'] for x in details))
+
+        # Check returned sorted by date, subject, number, and name
+        pids, details = one.search_insertions(details=True)
+        expected = sorted([d['date'] for d in details], reverse=True)
+        self.assertEqual(expected, [d['date'] for d in details])
+
+        # Empty returns
+        self.assertEqual([], one.search_insertions(model='3A', name='fiber00', serial='123'))
+        self.assertEqual([], one.search_insertions(model='foo'))
+        del one._cache['insertions']
+        with self.assertWarns(UserWarning):
+            self.assertEqual([], one.search_insertions())
 
     def test_filter(self):
         """Test one.util.filter_datasets"""
@@ -1581,6 +1638,18 @@ class TestOneRemote(unittest.TestCase):
         eids = self.one.search(dataset_type='trials.table', date='2020-09-21', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
+        # Ensure that when calling with anything other than remote mode, One.search is used
+        with mock.patch('one.api.One.search') as offline_search, \
+                mock.patch.object(self.one.alyx, 'rest', return_value=[]) as alyx:
+            # In remote mode
+            self.one.search(subject='SWC_043', query_type='remote')
+            offline_search.assert_not_called(), alyx.assert_called()
+            alyx.reset_mock()
+            # In another mode
+            self.one.search(subject='SWC_043', query_type='auto')
+            offline_search.assert_called_with(details=False, query_type='auto', subject='SWC_043')
+            alyx.assert_not_called()
+
     def test_search_insertions(self):
         """Test OneAlyx.search_insertion method in remote mode."""
 
@@ -1620,9 +1689,36 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual({lab}, {x['session_info']['lab'] for x in det})
 
         # Test mode and field validation
-        self.assertRaises(NotImplementedError, self.one.search_insertions, query_type='local')
         self.assertRaises(TypeError, self.one.search_insertions,
                           dataset=['wheel.times'], query_type='remote')
+        # Ensure that when calling with anything other than remote mode, One is used
+        with mock.patch('one.api.One.search_insertions') as offline_search, \
+                mock.patch.object(self.one.alyx, 'rest', return_value=[]) as alyx:
+            # In remote mode
+            self.one.search_insertions(subject='SWC_043', query_type='remote')
+            offline_search.assert_not_called(), alyx.assert_called()
+            alyx.reset_mock()
+            # In local mode
+            self.one.search_insertions(subject='SWC_043', query_type='local')
+            offline_search.assert_called_with(details=False, query_type='local', subject='SWC_043')
+            alyx.assert_not_called()
+
+        # Test limit arg, LazyId, and update with paginated response callback
+        self.one._reset_cache()  # Remove insertions table
+        assert 'insertions' not in self.one._cache
+        pids = self.one.search_insertions(limit=2, query_type='remote')
+        self.assertEqual(2, len(self.one._cache.insertions),
+                         'failed to update insertions cache with first page of search results')
+        self.assertEqual(2, len(self.one._cache.sessions),
+                         'failed to update sessions cache with first page of search results')
+        self.assertIsInstance(pids, LazyId)
+        assert len(pids) > 5, 'in order to check paginated response callback we need several pages'
+        p = pids[-3]  # access an uncached value
+        self.assertEqual(4, len(self.one._cache.insertions),
+                         'failed to update insertions cache after page access')
+        self.assertEqual(4, len(self.one._cache.sessions),
+                         'failed to update insertions cache after page access')
+        self.assertTrue(p in self.one._cache.insertions.index.get_level_values('id'))
 
     def test_search_terms(self):
         """Test OneAlyx.search_terms."""
