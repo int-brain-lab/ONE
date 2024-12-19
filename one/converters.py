@@ -752,7 +752,7 @@ def ses2records(ses: dict):
         Datasets frame.
     """
     # Extract session record
-    eid = ses['url'][-36:]
+    eid = ses.get('id') or ses['url'][-36:]  # id used for session_info field of probe insertion
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
     session = (
