@@ -29,7 +29,7 @@ Note ONE and AlyxClient use caching:
 import datetime
 import logging
 import time
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from itertools import permutations, combinations_with_replacement
 from functools import partial
 import unittest
@@ -1422,6 +1422,30 @@ class TestOneAlyx(unittest.TestCase):
         # Test object not found
         with self.assertRaises(alferr.ALFObjectNotFound):
             self.one.load_aggregate('subjects', 'ZM_1085', 'foo.bar')
+
+        # Test download file from HTTP dataserver
+        expected.unlink()
+        self.one.mode = 'remote'  # Can't download in local mode
+        with mock.patch.object(self.one, '_download_file', return_value=[expected]) as m, \
+                mock.patch.object(self.one, '_download_aws', side_effect=AssertionError):
+            file = self.one.load_aggregate('subjects', 'ZM_1085', dset, download_only=True)
+            # Check correct url passed to download_file
+            self.assertEqual(expected, file)
+            expected_src = (self.one.alyx._par.HTTP_DATA_SERVER +
+                            '/aggregates/Subjects/mainenlab/ZM_1085/' +
+                            '_ibl_subjectTraining.table.74dfb745-a7dc-4672-ace6-b556876c80cb.pqt')
+            expected_dst = str(file.parent)  # should be without 'public' part
+            m.assert_called_once_with([expected_src], [expected_dst], keep_uuid=False)
+        # Test download file from AWS
+        with mock.patch('one.remote.aws.s3_download_file', return_value=expected) as m, \
+                mock.patch.object(self.one, '_download_file', side_effect=AssertionError):
+            file = self.one.load_aggregate('subjects', 'ZM_1085', dset, download_only=True)
+            # Check correct url passed to download_file
+            self.assertEqual(expected, file)
+            expected_src = PurePosixPath(
+                expected_src[len(self.one.alyx._par.HTTP_DATA_SERVER) + 1:])
+            m.assert_called_once_with(
+                expected_src, expected, s3=mock.ANY, bucket_name='s3_bucket', overwrite=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
