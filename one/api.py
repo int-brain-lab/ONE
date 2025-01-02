@@ -14,6 +14,7 @@ from urllib.error import URLError
 import time
 import threading
 import os
+import re
 
 import pandas as pd
 import numpy as np
@@ -2422,8 +2423,13 @@ class OneAlyx(One):
                     self._cache['_meta']['modified_time'] = datetime.now()
                 out_files.append(None)
                 continue
-            assert record['relative_path'].endswith(dset['rel_path']), \
-                f'Relative path for dataset {uuid} does not match Alyx record'
+            if 'relation' in dset:
+                # For non-session datasets the pandas record rel path is the full path
+                matches = dset['rel_path'].endswith(record['relative_path'])
+            else:
+                # For session datasets the pandas record rel path is relative to the session
+                matches = record['relative_path'].endswith(dset['rel_path'])
+            assert matches, f'Relative path for dataset {uuid} does not match Alyx record'
             source_path = PurePosixPath(record['data_repository_path'], record['relative_path'])
             local_path = self.cache_dir.joinpath(alfiles.get_alf_path(source_path))
             # Add UUIDs to filenames, if required
@@ -2532,6 +2538,9 @@ class OneAlyx(One):
         target_dir = []
         for x in valid_urls:
             _path = urllib.parse.urlsplit(x, allow_fragments=False).path.strip('/')
+            # Since rel_path for public FI file records starts with 'public/aggregates' instead of
+            # 'aggregates', we should discard the file path parts before 'aggregates' (if present)
+            _path = re.sub(r'^[\w\/]+(?=aggregates\/)', '', _path, count=1)
             target_dir.append(str(Path(cache_dir, alfiles.get_alf_path(_path)).parent))
         files = self._download_file(valid_urls, target_dir, **kwargs)
         # Return list of file paths or None if we failed to extract URL from dataset
