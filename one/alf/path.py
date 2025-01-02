@@ -379,14 +379,12 @@ def get_alf_path(path: Union[str, pathlib.Path]) -> str:
     path = path.strip('/')
 
     # Check if session path
-    match_session = spec.regex(SESSION_SPEC).search(path)
-    if match_session:
+    if match_session := spec.regex(SESSION_SPEC).search(path):
         return path[match_session.start():]
 
     # Check if filename / relative path (i.e. collection + filename)
     parts = path.rsplit('/', 1)
-    match_filename = spec.regex(FILE_SPEC).match(parts[-1])
-    if match_filename:
+    if spec.regex(FILE_SPEC).match(parts[-1]):
         return path if spec.regex(f'{COLLECTION_SPEC}{FILE_SPEC}').match(path) else parts[-1]
 
 
