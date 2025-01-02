@@ -319,10 +319,15 @@ class ConversionMixin:
         else:
             raise TypeError(
                 f'record must be pandas.DataFrame or pandas.Series, got {type(record)} instead')
-        assert isinstance(record.name, tuple) and len(record.name) == 2
-        eid, uuid = record.name  # must be (eid, did)
-        session_path = self.eid2path(eid)
-        url = PurePosixALFPath(get_alf_path(session_path), record['rel_path'])
+        if 'session_path' in record:
+            # Check for session_path field (aggregate datasets have no eid in name)
+            session_path = record['session_path']
+            uuid = record.name if isinstance(record.name, str) else record.name[-1]
+        else:
+            assert isinstance(record.name, tuple) and len(record.name) == 2
+            eid, uuid = record.name  # must be (eid, did)
+            session_path = get_alf_path(self.eid2path(eid))
+        url = PurePosixALFPath(session_path, record['rel_path'])
         return webclient.rel_path2url(url.with_uuid(uuid).as_posix())
 
     def record2path(self, dataset) -> Optional[ALFPath]:
