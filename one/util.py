@@ -274,6 +274,7 @@ def filter_datasets(
     - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
       e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
       must use two separate queries.
+    - It is not possible to match datasets with no revision when wildcards=True.
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}
