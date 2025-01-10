@@ -1511,7 +1511,7 @@ class TestOneAlyx(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneRemote(unittest.TestCase):
-    """Test remote queries using OpenAlyx"""
+    """Test remote queries using OpenAlyx."""
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2, mode='auto')
         self.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
@@ -1522,19 +1522,20 @@ class TestOneRemote(unittest.TestCase):
         self.one.alyx._par = self.one.alyx._par.set('CACHE_DIR', Path(self.tempdir.name))
 
     def test_online_repr(self):
-        """Tests OneAlyx.__repr__"""
+        """Tests OneAlyx.__repr__."""
         self.assertTrue('online' in str(self.one))
         self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
 
     def test_list_datasets(self):
-        """Test OneAlyx.list_datasets"""
+        """Test OneAlyx.list_datasets."""
         # Test list for eid
         # Ensure remote by making local datasets table empty
         self.addCleanup(self.one.load_cache)
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        self.assertEqual(183, len(dsets))  # this may change after a BWM release or patch
+        expected_n_datasets = 253  # this may change after a BWM release or patch
+        self.assertEqual(expected_n_datasets, len(dsets))
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
         # Test keep_eid_index
@@ -1556,12 +1557,12 @@ class TestOneRemote(unittest.TestCase):
         # Test details=False, with eid
         dsets = self.one.list_datasets(self.eid, details=False, query_type='remote')
         self.assertIsInstance(dsets, list)
-        self.assertEqual(183, len(dsets))  # this may change after a BWM release or patch
+        self.assertEqual(expected_n_datasets, len(dsets))
 
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(24, len(dsets))
+        self.assertEqual(36, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
@@ -1761,7 +1762,7 @@ class TestOneRemote(unittest.TestCase):
                                      download_only=True)
         self.assertIsInstance(files[0], Path)
         self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.position.npy')
+            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
         )
 
     def test_get_details(self):

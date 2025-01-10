@@ -1979,8 +1979,8 @@ class OneAlyx(One):
         del filters['default_revisions_only']
         if not keep_eid_index and 'eid' in datasets.index.names:
             datasets = datasets.droplevel('eid')
-        datasets = util.filter_datasets(
-            datasets, assert_unique=False, wildcards=self.wildcards, **filters)
+        kwargs = dict(assert_unique=False, wildcards=self.wildcards, revision_last_before=False)
+        datasets = util.filter_datasets(datasets, **kwargs, **filters)
         # Return only the relative path
         return datasets if details else datasets['rel_path'].sort_values().values.tolist()
 
