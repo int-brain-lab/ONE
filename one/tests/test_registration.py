@@ -91,8 +91,8 @@ class TestRegistrationClient(unittest.TestCase):
              }
         ses = self.one.alyx.rest('sessions', 'create', data=d)
         volume = random.random()
-        record = self.client.register_water_administration(self.subject, volume,
-                                                           session=ses['url'])
+        record = self.client.register_water_administration(
+            self.subject, volume, session=ses['url'])
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['session'], ses['url'][-36:])
         # Check validations

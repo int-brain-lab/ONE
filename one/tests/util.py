@@ -155,8 +155,8 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
         'hash': None,
         'exists': True,
         'qc': 'NOT_SET',
-        'eid': str(uuid4()),
-        'id': map(str, (uuid4() for _ in rel_path))
+        'eid': uuid4(),
+        'id': (uuid4() for _ in rel_path)
     }
 
     if touch_path:
