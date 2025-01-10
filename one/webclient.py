@@ -552,7 +552,7 @@ class AlyxClient:
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
         # turned off.
-        self.default_expiry = timedelta(days=1)
+        self.default_expiry = timedelta(minutes=5)
         self.cache_mode = cache_rest
         self._obj_id = id(self)
 

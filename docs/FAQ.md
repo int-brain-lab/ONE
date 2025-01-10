@@ -29,7 +29,7 @@ This table is used in all one.search, one.load, one.list functions. When doing
 regardless of when it was last downloaded from Flatiron.
 
 2. When running remote queries (anything that uses `one.alyx.rest(....)`),
-ONE stores the results of these queries for 24 hours, so that if you
+ONE stores the results of these queries for 5 minutes, so that if you
 repeatedly make the same query over and over you don't hit the database
 each time but can use the local cached result.
 A problem can arise if something on the Alyx database changes in between the same query:
