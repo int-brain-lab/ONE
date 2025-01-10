@@ -790,7 +790,7 @@ class RegistrationClient:
         }
         # Ensure session is valid; convert to eid
         if kwargs.get('session', False):
-            wa_['session'] = self.one.to_eid(kwargs.pop('session'))
+            wa_['session'] = str(self.one.to_eid(kwargs.pop('session')) or '')
             if not wa_['session']:
                 raise ValueError('Failed to parse session ID')
 

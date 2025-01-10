@@ -1,5 +1,6 @@
 """Decorators and small standalone functions for api module."""
 import re
+from uuid import UUID
 import logging
 import fnmatch
 import warnings
@@ -488,7 +489,9 @@ def autocomplete(term, search_terms) -> str:
 
 class LazyId(Mapping):
     """
-    Using a paginated response object or list of session records, extracts eid string when required
+    Return UUID from records when indexed.
+
+    Uses a paginated response object or list of Alyx REST records.
     """
     def __init__(self, pg, func=None):
         self._pg = pg
@@ -520,4 +523,5 @@ class LazyId(Mapping):
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]
         else:
-            return ses.get('id', None) or ses['url'].split('/').pop()
+            eid = ses.get('id', None) or ses['url'].split('/').pop()
+            return UUID(eid)

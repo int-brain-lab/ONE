@@ -19,7 +19,7 @@ from typing import Optional, Union, Mapping, List, Iterable as Iter
 import pandas as pd
 from iblutil.util import Bunch, Listable, ensure_list
 
-from one.alf.spec import is_session_path, is_uuid_string
+from one.alf.spec import is_session_path, is_uuid_string, is_uuid
 from one.alf.cache import EMPTY_DATASETS_FRAME
 from one.alf.path import (
     ALFPath, PurePosixALFPath, ensure_alf_path, get_session_path, get_alf_path, remove_uuid_string)
@@ -88,7 +88,7 @@ def parse_values(func):
 
 
 class ConversionMixin:
-    """A mixin providing methods to interconvert experiment identifiers."""
+    """A mixin providing methods to inter-convert experiment identifiers."""
 
     def __init__(self):
         self._cache = None
@@ -97,7 +97,7 @@ class ConversionMixin:
     @recurse
     def to_eid(self,
                id: Listable(Union[str, Path, UUID, dict]) = None,
-               cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
+               cache_dir: Optional[Union[str, Path]] = None) -> Listable(UUID):
         """Given any kind of experiment identifier, return a corresponding eid string.
 
         NB: Currently does not support integer IDs.
@@ -111,8 +111,8 @@ class ConversionMixin:
 
         Returns
         -------
-        str, None
-            An experiment ID string or None if session not in cache
+        uuid.UUID, None
+            An experiment ID or None if session not in cache
 
         Raises
         ------
@@ -125,7 +125,7 @@ class ConversionMixin:
         if id is None:
             return
         elif isinstance(id, UUID):
-            return str(id)
+            return id
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
         elif isinstance(id, dict):
@@ -147,7 +147,7 @@ class ConversionMixin:
             if not is_uuid_string(id):
                 raise ValueError('Invalid experiment ID')
             else:
-                return id
+                return UUID(id)
         else:
             raise ValueError('Unrecognized experiment ID')
 
@@ -167,8 +167,10 @@ class ConversionMixin:
             A session path.
         """
         # If not valid return None
-        if not is_uuid_string(eid):
+        if not is_uuid(eid):
             raise ValueError(eid + " is not a valid eID/UUID string")
+        if isinstance(eid, str):
+            eid = UUID(eid)
         if self._cache['sessions'].size == 0:
             return
 
@@ -251,7 +253,7 @@ class ConversionMixin:
         name_parts = path.stem.split('.')
         if is_uuid_string(uuid := name_parts[-1]):
             try:
-                return self._cache['datasets'].loc[pd.IndexSlice[:, uuid], :].squeeze()
+                return self._cache['datasets'].loc[pd.IndexSlice[:, UUID(uuid)], :].squeeze()
             except KeyError:
                 return
 
@@ -322,7 +324,7 @@ class ConversionMixin:
         if 'session_path' in record:
             # Check for session_path field (aggregate datasets have no eid in name)
             session_path = record['session_path']
-            uuid = record.name if isinstance(record.name, str) else record.name[-1]
+            uuid = record.name if isinstance(record.name, UUID) else record.name[-1]
         else:
             assert isinstance(record.name, tuple) and len(record.name) == 2
             eid, uuid = record.name  # must be (eid, did)
@@ -757,7 +759,8 @@ def ses2records(ses: dict):
         Datasets frame.
     """
     # Extract session record
-    eid = ses.get('id') or ses['url'][-36:]  # id used for session_info field of probe insertion
+    # id used for session_info field of probe insertion
+    eid = UUID(ses.get('id') or ses['url'][-36:])
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
     session = (
@@ -768,7 +771,8 @@ def ses2records(ses: dict):
 
     # Extract datasets table
     def _to_record(d):
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=d['id'])
+        did = UUID(d['id'])
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=did)
         rec['eid'] = session.name
         file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
         file_path = get_alf_path(remove_uuid_string(file_path))
@@ -814,8 +818,8 @@ def datasets2records(datasets, additional=None) -> pd.DataFrame:
         if not file_record:
             continue  # Ignore files that are not accessible
         rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id'] = d['url'][-36:]
-        rec['eid'] = (d['session'] or '')[-36:]
+        rec['id'] = UUID(d['url'][-36:])
+        rec['eid'] = UUID(d['session'][-36:]) if d['session'] else pd.NA
         data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
         file_path = get_alf_path(data_url.path.strip('/'))
         file_path = remove_uuid_string(file_path).as_posix()
