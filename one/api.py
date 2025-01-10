@@ -32,8 +32,8 @@ import one.alf.exceptions as alferr
 from one.alf.path import ALFPath
 from .alf.cache import (
     make_parquet_db, patch_cache, remove_cache_table_files,
-    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME)
-from .alf.spec import is_uuid_string, QC, to_alf
+    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME, cast_index_object)
+from .alf.spec import is_uuid, is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path, ses2records, datasets2records
 from one import util
@@ -165,6 +165,9 @@ class One(ConversionMixin):
             # Patch older tables
             cache = patch_cache(cache, meta['raw'][table].get('min_api_version'), table)
 
+            # Cast indices to UUID
+            cache = cast_index_object(cache, UUID)
+
             # Check sorted
             # Sorting makes MultiIndex indexing O(N) -> O(1)
             if not cache.index.is_monotonic_increasing:
@@ -235,7 +238,9 @@ class One(ConversionMixin):
                 metadata = meta['raw'][table]
                 metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
                 filename = save_dir.joinpath(f'{table}.pqt')
-                parquet.save(filename, self._cache[table], metadata)
+                # Cast indices to str before saving
+                df = cast_index_object(self._cache[table].copy(), str)
+                parquet.save(filename, df, metadata)
                 _logger.debug(f'Saved {filename}')
             meta['saved_time'] = datetime.now()
         finally:
@@ -461,7 +466,7 @@ class One(ConversionMixin):
 
         Returns
         -------
-        list
+        list of UUID
             A list of eids.
         (list)
             (If details is True) a list of dictionaries, each entry corresponding to a matching
@@ -614,7 +619,7 @@ class One(ConversionMixin):
 
         Returns
         -------
-        list
+        list of UUID
             List of probe IDs (pids).
         (list of dicts)
             If details is True, also returns a list of dictionaries, each entry corresponding to a
@@ -708,6 +713,8 @@ class One(ConversionMixin):
         elif not isinstance(datasets, pd.DataFrame):
             # Cast set of dicts (i.e. from REST datasets endpoint)
             datasets = datasets2records(list(datasets))
+        elif datasets.empty:
+            return []
         else:
             datasets = datasets.copy()
         indices_to_download = []  # indices of datasets that need (re)downloading
@@ -934,7 +941,7 @@ class One(ConversionMixin):
         if details:
             if keep_eid_index and datasets.index.nlevels == 1:
                 # Reinstate eid index
-                datasets = pd.concat({str(eid): datasets}, names=['eid'])
+                datasets = pd.concat({eid: datasets}, names=['eid'])
             # Return the full data frame
             return datasets
         else:
@@ -1515,10 +1522,10 @@ class One(ConversionMixin):
         np.ndarray, one.alf.path.ALFPath
             Dataset data (or filepath if download_only) and dataset record if details is True.
         """
-        if isinstance(dset_id, UUID):
-            dset_id = str(dset_id)
-        elif not isinstance(dset_id, str):
-            dset_id, = parquet.np2str(dset_id)
+        if isinstance(dset_id, str):
+            dset_id = UUID(dset_id)
+        elif not isinstance(dset_id, UUID):
+            dset_id, = parquet.np2uuid(dset_id)
         try:
             dataset = self._cache['datasets'].loc[(slice(None), dset_id), :].squeeze()
             assert isinstance(dataset, pd.Series) or len(dataset) == 1
@@ -1942,10 +1949,10 @@ class OneAlyx(One):
         try:
             assert isinstance(dataset_type, str) and not is_uuid_string(dataset_type)
             _logger.disabled = True
-            out = self.alyx.rest('dataset-types', 'read', dataset_type)
+            out = self.alyx.rest('dataset-types', 'read', id=dataset_type)
         except (AssertionError, requests.exceptions.HTTPError):
             # Try to get dataset type from dataset name
-            out = self.alyx.rest('dataset-types', 'read', self.dataset2type(dataset_type))
+            out = self.alyx.rest('dataset-types', 'read', id=self.dataset2type(dataset_type))
         finally:
             _logger.disabled = False
         print(out['description'])
@@ -2017,9 +2024,7 @@ class OneAlyx(One):
         """
         query = 'session__isnull,True'  # ',data_repository_name__endswith,aggregates'
         all_aggregates = self.alyx.rest('datasets', 'list', django=query)
-        records = (datasets2records(all_aggregates)
-                   .reset_index(level=0)
-                   .drop('eid', axis=1))
+        records = datasets2records(all_aggregates).droplevel('eid')
         # Since rel_path for public FI file records starts with 'public/aggregates' instead of just
         # 'aggregates', we should discard the file path parts before 'aggregates' (if present)
         records['rel_path'] = records['rel_path'].str.replace(
@@ -2102,7 +2107,7 @@ class OneAlyx(One):
         return file if download_only else alfio.load_file_content(file)
 
     @util.refresh
-    def pid2eid(self, pid: str, query_type=None) -> (str, str):
+    def pid2eid(self, pid: str, query_type=None) -> (UUID, str):
         """
         Given an Alyx probe UUID string, returns the session id string and the probe label
         (i.e. the ALF collection).
@@ -2111,14 +2116,14 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        pid : str, uuid.UUID
+        pid : str, UUID
             A probe UUID.
         query_type : str
             Query mode - options include 'remote', and 'refresh'.
 
         Returns
         -------
-        str
+        uuid.UUID
             Experiment ID (eid).
         str
             Probe label.
@@ -2127,7 +2132,7 @@ class OneAlyx(One):
         if query_type == 'local' and 'insertions' not in self._cache.keys():
             raise NotImplementedError('Converting probe IDs required remote connection')
         rec = self.alyx.rest('insertions', 'read', id=str(pid))
-        return rec['session'], rec['name']
+        return UUID(rec['session']), rec['name']
 
     @util.refresh
     def eid2pid(self, eid, query_type=None, details=False):
@@ -2149,7 +2154,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        list of str
+        list of UUID
             Probe UUIDs (pID).
         list of str
             Probe labels, e.g. 'probe00'.
@@ -2163,7 +2168,7 @@ class OneAlyx(One):
         if not eid:
             return (None,) * (3 if details else 2)
         recs = self.alyx.rest('insertions', 'list', session=eid)
-        pids = [x['id'] for x in recs]
+        pids = [UUID(x['id']) for x in recs]
         labels = [x['name'] for x in recs]
         if details:
             return pids, labels, recs
@@ -2217,7 +2222,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        list
+        list of UUID
             List of probe IDs (pids).
         (list of dicts)
             If details is True, also returns a list of dictionaries, each entry corresponding to a
@@ -2299,6 +2304,9 @@ class OneAlyx(One):
               .rename({'session': 'eid'}, axis=1)
               .set_index(['eid', 'id'])
               .sort_index())
+        # Cast indices to UUID
+        df = cast_index_object(df, UUID)
+
         if 'insertions' not in self._cache:
             self._cache['insertions'] = df.iloc[0:0]
         # Build sessions table
@@ -2368,7 +2376,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        list
+        list of UUID
             List of eids.
         (list of dicts)
             If details is True, also returns a list of dictionaries, each entry corresponding to a
@@ -2537,7 +2545,7 @@ class OneAlyx(One):
         assert self.mode != 'local'
         # Get all dataset URLs
         dsets = list(dsets)  # Ensure not generator
-        uuids = [ensure_list(x.name)[-1] for x in dsets]
+        uuids = [str(ensure_list(x.name)[-1]) for x in dsets]
         # If number of UUIDs is too high, fetch in loop to avoid 414 HTTP status code
         remote_records = []
         N = 100  # Number of UUIDs per query
@@ -2554,7 +2562,7 @@ class OneAlyx(One):
             if not record:
                 if update_exists and 'exists_aws' in self._cache['datasets']:
                     _logger.debug('Updating exists field')
-                    self._cache['datasets'].loc[(slice(None), uuid), 'exists_aws'] = False
+                    self._cache['datasets'].loc[(slice(None), UUID(uuid)), 'exists_aws'] = False
                     self._cache['_meta']['modified_time'] = datetime.now()
                 out_files.append(None)
                 continue
@@ -2614,7 +2622,7 @@ class OneAlyx(One):
                 url = list(map(lambda x: dset2url(x[1]), dset.iterrows()))
             elif 'data_url' in dset:  # data_dataset_session_related dict
                 url = dset['data_url']
-                did = dset['id']
+                did = UUID(dset['id'])
             elif 'file_records' not in dset:  # Convert dataset Series to alyx dataset dict
                 url = self.record2url(dset)  # NB: URL will always be returned but may not exist
                 did = ensure_list(dset.name)[-1]
@@ -2624,7 +2632,7 @@ class OneAlyx(One):
                     (fr['data_url'] for fr in dset['file_records']
                      if fr['data_url'] and fr['exists'] and
                      fr['data_url'].startswith(repo or fr['data_url'])), None)
-                did = dset['url'][-36:]
+                did = UUID(dset['url'][-36:])
 
         # Update cache if url not found
         if did is not None and not url and update_cache:
@@ -2838,11 +2846,11 @@ class OneAlyx(One):
 
         # If eid is a list recurse through it and return a list
         if isinstance(eid, list):
-            unwrapped = unwrap(self.path2eid)
+            unwrapped = unwrap(self.eid2path)
             return [unwrapped(self, e, query_type='remote') for e in eid]
 
         # if it wasn't successful, query Alyx
-        ses = self.alyx.rest('sessions', 'list', django=f'pk,{eid}')
+        ses = self.alyx.rest('sessions', 'list', django=f'pk,{str(eid)}')
         if len(ses) == 0:
             return None
         else:
@@ -2853,7 +2861,7 @@ class OneAlyx(One):
     @util.refresh
     def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(str):
         """
-        From a local path, gets the experiment ID
+        From a local path, gets the experiment ID.
 
         Parameters
         ----------
@@ -2864,7 +2872,7 @@ class OneAlyx(One):
 
         Returns
         -------
-        str, list
+        UUID, list
             An eid or list of eids.
         """
         # If path_obj is a list recurse through it and return a list
@@ -2974,13 +2982,16 @@ class OneAlyx(One):
         """
         assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         # Ensure dset is a str uuid
-        if isinstance(dset, str) and not is_uuid_string(dset):
-            dset = self._dataset_name2id(dset)
+        if isinstance(dset, str):
+            if is_uuid_string(dset):
+                dset = UUID(dset)
+            else:
+                dset = self._dataset_name2id(dset)
         if isinstance(dset, np.ndarray):
-            dset = parquet.np2str(dset)[0]
+            dset = parquet.np2uuid(dset)[0]
         if isinstance(dset, tuple) and all(isinstance(x, int) for x in dset):
-            dset = parquet.np2str(np.array(dset))
-        if not is_uuid_string(dset):
+            dset = parquet.np2uuid(np.array(dset))
+        if not is_uuid(dset):
             raise ValueError('Unrecognized name or UUID')
         return self.alyx.rest('datasets', 'read', id=dset)['dataset_type']
 

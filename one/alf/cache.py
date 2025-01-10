@@ -28,7 +28,7 @@ from packaging import version
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
-from one.alf.spec import QC
+from one.alf.spec import QC, is_uuid_string
 from one.alf.io import iter_sessions
 from one.alf.path import session_path_parts, get_alf_path
 
@@ -322,6 +322,37 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
     return fn_ses, fn_dsets
 
 
+def cast_index_object(df: pd.DataFrame, dtype: type = uuid.UUID) -> pd.Index:
+    """
+    Cast the index object to the specified dtype.
+
+    NB: The data frame index will remain as 'object', however the underlying object type will be
+    modified.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        A data frame with an index to cast.
+    dtype : type, function
+        The desired dtype or a mapping function.
+
+    Returns
+    -------
+    pandas.DataFrame
+        An updated data frame with a new index data type.
+    """
+    if isinstance(df.index, pd.MultiIndex):
+        # df.index = df.index.map(lambda x: tuple(map(UUID, x)))
+        levels = range(df.index.nlevels)
+        df.index = pd.MultiIndex.from_arrays(
+            [df.index.get_level_values(i).map(dtype, na_action='ignore') for i in levels],
+            names=df.index.names
+        )
+    else:
+        df.index = df.index.map(dtype, na_action='ignore')
+    return df
+
+
 def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, dry=True):
     """
     Remove dataset files and session folders that are not in the provided cache.
@@ -357,6 +388,10 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
         if isinstance(tables[name].index, pd.RangeIndex):
             idx_columns = sorted(tables[name].filter(regex=INDEX_KEY).columns)
             tables[name].set_index(idx_columns, inplace=True)
+
+        # Cast indices to UUID
+        if any(map(is_uuid_string, tables[name].index.get_level_values(0))):
+            tables[name] = cast_index_object(tables[name], uuid.UUID)
 
     to_delete = set()
     from one.converters import session_record2path  # imported here due to circular imports
