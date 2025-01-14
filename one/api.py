@@ -2262,12 +2262,12 @@ class OneAlyx(One):
         if len(ins) == 0:
             pass  # no need to update cache here
         elif isinstance(ins, list):  # not a paginated response
-            self._update_insetions_table(ins)
+            self._update_insertions_table(ins)
         else:
             # populate first page
-            self._update_insetions_table(ins._cache[:ins.limit])
+            self._update_insertions_table(ins._cache[:ins.limit])
             # Add callback for updating cache on future fetches
-            ins.add_callback(WeakMethod(self._update_insetions_table))
+            ins.add_callback(WeakMethod(self._update_insertions_table))
 
         pids = util.LazyId(ins)
         if not details:
@@ -2275,7 +2275,7 @@ class OneAlyx(One):
 
         return pids, ins
 
-    def _update_insetions_table(self, insertions_records):
+    def _update_insertions_table(self, insertions_records):
         """Update the insertions tables with a list of insertions records.
 
         Parameters
