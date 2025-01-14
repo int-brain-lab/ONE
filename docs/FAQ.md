@@ -177,7 +177,7 @@ details = ONE().get_details(eid)
 When not in remote mode you can use a [regular expression](notebooks/one_search/one_search.html#Advanced-searching)
 to assert the start and end of the search string:
 ```python
-one = ONE(wildcards=True)  # Should be True by default
+one = ONE(mode='local', wildcards=True)  # Should be True by default
 subject = 'FD_04'
 eids = one.search(subject=f'^{subject}$')
 ```
