@@ -11,7 +11,6 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
 from uuid import UUID
 from urllib.error import URLError
-import time
 import threading
 import os
 import re
@@ -22,6 +21,7 @@ import requests.exceptions
 import packaging.version
 
 from iblutil.io import parquet, hashfile
+from iblutil.io.params import FileLock
 from iblutil.util import Bunch, flatten, ensure_list, Listable
 
 import one.params
@@ -216,7 +216,6 @@ class One(ConversionMixin):
             If True, the cache is saved regardless of modification time.
         """
         TIMEOUT = 5  # Delete lock file this many seconds after creation/modification or waiting
-        lock_file = Path(self.cache_dir).joinpath('.cache.lock')  # TODO use iblutil method here
         save_dir = Path(save_dir or self.cache_dir)
         meta = self._cache['_meta']
         modified = meta.get('modified_time') or datetime.min
@@ -224,16 +223,8 @@ class One(ConversionMixin):
         if modified < update_time and not force:
             return  # Not recently modified; return
 
-        # Check if in use by another process
-        while lock_file.exists():
-            if time.time() - lock_file.stat().st_ctime > TIMEOUT:
-                lock_file.unlink(missing_ok=True)
-            else:
-                time.sleep(.1)
-
-        _logger.info('Saving cache tables...')
-        lock_file.touch()
-        try:
+        with FileLock(self.cache_dir, log=_logger, timeout=TIMEOUT, timeout_action='delete'):
+            _logger.info('Saving cache tables...')
             for table in filter(lambda x: not x[0] == '_', self._cache.keys()):
                 metadata = meta['raw'][table]
                 metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
@@ -243,8 +234,6 @@ class One(ConversionMixin):
                 parquet.save(filename, df, metadata)
                 _logger.debug(f'Saved {filename}')
             meta['saved_time'] = datetime.now()
-        finally:
-            lock_file.unlink()
 
     def refresh_cache(self, mode='auto'):
         """Check and reload cache tables.
