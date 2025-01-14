@@ -569,7 +569,7 @@ class One(ConversionMixin):
         else:
             return eids
 
-    def search_insertions(self, details=False, **kwargs):
+    def _search_insertions(self, details=False, **kwargs):
         """
         Searches insertions matching the given criteria and returns a list of matching probe IDs.
 
@@ -2230,7 +2230,7 @@ class OneAlyx(One):
         """
         query_type = query_type or self.mode
         if query_type == 'local':
-            return super().search_insertions(details=details, query_type=query_type, **kwargs)
+            return super()._search_insertions(details=details, query_type=query_type, **kwargs)
         elif query_type == 'auto':  # NB behaviour here may change in the future
             _logger.debug('OneAlyx.search_insertions only supports remote queries')
             query_type = 'remote'
@@ -2259,17 +2259,17 @@ class OneAlyx(One):
 
         ins = self.alyx.rest('insertions', 'list', **params)
         # Update cache table with results
-        if len(ins) == 0:
-            pass  # no need to update cache here
-        elif isinstance(ins, list):  # not a paginated response
-            self._update_insertions_table(ins)
+        if isinstance(ins, list):  # not a paginated response
+            if len(ins) > 0:
+                self._update_insertions_table(ins)
+            pids = util.LazyId.ses2eid(ins)  # immediately extract UUIDs
         else:
             # populate first page
             self._update_insertions_table(ins._cache[:ins.limit])
             # Add callback for updating cache on future fetches
             ins.add_callback(WeakMethod(self._update_insertions_table))
+            pids = util.LazyId(ins)
 
-        pids = util.LazyId(ins)
         if not details:
             return pids
 
@@ -2429,18 +2429,18 @@ class OneAlyx(One):
         ses = self.alyx.rest(self._search_endpoint, 'list', **params)
 
         # Update cache table with results
-        if len(ses) == 0:
-            pass  # no need to update cache here
-        elif isinstance(ses, list):  # not a paginated response
-            self._update_sessions_table(ses)
+        if isinstance(ses, list):  # not a paginated response
+            if len(ses) > 0:
+                self._update_sessions_table(ses)
+            eids = util.LazyId.ses2eid(ses)
         else:
             # populate first page
             self._update_sessions_table(ses._cache[:ses.limit])
             # Add callback for updating cache on future fetches
             ses.add_callback(WeakMethod(self._update_sessions_table))
+            # LazyId only transforms records when indexed
+            eids = util.LazyId(ses)
 
-        # LazyId only transforms records when indexed
-        eids = util.LazyId(ses)
         if not details:
             return eids
 
@@ -2450,7 +2450,8 @@ class OneAlyx(One):
                 s['date'] = datetime.fromisoformat(s['start_time']).date()
             return records
 
-        return eids, util.LazyId(ses, func=_add_date)
+        # Return LazyId object only if paginated response
+        return eids, _add_date(ses) if isinstance(ses, list) else util.LazyId(ses, func=_add_date)
 
     def _update_sessions_table(self, session_records):
         """Update the sessions tables with a list of session records.
@@ -3052,7 +3053,7 @@ class OneAlyx(One):
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)
         # If eid is a list of eIDs recurse through list and return the results
-        if isinstance(eid, list):
+        if isinstance(eid, (list, util.LazyId)):
             details_list = []
             for p in eid:
                 details_list.append(self.get_details(p, full=full))

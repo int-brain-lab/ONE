@@ -213,7 +213,7 @@ class TestONECache(unittest.TestCase):
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
 
     def test_search_insertions(self):
-        """Test for One.search_insertions."""
+        """Test for One._search_insertions."""
         one = self.one
         # Create some records (eids taken from sessions cache fixture)
         insertions = [
@@ -233,41 +233,41 @@ class TestONECache(unittest.TestCase):
         one._cache['insertions'] = pd.DataFrame(insertions).set_index(['eid', 'id']).sort_index()
 
         # Search model
-        pids = one.search_insertions(model='3B2')
+        pids = one._search_insertions(model='3B2')
         self.assertEqual(2, len(pids))
-        pids = one.search_insertions(model=['3B2', '3A'])
+        pids = one._search_insertions(model=['3B2', '3A'])
         self.assertEqual(3, len(pids))
 
         # Search name
-        pids = one.search_insertions(name='probe00')
+        pids = one._search_insertions(name='probe00')
         self.assertEqual(2, len(pids))
-        pids = one.search_insertions(name='probe00', model='3B2')
+        pids = one._search_insertions(name='probe00', model='3B2')
         self.assertEqual(1, len(pids))
 
         # Search session details
-        pids = one.search_insertions(subject='flowers')
+        pids = one._search_insertions(subject='flowers')
         self.assertEqual(2, len(pids))
-        pids = one.search_insertions(subject='flowers', name='probe00')
+        pids = one._search_insertions(subject='flowers', name='probe00')
         self.assertEqual(1, len(pids))
 
         # Unimplemented keys
-        self.assertRaises(NotImplementedError, one.search_insertions, json='foo')
+        self.assertRaises(NotImplementedError, one._search_insertions, json='foo')
 
         # Details
-        pids, details = one.search_insertions(name='probe00', details=True)
+        pids, details = one._search_insertions(name='probe00', details=True)
         self.assertEqual({'probe00'}, set(x['name'] for x in details))
 
         # Check returned sorted by date, subject, number, and name
-        pids, details = one.search_insertions(details=True)
+        pids, details = one._search_insertions(details=True)
         expected = sorted([d['date'] for d in details], reverse=True)
         self.assertEqual(expected, [d['date'] for d in details])
 
         # Empty returns
-        self.assertEqual([], one.search_insertions(model='3A', name='fiber00', serial='123'))
-        self.assertEqual([], one.search_insertions(model='foo'))
+        self.assertEqual([], one._search_insertions(model='3A', name='fiber00', serial='123'))
+        self.assertEqual([], one._search_insertions(model='foo'))
         del one._cache['insertions']
         with self.assertWarns(UserWarning):
-            self.assertEqual([], one.search_insertions())
+            self.assertEqual([], one._search_insertions())
 
     def test_filter(self):
         """Test one.util.filter_datasets."""
@@ -1682,7 +1682,7 @@ class TestOneRemote(unittest.TestCase):
         self.assertRaises(TypeError, self.one.search_insertions,
                           dataset=['wheel.times'], query_type='remote')
         # Ensure that when calling with anything other than remote mode, One is used
-        with mock.patch('one.api.One.search_insertions') as offline_search, \
+        with mock.patch('one.api.One._search_insertions') as offline_search, \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[]) as alyx:
             # In remote mode
             self.one.search_insertions(subject='SWC_043', query_type='remote')

@@ -1,7 +1,7 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
 This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
-Also adds a new ALFPath class to replace alf path functions.
+Also adds a new ALFPath class to replace alf path functions and now returns UUID objects instead of str.
 
 ### Modified
 
@@ -17,6 +17,12 @@ Also adds a new ALFPath class to replace alf path functions.
 - setup in silent mode now uses defaults if base url matches default one
 - bugfix: error downloading from http server with keep_uuids=True
 - one.alf.spec.readableALF and one.alf.spec._dromedary preserve plural acronyms, e.g. 'ROIs'
+- UUID objects returned by to_eid, search, and search_insertions instead of str
+- LazyId objects now handled correctly by One converter methods
+- LazyId object only returned when greater than 1 page of results
+- OneAlyx.search_insertions now updates local cache with query results
+- bugfix: OneAlyx.list_datasets behaves the same as One.list_datasets w.r.t. revisions and default datasets
+- default REST cache expiry reduced from 24 hours to 5 minutes
 
 ### Added
 
@@ -25,6 +31,7 @@ Also adds a new ALFPath class to replace alf path functions.
 - pyproject.toml replaces deprecated setup file
 - one.alf.exceptions.InvalidALF exception
 - one.params.delete_params
+- One._search_insertions for offline query of insertions when cache table present
 
 ### Removed
 

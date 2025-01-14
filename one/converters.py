@@ -1,7 +1,7 @@
 """A module for inter-converting experiment identifiers.
 
 There are multiple ways to uniquely identify an experiment:
-    - eid (str) : An experiment UUID as a string
+    - eid (UUID) : An experiment UUID (or 36 char hexadecimal string)
     - np (int64) : An experiment UUID encoded as 2 int64s
     - path (Path) : A pathlib ALF path of the form `<lab>/Subjects/<subject>/<date>/<number>`
     - ref (str) : An experiment reference string of the form `yyyy-mm-dd_n_subject`
@@ -23,6 +23,7 @@ from one.alf.spec import is_session_path, is_uuid_string, is_uuid
 from one.alf.cache import EMPTY_DATASETS_FRAME
 from one.alf.path import (
     ALFPath, PurePosixALFPath, ensure_alf_path, get_session_path, get_alf_path, remove_uuid_string)
+from one.util import LazyId
 
 
 def recurse(func):
@@ -49,7 +50,8 @@ def recurse(func):
             return func(*args, **kwargs)
         obj, first = args[:2]
         exclude = (str, Mapping, pd.Series, pd.DataFrame)
-        if isinstance(first, Iter) and not isinstance(first, exclude):
+        is_lazy_id = isinstance(first, LazyId)
+        if is_lazy_id or (isinstance(first, Iter) and not isinstance(first, exclude)):
             return [func(obj, item, *args[2:], **kwargs) for item in first]
         else:
             return func(obj, first, *args[2:], **kwargs)
@@ -80,7 +82,7 @@ def parse_values(func):
         ref = func(*args, **kwargs)
         if not parse or isinstance(ref, str):
             return ref
-        elif isinstance(ref, list):
+        elif isinstance(ref, (list, LazyId)):
             return list(map(parse_ref, ref))
         else:
             return parse_ref(ref)
@@ -124,7 +126,7 @@ class ConversionMixin:
         #     return [self.to_eid(i, cache_dir) for i in id]
         if id is None:
             return
-        elif isinstance(id, UUID):
+        elif isinstance(id, (UUID, LazyId)):
             return id
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
@@ -195,7 +197,7 @@ class ConversionMixin:
         Returns
         -------
         eid, list
-            Experiment ID (eid) string or list of eids.
+            Experiment ID (eid) or list of eids.
         """
         # else ensure the path ends with mouse,date, number
         session_path = get_session_path(path_obj)
@@ -421,7 +423,7 @@ class ConversionMixin:
 
         Returns
         -------
-        str, list
+        uuid.UUID, list
             One or more experiment uuid strings.
 
         Examples
@@ -431,10 +433,10 @@ class ConversionMixin:
         Connected to...
         >>> ref = {'date': datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}
         >>> one.ref2eid(ref)
-        '4e0b3320-47b7-416e-b842-c34dc9004cf8'
+        UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8')
         >>> one.ref2eid(['2018-07-13_1_flowers', '2019-04-11_1_KS005'])
-        ['4e0b3320-47b7-416e-b842-c34dc9004cf8',
-         '7dc3c44b-225f-4083-be3d-07b8562885f4']
+        [UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8'),
+         UUID('7dc3c44b-225f-4083-be3d-07b8562885f4')]
         """
         ref = self.ref2dict(ref, parse=False)  # Ensure dict
         session = self.search(
