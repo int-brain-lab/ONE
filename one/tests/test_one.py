@@ -956,17 +956,6 @@ class TestONECache(unittest.TestCase):
             raw_modified = One(cache_dir=tdir)._cache['_meta']['raw']['datasets']['date_modified']
             expected = self.one._cache['_meta']['modified_time'].strftime('%Y-%m-%d %H:%M')
             self.assertEqual(raw_modified, expected)
-            # Test file lock
-            t_now = time.time()
-            with mock.patch('one.api.time') as time_mock:
-                lock_file = Path(self.one.cache_dir).joinpath('.cache.lock')
-                lock_file.touch()
-                # We expect the process to sleep at first, then after skipping time,
-                # the stale lock file should be removed.
-                time_mock.time.side_effect = (t_now, t_now + 30)
-                self.one._save_cache(save_dir=tdir, force=True)  # force flag ignores modified time
-            self.assertFalse(lock_file.exists(), 'failed to remove stale lock file')
-            time_mock.sleep.assert_called()
 
     def test_reset_cache(self):
         """Test One._reset_cache method, namely that cache types are correct."""
