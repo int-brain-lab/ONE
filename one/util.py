@@ -49,20 +49,6 @@ def parse_id(method):
     return wrapper
 
 
-def refresh(method):
-    """Refresh cache depending on query_type kwarg."""
-
-    @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        mode = kwargs.get('query_type', None)
-        if not mode or mode == 'auto':
-            mode = self.mode
-        self.refresh_cache(mode=mode)
-        return method(self, *args, **kwargs)
-
-    return wrapper
-
-
 def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     """Validate and arrange date range in a 2 elements list.
 

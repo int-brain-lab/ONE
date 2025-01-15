@@ -295,7 +295,7 @@ class ConversionMixin:
         record = self.path2record(filepath)
         if record is None:
             return
-        return unwrap(self.record2url)(record)
+        return self.record2url(record)
 
     def record2url(self, record):
         """Convert a session or dataset record to a remote URL.

@@ -243,14 +243,14 @@ class TestOnlineConverters(unittest.TestCase):
     def setUpClass(cls) -> None:
         # Create ONE object with temp cache dir
         cls.one = ONE(**TEST_DB_2)
-        cls.eid = '4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'
-        cls.pid = 'da8dfec1-d265-44e8-84ce-6ae9c109b8bd'
+        cls.eid = UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a')
+        cls.pid = UUID('da8dfec1-d265-44e8-84ce-6ae9c109b8bd')
         cls.session_record = cls.one.get_details(cls.eid)
 
     def test_to_eid(self):
         """Test for ConversionMixin.to_eid."""
         eid = self.one.to_eid(self.session_record)
-        self.assertEqual(eid, UUID(self.eid))
+        self.assertEqual(eid, self.eid)
 
     def test_record2url(self):
         """Test for ConversionMixin.record2url."""
@@ -266,7 +266,7 @@ class TestOnlineConverters(unittest.TestCase):
         url = self.one.record2url(rec[idx])
         self.assertEqual([expected], url)
         # Session record
-        rec = self.one._cache['sessions'].loc[UUID(self.eid)]
+        rec = self.one._cache['sessions'].loc[self.eid]
         url = self.one.record2url(rec)
         expected = 'https://ibl.flatironinstitute.org/public/' \
                    'hoferlab/Subjects/SWC_043/2020-09-21/001'
@@ -282,7 +282,7 @@ class TestOnlineConverters(unittest.TestCase):
                     'alf/probe00/_phy_spikes_subset.channels.npy')
         expected = ALFPath(self.one.alyx.cache_dir).joinpath(*alf_path.split('/'))
         data_id = UUID('00c234a3-a4ff-4f97-a522-939d15528a45')
-        path = self.one.record2path(rec.loc[(UUID(self.eid), data_id)])
+        path = self.one.record2path(rec.loc[(self.eid, data_id)])
         self.assertIsInstance(path, ALFPath)
         self.assertEqual(expected, path)
         # As pd.DataFrame
@@ -315,7 +315,7 @@ class TestOnlineConverters(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.one.eid2path('fakeid', query_type='remote')
-        self.assertIsNone(self.one.eid2path(self.eid.replace('d', 'b')))
+        self.assertIsNone(self.one.eid2path(str(self.eid).replace('d', 'b')))
 
         # Test list
         verifiable = self.one.eid2path([self.eid, self.eid], query_type='remote')
@@ -324,18 +324,18 @@ class TestOnlineConverters(unittest.TestCase):
 
     def test_path2eid(self):
         """Test for OneAlyx.path2eid method."""
-        test_path = Path(self.one.cache_dir).joinpath('hoferlab', 'Subjects', 'SWC_043',
-                                                      '2020-09-21', '001',)
+        test_path = Path(self.one.cache_dir).joinpath(
+            'hoferlab', 'Subjects', 'SWC_043', '2020-09-21', '001')
         verifiable = self.one.path2eid(test_path, query_type='remote')
-        self.assertEqual(UUID(self.eid), verifiable)
+        self.assertEqual(self.eid, verifiable)
         # Check works with list
         verifiable = self.one.path2eid([test_path, test_path], query_type='remote')
-        self.assertEqual([UUID(self.eid), UUID(self.eid)], verifiable)
+        self.assertEqual([self.eid, self.eid], verifiable)
 
     def test_pid2eid(self):
         """Test for OneAlyx.pid2eid method."""
         self.assertRaises(NotImplementedError, self.one.pid2eid, self.pid, query_type='local')
-        self.assertEqual((UUID(self.eid), 'probe00'), self.one.pid2eid(self.pid))
+        self.assertEqual((self.eid, 'probe00'), self.one.pid2eid(self.pid))
 
     def test_eid2pid(self):
         """Test for OneAlyx.eid2pid method."""
@@ -345,7 +345,7 @@ class TestOnlineConverters(unittest.TestCase):
         self.assertEqual((None, None, None), self.one.eid2pid(None, details=True))
         # Check valid eid
         expected = (
-            [UUID(self.pid), UUID('6638cfb3-3831-4fc2-9327-194b76cf22e1')], ['probe00', 'probe01']
+            [self.pid, UUID('6638cfb3-3831-4fc2-9327-194b76cf22e1')], ['probe00', 'probe01']
         )
         self.assertEqual(expected, self.one.eid2pid(self.eid))
         *_, det = self.one.eid2pid(self.eid, details=True)
@@ -362,7 +362,7 @@ class TestOnlineConverters(unittest.TestCase):
         # Verify returned tables are compatible with cache tables
         self.assertIsInstance(session, pd.Series)
         self.assertIsInstance(datasets, pd.DataFrame)
-        self.assertEqual(session.name, UUID(self.eid))
+        self.assertEqual(session.name, self.eid)
         self.assertCountEqual(session.keys(), self.one._cache['sessions'].columns)
         self.assertEqual(len(datasets), len(ses['data_dataset_session_related']))
         expected = list(EMPTY_DATASETS_FRAME.columns) + ['default_revision']
@@ -377,7 +377,7 @@ class TestOnlineConverters(unittest.TestCase):
 
     def test_datasets2records(self):
         """Test one.converters.datasets2records function."""
-        dsets = self.one.alyx.rest('datasets', 'list', session=self.eid)
+        dsets = self.one.alyx.rest('datasets', 'list', session=str(self.eid))
         datasets = converters.datasets2records(dsets)
 
         # Verify returned tables are compatible with cache tables
