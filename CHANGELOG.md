@@ -41,6 +41,7 @@ Also adds a new ALFPath class to replace alf path functions and now returns UUID
 - one.alf.io.remove_uuid_recursive
 - one.util.ensure_list; use iblutil.util.ensure_list instead
 - one.remote.globus.create_globus_client; use one.remote.globus.Globus class instead
+- 'auto' cache mode has been removed
 
 ## [2.11.2]
 
