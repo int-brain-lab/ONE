@@ -927,8 +927,8 @@ class TestONECache(unittest.TestCase):
         """Test One.refresh_cache."""
         self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
         prev_loaded = self.one._cache['_meta']['loaded_time']
-        for mode in ('auto', 'local', 'remote'):
-            with self.subTest("Refresh modes", mode=mode):
+        for mode in ('local', 'remote'):  # Shouldn't refresh as cache not expired
+            with self.subTest('Refresh modes', mode=mode):
                 loaded = self.one.refresh_cache(mode)
                 self.assertFalse(len(self.one._cache.datasets))
                 self.assertEqual(prev_loaded, loaded)
@@ -937,7 +937,7 @@ class TestONECache(unittest.TestCase):
         self.assertTrue(loaded > prev_loaded)
         self.one.cache_expiry = datetime.timedelta()  # Immediately expire
         self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
-        self.one.refresh_cache('auto')
+        self.one.refresh_cache('local')  # Should refresh as cache is expired
         self.assertTrue(len(self.one._cache.datasets))
         with self.assertRaises(ValueError):
             self.one.refresh_cache('double')

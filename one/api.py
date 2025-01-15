@@ -65,9 +65,8 @@ class One(ConversionMixin):
             an OneAlyx instance is returned.  If data_dir and base_url are None, the default
             location is used.
         mode : str
-            Query mode, options include 'auto' (reload cache daily), 'local' (offline) and
-            'refresh' (always reload cache tables).  Most methods have a `query_type` parameter
-            that can override the class mode.
+            Query mode, options include 'local' (offline) and 'remote' (online).  Most methods
+            have a `query_type` parameter that can override the class mode.
         wildcards : bool
             If true, use unix shell style matching instead of regular expressions.
         tables_dir : str, pathlib.Path
@@ -98,7 +97,6 @@ class One(ConversionMixin):
         """bool: True if mode is local or no Web client set."""
         return self.mode == 'local' or not getattr(self, '_web_client', False)
 
-    @util.refresh
     def search_terms(self, query_type=None) -> tuple:
         """List the search term keyword args for use in the search method."""
         return self._search_terms
@@ -239,14 +237,13 @@ class One(ConversionMixin):
                 _logger.debug(f'Saved {filename}')
             meta['saved_time'] = datetime.now()
 
-    def refresh_cache(self, mode='auto'):
+    def refresh_cache(self, mode=None):
         """Check and reload cache tables.
 
         Parameters
         ----------
-        mode : {'local', 'refresh', 'auto', 'remote'}
-            Options are 'local' (don't reload); 'refresh' (reload); 'auto' (reload if expired);
-            'remote' (don't reload).
+        mode : {'local', 'refresh', 'remote'}
+            Options are 'local' (reload if expired); 'refresh' (reload); 'remote' (don't reload).
 
         Returns
         -------
@@ -258,9 +255,10 @@ class One(ConversionMixin):
         # May be instances where modified cache is saved then immediately replaced with a new
         # remote cache. Also it's too slow :(
         # self.save_cache()  # Save cache if modified
-        if mode in {'local', 'remote'}:
+        mode = mode or self.mode
+        if mode == 'remote':
             pass
-        elif mode == 'auto':
+        elif mode == 'local':
             loaded_time = self._cache['_meta']['loaded_time']
             if not loaded_time or (datetime.now() - loaded_time >= self.cache_expiry):
                 _logger.info('Cache expired, refreshing')
@@ -796,7 +794,6 @@ class One(ConversionMixin):
         # Return full list of file paths
         return files
 
-    @util.refresh
     @util.parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
         """Return session details for a given session ID.
@@ -828,7 +825,6 @@ class One(ConversionMixin):
         # .reset_index('eid', drop=True)
         return self._cache['datasets'].join(det, on='eid', how='right')
 
-    @util.refresh
     def list_subjects(self) -> List[str]:
         """List all subjects in database.
 
@@ -840,7 +836,6 @@ class One(ConversionMixin):
         """
         return self._cache['sessions']['subject'].sort_values().unique().tolist()
 
-    @util.refresh
     def list_datasets(
             self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
             ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False,
@@ -944,7 +939,6 @@ class One(ConversionMixin):
             # Return only the relative path
             return datasets['rel_path'].sort_values().values.tolist()
 
-    @util.refresh
     def list_collections(self, eid=None, filename=None, collection=None, revision=None,
                          details=False, query_type=None) -> Union[np.ndarray, dict]:
         """List the collections for a given experiment.
@@ -1015,7 +1009,6 @@ class One(ConversionMixin):
         else:
             return datasets['collection'].unique().tolist()
 
-    @util.refresh
     def list_revisions(self, eid=None, filename=None, collection=None, revision=None,
                        details=False, query_type=None):
         """List the revisions for a given experiment.
@@ -1079,7 +1072,6 @@ class One(ConversionMixin):
         else:
             return datasets['revision'].unique().tolist()
 
-    @util.refresh
     @util.parse_id
     def load_object(self,
                     eid: Union[str, Path, UUID],
@@ -1164,7 +1156,7 @@ class One(ConversionMixin):
             raise alferr.ALFMultipleCollectionsFound(*unique_collections)
 
         # For those that don't exist, download them
-        offline = None if query_type == 'auto' else self.mode == 'local'
+        offline = self.mode == 'local'
         files = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
         files = [x for x in files if x]
         if not files:
@@ -1175,7 +1167,6 @@ class One(ConversionMixin):
 
         return alfio.load_object(files, wildcards=self.wildcards, **kwargs)
 
-    @util.refresh
     @util.parse_id
     def load_dataset(self,
                      eid: Union[str, Path, UUID],
@@ -1272,7 +1263,7 @@ class One(ConversionMixin):
             raise alferr.ALFObjectNotFound(f'Dataset "{dataset}" not found')
 
         # Check files exist / download remote files
-        offline = None if query_type == 'auto' else self.mode == 'local'
+        offline = self.mode == 'local'
         file, = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
 
         if not file:
@@ -1281,7 +1272,6 @@ class One(ConversionMixin):
             return file
         return alfio.load_file_content(file)
 
-    @util.refresh
     @util.parse_id
     def load_datasets(self,
                       eid: Union[str, Path, UUID],
@@ -1467,7 +1457,7 @@ class One(ConversionMixin):
                 _logger.warning(message)
 
         # Check files exist / download remote files
-        offline = None if query_type == 'auto' else self.mode == 'local'
+        offline = self.mode == 'local'
         files = self._check_filesystem(present_datasets, offline=offline, check_hash=check_hash)
 
         if any(x is None for x in files):
@@ -1491,7 +1481,6 @@ class One(ConversionMixin):
             return files, records
         return [alfio.load_file_content(x) for x in files], records
 
-    @util.refresh
     def load_dataset_from_id(self,
                              dset_id: Union[str, UUID],
                              download_only: bool = False,
@@ -1538,7 +1527,6 @@ class One(ConversionMixin):
         else:
             return output
 
-    @util.refresh
     @util.parse_id
     def load_collection(self,
                         eid: Union[str, Path, UUID],
@@ -1616,7 +1604,7 @@ class One(ConversionMixin):
         parts = [alfiles.rel_path_parts(x) for x in datasets.rel_path]
 
         # For those that don't exist, download them
-        offline = None if query_type == 'auto' else self.mode == 'local'
+        offline = self.mode == 'local'
         files = self._check_filesystem(datasets, offline=offline, check_hash=check_hash)
         if not any(files):
             raise alferr.ALFObjectNotFound(f'ALF collection "{collection}" not found on disk')
@@ -1684,7 +1672,7 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
     Parameters
     ----------
     mode : str
-        Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
+        Query mode, options include 'local' (offline) and 'remote' (online only).  Most
         methods have a `query_type` parameter that can override the class mode.
     wildcards : bool
         If true all methods use unix shell style pattern matching, otherwise regular expressions
@@ -1735,7 +1723,7 @@ class OneAlyx(One):
         Parameters
         ----------
         mode : str
-            Query mode, options include 'auto', 'local' (offline) and 'remote' (online only).  Most
+            Query mode, options include 'local' (offline) and 'remote' (online only).  Most
             methods have a `query_type` parameter that can override the class mode.
         wildcards : bool
             If true, methods allow unix shell style pattern matching, otherwise regular
@@ -1898,7 +1886,6 @@ class OneAlyx(One):
         """pathlib.Path: The location of the downloaded file cache."""
         return self._web_client.cache_dir
 
-    @util.refresh
     def search_terms(self, query_type=None, endpoint=None):
         """Returns a list of search terms to be passed as kwargs to the search method.
 
@@ -1960,7 +1947,6 @@ class OneAlyx(One):
         print(out['description'])
         return out
 
-    @util.refresh
     def list_datasets(
             self, eid=None, filename=None, collection=None, revision=None, qc=QC.FAIL,
             ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False,
@@ -2107,7 +2093,6 @@ class OneAlyx(One):
             raise alferr.ALFObjectNotFound('Dataset file not found on disk')
         return file if download_only else alfio.load_file_content(file)
 
-    @util.refresh
     def pid2eid(self, pid: str, query_type=None) -> (UUID, str):
         """Given an Alyx probe UUID string, return the session ID and probe label.
 
@@ -2134,7 +2119,6 @@ class OneAlyx(One):
         rec = self.alyx.rest('insertions', 'read', id=str(pid))
         return UUID(rec['session']), rec['name']
 
-    @util.refresh
     def eid2pid(self, eid, query_type=None, details=False):
         """Given an experiment UUID (eID), return the probe IDs and labels (i.e. ALF collection).
 
@@ -2241,7 +2225,7 @@ class OneAlyx(One):
         query_type = query_type or self.mode
         if query_type == 'local':
             return super()._search_insertions(details=details, query_type=query_type, **kwargs)
-        elif query_type == 'auto':  # NB behaviour here may change in the future
+        elif query_type != 'remote':  # NB behaviour here may change in the future
             _logger.debug('OneAlyx.search_insertions only supports remote queries')
             query_type = 'remote'
         # Get remote query params from REST endpoint
@@ -2824,7 +2808,6 @@ class OneAlyx(One):
         cache_map = one.params.setup(client=base_url, **kwargs)
         return OneAlyx(base_url=base_url or one.params.get(cache_map.DEFAULT).ALYX_URL)
 
-    @util.refresh
     @util.parse_id
     def eid2path(self, eid, query_type=None) -> Listable(ALFPath):
         """From an experiment ID gets the local session path.
@@ -2864,7 +2847,6 @@ class OneAlyx(One):
                 ses[0]['lab'], 'Subjects', ses[0]['subject'], ses[0]['start_time'][:10],
                 str(ses[0]['number']).zfill(3))
 
-    @util.refresh
     def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(str):
         """From a local path, gets the experiment ID.
 
@@ -2884,9 +2866,8 @@ class OneAlyx(One):
         # If path_obj is a list recurse through it and return a list
         if isinstance(path_obj, list):
             eid_list = []
-            unwrapped = unwrap(self.path2eid)
             for p in path_obj:
-                eid_list.append(unwrapped(self, p))
+                eid_list.append(self.path2eid(p))
             return eid_list
         # else ensure the path ends with mouse, date, number
         path_obj = ALFPath(path_obj)
@@ -2904,16 +2885,14 @@ class OneAlyx(One):
             return None
 
         # if not search for subj, date, number XXX: hits the DB
-        search = unwrap(self.search)
-        uuid = search(subject=session_path.parts[-3],
-                      date_range=session_path.parts[-2],
-                      number=session_path.parts[-1],
-                      query_type='remote')
+        uuid = self.search(subject=session_path.parts[-3],
+                           date_range=session_path.parts[-2],
+                           number=session_path.parts[-1],
+                           query_type='remote')
 
         # Return the uuid if any
         return uuid[0] if uuid else None
 
-    @util.refresh
     def path2url(self, filepath, query_type=None) -> str:
         """Given a local file path, returns the URL of the remote file.
 
@@ -3038,7 +3017,6 @@ class OneAlyx(One):
                 return idx[-1]  # (eid, did)
         raise ValueError(f'Dataset {dset_name} not found in cache')
 
-    @util.refresh
     @util.parse_id
     def get_details(self, eid: str, full: bool = False, query_type=None):
         """Return session details for a given session.
@@ -3050,10 +3028,9 @@ class OneAlyx(One):
             details dict or Path.
         full : bool
             If True, returns a DataFrame of session and dataset info.
-        query_type : {'local', 'refresh', 'auto', 'remote'}
+        query_type : {'local', 'remote'}
             The query mode - if 'local' the details are taken from the cache tables; if 'remote'
-            the details are returned from the sessions REST endpoint; if 'auto' uses whichever
-            mode ONE is in; if 'refresh' reloads the cache before querying.
+            the details are returned from the sessions REST endpoint.
 
         Returns
         -------
