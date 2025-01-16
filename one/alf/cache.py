@@ -9,6 +9,7 @@ Examples
 >>> cache_dir = 'path/to/data'
 >>> make_parquet_db(cache_dir)
 >>> one = One(cache_dir=cache_dir)
+
 """
 
 # -------------------------------------------------------------------------------------------------
@@ -107,6 +108,7 @@ def _get_session_info(rel_ses_path):
         The task protocol (empty str).
     str
         The associated project (empty str).
+
     """
     lab, subject, s_date, num = session_path_parts(rel_ses_path, as_dict=False, assert_valid=True)
     eid = _ses_str_id(rel_ses_path)
@@ -142,6 +144,7 @@ def _get_dataset_info(dset_path, ses_eid=None, compute_hash=False):
         Whether the file exists.
     str
         The QC value for the dataset ('NOT_SET').
+
     """
     rel_dset_path = get_alf_path(dset_path.relative_to_session())
     ses_eid = ses_eid or _ses_str_id(dset_path.session_path())
@@ -188,13 +191,13 @@ def _ids_to_uuid(df_ses, df_dsets):
 # -------------------------------------------------------------------------------------------------
 
 def _metadata(origin):
-    """
-    Metadata dictionary for Parquet files.
+    """Metadata dictionary for Parquet files.
 
     Parameters
     ----------
     origin : str, pathlib.Path
         Path to full directory, or computer name / db name.
+
     """
     return {
         'date_created': datetime.datetime.now().isoformat(sep=' ', timespec='minutes'),
@@ -203,8 +206,7 @@ def _metadata(origin):
 
 
 def _make_sessions_df(root_dir) -> pd.DataFrame:
-    """
-    Given a root directory, recursively finds all sessions and returns a sessions DataFrame.
+    """Given a root directory, recursively finds all sessions and returns a sessions DataFrame.
 
     Parameters
     ----------
@@ -215,6 +217,7 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
     -------
     pandas.DataFrame
         A pandas DataFrame of session info.
+
     """
     rows = []
     for full_path in iter_sessions(root_dir):
@@ -229,8 +232,7 @@ def _make_sessions_df(root_dir) -> pd.DataFrame:
 
 
 def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
-    """
-    Given a root directory, recursively finds all datasets and returns a datasets DataFrame.
+    """Given a root directory, recursively finds all datasets and returns a datasets DataFrame.
 
     Parameters
     ----------
@@ -243,6 +245,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     -------
     pandas.DataFrame
         A pandas DataFrame of dataset info.
+
     """
     # Go through sessions and append datasets
     rows = []
@@ -255,8 +258,7 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
 
 
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):
-    """
-    Given a data directory, index the ALF datasets and save the generated cache tables.
+    """Given a data directory, index the ALF datasets and save the generated cache tables.
 
     Parameters
     ----------
@@ -281,6 +283,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
         The full path of the saved sessions parquet table.
     pathlib.Path
         The full path of the saved datasets parquet table.
+
     """
     root_dir = Path(root_dir).resolve()
 
@@ -323,8 +326,7 @@ def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab
 
 
 def cast_index_object(df: pd.DataFrame, dtype: type = uuid.UUID) -> pd.Index:
-    """
-    Cast the index object to the specified dtype.
+    """Cast the index object to the specified dtype.
 
     NB: The data frame index will remain as 'object', however the underlying object type will be
     modified.
@@ -340,6 +342,7 @@ def cast_index_object(df: pd.DataFrame, dtype: type = uuid.UUID) -> pd.Index:
     -------
     pandas.DataFrame
         An updated data frame with a new index data type.
+
     """
     if isinstance(df.index, pd.MultiIndex):
         # df.index = df.index.map(lambda x: tuple(map(UUID, x)))
@@ -354,8 +357,7 @@ def cast_index_object(df: pd.DataFrame, dtype: type = uuid.UUID) -> pd.Index:
 
 
 def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, dry=True):
-    """
-    Remove dataset files and session folders that are not in the provided cache.
+    """Remove dataset files and session folders that are not in the provided cache.
 
     NB: This *does not* remove entries from the cache tables that are missing on disk.
     Non-ALF files are not removed. Empty sessions that exist in the sessions table are not removed.
@@ -374,6 +376,7 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
     -------
     list
         A sorted list of paths to be removed.
+
     """
     cache_dir = Path(cache_dir)
     if tables is None:
@@ -444,6 +447,7 @@ def remove_cache_table_files(folder, tables=('sessions', 'datasets')):
     -------
     list of pathlib.Path
         A list of the removed files.
+
     """
     filenames = ('cache_info.json', *(f'{t}.pqt' for t in tables))
     removed = []
@@ -492,6 +496,7 @@ def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.Data
         The minimum API version supported by this cache table.
     name : {'dataset', 'session'} str
         The name of the table.
+
     """
     min_version = version.parse(min_api_version or '0.0.0')
     table = _cache_int2str(table)

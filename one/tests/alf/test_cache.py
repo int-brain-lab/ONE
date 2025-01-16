@@ -14,7 +14,8 @@ from one.tests.util import revisions_datasets_table
 
 
 class TestsONEParquet(unittest.TestCase):
-    """Tests for the make_parquet_db function and its helpers"""
+    """Tests for the make_parquet_db function and its helpers."""
+
     rel_ses_path = 'mylab/Subjects/mysub/2021-02-28/001/'
     ses_info = {
         'id': 'mylab/mysub/2021-02-28/001',

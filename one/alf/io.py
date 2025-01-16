@@ -32,16 +32,15 @@ _logger = logging.getLogger(__name__)
 
 
 class AlfBunch(Bunch):
-    """A dict-like object that supports dot indexing and conversion to DataFrame"""
+    """A dict-like object that supports dot indexing and conversion to DataFrame."""
 
     @property
     def check_dimensions(self):
-        """int: 0 for consistent dimensions, 1 for inconsistent dimensions"""
+        """int: 0 for consistent dimensions, 1 for inconsistent dimensions."""
         return check_dimensions(self)
 
     def append(self, b, inplace=False):
-        """
-        Appends one bunch to another, key by key
+        """Appends one bunch to another, key by key.
 
         Parameters
         ----------
@@ -54,6 +53,7 @@ class AlfBunch(Bunch):
         -------
         ALFBunch, None
             An ALFBunch with the data appended, or None if inplace is True
+
         """
         # default is to return a copy
         if inplace:
@@ -85,7 +85,7 @@ class AlfBunch(Bunch):
         return a
 
     def to_df(self) -> pd.DataFrame:
-        """Return DataFrame with data keys as columns"""
+        """Return DataFrame with data keys as columns."""
         return dataframe(self)
 
     @staticmethod
@@ -98,8 +98,8 @@ class AlfBunch(Bunch):
 
 
 def dataframe(adict):
-    """
-    Converts an Bunch conforming to size conventions into a pandas DataFrame.
+    """Convert an Bunch conforming to size conventions into a pandas DataFrame.
+
     For 2-D arrays, stops at 10 columns per attribute.
 
     Parameters
@@ -111,6 +111,7 @@ def dataframe(adict):
     -------
     pd.DataFrame
         A pandas DataFrame of data
+
     """
     if check_dimensions(adict) != 0:
         raise ValueError('Can only convert to DataFrame objects with consistent size')
@@ -136,8 +137,7 @@ def dataframe(adict):
 
 
 def _find_metadata(file_alf) -> path.ALFPath:
-    """
-    File path for an existing meta-data file for an alf_file
+    """File path for an existing meta-data file for an alf_file.
 
     Parameters
     ----------
@@ -148,6 +148,7 @@ def _find_metadata(file_alf) -> path.ALFPath:
     -------
     one.alf.path.ALFPath
         Path of meta-data file if exists.
+
     """
     file_alf = path.ALFPath(file_alf)
     ns, obj = file_alf.name.split('.')[:2]
@@ -155,8 +156,7 @@ def _find_metadata(file_alf) -> path.ALFPath:
 
 
 def read_ts(filename):
-    """
-    Load time-series from ALF format
+    """Load time-series from ALF format.
 
     Parameters
     ----------
@@ -173,6 +173,7 @@ def read_ts(filename):
     Examples
     --------
     >>> t, d = read_ts(filename)
+
     """
     filename = path.ensure_alf_path(filename)
 
@@ -194,8 +195,7 @@ def read_ts(filename):
 
 
 def _ensure_flat(arr):
-    """
-    Given a single column array, returns a flat vector.  Other shapes are returned unchanged.
+    """Given a single column array, returns a flat vector.  Other shapes are returned unchanged.
 
     Parameters
     ----------
@@ -206,13 +206,13 @@ def _ensure_flat(arr):
     -------
     numpy.ndarray
         A vector with shape (n,)
+
     """
     return arr.flatten() if arr.ndim == 2 and arr.shape[1] == 1 else arr
 
 
 def ts2vec(ts: np.ndarray, n_samples: int) -> np.ndarray:
-    """
-    Interpolate a continuous timeseries of the shape (2, 2)
+    """Interpolate a continuous timeseries of the shape (2, 2).
 
     Parameters
     ----------
@@ -225,6 +225,7 @@ def ts2vec(ts: np.ndarray, n_samples: int) -> np.ndarray:
     -------
     numpy.ndarray
         A vector of interpolated timestamps
+
     """
     if len(ts.shape) == 1:
         return ts
@@ -238,8 +239,7 @@ def ts2vec(ts: np.ndarray, n_samples: int) -> np.ndarray:
 
 
 def check_dimensions(dico):
-    """
-    Test for consistency of dimensions as per ALF specs in a dictionary.
+    """Test for consistency of dimensions as per ALF specs in a dictionary.
 
     Alf broadcasting rules: only accepts consistent dimensions for a given axis
     a dimension is consistent with another if it's empty, 1, or equal to the other arrays
@@ -254,6 +254,7 @@ def check_dimensions(dico):
     -------
     int
         Status 0 for consistent dimensions, 1 for inconsistent dimensions
+
     """
     supported = (np.ndarray, pd.DataFrame)  # Data types that have a shape attribute
     shapes = [dico[lab].shape for lab in dico
@@ -275,9 +276,9 @@ def check_dimensions(dico):
 
 
 def load_file_content(fil):
-    """
-    Returns content of files. Designed for very generic file formats:
-    so far supported contents are `json`, `npy`, `csv`, `(h)tsv`, `ssv`, `jsonable`
+    """Return content of a file path.
+
+    Designed for very generic data file formats such as `json`, `npy`, `csv`, `(h)tsv`, `ssv`.
 
     Parameters
     ----------
@@ -288,6 +289,7 @@ def load_file_content(fil):
     -------
     Any
         Array/json/pandas dataframe depending on format
+
     """
     if not fil:
         return
@@ -331,8 +333,7 @@ def load_file_content(fil):
 
 
 def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
-    """
-    Given a path, an object and a filter, returns all files and associated attributes
+    """Given a path, an object and a filter, returns all files and associated attributes.
 
     Parameters
     ----------
@@ -356,6 +357,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
     ------
     ALFObjectNotFound
         No matching ALF object was found in the alfpath directory
+
     """
     alfpath = path.ALFPath(alfpath)
     if not alfpath.exists():
@@ -380,8 +382,7 @@ def _ls(alfpath, object=None, **kwargs) -> (list, tuple):
 
 
 def iter_sessions(root_dir, pattern='*'):
-    """
-    Recursively iterate over session paths in a given directory.
+    """Recursively iterate over session paths in a given directory.
 
     Parameters
     ----------
@@ -392,7 +393,7 @@ def iter_sessions(root_dir, pattern='*'):
         this more performant (see examples).
 
     Yields
-    -------
+    ------
     pathlib.Path
         The next session path in lexicographical order.
 
@@ -405,6 +406,7 @@ def iter_sessions(root_dir, pattern='*'):
     Efficient iteration when `root_dir` contains subject folders
 
     >>> sessions = list(iter_sessions(root_dir, pattern='*/????-??-??/*'))
+
     """
     if spec.is_session_path(root_dir):
         yield path.ALFPath(root_dir)
@@ -414,8 +416,7 @@ def iter_sessions(root_dir, pattern='*'):
 
 
 def iter_datasets(session_path):
-    """
-    Iterate over all files in a session, and yield relative dataset paths.
+    """Iterate over all files in a session, and yield relative dataset paths.
 
     Parameters
     ----------
@@ -423,17 +424,17 @@ def iter_datasets(session_path):
         The folder to look for datasets.
 
     Yields
-    -------
+    ------
     one.alf.path.ALFPath
         The next dataset path (relative to the session path) in lexicographical order.
+
     """
     for dataset in path.ALFPath(session_path).iter_datasets(recursive=True):
         yield dataset.relative_to(session_path)
 
 
 def exists(alfpath, object, attributes=None, **kwargs) -> bool:
-    """
-    Test if ALF object and optionally specific attributes exist in the given path
+    """Test if ALF object and optionally specific attributes exist in the given path.
 
     Parameters
     ----------
@@ -452,8 +453,8 @@ def exists(alfpath, object, attributes=None, **kwargs) -> bool:
     -------
     bool
         For multiple attributes, returns True only if all attributes are found
-    """
 
+    """
     # if the object is not found, return False
     try:
         _, attributes_found = _ls(alfpath, object, **kwargs)
@@ -512,6 +513,7 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         Load 'trials' object under the 'ibl' namespace
 
         >>> trials = load_object('/subject/2021-01-01/001', 'trials', namespace='ibl')
+
     """
     if isinstance(alfpath, (Path, str)):
         if Path(alfpath).is_dir() and object is None:
@@ -555,9 +557,8 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
         table = out.pop(table_key)
 
         def rename_columns(field):
-            """
-            For each field name in the DataFrame, return a new one that includes any timescale or
-            extra ALF parts found in table_key.
+            """"Rename DataFrame fields to include timescale or extra ALF parts from table_key.
+
             For example...
                 with table_key = table_clock, field1 -> field1_clock;
                 with table_key = table_clock.extra, field1_0 -> field1_clock.extra_0;
@@ -587,9 +588,9 @@ def load_object(alfpath, object=None, short_keys=False, **kwargs):
 
 
 def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale=None) -> list:
-    """
-    Saves a dictionary in `ALF format`_ using object as object name and dictionary keys as
-    attribute names. Dimensions have to be consistent.
+    """Save dictionary in `ALF format`_ using dictionary keys as attribute names.
+
+    Dimensions have to be consistent.
 
     Simplified ALF example: _namespace_object.attribute.part1.part2.extension.
 
@@ -620,6 +621,7 @@ def save_object_npy(alfpath, dico, object, parts=None, namespace=None, timescale
 
     .. _ALF format:
         https://int-brain-lab.github.io/ONE/alf_intro.html
+
     """
     alfpath = path.ALFPath(alfpath)
     status = check_dimensions(dico)
@@ -657,6 +659,7 @@ def save_metadata(file_alf, dico) -> path.ALFPath:
     -------
     one.alf.path.ALFPath
         The saved metadata file path.
+
     """
     file_alf = path.ALFPath(file_alf)
     assert file_alf.is_dataset, 'ALF filename not valid'
@@ -691,8 +694,7 @@ def remove_empty_folders(folder: Union[str, Path]) -> None:
 
 
 def filter_by(alf_path, wildcards=True, **kwargs):
-    """
-    Given a path and optional filters, returns all ALF files and their associated parts.
+    """Given a path and optional filters, returns all ALF files and their associated parts.
 
     The filters constitute a logical AND.  For all but `extra`, if a list is provided, one or more
     elements must match (a logical OR).
@@ -750,6 +752,7 @@ def filter_by(alf_path, wildcards=True, **kwargs):
 
     >>> filter_by(alf_path, object='^wheel.*', wildcards=False)
     >>> filter_by(alf_path, object=['^wheel$', '.*Moves'], wildcards=False)
+
     """
     alf_files = [f.relative_to(alf_path) for f in path.ALFPath(alf_path).iter_datasets()]
     attributes = list(map(path.ALFPath.parse_alf_name, alf_files))
@@ -795,8 +798,7 @@ def filter_by(alf_path, wildcards=True, **kwargs):
 
 
 def find_variants(file_list, namespace=True, timescale=True, extra=True, extension=True):
-    """
-    Find variant datasets.
+    """Find variant datasets.
 
     Finds any datasets on disk that are considered a variant of the input datasets. At minimum, a
     dataset is uniquely defined by session path, collection, object and attribute. Therefore,
@@ -854,7 +856,7 @@ def find_variants(file_list, namespace=True, timescale=True, extra=True, extensi
                   *(arg for arg in filters if variables[arg]))
 
     def parts_match(parts, file):
-        """Compare a file's unique parts to a given file"""
+        """Compare a file's unique parts to a given file."""
         other = file.parse_alf_path()
         return all(parts[k] == other[k] for k in to_compare)
 

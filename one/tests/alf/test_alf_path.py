@@ -11,9 +11,10 @@ from one.alf.exceptions import ALFInvalid
 
 
 class TestALFParse(unittest.TestCase):
-    """Tests for ALF parsing methods"""
+    """Tests for ALF parsing methods."""
+
     def test_filename_parts(self):
-        """Test for one.alf.path.filename_parts"""
+        """Test for one.alf.path.filename_parts."""
         verifiable = path.filename_parts('_namespace_obj.times_timescale.extra.foo.ext')
         expected = ('namespace', 'obj', 'times', 'timescale', 'extra.foo', 'ext')
         self.assertEqual(expected, verifiable)
@@ -54,7 +55,7 @@ class TestALFParse(unittest.TestCase):
         self.assertFalse(any(verifiable))
 
     def test_rel_path_parts(self):
-        """Test for one.alf.path.rel_path_parts"""
+        """Test for one.alf.path.rel_path_parts."""
         alf_str = Path('collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext')
         verifiable = path.rel_path_parts(alf_str)
         expected = ('collection', 'revision', 'namespace', 'obj', 'times',
@@ -81,7 +82,7 @@ class TestALFParse(unittest.TestCase):
         self.assertFalse(any(verifiable))
 
     def test_session_path_parts(self):
-        """Test for one.alf.path.session_path_parts"""
+        """Test for one.alf.path.session_path_parts."""
         session_path = '/home/user/Data/labname/Subjects/subject/2020-01-01/001/alf'
         parsed = path.session_path_parts(session_path, as_dict=True)
         expected = {
@@ -105,7 +106,7 @@ class TestALFParse(unittest.TestCase):
         self.assertEqual(tuple([None] * 4), parsed)
 
     def test_folder_parts(self):
-        """Test for one.alf.path.folder_parts"""
+        """Test for one.alf.path.folder_parts."""
         alfpath = Path(
             '/home/user/Data/labname/Subjects/subject/2020-01-01/001/collection/#revision#/')
         out = path.folder_parts(alfpath)
@@ -117,7 +118,7 @@ class TestALFParse(unittest.TestCase):
         self.assertEqual(expected_values, path.folder_parts(alfpath))
 
     def test_full_path_parts(self):
-        """Test for one.alf.path.full_path_parts"""
+        """Test for one.alf.path.full_path_parts."""
         fullpath = Path(
             '/home/user/Data/labname/Subjects/subject/2020-01-01/001/'
             'collection/#revision#/_namespace_obj.times_timescale.extra.foo.ext'
@@ -146,7 +147,7 @@ class TestALFParse(unittest.TestCase):
         self.assertTrue(not any(out[:6]) and all(out[6:]))
 
     def test_isdatetime(self):
-        """Test for one.alf.path._isdatetime"""
+        """Test for one.alf.path._isdatetime."""
         inp = ['açsldfkça', '12312', '2020-01-01', '01-01-2020', '2020-12-32']
         out = [False, False, True, False, False]
         for i, o in zip(inp, out):
@@ -205,9 +206,10 @@ class TestALFParse(unittest.TestCase):
 
 
 class TestALFGet(unittest.TestCase):
-    """Tests for path extraction functions"""
+    """Tests for path extraction functions."""
+
     def test_get_session_folder(self):
-        """Test for one.alf.path.get_session_folder"""
+        """Test for one.alf.path.get_session_folder."""
         inp = (Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/raw_behavior_data/'
                     '_iblrig_micData.raw.wav'),
                Path('/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001'),
@@ -225,7 +227,7 @@ class TestALFGet(unittest.TestCase):
         self.assertTrue(no_out is None)
 
     def test_get_alf_path(self):
-        """Test for one.alf.path.get_alf_path"""
+        """Test for one.alf.path.get_alf_path."""
         alfpath = Path(
             '/mnt/s0/Data/Subjects/ZM_1368/2019-04-19/001/'
             'raw_behavior_data/_iblrig_micData.raw.wav')

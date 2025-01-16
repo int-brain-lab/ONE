@@ -24,6 +24,7 @@ from one.tests import util
 
 class TestDatasetTypes(unittest.TestCase):
     """Tests for dataset type validation."""
+
     def test_get_dataset_type(self):
         """Test one.registration.get_dataset_type function."""
         dtypes = [
@@ -51,6 +52,7 @@ class TestDatasetTypes(unittest.TestCase):
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestRegistrationClient(unittest.TestCase):
     """Test class for RegistrationClient class."""
+
     one = None
     subject = None
     temp_dir = None
@@ -224,7 +226,6 @@ class TestRegistrationClient(unittest.TestCase):
 
     def test_prepare_files(self):
         """Test for RegistrationClient.prepare_files method."""
-
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
         session_path_2 = session_path.parent / next_num_folder(session_path)
         file_list = [session_path.joinpath('wheel.position.npy'),
@@ -248,7 +249,6 @@ class TestRegistrationClient(unittest.TestCase):
 
     def test_check_protected(self):
         """Test for RegistrationClient.check_protected_files method."""
-
         session_path, eid = self.client.create_new_session(self.subject)
         file_name = session_path.joinpath('wheel.timestamps.npy')
         file_name.touch()

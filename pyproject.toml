@@ -27,3 +27,13 @@ dependencies = {file = ["requirements.txt"]}
 [tool.setuptools.packages.find]
 include = ["one*"]
 exclude = ["one.tests*"]
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+select = ["D", "E", "F", "W"]
+ignore = ["E266", "D401", "D105", "D107", "D102", "D417", "D101", "D404", "D100", "D301", "D103", "D403"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

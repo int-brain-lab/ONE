@@ -26,19 +26,21 @@ IPYTHON_VERSION = 4
 class NotebookConverter(object):
 
     def __init__(self, nb_path, output_path=None, overwrite=True, kernel_name=None):
-        """
+        """Execute Jupyter notebook and convert to rst.
+
         Parameters
         ----------
         nb_path : str
-            Path to ipython notebook
+            Path to ipython notebook.
         output_path: str, default=None
             Path to where executed notebook, rst file and colab notebook will be saved. Default is
-            to save in same directory of notebook
+            to save in same directory of notebook.
         overwrite: bool, default=True
             Whether to save executed notebook as same filename as unexecuted notebook or create new
-            file with naming convention 'exec_....'. Default is to write to same file
+            file with naming convention 'exec_....'. Default is to write to same file.
         kernel_name: str
-            Kernel to use to run notebooks. If not specified defaults to 'python3'
+            Kernel to use to run notebooks. If not specified defaults to 'python3'.
+
         """
         self.nb_path = Path(nb_path).absolute()
         self.nb_link_path = Path(__file__).parent.parent.joinpath('notebooks_external')
@@ -69,11 +71,7 @@ class NotebookConverter(object):
 
     @staticmethod
     def py_to_ipynb(py_path):
-        """
-        Convert python script to ipython notebook
-        Returns
-        -------
-        """
+        """Convert python script to ipython notebook."""
         nb_path = sph_nb.replace_py_ipynb(py_path)
         if not Path(nb_path).exists():
             file_conf, blocks = sph_nb.split_code_and_text_blocks(py_path)
@@ -92,9 +90,7 @@ class NotebookConverter(object):
         return nb_path
 
     def link(self):
-        """
-        Create nb_sphinx link file for notebooks external to the docs directory
-        """
+        """Create nb_sphinx link file for notebooks external to the docs directory."""
         link_path = os.path.relpath(self.nb_path, self.nb_link_path)
         link_dict = {"path": link_path}
         link_save_path = self.nb_link_path.joinpath(str(self.nb_name) + '.nblink')
@@ -103,21 +99,21 @@ class NotebookConverter(object):
             json.dump(link_dict, f)
 
     def execute(self, force=False):
-        """
-        Executes the specified notebook file, and writes the executed notebook to a
-        new file.
+        """Execute the specified notebook file, and write to a new file.
+
         Parameters
         ----------
         force : bool, optional
-            To force rerun notebook even if it has already been executed
+            To force rerun notebook even if it has already been executed.
+
         Returns
         -------
         executed_nb_path : str, ``None``
             The path to the executed notebook path, or ``None`` if ``write=False``.
         status: bool
-            Whether the notebook executed without errors or not, 0 = ran without error, 1 = error
-        """
+            Whether the notebook executed without errors or not, 0 = ran without error, 1 = error.
 
+        """
         with open(self.nb_path, encoding='utf-8') as f:
             nb = nbformat.read(f, as_version=IPYTHON_VERSION)
 
@@ -167,11 +163,12 @@ class NotebookConverter(object):
         return self.executed_nb_path, status
 
     def unexecute(self, remove_gh=False):
-        """
-        Unexecutes the notebook i.e. removes all output cells. If remove_gh=True looks to see if
-        notebook metadata contains an executed tag. If it doesn't it means the notebook either
-        errored or was not run (for case when only specific notebooks chosen to build examples) and
-        removes the notebooks so old ones can be used
+        """Remove all output cells from the notebook.
+
+        If remove_gh=True looks to see if notebook metadata contains an executed tag.
+        If it doesn't it means the notebook either errored or was not run (for case when only
+        specific notebooks chosen to build examples) and removes the notebooks so old ones can be
+        used.
         """
         _logger.info(f"Cleaning up notebook {self.nb} in {self.nb_dir}")
         if not self.executed_nb_path.exists():
@@ -210,10 +207,10 @@ class NotebookConverter(object):
 
 def process_notebooks(nbfile_or_path, execute=True, force=False, link=False, cleanup=False,
                       filename_pattern='', remove_gh=False, **kwargs):
-    """
-    Execute and optionally convert the specified notebook file or directory of
-    notebook files.
+    """Execute and optionally convert specified notebook(s).
+
     Wrapper for `NotebookConverter` class that does all the file handling.
+
     Parameters
     ----------
     nbfile_or_path : str
@@ -231,8 +228,8 @@ def process_notebooks(nbfile_or_path, execute=True, force=False, link=False, cle
         Whether to remove notebook from build examples (in case where we want to use old version)
     **kwargs
         Other keyword arguments that are passed to the 'NotebookExecuter'
-    """
 
+    """
     overall_status = 0
     if os.path.isdir(nbfile_or_path):
         # It's a path, so we need to walk through recursively and find any
