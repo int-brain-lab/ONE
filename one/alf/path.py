@@ -1,5 +1,4 @@
-"""
-Module for identifying and parsing ALF file names.
+"""Module for identifying and parsing ALF file names.
 
 An ALF file has the following components (those in brackets are optional):
     (_namespace_)object.attribute(_timescale)(.extra.parts).ext
@@ -67,6 +66,7 @@ def rel_path_parts(rel_path, as_dict=False, assert_valid=True):
     -------
     OrderedDict, tuple
         A dict if as_dict is true, or a tuple of parsed values.
+
     """
     return _path_parts(rel_path, REL_PATH_SPEC, True, as_dict, assert_valid)
 
@@ -100,6 +100,7 @@ def session_path_parts(session_path, as_dict=False, assert_valid=True):
     ------
     ALFInvalid
         Invalid ALF session path (assert_valid is True).
+
     """
     return _path_parts(session_path, SESSION_SPEC, False, as_dict, assert_valid)
 
@@ -127,6 +128,7 @@ def _path_parts(path, spec_str, match=True, as_dict=False, assert_valid=True):
     ------
     ALFInvalid
         Invalid ALF path (assert_valid is True).
+
     """
     if hasattr(path, 'as_posix'):
         path = path.as_posix()
@@ -143,8 +145,7 @@ def _path_parts(path, spec_str, match=True, as_dict=False, assert_valid=True):
 
 
 def filename_parts(filename, as_dict=False, assert_valid=True) -> Union[dict, tuple]:
-    """
-    Return the parsed elements of a given ALF filename.
+    """Return the parsed elements of a given ALF filename.
 
     Parameters
     ----------
@@ -196,6 +197,7 @@ def filename_parts(filename, as_dict=False, assert_valid=True) -> Union[dict, tu
     ------
     ALFInvalid
         Invalid ALF dataset (assert_valid is True).
+
     """
     return _path_parts(filename, FILE_SPEC, True, as_dict, assert_valid)
 
@@ -242,6 +244,7 @@ def full_path_parts(path, as_dict=False, assert_valid=True) -> Union[dict, tuple
     ------
     ALFInvalid
         Invalid ALF path (assert_valid is True).
+
     """
     path = pathlib.Path(path)
     # NB We try to determine whether we have a folder or filename path.  Filenames contain at
@@ -301,6 +304,7 @@ def folder_parts(folder_path, as_dict=False, assert_valid=True) -> Union[dict, t
     ------
     ALFInvalid
         Invalid ALF path (assert_valid is True).
+
     """
     if hasattr(folder_path, 'as_posix'):
         folder_path = folder_path.as_posix()
@@ -320,9 +324,7 @@ def _isdatetime(s: str) -> bool:
 
 
 def get_session_path(path: Union[str, pathlib.Path]) -> Optional[pathlib.Path]:
-    """
-    Returns the session path from any filepath if the date/number pattern is found,
-    including the root directory.
+    """Return full session path from any file path if the date/number pattern is found.
 
     Returns
     -------
@@ -336,6 +338,7 @@ def get_session_path(path: Union[str, pathlib.Path]) -> Optional[pathlib.Path]:
 
     >>> get_session_path('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy')
     Path('C:/Data/subject/2020-01-01/1')
+
     """
     if path is None:
         return
@@ -373,6 +376,7 @@ def get_alf_path(path: Union[str, pathlib.Path]) -> str:
 
     >>> get_alf_path('collection/file.attr.ext')
     'collection/file.attr.ext'
+
     """
     if not isinstance(path, str):
         path = pathlib.Path(path).as_posix()
@@ -389,8 +393,7 @@ def get_alf_path(path: Union[str, pathlib.Path]) -> str:
 
 
 def add_uuid_string(file_path, uuid):
-    """
-    Add a UUID to the filename of an ALF path.
+    """Add a UUID to the filename of an ALF path.
 
     Adds a UUID to an ALF filename as an extra part, e.g.
     'obj.attr.ext' -> 'obj.attr.a976e418-c8b8-4d24-be47-d05120b18341.ext'.
@@ -422,6 +425,7 @@ def add_uuid_string(file_path, uuid):
     one.alf.path.ALFPath.with_uuid
     one.alf.path.remove_uuid_string
     one.alf.spec.is_uuid
+
     """
     if isinstance(uuid, str) and not spec.is_uuid_string(uuid):
         raise ValueError('Should provide a valid UUID v4')
@@ -441,8 +445,7 @@ def add_uuid_string(file_path, uuid):
 
 
 def remove_uuid_string(file_path):
-    """
-    Remove UUID from a filename of an ALF path.
+    """Remove UUID from a filename of an ALF path.
 
     Parameters
     ----------
@@ -466,6 +469,7 @@ def remove_uuid_string(file_path):
     --------
     one.alf.path.ALFPath.without_uuid
     one.alf.path.add_uuid_string
+
     """
     if isinstance(file_path, str):
         file_path = pathlib.Path(file_path)
@@ -477,8 +481,7 @@ def remove_uuid_string(file_path):
 
 
 def padded_sequence(file_path):
-    """
-    Ensures a file path contains a zero-padded experiment sequence folder.
+    """Ensures a file path contains a zero-padded experiment sequence folder.
 
     Parameters
     ----------
@@ -502,6 +505,7 @@ def padded_sequence(file_path):
     >>> session_path = pathlib.PurePosixPath('subject/2023-01-01/001')
     >>> padded_sequence(file_path)
     pathlib.PurePosixPath('subject/2023-01-01/001')
+
     """
     file_path = ensure_alf_path(file_path)
     if (session_path := get_session_path(file_path)) is None:
@@ -512,8 +516,7 @@ def padded_sequence(file_path):
 
 
 def without_revision(file_path):
-    """
-    Return file path without a revision folder.
+    """Return file path without a revision folder.
 
     Parameters
     ----------
@@ -529,6 +532,7 @@ def without_revision(file_path):
     --------
     >>> without_revision('/lab/Subjects/subject/2023-01-01/001/collection/#revision#/obj.attr.ext')
     Path('/lab/Subjects/subject/2023-01-01/001/collection/obj.attr.ext')
+
     """
     if isinstance(file_path, str):
         file_path = pathlib.Path(file_path)
@@ -546,6 +550,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
     ----------
     args : str, pathlib.PurePath
         One or more pathlike objects to combine into an ALF path object.
+
     """
 
     def __new__(cls, *args):
@@ -565,6 +570,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         -------
         bool
             True if filename is ALF dataset.
+
         """
         return spec.is_valid(self.name)
 
@@ -603,6 +609,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         --------
         PureALFPath.is_dataset - Test whether file name is valid as well as directory path.
         full_path_parts - Validates path and returns the parsed ALF path parts.
+
         """
         try:
             return any(full_path_parts(path))
@@ -644,6 +651,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         --------
         PureALFPath.is_valid_alf - Test whether path is generally valid a valid ALF path.
         PureALFPath.session_path_parts - Returns parsed session path parts as tuple of str.
+
         """
         return spec.is_session_path(path)
 
@@ -693,6 +701,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         >>> ALFPath('C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy').session_path_short()
         'subject/2020-01-01/1'
+
         """
         idx = 0 if include_lab else 1
         if any(parts := self.session_parts[idx:]):
@@ -707,6 +716,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         -------
         PureALFPath
             The same path without the <lab>/Subjects part.
+
         """
         p = self.as_posix()
         if m := spec.regex('{lab}/Subjects/').search(p):
@@ -726,6 +736,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ------
         ValueError
             The path doesn't contain a <lab>/Subjects/ pattern.
+
         """
         p = self.as_posix()
         if m := spec.regex('{lab}/Subjects/').search(p):
@@ -745,6 +756,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ------
         ValueError
             The path doesn't contain a <lab>/Subjects/ pattern.
+
         """
         if (session_path := self.session_path()):
             return self.relative_to(session_path)
@@ -786,12 +798,12 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         >>> PureALFPath('_namespace_obj.times_timescale.extra.foo.ext').parse_alf_path()
         (None, None, None, None, None, None, 'namespace',
         'obj', 'times','timescale', 'extra.foo', 'ext')
+
         """
         return full_path_parts(self, assert_valid=False, as_dict=as_dict)
 
     def parse_alf_name(self, as_dict=True):
-        """
-        Return the parsed elements of a given ALF filename.
+        """Return the parsed elements of a given ALF filename.
 
         Parameters
         ----------
@@ -828,6 +840,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         >>> PureALFPath('spikes.clusters.npy', as_dict=False)
         (None, 'spikes', 'clusters', None, None, npy)
+
         """
         return filename_parts(self.name, assert_valid=False, as_dict=as_dict)
 
@@ -848,27 +861,27 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
     @property
     def namespace(self):
-        """str : The namespace part of the ALF name, or and empty str if not present."""
+        """str: The namespace part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[0]
 
     @property
     def object(self):
-        """str : The object part of the ALF name, or and empty str if not present."""
+        """str: The object part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[1]
 
     @property
     def attribute(self):
-        """str : The attribute part of the ALF name, or and empty str if not present."""
+        """str: The attribute part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[2]
 
     @property
     def timescale(self):
-        """str : The timescale part of the ALF name, or and empty str if not present."""
+        """str: The timescale part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[3]
 
     @property
     def extra(self):
-        """str : The extra part of the ALF name, or and empty str if not present."""
+        """str: The extra part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[4]
 
     def with_object(self, obj):
@@ -889,6 +902,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
+
         """
         if not self.is_dataset():
             raise ALFInvalid(str(self))
@@ -915,6 +929,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
+
         """
         if not self.is_dataset():
             raise ALFInvalid(self)
@@ -941,6 +956,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
+
         """
         if not self.is_dataset():
             raise ALFInvalid(self)
@@ -967,6 +983,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
+
         """
         if not self.is_dataset():
             raise ALFInvalid(self)
@@ -995,6 +1012,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
+
         """
         if not self.is_dataset():
             raise ALFInvalid(self)
@@ -1030,6 +1048,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
+
         """
         if not self.is_dataset():
             raise ALFInvalid(str(self))
@@ -1061,6 +1080,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         >>> ALFPath('subject/2023-01-01/001').with_padded_sequence(file_path)
         ALFPath('subject/2023-01-01/001')
+
         """
         return padded_sequence(path)
 
@@ -1100,6 +1120,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         See Also
         --------
         PureALFPath.without_revision
+
         """
         # Validate the revision input
         revision, = _path_parts(revision, '^{revision}$', match=True, assert_valid=True)
@@ -1137,6 +1158,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         See Also
         --------
         PureALFPath.with_revision
+
         """
         if PureALFPath.is_dataset(self):
             # Is a file path (rather than folder path)
@@ -1175,6 +1197,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
             `uuid` must be a valid hyphen-separated hexadecimal UUID.
         ALFInvalid
             Path is not a valid ALF file path.
+
         """
         if not self.is_dataset():
             raise ALFInvalid(f'{self} is not a valid ALF dataset file path')
@@ -1196,6 +1219,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         >>> ALFPath('/path/to/trials.intervals.npy').without_uuid(uuid)
         ALFPath('/path/to/trials.intervals.npy')
+
         """
         return remove_uuid_string(self) if self.is_dataset() else self
 
@@ -1210,6 +1234,7 @@ class ALFPath(PureALFPath):
     ----------
     args : str, pathlib.PurePath
         One or more pathlike objects to combine into an ALF path object.
+
     """
 
     def __new__(cls, *args):
@@ -1230,6 +1255,7 @@ class ALFPath(PureALFPath):
         -------
         bool
             True if filename is ALF dataset.
+
         """
         return not self.is_dir() and spec.is_valid(self.name)
 
@@ -1271,6 +1297,7 @@ class ALFPath(PureALFPath):
         --------
         PureALFPath.is_valid_alf - Test whether path is generally valid a valid ALF path.
         PureALFPath.session_path_parts - Returns parsed session path parts as tuple of str.
+
         """
         return not self.is_file() and spec.is_session_path(self)
 
@@ -1313,6 +1340,7 @@ class ALFPath(PureALFPath):
         --------
         PureALFPath.is_dataset - Test whether file name is valid as well as directory path.
         full_path_parts - Validates path and returns the parsed ALF path parts.
+
         """
         try:
             parsed = full_path_parts(path, as_dict=True)
@@ -1328,8 +1356,7 @@ class ALFPath(PureALFPath):
         return True
 
     def iter_datasets(self, recursive=False):
-        """
-        Iterate over all files in path, and yield relative dataset paths.
+        """Iterate over all files in path, and yield relative dataset paths.
 
         Parameters
         ----------
@@ -1337,7 +1364,7 @@ class ALFPath(PureALFPath):
             If true, yield datasets in subdirectories.
 
         Yields
-        -------
+        ------
         ALFPath
             The next valid dataset path in lexicographical order.
 
@@ -1345,6 +1372,7 @@ class ALFPath(PureALFPath):
         --------
         one.alf.io.iter_datasets - Equivalent function that can take any pathlike input and returns
          paths relative to the input path.
+
         """
         glob = self.rglob if recursive else self.glob
         for p in sorted(glob('*.*.*')):
@@ -1354,21 +1382,25 @@ class ALFPath(PureALFPath):
 
 class PureWindowsALFPath(pathlib.PureWindowsPath, PureALFPath):
     """PureALFPath subclass for Windows systems."""
+
     pass
 
 
 class PurePosixALFPath(pathlib.PurePosixPath, PureALFPath):
     """PureALFPath subclass for non-Windows systems."""
+
     pass
 
 
 class WindowsALFPath(pathlib.WindowsPath, ALFPath):
     """ALFPath subclass for Windows systems."""
+
     pass
 
 
 class PosixALFPath(pathlib.PosixPath, ALFPath):
     """ALFPath subclass for non-Windows systems."""
+
     pass
 
 
@@ -1394,6 +1426,7 @@ def ensure_alf_path(path) -> Listable(PureALFPath):
     TypeError
         Unexpected path instance; input must be a str or pathlib.PurePath instance, or an
         iterable thereof.
+
     """
     if isinstance(path, PureALFPath):
         # Already an ALFPath instance

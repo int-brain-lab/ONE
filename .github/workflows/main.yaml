@@ -34,7 +34,7 @@ jobs:
         pip install -e .
     - name: run tests
       run: |
-        flake8 .
+        ruff check .
         coverage run --omit=one/tests/* -m unittest discover
     - name: Upload coverage data to coveralls.io
       run: coveralls --service=github

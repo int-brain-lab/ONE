@@ -1,4 +1,4 @@
-flake8>=3.7.8
+ruff
 numpy>=1.18
 pandas>=1.5.0
 tqdm>=4.32.1
