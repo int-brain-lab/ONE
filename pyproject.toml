@@ -30,6 +30,7 @@ exclude = ["one.tests*"]
 
 [tool.ruff]
 line-length = 99
+extend-exclude = ["docs"]
 
 [tool.ruff.lint]
 select = ["D", "E", "F", "W"]
