@@ -59,6 +59,7 @@ def get_dataset_type(filename, dtypes):
     ValueError
         filename doesn't match any of the dataset types
         filename matches multiple dataset types
+
     """
     dataset_types = []
     filename = ensure_alf_path(filename)
@@ -85,9 +86,8 @@ def get_dataset_type(filename, dtypes):
 
 
 class RegistrationClient:
-    """
-    Object that keeps the ONE instance and provides method to create sessions and register data.
-    """
+    """Methods to create sessions and register data."""
+
     def __init__(self, one=None):
         self.one = one
         if not one:
@@ -103,8 +103,7 @@ class RegistrationClient:
 
     def create_sessions(self, root_data_folder, glob_pattern='**/create_me.flag',
                         register_files=False, dry=False):
-        """
-        Create sessions looking recursively for flag files.
+        """Create sessions looking recursively for flag files.
 
         Parameters
         ----------
@@ -123,6 +122,7 @@ class RegistrationClient:
             Newly created session paths.
         list of dicts
             Alyx session records.
+
         """
         flag_files = list(Path(root_data_folder).glob(glob_pattern))
         records = []
@@ -175,6 +175,7 @@ class RegistrationClient:
         Create a session for a given date
 
         >>> session_path, eid = RegistrationClient().create_new_session('Ian', date='2020-01-01')
+
         """
         assert not self.one.offline, 'ONE must be in online mode'
         date = self.ensure_ISO8601(date)  # Format, validate
@@ -191,8 +192,7 @@ class RegistrationClient:
         return session_path, eid
 
     def find_files(self, session_path):
-        """
-        Returns a generator of file names that match one of the dataset type patterns in Alyx.
+        """Returns a generator of file names that match one of the dataset type patterns in Alyx.
 
         Parameters
         ----------
@@ -200,9 +200,10 @@ class RegistrationClient:
             The session path to search.
 
         Yields
-        -------
+        ------
         pathlib.Path
             File paths that match the dataset type patterns in Alyx.
+
         """
         session_path = ALFPath(session_path)
         for p in session_path.iter_datasets(recursive=True):
@@ -230,7 +231,7 @@ class RegistrationClient:
         >>> client.assert_exists('local_server', 'repositories')
 
         Raises
-        -------
+        ------
         one.alf.exceptions.AlyxSubjectNotFound
             Subject does not exist on Alyx
         one.alf.exceptions.ALFError
@@ -242,6 +243,7 @@ class RegistrationClient:
         -------
         dict, list of dict
             The endpoint data if member exists.
+
         """
         if isinstance(member, (str, UUID)):
             try:
@@ -258,7 +260,7 @@ class RegistrationClient:
 
     @staticmethod
     def ensure_ISO8601(date) -> str:
-        """Ensure provided date is ISO 8601 compliant
+        """Ensure provided date is ISO 8601 compliant.
 
         Parameters
         ----------
@@ -269,6 +271,7 @@ class RegistrationClient:
         -------
         str
             The datetime as an ISO 8601 string
+
         """
         date = date or datetime.datetime.now()  # If None get current time
         if isinstance(date, str):
@@ -279,8 +282,7 @@ class RegistrationClient:
         return datetime.datetime.isoformat(date)
 
     def register_session(self, ses_path, users=None, file_list=True, **kwargs):
-        """
-        Register session in Alyx.
+        """Register session in Alyx.
 
         NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
         and date of the session path.
@@ -340,6 +342,7 @@ class RegistrationClient:
             int instead of a str); A 500 status code means there was a server error.
         ConnectionError
             Failed to connect to Alyx, most likely due to a bad internet connection.
+
         """
         ses_path = ALFPath(ses_path)
         details = session_path_parts(ses_path.as_posix(), as_dict=True, assert_valid=True)
@@ -394,9 +397,7 @@ class RegistrationClient:
         return session, recs
 
     def prepare_files(self, file_list, versions=None):
-        """
-        Validates file list for registration and splits files into a list of files per
-        session path.
+        """Validate file list for registration and group files by session path.
 
         Parameters
         ----------
@@ -415,8 +416,8 @@ class RegistrationClient:
             A list of files converted to paths.
         bool
             A boolean indicating if input was a single file.
-        """
 
+        """
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
 
@@ -449,8 +450,8 @@ class RegistrationClient:
         return F, V, file_list, single_file
 
     def check_protected_files(self, file_list, created_by=None):
-        """
-        Check whether a set of files associated to a session are protected
+        """Check whether a set of files associated to a session are protected.
+
         Parameters
         ----------
         file_list : list, str, pathlib.Path
@@ -465,8 +466,8 @@ class RegistrationClient:
             datasets or not.If none of the datasets are protected, a response with status
             200 is returned, if any of the files are protected a response with status
             403 is returned.
-        """
 
+        """
         # Validate files and rearrange into list per session
         F, _, _, single_file = self.prepare_files(file_list)
 
@@ -488,8 +489,7 @@ class RegistrationClient:
     def register_files(self, file_list,
                        versions=None, default=True, created_by=None, server_only=False,
                        repository=None, exists=True, dry=False, max_md5_size=None, **kwargs):
-        """
-        Registers a set of files belonging to a session only on the server.
+        """Registers a set of files belonging to a session only on the server.
 
         Parameters
         ----------
@@ -537,8 +537,8 @@ class RegistrationClient:
             Submitted data not valid (400 status code)
             Server side database error (500 status code)
             Revision protected (403 status code)
-        """
 
+        """
         F, V, file_list, single_file = self.prepare_files(file_list, versions=versions)
 
         # For each unique session, make a separate POST request
@@ -696,8 +696,8 @@ class RegistrationClient:
 
     @staticmethod
     def _next_revision(revision: str, reserved: list = None, alpha: str = 'a') -> str:
-        """
-        Return the next logical revision that is not already in the provided list.
+        """Return the next logical revision that is not already in the provided list.
+
         Revisions will increment by appending a letter to a date or other identifier.
 
         Parameters
@@ -722,6 +722,7 @@ class RegistrationClient:
         '2020-01-01c'
         >>> RegistrationClient._next_revision('2020-01-01', ['2020-01-01a', '2020-01-01b'])
         '2020-01-01c'
+
         """
         if len(alpha) != 1:
             raise TypeError(
@@ -735,8 +736,7 @@ class RegistrationClient:
         return new_revision
 
     def register_water_administration(self, subject, volume, **kwargs):
-        """
-        Register a water administration to Alyx for a given subject
+        """Register a water administration to Alyx for a given subject.
 
         Parameters
         ----------
@@ -770,6 +770,7 @@ class RegistrationClient:
             date_time is not a valid ISO date time or session ID is not valid
         requests.exceptions.HTTPError
             Failed to connect to database, or submitted data not valid (500)
+
         """
         # Ensure subject exists
         self.assert_exists(subject, 'subjects')
@@ -797,8 +798,7 @@ class RegistrationClient:
         return self.one.alyx.rest('water-administrations', 'create', data=wa_)
 
     def register_weight(self, subject, weight, date_time=None, user=None):
-        """
-        Register a subject weight to Alyx.
+        """Register a subject weight to Alyx.
 
         Parameters
         ----------
@@ -826,6 +826,7 @@ class RegistrationClient:
             date_time is not a valid ISO date time or weight < 1e-4
         requests.exceptions.HTTPError
             Failed to connect to database, or submitted data not valid (500)
+
         """
         # Ensure subject exists
         self.assert_exists(subject, 'subjects')

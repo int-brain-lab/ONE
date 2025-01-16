@@ -56,7 +56,7 @@ class TestAlfBunch(unittest.TestCase):
                          'failed to truncate columns')
 
     def test_from_dataframe(self):
-        """Tests for AlfBunch.from_df method"""
+        """Tests for AlfBunch.from_df method."""
         cols = ['foo_0', 'foo_1', 'bar_0', 'bar_1', 'baz']
         df = pd.DataFrame(np.random.rand(10, 5), columns=cols)
         a = alfio.AlfBunch.from_df(df)
@@ -161,7 +161,7 @@ class TestsAlfPartsFilters(unittest.TestCase):
         alfio.load_object(self.tmpdir, 'neuveux', short_keys=False)
 
     def test_filter_by(self):
-        """Test for one.alf.io.filter_by"""
+        """Test for one.alf.io.filter_by."""
         spec_idx_map = regex(FILE_SPEC).groupindex
         file_names = [
             'noalf.file',
@@ -328,7 +328,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(np.all(dread['titi'] == data[:, 0]))
 
     def test_read_ts(self):
-        """Test for one.alf.io.read_ts"""
+        """Test for one.alf.io.read_ts."""
         # simplest test possible with one column in each file
         t = np.arange(0, 10)
         d = np.random.rand(10)
@@ -353,7 +353,7 @@ class TestsAlf(unittest.TestCase):
             alfio.read_ts(self.vfile)
 
     def test_load_object(self):
-        """Test for one.alf.io.load_object"""
+        """Test for one.alf.io.load_object."""
         # first usage of load object is to provide one of the files belonging to the object
         expected_keys = {'riri', 'fifi', 'loulou', 'foobar_matlab', 'timestamps'}
         obj = alfio.load_object(self.object_files[0])
@@ -405,7 +405,7 @@ class TestsAlf(unittest.TestCase):
         self.assertCountEqual(expected, new_obj.keys())
 
     def test_ls(self):
-        """Test for one.alf.io._ls"""
+        """Test for one.alf.io._ls."""
         # Test listing all ALF files in a directory
         alf_files, _ = alfio._ls(self.tmpdir)
         self.assertIsInstance(alf_files[0], ALFPath)
@@ -421,7 +421,7 @@ class TestsAlf(unittest.TestCase):
             alfio._ls(self.tmpdir.joinpath('foobar'))
 
     def test_save_npy(self):
-        """Test for one.alf.io.save_npy"""
+        """Test for one.alf.io.save_npy."""
         # test with straight vectors
         a = {'riri': np.random.rand(100),
              'fifi': np.random.rand(100)}
@@ -448,7 +448,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue('Dimensions are not consistent' in str(context.exception))
 
     def test_check_dimensions(self):
-        """Test for one.alf.io.check_dimensions"""
+        """Test for one.alf.io.check_dimensions."""
         a = {'a': np.ones([10, 10]), 'b': np.ones([10, 2]), 'c': np.ones([10])}
         status = alfio.check_dimensions(a)
         self.assertTrue(status == 0)
@@ -472,7 +472,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(status == 1)
 
     def test_ts2vec(self):
-        """Test for one.alf.io.ts2vec"""
+        """Test for one.alf.io.ts2vec."""
         n = 10
         # Test interpolate
         ts = np.array([[0, 10], [0, 100]]).T
@@ -533,7 +533,7 @@ class TestsLoadFile(unittest.TestCase):
         np.savez_compressed(self.npz2, np.random.rand(5), np.random.rand(5))
 
     def test_load_file_content(self):
-        """Test for one.alf.io.load_file_content"""
+        """Test for one.alf.io.load_file_content."""
         self.assertIsNone(alfio.load_file_content(self.empty))
         # csv / ssv / tsv files
         self.assertIsInstance(alfio.load_file_content(self.npy), np.ndarray)

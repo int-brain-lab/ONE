@@ -137,6 +137,7 @@ def ensure_logged_in(func):
     -------
     function
         Handle to wrapped method.
+
     """
     @wraps(func)
     def wrapper_decorator(self, *args, **kwargs):
@@ -146,8 +147,7 @@ def ensure_logged_in(func):
 
 
 def _setup(par_id=None, login=True, refresh_tokens=True):
-    """
-    Sets up Globus as a backend for ONE functions.
+    """Sets up Globus as a backend for ONE functions.
 
     Parameters
     ----------
@@ -158,8 +158,8 @@ def _setup(par_id=None, login=True, refresh_tokens=True):
     -------
     IBLParams
         A set of Globus parameters.
-    """
 
+    """
     print('Setting up Globus parameter file. See docstring for help.')
     if not par_id:
         default_par_id = 'default'
@@ -218,8 +218,7 @@ def _setup(par_id=None, login=True, refresh_tokens=True):
 
 
 def get_token(client_id, refresh_tokens=True):
-    """
-    Get a Globus authentication token.
+    """Get a Globus authentication token.
 
     This step requires the user to login to Globus via a browser.
 
@@ -234,6 +233,7 @@ def get_token(client_id, refresh_tokens=True):
     -------
     dict
         A dict containing the keys {'refresh_token', 'access_token', 'expires_at_seconds'}.
+
     """
     client = globus_sdk.NativeAppAuthClient(client_id)
     client.oauth2_start_flow(refresh_tokens=bool(refresh_tokens))
@@ -250,8 +250,7 @@ def get_token(client_id, refresh_tokens=True):
 
 
 def _remove_token_fields(pars):
-    """
-    Remove the token fields from a parameters object.
+    """Remove the token fields from a parameters object.
 
     Parameters
     ----------
@@ -262,6 +261,7 @@ def _remove_token_fields(pars):
     -------
     IBLParams
         A copy of the params without the token fields.
+
     """
     if pars is None:
         return pars
@@ -286,13 +286,13 @@ def _save_globus_params(pars, client_name):
 
 
 def get_local_endpoint_id():
-    """
-    Extracts the ID of the local Globus Connect endpoint.
+    """Extracts the ID of the local Globus Connect endpoint.
 
     Returns
     -------
     uuid.UUID
         The local Globus endpoint ID.
+
     """
     msg = ('Cannot find local endpoint ID, check if Globus Connect is set up correctly, '
            '{} exists and contains a UUID.')
@@ -310,14 +310,15 @@ def get_local_endpoint_id():
 
 
 def get_local_endpoint_paths():
-    """
-    Extracts the local endpoint paths accessible by Globus Connect.  NB: This is only supported
-    on Linux.
+    """Extracts the local endpoint paths accessible by Globus Connect.
+
+    NB: This is only supported on Linux.
 
     Returns
     -------
     list of pathlib.Path
         Local endpoint paths set in Globus Connect.
+
     """
     if sys.platform in ('win32', 'cygwin'):
         print('On windows the local Globus path needs to be entered manually')
@@ -336,8 +337,7 @@ def get_local_endpoint_paths():
 
 
 def get_lab_from_endpoint_id(endpoint=None, alyx=None):
-    """
-    Extracts lab names associated with a given an endpoint UUID.
+    """Extracts lab names associated with a given an endpoint UUID.
 
     Finds the lab names that are associated to data repositories with the provided Globus endpoint
     UUID.
@@ -353,6 +353,7 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     -------
     list
         The lab names associated with the endpoint UUID.
+
     """
     alyx = alyx or AlyxClient(silent=True)
     if not endpoint:
@@ -364,8 +365,7 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
 
 
 def as_globus_path(path):
-    """
-    Convert a path into one suitable for the Globus TransferClient.
+    """Convert a path into one suitable for the Globus TransferClient.
 
     Parameters
     ----------
@@ -405,6 +405,7 @@ def as_globus_path(path):
 
     >>> as_globus_path('/E/FlatIron/integration')
     '/E/FlatIron/integration'
+
     """
     is_pure_path = isinstance(path, PurePath)
     is_win = sys.platform in ('win32', 'cygwin') or isinstance(path, PureWindowsPath)
@@ -426,8 +427,7 @@ def as_globus_path(path):
 class Globus(DownloadClient):
 
     def __init__(self, client_name='default', connect=True, headless=False):
-        """
-        Wrapper for managing files on Globus endpoints.
+        """Wrapper for managing files on Globus endpoints.
 
         Parameters
         ----------
@@ -448,6 +448,7 @@ class Globus(DownloadClient):
         Instantiate without user prompts
 
         >>> globus = Globus('server', headless=True)
+
         """
         # Setting up transfer client
         super().__init__()
@@ -472,13 +473,13 @@ class Globus(DownloadClient):
 
     @property
     def is_logged_in(self):
-        """bool: Check if client exists and is authenticated"""
+        """bool: Check if client exists and is authenticated."""
         has_token = self.client and self.client.authorizer.get_authorization_header() is not None
         return has_token and not self._token_expired
 
     @property
     def _token_expired(self):
-        """bool: True if token absent or expired; False if valid
+        """bool: True if token absent or expired; False if valid.
 
         Note the 'expires_at_seconds' may be greater than `Globus.client.authorizer.expires_at` if
         using refresh tokens. The `login` method will always refresh the token if still valid.
@@ -494,8 +495,7 @@ class Globus(DownloadClient):
         return expires_at_seconds - datetime.utcnow().timestamp() < 60
 
     def login(self, stay_logged_in=None):
-        """
-        Authenticate Globus client.
+        """Authenticate Globus client.
 
         Parameters
         ----------
@@ -503,6 +503,7 @@ class Globus(DownloadClient):
             If True, use refresh token to remain logged in for longer.  If False, use an auth
             token without the option of refreshing when expired. If not specified, uses the refresh
             token if available.
+
         """
         if self.is_logged_in:
             _logger.debug('Already logged in')
@@ -556,8 +557,7 @@ class Globus(DownloadClient):
         self.client = globus_sdk.TransferClient(authorizer=authorizer)
 
     def _save_refresh_token_callback(self, res):
-        """
-        Save a token fetched by the refresh token authorizer.
+        """Save a token fetched by the refresh token authorizer.
 
         This is a callback for the globus_sdk.RefreshTokenAuthorizer to update the parameters.
 
@@ -575,8 +575,7 @@ class Globus(DownloadClient):
         _save_globus_params(self._pars, self.client_name)
 
     def fetch_endpoints_from_alyx(self, alyx=None, overwrite=False):
-        """
-        Update endpoints property with Alyx Globus data repositories.
+        """Update endpoints property with Alyx Globus data repositories.
 
         Parameters
         ----------
@@ -589,6 +588,7 @@ class Globus(DownloadClient):
         -------
         dict
             The endpoints added from Alyx.
+
         """
         alyx = alyx or AlyxClient()
         alyx_endpoints = alyx.rest('data-repository', 'list')
@@ -603,8 +603,7 @@ class Globus(DownloadClient):
         return {k: v for k, v in self.endpoints.items() if k in endpoint_names}
 
     def to_address(self, data_path, endpoint):
-        """
-        Get full path for a given endpoint.
+        """Get full path for a given endpoint.
 
         Parameters
         ----------
@@ -625,14 +624,14 @@ class Globus(DownloadClient):
         ...                  label='foobar', root_path='/foo')
         >>> glo.to_address('bar/baz.ext', 'foobar')
         '/foo/bar/baz.ext'
+
         """
         _, root_path = self._endpoint_id_root(endpoint)
         return self._endpoint_path(data_path, root_path)
 
     @ensure_logged_in
     def download_file(self, file_address, source_endpoint, recursive=False, **kwargs):
-        """
-        Download one or more files via Globus.
+        """Download one or more files via Globus.
 
         Parameters
         ----------
@@ -671,6 +670,7 @@ class Globus(DownloadClient):
         Download a folder
 
         >>> files = Globus().download_file('folder/path', 'source_endpoint_name', recursive=True)
+
         """
         return_single = isinstance(file_address, str) and recursive is False
         kwargs['label'] = kwargs.get('label', 'ONE download')
@@ -699,8 +699,7 @@ class Globus(DownloadClient):
 
     @staticmethod
     def setup(client_name='default', **kwargs):
-        """
-        Setup a Globus client.
+        """Setup a Globus client.
 
         In order to use this function you need:
 
@@ -723,13 +722,13 @@ class Globus(DownloadClient):
         -------
         Globus
             A new Globus client object.
+
         """
         _setup(client_name, login=False)
         return Globus(client_name, **kwargs)
 
     def add_endpoint(self, endpoint, label=None, root_path=None, overwrite=False, alyx=None):
-        """
-        Add an endpoint to the Globus instance to be used by other functions.
+        """Add an endpoint to the Globus instance to be used by other functions.
 
         Parameters
         ----------
@@ -744,6 +743,7 @@ class Globus(DownloadClient):
             Whether existing endpoint with the same label should be replaced.
         alyx : one.webclient.AlyxClient
             An AlyxClient instance for looking up repository information.
+
         """
         if is_uuid(endpoint, versions=(1, 2)):  # MAC address UUID
             if label is None:
@@ -764,8 +764,7 @@ class Globus(DownloadClient):
 
     @staticmethod
     def _endpoint_path(path, root_path=None):
-        """
-        Given an absolute path or relative path with a root path, return a Globus path str.
+        """Given an absolute path or relative path with a root path, return a Globus path str.
 
         Note: Paths must be POSIX or Globus-compliant paths.  In other words for Windows systems
         the input root_path or absolute path must be passed through `as_globus_path` before
@@ -794,6 +793,7 @@ class Globus(DownloadClient):
         ValueError
             Path was not absolute and no root path was given.  An absolute path must start with
             a slash on *nix systems.
+
         """
         if isinstance(path, str):
             path = PurePosixPath(path)
@@ -805,8 +805,7 @@ class Globus(DownloadClient):
 
     @staticmethod
     def _ensure_uuid(uid):
-        """
-        Ensures UUID object returned.
+        """Ensures UUID object returned.
 
         Parameters
         ----------
@@ -817,12 +816,12 @@ class Globus(DownloadClient):
         -------
         uuid.UUID
             A UUID object.
+
         """
         return UUID(uid) if not isinstance(uid, UUID) else uid
 
     def _endpoint_id_root(self, endpoint):
-        """
-        Return endpoint UUID and root path from a given endpoint identifier.
+        """Return endpoint UUID and root path from a given endpoint identifier.
 
         Parameters
         ----------
@@ -845,6 +844,7 @@ class Globus(DownloadClient):
         See Also
         --------
         Globus._sanitize_local
+
         """
         root_path = None
         if endpoint in self.endpoints.keys():
@@ -874,8 +874,7 @@ class Globus(DownloadClient):
                 'Globus instance. You can add endpoints via the add_endpoints method')
 
     def _sanitize_local(self, endpoint_id, root_path):
-        """
-        Ensure local root path on Windows is POSIX-style.
+        """Ensure local root path on Windows is POSIX-style.
 
         Parameters
         ----------
@@ -905,6 +904,7 @@ class Globus(DownloadClient):
         >>> uid = UUID('c7c46cec-3124-11ee-bf50-482ae33bf6ca')
         >>> glo._sanitize_local(uid, 'C:\\Data')
         UUID('c7c46cec-3124-11ee-bf50-482ae33bf6ca'), 'C:\\Data'
+
         """
         if not root_path:
             return endpoint_id, None
@@ -921,8 +921,7 @@ class Globus(DownloadClient):
     @ensure_logged_in
     def transfer_data(self, data_path, source_endpoint, destination_endpoint,
                       recursive=False, **kwargs):
-        """
-        Transfer one or more paths between endpoints.
+        """Transfer one or more paths between endpoints.
 
         At least one of the endpoints must be a server endpoint.  Both file and directory paths may
         be provided, however if recursive is true, all paths must be directories.
@@ -963,6 +962,7 @@ class Globus(DownloadClient):
         >>> folder = 'path/to/folder'
         >>> task_id = glo.transfer_data(
         ...    folder, 'source_endpoint', 'destination_endpoint', recursive=True)
+
         """
         kwargs['source_endpoint'] = (source_endpoint
                                      if is_uuid(source_endpoint, versions=(1,))
@@ -982,8 +982,7 @@ class Globus(DownloadClient):
 
     @ensure_logged_in
     def delete_data(self, data_path, endpoint, recursive=False, **kwargs):
-        """
-        Delete one or more paths within an endpoint.
+        """Delete one or more paths within an endpoint.
 
         Both file and directory paths may be provided, however if recursive is true, all paths must
         be directories.
@@ -1021,6 +1020,7 @@ class Globus(DownloadClient):
 
         >>> folder = 'path/to/folder'
         >>> task_id = glo.delete_data(folder, 'endpoint_name', recursive=True)
+
         """
         kwargs['endpoint'] = (endpoint
                               if is_uuid(endpoint, versions=(1,))
@@ -1036,8 +1036,8 @@ class Globus(DownloadClient):
 
     @ensure_logged_in
     def ls(self, endpoint, path, remove_uuid=False, return_size=False, max_retries=1):
-        """
-        Return the list of (filename, filesize) in a given endpoint directory.
+        """Return the list of (filename, filesize) in a given endpoint directory.
+
         NB: If you're using ls routinely when transferring or deleting files you're probably doing
         something wrong!
 
@@ -1061,6 +1061,7 @@ class Globus(DownloadClient):
         list
             A list of PurePosixPath objects of the files and folders listed, or if return_size is
             True, tuples of PurePosixPath objects and the corresponding file sizes.
+
         """
         # Check if endpoint is a UUID, if not try to get UUID from registered endpoints
         endpoint_id, root_path = self._endpoint_id_root(endpoint)
@@ -1090,8 +1091,7 @@ class Globus(DownloadClient):
     @ensure_logged_in
     def mv(self, source_endpoint, target_endpoint, source_paths, target_paths,
            timeout=None, **kwargs):
-        """
-        Move files from one endpoint to another.
+        """Move files from one endpoint to another.
 
         Parameters
         ----------
@@ -1115,6 +1115,7 @@ class Globus(DownloadClient):
         -------
         uuid.UUID
             A Globus task ID.
+
         """
         source_endpoint, source_root = self._endpoint_id_root(source_endpoint)
         target_endpoint, target_root = self._endpoint_id_root(target_endpoint)
@@ -1128,7 +1129,7 @@ class Globus(DownloadClient):
             tdata.add_item(source_path, target_path)
 
         def wrapper():
-            """Function to submit Globus transfer and return the resulting task ID"""
+            """Function to submit Globus transfer and return the resulting task ID."""
             response = self.client.submit_transfer(tdata)
             task_id = response.get('task_id', None)
             return task_id
@@ -1137,8 +1138,8 @@ class Globus(DownloadClient):
 
     @ensure_logged_in
     def run_task(self, globus_func, retries=3, timeout=None):
-        """
-        Block until a Globus task finishes and retry upon Network or REST Errors.
+        """Block until a Globus task finishes and retry upon Network or REST Errors.
+
         globus_func needs to submit a task to the client and return a task_id.
 
         Parameters
@@ -1162,6 +1163,7 @@ class Globus(DownloadClient):
 
         TODO Add a quick fail option that returns when files missing, etc.
         TODO Add status logging
+
         """
         try:
             task_id = globus_func()
@@ -1207,8 +1209,7 @@ class Globus(DownloadClient):
 
     @ensure_logged_in
     async def task_wait_async(self, task_id, polling_interval=10, timeout=10):
-        """
-        Asynchronously wait until a Task is complete or fails, with a time limit.
+        """Asynchronously wait until a Task is complete or fails, with a time limit.
 
         If the task status is ACTIVE after timout, returns False, otherwise returns True.
 
@@ -1231,6 +1232,7 @@ class Globus(DownloadClient):
         Asynchronously await a task to complete
 
         >>> await Globus().task_wait_async(task_id)
+
         """
         if polling_interval < 1:
             raise GlobusSDKUsageError('polling_interval must be at least 1 second')

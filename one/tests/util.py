@@ -15,8 +15,7 @@ from one.converters import session_record2path
 
 
 def set_up_env() -> tempfile.TemporaryDirectory:
-    """
-    Create a temporary directory and copy cache fixtures over.
+    """Create a temporary directory and copy cache fixtures over.
 
     Returns
     -------
@@ -77,8 +76,7 @@ def create_file_tree(one):
 
 
 def setup_test_params(token=False, cache_dir=None):
-    """
-    Copies cache parameter fixture to .one directory.
+    """Copy cache parameter fixture to .one directory.
 
     Parameters
     ----------
@@ -120,7 +118,7 @@ def revisions_datasets_table(collections=('', 'alf/probe00', 'alf/probe01'),
                              object='spikes',
                              attributes=('times', 'waveforems'),
                              touch_path=None):
-    """Returns a datasets cache DataFrame containing datasets with revision folders.
+    """Return a datasets cache DataFrame containing datasets with revision folders.
 
     As there are no revised datasets on the test databases, this function acts as a fixture for
     testing the filtering of datasets by a revision.
@@ -188,8 +186,9 @@ def create_schema_cache(param_dir=None):
 
 
 def get_file(root: str, str_id: str) -> str:
-    """
-    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.
+    """A stub function for `iblutil.io.params.getfile`.
+
+    Allows the injection of a different param dir.
 
     Parameters
     ----------

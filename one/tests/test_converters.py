@@ -1,4 +1,4 @@
-"""Unit tests for the one.converters module"""
+"""Unit tests for the one.converters module."""
 import unittest
 from unittest import mock
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -77,7 +77,7 @@ class TestConverters(unittest.TestCase):
             self.assertIsNone(self.one.path2eid(session_path))
 
     def test_eid2path(self):
-        """Test for ConversionMixin.eid2path"""
+        """Test for ConversionMixin.eid2path."""
         eid = 'd3372b15-f696-4279-9be5-98f15783b5bb'
         verifiable = self.one.eid2path(eid)
         expected = ALFPath(self.tempdir.name).joinpath(
@@ -237,7 +237,8 @@ class TestConverters(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only tests')
 class TestOnlineConverters(unittest.TestCase):
-    """Currently these methods hit the /docs endpoint"""
+    """Currently these methods hit the /docs endpoint."""
+
     @classmethod
     def setUpClass(cls) -> None:
         # Create ONE object with temp cache dir
@@ -247,12 +248,12 @@ class TestOnlineConverters(unittest.TestCase):
         cls.session_record = cls.one.get_details(cls.eid)
 
     def test_to_eid(self):
-        """Test for ConversionMixin.to_eid"""
+        """Test for ConversionMixin.to_eid."""
         eid = self.one.to_eid(self.session_record)
         self.assertEqual(eid, UUID(self.eid))
 
     def test_record2url(self):
-        """Test for ConversionMixin.record2url"""
+        """Test for ConversionMixin.record2url."""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         idx = rec.rel_path == 'alf/probe00/_phy_spikes_subset.channels.npy'
         # As pd.Series
@@ -274,7 +275,7 @@ class TestOnlineConverters(unittest.TestCase):
         self.assertRaises(TypeError, self.one.record2url, rec.to_dict())
 
     def test_record2path(self):
-        """Test for ConversionMixin.record2path"""
+        """Test for ConversionMixin.record2path."""
         rec = self.one.get_details(self.eid, full=True, query_type='local')
         # As pd.Series
         alf_path = ('hoferlab/Subjects/SWC_043/2020-09-21/001/'
@@ -471,7 +472,7 @@ class TestAlyx2Path(unittest.TestCase):
         self.assertTrue(uuid in testable.as_posix())
 
     def test_session_record2path(self):
-        """Test for one.converters.session_record2path"""
+        """Test one.converters.session_record2path."""
         rec = {'subject': 'ALK01', 'date': '2020-01-01', 'number': 1}
         path = converters.session_record2path(rec)
         self.assertIsInstance(path, PurePosixALFPath)
@@ -485,7 +486,10 @@ class TestAlyx2Path(unittest.TestCase):
 
 
 class TestWrappers(unittest.TestCase):
+    """Test for one.converters decorators."""
+
     def test_recurse(self):
+        """Test converters.recurse decorator."""
         # Check accepts different numbers of input args
         wrapped = converters.recurse(lambda x, y, z: y * 2)
         self.assertEqual(wrapped(1, 2, 3), 4)

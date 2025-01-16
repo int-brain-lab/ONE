@@ -15,7 +15,8 @@ from . import TEST_DB_1
 
 
 class TestParamSetup(unittest.TestCase):
-    """Test for one.params.setup function"""
+    """Test for one.params.setup function."""
+
     def setUp(self) -> None:
         self.par_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.par_dir.cleanup)
@@ -27,7 +28,7 @@ class TestParamSetup(unittest.TestCase):
         self.addCleanup(self.get_file_mock.stop)
 
     def _mock_input(self, prompt, **kwargs):
-        """Stub function for builtins.input"""
+        """Stub function for builtins.input."""
         if prompt.casefold().startswith('warning'):
             return 'n'
         elif 'url' in prompt.casefold():
@@ -40,7 +41,7 @@ class TestParamSetup(unittest.TestCase):
 
     @mock.patch('one.params.getpass', return_value='mock_pwd')
     def test_setup(self, _):
-        """Test fresh setup with default args"""
+        """Test fresh setup with default args."""
         with mock.patch('one.params.input', new=self._mock_input):
             cache = one.params.setup()
         # Check client map contains our url sans schema
@@ -89,6 +90,7 @@ class TestParamSetup(unittest.TestCase):
 
 class TestONEParamUtil(unittest.TestCase):
     """Test class for one.params utility functions."""
+
     def setUp(self) -> None:
         pass
 
@@ -101,7 +103,7 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertEqual(key, 'www.domain.org_db__rest_true')
 
     def test_get_params_dir(self):
-        """Test for one.params.get_params_dir"""
+        """Test for one.params.get_params_dir."""
         par_dir = Path('path', 'to', 'params')
         with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, par_dir)):
             path = params.get_params_dir()

@@ -36,9 +36,10 @@ _logger = logging.getLogger(__name__)
 
 
 def load_client_params(client_key=None, assert_present=True):
-    """
-    Load the parameters from the remote params file.  If a client key is provided, only those
-    client parameters are returned.  NB: Remote param values are expected to all be dicts.
+    """Load the parameters from the remote params file.
+
+    If a client key is provided, only those client parameters are returned.
+    NB: Remote param values are expected to all be dicts.
 
     Parameters
     ----------
@@ -87,9 +88,9 @@ def load_client_params(client_key=None, assert_present=True):
 
 
 def save_client_params(new_pars, client_key=None):
-    """
-    Save parameters into the remote params file.  If a client key is provided, parameters are
-    saved into this field.
+    """Save parameters into the remote params file.
+
+    If a client key is provided, parameters are saved into this field.
 
     Parameters
     ----------
@@ -102,6 +103,7 @@ def save_client_params(new_pars, client_key=None):
     ------
     ValueError
         If client_key is None, all parameter fields must hold dicts.
+
     """
     if not client_key:
         if not all(isinstance(x, dict) for x in iopar.as_dict(new_pars).values()):
@@ -115,6 +117,7 @@ def save_client_params(new_pars, client_key=None):
 
 class DownloadClient:
     """Data download handler base class."""
+
     def __init__(self):
         pass
 

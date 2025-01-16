@@ -46,6 +46,7 @@ N_THREADS = os.environ.get('ONE_HTTP_DL_THREADS', 4)
 
 class One(ConversionMixin):
     """An API for searching and loading data on a local filesystem."""
+
     _search_terms = (
         'dataset', 'date_range', 'laboratory', 'number',
         'projects', 'subject', 'task_protocol', 'dataset_qc_lte'
@@ -55,7 +56,7 @@ class One(ConversionMixin):
     """bool: whether datasets on disk have a UUID in their filename."""
 
     def __init__(self, cache_dir=None, mode='local', wildcards=True, tables_dir=None):
-        """An API for searching and loading data on a local filesystem
+        """An API for searching and loading data on a local filesystem.
 
         Parameters
         ----------
@@ -72,6 +73,7 @@ class One(ConversionMixin):
         tables_dir : str, pathlib.Path
             An optional location of the cache tables.  If None, the tables are assumed to be in the
             cache_dir.
+
         """
         # get parameters override if inputs provided
         super().__init__()
@@ -129,18 +131,19 @@ class One(ConversionMixin):
         -------
         list of pathlib.Path
             A list of the removed files.
+
         """
         tables = tables or filter(lambda x: x[0] != '_', self._cache)
         return remove_cache_table_files(self._tables_dir, tables)
 
     def load_cache(self, tables_dir=None, **kwargs):
-        """
-        Load parquet cache files from a local directory.
+        """Load parquet cache files from a local directory.
 
         Parameters
         ----------
         tables_dir : str, pathlib.Path
             An optional directory location of the parquet files, defaults to One._tables_dir.
+
         """
         self._reset_cache()
         meta = self._cache['_meta']
@@ -201,12 +204,12 @@ class One(ConversionMixin):
             The directory path into which the tables are saved.  Defaults to cache directory.
         force : bool
             If True, the cache is saved regardless of modification time.
+
         """
         threading.Thread(target=lambda: self._save_cache(save_dir=save_dir, force=force)).start()
 
     def _save_cache(self, save_dir=None, force=False):
-        """
-        Checks if another process is writing to file, if so waits before saving.
+        """Checks if another process is writing to file, if so waits before saving.
 
         Parameters
         ----------
@@ -214,6 +217,7 @@ class One(ConversionMixin):
             The directory path into which the tables are saved.  Defaults to cache directory.
         force : bool
             If True, the cache is saved regardless of modification time.
+
         """
         TIMEOUT = 5  # Delete lock file this many seconds after creation/modification or waiting
         save_dir = Path(save_dir or self.cache_dir)
@@ -248,6 +252,7 @@ class One(ConversionMixin):
         -------
         datetime.datetime
             Loaded timestamp.
+
         """
         # NB: Currently modified table will be lost if called with 'refresh';
         # May be instances where modified cache is saved then immediately replaced with a new
@@ -268,8 +273,7 @@ class One(ConversionMixin):
         return self._cache['_meta']['loaded_time']
 
     def _update_cache_from_records(self, strict=False, **kwargs):
-        """
-        Update the cache tables with new records.
+        """Update the cache tables with new records.
 
         Parameters
         ----------
@@ -296,6 +300,7 @@ class One(ConversionMixin):
             including the order.
         KeyError
             One or more of the keyword arguments does not match a table in One._cache.
+
         """
         updated = None
         for table, records in kwargs.items():
@@ -337,8 +342,7 @@ class One(ConversionMixin):
         return updated
 
     def save_loaded_ids(self, sessions_only=False, clear_list=True):
-        """
-        Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.
+        """Save list of UUIDs corresponding to datasets or sessions where datasets were loaded.
 
         Parameters
         ----------
@@ -353,6 +357,7 @@ class One(ConversionMixin):
             List of UUIDs.
         pathlib.Path
             The file path of the saved list.
+
         """
         if '_loaded_datasets' not in self._cache or self._cache['_loaded_datasets'].size == 0:
             warnings.warn('No datasets loaded; check "record_datasets" attribute is True')
@@ -373,8 +378,7 @@ class One(ConversionMixin):
         return ids, filename
 
     def _download_datasets(self, dsets, **kwargs) -> List[ALFPath]:
-        """
-        Download several datasets given a set of datasets.
+        """Download several datasets given a set of datasets.
 
         NB: This will not skip files that are already present.  Use check_filesystem instead.
 
@@ -387,13 +391,13 @@ class One(ConversionMixin):
         -------
         list of one.alf.path.ALFPath
             A local file path list.
+
         """
         # Looking to entirely remove method
         pass
 
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> ALFPath:
-        """
-        Download a dataset from an Alyx REST dictionary.
+        """Download a dataset from an Alyx REST dictionary.
 
         Parameters
         ----------
@@ -406,12 +410,12 @@ class One(ConversionMixin):
         -------
         one.alf.path.ALFPath
             The local file path.
+
         """
         pass  # pragma: no cover
 
     def search(self, details=False, **kwargs):
-        """
-        Searches sessions matching the given criteria and returns a list of matching eids
+        """Searches sessions matching the given criteria and returns a list of matching eids.
 
         For a list of search terms, use the method
 
@@ -500,10 +504,11 @@ class One(ConversionMixin):
         - In default and local mode, when the one.wildcards flag is True (default), queries are
           interpreted as regular expressions. To turn this off set one.wildcards to False.
         - In remote mode regular expressions are only supported using the `django` argument.
+
         """
 
         def all_present(x, dsets, exists=True):
-            """Returns true if all datasets present in Series"""
+            """Returns true if all datasets present in Series."""
             return all(any(x.str.contains(y, regex=self.wildcards) & exists) for y in dsets)
 
         # Iterate over search filters, reducing the sessions table
@@ -570,8 +575,7 @@ class One(ConversionMixin):
             return eids
 
     def _search_insertions(self, details=False, **kwargs):
-        """
-        Searches insertions matching the given criteria and returns a list of matching probe IDs.
+        """Search insertions matching the given criteria and return a list of matching probe IDs.
 
         For a list of search terms, use the method
 
@@ -623,6 +627,7 @@ class One(ConversionMixin):
         List the insertions associated with a given subject
 
         >>> ins = one.search_insertions(subject='SWC_043')
+
         """
         # Warn if no insertions table present
         if (insertions := self._cache.get('insertions')) is None:
@@ -693,6 +698,7 @@ class One(ConversionMixin):
         Returns
         -------
         A list of one.alf.path.ALFPath for the datasets (None elements for non-existent datasets).
+
         """
         if isinstance(datasets, pd.Series):
             datasets = pd.DataFrame([datasets])
@@ -793,7 +799,7 @@ class One(ConversionMixin):
     @util.refresh
     @util.parse_id
     def get_details(self, eid: Union[str, Path, UUID], full: bool = False):
-        """Return session details for a given session ID
+        """Return session details for a given session ID.
 
         Parameters
         ----------
@@ -807,6 +813,7 @@ class One(ConversionMixin):
         -------
         pd.Series, pd.DataFrame
             A session record or full DataFrame with dataset information if full is True
+
         """
         # Int ids return DataFrame, making str eid a list ensures Series not returned
         try:
@@ -823,13 +830,13 @@ class One(ConversionMixin):
 
     @util.refresh
     def list_subjects(self) -> List[str]:
-        """
-        List all subjects in database
+        """List all subjects in database.
 
         Returns
         -------
         list
             Sorted list of subject names
+
         """
         return self._cache['sessions']['subject'].sort_values().unique().tolist()
 
@@ -839,8 +846,7 @@ class One(ConversionMixin):
             ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False,
             keep_eid_index=False
     ) -> Union[np.ndarray, pd.DataFrame]:
-        """
-        Given an eid, return the datasets for those sessions.
+        """Given an eid, return the datasets for those sessions.
 
         If no eid is provided, a list of all datasets is returned.  When details is false, a sorted
         array of unique datasets is returned (their relative paths).
@@ -904,6 +910,7 @@ class One(ConversionMixin):
         List datasets for an experiment that are part of a 'wheel' or 'trial(s)' object
 
         >>> datasets = one.list_datasets(eid, {'object': ['wheel', 'trial?']})
+
         """
         datasets = self._cache['datasets']
         if default_revisions_only:
@@ -940,8 +947,7 @@ class One(ConversionMixin):
     @util.refresh
     def list_collections(self, eid=None, filename=None, collection=None, revision=None,
                          details=False, query_type=None) -> Union[np.ndarray, dict]:
-        """
-        List the collections for a given experiment.
+        """List the collections for a given experiment.
 
         If no experiment ID is given, all collections are returned.
 
@@ -994,6 +1000,7 @@ class One(ConversionMixin):
         List collections for an experiment that contain numpy datasets
 
         >>> collections = one.list_collections(eid, {'extension': 'npy'})
+
         """
         filter_kwargs = dict(eid=eid, collection=collection, filename=filename,
                              revision=revision, query_type=query_type)
@@ -1011,8 +1018,7 @@ class One(ConversionMixin):
     @util.refresh
     def list_revisions(self, eid=None, filename=None, collection=None, revision=None,
                        details=False, query_type=None):
-        """
-        List the revisions for a given experiment.
+        """List the revisions for a given experiment.
 
         If no experiment id is given, all collections are returned.
 
@@ -1084,8 +1090,7 @@ class One(ConversionMixin):
                     download_only: bool = False,
                     check_hash: bool = True,
                     **kwargs) -> Union[alfio.AlfBunch, List[ALFPath]]:
-        """
-        Load all attributes of an ALF object from a Session ID and an object name.
+        """Load all attributes of an ALF object from a Session ID and an object name.
 
         Any datasets with matching object name will be loaded.
 
@@ -1134,6 +1139,7 @@ class One(ConversionMixin):
         Load specific attributes:
 
         >>> load_object(eid, 'spikes', attribute=['times*', 'clusters'])
+
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(
@@ -1179,8 +1185,7 @@ class One(ConversionMixin):
                      query_type: Optional[str] = None,
                      download_only: bool = False,
                      check_hash: bool = True) -> Any:
-        """
-        Load a single dataset for a given session id and dataset name.
+        """Load a single dataset for a given session id and dataset name.
 
         Parameters
         ----------
@@ -1245,6 +1250,7 @@ class One(ConversionMixin):
             When a relative paths is provided (e.g. 'collection/#revision#/object.attribute.ext'),
             wildcards/regular expressions must not be used. To use wildcards, pass the collection
             and revision as separate keyword arguments.
+
         """
         datasets = self.list_datasets(
             eid, details=True, query_type=query_type or self.mode, keep_eid_index=True)
@@ -1286,8 +1292,7 @@ class One(ConversionMixin):
                       assert_present=True,
                       download_only: bool = False,
                       check_hash: bool = True) -> Any:
-        """
-        Load datasets for a given session id.
+        """Load datasets for a given session id.
 
         Returns two lists the length of datasets.  The first is the data (or file paths if
         download_data is false), the second is a list of meta data Bunches.  If assert_present is
@@ -1364,10 +1369,11 @@ class One(ConversionMixin):
             When providing a list of relative dataset paths, this warning occurs if one or more
             of the datasets are not marked as default revisions.  Avoid such warnings by explicitly
             passing in the required revisions with the revisions keyword argument.
+
         """
 
         def _verify_specifiers(specifiers):
-            """Ensure specifiers lists matching datasets length"""
+            """Ensure specifiers lists matching datasets length."""
             out = []
             for spec in specifiers:
                 if not spec or isinstance(spec, str):
@@ -1491,8 +1497,7 @@ class One(ConversionMixin):
                              download_only: bool = False,
                              details: bool = False,
                              check_hash: bool = True) -> Any:
-        """
-        Load a dataset given a dataset UUID.
+        """Load a dataset given a dataset UUID.
 
         Parameters
         ----------
@@ -1510,6 +1515,7 @@ class One(ConversionMixin):
         -------
         np.ndarray, one.alf.path.ALFPath
             Dataset data (or filepath if download_only) and dataset record if details is True.
+
         """
         if isinstance(dset_id, str):
             dset_id = UUID(dset_id)
@@ -1543,9 +1549,9 @@ class One(ConversionMixin):
                         download_only: bool = False,
                         check_hash: bool = True,
                         **kwargs) -> Union[Bunch, List[ALFPath]]:
-        """
-        Load all objects in an ALF collection from a Session ID.  Any datasets with matching object
-        name(s) will be loaded.  Returns a bunch of objects.
+        """Load all objects in an ALF collection from a Session ID.
+
+        Any datasets with matching object name(s) will be loaded.  Returns a bunch of objects.
 
         Parameters
         ----------
@@ -1591,6 +1597,7 @@ class One(ConversionMixin):
             No datasets exist for the provided session collection.
         alferr.ALFObjectNotFound
             No datasets match the object, attribute or revision filters for this collection.
+
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(
@@ -1645,6 +1652,7 @@ class One(ConversionMixin):
         -------
         One
             An instance of One for the provided cache directory.
+
         """
         if not cache_dir:
             if not silent:
@@ -1702,6 +1710,7 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
     -------
     One, OneAlyx
         An One instance if mode is 'local', otherwise an OneAlyx instance.
+
     """
     if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
             not kwargs.get('cache_dir', False)):
@@ -1718,6 +1727,7 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
 
 class OneAlyx(One):
     """An API for searching and loading data through the Alyx database."""
+
     def __init__(self, username=None, password=None, base_url=None, cache_dir=None,
                  mode='remote', wildcards=True, tables_dir=None, **kwargs):
         """An API for searching and loading data through the Alyx database.
@@ -1746,8 +1756,8 @@ class OneAlyx(One):
         cache_rest : str
             If not in 'local' mode, this determines which http request types to cache.  Default is
             'GET'.  Use None to deactivate cache (not recommended).
-        """
 
+        """
         # Load Alyx Web client
         self._web_client = wc.AlyxClient(username=username,
                                          password=password,
@@ -1763,10 +1773,11 @@ class OneAlyx(One):
         return f'One ({"off" if self.offline else "on"}line, {self.alyx.base_url})'
 
     def load_cache(self, tables_dir=None, clobber=False, tag=None):
-        """
-        Load parquet cache files.  If the local cache is sufficiently old, this method will query
-        the database for the location and creation date of the remote cache.  If newer, it will be
-        download and loaded.
+        """Load parquet cache files.
+
+        If the local cache is sufficiently old, this method will query the database for the
+        location and creation date of the remote cache.  If newer, it will be download and
+        loaded.
 
         Note: Unlike refresh_cache, this will always reload the local files at least once.
 
@@ -1787,6 +1798,7 @@ class OneAlyx(One):
         To reset the cache tables after loading a tag
         >>> ONE.cache_clear()
         ... one = ONE()
+
         """
         cache_meta = self._cache.get('_meta', {})
         raw_meta = cache_meta.get('raw', {}).values() or [{}]
@@ -1878,18 +1890,17 @@ class OneAlyx(One):
 
     @property
     def alyx(self):
-        """one.webclient.AlyxClient: The Alyx Web client"""
+        """one.webclient.AlyxClient: The Alyx Web client."""
         return self._web_client
 
     @property
     def cache_dir(self):
-        """pathlib.Path: The location of the downloaded file cache"""
+        """pathlib.Path: The location of the downloaded file cache."""
         return self._web_client.cache_dir
 
     @util.refresh
     def search_terms(self, query_type=None, endpoint=None):
-        """
-        Returns a list of search terms to be passed as kwargs to the search method.
+        """Returns a list of search terms to be passed as kwargs to the search method.
 
         Parameters
         ----------
@@ -1902,6 +1913,7 @@ class OneAlyx(One):
         -------
         tuple
             Tuple of search strings.
+
         """
         if (query_type or self.mode) != 'remote':
             if endpoint is None or endpoint == self._search_endpoint:
@@ -1931,6 +1943,7 @@ class OneAlyx(One):
         -------
         dict
             The Alyx dataset type record.
+
         """
         assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         if not dataset_type:
@@ -1982,8 +1995,7 @@ class OneAlyx(One):
 
     def list_aggregates(self, relation: str, identifier: str = None,
                         dataset=None, revision=None, assert_unique=False):
-        """
-        List datasets aggregated over a given relation.
+        """List datasets aggregated over a given relation.
 
         Parameters
         ----------
@@ -2010,6 +2022,7 @@ class OneAlyx(One):
         List datasets aggregated over a specific subject's sessions
 
         >>> trials = one.list_aggregates('subjects', 'SP026')
+
         """
         query = 'session__isnull,True'  # ',data_repository_name__endswith,aggregates'
         all_aggregates = self.alyx.rest('datasets', 'list', django=query)
@@ -2039,8 +2052,7 @@ class OneAlyx(One):
 
     def load_aggregate(self, relation: str, identifier: str,
                        dataset=None, revision=None, download_only=False):
-        """
-        Load a single aggregated dataset for a given string identifier.
+        """Load a single aggregated dataset for a given string identifier.
 
         Loads data aggregated over a relation such as subject, project or tag.
 
@@ -2097,9 +2109,7 @@ class OneAlyx(One):
 
     @util.refresh
     def pid2eid(self, pid: str, query_type=None) -> (UUID, str):
-        """
-        Given an Alyx probe UUID string, returns the session id string and the probe label
-        (i.e. the ALF collection).
+        """Given an Alyx probe UUID string, return the session ID and probe label.
 
         NB: Requires a connection to the Alyx database.
 
@@ -2116,6 +2126,7 @@ class OneAlyx(One):
             Experiment ID (eid).
         str
             Probe label.
+
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
@@ -2125,9 +2136,7 @@ class OneAlyx(One):
 
     @util.refresh
     def eid2pid(self, eid, query_type=None, details=False):
-        """
-        Given an experiment UUID (eID), returns the probe IDs and the probe labels
-        (i.e. the ALF collection).
+        """Given an experiment UUID (eID), return the probe IDs and labels (i.e. ALF collection).
 
         NB: Requires a connection to the Alyx database.
 
@@ -2149,6 +2158,7 @@ class OneAlyx(One):
             Probe labels, e.g. 'probe00'.
         list of dict (optional)
             If details is true, returns the Alyx records from insertions endpoint.
+
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
@@ -2165,8 +2175,7 @@ class OneAlyx(One):
             return pids, labels
 
     def search_insertions(self, details=False, query_type=None, **kwargs):
-        """
-        Searches insertions matching the given criteria and returns a list of matching probe IDs.
+        """Search insertions matching the given criteria and return a list of matching probe IDs.
 
         For a list of search terms, use the method
 
@@ -2227,6 +2236,7 @@ class OneAlyx(One):
 
         >>> tag = '2022_Q2_IBL_et_al_RepeatedSite'
         ... ins = one.search_insertions(django='datasets__tags__name,' + tag)
+
         """
         query_type = query_type or self.mode
         if query_type == 'local':
@@ -2287,6 +2297,7 @@ class OneAlyx(One):
         -------
         datetime.datetime
             A timestamp of when the cache was updated.
+
         """
         df = (pd.DataFrame(insertions_records)
               .drop(['session_info'], axis=1)
@@ -2304,8 +2315,7 @@ class OneAlyx(One):
         return self._update_cache_from_records(insertions=df, sessions=sessions_df)
 
     def search(self, details=False, query_type=None, **kwargs):
-        """
-        Searches sessions matching the given criteria and returns a list of matching eids.
+        """Searches sessions matching the given criteria and returns a list of matching eids.
 
         For a list of search terms, use the method
 
@@ -2400,6 +2410,7 @@ class OneAlyx(One):
         - In default and local mode, when the one.wildcards flag is True (default), queries are
           interpreted as regular expressions. To turn this off set one.wildcards to False.
         - In remote mode regular expressions are only supported using the `django` argument.
+
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -2465,14 +2476,16 @@ class OneAlyx(One):
         -------
         datetime.datetime
             A timestamp of when the cache was updated.
+
         """
         df = pd.DataFrame(next(zip(*map(ses2records, session_records))))
         return self._update_cache_from_records(sessions=df)
 
     def _download_datasets(self, dsets, **kwargs) -> List[ALFPath]:
-        """
-        Download a single or multitude of datasets if stored on AWS, otherwise calls
-        OneAlyx._download_dataset.
+        """Download a single or multitude of datasets if stored on AWS.
+
+        Falls back to :meth:`OneAlyx._download_dataset` if call to :meth:`OneAlyx._download_aws`
+        fails.
 
         NB: This will not skip files that are already present.  Use check_filesystem instead.
 
@@ -2486,6 +2499,7 @@ class OneAlyx(One):
         -------
         list of one.alf.path.ALFPath
             A list of local file paths.
+
         """
         # determine whether to remove the UUID after download, this may be overridden by user
         kwargs['keep_uuid'] = kwargs.get('keep_uuid', self.uuid_filenames)
@@ -2505,8 +2519,7 @@ class OneAlyx(One):
         return self._download_dataset(dsets, **kwargs)
 
     def _download_aws(self, dsets, update_exists=True, keep_uuid=None, **_) -> List[ALFPath]:
-        """
-        Download datasets from an AWS S3 instance using boto3.
+        """Download datasets from an AWS S3 instance using boto3.
 
         Parameters
         ----------
@@ -2528,6 +2541,7 @@ class OneAlyx(One):
         See Also
         --------
         one.remote.aws.s3_download_file - The AWS download function.
+
         """
         # Download datasets from AWS
         import one.remote.aws as aws
@@ -2575,11 +2589,12 @@ class OneAlyx(One):
         return [ALFPath(x) if x else x for x in out_files]
 
     def _dset2url(self, dset, update_cache=True):
-        """
-        Converts a dataset into a remote HTTP server URL.  The dataset may be one or more of the
-        following: a dict from returned by the sessions endpoint or dataset endpoint, a record
-        from the datasets cache table, or a file path.  Unlike record2url, this method can convert
-        dicts and paths to URLs.
+        """Converts a dataset into a remote HTTP server URL.
+
+        The dataset may be one or more of the following: a dict from returned by the sessions
+        endpoint or dataset endpoint, a record from the datasets cache table, or a file path.
+        Unlike :meth:`ConversionMixin.record2url`, this method can convert dicts and paths to
+        URLs.
 
         Parameters
         ----------
@@ -2593,6 +2608,7 @@ class OneAlyx(One):
         -------
         str
             The remote URL of the dataset.
+
         """
         did = None
         if isinstance(dset, str) and dset.startswith('http'):
@@ -2636,8 +2652,7 @@ class OneAlyx(One):
 
     def _download_dataset(
             self, dset, cache_dir=None, update_cache=True, **kwargs) -> List[ALFPath]:
-        """
-        Download a single or multitude of dataset from an Alyx REST dictionary.
+        """Download a single or multitude of dataset from an Alyx REST dictionary.
 
         NB: This will not skip files that are already present.  Use check_filesystem instead.
 
@@ -2654,6 +2669,7 @@ class OneAlyx(One):
         -------
         list of one.alf.path.ALFPath
             A local file path or list of paths.
+
         """
         cache_dir = cache_dir or self.cache_dir
         url = self._dset2url(dset, update_cache=update_cache)
@@ -2699,8 +2715,7 @@ class OneAlyx(One):
                     'Please contact the database administrator.')
 
     def _download_file(self, url, target_dir, keep_uuid=None, file_size=None, hash=None):
-        """
-        Downloads a single file or multitude of files from an HTTP webserver.
+        """Downloads a single file or multitude of files from an HTTP webserver.
 
         The webserver in question is set by the AlyxClient object.
 
@@ -2726,6 +2741,7 @@ class OneAlyx(One):
         -------
         >>> file_path = OneAlyx._download_file(
         ...    'https://example.com/data.file.npy', '/home/Downloads/subj/1900-01-01/001/alf')
+
         """
         assert not self.offline
         # Ensure all target directories exist
@@ -2752,8 +2768,7 @@ class OneAlyx(One):
             return local_path.replace(alfiles.remove_uuid_string(local_path))
 
     def _check_hash_and_file_size_mismatch(self, file_size, hash, expected_hash, local_path, url):
-        """
-        Check to ensure the hash and file size of a downloaded file matches what is on disk
+        """Check to ensure the hash and file size of a downloaded file matches what is on disk.
 
         Parameters
         ----------
@@ -2765,6 +2780,7 @@ class OneAlyx(One):
             The path of the downloaded file
         url : str
             An absolute or relative URL for a remote dataset
+
         """
         # verify hash size
         hash = hash or hashfile.md5(local_path)
@@ -2785,8 +2801,7 @@ class OneAlyx(One):
 
     @staticmethod
     def setup(base_url=None, **kwargs):
-        """
-        Set up OneAlyx for a given database
+        """Set up OneAlyx for a given database.
 
         Parameters
         ----------
@@ -2803,6 +2818,7 @@ class OneAlyx(One):
         See Also
         --------
         one.params.setup
+
         """
         base_url = base_url or one.params.get_default_client()
         cache_map = one.params.setup(client=base_url, **kwargs)
@@ -2811,8 +2827,7 @@ class OneAlyx(One):
     @util.refresh
     @util.parse_id
     def eid2path(self, eid, query_type=None) -> Listable(ALFPath):
-        """
-        From an experiment ID gets the local session path
+        """From an experiment ID gets the local session path.
 
         Parameters
         ----------
@@ -2826,6 +2841,7 @@ class OneAlyx(One):
         -------
         one.alf.path.ALFPath, list
             A session path or list of session paths.
+
         """
         # first try avoid hitting the database
         mode = query_type or self.mode
@@ -2850,8 +2866,7 @@ class OneAlyx(One):
 
     @util.refresh
     def path2eid(self, path_obj: Union[str, Path], query_type=None) -> Listable(str):
-        """
-        From a local path, gets the experiment ID.
+        """From a local path, gets the experiment ID.
 
         Parameters
         ----------
@@ -2864,6 +2879,7 @@ class OneAlyx(One):
         -------
         UUID, list
             An eid or list of eids.
+
         """
         # If path_obj is a list recurse through it and return a list
         if isinstance(path_obj, list):
@@ -2899,8 +2915,7 @@ class OneAlyx(One):
 
     @util.refresh
     def path2url(self, filepath, query_type=None) -> str:
-        """
-        Given a local file path, returns the URL of the remote file.
+        """Given a local file path, returns the URL of the remote file.
 
         Parameters
         ----------
@@ -2913,6 +2928,7 @@ class OneAlyx(One):
         -------
         str
             A URL string
+
         """
         query_type = query_type or self.mode
         if query_type != 'remote':
@@ -2927,8 +2943,7 @@ class OneAlyx(One):
 
     @util.parse_id
     def type2datasets(self, eid, dataset_type, details=False):
-        """
-        Get list of datasets belonging to a given dataset type for a given session
+        """Get list of datasets belonging to a given dataset type for a given session.
 
         Parameters
         ----------
@@ -2944,6 +2959,7 @@ class OneAlyx(One):
         -------
         np.ndarray, dict
             A numpy array of data, or DataFrame if details is true
+
         """
         assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         if isinstance(dataset_type, str):
@@ -2969,6 +2985,7 @@ class OneAlyx(One):
         -------
         str
             The dataset type
+
         """
         assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         # Ensure dset is a str uuid
@@ -2986,7 +3003,7 @@ class OneAlyx(One):
         return self.alyx.rest('datasets', 'read', id=dset)['dataset_type']
 
     def describe_revision(self, revision, full=False):
-        """Print description of a revision
+        """Print description of a revision.
 
         Parameters
         ----------
@@ -2999,6 +3016,7 @@ class OneAlyx(One):
         -------
         None, dict
             None if full is false or no record found, otherwise returns record as dict
+
         """
         assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
         try:
@@ -3049,6 +3067,7 @@ class OneAlyx(One):
             Invalid experiment ID (failed to parse into eid string).
         requests.exceptions.HTTPError
             [Errno 404] Remote session not found on Alyx.
+
         """
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)
@@ -3088,6 +3107,7 @@ def _setup(**kwargs):
     -------
     IBLParams
         An updated cache map.
+
     """
     ONE.cache_clear()
     kwargs['client'] = kwargs.pop('base_url', None)

@@ -65,6 +65,7 @@ class TestONECache(unittest.TestCase):
 
     This class loads the parquet tables from the fixtures and builds a file tree in a temp folder
     """
+
     tempdir = None
 
     def setUp(self) -> None:
@@ -889,7 +890,7 @@ class TestONECache(unittest.TestCase):
             self.assertIn('not found on disk', str(ex))
 
     def test_load_cache(self):
-        """Test One._load_cache"""
+        """Test One._load_cache."""
         # Test loading unsorted table with no id index set
         df = cast_index_object(self.one._cache['datasets'], str).reset_index()
         info = self.one._cache['_meta']['raw']['datasets']
@@ -1128,9 +1129,11 @@ class TestONECache(unittest.TestCase):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneAlyx(unittest.TestCase):
+    """Test OneAlyx methods that use the Alyx REST API.
+
+    This could be an offline test: would need to add /docs REST cache fixture.
     """
-    This could be an offline test.  Would need to add /docs REST cache fixture.
-    """
+
     tempdir = None
     one = None
 
@@ -1207,7 +1210,7 @@ class TestOneAlyx(unittest.TestCase):
 
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe_revision(self, mock_stdout):
-        """Test OneAlyx.describe_revision"""
+        """Test OneAlyx.describe_revision."""
         self.one.mode = 'remote'
         # Choose a date in the past so as to not conflict with registration tests
         record = {
@@ -1237,6 +1240,7 @@ class TestOneAlyx(unittest.TestCase):
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe_dataset(self, mock_stdout):
         """Test OneAlyx.describe_dataset.
+
         NB This could be offline: REST responses in fixtures.
         """
         self.one.mode = 'remote'
@@ -1262,7 +1266,7 @@ class TestOneAlyx(unittest.TestCase):
             self.one.describe_dataset('_ibl_foo.bar.baz')
 
     def test_url_from_path(self):
-        """Test OneAlyx.path2url"""
+        """Test OneAlyx.path2url."""
         file = Path(self.tempdir.name).joinpath('cortexlab', 'Subjects', 'KS005', '2019-04-04',
                                                 '004', 'alf', '_ibl_wheel.position.npy')
         url = self.one.path2url(file)
@@ -1280,7 +1284,7 @@ class TestOneAlyx(unittest.TestCase):
             self.one.path2url(file, query_type='remote')
 
     def test_url_from_record(self):
-        """Test ConversionMixin.record2url"""
+        """Test ConversionMixin.record2url."""
         idx = (slice(None), UUID('91546fc6-b67c-4a69-badc-5e66088519c4'))
         dataset = self.one._cache['datasets'].loc[idx, :]
         url = self.one.record2url(dataset.squeeze())
@@ -1290,7 +1294,7 @@ class TestOneAlyx(unittest.TestCase):
         self.assertEqual(expected, url)
 
     def test_load_cache(self):
-        """Test loading the remote cache"""
+        """Test loading the remote cache."""
         self.one.alyx.silent = False  # For checking log
         self.one._cache._meta['expired'] = True
         try:
@@ -1356,6 +1360,7 @@ class TestOneAlyx(unittest.TestCase):
 
     def test_check_filesystem(self):
         """Test for One._check_filesystem.
+
         Most is already covered by other tests, this just checks that it can deal with dataset
         dicts as input.
         """
@@ -1372,7 +1377,7 @@ class TestOneAlyx(unittest.TestCase):
 
     @mock.patch('boto3.Session')
     def test_download_aws(self, boto3_mock):
-        """ Tests for the OneAlyx._download_aws method"""
+        """Tests for the OneAlyx._download_aws method."""
         N = 5
         dsets = self.one._cache['datasets'].iloc[:N].copy()
         dsets['exists_aws'] = True
@@ -1405,7 +1410,7 @@ class TestOneAlyx(unittest.TestCase):
             fallback_method.assert_called()
 
     def test_list_aggregates(self):
-        """Test OneAlyx.list_aggregates"""
+        """Test OneAlyx.list_aggregates."""
         # Test listing by relation
         datasets = self.one.list_aggregates('subjects')
         self.assertTrue(all(datasets['rel_path'].str.startswith('aggregates/Subjects')))
@@ -1445,7 +1450,7 @@ class TestOneAlyx(unittest.TestCase):
             self.assertTrue(dsets.file_size.isna().all())
 
     def test_load_aggregate(self):
-        """Test OneAlyx.load_aggregate"""
+        """Test OneAlyx.load_aggregate."""
         # Test object not found on disk
         assert self.one.offline
         with self.assertRaises(alferr.ALFObjectNotFound):
@@ -1501,6 +1506,7 @@ class TestOneAlyx(unittest.TestCase):
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneRemote(unittest.TestCase):
     """Test remote queries using OpenAlyx."""
+
     def setUp(self) -> None:
         self.one = OneAlyx(**TEST_DB_2, mode='auto')
         self.eid = UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a')
@@ -1642,7 +1648,6 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search_insertions(self):
         """Test OneAlyx.search_insertion method in remote mode."""
-
         # Test search on subject
         pids = self.one.search_insertions(subject='SWC_043', query_type='remote')
         self.assertIn(self.pid, list(pids))
@@ -1773,6 +1778,7 @@ class TestOneRemote(unittest.TestCase):
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
     """Test downloading datasets using OpenAlyx."""
+
     tempdir = None
     one = None
 
@@ -1953,6 +1959,7 @@ class TestOneDownload(unittest.TestCase):
 
 class TestOneSetup(unittest.TestCase):
     """Test parameter setup upon ONE instantiation and calling setup methods."""
+
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
@@ -2170,6 +2177,7 @@ class TestOneSetup(unittest.TestCase):
 
 class TestOneMisc(unittest.TestCase):
     """Test functions in one.util."""
+
     def test_validate_date_range(self):
         """Test one.util.validate_date_range."""
         # Single string date

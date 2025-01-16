@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_id(method):
-    """
-    Ensures the input experiment identifier is an experiment UUID string.
+    """Ensure the input experiment identifier is an experiment UUID.
 
     Parameters
     ----------
@@ -37,6 +36,7 @@ def parse_id(method):
     ------
     ValueError
         Unable to convert input to a valid experiment ID.
+
     """
 
     @wraps(method)
@@ -64,8 +64,7 @@ def refresh(method):
 
 
 def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
-    """
-    Validates and arrange date range in a 2 elements list.
+    """Validate and arrange date range in a 2 elements list.
 
     Parameters
     ----------
@@ -92,6 +91,7 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     ------
     ValueError
         Size of date range tuple must be 1 or 2.
+
     """
     if date_range is None:
         return
@@ -122,10 +122,10 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
 
 
 def _collection_spec(collection=None, revision=None) -> str:
-    """
-    Return a template string for a collection/revision regular expression.  Because both are
-    optional in the ALF spec, None will match any (including absent), while an empty string will
-    match absent.
+    """Return a template string for a collection/revision regular expression.
+
+    Because both are optional in the ALF spec, None will match any (including absent), while an
+    empty string will match absent.
 
     Parameters
     ----------
@@ -138,6 +138,7 @@ def _collection_spec(collection=None, revision=None) -> str:
     -------
     str
         A string format for matching the collection/revision.
+
     """
     spec = ''
     for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
@@ -148,10 +149,11 @@ def _collection_spec(collection=None, revision=None) -> str:
 
 
 def _file_spec(**kwargs):
-    """
-    Return a template string for a ALF dataset regular expression.  Because 'namespace',
-    'timescale', and 'extra' are optional None will match any (including absent).  This function
-    removes the regex flags from the file spec string that make certain parts optional.
+    """Return a template string for a ALF dataset regular expression.
+
+    Because 'namespace', 'timescale', and 'extra' are optional, None will match any
+    (including absent).  This function removes the regex flags from the file spec string that make
+    certain parts optional.
 
     TODO an empty string should only match absent; this could be achieved by removing parts from
      spec string
@@ -172,6 +174,7 @@ def _file_spec(**kwargs):
     -------
     str
         A string format for matching an ALF dataset.
+
     """
     OPTIONAL = {'namespace': '?', 'timescale': '?', 'extra': '*'}
     filespec = FILE_SPEC
@@ -186,8 +189,8 @@ def _file_spec(**kwargs):
 def filter_datasets(
         all_datasets, filename=None, collection=None, revision=None, revision_last_before=True,
         qc=QC.FAIL, ignore_qc_not_set=False, assert_unique=True, wildcards=False):
-    """
-    Filter the datasets cache table by the relative path (dataset name, collection and revision).
+    """Filter the datasets cache table by relative path (dataset name, collection and revision).
+
     When None is passed, all values will match.  To match on empty parts, use an empty string.
     When revision_last_before is true, None means return latest revision.
 
@@ -276,6 +279,7 @@ def filter_datasets(
       e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
       must use two separate queries.
     - It is not possible to match datasets with no revision when wildcards=True.
+
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}
@@ -351,9 +355,7 @@ def filter_datasets(
 
 def filter_revision_last_before(
         datasets, revision=None, assert_unique=True, assert_consistent=False):
-    """
-    Filter datasets by revision, returning previous revision in ordered list if revision
-    doesn't exactly match.
+    """Filter datasets by revision, returning previous revision if no exact match is found.
 
     Parameters
     ----------
@@ -397,9 +399,10 @@ def filter_revision_last_before(
       the default one (uncommon), passing in a revision may lead to a newer revision being returned
       than if revision is None.
     - A view is returned if a revision column is present, otherwise a copy is returned.
+
     """
     def _last_before(df):
-        """Takes a DataFrame with only one dataset and multiple revisions, returns matching row"""
+        """Takes a DataFrame with only one dataset and multiple revisions, returns matching row."""
         if revision is None:
             dset_name = df['rel_path'].iloc[0]
             if 'default_revision' in df.columns:
@@ -441,9 +444,10 @@ def filter_revision_last_before(
 
 
 def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
-    """
-    Returns the index of string that occurs directly before the provided revision string when
-    lexicographic sorted.  If revision is None, the index of the most recent revision is returned.
+    """Return index of string occurring directly before provided revision string when sorted.
+
+    Revisions are lexicographically sorted. If `revision` is None, the index of the most recent
+    revision is returned.
 
     Parameters
     ----------
@@ -460,6 +464,7 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     Examples
     --------
     >>> idx = index_last_before([], '2020-08-01')
+
     """
     if len(revisions) == 0:
         return  # No revisions, just return
@@ -471,8 +476,13 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
 
 
 def autocomplete(term, search_terms) -> str:
-    """
-    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'.
+    """Validate search term and return complete name.
+
+    Examples
+    --------
+    >>> autocomplete('subj')
+    'subject'
+
     """
     term = term.casefold()
     # Check if term already complete
@@ -488,11 +498,11 @@ def autocomplete(term, search_terms) -> str:
 
 
 class LazyId(Mapping):
-    """
-    Return UUID from records when indexed.
+    """Return UUID from records when indexed.
 
     Uses a paginated response object or list of Alyx REST records.
     """
+
     def __init__(self, pg, func=None):
         self._pg = pg
         self.func = func or self.ses2eid
@@ -519,6 +529,7 @@ class LazyId(Mapping):
         -------
         str, list
             One or more experiment ID strings.
+
         """
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]
