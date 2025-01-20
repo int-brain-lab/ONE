@@ -28,13 +28,12 @@ context manager when calling ONE list, search and load methods. You can pass the
 argument AlyxClient: `one.alyx.rest(..., no_cache=True)`.  More information can be found
 [here](https://int-brain-lab.github.io/ONE/notebooks/one_modes.html#REST-caching).
 
-**Auto mode**
-Remote cache tables are downloaded used when ONE is in 'auto' mode (or when `query_type='auto'` is passed).
+**Local mode**
+Local cache tables may be used when ONE is in 'local' mode (or when `query_type='local'` is passed).
 These table contain info about all sessions and their associated datasets and is used instead of querying
 the database.
-For the IBL Alyx, the tables are generated every 6 hours, however by default ONE will only download a
-new cache once per day.  To force a download you can run `ONE().refresh_cache('remote')`.  More
-information, including increasing refresh frequency, can be found
+For the IBL Alyx, the tables are generated every 6 hours and can be downloaded using the `one.load_cache` method
+to only download when new data are available.  More information, including increasing refresh frequency, can be found
 [here](https://int-brain-lab.github.io/ONE/notebooks/one_modes.html#Refreshing-the-cache).
 
 ## I made a mistake during setup and now can't call setup, how do I fix it?
@@ -83,7 +82,7 @@ one = ONE(tables_dir=Path.home() / 'tables_dir')
 # 2. Specify location after instantiation
 one.load_cache(Path.home() / 'tables_dir')
 ```
-**Note**: Avoid using the same location for different database cache tables: by default ONE will automatically overwrite tables when a newer version is available. To avoid automatic downloading, set `mode='local'`.
+**Note**: Avoid using the same location for different database cache tables: ONE will overwrite tables when `load_cache` is called in remote mode.
 
 ## How do check who I'm logged in as?
 ```python

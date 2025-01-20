@@ -243,6 +243,7 @@ class TestOnlineConverters(unittest.TestCase):
     def setUpClass(cls) -> None:
         # Create ONE object with temp cache dir
         cls.one = ONE(**TEST_DB_2)
+        cls.one.load_cache()  # load local cache tables
         cls.eid = UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a')
         cls.pid = UUID('da8dfec1-d265-44e8-84ce-6ae9c109b8bd')
         cls.session_record = cls.one.get_details(cls.eid)
