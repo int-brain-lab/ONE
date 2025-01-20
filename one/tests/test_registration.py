@@ -62,6 +62,7 @@ class TestRegistrationClient(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.temp_dir = util.set_up_env()
         cls.one = ONE(**TEST_DB_1, cache_dir=cls.temp_dir.name)
+        cls.one.load_cache()
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
         # Create a tag if doesn't already exist
