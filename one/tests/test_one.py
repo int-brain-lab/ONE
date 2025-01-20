@@ -97,6 +97,16 @@ class TestONECache(unittest.TestCase):
                     'ZM_1743', 'ZM_335', 'clns0730', 'flowers']
         self.assertCountEqual(expected, subjects)
 
+    def test_mode_validation(self):
+        """Test validation of mode kwarg.
+
+        Since auto and refresh modes were removed, a ValueError should be raised.
+        """
+        with self.assertRaises(ValueError):
+            ONE(mode='auto')
+        with self.assertRaises(ValueError):
+            ONE(mode='refresh')
+
     def test_offline_repr(self):
         """Test for One.offline property."""
         self.assertTrue('offline' in str(self.one))
@@ -923,25 +933,6 @@ class TestONECache(unittest.TestCase):
             with self.assertRaises(KeyError):
                 self.one.load_cache(tdir)
 
-    def test_refresh_cache(self):
-        """Test One.refresh_cache."""
-        self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
-        prev_loaded = self.one._cache['_meta']['loaded_time']
-        for mode in ('local', 'remote'):  # Shouldn't refresh as cache not expired
-            with self.subTest('Refresh modes', mode=mode):
-                loaded = self.one.refresh_cache(mode)
-                self.assertFalse(len(self.one._cache.datasets))
-                self.assertEqual(prev_loaded, loaded)
-        loaded = self.one.refresh_cache('refresh')
-        self.assertTrue(len(self.one._cache.datasets))
-        self.assertTrue(loaded > prev_loaded)
-        self.one.cache_expiry = datetime.timedelta()  # Immediately expire
-        self.one._cache.datasets = self.one._cache.datasets.iloc[0:0].copy()
-        self.one.refresh_cache('local')  # Should refresh as cache is expired
-        self.assertTrue(len(self.one._cache.datasets))
-        with self.assertRaises(ValueError):
-            self.one.refresh_cache('double')
-
     def test_save_cache(self):
         """Test one.util.save_cache."""
         self.one._cache['_meta'].pop('modified_time', None)
@@ -1355,7 +1346,6 @@ class TestOneAlyx(unittest.TestCase):
             self.assertEqual(new_loc, self.one._tables_dir)
 
         finally:  # Restore properties
-            self.one.mode = 'auto'
             self.one.alyx.silent = True
 
     def test_check_filesystem(self):
@@ -1382,7 +1372,7 @@ class TestOneAlyx(unittest.TestCase):
         dsets = self.one._cache['datasets'].iloc[:N].copy()
         dsets['exists_aws'] = True
 
-        self.one.mode = 'auto'  # Can't download in local mode
+        self.one.mode = 'remote'  # Can't download in local mode
 
         # Return a file size so progress bar callback hook functions
         file_object = mock.MagicMock()
@@ -1508,7 +1498,7 @@ class TestOneRemote(unittest.TestCase):
     """Test remote queries using OpenAlyx."""
 
     def setUp(self) -> None:
-        self.one = OneAlyx(**TEST_DB_2, mode='auto')
+        self.one = OneAlyx(**TEST_DB_2, mode='remote')
         self.eid = UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a')
         self.pid = UUID('da8dfec1-d265-44e8-84ce-6ae9c109b8bd')
         # Set cache directory to a temp dir to ensure that we re-download files
@@ -1565,6 +1555,9 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search(self):
         """Test OneAlyx.search method in remote mode."""
+        # Load the cache tables
+        self.one.load_cache()
+
         # Modify sessions dataframe so we can check that the records get updated
         records = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
         self.one._cache.sessions.loc[records.index, 'lab'] = 'foolab'  # change a field
@@ -1642,8 +1635,8 @@ class TestOneRemote(unittest.TestCase):
             offline_search.assert_not_called(), alyx.assert_called()
             alyx.reset_mock()
             # In another mode
-            self.one.search(subject='SWC_043', query_type='auto')
-            offline_search.assert_called_with(details=False, query_type='auto', subject='SWC_043')
+            self.one.search(subject='SWC_043', query_type='local')
+            offline_search.assert_called_with(details=False, query_type='local', subject='SWC_043')
             alyx.assert_not_called()
 
     def test_search_insertions(self):
@@ -1662,11 +1655,13 @@ class TestOneRemote(unittest.TestCase):
         pids = self.one.search_insertions(session=self.eid, name='probe00', query_type='remote')
         self.assertEqual(pids[0], self.pid)
 
-        # Test search with acronym
-        # Should work in auto mode but with debug message
-        with self.assertLogs('one.api', 10):
-            pids = self.one.search_insertions(atlas_acronym='STR', query_type='auto')
+        # Should work in local mode but with debug message
+        pids = self.one.search_insertions(name='probe00', query_type='local')
         self.assertIn(self.pid, list(pids))
+
+        # Test search with acronym (remote only) raises value error
+        with self.assertRaises(ValueError):
+            self.one.search_insertions(atlas_acronym='STR', query_type='local')
 
         # Expect this list of acronyms to return nothing
         pids = self.one.search_insertions(atlas_acronym=['STR', 'CA3'], query_type='remote')
@@ -1717,7 +1712,7 @@ class TestOneRemote(unittest.TestCase):
 
     def test_search_terms(self):
         """Test OneAlyx.search_terms."""
-        assert self.one.mode != 'remote'
+        self.one.mode = 'local'
         search1 = self.one.search_terms()
         self.assertIn('dataset', search1)
 
@@ -1787,15 +1782,16 @@ class TestOneDownload(unittest.TestCase):
         self.patch = mock.patch('one.params.iopar.getfile',
                                 new=partial(util.get_file, self.tempdir.name))
         self.patch.start()
-        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name, mode='auto')
-        self.fid = '6f175a7a-e20b-4622-81fc-08947a4fd1d3'  # File record of wiring.json
-        self.eid = 'aad23144-0e52-4eac-80c5-c4ee2decb198'
-        self.did = 'd693fbf9-2f90-4123-839e-41474c44742d'
+        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
+        self.one.load_cache()
+        self.fid = UUID('6f175a7a-e20b-4622-81fc-08947a4fd1d3')  # File record of wiring.json
+        self.eid = UUID('aad23144-0e52-4eac-80c5-c4ee2decb198')
+        self.did = UUID('d693fbf9-2f90-4123-839e-41474c44742d')
 
     def test_download_datasets(self):
         """Test OneAlyx._download_dataset, _download_file and _dset2url."""
         det = self.one.get_details(self.eid, True)
-        rec = next(x for x in det['data_dataset_session_related'] if x['id'] == self.did)
+        rec = next(x for x in det['data_dataset_session_related'] if x['id'] == str(self.did))
         # FIXME hack because data_url may be AWS
         rec['data_url'] = self.one.alyx.rel_path2url(get_alf_path(rec['data_url']))
         file = self.one._download_dataset(rec)
@@ -1823,7 +1819,7 @@ class TestOneDownload(unittest.TestCase):
 
         # Check JSON field added
         # 3. The files endpoint should be called with a 'mismatch_hash' json key
-        fr = [{'url': f'files/{self.fid}', 'json': None}]
+        fr = [{'url': f'files/{str(self.fid)}', 'json': None}]
         with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
             self.one._download_dataset(rec, hash=file_hash)
             args, kwargs = patched.call_args
@@ -1872,8 +1868,8 @@ class TestOneDownload(unittest.TestCase):
         # Check data frame record
         rec = self.one.list_datasets(self.eid, details=True)
         rec = rec[rec.rel_path.str.contains('00/_spikeglx_ephysData_g0_t0.imec0.wiring')]
-        rec.loc[UUID(self.did), 'exist_aws'] = False  # Ensure we use FlatIron for this
-        rec = pd.concat({UUID(self.eid): rec}, names=['eid'])  # Add back eid index
+        rec.loc[self.did, 'exist_aws'] = False  # Ensure we use FlatIron for this
+        rec = pd.concat({self.eid: rec}, names=['eid'])  # Add back eid index
 
         files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
@@ -1887,7 +1883,7 @@ class TestOneDownload(unittest.TestCase):
         # Test download datasets via AWS
         dsets = self.one.list_datasets(
             self.eid, filename='*wiring.json', collection='raw_ephys_data/probe??', details=True)
-        dsets = pd.concat({str(self.eid): dsets}, names=['eid'])
+        dsets = pd.concat({self.eid: dsets}, names=['eid'])
         assert len(dsets) == 2
 
         file = self.one.eid2path(self.eid) / dsets['rel_path'].values[0]
@@ -1904,7 +1900,7 @@ class TestOneDownload(unittest.TestCase):
             _, local = method.call_args.args
             self.assertIn(str(dsets.iloc[-1].name[1]), local.name)
 
-        # Test behaviour when dataset not remotely accessible
+        # Test behaviour when dataset not remotely accessible on S3
         dsets = dsets[:1].copy()
         rec = self.one.alyx.rest('datasets', 'read', id=dsets.index[0][1])
         # need to find the index of matching aws repo, this is not constant across releases
@@ -1914,10 +1910,14 @@ class TestOneDownload(unittest.TestCase):
         self.one._cache.datasets['exists_aws'] = True  # Only changes column if exists
         with mock.patch('one.remote.aws.get_s3_from_alyx', return_value=(None, None)), \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[rec]), \
+                mock.patch.object(self.one, '_download_dataset') as mock_method, \
                 self.assertLogs('one.api', logging.DEBUG) as log:
             # should still download file via fallback method
-            self.assertEqual([file], self.one._download_datasets(dsets))
+            self.one._download_datasets(dsets)
+            mock_method.assert_called_once()
+            self.assertTrue(all(dsets == mock_method.call_args.args[0]), 'failed to pass on dsets')
             self.assertRegex(log.output[1], 'Updating exists field')
+            # Expect it to have updated datasets table
             datasets = self.one._cache['datasets']
             self.assertFalse(
                 datasets.loc[pd.IndexSlice[:, dsets.index[0][1]], 'exists_aws'].any()

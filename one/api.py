@@ -87,7 +87,12 @@ class One(ConversionMixin):
         self.uuid_filenames = False
         # init the cache file
         self._reset_cache()
-        self.load_cache()
+        if self.mode == 'local':
+            # Ensure that we don't call any subclass method here as we only load local cache
+            # tables on init. Direct calls to load_cache can be made by the user or subclass.
+            One.load_cache(self)
+        elif self.mode != 'remote':
+            raise ValueError(f'Mode "{self.mode}" not recognized')
 
     def __repr__(self):
         return f'One ({"off" if self.offline else "on"}line, {self.cache_dir})'
@@ -237,39 +242,6 @@ class One(ConversionMixin):
                 _logger.debug(f'Saved {filename}')
             meta['saved_time'] = datetime.now()
 
-    def refresh_cache(self, mode=None):
-        """Check and reload cache tables.
-
-        Parameters
-        ----------
-        mode : {'local', 'refresh', 'remote'}
-            Options are 'local' (reload if expired); 'refresh' (reload); 'remote' (don't reload).
-
-        Returns
-        -------
-        datetime.datetime
-            Loaded timestamp.
-
-        """
-        # NB: Currently modified table will be lost if called with 'refresh';
-        # May be instances where modified cache is saved then immediately replaced with a new
-        # remote cache. Also it's too slow :(
-        # self.save_cache()  # Save cache if modified
-        mode = mode or self.mode
-        if mode == 'remote':
-            pass
-        elif mode == 'local':
-            loaded_time = self._cache['_meta']['loaded_time']
-            if not loaded_time or (datetime.now() - loaded_time >= self.cache_expiry):
-                _logger.info('Cache expired, refreshing')
-                self.load_cache()
-        elif mode == 'refresh':
-            _logger.debug('Forcing reload of cache')
-            self.load_cache(clobber=True)
-        else:
-            raise ValueError(f'Unknown refresh type "{mode}"')
-        return self._cache['_meta']['loaded_time']
-
     def _update_cache_from_records(self, strict=False, **kwargs):
         """Update the cache tables with new records.
 
@@ -309,6 +281,8 @@ class One(ConversionMixin):
             if isinstance(records, pd.Series):
                 records = pd.DataFrame([records])
                 records.index.set_names(self._cache[table].index.names, inplace=True)
+            # Drop duplicate indices
+            records = records[~records.index.duplicated(keep='first')]
             if not strict:
                 # Deal with case where there are extra columns in the cache
                 extra_columns = list(set(self._cache[table].columns) - set(records.columns))
@@ -323,7 +297,7 @@ class One(ConversionMixin):
                     records.insert(n, col, val)
                 # Drop any extra columns in the records that aren't in cache table
                 to_drop = set(records.columns) - set(self._cache[table].columns)
-                records.drop(to_drop, axis=1, inplace=True)
+                records = records.drop(to_drop, axis=1)
                 records = records.reindex(columns=self._cache[table].columns)
             assert set(self._cache[table].columns) == set(records.columns)
             records = records.astype(self._cache[table].dtypes)
@@ -1767,8 +1741,6 @@ class OneAlyx(One):
         location and creation date of the remote cache.  If newer, it will be download and
         loaded.
 
-        Note: Unlike refresh_cache, this will always reload the local files at least once.
-
         Parameters
         ----------
         tables_dir : str, pathlib.Path
@@ -1802,7 +1774,7 @@ class OneAlyx(One):
         if not (clobber or different_tag):
             super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
             expired = self._cache and (cache_meta := self._cache.get('_meta', {}))['expired']
-            if not expired or self.mode in {'local', 'remote'}:
+            if not expired:
                 return
 
         # Warn user if expired
@@ -2598,9 +2570,10 @@ class OneAlyx(One):
         if isinstance(dset, str) and dset.startswith('http'):
             url = dset
         elif isinstance(dset, (str, Path)):
-            url = self.path2url(dset)
-            if not url:
-                _logger.warning(f'Dataset {dset} not found in cache')
+            try:
+                url = self.path2url(dset)
+            except alferr.ALFObjectNotFound:
+                _logger.warning(f'Dataset {dset} not found')
                 return
         elif isinstance(dset, (list, tuple)):
             dset2url = partial(self._dset2url, update_cache=update_cache)
@@ -2914,7 +2887,12 @@ class OneAlyx(One):
             return super(OneAlyx, self).path2url(filepath)
         eid = self.path2eid(filepath)
         try:
-            dataset, = self.alyx.rest('datasets', 'list', session=eid, name=Path(filepath).name)
+            params = {'name': Path(filepath).name}
+            if eid is None:
+                params['django'] = 'session__isnull,True'
+            else:
+                params['session'] = str(eid)
+            dataset, = self.alyx.rest('datasets', 'list', **params)
             return next(
                 r['data_url'] for r in dataset['file_records'] if r['data_url'] and r['exists'])
         except (ValueError, StopIteration):
