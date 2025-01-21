@@ -26,6 +26,7 @@ import logging
 import pandas as pd
 import numpy as np
 from packaging import version
+from iblutil.util import Bunch
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
@@ -33,8 +34,9 @@ from one.alf.spec import QC, is_uuid_string
 from one.alf.io import iter_sessions
 from one.alf.path import session_path_parts, get_alf_path
 
-__all__ = ['make_parquet_db', 'patch_cache', 'remove_missing_datasets',
-           'remove_cache_table_files', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME', 'QC_TYPE']
+__all__ = [
+    'make_parquet_db', 'patch_tables', 'merge_tables', 'QC_TYPE', 'remove_table_files',
+    'remove_missing_datasets', 'load_tables', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME']
 _logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
@@ -356,6 +358,146 @@ def cast_index_object(df: pd.DataFrame, dtype: type = uuid.UUID) -> pd.Index:
     return df
 
 
+def load_tables(tables_dir, glob_pattern='*.pqt'):
+    """Load parquet cache files from a local directory.
+
+    Parameters
+    ----------
+    tables_dir : str, pathlib.Path
+        The directory location of the parquet files.
+    glob_pattern : str
+        A glob pattern to match the cache files.
+
+
+    Returns
+    -------
+    Bunch
+        A Bunch object containing the loaded cache tables and associated metadata.
+
+    """
+    meta = {
+        'expired': False,
+        'created_time': None,
+        'loaded_time': None,
+        'modified_time': None,
+        'saved_time': None,
+        'raw': {}
+    }
+    caches = Bunch({
+            'datasets': EMPTY_DATASETS_FRAME.copy(),
+            'sessions': EMPTY_SESSIONS_FRAME.copy(),
+            '_meta': meta})
+    INDEX_KEY = '.?id'
+    for cache_file in Path(tables_dir).glob(glob_pattern):
+        table = cache_file.stem
+        # we need to keep this part fast enough for transient objects
+        cache, meta['raw'][table] = parquet.load(cache_file)
+        if 'date_created' not in meta['raw'][table]:
+            _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
+            continue
+        meta['loaded_time'] = datetime.datetime.now()
+
+        # Set the appropriate index if none already set
+        if isinstance(cache.index, pd.RangeIndex):
+            idx_columns = sorted(cache.filter(regex=INDEX_KEY).columns)
+            if len(idx_columns) == 0:
+                raise KeyError('Failed to set index')
+            cache.set_index(idx_columns, inplace=True)
+
+        # Patch older tables
+        cache = patch_tables(cache, meta['raw'][table].get('min_api_version'), table)
+
+        # Cast indices to UUID
+        cache = cast_index_object(cache, uuid.UUID)
+
+        # Check sorted
+        # Sorting makes MultiIndex indexing O(N) -> O(1)
+        if not cache.index.is_monotonic_increasing:
+            cache.sort_index(inplace=True)
+
+        caches[table] = cache
+
+    created = [datetime.datetime.fromisoformat(x['date_created'])
+               for x in meta['raw'].values() if 'date_created' in x]
+    if created:
+        meta['created_time'] = min(created)
+    return caches
+
+
+def merge_tables(cache, strict=False, **kwargs):
+    """Update the cache tables with new records.
+
+    Parameters
+    ----------
+    dict
+        A map of cache tables to update.
+    strict : bool
+        If not True, the columns don't need to match.  Extra columns in input tables are
+        dropped and missing columns are added and filled with np.nan.
+    kwargs
+        pandas.DataFrame or pandas.Series to insert/update for each table.
+
+    Returns
+    -------
+    datetime.datetime:
+        A timestamp of when the cache was updated.
+
+    Example
+    -------
+    >>> session, datasets = ses2records(self.get_details(eid, full=True))
+    ... self._update_cache_from_records(sessions=session, datasets=datasets)
+
+    Raises
+    ------
+    AssertionError
+        When strict is True the input columns must exactly match those oo the cache table,
+        including the order.
+    KeyError
+        One or more of the keyword arguments does not match a table in cache.
+
+    """
+    updated = None
+    for table, records in kwargs.items():
+        if records is None or records.empty:
+            continue
+        if table not in cache:
+            raise KeyError(f'Table "{table}" not in cache')
+        if isinstance(records, pd.Series):
+            records = pd.DataFrame([records])
+            records.index.set_names(cache[table].index.names, inplace=True)
+        # Drop duplicate indices
+        records = records[~records.index.duplicated(keep='first')]
+        if not strict:
+            # Deal with case where there are extra columns in the cache
+            extra_columns = list(set(cache[table].columns) - set(records.columns))
+            # Convert these columns to nullable, if required
+            cache_columns = cache[table][extra_columns]
+            cache[table][extra_columns] = cache_columns.convert_dtypes()
+            column_ids = map(list(cache[table].columns).index, extra_columns)
+            for col, n in sorted(zip(extra_columns, column_ids), key=lambda x: x[1]):
+                dtype = cache[table][col].dtype
+                nan = getattr(dtype, 'na_value', np.nan)
+                val = records.get('exists', True) if col.startswith('exists_') else nan
+                records.insert(n, col, val)
+            # Drop any extra columns in the records that aren't in cache table
+            to_drop = set(records.columns) - set(cache[table].columns)
+            records = records.drop(to_drop, axis=1)
+            records = records.reindex(columns=cache[table].columns)
+        assert set(cache[table].columns) == set(records.columns)
+        records = records.astype(cache[table].dtypes)
+        # Update existing rows
+        to_update = records.index.isin(cache[table].index)
+        cache[table].loc[records.index[to_update], :] = records[to_update]
+        # Assign new rows
+        to_assign = records[~to_update]
+        frames = [cache[table], to_assign]
+        # Concatenate and sort
+        cache[table] = pd.concat(frames).sort_index()
+        updated = datetime.datetime.now()
+    cache['_meta']['modified_time'] = updated
+    return updated
+
+
 def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, dry=True):
     """Remove dataset files and session folders that are not in the provided cache.
 
@@ -383,7 +525,7 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
         tables = {}
         for name in ('datasets', 'sessions'):
             table, m = parquet.load(cache_dir / f'{name}.pqt')
-            tables[name] = patch_cache(table, m.get('min_api_version'), name)
+            tables[name] = patch_tables(table, m.get('min_api_version'), name)
 
     INDEX_KEY = '.?id'
     for name in tables:
@@ -432,7 +574,7 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
     return sorted(to_delete)
 
 
-def remove_cache_table_files(folder, tables=('sessions', 'datasets')):
+def remove_table_files(folder, tables=('sessions', 'datasets')):
     """Delete cache tables on disk.
 
     Parameters
@@ -482,7 +624,7 @@ def _cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
     return table
 
 
-def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.DataFrame:
+def patch_tables(table: pd.DataFrame, min_api_version=None, name=None) -> pd.DataFrame:
     """Reformat older cache tables to comply with this version of ONE.
 
     Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'

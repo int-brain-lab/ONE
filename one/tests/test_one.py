@@ -29,6 +29,7 @@ Note ONE and AlyxClient use caching:
 import datetime
 import logging
 import time
+import shutil
 from pathlib import Path, PurePosixPath
 from itertools import permutations, combinations_with_replacement
 from functools import partial
@@ -86,12 +87,31 @@ class TestONECache(unittest.TestCase):
             = 'd41d8cda454aaaa4e9800998ecf8497e'  # wrong hash
 
     def tearDown(self) -> None:
-        while Path(self.one.cache_dir).joinpath('.cache.lock').exists():
+        """Remove the temporary directory."""
+        # Before deleting ONE, set the saved timestamp to something in the future so that the
+        # cache is not saved
+        self.one._cache['_meta']['saved_time'] = datetime.datetime.max
+        while Path(self.one.cache_dir).with_suffix('.lock').exists():
             time.sleep(.1)
         self.tempdir.cleanup()
 
+    def test_delete(self):
+        """Test One.__del__ and One.save_cache methods."""
+        assert self.one._cache.datasets.loc[:, 'exists'].all()
+        # Delete an entire session disk
+        eid = self.one._cache.sessions.index[0]
+        shutil.rmtree(self.one.eid2path(eid))
+        datasets = self.one._cache.datasets.loc[eid]
+        self.one._check_filesystem(datasets, update_exists=True, check_hash=False)
+        # Check that the cache tables are updated and saved upon delete
+        self.one.__del__()
+        while Path(self.tempdir.name, '.lock').exists():
+            time.sleep(.1)
+        self.one = ONE(mode='local', cache_dir=self.tempdir.name)
+        self.assertFalse(self.one._cache.datasets.loc[eid, 'exists'].any())
+
     def test_list_subjects(self):
-        """Test One.list_subejcts."""
+        """Test One.list_subjects."""
         subjects = self.one.list_subjects()
         expected = ['KS005', 'ZFM-01935', 'ZM_1094', 'ZM_1150',
                     'ZM_1743', 'ZM_335', 'clns0730', 'flowers']
@@ -924,7 +944,7 @@ class TestONECache(unittest.TestCase):
             self.assertTrue(self.one._cache['datasets'].index.is_monotonic_increasing)
             # Save a parasitic table that will not be loaded
             pd.DataFrame().to_parquet(Path(tdir).joinpath('gnagna.pqt'))
-            with self.assertLogs(logging.getLogger('one.api'), logging.WARNING) as log:
+            with self.assertLogs(logging.getLogger('one.alf.cache'), logging.WARNING) as log:
                 self.one.load_cache(tdir)
                 self.assertIn('gnagna.pqt', log.output[0])
             # Save table with missing id columns
@@ -934,20 +954,46 @@ class TestONECache(unittest.TestCase):
                 self.one.load_cache(tdir)
 
     def test_save_cache(self):
-        """Test one.util.save_cache."""
+        """Test One.save_cache method."""
         self.one._cache['_meta'].pop('modified_time', None)
         # Should be no cache save as it's not been modified
         with tempfile.TemporaryDirectory() as tdir:
-            self.one._save_cache(save_dir=tdir)
+            self.one.save_cache(save_dir=tdir)
             self.assertFalse(any(Path(tdir).glob('*')))
+            self.assertIsNone(self.one._cache['_meta']['saved_time'])
             # Should save two tables
             self.one._cache['_meta']['modified_time'] = datetime.datetime.now()
-            self.one._save_cache(save_dir=tdir)
+            self.one.save_cache(save_dir=tdir)
             self.assertEqual(2, len(list(Path(tdir).glob('*.pqt'))))
+            self.assertIsNotNone(self.one._cache['_meta']['saved_time'])
+            # Without clobber, the tables should be merged with existing tables
+            n_datasets = np.unique(self.one._cache.datasets.index.values).size
+            dataset_1 = self.one._cache.datasets.iloc[-1:].copy()
+            dataset_1.loc[dataset_1.index[0], 'exists'] = False
+            dataset_2 = self.one._cache.datasets.iloc[0]
+            dataset_2.name = (dataset_2.name[0], uuid4())
+            self.one._cache.datasets = pd.concat([dataset_1, dataset_2.to_frame().T])
+            self.one._cache.datasets.index.set_names(('eid', 'id'), inplace=True)
+            self.one._cache['_meta']['modified_time'] = datetime.datetime.now()
+            self.one.save_cache(save_dir=tdir)
             # Load with One and check modified time is preserved
-            raw_modified = One(cache_dir=tdir)._cache['_meta']['raw']['datasets']['date_modified']
+            merged = One(cache_dir=tdir)._cache
+            raw_modified = merged['_meta']['raw']['datasets']['date_modified']
             expected = self.one._cache['_meta']['modified_time'].strftime('%Y-%m-%d %H:%M')
             self.assertEqual(raw_modified, expected)
+            # Should drop duplicates and add new dataset
+            self.assertEqual(n_datasets + 1, len(merged.datasets))
+            self.assertIn(dataset_2.name, merged.datasets.index)
+            # Should have modified existing dataset
+            self.assertFalse(merged.datasets.loc[dataset_1.index, 'exists'].all())
+            # Check clobber command
+            self.one._reset_cache()
+            save_time = self.one._cache['_meta']['saved_time']
+            self.one.save_cache(save_dir=tdir, clobber=False)
+            self.assertEqual(save_time, self.one._cache['_meta']['saved_time'])
+            self.one.save_cache(save_dir=tdir, clobber=True)
+            self.assertNotEqual(save_time, self.one._cache['_meta']['saved_time'])
+            One(cache_dir=tdir)._cache.sessions.empty
 
     def test_reset_cache(self):
         """Test One._reset_cache method, namely that cache types are correct."""
@@ -966,84 +1012,6 @@ class TestONECache(unittest.TestCase):
         datasets_types = EMPTY_DATASETS_FRAME.reset_index().dtypes.to_dict()
         d_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
         self.assertDictEqual(datasets_types, d_types)
-
-    def test_update_cache_from_records(self):
-        """Test One._update_cache_from_records."""
-        sessions_types = self.one._cache.sessions.reset_index().dtypes.to_dict()
-        datasets_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        # Update with single record (pandas.Series), one exists, one doesn't
-        session = self.one._cache.sessions.iloc[0].squeeze()
-        session.name = uuid4()  # New record
-        dataset = self.one._cache.datasets.iloc[0].squeeze()
-        dataset['exists'] = not dataset['exists']
-        self.one._update_cache_from_records(sessions=session, datasets=dataset)
-        self.assertTrue(session.name in self.one._cache.sessions.index)
-        updated, = dataset['exists'] == self.one._cache.datasets.loc[dataset.name, 'exists']
-        self.assertTrue(updated)
-        # Check that the updated data frame has kept its original dtypes
-        types = self.one._cache.sessions.reset_index().dtypes.to_dict()
-        self.assertDictEqual(sessions_types, types)
-        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        self.assertDictEqual(datasets_types, types)
-
-        # Update a number of records
-        datasets = self.one._cache.datasets.iloc[:3].copy()
-        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
-        # Make one of the datasets a new record
-        idx = datasets.index.values
-        idx[-1] = (idx[-1][0], uuid4())
-        datasets.index = pd.MultiIndex.from_tuples(idx, names=('eid', 'id'))
-        self.one._update_cache_from_records(datasets=datasets)
-        self.assertTrue(idx[-1] in self.one._cache.datasets.index)
-        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
-        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
-        # Check that the updated data frame has kept its original dtypes
-        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        self.assertDictEqual(datasets_types, types)
-
-        # Check behaviour when columns don't match
-        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
-        datasets['extra_column'] = True
-        self.one._cache.datasets['foo_bar'] = 12  # this column is missing in our new records
-        self.one._cache.datasets['new_column'] = False
-        expected_datasets_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        self.addCleanup(self.one._cache.datasets.drop, 'foo_bar', axis=1, inplace=True)
-        # An exception is exists_* as the Alyx cache contains exists_aws and exists_flatiron
-        # These should simply be filled with the values of exists as Alyx won't return datasets
-        # that don't exist on FlatIron and if they don't exist on AWS it falls back to this.
-        self.one._cache.datasets['exists_aws'] = False
-        with self.assertRaises(AssertionError):
-            self.one._update_cache_from_records(datasets=datasets, strict=True)
-        self.one._update_cache_from_records(datasets=datasets)
-        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists']
-        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
-        self.one._update_cache_from_records(datasets=datasets)
-        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'exists_aws']
-        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
-        # If the extra column does not start with 'exists' it should be set to NaN
-        verifiable = self.one._cache.datasets.loc[datasets.index.values, 'foo_bar']
-        self.assertTrue(np.isnan(verifiable).all())
-        # Check that the missing columns were updated to nullable fields
-        expected_datasets_types.update(
-            foo_bar=pd.Int64Dtype(), exists_aws=pd.BooleanDtype(), new_column=pd.BooleanDtype())
-        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        self.assertDictEqual(expected_datasets_types, types)
-
-        # Check fringe cases
-        with self.assertRaises(KeyError):
-            self.one._update_cache_from_records(unknown=datasets)
-        self.assertIsNone(self.one._update_cache_from_records(datasets=None))
-        # Absent cache table
-        self.one.load_cache(tables_dir='/foo')
-        sessions_types = self.one._cache.sessions.reset_index().dtypes.to_dict()
-        datasets_types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        self.one._update_cache_from_records(sessions=session, datasets=dataset)
-        self.assertTrue(all(self.one._cache.sessions == pd.DataFrame([session])))
-        self.assertEqual(1, len(self.one._cache.datasets))
-        self.assertEqual(self.one._cache.datasets.squeeze().name, dataset.name)
-        self.assertCountEqual(self.one._cache.datasets.squeeze().to_dict(), dataset.to_dict())
-        types = self.one._cache.datasets.reset_index().dtypes.to_dict()
-        self.assertDictEqual(datasets_types, types)
 
     def test_save_loaded_ids(self):
         """Test One.save_loaded_ids and logic within One._check_filesystem."""
@@ -1109,11 +1077,11 @@ class TestONECache(unittest.TestCase):
         root = self.one._tables_dir
         for name in ('cache_info.json', 'foo.pqt'):
             root.joinpath(name).touch()
-        removed = self.one._remove_cache_table_files()
+        removed = self.one._remove_table_files()
         expected = ['sessions.pqt', 'datasets.pqt', 'cache_info.json']
         self.assertCountEqual(expected, [str(x.relative_to(root)) for x in removed])
         with self.assertLogs('one.alf.cache', 30) as cm:
-            removed = self.one._remove_cache_table_files(tables=('foo',))
+            removed = self.one._remove_table_files(tables=('foo',))
         self.assertEqual([root / 'foo.pqt'], removed)
         self.assertIn('cache_info.json not found', cm.records[0].message)
 
@@ -1140,7 +1108,9 @@ class TestOneAlyx(unittest.TestCase):
             )
 
     def tearDown(self) -> None:
+        """Ensure the ONE mode is local and that the cache isn't saved when ONE is deleted."""
         self.one.mode = 'local'
+        self.one._cache['_meta']['saved_time'] = datetime.datetime.max
 
     def test_type2datasets(self):
         """Test OneAlyx.type2datasets."""
@@ -1503,7 +1473,6 @@ class TestOneRemote(unittest.TestCase):
         self.pid = UUID('da8dfec1-d265-44e8-84ce-6ae9c109b8bd')
         # Set cache directory to a temp dir to ensure that we re-download files
         self.tempdir = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tempdir.cleanup)
         self.one.alyx._par = self.one.alyx._par.set('CACHE_DIR', Path(self.tempdir.name))
 
     def test_online_repr(self):
@@ -1769,6 +1738,11 @@ class TestOneRemote(unittest.TestCase):
         self.assertIsInstance(det, list)
         self.assertIn('data_dataset_session_related', det[0])
 
+    def tearDown(self):
+        """Ensure the cache is not saved when the object is deleted."""
+        self.one._cache['_meta']['saved_time'] = datetime.datetime.max
+        self.tempdir.cleanup()
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
@@ -1947,6 +1921,8 @@ class TestOneDownload(unittest.TestCase):
         mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
 
     def tearDown(self) -> None:
+        """Remove any created file records and ensure cache not saved when object deleted."""
+        self.one._cache['_meta']['saved_time'] = datetime.datetime.max
         try:
             # In case we did indeed have remote REST permissions, try resetting the json field
             self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
