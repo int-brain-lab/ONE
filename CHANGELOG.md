@@ -23,15 +23,20 @@ Also adds a new ALFPath class to replace alf path functions and now returns UUID
 - OneAlyx.search_insertions now updates local cache with query results
 - bugfix: OneAlyx.list_datasets behaves the same as One.list_datasets w.r.t. revisions and default datasets
 - default REST cache expiry reduced from 24 hours to 5 minutes
+- One._update_cache_from_records -> one.alf.cache.merge_tables
+- One.save_cache now updates any tables on disk unless clobber is True
+- one.util.patch_cache -> one.alf.cache.patch_tables
+- One object will save modified tables to disk upon delete
 
 ### Added
 
-- one.alf.cache.remove_cache_table_files and One.\_remove_cache_table_files for deleting cache table files
+- one.alf.cache.remove_table_files and One.\_remove_table_files for deleting cache table files
 - one.alf.cache.EMPTY_DATASETS_FRAME and EMPTY_SESSION_FRAME vars for table column, index, and dtype template
 - pyproject.toml replaces deprecated setup file
 - one.alf.exceptions.InvalidALF exception
 - one.params.delete_params
 - One._search_insertions for offline query of insertions when cache table present
+- one.alf.cache.load_tables function to load cache table files with correct index, etc.
 
 ### Removed
 
