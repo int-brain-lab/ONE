@@ -673,6 +673,9 @@ class TestONECache(unittest.TestCase):
         finally:
             self.one.uuid_filenames = False
 
+        # Test empty input
+        self.assertEqual([], self.one._check_filesystem(datasets.iloc[:0]))
+
     def test_load_dataset(self):
         """Test One.load_dataset."""
         eid = 'KS005/2019-04-02/001'
@@ -1257,14 +1260,12 @@ class TestOneAlyx(unittest.TestCase):
     def test_load_cache(self):
         """Test loading the remote cache."""
         self.one.alyx.silent = False  # For checking log
-        self.one._cache._meta['expired'] = True
         try:
             with self.assertLogs(logging.getLogger('one.api'), logging.INFO) as lg:
                 with mock.patch.object(self.one.alyx, 'get', side_effect=HTTPError):
                     self.one.load_cache(clobber=True)
                 self.assertEqual('remote', self.one.mode)
-                self.assertRegex(lg.output[0], 'cache over .+ old')
-                self.assertTrue('Failed to load' in lg.output[1])
+                self.assertTrue('Failed to load' in lg.output[0])
 
                 with mock.patch.object(self.one.alyx, 'get', side_effect=ConnectionError):
                     self.one.load_cache(clobber=True)

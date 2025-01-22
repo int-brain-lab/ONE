@@ -332,6 +332,9 @@ class TestOnlineConverters(unittest.TestCase):
         # Check works with list
         verifiable = self.one.path2eid([test_path, test_path], query_type='remote')
         self.assertEqual([self.eid, self.eid], verifiable)
+        # Check returns None when path invalid session
+        verifiable = self.one.path2eid(test_path.parent, query_type='remote')
+        self.assertIsNone(verifiable)
 
     def test_pid2eid(self):
         """Test for OneAlyx.pid2eid method."""

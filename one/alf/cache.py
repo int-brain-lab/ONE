@@ -376,7 +376,6 @@ def load_tables(tables_dir, glob_pattern='*.pqt'):
 
     """
     meta = {
-        'expired': False,
         'created_time': None,
         'loaded_time': None,
         'modified_time': None,
@@ -408,7 +407,9 @@ def load_tables(tables_dir, glob_pattern='*.pqt'):
         cache = patch_tables(cache, meta['raw'][table].get('min_api_version'), table)
 
         # Cast indices to UUID
-        cache = cast_index_object(cache, uuid.UUID)
+        # NB: Old caches may have pathstr indices
+        if any(map(is_uuid_string, cache.index.get_level_values(0))):
+            cache = cast_index_object(cache, uuid.UUID)
 
         # Check sorted
         # Sorting makes MultiIndex indexing O(N) -> O(1)
@@ -522,21 +523,7 @@ def remove_missing_datasets(cache_dir, tables=None, remove_empty_sessions=True, 
     """
     cache_dir = Path(cache_dir)
     if tables is None:
-        tables = {}
-        for name in ('datasets', 'sessions'):
-            table, m = parquet.load(cache_dir / f'{name}.pqt')
-            tables[name] = patch_tables(table, m.get('min_api_version'), name)
-
-    INDEX_KEY = '.?id'
-    for name in tables:
-        # Set the appropriate index if none already set
-        if isinstance(tables[name].index, pd.RangeIndex):
-            idx_columns = sorted(tables[name].filter(regex=INDEX_KEY).columns)
-            tables[name].set_index(idx_columns, inplace=True)
-
-        # Cast indices to UUID
-        if any(map(is_uuid_string, tables[name].index.get_level_values(0))):
-            tables[name] = cast_index_object(tables[name], uuid.UUID)
+        tables = load_tables(cache_dir)
 
     to_delete = set()
     from one.converters import session_record2path  # imported here due to circular imports
