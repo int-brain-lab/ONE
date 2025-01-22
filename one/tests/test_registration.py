@@ -75,6 +75,8 @@ class TestRegistrationClient(unittest.TestCase):
             filepath = session_path.joinpath(rel_path)
             filepath.parent.mkdir(exist_ok=True, parents=True)
             filepath.touch()
+        # Ensure cache empty so we don't needlessly save to disk
+        cls.addClassCleanup(cls.one._reset_cache)
 
     def setUp(self) -> None:
         self.client = registration.RegistrationClient(one=self.one)

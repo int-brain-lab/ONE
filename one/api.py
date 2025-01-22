@@ -78,7 +78,6 @@ class One(ConversionMixin):
         if not getattr(self, 'cache_dir', None):  # May already be set by subclass
             self.cache_dir = cache_dir or one.params.get_cache_dir()
         self._tables_dir = tables_dir or self.cache_dir
-        self.cache_expiry = timedelta(hours=24)
         self.mode = mode
         self.wildcards = wildcards  # Flag indicating whether to use regex or wildcards
         self.record_loaded = False
@@ -115,7 +114,6 @@ class One(ConversionMixin):
             'datasets': EMPTY_DATASETS_FRAME.copy(),
             'sessions': EMPTY_SESSIONS_FRAME.copy(),
             '_meta': {
-                'expired': False,
                 'created_time': None,
                 'loaded_time': None,
                 'modified_time': None,
@@ -161,12 +159,9 @@ class One(ConversionMixin):
 
         if self._cache['_meta']['loaded_time'] is None:
             # No tables present
-            self._cache['_meta']['expired'] = True
             if self.offline:  # In online mode, the cache tables should be downloaded later
                 warnings.warn(f'No cache tables found in {self._tables_dir}')
 
-        if created := self._cache['_meta']['created_time']:
-            self._cache['_meta']['expired'] |= datetime.now() - created > self.cache_expiry
         return self._cache['_meta']['loaded_time']
 
     def save_cache(self, save_dir=None, clobber=False):
@@ -265,7 +260,7 @@ class One(ConversionMixin):
 
         """
         # Looking to entirely remove method
-        pass
+        pass  # pragma: no cover
 
     def _download_dataset(self, dset, cache_dir=None, **kwargs) -> ALFPath:
         """Download a dataset from an Alyx REST dictionary.
@@ -1636,9 +1631,8 @@ class OneAlyx(One):
     def load_cache(self, tables_dir=None, clobber=False, tag=None):
         """Load parquet cache files.
 
-        If the local cache is sufficiently old, this method will query the database for the
-        location and creation date of the remote cache.  If newer, it will be download and
-        loaded.
+        Queries the database for the location and creation date of the remote cache.  If newer, it
+        will be download and loaded.
 
         Parameters
         ----------
@@ -1672,21 +1666,6 @@ class OneAlyx(One):
         different_tag = any(x != tag for x in current_tags)
         if not (clobber or different_tag):
             super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
-            expired = self._cache and (cache_meta := self._cache.get('_meta', {}))['expired']
-            if not expired:
-                return
-
-        # Warn user if expired
-        if (
-            cache_meta['expired'] and
-            cache_meta.get('created_time', False) and
-            not self.alyx.silent
-        ):
-            age = datetime.now() - cache_meta['created_time']
-            t_str = (f'{age.days} day(s)'
-                     if age.days >= 1
-                     else f'{np.floor(age.seconds / (60 * 2))} hour(s)')
-            _logger.info(f'cache over {t_str} old')
 
         try:
             # Determine whether a newer cache is available
@@ -2096,9 +2075,6 @@ class OneAlyx(One):
         query_type = query_type or self.mode
         if query_type == 'local':
             return super()._search_insertions(details=details, query_type=query_type, **kwargs)
-        elif query_type != 'remote':  # NB behaviour here may change in the future
-            _logger.debug('OneAlyx.search_insertions only supports remote queries')
-            query_type = 'remote'
         # Get remote query params from REST endpoint
         search_terms = self.search_terms(query_type=query_type, endpoint='insertions')
         # Add some extra fields to keep compatibility with the search method
