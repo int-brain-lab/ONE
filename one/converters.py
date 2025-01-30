@@ -173,7 +173,7 @@ class ConversionMixin:
         """
         # If not valid return None
         if not is_uuid(eid):
-            raise ValueError(eid + " is not a valid eID/UUID string")
+            raise ValueError(f"{eid} is not a valid eID/UUID string")
         if isinstance(eid, str):
             eid = UUID(eid)
         if self._cache['sessions'].size == 0:
