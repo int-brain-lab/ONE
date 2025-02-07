@@ -1286,8 +1286,40 @@ class TestOneAlyx(unittest.TestCase):
             # Check cache tags
             raw_meta = self.one._cache._meta['raw']
             raw_meta['sessions']['database_tags'] = 'Q3-2020-TAG'
+            raw_meta['datasets']['database_tags'] = 'Q3-2020-TAG'
+            # Make the remote cache older than current one: for a different tag, the created
+            # date should be ignored while for the same tag, the remote cache should not be
+            # downloaded if older
+            created = datetime.datetime.fromisoformat(raw_meta['datasets']['date_created'])
+            created -= datetime.timedelta(days=5)
+            cache_info = {
+                'min_api_version': '2.11.0', 'database_tags': ['ANOTHER_TAG', 'Q3-2020-TAG'],
+                'date_created': created.isoformat(sep=' ', timespec='minutes'),
+                'origin': 'ibl_test'}
+            files = list(self.one.cache_dir.glob('*.pqt'))
+            now = lambda *args, **kwargs: datetime.datetime.now()  # noqa
+            with mock.patch.object(
+                self.one.alyx, 'download_cache_tables', return_value=files) as cm, \
+                    mock.patch.object(self.one.alyx, 'get', return_value=cache_info), \
+                    mock.patch('one.api.One.load_cache', side_effect=now):
+                self.one.load_cache(tag='ANOTHER_TAG')
+            cm.assert_called_once_with(None, Path(self.tempdir.name, 'ANOTHER_TAG'))
+
+            # With the same tag should return with no newer tables log message
+            with mock.patch.object(
+                self.one.alyx, 'download_cache_tables', return_value=files) as cm, \
+                    mock.patch.object(self.one.alyx, 'get', return_value=cache_info), \
+                    mock.patch('one.api.One.load_cache', side_effect=now), \
+                    self.assertLogs('one.api', 'INFO') as lg:
+                self.assertIsNone(self.one.load_cache(tag='Q3-2020-TAG'))
+            cm.assert_not_called()
+            self.assertRegex(lg.output[-1], 'No newer cache available')
+
+            # Loaded tables with heterogeneous tags should cause a NotImplemented error when
+            # attempting to load another tag
+            raw_meta = self.one._cache._meta['raw']
+            raw_meta['sessions']['database_tags'] = 'Q3-2020-TAG'
             raw_meta['datasets']['database_tags'] = 'ANOTHER_TAG'
-            cache_info['database_tags'] = ['ANOTHER_TAG']
             with mock.patch.object(self.one.alyx, 'get', return_value=cache_info):
                 self.assertRaises(NotImplementedError, self.one.load_cache)
 
@@ -1297,7 +1329,7 @@ class TestOneAlyx(unittest.TestCase):
             cache_info['min_api_version'] = __version__
             cache_info['date_created'] = datetime.datetime.now().isoformat()
             raw_meta['datasets']['database_tags'] = 'Q3-2020-TAG'
-            files = list(self.one.cache_dir.glob('*.pqt'))
+
             with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files), \
                     mock.patch.object(self.one.alyx, 'get', return_value=cache_info), \
                     self.assertWarns(UserWarning, msg='another origin'):

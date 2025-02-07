@@ -593,6 +593,11 @@ class TestMisc(unittest.TestCase):
     def test_json_encoder(self):
         """Test that the JSONEncoder subclass serializes UUID objects."""
         uid = uuid.uuid4()
+        # Check encoder subclass behaviour for UUID objects
+        self.assertEqual(str(uid), wc._JSONEncoder().default(uid))
+        # Encoder should still raise for other object types
+        self.assertRaises(TypeError, wc._JSONEncoder().default, b'foo')
+        # Using json dumps
         data = {'foo': 12, 'bar': uid}
         # First check that the default encoder raises;
         # python could add support for UUID objects in the future
