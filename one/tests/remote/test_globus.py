@@ -175,7 +175,8 @@ class TestGlobus(unittest.TestCase):
             self.assertEqual(len(globus.get_lab_from_endpoint_id('123', ac)), 2)
 
         # Check behaviour when no input ID returned
-        with mock.patch('one.remote.globus.get_local_endpoint_id', return_value=endpoint_id):
+        uid = uuid.UUID(endpoint_id)
+        with mock.patch('one.remote.globus.get_local_endpoint_id', return_value=uid):
             name = globus.get_lab_from_endpoint_id(alyx=ac)[0]
             self.assertEqual(name, 'mainenlab')
 

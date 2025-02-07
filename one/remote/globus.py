@@ -358,7 +358,7 @@ def get_lab_from_endpoint_id(endpoint=None, alyx=None):
     alyx = alyx or AlyxClient(silent=True)
     if not endpoint:
         endpoint = get_local_endpoint_id()
-    lab = alyx.rest('labs', 'list', django=f'repositories__globus_endpoint_id,{endpoint}')
+    lab = alyx.rest('labs', 'list', django=f'repositories__globus_endpoint_id,{str(endpoint)}')
     if len(lab):
         lab_names = [la['name'] for la in lab]
         return lab_names

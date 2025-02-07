@@ -4,6 +4,7 @@ from unittest import mock
 import urllib.parse
 import random
 import weakref
+import uuid
 import os
 import one.webclient as wc
 import one.params
@@ -170,7 +171,7 @@ class TestJsonFieldMethods(unittest.TestCase):
             'users': [TEST_DB_1['username']],
         }) for _ in range(2)]
 
-        self.eids = [x['url'].split('/')[-1] for x in sessions]
+        self.eids = [uuid.UUID(x['url'].split('/')[-1]) for x in sessions]
         self.endpoint = 'sessions'
         self.field_name = 'extended_qc'
         # We filter by key value so we use randint to avoid race condition in concurrent tests
@@ -252,6 +253,14 @@ class TestJsonFieldMethods(unittest.TestCase):
         with self.assertLogs(logging.getLogger('one.webclient'), logging.WARNING):
             modified = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name)
         self.assertIsNone(modified)
+
+    def test_uuid_serialize(self):
+        """Check that UUID objects are serialized to JSON."""
+        data = {'uid': self.eids[-1], **self.data_dict}
+        written = self.ac.json_field_write(self.endpoint, self.eids[0], self.field_name, data)
+        self.assertIsInstance(written, dict)
+        # Encoder should have cast uuid to str
+        self.assertEqual(str(self.eids[-1]), written.get('uid'))
 
     def tearDown(self):
         self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
@@ -580,6 +589,17 @@ class TestMisc(unittest.TestCase):
         query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
         expected = {'foo': ['bar'], 'offset': [str(offset)], 'limit': [str(limit)]}
         self.assertDictEqual(query, expected)
+
+    def test_json_encoder(self):
+        """Test that the JSONEncoder subclass serializes UUID objects."""
+        uid = uuid.uuid4()
+        data = {'foo': 12, 'bar': uid}
+        # First check that the default encoder raises;
+        # python could add support for UUID objects in the future
+        self.assertRaises(TypeError, json.dumps, data)
+        serialized = json.dumps(data, cls=wc._JSONEncoder)
+        expected = '{"foo": 12, "bar": "' + str(uid) + '"}'
+        self.assertEqual(expected, serialized)
 
 
 if __name__ == '__main__':
