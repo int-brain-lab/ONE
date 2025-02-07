@@ -30,6 +30,7 @@ Download a remote file, given a local path
 >>> local_path = alyx.download_file(url, target_dir='zadorlab/Subjects/flowers/2018-07-13/1/')
 
 """
+from uuid import UUID
 import json
 import logging
 import math
@@ -60,6 +61,16 @@ from iblutil.io.params import set_hidden
 from iblutil.util import ensure_list
 import concurrent.futures
 _logger = logging.getLogger(__name__)
+
+
+class _JSONEncoder(json.JSONEncoder):
+    """A JSON encoder that handles UUID objects."""
+
+    def default(self, o):
+        """Cast UUID objects to str before serializing."""
+        if isinstance(o, UUID):
+            return str(o)
+        return super().default(o)
 
 
 def _cache_response(method):
@@ -139,7 +150,7 @@ def _cache_response(method):
         _logger.debug('caching REST response')
         expiry_datetime = datetime.now() + (timedelta() if expires is True else expires)
         with open(rest_cache / name, 'w') as f:
-            json.dump((response, expiry_datetime.isoformat()), f)
+            json.dump((response, expiry_datetime.isoformat()), f, cls=_JSONEncoder)
         return response
 
     return wrapper_decorator
@@ -646,7 +657,8 @@ class AlyxClient:
         _logger.debug(f'{self.base_url + rest_query}, headers: {self._headers}')
         headers = self._headers.copy()
         if files is None:
-            data = json.dumps(data) if isinstance(data, dict) or isinstance(data, list) else data
+            to_json = functools.partial(json.dumps, cls=_JSONEncoder)
+            data = to_json(data) if isinstance(data, dict) or isinstance(data, list) else data
             headers['Content-Type'] = 'application/json'
         if rest_query.startswith('/docs'):
             # the mixed accept application may cause errors sometimes, only necessary for the docs
