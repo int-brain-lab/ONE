@@ -34,6 +34,7 @@ from uuid import UUID
 import json
 import logging
 import math
+import os
 import re
 import functools
 import urllib.request
@@ -61,6 +62,8 @@ from iblutil.io.params import set_hidden
 from iblutil.util import ensure_list
 import concurrent.futures
 _logger = logging.getLogger(__name__)
+N_THREADS = int(os.environ.get('ONE_HTTP_DL_THREADS', 4))
+"""int: The number of download threads."""
 
 
 class _JSONEncoder(json.JSONEncoder):
@@ -355,7 +358,6 @@ def http_download_file_list(links_to_file_list, **kwargs):
 
     """
     links_to_file_list = list(links_to_file_list)  # In case generator was passed
-    n_threads = 4  # Max number of threads
     outputs = []
     target_dir = kwargs.pop('target_dir', None)
     # Ensure target dir the length of url list
@@ -364,7 +366,7 @@ def http_download_file_list(links_to_file_list, **kwargs):
     assert len(target_dir) == len(links_to_file_list)
     # using with statement to ensure threads are cleaned up promptly
     zipped = zip(links_to_file_list, target_dir)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
         # Multithreading load operations
         futures = [executor.submit(
             http_download_file, link, target_dir=target, **kwargs) for link, target in zipped]
