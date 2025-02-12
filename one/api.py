@@ -39,8 +39,10 @@ from one import util
 
 _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
-N_THREADS = os.environ.get('ONE_HTTP_DL_THREADS', 4)
-"""int: The number of download threads."""
+SAVE_ON_DELETE = (os.environ.get('ONE_SAVE_ON_DELETE') or '1').casefold() in ('true', '1')
+"""bool: Whether to save modified cache tables on delete."""
+
+_logger.debug('ONE_SAVE_ON_DELETE: %s', SAVE_ON_DELETE)
 
 
 class One(ConversionMixin):
@@ -97,7 +99,8 @@ class One(ConversionMixin):
 
     def __del__(self):
         """Save cache tables to disk before deleting the object."""
-        self.save_cache()
+        if SAVE_ON_DELETE:
+            self.save_cache()
 
     @property
     def offline(self):
