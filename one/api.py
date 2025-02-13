@@ -165,6 +165,25 @@ class One(ConversionMixin):
             if self.offline:  # In online mode, the cache tables should be downloaded later
                 warnings.warn(f'No cache tables found in {self._tables_dir}')
 
+        # If in remote mode and loading old tables generated on Alyx,
+        # prompt the user to delete them to improve load times
+        raw_meta = self._cache['_meta'].get('raw', {}).values() or [{}]
+        tagged = any(filter(None, flatten(x.get('database_tags') for x in raw_meta)))
+        origin = set(x['origin'] for x in raw_meta if 'origin' in x)
+        older = (self._cache['_meta']['created_time'] or datetime.now()) < datetime(2025, 2, 13)
+        remote = not self.offline and self.mode == 'remote'
+        if remote and origin == {'alyx'} and older and not self._web_client.silent and not tagged:
+            message = ('Old Alyx cache tables detected on disk. '
+                      'It\'s recomended to remove these tables as they '
+                      'negatively affect performance.\nDelete these tables? [Y/n]: ')
+            if (input(message).casefold().strip() or 'y')[0] == 'y':
+                self._remove_table_files()
+                self._reset_cache()
+        elif len(self._cache.datasets) > 1e6:
+            warnings.warn(
+                'Large cache tables affect performance. '
+                'Consider removing them by calling the `_remove_table_files` method.')
+
         return self._cache['_meta']['loaded_time']
 
     def save_cache(self, save_dir=None, clobber=False):
@@ -1646,6 +1665,11 @@ class OneAlyx(One):
         tag : str
             An optional Alyx dataset tag for loading cache tables containing a subset of datasets.
 
+        Returns
+        -------
+        datetime.datetime
+            A timestamp of when the cache was loaded.
+
         Examples
         --------
         To load the cache tables for a given release tag
@@ -1669,6 +1693,8 @@ class OneAlyx(One):
         different_tag = any(x != tag for x in current_tags)
         if not (clobber or different_tag):
             super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
+            cache_meta = self._cache.get('_meta', {})
+            raw_meta = cache_meta.get('raw', {}).values() or [{}]
 
         try:
             # Determine whether a newer cache is available
@@ -1679,7 +1705,7 @@ class OneAlyx(One):
             min_version = packaging.version.parse(cache_info.get('min_api_version', '0.0.0'))
             if packaging.version.parse(one.__version__) < min_version:
                 warnings.warn(f'Newer cache tables require ONE version {min_version} or greater')
-                return
+                return cache_meta['loaded_time']
 
             # Check whether remote cache more recent
             remote_created = datetime.fromisoformat(cache_info['date_created'])
@@ -1687,7 +1713,7 @@ class OneAlyx(One):
             fresh = local_created and (remote_created - local_created) < timedelta(minutes=1)
             if fresh and not different_tag:
                 _logger.info('No newer cache available')
-                return
+                return cache_meta['loaded_time']
 
             # Set the cache table directory location
             if tables_dir:  # If tables directory specified, use that
@@ -1711,7 +1737,7 @@ class OneAlyx(One):
             _logger.info('Downloading remote caches...')
             files = self.alyx.download_cache_tables(cache_info.get('location'), self._tables_dir)
             assert any(files)
-            super(OneAlyx, self).load_cache(self._tables_dir)  # Reload cache after download
+            return super(OneAlyx, self).load_cache(self._tables_dir)  # Reload cache after download
         except (requests.exceptions.HTTPError, wc.HTTPError, requests.exceptions.SSLError) as ex:
             _logger.debug(ex)
             _logger.error(f'{type(ex).__name__}: Failed to load the remote cache file')
@@ -1728,6 +1754,7 @@ class OneAlyx(One):
                 'Please provide valid tables_dir / cache_dir kwargs '
                 'or run ONE.setup to update the default directory.'
             )
+        return cache_meta['loaded_time']
 
     @property
     def alyx(self):

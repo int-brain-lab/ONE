@@ -27,6 +27,7 @@ Also adds a new ALFPath class to replace alf path functions and now returns UUID
 - One.save_cache now updates any tables on disk unless clobber is True
 - one.util.patch_cache -> one.alf.cache.patch_tables
 - One object will save modified tables to disk upon delete
+- bugfix: ONE_HTTP_DL_THREADS environment variable now works as intended
 
 ### Added
 

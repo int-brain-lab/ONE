@@ -955,6 +955,40 @@ class TestONECache(unittest.TestCase):
             with self.assertRaises(KeyError):
                 self.one.load_cache(tdir)
 
+        # Test loading large Alyx tables
+        raw = {'origin': 'alyx'}
+        cache = Bunch({
+            'datasets': EMPTY_DATASETS_FRAME.copy(),
+            'sessions': EMPTY_SESSIONS_FRAME.copy(),
+            '_meta': {
+                'created_time': datetime.datetime(2025, 2, 1, 12, 0),
+                'loaded_time': datetime.datetime.now(),
+                'raw': {'datasets': raw, 'sessions': raw}}
+        })
+        with mock.patch('one.api.load_tables', return_value=cache), \
+                mock.patch('builtins.input', return_value='yes'), \
+                mock.patch.object(self.one, '_remove_table_files') as m:
+            self.one.load_cache()
+            m.assert_not_called()
+        # Remote mode
+        self.one.mode = 'remote'
+        self.one._web_client = mock.MagicMock()
+        self.one._web_client.silent = False
+        with mock.patch('one.api.load_tables', return_value=cache), \
+                mock.patch('builtins.input', return_value='yes'), \
+                mock.patch.object(self.one, '_remove_table_files') as m:
+            self.one.load_cache()
+            m.assert_called_once()
+        # Test large table warning
+        cache.datasets = mock.MagicMock()
+        cache.datasets.__len__.return_value = int(1.5e6)
+        self.one._web_client = None
+        self.one.mode = 'local'
+        with mock.patch('one.api.load_tables', return_value=cache), \
+                mock.patch('builtins.input', return_value='n'), \
+                mock.patch.object(self.one, '_remove_table_files') as m:
+            self.assertWarns(UserWarning, self.one.load_cache)
+
     def test_save_cache(self):
         """Test One.save_cache method."""
         self.one._cache['_meta'].pop('modified_time', None)
@@ -1311,7 +1345,8 @@ class TestOneAlyx(unittest.TestCase):
                     mock.patch.object(self.one.alyx, 'get', return_value=cache_info), \
                     mock.patch('one.api.One.load_cache', side_effect=now), \
                     self.assertLogs('one.api', 'INFO') as lg:
-                self.assertIsNone(self.one.load_cache(tag='Q3-2020-TAG'))
+                expected = self.one._cache['_meta']['loaded_time']
+                self.assertEqual(expected, self.one.load_cache(tag='Q3-2020-TAG'))
             cm.assert_not_called()
             self.assertRegex(lg.output[-1], 'No newer cache available')
 
