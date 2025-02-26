@@ -1025,7 +1025,7 @@ class One(ConversionMixin):
         """
         query_type = query_type or self.mode
         datasets = self.list_datasets(
-            eid, details=True, query_type=query_type, keep_eid_index=True, revision=revision)
+            eid, details=True, query_type=query_type, keep_eid_index=True)
 
         if len(datasets) == 0:
             raise alferr.ALFObjectNotFound(obj)
