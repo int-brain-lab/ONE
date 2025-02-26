@@ -18,8 +18,8 @@ from datetime import datetime, timedelta
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
 
-from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
-from . import util
+from one.tests import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
+from one.tests import util
 
 par = one.params.get(silent=True)
 
