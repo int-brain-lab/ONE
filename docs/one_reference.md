@@ -29,7 +29,7 @@ To obtain the eIDs of experiments a user can use the search method to filter exp
 eids = ONE().search(
     lab='CortexLabUCL', 
     subject='hercules', 
-    dataset=['spikes.times', 'spikes.clusters','headTracking.xyPos']
+    datasets=['spikes.times.npy', 'spikes.clusters.npy']
 )
 ```
 This would find the eIDs for all experiments collected in the specified lab for the specified
@@ -50,7 +50,7 @@ same information, organized in the same way - in this case, the times of all ext
 recorded spikes, measured in seconds relative to experiment start, and returned as a 1-dimensional 
 column vector. 
 
-Dataset names have two parts, called the *object* and the *attribute*, which allow encoding of
+Dataset names have three parts, called the *object*, *attribute*, and *extension*, which allow encoding of
 relationships between datasets.  Datasets with the same object name (e.g. `spikes.times` and `spikes.clusters`)
 describe multiple attributes of the same object analogously to a database table or data frame
 (in this example the times and cluster assignments of each spike). Datasets with the same object

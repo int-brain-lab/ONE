@@ -205,9 +205,7 @@ You can first filter sessions by those that the supplied datasets with QC level 
 
 ```python
 one = ONE()
-# In local and auto mode
-eids = one.search(dataset=['trials', 'spikes'], dataset_qc_lte='WARNING')
-# In remote mode
+# In local and remote mode
 eids = one.search(datasets=['trials.table.pqt', 'spikes.times.npy'], dataset_qc_lte='WARNING')
 ```
 

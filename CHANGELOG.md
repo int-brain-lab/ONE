@@ -49,6 +49,7 @@ Also adds a new ALFPath class to replace alf path functions and now returns UUID
 - one.remote.globus.create_globus_client; use one.remote.globus.Globus class instead
 - 'auto' and 'refresh' cache modes have been removed
 - One.refresh_cache
+- `dataset` parameter removed from One.search. Use `datasets` instead.
 
 ## [2.11.2]
 
