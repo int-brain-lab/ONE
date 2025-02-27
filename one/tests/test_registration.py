@@ -179,7 +179,8 @@ class TestRegistrationClient(unittest.TestCase):
     def test_register_session(self):
         """Test for RegistrationClient.register_session."""
         # Find some datasets to create
-        datasets = self.one.list_datasets(self.one.search(dataset='raw')[0])
+        eid, *_ = self.one.search(datasets='_iblrig_taskData.raw.jsonable')
+        datasets = self.one.list_datasets(eid)
         session_path = self.one.alyx.cache_dir.joinpath(
             'mainenlab', 'Subjects', self.subject, '2020-01-01', '001'
         )
@@ -439,7 +440,7 @@ class TestRegistrationClient(unittest.TestCase):
         for ses in cls.one.alyx.rest('sessions', 'list', subject=cls.subject, no_cache=True):
             cls.one.alyx.rest('sessions', 'delete', id=ses['url'][-36:])
         cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
-        cls.one.alyx.rest('tags', 'delete', id=cls.tag['id'])
+        cls.one.alyx.rest('tags', 'delete', id=cls.tag['name'])
         cls.temp_dir.cleanup()
 
 

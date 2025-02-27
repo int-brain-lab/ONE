@@ -49,7 +49,7 @@ class One(ConversionMixin):
     """An API for searching and loading data on a local filesystem."""
 
     _search_terms = (
-        'dataset', 'date_range', 'laboratory', 'number',
+        'datasets', 'date_range', 'laboratory', 'number',
         'projects', 'subject', 'task_protocol', 'dataset_qc_lte'
     )
 
@@ -319,10 +319,8 @@ class One(ConversionMixin):
 
         Parameters
         ----------
-        dataset : str, list
-            One or more dataset names. Returns sessions containing all these datasets.
-            A dataset matches if it contains the search string e.g. 'wheel.position' matches
-            '_ibl_wheel.position.npy'.
+        datasets : str, list
+            One or more (exact) dataset names. Returns sessions containing all of these datasets.
         dataset_qc_lte : str, int, one.alf.spec.QC
             A dataset QC value, returns sessions with datasets at or below this QC value, including
             those with no QC set.  If `dataset` not passed, sessions with any passing QC datasets
@@ -370,7 +368,9 @@ class One(ConversionMixin):
 
         Search for sessions on a given date, in a given lab, containing trials and spike data.
 
-        >>> eids = one.search(date='2023-01-01', lab='churchlandlab', dataset=['trials', 'spikes'])
+        >>> eids = one.search(
+        ...    date='2023-01-01', lab='churchlandlab',
+        ...    datasets=['trials.table.pqt', 'spikes.times.npy'])
 
         Search for sessions containing trials and spike data where QC for both are WARNING or less.
 
@@ -397,13 +397,14 @@ class One(ConversionMixin):
 
         def all_present(x, dsets, exists=True):
             """Returns true if all datasets present in Series."""
-            return all(any(x.str.contains(y, regex=self.wildcards) & exists) for y in dsets)
+            name = x.str.rsplit('/', n=1, expand=True).iloc[:, -1]
+            return all(any(name.str.fullmatch(y) & exists) for y in dsets)
 
         # Iterate over search filters, reducing the sessions table
         sessions = self._cache['sessions']
 
         # Ensure sessions filtered in a particular order, with datasets last
-        search_order = ('date_range', 'number', 'dataset')
+        search_order = ('date_range', 'number', 'datasets')
 
         def sort_fcn(itm):
             return -1 if itm[0] not in search_order else search_order.index(itm[0])
@@ -430,12 +431,15 @@ class One(ConversionMixin):
                 query = ensure_list(value)
                 sessions = sessions[sessions[key].isin(map(int, query))]
             # Dataset/QC check is biggest so this should be done last
-            elif key == 'dataset' or (key == 'dataset_qc_lte' and 'dataset' not in queries):
+            elif key == 'datasets' or (key == 'dataset_qc_lte' and 'datasets' not in queries):
                 datasets = self._cache['datasets']
                 qc = QC.validate(queries.get('dataset_qc_lte', 'FAIL')).name  # validate value
                 has_dset = sessions.index.isin(datasets.index.get_level_values('eid'))
+                if not has_dset.any():
+                    sessions = sessions.iloc[0:0]  # No datasets for any sessions
+                    continue
                 datasets = datasets.loc[(sessions.index.values[has_dset], ), :]
-                query = ensure_list(value if key == 'dataset' else '')
+                query = ensure_list(value if key == 'datasets' else '')
                 # For each session check any dataset both contains query and exists
                 mask = (
                     (datasets
@@ -2192,10 +2196,8 @@ class OneAlyx(One):
 
         Parameters
         ----------
-        dataset : str
-            A (partial) dataset name. Returns sessions containing matching datasets.
-            A dataset matches if it contains the search string e.g. 'wheel.position' matches
-            '_ibl_wheel.position.npy'. C.f. `datasets` argument.
+        datasets : str, list
+            One or more (exact) dataset names. Returns sessions containing all of these datasets.
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
@@ -2222,11 +2224,12 @@ class OneAlyx(One):
             A str or list of lab location (as per Alyx definition) name.
             Note: this corresponds to the specific rig, not the lab geographical location per se.
         dataset_types : str, list
-            One or more of dataset_types.
-        datasets : str, list
-            One or more (exact) dataset names. Returns sessions containing all of these datasets.
+            One or more of dataset_types. Unlike with `datasets`, the dataset types for the
+            sessions returned may not be reachable (i.e. for recent sessions the datasets may not
+            yet be available).
         dataset_qc_lte : int, str, one.alf.spec.QC
-            The maximum QC value for associated datasets.
+            The maximum QC value for associated datasets. NB: Without `datasets`, not all
+            associated datasets with the matching QC values are guarenteed to be reachable.
         details : bool
             If true also returns a dict of dataset details.
         query_type : str, None
@@ -2271,6 +2274,9 @@ class OneAlyx(One):
         - In default and local mode, when the one.wildcards flag is True (default), queries are
           interpreted as regular expressions. To turn this off set one.wildcards to False.
         - In remote mode regular expressions are only supported using the `django` argument.
+        - In remote mode, only the `datasets` argument returns sessions where datasets are
+          registered *and* exist. Using `dataset_types` or `dataset_qc_lte` without `datasets`
+          will not check that the datasets are reachable.
 
         """
         query_type = query_type or self.mode

@@ -166,8 +166,8 @@ class TestONECache(unittest.TestCase):
         self.assertEqual(eids, [UUID('d3372b15-f696-4279-9be5-98f15783b5bb')])
 
         # Search datasets
-        query = 'spikes.depths'
-        eids = one.search(dataset=query)
+        query = 'spikes.depths.npy'
+        eids = one.search(datasets=query)
         self.assertTrue(eids)
         expected = [
             UUID('d3372b15-f696-4279-9be5-98f15783b5bb'),
@@ -176,12 +176,21 @@ class TestONECache(unittest.TestCase):
         ]
         self.assertEqual(eids, expected)
 
+        # Test with wildcards is False
+        try:
+            # Regular expressions should be supported here
+            query = r'^spikes\..+$'
+            eids = one.search(datasets=query)
+            self.assertCountEqual(eids, expected)
+        finally:
+            self.one.wildcards = True
+
         # Search QC + dataset
-        query = ['spikes.depths', 'spikes.times']
+        query = ['spikes.depths.npy', 'spikes.times.npy']
         eid = eids[0]
         idx = (eid, UUID('a563480a-6a57-4221-b630-c7be49732ae5'))
         one._cache['datasets'].loc[idx, 'qc'] = 'FAIL'  # Set QC for 1 spikes.times dataset to FAIL
-        eids = one.search(dataset=query, dataset_qc='WARNING')
+        eids = one.search(datasets=query, dataset_qc='WARNING')
         self.assertEqual(eids, expected[1:], 'failed to filter FAIL QC')
 
         # Search QC only - the one session with no WARNING or lower datasets should be excluded
@@ -190,12 +199,12 @@ class TestONECache(unittest.TestCase):
 
         # Filter non-existent
         # Set exist for one of the eids to false
-        query = 'spikes.depths'
+        query = 'spikes.depths.npy'
         mask = (one._cache['datasets']['rel_path'].str.contains(query))
         i = one._cache['datasets'][mask].index[0]
         one._cache['datasets'].loc[i, 'exists'] = False
 
-        self.assertTrue(len(expected) == len(one.search(dataset=query)) + 1)
+        self.assertTrue(len(expected) == len(one.search(datasets=query)) + 1)
 
         # Search task_protocol
         eids = one.search(task='habituation')
@@ -241,6 +250,12 @@ class TestONECache(unittest.TestCase):
         eids, details = one.search(date='2019-04-10', lab='cortexlab', details=True)
         self.assertEqual(len(eids), len(details))
         self.assertCountEqual(details[0].keys(), self.one._cache.sessions.columns)
+
+        # Test search with empty tables (previously caused error)
+        self.one._cache['datasets'] = EMPTY_DATASETS_FRAME.copy()
+        self.assertEqual([], self.one.search(datasets='_ibl_trials.table.pqt'))
+        self.one._cache['sessions'] = EMPTY_SESSIONS_FRAME.copy()
+        self.assertEqual([], self.one.search(subject='KS005'))
 
     def test_search_insertions(self):
         """Test for One._search_insertions."""
@@ -1613,9 +1628,9 @@ class TestOneRemote(unittest.TestCase):
         expected = {'lab', 'subject', 'date', 'number', 'projects'}
         self.assertTrue(d[0].keys() >= expected)
         # Test dataset search with Django
-        eids = self.one.search(subject='SWC_043', dataset='probes.description', number=1,
-                               django='data_dataset_session_related__collection__iexact,alf',
-                               query_type='remote')
+        query = ['data_dataset_session_related__collection__iexact,alf',
+                 'data_dataset_session_related__name__startswith,probes.description']
+        eids = self.one.search(subject='SWC_043', number=1, django=query, query_type='remote')
         self.assertIn(self.eid, list(eids))
 
         # Test date range
@@ -1651,13 +1666,14 @@ class TestOneRemote(unittest.TestCase):
         self.assertIn(self.eid, list(eids))
 
         # Test dataset and dataset_types kwargs
-        eids = self.one.search(dataset='trials.table.pqt', query_type='remote')
+        eids = self.one.search(datasets='_ibl_trials.table.pqt', query_type='remote')
         self.assertIn(self.eid, list(eids))
-        eids = self.one.search(dataset='trials.intervals.npy', query_type='remote')
+        eids = self.one.search(datasets=['_ibl_trials.intervals.npy'], query_type='remote')
         self.assertNotIn(self.eid, list(eids))
-        self.assertRaises(TypeError, self.one.search, dataset=['wheel.times'], query_type='remote')
+        # The dataset arg with partial matching has been retired and should raise a value error
+        self.assertRaises(ValueError, self.one.search, dataset='wheel.times', query_type='remote')
 
-        eids = self.one.search(dataset_type='trials.table.pqt', query_type='remote')
+        eids = self.one.search(dataset_type='_ibl_trials.table.pqt', query_type='remote')
         self.assertEqual(0, len(eids))
         eids = self.one.search(dataset_type='trials.table', date='2020-09-21', query_type='remote')
         self.assertIn(self.eid, list(eids))
@@ -1749,7 +1765,7 @@ class TestOneRemote(unittest.TestCase):
         """Test OneAlyx.search_terms."""
         self.one.mode = 'local'
         search1 = self.one.search_terms()
-        self.assertIn('dataset', search1)
+        self.assertIn('datasets', search1)
 
         search2 = self.one.search_terms(endpoint='sessions')
         self.assertEqual(search1, search2)
