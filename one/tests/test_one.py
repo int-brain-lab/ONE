@@ -57,8 +57,7 @@ from one.converters import datasets2records
 from one.alf import spec
 from one.alf.path import get_alf_path
 from one.alf.cache import EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME, cast_index_object
-from . import util
-from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
+from one.tests import util, OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
 
 
 class TestONECache(unittest.TestCase):

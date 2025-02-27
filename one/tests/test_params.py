@@ -10,8 +10,7 @@ import tempfile
 
 import one.params
 import one.params as params
-from . import util
-from . import TEST_DB_1
+from one.tests import util, TEST_DB_1
 
 
 class TestParamSetup(unittest.TestCase):

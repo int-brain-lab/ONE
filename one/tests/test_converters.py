@@ -12,7 +12,7 @@ from one import converters
 from one.alf.path import add_uuid_string
 from one.alf.cache import EMPTY_DATASETS_FRAME
 from one.alf.path import ALFPath, PurePosixALFPath, PureWindowsALFPath
-from . import util, OFFLINE_ONLY, TEST_DB_2
+from one.tests import util, OFFLINE_ONLY, TEST_DB_2
 
 
 class TestConverters(unittest.TestCase):

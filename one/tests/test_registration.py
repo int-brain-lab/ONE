@@ -18,8 +18,7 @@ from one.api import ONE
 from one import registration
 import one.alf.exceptions as alferr
 from one.alf.io import next_num_folder
-from . import TEST_DB_1, OFFLINE_ONLY
-from one.tests import util
+from one.tests import TEST_DB_1, OFFLINE_ONLY, util
 
 
 class TestDatasetTypes(unittest.TestCase):
