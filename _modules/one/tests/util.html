@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.util &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
 </ul>
 
@@ -106,26 +104,25 @@
              
   <h1>Source code for one.tests.util</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Utilities functions for setting up test fixtures.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">iblutil.io.parquet</span> <span class="kn">import</span> <span class="n">str2np</span>
-<span class="kn">from</span> <span class="nn">iblutil.io.params</span> <span class="kn">import</span> <span class="n">set_hidden</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io.parquet</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_hidden</span>
 
-<span class="kn">import</span> <span class="nn">one.params</span>
-<span class="kn">from</span> <span class="nn">one.util</span> <span class="kn">import</span> <span class="n">QC_TYPE</span>
-<span class="kn">from</span> <span class="nn">one.converters</span> <span class="kn">import</span> <span class="n">session_record2path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">one.params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">QC_TYPE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.converters</span><span class="w"> </span><span class="kn">import</span> <span class="n">session_record2path</span>
 
 
 <div class="viewcode-block" id="set_up_env">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.set_up_env">[docs]</a>
-<span class="k">def</span> <span class="nf">set_up_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a temporary directory and copy cache fixtures over.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_up_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a temporary directory and copy cache fixtures over.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -149,7 +146,7 @@
 
 <div class="viewcode-block" id="setup_rest_cache">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_rest_cache">[docs]</a>
-<span class="k">def</span> <span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory.</span>
 
 <span class="sd">    Parameters</span>
@@ -174,7 +171,7 @@
 
 <div class="viewcode-block" id="create_file_tree">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_file_tree">[docs]</a>
-<span class="k">def</span> <span class="nf">create_file_tree</span><span class="p">(</span><span class="n">one</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_file_tree</span><span class="p">(</span><span class="n">one</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Touch all the files in the datasets table.</span>
 
 <span class="sd">    Parameters</span>
@@ -194,9 +191,8 @@
 
 <div class="viewcode-block" id="setup_test_params">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_test_params">[docs]</a>
-<span class="k">def</span> <span class="nf">setup_test_params</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Copies cache parameter fixture to .one directory.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_test_params</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy cache parameter fixture to .one directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -236,12 +232,12 @@
 
 <div class="viewcode-block" id="revisions_datasets_table">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.revisions_datasets_table">[docs]</a>
-<span class="k">def</span> <span class="nf">revisions_datasets_table</span><span class="p">(</span><span class="n">collections</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe01&#39;</span><span class="p">),</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">revisions_datasets_table</span><span class="p">(</span><span class="n">collections</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe01&#39;</span><span class="p">),</span>
                              <span class="n">revisions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-08&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-07-06&#39;</span><span class="p">),</span>
                              <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
                              <span class="n">attributes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;waveforems&#39;</span><span class="p">),</span>
                              <span class="n">touch_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a datasets cache DataFrame containing datasets with revision folders.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a datasets cache DataFrame containing datasets with revision folders.</span>
 
 <span class="sd">    As there are no revised datasets on the test databases, this function acts as a fixture for</span>
 <span class="sd">    testing the filtering of datasets by a revision.</span>
@@ -276,8 +272,8 @@
         <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s1">&#39;exists&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s1">&#39;qc&#39;</span><span class="p">:</span> <span class="s1">&#39;NOT_SET&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;eid&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">(</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">))</span>
+        <span class="s1">&#39;eid&#39;</span><span class="p">:</span> <span class="n">uuid4</span><span class="p">(),</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">)</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">touch_path</span><span class="p">:</span>
@@ -292,7 +288,7 @@
 
 <div class="viewcode-block" id="create_schema_cache">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_schema_cache">[docs]</a>
-<span class="k">def</span> <span class="nf">create_schema_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_schema_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save REST cache file for docs/ endpoint.</span>
 
 <span class="sd">    Ensures the database isn&#39;t hit when the rest_schemas property is accessed.</span>
@@ -314,9 +310,10 @@
 
 <div class="viewcode-block" id="get_file">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.get_file">[docs]</a>
-<span class="k">def</span> <span class="nf">get_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">str_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A stub function for iblutil.io.params.getfile.  Allows the injection of a different param dir.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">str_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A stub function for `iblutil.io.params.getfile`.</span>
+
+<span class="sd">    Allows the injection of a different param dir.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -339,7 +336,7 @@
 
 <div class="viewcode-block" id="caches_str2int">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.caches_str2int">[docs]</a>
-<span class="k">def</span> <span class="nf">caches_str2int</span><span class="p">(</span><span class="n">caches</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">caches_str2int</span><span class="p">(</span><span class="n">caches</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert str ids to int ids for cache tables.</span>
 
 <span class="sd">    Parameters</span>

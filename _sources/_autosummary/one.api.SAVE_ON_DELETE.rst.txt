@@ -1,0 +1,6 @@
+one.api.SAVE\_ON\_DELETE
+========================
+
+.. currentmodule:: one.api
+
+.. autodata:: SAVE_ON_DELETE

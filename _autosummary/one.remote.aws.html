@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.remote.aws &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
@@ -97,8 +97,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -134,7 +132,7 @@
 <p>A backend to download IBL data from AWS Buckets.</p>
 <p class="rubric">Examples</p>
 <p>Without any credentials, to download a public file from the IBL public bucket:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">one.remote</span> <span class="kn">import</span> <span class="n">aws</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">one.remote</span><span class="w"> </span><span class="kn">import</span> <span class="n">aws</span>
 <span class="gp">... </span><span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span>
 <span class="gp">... </span><span class="n">destination</span> <span class="o">=</span> <span class="s1">&#39;/home/olivier/scratch/cache_info.json&#39;</span>
 <span class="gp">... </span><span class="n">aws</span><span class="o">.</span><span class="n">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
@@ -181,8 +179,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="one.remote.aws.get_s3_virtual_host">
 <span class="sig-name descname"><span class="pre">get_s3_virtual_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/remote/aws.html#get_s3_virtual_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.remote.aws.get_s3_virtual_host" title="Link to this definition"></a></dt>
-<dd><p>Convert a given bucket URI to a generic Amazon virtual host URL.
-URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
+<dd><p>Convert a given bucket URI to a generic Amazon virtual host URL.</p>
+<p>URI may be the bucket (+ path) or a full URI starting with ‘s3://’</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

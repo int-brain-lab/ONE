@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Useful Alyx REST queries &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -22,8 +22,6 @@
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -143,8 +141,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -182,11 +178,11 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">OneAlyx</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from pprint import pprint
+from one.api import ONE, OneAlyx
 
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">OneAlyx</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>
+one = ONE(base_url=&#39;https://openalyx.internationalbrainlab.org&#39;)
+assert isinstance(one, OneAlyx) and not one.offline
 </pre></div>
 </div>
 </div>
@@ -198,7 +194,7 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">())</span>  <span class="c1"># Can also be done with `one.alyx.rest()`</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>print(one.alyx.list_endpoints())  # Can also be done with `one.alyx.rest()`
 </pre></div>
 </div>
 </div>
@@ -215,7 +211,7 @@ useful_alyx_queries.ipynb"><button id="github">Github link</button></a><section 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">][</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>print(one.alyx.rest_schemes[&#39;sessions&#39;][&#39;list&#39;][&#39;description&#39;])
 </pre></div>
 </div>
 </div>
@@ -270,7 +266,7 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">);</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.alyx.print_endpoint_info(&#39;sessions&#39;, action=&#39;list&#39;);
 </pre></div>
 </div>
 </div>
@@ -442,8 +438,8 @@ one of CRITICAL, ERROR, WARNING, NOT_SET, PASS
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">ses</span><span class="p">[</span><span class="s1">&#39;extended_qc&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>ses = one.alyx.rest(&#39;sessions&#39;, &#39;read&#39;, id=&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;)
+pprint(ses[&#39;extended_qc&#39;])
 </pre></div>
 </div>
 </div>

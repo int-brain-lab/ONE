@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.util &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -106,145 +104,30 @@
              
   <h1>Source code for one.util</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Decorators and small standalone functions for api module.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">urllib.parse</span>
-<span class="kn">import</span> <span class="nn">fnmatch</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span><span class="p">,</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">UUID</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span><span class="p">,</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">parquet</span>
-<span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">ensure_list</span> <span class="k">as</span> <span class="n">_ensure_list</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">packaging</span> <span class="kn">import</span> <span class="n">version</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_list</span>
 
-<span class="kn">import</span> <span class="nn">one.alf.exceptions</span> <span class="k">as</span> <span class="nn">alferr</span>
-<span class="kn">from</span> <span class="nn">one.alf.path</span> <span class="kn">import</span> <span class="n">rel_path_parts</span><span class="p">,</span> <span class="n">get_session_path</span><span class="p">,</span> <span class="n">get_alf_path</span><span class="p">,</span> <span class="n">remove_uuid_string</span>
-<span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">QC</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span> <span class="k">as</span> <span class="n">alf_regex</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">one.alf.exceptions</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">alferr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">rel_path_parts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">QC</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span> <span class="k">as</span> <span class="n">alf_regex</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-<span class="n">QC_TYPE</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">QC</span><span class="p">)],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;pandas.api.types.CategoricalDtype: The cache table QC column data type.&quot;&quot;&quot;</span>
-
-
-<div class="viewcode-block" id="Listable">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.Listable">[docs]</a>
-<span class="k">def</span> <span class="nf">Listable</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a typing.Union if the input and sequence of input.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Union</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">t</span><span class="p">]]</span></div>
-
-
-
-<div class="viewcode-block" id="ses2records">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ses2records">[docs]</a>
-<span class="k">def</span> <span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ses : dict</span>
-<span class="sd">        Session dictionary from Alyx REST endpoint.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pd.Series</span>
-<span class="sd">        Session record.</span>
-<span class="sd">    pd.DataFrame</span>
-<span class="sd">        Datasets frame.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Extract session record</span>
-    <span class="n">eid</span> <span class="o">=</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
-    <span class="n">session_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">)</span>
-    <span class="n">session_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ses</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="p">}</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">session_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">eid</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;start_time&#39;</span><span class="p">:</span> <span class="s1">&#39;date&#39;</span><span class="p">})</span>
-    <span class="p">)</span>
-    <span class="n">session</span><span class="p">[</span><span class="s1">&#39;projects&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">))</span>
-    <span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-
-    <span class="c1"># Extract datasets table</span>
-    <span class="k">def</span> <span class="nf">_to_record</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
-        <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;qc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qc&#39;</span><span class="p">,</span> <span class="s1">&#39;NOT_SET&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">rec</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    <span class="n">records</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_to_record</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">])</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
-    <span class="n">datasets</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">&#39;qc&#39;</span><span class="p">:</span> <span class="n">QC_TYPE</span><span class="p">})</span>
-    <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span></div>
-
-
-
-<div class="viewcode-block" id="datasets2records">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.datasets2records">[docs]</a>
-<span class="k">def</span> <span class="nf">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract datasets DataFrame from one or more Alyx dataset records.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    datasets : dict, list</span>
-<span class="sd">        One or more records from the Alyx &#39;datasets&#39; endpoint.</span>
-<span class="sd">    additional : list of str</span>
-<span class="sd">        A set of optional fields to extract from dataset records.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pd.DataFrame</span>
-<span class="sd">        Datasets frame.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; datasets = ONE().alyx.rest(&#39;datasets&#39;, &#39;list&#39;, subject=&#39;foobar&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; df = datasets2records(datasets)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">_ensure_list</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
-        <span class="n">file_record</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_record</span><span class="p">:</span>
-            <span class="k">continue</span>  <span class="c1"># Ignore files that are not accessible</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
-        <span class="n">data_url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">file_record</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">data_url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">session_path</span><span class="p">:</span>
-            <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_dataset&#39;</span><span class="p">]</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;qc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qc&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">additional</span> <span class="ow">or</span> <span class="p">[]:</span>
-            <span class="n">rec</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
-
-    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;file_size&#39;</span><span class="p">,</span> <span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="s1">&#39;rel_path&#39;</span><span class="p">,</span> <span class="s1">&#39;default_revision&#39;</span><span class="p">,</span> <span class="s1">&#39;qc&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">keys</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">&#39;qc&#39;</span><span class="p">:</span> <span class="n">QC_TYPE</span><span class="p">})</span></div>
-
 
 
 <div class="viewcode-block" id="parse_id">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.parse_id">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_id</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Ensures the input experiment identifier is an experiment UUID string.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_id</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the input experiment identifier is an experiment UUID.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -260,10 +143,11 @@
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        Unable to convert input to a valid experiment ID.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">eid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">eid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot parse session ID &quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1">&quot; (session may not exist)&#39;</span><span class="p">)</span>
@@ -273,28 +157,10 @@
 
 
 
-<div class="viewcode-block" id="refresh">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.refresh">[docs]</a>
-<span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Refresh cache depending on query_type kwarg.&quot;&quot;&quot;</span>
-
-    <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;query_type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">mode</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_cache</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">wrapper</span></div>
-
-
-
 <div class="viewcode-block" id="validate_date_range">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.validate_date_range">[docs]</a>
-<span class="k">def</span> <span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validates and arrange date range in a 2 elements list.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_date_range</span><span class="p">(</span><span class="n">date_range</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and arrange date range in a 2 elements list.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -321,6 +187,7 @@
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        Size of date range tuple must be 1 or 2.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">date_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
@@ -351,11 +218,11 @@
 
 
 
-<span class="k">def</span> <span class="nf">_collection_spec</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a template string for a collection/revision regular expression.  Because both are</span>
-<span class="sd">    optional in the ALF spec, None will match any (including absent), while an empty string will</span>
-<span class="sd">    match absent.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_collection_spec</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a template string for a collection/revision regular expression.</span>
+
+<span class="sd">    Because both are optional in the ALF spec, None will match any (including absent), while an</span>
+<span class="sd">    empty string will match absent.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -368,6 +235,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
 <span class="sd">        A string format for matching the collection/revision.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">collection</span><span class="p">,</span> <span class="n">revision</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{collection}</span><span class="s1">/&#39;</span><span class="p">,</span> <span class="s1">&#39;#</span><span class="si">{revision}</span><span class="s1">#/&#39;</span><span class="p">)):</span>
@@ -377,11 +245,12 @@
     <span class="k">return</span> <span class="n">spec</span>
 
 
-<span class="k">def</span> <span class="nf">_file_spec</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a template string for a ALF dataset regular expression.  Because &#39;namespace&#39;,</span>
-<span class="sd">    &#39;timescale&#39;, and &#39;extra&#39; are optional None will match any (including absent).  This function</span>
-<span class="sd">    removes the regex flags from the file spec string that make certain parts optional.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_spec</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a template string for a ALF dataset regular expression.</span>
+
+<span class="sd">    Because &#39;namespace&#39;, &#39;timescale&#39;, and &#39;extra&#39; are optional, None will match any</span>
+<span class="sd">    (including absent).  This function removes the regex flags from the file spec string that make</span>
+<span class="sd">    certain parts optional.</span>
 
 <span class="sd">    TODO an empty string should only match absent; this could be achieved by removing parts from</span>
 <span class="sd">     spec string</span>
@@ -402,6 +271,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
 <span class="sd">        A string format for matching an ALF dataset.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;namespace&#39;</span><span class="p">:</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;timescale&#39;</span><span class="p">:</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="s1">&#39;*&#39;</span><span class="p">}</span>
     <span class="n">filespec</span> <span class="o">=</span> <span class="n">FILE_SPEC</span>
@@ -415,11 +285,11 @@
 
 <div class="viewcode-block" id="filter_datasets">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_datasets">[docs]</a>
-<span class="k">def</span> <span class="nf">filter_datasets</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_datasets</span><span class="p">(</span>
         <span class="n">all_datasets</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">revision_last_before</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">qc</span><span class="o">=</span><span class="n">QC</span><span class="o">.</span><span class="n">FAIL</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Filter the datasets cache table by the relative path (dataset name, collection and revision).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter the datasets cache table by relative path (dataset name, collection and revision).</span>
+
 <span class="sd">    When None is passed, all values will match.  To match on empty parts, use an empty string.</span>
 <span class="sd">    When revision_last_before is true, None means return latest revision.</span>
 
@@ -507,6 +377,8 @@
 <span class="sd">    - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.</span>
 <span class="sd">      e.g. filter_datasets(dsets, collection=[&#39;alf&#39;, &#39;&#39;]) will not match the latter. For this you</span>
 <span class="sd">      must use two separate queries.</span>
+<span class="sd">    - It is not possible to match datasets with no revision when wildcards=True.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create a regular expression string to match relative path against</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -524,7 +396,7 @@
         <span class="n">exclude_slash</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span> <span class="sa">fr</span><span class="s1">&#39;^(</span><span class="si">{</span><span class="n">flagless_token</span><span class="si">}</span><span class="s1">)?\.\*&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\g&lt;1&gt;[^/]*&#39;</span><span class="p">)</span>
         <span class="n">spec_str</span> <span class="o">+=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">exclude_slash</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">if</span> <span class="n">wildcards</span> <span class="k">else</span> <span class="n">x</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_ensure_list</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="c1"># If matching revision name, add to regex string</span>
@@ -536,7 +408,7 @@
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">wildcards</span><span class="p">:</span>
             <span class="c1"># Convert to regex, remove \\Z which asserts end of string</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Z&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_ensure_list</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Z&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">regex_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># logical OR</span>
 
@@ -583,11 +455,9 @@
 
 <div class="viewcode-block" id="filter_revision_last_before">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.filter_revision_last_before">[docs]</a>
-<span class="k">def</span> <span class="nf">filter_revision_last_before</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_revision_last_before</span><span class="p">(</span>
         <span class="n">datasets</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_consistent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Filter datasets by revision, returning previous revision in ordered list if revision</span>
-<span class="sd">    doesn&#39;t exactly match.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter datasets by revision, returning previous revision if no exact match is found.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -631,9 +501,10 @@
 <span class="sd">      the default one (uncommon), passing in a revision may lead to a newer revision being returned</span>
 <span class="sd">      than if revision is None.</span>
 <span class="sd">    - A view is returned if a revision column is present, otherwise a copy is returned.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_last_before</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Takes a DataFrame with only one dataset and multiple revisions, returns matching row&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_last_before</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Takes a DataFrame with only one dataset and multiple revisions, returns matching row.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">revision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dset_name</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">&#39;default_revision&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -677,10 +548,11 @@
 
 <div class="viewcode-block" id="index_last_before">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.index_last_before">[docs]</a>
-<span class="k">def</span> <span class="nf">index_last_before</span><span class="p">(</span><span class="n">revisions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the index of string that occurs directly before the provided revision string when</span>
-<span class="sd">    lexicographic sorted.  If revision is None, the index of the most recent revision is returned.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_last_before</span><span class="p">(</span><span class="n">revisions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return index of string occurring directly before provided revision string when sorted.</span>
+
+<span class="sd">    Revisions are lexicographically sorted. If `revision` is None, the index of the most recent</span>
+<span class="sd">    revision is returned.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -697,6 +569,7 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; idx = index_last_before([], &#39;2020-08-01&#39;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">revisions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span>  <span class="c1"># No revisions, just return</span>
@@ -710,15 +583,20 @@
 
 <div class="viewcode-block" id="autocomplete">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.autocomplete">[docs]</a>
-<span class="k">def</span> <span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validate search term and return complete name, e.g. autocomplete(&#39;subj&#39;) == &#39;subject&#39;.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">autocomplete</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">search_terms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate search term and return complete name.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; autocomplete(&#39;subj&#39;)</span>
+<span class="sd">    &#39;subject&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">term</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">term</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
     <span class="c1"># Check if term already complete</span>
     <span class="k">if</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">search_terms</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">term</span>
-    <span class="n">full_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">search_terms</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">term</span><span class="p">))</span>
+    <span class="n">full_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">search_terms</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">term</span><span class="p">))</span>
     <span class="n">key_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">full_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">key_</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid search term &quot;</span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s1">&quot;, see `one.search_terms()`&#39;</span><span class="p">)</span>
@@ -728,40 +606,31 @@
 
 
 
-<div class="viewcode-block" id="ensure_list">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.ensure_list">[docs]</a>
-<span class="k">def</span> <span class="nf">ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure input is a list.&quot;&quot;&quot;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s1">&#39;one.util.ensure_list is deprecated, use iblutil.util.ensure_list instead&#39;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_ensure_list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="LazyId">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId">[docs]</a>
-<span class="k">class</span> <span class="nc">LazyId</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Using a paginated response object or list of session records, extracts eid string when required</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LazyId</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return UUID from records when indexed.</span>
+
+<span class="sd">    Uses a paginated response object or list of Alyx REST records.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pg</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pg</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span> <span class="o">=</span> <span class="n">pg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses2eid</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pg</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">())</span>
 
 <div class="viewcode-block" id="LazyId.ses2eid">
 <a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.LazyId.ses2eid">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">ses2eid</span><span class="p">(</span><span class="n">ses</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ses2eid</span><span class="p">(</span><span class="n">ses</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Given one or more session dictionaries, extract and return the session UUID.</span>
 
 <span class="sd">        Parameters</span>
@@ -773,68 +642,14 @@
 <span class="sd">        -------</span>
 <span class="sd">        str, list</span>
 <span class="sd">            One or more experiment ID strings.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">LazyId</span><span class="o">.</span><span class="n">ses2eid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ses</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div>
+            <span class="n">eid</span> <span class="o">=</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span></div>
 </div>
-
-
-
-<div class="viewcode-block" id="cache_int2str">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.cache_int2str">[docs]</a>
-<span class="k">def</span> <span class="nf">cache_int2str</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert int ids to str ids for cache table.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    table : pd.DataFrame</span>
-<span class="sd">        A cache table (from One._cache).</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Convert integer uuids to str uuids</span>
-    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_0&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">table</span>
-    <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="n">int_cols</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;_\d</span><span class="si">{1}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_cols</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;expected even number of columns ending in _0 or _1&#39;</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">int_cols</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_cols</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="n">names</span><span class="p">):</span>
-        <span class="n">table</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">int_cols</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]])</span>
-    <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">int_cols</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">table</span></div>
-
-
-
-<div class="viewcode-block" id="patch_cache">
-<a class="viewcode-back" href="../../_autosummary/one.util.html#one.util.patch_cache">[docs]</a>
-<span class="k">def</span> <span class="nf">patch_cache</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformat older cache tables to comply with this version of ONE.</span>
-
-<span class="sd">    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the &#39;project&#39;</span>
-<span class="sd">    column to &#39;projects&#39;.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    table : pd.DataFrame</span>
-<span class="sd">        A cache table (from One._cache).</span>
-<span class="sd">    min_api_version : str</span>
-<span class="sd">        The minimum API version supported by this cache table.</span>
-<span class="sd">    name : {&#39;dataset&#39;, &#39;session&#39;} str</span>
-<span class="sd">        The name of the table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">min_version</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">min_api_version</span> <span class="ow">or</span> <span class="s1">&#39;0.0.0&#39;</span><span class="p">)</span>
-    <span class="n">table</span> <span class="o">=</span> <span class="n">cache_int2str</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
-    <span class="c1"># Rename project column</span>
-    <span class="k">if</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">&#39;1.13.0&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;project&#39;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="s1">&#39;projects&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;datasets&#39;</span> <span class="ow">and</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">&#39;2.7.0&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;qc&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">qc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="o">.</span><span class="n">from_codes</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">QC_TYPE</span><span class="p">)</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">qc</span><span class="o">=</span><span class="n">qc</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;datasets&#39;</span> <span class="ow">and</span> <span class="s1">&#39;session_path&#39;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">table</span></div>
 
 </pre></div>
 

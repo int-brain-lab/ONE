@@ -1,0 +1,6 @@
+one.webclient.N\_THREADS
+========================
+
+.. currentmodule:: one.webclient
+
+.. autodata:: N_THREADS

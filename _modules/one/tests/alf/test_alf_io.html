@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.alf.test_alf_io &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
 </ul>
 
@@ -106,28 +104,29 @@
              
   <h1>Source code for one.tests.alf.test_alf_io</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Unit tests for the one.alf.io module.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">import</span> <span class="nn">unittest.mock</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest.mock</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numpy.testing</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.testing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">jsonable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">jsonable</span>
 
-<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
-<span class="kn">from</span> <span class="nn">one.alf.exceptions</span> <span class="kn">import</span> <span class="n">ALFObjectNotFound</span>
-<span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">one.alf.io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">alfio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALFObjectNotFound</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALFPath</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">sparse</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">sparse</span>
     <span class="n">SKIP_SPARSE</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">SKIP_SPARSE</span> <span class="o">=</span> <span class="kc">True</span>
@@ -135,11 +134,11 @@
 
 <div class="viewcode-block" id="TestAlfBunch">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch">[docs]</a>
-<span class="k">class</span> <span class="nc">TestAlfBunch</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAlfBunch</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 
 <div class="viewcode-block" id="TestAlfBunch.test_to_dataframe_scalars">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_to_dataframe_scalars">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_to_dataframe_scalars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_to_dataframe_scalars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">simple</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({</span><span class="s1">&#39;titi&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span> <span class="s1">&#39;toto&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">)})</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">simple</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;titi&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">simple</span><span class="o">.</span><span class="n">titi</span><span class="p">))</span>
@@ -155,7 +154,7 @@
 
 <div class="viewcode-block" id="TestAlfBunch.test_to_dataframe_vectors">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_to_dataframe_vectors">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_to_dataframe_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_to_dataframe_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">vectors</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({</span><span class="s1">&#39;titi&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                                   <span class="s1">&#39;toto&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
                                   <span class="s1">&#39;tata&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">12</span><span class="p">)})</span>
@@ -171,8 +170,8 @@
 
 <div class="viewcode-block" id="TestAlfBunch.test_from_dataframe">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_from_dataframe">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_from_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for AlfBunch.from_df method&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_from_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for AlfBunch.from_df method.&quot;&quot;&quot;</span>
         <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;foo_0&#39;</span><span class="p">,</span> <span class="s1">&#39;foo_1&#39;</span><span class="p">,</span> <span class="s1">&#39;bar_0&#39;</span><span class="p">,</span> <span class="s1">&#39;bar_1&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">]</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="o">.</span><span class="n">from_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -183,7 +182,7 @@
 
 <div class="viewcode-block" id="TestAlfBunch.test_append_numpy">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_append_numpy">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_append_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_append_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({</span><span class="s1">&#39;titi&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span> <span class="s1">&#39;toto&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">)})</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({})</span>
         <span class="c1"># test with empty elements</span>
@@ -212,7 +211,7 @@
 
 <div class="viewcode-block" id="TestAlfBunch.test_append_list">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_append_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_append_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_append_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># test with lists</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({</span><span class="s1">&#39;titi&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;toto&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]})</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({</span><span class="s1">&#39;titi&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s1">&#39;toto&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">]})</span>
@@ -235,7 +234,7 @@
 
 <div class="viewcode-block" id="TestAlfBunch.test_check_dimensions">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_check_dimensions">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">AlfBunch</span><span class="p">({</span><span class="s1">&#39;titi&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="s1">&#39;toto&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">])})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">check_dimensions</span><span class="p">)</span>
         <span class="n">a</span><span class="p">[</span><span class="s1">&#39;titi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;titi&#39;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
@@ -246,18 +245,18 @@
 
 <div class="viewcode-block" id="TestsAlfPartsFilters">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlfPartsFilters">[docs]</a>
-<span class="k">class</span> <span class="nc">TestsAlfPartsFilters</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestsAlfPartsFilters</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 
 <div class="viewcode-block" id="TestsAlfPartsFilters.setUp">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlfPartsFilters.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s1">&#39;iotest&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestsAlfPartsFilters.test_npy_parts_and_file_filters">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlfPartsFilters.test_npy_parts_and_file_filters">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_npy_parts_and_file_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_npy_parts_and_file_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;riri&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="s1">&#39;fifi&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)}</span>
         <span class="n">alfio</span><span class="o">.</span><span class="n">save_object_npy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="s1">&#39;neuveux&#39;</span><span class="p">,</span> <span class="n">parts</span><span class="o">=</span><span class="s1">&#39;tutu&#39;</span><span class="p">)</span>
         <span class="n">alfio</span><span class="o">.</span><span class="n">save_object_npy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="s1">&#39;neuveux&#39;</span><span class="p">,</span> <span class="n">parts</span><span class="o">=</span><span class="s1">&#39;tutu&#39;</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="s1">&#39;toto&#39;</span><span class="p">)</span>
@@ -297,8 +296,8 @@
 
 <div class="viewcode-block" id="TestsAlfPartsFilters.test_filter_by">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlfPartsFilters.test_filter_by">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_filter_by</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.filter_by&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_filter_by</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.filter_by.&quot;&quot;&quot;</span>
         <span class="n">spec_idx_map</span> <span class="o">=</span> <span class="n">regex</span><span class="p">(</span><span class="n">FILE_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">groupindex</span>
         <span class="n">file_names</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;noalf.file&#39;</span><span class="p">,</span>
@@ -319,27 +318,29 @@
             <span class="s1">&#39;wheel.timestamps.npy&#39;</span><span class="p">,</span>
             <span class="s1">&#39;wheelMoves.intervals.npy&#39;</span><span class="p">,</span>
             <span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter with None attribute&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alf_files</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
+            <span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter with None attribute&#39;</span><span class="p">)</span>
 
         <span class="c1"># Test filtering by object; should return only &#39;wheel&#39; ALF objects</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">parts</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;wheel&#39;</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wheel.position.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;wheel.timestamps.npy&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter by object&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter by object&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">alf_files</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">))</span>
 
         <span class="c1"># Test wildcards; should return &#39;wheel&#39; and &#39;wheelMoves&#39; ALF objects</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;wh*&#39;</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wheel.position.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;wheel.timestamps.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;wheelMoves.intervals.npy&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter with wildcard&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter with wildcard&#39;</span><span class="p">)</span>
 
         <span class="c1"># Test wildcard arrays</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;wh*&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time*&#39;</span><span class="p">,</span> <span class="s1">&#39;pos*&#39;</span><span class="p">])</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wheel.position.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;wheel.timestamps.npy&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter with wildcard&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter with wildcard&#39;</span><span class="p">)</span>
 
         <span class="c1"># Test filtering by specific timescale; test parts returned</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">parts</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="s1">&#39;bpod&#39;</span><span class="p">)</span>
-        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_ibl_trials.intervals_bpod.csv&#39;</span><span class="p">]</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;_ibl_trials.intervals_bpod.csv&#39;</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter by timescale&#39;</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ibl&#39;</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;intervals&#39;</span><span class="p">,</span> <span class="s1">&#39;bpod&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;csv&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTupleEqual</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expected</span><span class="p">)</span>
@@ -349,11 +350,13 @@
         <span class="c1"># Test filtering multiple attributes; should return only trials intervals</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;intervals&#39;</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;trials&#39;</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.intervals_bpod.csv&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter by multiple attribute&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
+            <span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter by multiple attribute&#39;</span><span class="p">)</span>
 
         <span class="c1"># Test returning only ALF files</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">file_names</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s1">&#39;failed to return ALF files&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
+            <span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">file_names</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="s1">&#39;failed to return ALF files&#39;</span><span class="p">)</span>
 
         <span class="c1"># Test return empty</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -361,11 +364,11 @@
 
         <span class="c1"># Test extras</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s1">&#39;v12&#39;</span><span class="p">)</span>
-        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_namespace_obj.attr_timescale.raw.v12.ext&#39;</span><span class="p">]</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;_namespace_obj.attr_timescale.raw.v12.ext&#39;</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter extra attributes&#39;</span><span class="p">)</span>
 
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;v12&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">])</span>
-        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_namespace_obj.attr_timescale.raw.v12.ext&#39;</span><span class="p">]</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">ALFPath</span><span class="p">(</span><span class="s1">&#39;_namespace_obj.attr_timescale.raw.v12.ext&#39;</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter extra attributes as list&#39;</span><span class="p">)</span>
 
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;v12&#39;</span><span class="p">])</span>
@@ -378,15 +381,15 @@
         <span class="c1"># Check regular expression search</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;^wheel.*&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wheel.position.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;wheel.timestamps.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;wheelMoves.intervals.npy&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter by regex&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter by regex&#39;</span><span class="p">)</span>
         <span class="c1"># Should work with lists</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;^wheel$&#39;</span><span class="p">,</span> <span class="s1">&#39;.*Moves&#39;</span><span class="p">],</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="s1">&#39;failed to filter by regex&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">alf_files</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">,</span> <span class="n">expected</span><span class="p">),</span> <span class="s1">&#39;failed to filter by regex&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestsAlfPartsFilters.tearDown">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlfPartsFilters.tearDown">[docs]</a>
-    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span></div>
 </div>
 
@@ -394,10 +397,10 @@
 
 <div class="viewcode-block" id="TestsAlf">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf">[docs]</a>
-<span class="k">class</span> <span class="nc">TestsAlf</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestsAlf</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <div class="viewcode-block" id="TestsAlf.setUp">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># riri, fifi and loulou are huey, duey and louie in French (Donald nephews for ignorants)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s1">&#39;iotest&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -422,8 +425,8 @@
 
 <div class="viewcode-block" id="TestsAlf.test_exists">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_exists">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.exists&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.exists.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s1">&#39;asodiujfas&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s1">&#39;neuveu&#39;</span><span class="p">))</span>
         <span class="c1"># test with attribute string only</span>
@@ -443,14 +446,16 @@
 
 <div class="viewcode-block" id="TestsAlf.test_metadata_columns">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_metadata_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_metadata_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># simple test with meta data to label columns</span>
         <span class="n">file_alf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;_ns_object.attribute.npy&#39;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
         <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;titi&#39;</span><span class="p">,</span> <span class="s1">&#39;tutu&#39;</span><span class="p">,</span> <span class="s1">&#39;toto&#39;</span><span class="p">,</span> <span class="s1">&#39;tata&#39;</span><span class="p">]</span>
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_alf</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;_ns_object.gnagna.npy&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">alfio</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">(</span><span class="n">file_alf</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">cols</span><span class="p">})</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">(</span><span class="n">file_alf</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">cols</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;_ns_object.attribute.metadata.json&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">dread</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;ns&#39;</span><span class="p">,</span> <span class="n">short_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dread</span><span class="p">[</span><span class="s1">&#39;titi&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dread</span><span class="p">[</span><span class="s1">&#39;gnagna&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
@@ -464,7 +469,7 @@
 
 <div class="viewcode-block" id="TestsAlf.test_metadata_columns_UUID">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_metadata_columns_UUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_metadata_columns_UUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
         <span class="c1"># test with UUID extra field</span>
         <span class="n">file_alf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;_ns_obj.attr1.2622b17c-9408-4910-99cb-abf16d9225b9.npy&#39;</span>
@@ -479,8 +484,8 @@
 
 <div class="viewcode-block" id="TestsAlf.test_read_ts">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_read_ts">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_read_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.read_ts&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_read_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.read_ts.&quot;&quot;&quot;</span>
         <span class="c1"># simplest test possible with one column in each file</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -507,8 +512,8 @@
 
 <div class="viewcode-block" id="TestsAlf.test_load_object">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_load_object">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_load_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.load_object&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_load_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.load_object.&quot;&quot;&quot;</span>
         <span class="c1"># first usage of load object is to provide one of the files belonging to the object</span>
         <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;riri&#39;</span><span class="p">,</span> <span class="s1">&#39;fifi&#39;</span><span class="p">,</span> <span class="s1">&#39;loulou&#39;</span><span class="p">,</span> <span class="s1">&#39;foobar_matlab&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamps&#39;</span><span class="p">}</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -562,11 +567,11 @@
 
 <div class="viewcode-block" id="TestsAlf.test_ls">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_ls">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io._ls&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io._ls.&quot;&quot;&quot;</span>
         <span class="c1"># Test listing all ALF files in a directory</span>
         <span class="n">alf_files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">_ls</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ALFPath</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">alf_files</span><span class="p">))</span>
 
         <span class="c1"># Test with filepath</span>
@@ -581,8 +586,8 @@
 
 <div class="viewcode-block" id="TestsAlf.test_save_npy">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_save_npy">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_save_npy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.save_npy&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_save_npy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.save_npy.&quot;&quot;&quot;</span>
         <span class="c1"># test with straight vectors</span>
         <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;riri&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
              <span class="s1">&#39;fifi&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)}</span>
@@ -611,8 +616,8 @@
 
 <div class="viewcode-block" id="TestsAlf.test_check_dimensions">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_check_dimensions">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.check_dimensions&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.check_dimensions.&quot;&quot;&quot;</span>
         <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">])}</span>
         <span class="n">status</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">check_dimensions</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
@@ -638,8 +643,8 @@
 
 <div class="viewcode-block" id="TestsAlf.test_ts2vec">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_ts2vec">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_ts2vec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.ts2vec&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_ts2vec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.ts2vec.&quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="c1"># Test interpolate</span>
         <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
@@ -658,7 +663,7 @@
 
 <div class="viewcode-block" id="TestsAlf.tearDown">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.tearDown">[docs]</a>
-    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span></div>
 </div>
 
@@ -666,12 +671,12 @@
 
 <div class="viewcode-block" id="TestsLoadFile">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile">[docs]</a>
-<span class="k">class</span> <span class="nc">TestsLoadFile</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestsLoadFile</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.alf.io.load_fil_content function.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestsLoadFile.setUp">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">empty</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;foo.bar.npy&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
@@ -711,8 +716,8 @@
 
 <div class="viewcode-block" id="TestsLoadFile.test_load_file_content">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.test_load_file_content">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_load_file_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.load_file_content&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_load_file_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.load_file_content.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">))</span>
         <span class="c1"># csv / ssv / tsv files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">npy</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
@@ -733,9 +738,10 @@
         <span class="n">pqt</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.pqt&#39;</span><span class="p">))</span>
         <span class="n">loaded</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="n">pqt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
-        <span class="c1"># Unknown file should return Path</span>
+        <span class="c1"># Unknown file should return ALFPath</span>
         <span class="n">file</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xyz</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
         <span class="c1"># Load YAML file</span>
         <span class="n">loaded</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="p">))</span>
@@ -751,7 +757,7 @@
 
 <div class="viewcode-block" id="TestsLoadFile.tearDown">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.tearDown">[docs]</a>
-    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 </div>
 
@@ -760,12 +766,12 @@
 <div class="viewcode-block" id="TestsLoadFileNonStandard">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard">[docs]</a>
 <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">SKIP_SPARSE</span><span class="p">,</span> <span class="s1">&#39;pydata sparse package not installed&#39;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">TestsLoadFileNonStandard</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestsLoadFileNonStandard</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.alf.io.load_fil_content function with non-standard libraries.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestsLoadFileNonStandard.setUp">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;foo.baz.sparse_npz&#39;</span>
@@ -775,7 +781,7 @@
 
 <div class="viewcode-block" id="TestsLoadFileNonStandard.test_load_sparse_npz">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.test_load_sparse_npz">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_load_sparse_npz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_load_sparse_npz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">loaded</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">load_file_content</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sparse_npz</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sparse.load_npz&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="ne">ModuleNotFoundError</span><span class="p">),</span> \
@@ -786,61 +792,16 @@
 
 
 
-<div class="viewcode-block" id="TestUUID_Files">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files">[docs]</a>
-<span class="k">class</span> <span class="nc">TestUUID_Files</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-
-<div class="viewcode-block" id="TestUUID_Files.test_remove_uuid">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_remove_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
-            <span class="n">f1</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tutu.part1.part1.30c09473-4d3d-4f51-9910-c89a6840096e.json&#39;</span><span class="p">)</span>
-            <span class="n">f2</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tata.part1.part1.json&#39;</span><span class="p">)</span>
-            <span class="n">f3</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;toto.json&#39;</span><span class="p">)</span>
-            <span class="n">f1</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">f2</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">f2</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span> <span class="o">==</span>
-                            <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tutu.part1.part1.json&#39;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">f2</span><span class="p">)</span> <span class="o">==</span>
-                            <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tata.part1.part1.json&#39;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="n">f3</span><span class="p">)</span> <span class="o">==</span>
-                            <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;toto.json&#39;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f3</span><span class="p">))</span> <span class="o">==</span>
-                            <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;toto.json&#39;</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="TestUUID_Files.test_remove_uuid_recusive">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid_recusive">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_remove_uuid_recusive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">uuid</span> <span class="o">=</span> <span class="s1">&#39;30c09473-4d3d-4f51-9910-c89a6840096e&#39;</span>
-        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="nb">dir</span><span class="p">:</span>
-            <span class="n">f1</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tutu.part1.part1.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">)</span>
-            <span class="n">f2</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;tata.part1.part1.json&#39;</span><span class="p">)</span>
-            <span class="n">f3</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;toto.json&#39;</span><span class="p">)</span>
-            <span class="n">f4</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;tutu.part1.part1.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">)</span>
-            <span class="n">f1</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">f2</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">f2</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">f3</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">f4</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
-            <span class="n">f4</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
-            <span class="n">alfio</span><span class="o">.</span><span class="n">remove_uuid_recursive</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;*</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s1">*&#39;</span><span class="p">))))</span></div>
-</div>
-
-
-
 <div class="viewcode-block" id="TestALFFolders">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders">[docs]</a>
-<span class="k">class</span> <span class="nc">TestALFFolders</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestALFFolders</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">session_path</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="TestALFFolders.setUpClass">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">session_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                             <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fakelab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;fakemouse&#39;</span><span class="p">,</span> <span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">))</span>
@@ -850,20 +811,20 @@
 <div class="viewcode-block" id="TestALFFolders.tearDownClass">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.tearDownClass">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="TestALFFolders.tearDown">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.tearDown">[docs]</a>
-    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">))):</span>
             <span class="n">obj</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="k">else</span> <span class="n">obj</span><span class="o">.</span><span class="n">rmdir</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="TestALFFolders.test_next_num_folder">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_next_num_folder">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.next_num_folder.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">rmdir</span><span class="p">()</span>  <span class="c1"># Remove &#39;001&#39; folder</span>
         <span class="n">next_num</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">next_num_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
@@ -892,7 +853,7 @@
 
 <div class="viewcode-block" id="TestALFFolders.test_remove_empty_folders">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_remove_empty_folders">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_remove_empty_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_remove_empty_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.remove_empty_folders.&quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;glob_dir&#39;</span>
         <span class="n">root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
@@ -906,7 +867,7 @@
 
 <div class="viewcode-block" id="TestALFFolders.test_iter_sessions">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_sessions">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.iter_sessions.&quot;&quot;&quot;</span>
         <span class="c1"># Create invalid session folder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;bad_session&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
@@ -915,11 +876,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
         <span class="c1"># makes sure that the session path returns itself on the iterator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)))</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span>
         <span class="c1"># test pattern arg</span>
-        <span class="n">valid_sessions</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/Subjects/*/????-??-??/*&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">))</span>
+        <span class="n">valid_sessions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/Subjects/*/????-??-??/*&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="n">ALFPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">)],</span> <span class="n">valid_sessions</span><span class="p">)</span>
         <span class="n">subjects_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;fakelab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">)</span>
         <span class="n">valid_sessions</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">iter_sessions</span><span class="p">(</span><span class="n">subjects_path</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;*/????-??-??/*&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">valid_sessions</span><span class="p">))</span>
@@ -929,7 +892,7 @@
 
 <div class="viewcode-block" id="TestALFFolders.test_iter_datasets">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_datasets">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.iter_datasets.&quot;&quot;&quot;</span>
         <span class="c1"># Create valid dataset</span>
         <span class="n">dset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="s1">&#39;object.attribute.ext&#39;</span><span class="p">)</span>
@@ -939,18 +902,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;somefile.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
 
         <span class="n">ses_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alfio</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">dset</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])],</span> <span class="n">ses_files</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">dset</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])],</span> <span class="n">ses_files</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">ses_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ALFPath</span><span class="p">)</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="TestFindVariants">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestFindVariants">[docs]</a>
-<span class="k">class</span> <span class="nc">TestFindVariants</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFindVariants</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 
 <div class="viewcode-block" id="TestFindVariants.setUp">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestFindVariants.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
@@ -973,11 +937,13 @@
 
 <div class="viewcode-block" id="TestFindVariants.test_unique">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestFindVariants.test_unique">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.alf.io.find_variants function.&quot;&quot;&quot;</span>
         <span class="n">dupes</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">find_variants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dsets</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dsets</span><span class="p">,</span> <span class="n">dupes</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="s1">&#39;expected keys to match input files&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">any</span><span class="p">,</span> <span class="n">dupes</span><span class="o">.</span><span class="n">values</span><span class="p">())),</span> <span class="s1">&#39;expected no duplicates&#39;</span><span class="p">)</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">dupes</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="o">*</span><span class="n">dupes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">))</span>
 
         <span class="c1"># With extra=False should treat files with extra parts as a variant</span>
         <span class="n">dupes</span> <span class="o">=</span> <span class="n">alfio</span><span class="o">.</span><span class="n">find_variants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dsets</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

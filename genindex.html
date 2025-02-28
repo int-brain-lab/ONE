@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Index</a></li>
 </ul>
 
@@ -136,11 +134,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus.add_endpoint">add_endpoint() (Globus method)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.add_uuid_string">add_uuid_string() (in module one.alf.path)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.alf_parts">alf_parts (PureALFPath property)</a>
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.AlfBunch">AlfBunch (class in one.alf.io)</a>
 </li>
       <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFError">ALFError</a>
+</li>
+      <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFInvalid">ALFInvalid</a>
 </li>
       <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound">ALFMultipleCollectionsFound</a>
 </li>
@@ -149,6 +149,8 @@
       <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleRevisionsFound">ALFMultipleRevisionsFound</a>
 </li>
       <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFObjectNotFound">ALFObjectNotFound</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.ALFPath">ALFPath (class in one.alf.path)</a>
 </li>
       <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFWarning">ALFWarning</a>
 </li>
@@ -171,6 +173,8 @@
       <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.as_globus_path">as_globus_path() (in module one.remote.globus)</a>
 </li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient.assert_exists">assert_exists() (RegistrationClient method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.attribute">attribute (PureALFPath property)</a>
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.authenticate">authenticate() (AlyxClient method)</a>
 </li>
@@ -197,8 +201,6 @@
 </li>
       </ul></li>
       <li><a href="_autosummary/one.params.CACHE_DIR_DEFAULT.html#one.params.CACHE_DIR_DEFAULT">CACHE_DIR_DEFAULT (in module one.params)</a>, <a href="_autosummary/one.params.html#one.params.CACHE_DIR_DEFAULT">[1]</a>
-</li>
-      <li><a href="_autosummary/one.util.html#one.util.cache_int2str">cache_int2str() (in module one.util)</a>
 </li>
       <li><a href="_autosummary/one.tests.util.html#one.tests.util.caches_str2int">caches_str2int() (in module one.tests.util)</a>
 </li>
@@ -240,9 +242,13 @@
 </li>
       <li><a href="_autosummary/one.api.html#one.api.OneAlyx.dataset2type">dataset2type() (OneAlyx method)</a>
 </li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.dataset_name_parts">dataset_name_parts (PureALFPath property)</a>
+</li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.dataset_record_to_url">dataset_record_to_url() (in module one.webclient)</a>
 </li>
-      <li><a href="_autosummary/one.util.html#one.util.datasets2records">datasets2records() (in module one.util)</a>
+      <li><a href="_autosummary/one.converters.html#one.converters.datasets2records">datasets2records() (in module one.converters)</a>
+</li>
+      <li><a href="_autosummary/one.alf.cache.DATASETS_COLUMNS.html#one.alf.cache.DATASETS_COLUMNS">DATASETS_COLUMNS (in module one.alf.cache)</a>
 </li>
       <li><a href="_autosummary/one.params.html#one.params.default">default() (in module one.params)</a>
 </li>
@@ -252,10 +258,12 @@
 </li>
       <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus.delete_data">delete_data() (Globus method)</a>
 </li>
-      <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.describe">describe() (in module one.alf.spec)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.params.html#one.params.delete_params">delete_params() (in module one.params)</a>
+</li>
+      <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.describe">describe() (in module one.alf.spec)</a>
+</li>
       <li><a href="_autosummary/one.api.html#one.api.OneAlyx.describe_dataset">describe_dataset() (OneAlyx method)</a>
 </li>
       <li><a href="_autosummary/one.api.html#one.api.OneAlyx.describe_revision">describe_revision() (OneAlyx method)</a>
@@ -296,17 +304,21 @@
 </li>
       <li><a href="_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.EID_EPHYS">EID_EPHYS (TestREST attribute)</a>
 </li>
+      <li><a href="_autosummary/one.alf.cache.EMPTY_DATASETS_FRAME.html#one.alf.cache.EMPTY_DATASETS_FRAME">EMPTY_DATASETS_FRAME (in module one.alf.cache)</a>, <a href="_autosummary/one.alf.cache.html#one.alf.cache.EMPTY_DATASETS_FRAME">[1]</a>
+</li>
+      <li><a href="_autosummary/one.alf.cache.EMPTY_SESSIONS_FRAME.html#one.alf.cache.EMPTY_SESSIONS_FRAME">EMPTY_SESSIONS_FRAME (in module one.alf.cache)</a>, <a href="_autosummary/one.alf.cache.html#one.alf.cache.EMPTY_SESSIONS_FRAME">[1]</a>
+</li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient.ensure_ISO8601">ensure_ISO8601() (RegistrationClient static method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/one.util.html#one.util.ensure_list">ensure_list() (in module one.util)</a>
-</li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.exists">exists() (in module one.alf.io)</a>
 </li>
       <li><a href="_autosummary/one.alf.exceptions.html#id0">explanation (ALFError attribute)</a>, <a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFError.explanation">[1]</a>
 
       <ul>
+        <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFInvalid.explanation">(ALFInvalid attribute)</a>
+</li>
         <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleCollectionsFound.explanation">(ALFMultipleCollectionsFound attribute)</a>
 </li>
         <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.ALFMultipleObjectsFound.explanation">(ALFMultipleObjectsFound attribute)</a>
@@ -318,6 +330,8 @@
         <li><a href="_autosummary/one.alf.exceptions.html#one.alf.exceptions.AlyxSubjectNotFound.explanation">(AlyxSubjectNotFound attribute)</a>
 </li>
       </ul></li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.extra">extra (PureALFPath property)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -332,25 +346,19 @@
 </li>
       <li><a href="_autosummary/one.alf.spec.FILE_SPEC.html#one.alf.spec.FILE_SPEC">FILE_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.FILE_SPEC">[1]</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.filename_parts">filename_parts() (in module one.alf.path)</a>
-</li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.filter_by">filter_by() (in module one.alf.io)</a>
-</li>
-      <li><a href="_autosummary/one.util.html#one.util.filter_datasets">filter_datasets() (in module one.util)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.util.html#one.util.filter_datasets">filter_datasets() (in module one.util)</a>
+</li>
       <li><a href="_autosummary/one.util.html#one.util.filter_revision_last_before">filter_revision_last_before() (in module one.util)</a>
 </li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient.find_files">find_files() (RegistrationClient method)</a>
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.find_variants">find_variants() (in module one.alf.io)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.folder_parts">folder_parts() (in module one.alf.path)</a>
-</li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.AlfBunch.from_df">from_df() (AlfBunch static method)</a>
-</li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.full_path_parts">full_path_parts() (in module one.alf.path)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.FULL_SPEC.html#one.alf.spec.FULL_SPEC">FULL_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.FULL_SPEC">[1]</a>
 </li>
@@ -366,8 +374,6 @@
         <li><a href="_autosummary/one.params.html#one.params.get">(in module one.params)</a>
 </li>
       </ul></li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.get_alf_path">get_alf_path() (in module one.alf.path)</a>
-</li>
       <li><a href="_autosummary/one.remote.aws.html#one.remote.aws.get_aws_access_keys">get_aws_access_keys() (in module one.remote.aws)</a>
 </li>
       <li><a href="_autosummary/one.params.html#one.params.get_cache_dir">get_cache_dir() (in module one.params)</a>
@@ -398,8 +404,6 @@
 </li>
       <li><a href="_autosummary/one.remote.aws.html#one.remote.aws.get_s3_virtual_host">get_s3_virtual_host() (in module one.remote.aws)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.get_session_path">get_session_path() (in module one.alf.path)</a>
-</li>
       <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus">Globus (class in one.remote.globus)</a>
 </li>
   </ul></td>
@@ -422,6 +426,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.util.html#one.util.index_last_before">index_last_before() (in module one.util)</a>
 </li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.ALFPath.is_dataset">is_dataset() (ALFPath method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.is_dataset">(PureALFPath method)</a>
+</li>
+      </ul></li>
       <li><a href="_autosummary/one.converters.html#one.converters.ConversionMixin.is_exp_ref">is_exp_ref() (ConversionMixin static method)</a>
 </li>
       <li><a href="_autosummary/one.remote.aws.html#one.remote.aws.is_folder">is_folder() (in module one.remote.aws)</a>
@@ -432,18 +442,34 @@
         <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus.is_logged_in">(Globus property)</a>
 </li>
       </ul></li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.ALFPath.is_session_path">is_session_path() (ALFPath method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_session_path">(in module one.alf.spec)</a>
+</li>
+        <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.is_session_path">(PureALFPath method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_session_path">is_session_path() (in module one.alf.spec)</a>
-</li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_uuid">is_uuid() (in module one.alf.spec)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_uuid_string">is_uuid_string() (in module one.alf.spec)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.is_valid">is_valid() (in module one.alf.spec)</a>
 </li>
-      <li><a href="_autosummary/one.alf.io.html#one.alf.io.iter_datasets">iter_datasets() (in module one.alf.io)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.ALFPath.is_valid_alf">is_valid_alf() (ALFPath method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.is_valid_alf">(PureALFPath method)</a>
 </li>
+      </ul></li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.ALFPath.iter_datasets">iter_datasets() (ALFPath method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.alf.io.html#one.alf.io.iter_datasets">(in module one.alf.io)</a>
+</li>
+      </ul></li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.iter_sessions">iter_sessions() (in module one.alf.io)</a>
 </li>
   </ul></td>
@@ -486,8 +512,6 @@
 </li>
       <li><a href="_autosummary/one.api.html#one.api.One.list_subjects">list_subjects() (One method)</a>
 </li>
-      <li><a href="_autosummary/one.util.html#one.util.Listable">Listable() (in module one.util)</a>
-</li>
       <li><a href="_autosummary/one.api.html#one.api.OneAlyx.load_aggregate">load_aggregate() (OneAlyx method)</a>
 </li>
       <li><a href="_autosummary/one.api.html#one.api.One.load_cache">load_cache() (One method)</a>
@@ -496,10 +520,10 @@
         <li><a href="_autosummary/one.api.html#one.api.OneAlyx.load_cache">(OneAlyx method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.remote.base.html#one.remote.base.load_client_params">load_client_params() (in module one.remote.base)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.api.html#one.api.One.load_collection">load_collection() (One method)</a>
 </li>
       <li><a href="_autosummary/one.api.html#one.api.One.load_dataset">load_dataset() (One method)</a>
@@ -516,6 +540,8 @@
         <li><a href="_autosummary/one.api.html#one.api.One.load_object">(One method)</a>
 </li>
       </ul></li>
+      <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.load_tables">load_tables() (in module one.alf.cache)</a>
+</li>
       <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus.login">login() (Globus method)</a>
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.logout">logout() (AlyxClient method)</a>
@@ -534,6 +560,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.make_parquet_db">make_parquet_db() (in module one.alf.cache)</a>
 </li>
+      <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.merge_tables">merge_tables() (in module one.alf.cache)</a>
+</li>
       <li>
     module
 
@@ -545,8 +573,6 @@
         <li><a href="_autosummary/one.alf.cache.html#module-one.alf.cache">one.alf.cache</a>
 </li>
         <li><a href="_autosummary/one.alf.exceptions.html#module-one.alf.exceptions">one.alf.exceptions</a>
-</li>
-        <li><a href="_autosummary/one.alf.files.html#module-one.alf.files">one.alf.files</a>
 </li>
         <li><a href="_autosummary/one.alf.io.html#module-one.alf.io">one.alf.io</a>
 </li>
@@ -574,9 +600,9 @@
 </li>
         <li><a href="_autosummary/one.tests.alf.html#module-one.tests.alf">one.tests.alf</a>
 </li>
-        <li><a href="_autosummary/one.tests.alf.test_alf_files.html#module-one.tests.alf.test_alf_files">one.tests.alf.test_alf_files</a>
-</li>
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#module-one.tests.alf.test_alf_io">one.tests.alf.test_alf_io</a>
+</li>
+        <li><a href="_autosummary/one.tests.alf.test_alf_path.html#module-one.tests.alf.test_alf_path">one.tests.alf.test_alf_path</a>
 </li>
         <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#module-one.tests.alf.test_alf_spec">one.tests.alf.test_alf_spec</a>
 </li>
@@ -619,12 +645,14 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/one.api.N_THREADS.html#one.api.N_THREADS">N_THREADS (in module one.api)</a>
+      <li><a href="_autosummary/one.webclient.N_THREADS.html#one.webclient.N_THREADS">N_THREADS (in module one.webclient)</a>, <a href="_autosummary/one.webclient.html#one.webclient.N_THREADS">[1]</a>
 </li>
-      <li><a href="_autosummary/one.alf.io.html#one.alf.io.next_num_folder">next_num_folder() (in module one.alf.io)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.namespace">namespace (PureALFPath property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.alf.io.html#one.alf.io.next_num_folder">next_num_folder() (in module one.alf.io)</a>
+</li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.no_cache">no_cache() (in module one.webclient)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.QC.NOT_SET">NOT_SET (QC attribute)</a>
@@ -635,6 +663,8 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.object">object (PureALFPath property)</a>
+</li>
       <li><a href="_autosummary/one.api.html#one.api.One.offline">offline (One property)</a>
 </li>
       <li>
@@ -675,13 +705,6 @@
 
       <ul>
         <li><a href="_autosummary/one.alf.exceptions.html#module-one.alf.exceptions">module</a>
-</li>
-      </ul></li>
-      <li>
-    one.alf.files
-
-      <ul>
-        <li><a href="_autosummary/one.alf.files.html#module-one.alf.files">module</a>
 </li>
       </ul></li>
       <li>
@@ -778,17 +801,17 @@
 </li>
       </ul></li>
       <li>
-    one.tests.alf.test_alf_files
-
-      <ul>
-        <li><a href="_autosummary/one.tests.alf.test_alf_files.html#module-one.tests.alf.test_alf_files">module</a>
-</li>
-      </ul></li>
-      <li>
     one.tests.alf.test_alf_io
 
       <ul>
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#module-one.tests.alf.test_alf_io">module</a>
+</li>
+      </ul></li>
+      <li>
+    one.tests.alf.test_alf_path
+
+      <ul>
+        <li><a href="_autosummary/one.tests.alf.test_alf_path.html#module-one.tests.alf.test_alf_path">module</a>
 </li>
       </ul></li>
       <li>
@@ -906,7 +929,9 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.padded_sequence">padded_sequence() (in module one.alf.path)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.parse_alf_name">parse_alf_name() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.parse_alf_path">parse_alf_path() (PureALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.util.html#one.util.parse_id">parse_id() (in module one.util)</a>
 </li>
@@ -916,7 +941,7 @@
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.patch">patch() (AlyxClient method)</a>
 </li>
-      <li><a href="_autosummary/one.util.html#one.util.patch_cache">patch_cache() (in module one.util)</a>
+      <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.patch_tables">patch_tables() (in module one.alf.cache)</a>
 </li>
       <li><a href="_autosummary/one.converters.html#one.converters.ConversionMixin.path2eid">path2eid() (ConversionMixin method)</a>
 
@@ -950,11 +975,19 @@
 </li>
       <li><a href="_autosummary/one.api.html#one.api.OneAlyx.pid2eid">pid2eid() (OneAlyx method)</a>
 </li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PosixALFPath">PosixALFPath (class in one.alf.path)</a>
+</li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.post">post() (AlyxClient method)</a>
 </li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient.prepare_files">prepare_files() (RegistrationClient method)</a>
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.print_endpoint_info">print_endpoint_info() (AlyxClient method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath">PureALFPath (class in one.alf.path)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PurePosixALFPath">PurePosixALFPath (class in one.alf.path)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureWindowsALFPath">PureWindowsALFPath (class in one.alf.path)</a>
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.put">put() (AlyxClient method)</a>
 </li>
@@ -968,7 +1001,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/one.util.QC_TYPE.html#one.util.QC_TYPE">QC_TYPE (in module one.util)</a>, <a href="_autosummary/one.util.html#one.util.QC_TYPE">[1]</a>
+      <li><a href="_autosummary/one.alf.cache.QC_TYPE.html#one.alf.cache.QC_TYPE">QC_TYPE (in module one.alf.cache)</a>, <a href="_autosummary/one.alf.cache.html#one.alf.cache.QC_TYPE">[1]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -992,10 +1025,6 @@
 </li>
       <li><a href="_autosummary/one.converters.html#one.converters.ConversionMixin.ref2path">ref2path() (ConversionMixin method)</a>
 </li>
-      <li><a href="_autosummary/one.util.html#one.util.refresh">refresh() (in module one.util)</a>
-</li>
-      <li><a href="_autosummary/one.api.html#one.api.One.refresh_cache">refresh_cache() (One method)</a>
-</li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.regex">regex() (in module one.alf.spec)</a>
 </li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient.register_files">register_files() (RegistrationClient method)</a>
@@ -1012,23 +1041,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.rel_path2url">rel_path2url() (AlyxClient method)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.rel_path_parts">rel_path_parts() (in module one.alf.path)</a>
-</li>
       <li><a href="_autosummary/one.alf.spec.REL_PATH_SPEC.html#one.alf.spec.REL_PATH_SPEC">REL_PATH_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.REL_PATH_SPEC">[1]</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.rel_ses_files">rel_ses_files (TestsONEParquet attribute)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.rel_ses_files">rel_ses_files (TestONEParquet attribute)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.rel_ses_path">rel_ses_path (TestsONEParquet attribute)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.rel_ses_path">rel_ses_path (TestONEParquet attribute)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.relative_to_lab">relative_to_lab() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.relative_to_session">relative_to_session() (PureALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.remove_empty_folders">remove_empty_folders() (in module one.alf.io)</a>
 </li>
       <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.remove_missing_datasets">remove_missing_datasets() (in module one.alf.cache)</a>
 </li>
-      <li><a href="_autosummary/one.alf.io.html#one.alf.io.remove_uuid_file">remove_uuid_file() (in module one.alf.io)</a>
-</li>
-      <li><a href="_autosummary/one.alf.io.html#one.alf.io.remove_uuid_recursive">remove_uuid_recursive() (in module one.alf.io)</a>
-</li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.remove_uuid_string">remove_uuid_string() (in module one.alf.path)</a>
+      <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.remove_table_files">remove_table_files() (in module one.alf.cache)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWS.repo">repo (TestAWS attribute)</a>
 </li>
@@ -1064,6 +1091,8 @@
 </li>
       <li><a href="_autosummary/one.alf.io.html#one.alf.io.save_object_npy">save_object_npy() (in module one.alf.io)</a>
 </li>
+      <li><a href="_autosummary/one.api.SAVE_ON_DELETE.html#one.api.SAVE_ON_DELETE">SAVE_ON_DELETE (in module one.api)</a>
+</li>
       <li><a href="_autosummary/one.api.html#one.api.One.search">search() (One method)</a>
 
       <ul>
@@ -1080,17 +1109,23 @@
       </ul></li>
       <li><a href="_autosummary/one.util.html#one.util.LazyId.ses2eid">ses2eid() (LazyId static method)</a>
 </li>
-      <li><a href="_autosummary/one.util.html#one.util.ses2records">ses2records() (in module one.util)</a>
+      <li><a href="_autosummary/one.converters.html#one.converters.ses2records">ses2records() (in module one.converters)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.ses_info">ses_info (TestsONEParquet attribute)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.ses_info">ses_info (TestONEParquet attribute)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.session_parts">session_parts (PureALFPath property)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.session_path">session_path (TestALFFolders attribute)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.session_path_parts">session_path_parts() (in module one.alf.path)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.session_path">session_path() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.session_path_short">session_path_short() (PureALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.converters.html#one.converters.session_record2path">session_record2path() (in module one.converters)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.SESSION_SPEC.html#one.alf.spec.SESSION_SPEC">SESSION_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.SESSION_SPEC">[1]</a>
+</li>
+      <li><a href="_autosummary/one.alf.cache.SESSIONS_COLUMNS.html#one.alf.cache.SESSIONS_COLUMNS">SESSIONS_COLUMNS (in module one.alf.cache)</a>
 </li>
       <li><a href="_autosummary/one.tests.util.html#one.tests.util.set_up_env">set_up_env() (in module one.tests.util)</a>
 </li>
@@ -1106,9 +1141,11 @@
         <li><a href="_autosummary/one.api.html#one.api.OneAlyx.setup">(OneAlyx static method)</a>
 </li>
       </ul></li>
-      <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestAuthentication.setUp">setUp() (TestAuthentication method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.setUp">setUp() (TestALFPath method)</a>
 
       <ul>
+        <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestAuthentication.setUp">(TestAuthentication method)</a>
+</li>
         <li><a href="_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.setUp">(TestBase method)</a>
 </li>
         <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.setUp">(TestDownloadHTTP method)</a>
@@ -1124,6 +1161,8 @@
         <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneDownload.setUp">(TestOneDownload method)</a>
 </li>
         <li><a href="_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.setUp">(TestONEParamUtil method)</a>
+</li>
+        <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.setUp">(TestONEParquet method)</a>
 </li>
         <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.setUp">(TestOneRemote method)</a>
 </li>
@@ -1142,8 +1181,6 @@
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.setUp">(TestsLoadFile method)</a>
 </li>
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.setUp">(TestsLoadFileNonStandard method)</a>
-</li>
-        <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.setUp">(TestsONEParquet method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1207,6 +1244,10 @@
 </li>
         <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneDownload.tearDown">(TestOneDownload method)</a>
 </li>
+        <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.tearDown">(TestONEParquet method)</a>
+</li>
+        <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.tearDown">(TestOneRemote method)</a>
+</li>
         <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.tearDown">(TestRestCache method)</a>
 </li>
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.tearDown">(TestsAlf method)</a>
@@ -1214,8 +1255,6 @@
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlfPartsFilters.tearDown">(TestsAlfPartsFilters method)</a>
 </li>
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFile.tearDown">(TestsLoadFile method)</a>
-</li>
-        <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.tearDown">(TestsONEParquet method)</a>
 </li>
       </ul></li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.tearDownClass">tearDownClass() (TestALFFolders class method)</a>
@@ -1252,7 +1291,7 @@
       </ul></li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_add_endpoint">test_add_endpoint() (TestGlobusClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_add_uuid">test_add_uuid() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_add_uuid">test_add_uuid() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFErr.test_ALFError">test_ALFError() (TestALFErr method)</a>
 </li>
@@ -1300,8 +1339,6 @@
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_constructor">test_constructor() (TestGlobusClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_create_globus_client">test_create_globus_client() (TestGlobus method)</a>
-</li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_create_new_session">test_create_new_session() (TestRegistrationClient method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_create_sessions">test_create_sessions() (TestRegistrationClient method)</a>
@@ -1310,13 +1347,15 @@
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_dataset2type">test_dataset2type() (TestOneAlyx method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_datasets2records">test_datasets2records() (TestOneAlyx method)</a>
+      <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_datasets2records">test_datasets2records() (TestOnlineConverters method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_datasets_df">test_datasets_df() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_datasets_df">test_datasets_df() (TestONEParquet method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_delete">test_delete() (TestONECache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_delete_data">test_delete_data() (TestGlobusClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestFilesDeprecation.test_deprecation">test_deprecation() (TestFilesDeprecation method)</a>
+      <li><a href="_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil.test_delete_params">test_delete_params() (TestONEParamUtil method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_describe">test_describe() (TestALFSpec method)</a>
 </li>
@@ -1370,9 +1409,9 @@
 </li>
       <li><a href="_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_endpoints_docs">test_endpoints_docs() (TestREST method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_ensure_ISO8601">test_ensure_ISO8601() (TestRegistrationClient method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_ensure_alf_path">test_ensure_alf_path() (TestALFPath method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_ensure_list">test_ensure_list() (TestOneMisc method)</a>
+      <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_ensure_ISO8601">test_ensure_ISO8601() (TestRegistrationClient method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_exists">test_exists() (TestRegistrationClient method)</a>
 
@@ -1386,7 +1425,7 @@
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_fetch_endpoints_from_alyx">test_fetch_endpoints_from_alyx() (TestGlobusClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_filename_parts">test_filename_parts() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_filename_parts">test_filename_parts() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_filter">test_filter() (TestONECache method)</a>
 </li>
@@ -1396,15 +1435,15 @@
 </li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_find_files">test_find_files() (TestRegistrationClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_folder_parts">test_folder_parts() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_folder_parts">test_folder_parts() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch.test_from_dataframe">test_from_dataframe() (TestAlfBunch method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_full_path_parts">test_full_path_parts() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_full_path_parts">test_full_path_parts() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_generic_request">test_generic_request() (TestREST method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestALFGet.test_get_alf_path">test_get_alf_path() (TestALFGet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet.test_get_alf_path">test_get_alf_path() (TestALFGet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_allen_s3">test_get_allen_s3() (TestUtils method)</a>
 </li>
@@ -1434,21 +1473,25 @@
 </li>
       <li><a href="_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_s3_virtual_host">test_get_s3_virtual_host() (TestUtils method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestALFGet.test_get_session_folder">test_get_session_folder() (TestALFGet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet.test_get_session_folder">test_get_session_folder() (TestALFGet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_get_token">test_get_token() (TestGlobus method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_globus_headless">test_globus_headless() (TestGlobusClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_hash_ids">test_hash_ids() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_hash_ids">test_hash_ids() (TestONEParquet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_index_last_before">test_index_last_before() (TestOneMisc method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_instantiation">test_instantiation() (TestRegistrationClient method)</a>
 </li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_is_dataset">test_is_dataset() (TestALFPath method)</a>
+</li>
       <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestConverters.test_is_exp_ref">test_is_exp_ref() (TestConverters method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_session_folder">test_is_session_folder() (TestALFSpec method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_is_session_path">test_is_session_path() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_uuid">test_is_uuid() (TestALFSpec method)</a>
 </li>
@@ -1456,11 +1499,19 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_is_valid">test_is_valid() (TestALFSpec method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_isdatetime">test_isdatetime() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_is_valid_alf">test_is_valid_alf() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_isdatetime">test_isdatetime() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_datasets">test_iter_datasets() (TestALFFolders method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_iter_datasets">(TestALFPath method)</a>
 </li>
+      </ul></li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_iter_sessions">test_iter_sessions() (TestALFFolders method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestMisc.test_json_encoder">test_json_encoder() (TestMisc method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.test_json_methods">test_json_methods() (TestJsonFieldMethods method)</a>
 </li>
@@ -1518,11 +1569,11 @@
       </ul></li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard.test_load_sparse_npz">test_load_sparse_npz() (TestsLoadFileNonStandard method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_loads_cached">test_loads_cached() (TestRestCache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_local_cache_setup_prompt">test_local_cache_setup_prompt() (TestOneSetup method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_local_tables_only">test_local_tables_only() (TestOneSetup method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_login_logout">test_login_logout() (TestGlobusClient method)</a>
 </li>
@@ -1532,9 +1583,15 @@
         <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_ls">(TestsAlf method)</a>
 </li>
       </ul></li>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONETables.test_merge_cache_tables">test_merge_cache_tables() (TestONETables method)</a>
+</li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns">test_metadata_columns() (TestsAlf method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID">test_metadata_columns_UUID() (TestsAlf method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_mode_validation">test_mode_validation() (TestONECache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_mv">test_mv() (TestGlobusClient method)</a>
 </li>
@@ -1558,19 +1615,25 @@
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.test_online_repr">test_online_repr() (TestOneRemote method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_padded_sequence">test_padded_sequence() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_padded_sequence">test_padded_sequence() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_paginated_request">test_paginated_request() (TestREST method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestMisc.test_paginated_response">test_paginated_response() (TestMisc method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parquet">test_parquet() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_parquet">test_parquet() (TestONEParquet method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parse">test_parse() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_parse">test_parse() (TestONEParquet method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_parse_alf_name">test_parse_alf_name() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_parse_alf_path">test_parse_alf_path() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_parse_id">test_parse_id() (TestOneMisc method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestWrappers.test_parse_values">test_parse_values() (TestWrappers method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_parts_properties">test_parts_properties() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup.test_patch_params">test_patch_params() (TestOneSetup method)</a>
 </li>
@@ -1614,8 +1677,6 @@
 </li>
       <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestConverters.test_ref2path">test_ref2path() (TestConverters method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_refresh_cache">test_refresh_cache() (TestONECache method)</a>
-</li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_regex">test_regex() (TestALFSpec method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_files">test_register_files() (TestRegistrationClient method)</a>
@@ -1624,23 +1685,25 @@
 </li>
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.test_register_weight">test_register_weight() (TestRegistrationClient method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_rel_path_parts">test_rel_path_parts() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_rel_path_parts">test_rel_path_parts() (TestALFParse method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_relative_to_lab">test_relative_to_lab() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_relative_to_session">test_relative_to_session() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_remove_cache_table_files">test_remove_cache_table_files() (TestONECache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_remove_empty_folders">test_remove_empty_folders() (TestALFFolders method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_remove_missing_datasets">test_remove_missing_datasets() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_remove_missing_datasets">test_remove_missing_datasets() (TestONEParquet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_remove_token_fields">test_remove_token_fields() (TestGlobus method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_remove_uuid">test_remove_uuid() (TestAlfParse method)</a>
-
-      <ul>
-        <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid">(TestUUID_Files method)</a>
-</li>
-      </ul></li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files.test_remove_uuid_recusive">test_remove_uuid_recusive() (TestUUID_Files method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_remove_uuid">test_remove_uuid() (TestALFParse method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.test_repo_from_alyx">test_repo_from_alyx() (TestBase method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_reset_cache">test_reset_cache() (TestONECache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_rest_all_actions">test_rest_all_actions() (TestREST method)</a>
 </li>
@@ -1662,17 +1725,25 @@
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.test_search">test_search() (TestOneRemote method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.test_search_insertions">test_search_insertions() (TestOneRemote method)</a>
+      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_search_insertions">test_search_insertions() (TestONECache method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.test_search_insertions">(TestOneRemote method)</a>
 </li>
+      </ul></li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote.test_search_terms">test_search_terms() (TestOneRemote method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_ses2records">test_ses2records() (TestOneAlyx method)</a>
+      <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters.test_ses2records">test_ses2records() (TestOnlineConverters method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse.test_session_path_parts">test_session_path_parts() (TestAlfParse method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_session_path">test_session_path() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse.test_session_path_parts">test_session_path_parts() (TestALFParse method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_session_path_short">test_session_path_short() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestAlyx2Path.test_session_record2path">test_session_record2path() (TestAlyx2Path method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_sessions_df">test_sessions_df() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_sessions_df">test_sessions_df() (TestONEParquet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobus.test_setup">test_setup() (TestGlobus method)</a>
 
@@ -1716,8 +1787,6 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestFindVariants.test_unique">test_unique() (TestFindVariants method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_update_cache_from_records">test_update_cache_from_records() (TestONECache method)</a>
-</li>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestMisc.test_update_url_params">test_update_url_params() (TestMisc method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_url2uri">test_url2uri() (TestUtils method)</a>
@@ -1725,6 +1794,8 @@
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_url_from_path">test_url_from_path() (TestOneAlyx method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_url_from_record">test_url_from_record() (TestOneAlyx method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestJsonFieldMethods.test_uuid_serialize">test_uuid_serialize() (TestJsonFieldMethods method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneMisc.test_validate_date_range">test_validate_date_range() (TestOneMisc method)</a>
 </li>
@@ -1734,7 +1805,33 @@
 </li>
       <li><a href="_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_water_restriction">test_water_restriction() (TestREST method)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestALFGet.test_without_revision">test_without_revision() (TestALFGet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_attribute">test_with_attribute() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_extension">test_with_extension() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_extra">test_with_extra() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_namespace">test_with_namespace() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_object">test_with_object() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_padded_sequence">test_with_padded_sequence() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_revision">test_with_revision() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_timescale">test_with_timescale() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_uuid">test_with_uuid() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_without_lab">test_without_lab() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet.test_without_revision">test_without_revision() (TestALFGet method)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_without_revision">(TestALFPath method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_without_uuid">test_without_uuid() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestAlfBunch">TestAlfBunch (class in one.tests.alf.test_alf_io)</a>
 </li>
@@ -1742,9 +1839,11 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders">TestALFFolders (class in one.tests.alf.test_alf_io)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestALFGet">TestALFGet (class in one.tests.alf.test_alf_files)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFGet">TestALFGet (class in one.tests.alf.test_alf_path)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestAlfParse">TestAlfParse (class in one.tests.alf.test_alf_files)</a>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFParse">TestALFParse (class in one.tests.alf.test_alf_path)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath">TestALFPath (class in one.tests.alf.test_alf_path)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec">TestALFSpec (class in one.tests.alf.test_alf_spec)</a>
 </li>
@@ -1763,8 +1862,6 @@
       <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestDatasetTypes">TestDatasetTypes (class in one.tests.test_registration)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP">TestDownloadHTTP (class in one.tests.test_alyxclient)</a>
-</li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_files.html#one.tests.alf.test_alf_files.TestFilesDeprecation">TestFilesDeprecation (class in one.tests.alf.test_alf_files)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestFindVariants">TestFindVariants (class in one.tests.alf.test_alf_io)</a>
 </li>
@@ -1788,9 +1885,13 @@
 </li>
       <li><a href="_autosummary/one.tests.test_params.html#one.tests.test_params.TestONEParamUtil">TestONEParamUtil (class in one.tests.test_params)</a>
 </li>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet">TestONEParquet (class in one.tests.alf.test_cache)</a>
+</li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneRemote">TestOneRemote (class in one.tests.test_one)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneSetup">TestOneSetup (class in one.tests.test_one)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONETables">TestONETables (class in one.tests.alf.test_cache)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestOnlineConverters">TestOnlineConverters (class in one.tests.test_converters)</a>
 </li>
@@ -1802,7 +1903,7 @@
 </li>
       <li><a href="_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache">TestRestCache (class in one.tests.test_alyxclient)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.tests_db">tests_db() (TestsONEParquet method)</a>
+      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.tests_db">tests_db() (TestONEParquet method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf">TestsAlf (class in one.tests.alf.test_alf_io)</a>
 </li>
@@ -1812,13 +1913,11 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsLoadFileNonStandard">TestsLoadFileNonStandard (class in one.tests.alf.test_alf_io)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet">TestsONEParquet (class in one.tests.alf.test_cache)</a>
-</li>
       <li><a href="_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils">TestUtils (class in one.tests.remote.test_aws)</a>
 </li>
-      <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestUUID_Files">TestUUID_Files (class in one.tests.alf.test_alf_io)</a>
-</li>
       <li><a href="_autosummary/one.tests.test_converters.html#one.tests.test_converters.TestWrappers">TestWrappers (class in one.tests.test_converters)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.timescale">timescale (PureALFPath property)</a>
 </li>
       <li><a href="_autosummary/one.remote.base.html#one.remote.base.DownloadClient.to_address">to_address() (DownloadClient method)</a>
 
@@ -1874,9 +1973,33 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.QC.WARNING">WARNING (QC attribute)</a>
 </li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.WindowsALFPath">WindowsALFPath (class in one.alf.path)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_attribute">with_attribute() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_extension">with_extension() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_extra">with_extra() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_namespace">with_namespace() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_object">with_object() (PureALFPath method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.without_revision">without_revision() (in module one.alf.path)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_padded_sequence">with_padded_sequence() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_revision">with_revision() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_timescale">with_timescale() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_uuid">with_uuid() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.without_lab">without_lab() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.without_revision">without_revision() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.without_uuid">without_uuid() (PureALFPath method)</a>
 </li>
   </ul></td>
 </tr></table>

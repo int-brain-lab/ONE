@@ -5,6 +5,13 @@ one.webclient
 
    
    
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      N_THREADS
+   
    
 
    

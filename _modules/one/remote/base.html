@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.remote.base &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
 </ul>
 
@@ -123,12 +121,12 @@
 <span class="sd"> AlyxClient.download_file.</span>
 <span class="sd">TODO Could have .one/.params file that stores ONE state, including whether files are distributed?</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
 
-<span class="kn">from</span> <span class="nn">one.params</span> <span class="kn">import</span> <span class="n">_PAR_ID_STR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">_PAR_ID_STR</span>
 
 <span class="sd">&quot;&quot;&quot;tuple: Default order of precedence for download protocol&quot;&quot;&quot;</span>
 <span class="n">PROC_PRECEDENCE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;aws&#39;</span><span class="p">,</span> <span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;globus&#39;</span><span class="p">,</span> <span class="s1">&#39;kachary&#39;</span><span class="p">)</span>
@@ -144,10 +142,11 @@
 
 <div class="viewcode-block" id="load_client_params">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.load_client_params">[docs]</a>
-<span class="k">def</span> <span class="nf">load_client_params</span><span class="p">(</span><span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load the parameters from the remote params file.  If a client key is provided, only those</span>
-<span class="sd">    client parameters are returned.  NB: Remote param values are expected to all be dicts.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_client_params</span><span class="p">(</span><span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the parameters from the remote params file.</span>
+
+<span class="sd">    If a client key is provided, only those client parameters are returned.</span>
+<span class="sd">    NB: Remote param values are expected to all be dicts.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -198,10 +197,10 @@
 
 <div class="viewcode-block" id="save_client_params">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.save_client_params">[docs]</a>
-<span class="k">def</span> <span class="nf">save_client_params</span><span class="p">(</span><span class="n">new_pars</span><span class="p">,</span> <span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Save parameters into the remote params file.  If a client key is provided, parameters are</span>
-<span class="sd">    saved into this field.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_client_params</span><span class="p">(</span><span class="n">new_pars</span><span class="p">,</span> <span class="n">client_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save parameters into the remote params file.</span>
+
+<span class="sd">    If a client key is provided, parameters are saved into this field.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -214,6 +213,7 @@
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If client_key is None, all parameter fields must hold dicts.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">client_key</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">new_pars</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -228,15 +228,16 @@
 
 <div class="viewcode-block" id="DownloadClient">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient">[docs]</a>
-<span class="k">class</span> <span class="nc">DownloadClient</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadClient</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data download handler base class.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="DownloadClient.to_address">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.to_address">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the remote data URL for a given ALF path.&quot;&quot;&quot;</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
 
@@ -244,7 +245,7 @@
 <div class="viewcode-block" id="DownloadClient.download_file">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.download_file">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download an ALF dataset given its address.&quot;&quot;&quot;</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
 
@@ -253,14 +254,14 @@
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.setup">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
 
 
 <div class="viewcode-block" id="DownloadClient.repo_from_alyx">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.base.html#one.remote.base.DownloadClient.repo_from_alyx">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">repo_from_alyx</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alyx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repo_from_alyx</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alyx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data repository information for a given data repository.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 </div>

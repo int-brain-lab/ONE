@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.params &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
@@ -93,6 +93,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#one.params.get_cache_dir"><code class="docutils literal notranslate"><span class="pre">get_cache_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.params.get_params_dir"><code class="docutils literal notranslate"><span class="pre">get_params_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.params.check_cache_conflict"><code class="docutils literal notranslate"><span class="pre">check_cache_conflict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#one.params.delete_params"><code class="docutils literal notranslate"><span class="pre">delete_params()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="one.registration.html">one.registration</a></li>
@@ -104,8 +105,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -160,27 +159,30 @@ caches file also sets the default client for when no url is provided.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.params.check_cache_conflict" title="one.params.check_cache_conflict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_cache_conflict</span></code></a></p></td>
-<td><p>Asserts that a given directory is not currently used as a cache directory.</p></td>
+<td><p>Assert that a given directory is not currently used as a cache directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.params.default" title="one.params.default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></a></p></td>
-<td><p>Default Web client parameters</p></td>
+<td><p>Default Web client parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get" title="one.params.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a></p></td>
-<td><p>Returns the AlyxClient parameters</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.delete_params" title="one.params.delete_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_params</span></code></a></p></td>
+<td><p>Delete parameter files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get_cache_dir" title="one.params.get_cache_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cache_dir</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get" title="one.params.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a></p></td>
+<td><p>Returns the AlyxClient parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get_cache_dir" title="one.params.get_cache_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cache_dir</span></code></a></p></td>
 <td><p>Return the download directory for a given client.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get_default_client" title="one.params.get_default_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_default_client</span></code></a></p></td>
-<td><p>Returns the default AlyxClient URL, or None if no default is set</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get_default_client" title="one.params.get_default_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_default_client</span></code></a></p></td>
+<td><p>Returns the default AlyxClient URL, or None if no default is set.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.params.get_params_dir" title="one.params.get_params_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params_dir</span></code></a></p></td>
-<td><p>Return the path to the root ONE parameters directory</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.get_params_dir" title="one.params.get_params_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params_dir</span></code></a></p></td>
+<td><p>Return the path to the root ONE parameters directory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.save" title="one.params.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.params.save" title="one.params.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a></p></td>
 <td><p>Save a set of parameters for a given client.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.params.setup" title="one.params.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.params.setup" title="one.params.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a></p></td>
 <td><p>Set up ONE parameters.</p></td>
 </tr>
 </tbody>
@@ -199,15 +201,16 @@ caches file also sets the default client for when no url is provided.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.default">
 <span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.default" title="Link to this definition"></a></dt>
-<dd><p>Default Web client parameters</p>
+<dd><p>Default Web client parameters.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.setup" title="Link to this definition"></a></dt>
-<dd><p>Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
-that instance will be set.  If silent, the user will be prompted to input each parameter
-value.  Pressing return will use either current parameter or the default.</p>
+<dd><p>Set up ONE parameters.</p>
+<p>If a client (i.e. Alyx database URL) is provided, settings for that instance will be set.
+If silent, the user will be prompted to input each parameter value.  Pressing return will use
+either current parameter or the default.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -231,7 +234,7 @@ arguments.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get" title="Link to this definition"></a></dt>
-<dd><p>Returns the AlyxClient parameters</p>
+<dd><p>Returns the AlyxClient parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -252,7 +255,7 @@ arguments.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.get_default_client">
 <span class="sig-name descname"><span class="pre">get_default_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/params.html#get_default_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get_default_client" title="Link to this definition"></a></dt>
-<dd><p>Returns the default AlyxClient URL, or None if no default is set</p>
+<dd><p>Returns the default AlyxClient URL, or None if no default is set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>include_schema</strong> (<em>bool</em>) – When True, the URL schema is included (i.e. http(s)://).  Set to False to return the URL
@@ -302,7 +305,7 @@ as a client key.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.get_params_dir">
 <span class="sig-name descname"><span class="pre">get_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/one/params.html#get_params_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.get_params_dir" title="Link to this definition"></a></dt>
-<dd><p>Return the path to the root ONE parameters directory</p>
+<dd><p>Return the path to the root ONE parameters directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The root ONE parameters directory</p>
@@ -316,8 +319,8 @@ as a client key.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.params.check_cache_conflict">
 <span class="sig-name descname"><span class="pre">check_cache_conflict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#check_cache_conflict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.check_cache_conflict" title="Link to this definition"></a></dt>
-<dd><p>Asserts that a given directory is not currently used as a cache directory.
-This function checks whether a given directory is used as a cache directory for an Alyx
+<dd><p>Assert that a given directory is not currently used as a cache directory.</p>
+<p>This function checks whether a given directory is used as a cache directory for an Alyx
 Web client.  This function is called by the ONE factory to determine whether to return an
 OneAlyx object or not.  It is also used when setting up params for a new client.</p>
 <dl class="field-list simple">
@@ -326,6 +329,18 @@ OneAlyx object or not.  It is also used when setting up params for a new client.
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>AssertionError</strong> – The directory is set as a cache for a Web client</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.params.delete_params">
+<span class="sig-name descname"><span class="pre">delete_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#delete_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.delete_params" title="Link to this definition"></a></dt>
+<dd><p>Delete parameter files.</p>
+<p>This will fully reset the ONE database and remote client parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>base_url</strong> (<em>str</em><em>, </em><em>optional</em>) – If provided, delete specific database parameters. If None, all parameters are removed.</p>
 </dd>
 </dl>
 </dd></dl>

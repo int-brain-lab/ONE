@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.remote.test_base &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
 </ul>
 
@@ -106,25 +104,25 @@
              
   <h1>Source code for one.tests.remote.test_base</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Unit tests for the one.remote.base module.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
 
-<span class="kn">from</span> <span class="nn">one.tests.util</span> <span class="kn">import</span> <span class="n">get_file</span><span class="p">,</span> <span class="n">setup_rest_cache</span>
-<span class="kn">from</span> <span class="nn">one.tests</span> <span class="kn">import</span> <span class="n">TEST_DB_1</span>
-<span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
-<span class="kn">from</span> <span class="nn">one.remote</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.tests.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_file</span><span class="p">,</span> <span class="n">setup_rest_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.tests</span><span class="w"> </span><span class="kn">import</span> <span class="n">TEST_DB_1</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.webclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlyxClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.remote</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span>
 
 
 <div class="viewcode-block" id="TestBase">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase">[docs]</a>
-<span class="k">class</span> <span class="nc">TestBase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestBase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the one.remote.base module.&quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;unittest.mock._patch: Mock object for setting parameter location as temporary directory.&quot;&quot;&quot;</span>
@@ -135,7 +133,7 @@
 <div class="viewcode-block" id="TestBase.setUpClass">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">path_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.base.iopar.getfile&#39;</span><span class="p">,</span>
                                    <span class="n">new</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">get_file</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
@@ -143,13 +141,13 @@
 
 <div class="viewcode-block" id="TestBase.setUp">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path_mock</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="TestBase.test_load_client_params">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.test_load_client_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_load_client_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_load_client_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.base.load_client_params function.&quot;&quot;&quot;</span>
         <span class="c1"># Check behaviour when no parameters file exists</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">):</span>
@@ -177,7 +175,7 @@
 
 <div class="viewcode-block" id="TestBase.test_save_client_params">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.test_save_client_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_save_client_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_save_client_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.base.save_client_params function.&quot;&quot;&quot;</span>
         <span class="c1"># Check behaviour when saving all params</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="s1">&#39;baz&#39;</span><span class="p">}}</span>
@@ -202,7 +200,7 @@
 
 <div class="viewcode-block" id="TestBase.test_repo_from_alyx">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.test_repo_from_alyx">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_repo_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_repo_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for DownloadClient.repo_from_alyx method.&quot;&quot;&quot;</span>
         <span class="n">ac</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">)</span>
         <span class="n">setup_rest_cache</span><span class="p">(</span><span class="n">ac</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Copy REST cache fixtures to temp dir</span>
@@ -212,7 +210,7 @@
 
 <div class="viewcode-block" id="TestBase.tearDown">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.tearDown">[docs]</a>
-    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">par_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">iopar</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="s1">&#39;.one&#39;</span><span class="p">))</span>
         <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">par_path</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">par_path</span><span class="p">)</span>
@@ -222,7 +220,7 @@
 <div class="viewcode-block" id="TestBase.tearDownClass">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_base.html#one.tests.remote.test_base.TestBase.tearDownClass">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 </div>
 

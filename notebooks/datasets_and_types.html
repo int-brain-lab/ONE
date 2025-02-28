@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Datasets and their types &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -22,8 +22,6 @@
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -85,8 +83,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -120,12 +116,12 @@ datasets_and_types.ipynb"><button id="github">Github link</button></a><section i
 <h1>Datasets and their types<a class="headerlink" href="#Datasets-and-their-types" title="Link to this heading"></a></h1>
 <p>A dataset typically contains a single signal or data source, either values or times. When creating a new dataset, first familiarize yourself with the <a class="reference external" href="../alf_intro.html">ALF specification</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">one.alf</span> <span class="kn">import</span> <span class="n">spec</span>
-<span class="kn">from</span> <span class="nn">one.alf.files</span> <span class="kn">import</span> <span class="n">filename_parts</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from pprint import pprint
+from one.alf import spec
+from one.alf.path import ALFPath
 </pre></div>
 </div>
 </div>
@@ -136,7 +132,7 @@ datasets_and_types.ipynb"><button id="github">Github link</button></a><section i
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>spec.describe(&#39;object&#39;)
 </pre></div>
 </div>
 </div>
@@ -168,7 +164,7 @@ remember we count arrays starting from 0.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>assert spec.is_valid(&#39;spikes.times.npy&#39;)
 </pre></div>
 </div>
 </div>
@@ -177,18 +173,18 @@ remember we count arrays starting from 0.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">to_alf</span><span class="p">(</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;npy&#39;</span><span class="p">,</span>
-                       <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;ibl&#39;</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="s1">&#39;ephys clock&#39;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>filename = spec.to_alf(&#39;spikes&#39;, &#39;times&#39;, &#39;npy&#39;,
+                       namespace=&#39;ibl&#39;, timescale=&#39;ephys clock&#39;, extra=&#39;raw&#39;)
 </pre></div>
 </div>
 </div>
 <p>Parsing a new file into its constituent parts ensures the dataset is correct</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">parts</span> <span class="o">=</span> <span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;_ibl_spikes.times_ephysClock.raw.npy&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>parts = ALFPath(&#39;_ibl_spikes.times_ephysClock.raw.npy&#39;).parse_alf_name()
+pprint(parts)
 </pre></div>
 </div>
 </div>
@@ -221,9 +217,9 @@ OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;),
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
-<span class="n">one</span><span class="o">.</span><span class="n">describe_dataset</span><span class="p">(</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">)</span>  <span class="c1"># Requires online version (an Alyx database connection)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from one.api import ONE
+one = ONE(base_url=&#39;https://openalyx.internationalbrainlab.org&#39;)
+one.describe_dataset(&#39;spikes.times&#39;)  # Requires online version (an Alyx database connection)
 </pre></div>
 </div>
 </div>
@@ -253,12 +249,12 @@ OrderedDict([(&#39;namespace&#39;, &#39;ibl&#39;),
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;KS023/2019-12-10/001&#39;</span>
-<span class="n">dataset_type</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">dataset2type</span><span class="p">(</span><span class="s1">&#39;_ibl_leftCamera.times.npy&#39;</span><span class="p">)</span>
-<span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">type2datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;camera.times&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>eid = &#39;KS023/2019-12-10/001&#39;
+dataset_type = one.dataset2type(&#39;_ibl_leftCamera.times.npy&#39;)
+datasets = one.type2datasets(eid, &#39;camera.times&#39;)
 
-<span class="n">dset_list</span> <span class="o">=</span> <span class="s1">&#39;&quot;, &quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the dataset type &quot;</span><span class="si">{</span><span class="n">dataset_type</span><span class="si">}</span><span class="s1">&quot; for </span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s1"> comprises the datasets: </span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">dset_list</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+dset_list = &#39;&quot;, &quot;&#39;.join(datasets)
+print(f&#39;the dataset type &quot;{dataset_type}&quot; for {eid} comprises the datasets: \n&quot;{dset_list}&quot;&#39;)
 </pre></div>
 </div>
 </div>

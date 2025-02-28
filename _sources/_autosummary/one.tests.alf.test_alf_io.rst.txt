@@ -21,7 +21,6 @@ one.tests.alf.test\_alf\_io
       TestALFFolders
       TestAlfBunch
       TestFindVariants
-      TestUUID_Files
       TestsAlf
       TestsAlfPartsFilters
       TestsLoadFile

@@ -24,7 +24,6 @@ one.remote.globus
       :nosignatures:
    
       as_globus_path
-      create_globus_client
       ensure_logged_in
       get_lab_from_endpoint_id
       get_local_endpoint_id

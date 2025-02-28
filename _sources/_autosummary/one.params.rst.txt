@@ -23,6 +23,7 @@ one.params
    
       check_cache_conflict
       default
+      delete_params
       get
       get_cache_dir
       get_default_client

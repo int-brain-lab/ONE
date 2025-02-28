@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.remote.globus &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
 </ul>
 
@@ -182,35 +180,35 @@
 <span class="sd">&gt;&gt;&gt; file = glo.download_file(&#39;path/to/file.ext&#39;, &#39;source_endpoint&#39;)</span>
 <span class="sd">Path(&#39;/path/to/new/location/path/to/file.ext&#39;)</span>
 
-<span class="sd">Await multiple tasks to complete by passing a list of Globus tranfer IDs</span>
+<span class="sd">Await multiple tasks to complete by passing a list of Globus transfer IDs</span>
 
 <span class="sd">&gt;&gt;&gt; import asyncio</span>
 <span class="sd">&gt;&gt;&gt; tasks = [asyncio.create_task(globus.task_wait_async(task_id))) for task_id in task_ids]</span>
 <span class="sd">&gt;&gt;&gt; success = asyncio.run(asyncio.gather(*tasks))</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">UUID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
 
-<span class="kn">import</span> <span class="nn">globus_sdk</span>
-<span class="kn">from</span> <span class="nn">globus_sdk</span> <span class="kn">import</span> <span class="n">TransferAPIError</span><span class="p">,</span> <span class="n">GlobusAPIError</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">,</span> <span class="n">GlobusTimeoutError</span><span class="p">,</span> \
+<span class="kn">import</span><span class="w"> </span><span class="nn">globus_sdk</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">globus_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransferAPIError</span><span class="p">,</span> <span class="n">GlobusAPIError</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">,</span> <span class="n">GlobusTimeoutError</span><span class="p">,</span> \
     <span class="n">GlobusConnectionError</span><span class="p">,</span> <span class="n">GlobusConnectionTimeoutError</span><span class="p">,</span> <span class="n">GlobusSDKUsageError</span><span class="p">,</span> <span class="n">NullAuthorizer</span>
-<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
-<span class="kn">from</span> <span class="nn">iblutil.util</span> <span class="kn">import</span> <span class="n">ensure_list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">iopar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_list</span>
 
-<span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_uuid</span>
-<span class="kn">from</span> <span class="nn">one.alf.path</span> <span class="kn">import</span> <span class="n">remove_uuid_string</span>
-<span class="kn">import</span> <span class="nn">one.params</span>
-<span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">DownloadClient</span><span class="p">,</span> <span class="n">load_client_params</span><span class="p">,</span> <span class="n">save_client_params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_uuid_string</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">one.params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.webclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlyxClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DownloadClient</span><span class="p">,</span> <span class="n">load_client_params</span><span class="p">,</span> <span class="n">save_client_params</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Globus&#39;</span><span class="p">,</span> <span class="s1">&#39;get_lab_from_endpoint_id&#39;</span><span class="p">,</span> <span class="s1">&#39;as_globus_path&#39;</span><span class="p">]</span>
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -227,7 +225,7 @@
 <span class="sd">&quot;&quot;&quot;dict: A map of Globus status to &quot;nice&quot; status&quot;&quot;&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">ensure_logged_in</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_logged_in</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for the Globus methods.</span>
 
 <span class="sd">    Before calling methods that require authentication, attempts to log in. If the user is already</span>
@@ -244,17 +242,17 @@
 <span class="sd">    -------</span>
 <span class="sd">    function</span>
 <span class="sd">        Handle to wrapped method.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">wrapper_decorator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper_decorator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">wrapper_decorator</span>
 
 
-<span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="n">par_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">login</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Sets up Globus as a backend for ONE functions.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup</span><span class="p">(</span><span class="n">par_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">login</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets up Globus as a backend for ONE functions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -265,8 +263,8 @@
 <span class="sd">    -------</span>
 <span class="sd">    IBLParams</span>
 <span class="sd">        A set of Globus parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up Globus parameter file. See docstring for help.&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">par_id</span><span class="p">:</span>
         <span class="n">default_par_id</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
@@ -324,9 +322,8 @@
     <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get a Globus authentication token.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_token</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a Globus authentication token.</span>
 
 <span class="sd">    This step requires the user to login to Globus via a browser.</span>
 
@@ -341,6 +338,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        A dict containing the keys {&#39;refresh_token&#39;, &#39;access_token&#39;, &#39;expires_at_seconds&#39;}.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
     <span class="n">client</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="p">))</span>
@@ -348,7 +346,7 @@
     <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;To get a new token, go to this URL and login: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">authorize_url</span><span class="p">))</span>
     <span class="n">auth_code</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter the code you get after login here (press &quot;c&quot; to cancel): &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">auth_code</span> <span class="ow">and</span> <span class="n">auth_code</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">auth_code</span> <span class="ow">and</span> <span class="n">auth_code</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
         <span class="n">token_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">oauth2_exchange_code_for_tokens</span><span class="p">(</span><span class="n">auth_code</span><span class="p">)</span>
         <span class="n">globus_transfer_data</span> <span class="o">=</span> <span class="n">token_response</span><span class="o">.</span><span class="n">by_resource_server</span><span class="p">[</span><span class="s1">&#39;transfer.api.globus.org&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">globus_transfer_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">}</span>
@@ -356,48 +354,8 @@
         <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">create_globus_client</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates a Globus transfer client based on existing parameter file.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    client_name : str</span>
-<span class="sd">        Defines the parameter name to use (globus.client_name), e.g. &#39;default&#39;, &#39;admin&#39;.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    globus_sdk.TransferClient</span>
-<span class="sd">        Globus transfer client instance.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;create_globus_client will be removed in the future, use Globus class instead.&#39;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">globus_pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
-        <span class="n">_setup</span><span class="p">(</span><span class="n">client_name</span><span class="p">,</span> <span class="n">login</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">globus_pars</span> <span class="o">=</span> <span class="n">load_client_params</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">CLIENT_KEY</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">client_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">assert_present</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-
-    <span class="c1"># Assert valid Globus client ID found</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">globus_pars</span> <span class="ow">and</span> <span class="s1">&#39;GLOBUS_CLIENT_ID&#39;</span> <span class="ow">in</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">GLOBUS_CLIENT_ID</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Invalid Globus client ID in client parameter file. Rerun Globus.setup&#39;</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">):</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">GLOBUS_CLIENT_ID</span><span class="p">)</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">authorizer</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">RefreshTokenAuthorizer</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferClient</span><span class="p">(</span><span class="n">authorizer</span><span class="o">=</span><span class="n">authorizer</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">authorizer</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">AccessTokenAuthorizer</span><span class="p">(</span><span class="n">globus_pars</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferClient</span><span class="p">(</span><span class="n">authorizer</span><span class="o">=</span><span class="n">authorizer</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_remove_token_fields</span><span class="p">(</span><span class="n">pars</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove the token fields from a parameters object.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_token_fields</span><span class="p">(</span><span class="n">pars</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the token fields from a parameters object.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -408,6 +366,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    IBLParams</span>
 <span class="sd">        A copy of the params without the token fields.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">pars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pars</span>
@@ -415,7 +374,7 @@
     <span class="k">return</span> <span class="n">iopar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iopar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">})</span>
 
 
-<span class="k">def</span> <span class="nf">_save_globus_params</span><span class="p">(</span><span class="n">pars</span><span class="p">,</span> <span class="n">client_name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_globus_params</span><span class="p">(</span><span class="n">pars</span><span class="p">,</span> <span class="n">client_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save Globus client parameters.</span>
 
 <span class="sd">    Parameters</span>
@@ -431,14 +390,14 @@
     <span class="n">save_client_params</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">,</span> <span class="n">CLIENT_KEY</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_local_endpoint_id</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts the ID of the local Globus Connect endpoint.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_local_endpoint_id</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts the ID of the local Globus Connect endpoint.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    uuid.UUID</span>
 <span class="sd">        The local Globus endpoint ID.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot find local endpoint ID, check if Globus Connect is set up correctly, &#39;</span>
            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> exists and contains a UUID.&#39;</span><span class="p">)</span>
@@ -455,15 +414,16 @@
     <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">local_id</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_local_endpoint_paths</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts the local endpoint paths accessible by Globus Connect.  NB: This is only supported</span>
-<span class="sd">    on Linux.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_local_endpoint_paths</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts the local endpoint paths accessible by Globus Connect.</span>
+
+<span class="sd">    NB: This is only supported on Linux.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    list of pathlib.Path</span>
 <span class="sd">        Local endpoint paths set in Globus Connect.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;On windows the local Globus path needs to be entered manually&#39;</span><span class="p">)</span>
@@ -483,9 +443,8 @@
 
 <div class="viewcode-block" id="get_lab_from_endpoint_id">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.get_lab_from_endpoint_id">[docs]</a>
-<span class="k">def</span> <span class="nf">get_lab_from_endpoint_id</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts lab names associated with a given an endpoint UUID.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_lab_from_endpoint_id</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts lab names associated with a given an endpoint UUID.</span>
 
 <span class="sd">    Finds the lab names that are associated to data repositories with the provided Globus endpoint</span>
 <span class="sd">    UUID.</span>
@@ -501,11 +460,12 @@
 <span class="sd">    -------</span>
 <span class="sd">    list</span>
 <span class="sd">        The lab names associated with the endpoint UUID.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span> <span class="ow">or</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">endpoint</span><span class="p">:</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="n">get_local_endpoint_id</span><span class="p">()</span>
-    <span class="n">lab</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;repositories__globus_endpoint_id,</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">lab</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;labs&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;repositories__globus_endpoint_id,</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lab</span><span class="p">):</span>
         <span class="n">lab_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">la</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">la</span> <span class="ow">in</span> <span class="n">lab</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">lab_names</span></div>
@@ -514,9 +474,8 @@
 
 <div class="viewcode-block" id="as_globus_path">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.as_globus_path">[docs]</a>
-<span class="k">def</span> <span class="nf">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a path into one suitable for the Globus TransferClient.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a path into one suitable for the Globus TransferClient.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -556,6 +515,7 @@
 
 <span class="sd">    &gt;&gt;&gt; as_globus_path(&#39;/E/FlatIron/integration&#39;)</span>
 <span class="sd">    &#39;/E/FlatIron/integration&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_pure_path</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">)</span>
     <span class="n">is_win</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">PureWindowsPath</span><span class="p">)</span>
@@ -577,11 +537,10 @@
 
 <div class="viewcode-block" id="Globus">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus">[docs]</a>
-<span class="k">class</span> <span class="nc">Globus</span><span class="p">(</span><span class="n">DownloadClient</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Globus</span><span class="p">(</span><span class="n">DownloadClient</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Wrapper for managing files on Globus endpoints.</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper for managing files on Globus endpoints.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -602,6 +561,7 @@
 <span class="sd">        Instantiate without user prompts</span>
 
 <span class="sd">        &gt;&gt;&gt; globus = Globus(&#39;server&#39;, headless=True)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Setting up transfer client</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -625,14 +585,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">local_path</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if client exists and is authenticated&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_logged_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if client exists and is authenticated.&quot;&quot;&quot;</span>
         <span class="n">has_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">get_authorization_header</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">has_token</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_expired</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_token_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: True if token absent or expired; False if valid</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_token_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: True if token absent or expired; False if valid.</span>
 
 <span class="sd">        Note the &#39;expires_at_seconds&#39; may be greater than `Globus.client.authorizer.expires_at` if</span>
 <span class="sd">        using refresh tokens. The `login` method will always refresh the token if still valid.</span>
@@ -649,9 +609,8 @@
 
 <div class="viewcode-block" id="Globus.login">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.login">[docs]</a>
-    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Authenticate Globus client.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Authenticate Globus client.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -659,6 +618,7 @@
 <span class="sd">            If True, use refresh token to remain logged in for longer.  If False, use an auth</span>
 <span class="sd">            token without the option of refreshing when expired. If not specified, uses the refresh</span>
 <span class="sd">            token if available.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Already logged in&#39;</span><span class="p">)</span>
@@ -688,7 +648,7 @@
 
 <div class="viewcode-block" id="Globus.logout">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.logout">[docs]</a>
-    <span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Revoke any tokens and delete them from the client and parameter file.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">authorizer</span> <span class="ow">and</span> \
                 <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">authorizer</span><span class="p">,</span> <span class="n">NullAuthorizer</span><span class="p">):</span>
@@ -700,7 +660,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pars</span> <span class="o">=</span> <span class="n">_remove_token_fields</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Authenticate and instantiate Globus SDK client.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stay_logged_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">NativeAppAuthClient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">GLOBUS_CLIENT_ID</span><span class="p">)</span>
@@ -715,9 +675,8 @@
             <span class="n">authorizer</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">AccessTokenAuthorizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">globus_sdk</span><span class="o">.</span><span class="n">TransferClient</span><span class="p">(</span><span class="n">authorizer</span><span class="o">=</span><span class="n">authorizer</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_save_refresh_token_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save a token fetched by the refresh token authorizer.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_refresh_token_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save a token fetched by the refresh token authorizer.</span>
 
 <span class="sd">        This is a callback for the globus_sdk.RefreshTokenAuthorizer to update the parameters.</span>
 
@@ -736,9 +695,8 @@
 
 <div class="viewcode-block" id="Globus.fetch_endpoints_from_alyx">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.fetch_endpoints_from_alyx">[docs]</a>
-    <span class="k">def</span> <span class="nf">fetch_endpoints_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update endpoints property with Alyx Globus data repositories.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_endpoints_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update endpoints property with Alyx Globus data repositories.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -751,6 +709,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
 <span class="sd">            The endpoints added from Alyx.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span> <span class="ow">or</span> <span class="n">AlyxClient</span><span class="p">()</span>
         <span class="n">alyx_endpoints</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
@@ -767,9 +726,8 @@
 
 <div class="viewcode-block" id="Globus.to_address">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.to_address">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get full path for a given endpoint.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get full path for a given endpoint.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -790,6 +748,7 @@
 <span class="sd">        ...                  label=&#39;foobar&#39;, root_path=&#39;/foo&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; glo.to_address(&#39;bar/baz.ext&#39;, &#39;foobar&#39;)</span>
 <span class="sd">        &#39;/foo/bar/baz.ext&#39;</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">root_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_path</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">root_path</span><span class="p">)</span></div>
@@ -798,9 +757,8 @@
 <div class="viewcode-block" id="Globus.download_file">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.download_file">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Download one or more files via Globus.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_address</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download one or more files via Globus.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -839,6 +797,7 @@
 <span class="sd">        Download a folder</span>
 
 <span class="sd">        &gt;&gt;&gt; files = Globus().download_file(&#39;folder/path&#39;, &#39;source_endpoint_name&#39;, recursive=True)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">return_single</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_address</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">recursive</span> <span class="ow">is</span> <span class="kc">False</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;ONE download&#39;</span><span class="p">)</span>
@@ -857,7 +816,7 @@
             <span class="k">return</span> <span class="n">file</span>
 
         <span class="c1"># Order files by input</span>
-        <span class="k">def</span> <span class="nf">_best_match</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_best_match</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Return the index of the input file that best matches downloaded file.&quot;&quot;&quot;</span>
             <span class="n">spans</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">frag</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">file_address</span><span class="p">)]</span>
             <span class="k">return</span> <span class="n">spans</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">spans</span><span class="p">))</span>
@@ -869,9 +828,8 @@
 <div class="viewcode-block" id="Globus.setup">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.setup">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Setup a Globus client.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="n">client_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup a Globus client.</span>
 
 <span class="sd">        In order to use this function you need:</span>
 
@@ -894,6 +852,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        Globus</span>
 <span class="sd">            A new Globus client object.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_setup</span><span class="p">(</span><span class="n">client_name</span><span class="p">,</span> <span class="n">login</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Globus</span><span class="p">(</span><span class="n">client_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -901,9 +860,8 @@
 
 <div class="viewcode-block" id="Globus.add_endpoint">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.add_endpoint">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add an endpoint to the Globus instance to be used by other functions.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an endpoint to the Globus instance to be used by other functions.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -918,6 +876,7 @@
 <span class="sd">            Whether existing endpoint with the same label should be replaced.</span>
 <span class="sd">        alyx : one.webclient.AlyxClient</span>
 <span class="sd">            An AlyxClient instance for looking up repository information.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>  <span class="c1"># MAC address UUID</span>
             <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -938,9 +897,8 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given an absolute path or relative path with a root path, return a Globus path str.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoint_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given an absolute path or relative path with a root path, return a Globus path str.</span>
 
 <span class="sd">        Note: Paths must be POSIX or Globus-compliant paths.  In other words for Windows systems</span>
 <span class="sd">        the input root_path or absolute path must be passed through `as_globus_path` before</span>
@@ -969,6 +927,7 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            Path was not absolute and no root path was given.  An absolute path must start with</span>
 <span class="sd">            a slash on *nix systems.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -979,9 +938,8 @@
         <span class="k">return</span> <span class="n">as_globus_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_ensure_uuid</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Ensures UUID object returned.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_uuid</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures UUID object returned.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -992,12 +950,12 @@
 <span class="sd">        -------</span>
 <span class="sd">        uuid.UUID</span>
 <span class="sd">            A UUID object.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">UUID</span><span class="p">)</span> <span class="k">else</span> <span class="n">uid</span>
 
-    <span class="k">def</span> <span class="nf">_endpoint_id_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return endpoint UUID and root path from a given endpoint identifier.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoint_id_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return endpoint UUID and root path from a given endpoint identifier.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1020,6 +978,7 @@
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
 <span class="sd">        Globus._sanitize_local</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">root_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -1048,9 +1007,8 @@
                 <span class="s1">&#39;&quot;endpoint&quot; must be a UUID or the label of an endpoint registered in this &#39;</span>
                 <span class="s1">&#39;Globus instance. You can add endpoints via the add_endpoints method&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_sanitize_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Ensure local root path on Windows is POSIX-style.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure local root path on Windows is POSIX-style.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1080,6 +1038,7 @@
 <span class="sd">        &gt;&gt;&gt; uid = UUID(&#39;c7c46cec-3124-11ee-bf50-482ae33bf6ca&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; glo._sanitize_local(uid, &#39;C:\\Data&#39;)</span>
 <span class="sd">        UUID(&#39;c7c46cec-3124-11ee-bf50-482ae33bf6ca&#39;), &#39;C:\\Data&#39;</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">root_path</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">endpoint_id</span><span class="p">,</span> <span class="kc">None</span>
@@ -1096,10 +1055,9 @@
 <div class="viewcode-block" id="Globus.transfer_data">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.transfer_data">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">def</span> <span class="nf">transfer_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">destination_endpoint</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transfer_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">destination_endpoint</span><span class="p">,</span>
                       <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Transfer one or more paths between endpoints.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfer one or more paths between endpoints.</span>
 
 <span class="sd">        At least one of the endpoints must be a server endpoint.  Both file and directory paths may</span>
 <span class="sd">        be provided, however if recursive is true, all paths must be directories.</span>
@@ -1140,6 +1098,7 @@
 <span class="sd">        &gt;&gt;&gt; folder = &#39;path/to/folder&#39;</span>
 <span class="sd">        &gt;&gt;&gt; task_id = glo.transfer_data(</span>
 <span class="sd">        ...    folder, &#39;source_endpoint&#39;, &#39;destination_endpoint&#39;, recursive=True)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;source_endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">source_endpoint</span>
                                      <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
@@ -1161,9 +1120,8 @@
 <div class="viewcode-block" id="Globus.delete_data">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.delete_data">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">def</span> <span class="nf">delete_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete one or more paths within an endpoint.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete one or more paths within an endpoint.</span>
 
 <span class="sd">        Both file and directory paths may be provided, however if recursive is true, all paths must</span>
 <span class="sd">        be directories.</span>
@@ -1201,6 +1159,7 @@
 
 <span class="sd">        &gt;&gt;&gt; folder = &#39;path/to/folder&#39;</span>
 <span class="sd">        &gt;&gt;&gt; task_id = glo.delete_data(folder, &#39;endpoint_name&#39;, recursive=True)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">endpoint</span>
                               <span class="k">if</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
@@ -1218,9 +1177,9 @@
 <div class="viewcode-block" id="Globus.ls">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.ls">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove_uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the list of (filename, filesize) in a given endpoint directory.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove_uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of (filename, filesize) in a given endpoint directory.</span>
+
 <span class="sd">        NB: If you&#39;re using ls routinely when transferring or deleting files you&#39;re probably doing</span>
 <span class="sd">        something wrong!</span>
 
@@ -1244,6 +1203,7 @@
 <span class="sd">        list</span>
 <span class="sd">            A list of PurePosixPath objects of the files and folders listed, or if return_size is</span>
 <span class="sd">            True, tuples of PurePosixPath objects and the corresponding file sizes.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check if endpoint is a UUID, if not try to get UUID from registered endpoints</span>
         <span class="n">endpoint_id</span><span class="p">,</span> <span class="n">root_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
@@ -1274,10 +1234,9 @@
 <div class="viewcode-block" id="Globus.mv">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.mv">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">def</span> <span class="nf">mv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">target_endpoint</span><span class="p">,</span> <span class="n">source_paths</span><span class="p">,</span> <span class="n">target_paths</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">target_endpoint</span><span class="p">,</span> <span class="n">source_paths</span><span class="p">,</span> <span class="n">target_paths</span><span class="p">,</span>
            <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Move files from one endpoint to another.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move files from one endpoint to another.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1301,6 +1260,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        uuid.UUID</span>
 <span class="sd">            A Globus task ID.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">source_endpoint</span><span class="p">,</span> <span class="n">source_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">source_endpoint</span><span class="p">)</span>
         <span class="n">target_endpoint</span><span class="p">,</span> <span class="n">target_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_id_root</span><span class="p">(</span><span class="n">target_endpoint</span><span class="p">)</span>
@@ -1313,8 +1273,8 @@
         <span class="k">for</span> <span class="n">source_path</span><span class="p">,</span> <span class="n">target_path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source_paths</span><span class="p">,</span> <span class="n">target_paths</span><span class="p">):</span>
             <span class="n">tdata</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">source_path</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Function to submit Globus transfer and return the resulting task ID&quot;&quot;&quot;</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">():</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Function to submit Globus transfer and return the resulting task ID.&quot;&quot;&quot;</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="p">(</span><span class="n">tdata</span><span class="p">)</span>
             <span class="n">task_id</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;task_id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">task_id</span>
@@ -1325,9 +1285,9 @@
 <div class="viewcode-block" id="Globus.run_task">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.run_task">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">globus_func</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Block until a Globus task finishes and retry upon Network or REST Errors.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">globus_func</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Block until a Globus task finishes and retry upon Network or REST Errors.</span>
+
 <span class="sd">        globus_func needs to submit a task to the client and return a task_id.</span>
 
 <span class="sd">        Parameters</span>
@@ -1351,6 +1311,7 @@
 
 <span class="sd">        TODO Add a quick fail option that returns when files missing, etc.</span>
 <span class="sd">        TODO Add status logging</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">task_id</span> <span class="o">=</span> <span class="n">globus_func</span><span class="p">()</span>
@@ -1398,9 +1359,8 @@
 <div class="viewcode-block" id="Globus.task_wait_async">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.globus.html#one.remote.globus.Globus.task_wait_async">[docs]</a>
     <span class="nd">@ensure_logged_in</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">task_wait_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">polling_interval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Asynchronously wait until a Task is complete or fails, with a time limit.</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">task_wait_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">polling_interval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronously wait until a Task is complete or fails, with a time limit.</span>
 
 <span class="sd">        If the task status is ACTIVE after timout, returns False, otherwise returns True.</span>
 
@@ -1423,6 +1383,7 @@
 <span class="sd">        Asynchronously await a task to complete</span>
 
 <span class="sd">        &gt;&gt;&gt; await Globus().task_wait_async(task_id)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">polling_interval</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">GlobusSDKUsageError</span><span class="p">(</span><span class="s1">&#39;polling_interval must be at least 1 second&#39;</span><span class="p">)</span>

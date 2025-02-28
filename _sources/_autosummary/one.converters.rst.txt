@@ -14,11 +14,13 @@ one.converters
    .. autosummary::
       :nosignatures:
    
+      datasets2records
       one_path_from_dataset
       parse_values
       path_from_dataset
       path_from_filerecord
       recurse
+      ses2records
       session_record2path
    
    

@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.alf.io &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="one.alf.path" href="one.alf.path.html" />
-    <link rel="prev" title="one.alf.files" href="one.alf.files.html" /> 
+    <link rel="prev" title="one.alf.exceptions" href="one.alf.exceptions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -82,7 +82,6 @@
 <li class="toctree-l3 current"><a class="reference internal" href="one.alf.html">one.alf</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="one.alf.cache.html">one.alf.cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.alf.exceptions.html">one.alf.exceptions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="one.alf.files.html">one.alf.files</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">one.alf.io</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.alf.path.html">one.alf.path</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.alf.spec.html">one.alf.spec</a></li>
@@ -100,8 +99,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -145,10 +142,10 @@ For a full overview of the scope of the format, see:</p>
 <td><p>Test for consistency of dimensions as per ALF specs in a dictionary.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.dataframe" title="one.alf.io.dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataframe</span></code></a></p></td>
-<td><p>Converts an Bunch conforming to size conventions into a pandas DataFrame.</p></td>
+<td><p>Convert an Bunch conforming to size conventions into a pandas DataFrame.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.exists" title="one.alf.io.exists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exists</span></code></a></p></td>
-<td><p>Test if ALF object and optionally specific attributes exist in the given path</p></td>
+<td><p>Test if ALF object and optionally specific attributes exist in the given path.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.filter_by" title="one.alf.io.filter_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_by</span></code></a></p></td>
 <td><p>Given a path and optional filters, returns all ALF files and their associated parts.</p></td>
@@ -163,7 +160,7 @@ For a full overview of the scope of the format, see:</p>
 <td><p>Recursively iterate over session paths in a given directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.load_file_content" title="one.alf.io.load_file_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_file_content</span></code></a></p></td>
-<td><p>Returns content of files.</p></td>
+<td><p>Return content of a file path.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.load_object" title="one.alf.io.load_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_object</span></code></a></p></td>
 <td><p>Reads all files sharing the same object name.</p></td>
@@ -172,25 +169,19 @@ For a full overview of the scope of the format, see:</p>
 <td><p>Return the next number for a session given a session_date_folder.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.read_ts" title="one.alf.io.read_ts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_ts</span></code></a></p></td>
-<td><p>Load time-series from ALF format</p></td>
+<td><p>Load time-series from ALF format.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_empty_folders" title="one.alf.io.remove_empty_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_folders</span></code></a></p></td>
 <td><p>Iteratively remove any empty child folders.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_file" title="one.alf.io.remove_uuid_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_file</span></code></a></p></td>
-<td><p>(DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.remove_uuid_recursive" title="one.alf.io.remove_uuid_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_uuid_recursive</span></code></a></p></td>
-<td><p>(DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.save_metadata" title="one.alf.io.save_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_metadata</span></code></a></p></td>
 <td><p>Writes a meta data file matching a current ALF file object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.alf.io.save_object_npy" title="one.alf.io.save_object_npy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_object_npy</span></code></a></p></td>
-<td><p>Saves a dictionary in <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">ALF format</a> using object as object name and dictionary keys as attribute names.</p></td>
+<td><p>Save dictionary in <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">ALF format</a> using dictionary keys as attribute names.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.ts2vec" title="one.alf.io.ts2vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ts2vec</span></code></a></p></td>
-<td><p>Interpolate a continuous timeseries of the shape (2, 2)</p></td>
+<td><p>Interpolate a continuous timeseries of the shape (2, 2).</p></td>
 </tr>
 </tbody>
 </table>
@@ -198,19 +189,19 @@ For a full overview of the scope of the format, see:</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlfBunch</span></code></a></p></td>
-<td><p>A dict-like object that supports dot indexing and conversion to DataFrame</p></td>
+<td><p>A dict-like object that supports dot indexing and conversion to DataFrame.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AlfBunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AlfBunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Bunch</span></code></p>
-<p>A dict-like object that supports dot indexing and conversion to DataFrame</p>
+<p>A dict-like object that supports dot indexing and conversion to DataFrame.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch.check_dimensions">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_dimensions</span></span><a class="headerlink" href="#one.alf.io.AlfBunch.check_dimensions" title="Link to this definition"></a></dt>
-<dd><p>0 for consistent dimensions, 1 for inconsistent dimensions</p>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_dimensions</span></span><a class="headerlink" href="#one.alf.io.AlfBunch.check_dimensions" title="Link to this definition"></a></dt>
+<dd><p>0 for consistent dimensions, 1 for inconsistent dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -221,7 +212,7 @@ For a full overview of the scope of the format, see:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch.append">
 <span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch.append" title="Link to this definition"></a></dt>
-<dd><p>Appends one bunch to another, key by key</p>
+<dd><p>Appends one bunch to another, key by key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -241,12 +232,12 @@ For a full overview of the scope of the format, see:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch.to_df">
 <span class="sig-name descname"><span class="pre">to_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch.to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch.to_df" title="Link to this definition"></a></dt>
-<dd><p>Return DataFrame with data keys as columns</p>
+<dd><p>Return DataFrame with data keys as columns.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.alf.io.AlfBunch.from_df">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch"><span class="pre">AlfBunch</span></a></span></span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch.from_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch.from_df" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#one.alf.io.AlfBunch" title="one.alf.io.AlfBunch"><span class="pre">AlfBunch</span></a></span></span><a class="reference internal" href="../_modules/one/alf/io.html#AlfBunch.from_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.AlfBunch.from_df" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -254,8 +245,8 @@ For a full overview of the scope of the format, see:</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.dataframe">
 <span class="sig-name descname"><span class="pre">dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.dataframe" title="Link to this definition"></a></dt>
-<dd><p>Converts an Bunch conforming to size conventions into a pandas DataFrame.
-For 2-D arrays, stops at 10 columns per attribute.</p>
+<dd><p>Convert an Bunch conforming to size conventions into a pandas DataFrame.</p>
+<p>For 2-D arrays, stops at 10 columns per attribute.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>adict</strong> (<em>dict</em><em>, </em><em>Bunch</em>) – A dict-like object of data to convert to DataFrame</p>
@@ -272,7 +263,7 @@ For 2-D arrays, stops at 10 columns per attribute.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.read_ts">
 <span class="sig-name descname"><span class="pre">read_ts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#read_ts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.read_ts" title="Link to this definition"></a></dt>
-<dd><p>Load time-series from ALF format</p>
+<dd><p>Load time-series from ALF format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An ALF path whose values to load</p>
@@ -294,7 +285,7 @@ For 2-D arrays, stops at 10 columns per attribute.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.ts2vec">
 <span class="sig-name descname"><span class="pre">ts2vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#ts2vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.ts2vec" title="Link to this definition"></a></dt>
-<dd><p>Interpolate a continuous timeseries of the shape (2, 2)</p>
+<dd><p>Interpolate a continuous timeseries of the shape (2, 2).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -334,8 +325,8 @@ dims [a, 1],  [1, b] and [a, b] are all consistent, [c, 1] is not</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.load_file_content">
 <span class="sig-name descname"><span class="pre">load_file_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fil</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/io.html#load_file_content"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.load_file_content" title="Link to this definition"></a></dt>
-<dd><p>Returns content of files. Designed for very generic file formats:
-so far supported contents are <cite>json</cite>, <cite>npy</cite>, <cite>csv</cite>, <cite>(h)tsv</cite>, <cite>ssv</cite>, <cite>jsonable</cite></p>
+<dd><p>Return content of a file path.</p>
+<p>Designed for very generic data file formats such as <cite>json</cite>, <cite>npy</cite>, <cite>csv</cite>, <cite>(h)tsv</cite>, <cite>ssv</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fil</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – File to read</p>
@@ -385,7 +376,7 @@ this more performant (see examples).</p></li>
 <dd class="field-odd"><p><strong>session_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – The folder to look for datasets.</p>
 </dd>
 <dt class="field-even">Yields<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>pathlib.Path</em> – The next dataset path (relative to the session path) in lexicographical order.</p>
+<dd class="field-even"><p><em>one.alf.path.ALFPath</em> – The next dataset path (relative to the session path) in lexicographical order.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -393,7 +384,7 @@ this more performant (see examples).</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.exists">
 <span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alfpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.exists" title="Link to this definition"></a></dt>
-<dd><p>Test if ALF object and optionally specific attributes exist in the given path</p>
+<dd><p>Test if ALF object and optionally specific attributes exist in the given path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -456,25 +447,25 @@ and timescale.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.save_object_npy">
 <span class="sig-name descname"><span class="pre">save_object_npy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alfpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dico</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timescale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#save_object_npy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.save_object_npy" title="Link to this definition"></a></dt>
-<dd><p>Saves a dictionary in <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">ALF format</a> using object as object name and dictionary keys as
-attribute names. Dimensions have to be consistent.</p>
-<p>Simplified ALF example: _namespace_object.attribute.part1.part2.extension</p>
+<dd><p>Save dictionary in <a class="reference external" href="https://int-brain-lab.github.io/ONE/alf_intro.html">ALF format</a> using dictionary keys as attribute names.</p>
+<p>Dimensions have to be consistent.</p>
+<p>Simplified ALF example: _namespace_object.attribute.part1.part2.extension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Path of the folder to save data to</p></li>
-<li><p><strong>dico</strong> (<em>dict</em>) – Dictionary to save to npy; keys correspond to ALF attributes</p></li>
-<li><p><strong>object</strong> (<em>str</em>) – Name of the object to save</p></li>
-<li><p><strong>parts</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>None</em>) – Extra parts to the ALF name</p></li>
-<li><p><strong>namespace</strong> (<em>str</em><em>, </em><em>None</em>) – The optional namespace of the object</p></li>
-<li><p><strong>timescale</strong> (<em>str</em><em>, </em><em>None</em>) – The optional timescale of the object</p></li>
+<li><p><strong>alfpath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Path of the folder to save data to.</p></li>
+<li><p><strong>dico</strong> (<em>dict</em>) – Dictionary to save to npy; keys correspond to ALF attributes.</p></li>
+<li><p><strong>object</strong> (<em>str</em>) – Name of the object to save.</p></li>
+<li><p><strong>parts</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>None</em>) – Extra parts to the ALF name.</p></li>
+<li><p><strong>namespace</strong> (<em>str</em><em>, </em><em>None</em>) – The optional namespace of the object.</p></li>
+<li><p><strong>timescale</strong> (<em>str</em><em>, </em><em>None</em>) – The optional timescale of the object.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of written files</p>
+<dd class="field-even"><p>List of written files.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -486,7 +477,7 @@ attribute names. Dimensions have to be consistent.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="one.alf.io.save_metadata">
-<span class="sig-name descname"><span class="pre">save_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_alf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dico</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#save_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.save_metadata" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_alf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dico</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath"><span class="pre">ALFPath</span></a></span></span><a class="reference internal" href="../_modules/one/alf/io.html#save_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.save_metadata" title="Link to this definition"></a></dt>
 <dd><p>Writes a meta data file matching a current ALF file object.</p>
 <p>For example given an alf file <cite>clusters.ccfLocation.ssv</cite> this will write a dictionary in JSON
 format in <cite>clusters.ccfLocation.metadata.json</cite></p>
@@ -505,39 +496,11 @@ format in <cite>clusters.ccfLocation.metadata.json</cite></p>
 <li><p><strong>dico</strong> (<em>dict</em><em>, </em><em>ALFBunch</em>) – Dictionary containing meta-data</p></li>
 </ul>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="one.alf.io.remove_uuid_file">
-<span class="sig-name descname"><span class="pre">remove_uuid_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#remove_uuid_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.remove_uuid_file" title="Link to this definition"></a></dt>
-<dd><p>(DEPRECATED) Renames a file without the UUID and returns the new pathlib.Path object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An ALF path containing a UUID in the file name.</p></li>
-<li><p><strong>dry</strong> (<em>bool</em>) – If False, the file is not renamed on disk.</p></li>
-</ul>
-</dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The new file path without the UUID in the file name.</p>
+<dd class="field-even"><p>The saved metadata file path.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="one.alf.io.remove_uuid_recursive">
-<span class="sig-name descname"><span class="pre">remove_uuid_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/alf/io.html#remove_uuid_recursive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.io.remove_uuid_recursive" title="Link to this definition"></a></dt>
-<dd><p>(DEPRECATED) Within a folder, recursive renaming of all files to remove UUID.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A folder to recursively iterate, removing UUIDs from the file names.</p></li>
-<li><p><strong>dry</strong> (<em>bool</em>) – If False renames the files on disk.</p></li>
-</ul>
+<dd class="field-odd"><p><a class="reference internal" href="one.alf.path.html#one.alf.path.ALFPath" title="one.alf.path.ALFPath">one.alf.path.ALFPath</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -563,21 +526,21 @@ elements must match (a logical OR).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>alf_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to a folder containing ALF datasets</p></li>
-<li><p><strong>wildcards</strong> (<em>bool</em>) – If true, kwargs are matched as unix-style patterns, otherwise as regular expressions</p></li>
-<li><p><strong>object</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given object (e.g. ‘spikes’)</p></li>
-<li><p><strong>attribute</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given attribute (e.g. ‘intervals’)</p></li>
-<li><p><strong>extension</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by extension (e.g. ‘npy’)</p></li>
-<li><p><strong>namespace</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given namespace (e.g. ‘ibl’) or None for files without one</p></li>
-<li><p><strong>timescale</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given timescale (e.g. ‘bpod’) or None for files without one</p></li>
+<li><p><strong>alf_path</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – A path to a folder containing ALF datasets.</p></li>
+<li><p><strong>wildcards</strong> (<em>bool</em>) – If true, kwargs are matched as unix-style patterns, otherwise as regular expressions.</p></li>
+<li><p><strong>object</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given object (e.g. ‘spikes’).</p></li>
+<li><p><strong>attribute</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given attribute (e.g. ‘intervals’).</p></li>
+<li><p><strong>extension</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by extension (e.g. ‘npy’).</p></li>
+<li><p><strong>namespace</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given namespace (e.g. ‘ibl’) or None for files without one.</p></li>
+<li><p><strong>timescale</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by a given timescale (e.g. ‘bpod’) or None for files without one.</p></li>
 <li><p><strong>extra</strong> (<em>str</em><em>, </em><em>list</em>) – Filter by extra parameters (e.g. ‘raw’) or None for files without extra parts
 NB: Wild cards not permitted here.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>alf_files</strong> (<em>str</em>) – A Path to a directory containing ALF files</p></li>
-<li><p><strong>attributes</strong> (<em>list of dicts</em>) – A list of parsed file parts</p></li>
+<li><p><strong>alf_files</strong> (<em>list of one.alf.path.ALFPath</em>) – A Path to a directory containing ALF files.</p></li>
+<li><p><strong>attributes</strong> (<em>list of dicts</em>) – A list of parsed file parts.</p></li>
 </ul>
 </p>
 </dd>
@@ -663,7 +626,7 @@ comparing datasets.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.alf.files.html" class="btn btn-neutral float-left" title="one.alf.files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.alf.exceptions.html" class="btn btn-neutral float-left" title="one.alf.exceptions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="one.alf.path.html" class="btn btn-neutral float-right" title="one.alf.path" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

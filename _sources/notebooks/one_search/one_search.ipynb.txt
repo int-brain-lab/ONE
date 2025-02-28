@@ -11,18 +11,18 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": 7,
    "id": "f1059dad",
    "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:35.816915300Z",
+     "start_time": "2023-08-16T11:44:35.703297300Z"
+    },
     "execution": {
      "iopub.execute_input": "2021-09-07T19:19:07.354046Z",
      "iopub.status.busy": "2021-09-07T19:19:07.354046Z",
      "iopub.status.idle": "2021-09-07T19:19:08.591171Z",
      "shell.execute_reply": "2021-09-07T19:19:08.590390Z"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:35.816915300Z",
-     "start_time": "2023-08-16T11:44:35.703297300Z"
     }
    },
    "outputs": [
@@ -30,7 +30,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "('dataset', 'date_range', 'laboratory', 'number', 'projects', 'subject', 'task_protocol')\n"
+      "('auto_datetime', 'limit', 'django', 'end_time', 'performance_gte', 'parent_session', 'project', 'dataset_qc_lte', 'id', 'start_time', 'histology', 'offset', 'performance_lte', 'procedures', 'json', 'narrative', 'name', 'atlas_name', 'nickname', 'number', 'type', 'extended_qc', 'atlas_id', 'date_range', 'n_trials', 'n_correct_trials', 'projects', 'laboratory', 'qc', 'task_protocol', 'datasets', 'users', 'dataset_types', 'subject', 'location', 'tag', 'atlas_acronym')\n"
      ]
     }
    ],
@@ -51,18 +51,18 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 20,
+   "execution_count": 8,
    "id": "615b849e",
    "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:35.947082400Z",
+     "start_time": "2023-08-16T11:44:35.717260100Z"
+    },
     "execution": {
      "iopub.execute_input": "2021-09-07T19:19:08.613510Z",
      "iopub.status.busy": "2021-09-07T19:19:08.612190Z",
      "iopub.status.idle": "2021-09-07T19:19:08.622008Z",
      "shell.execute_reply": "2021-09-07T19:19:08.621194Z"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:35.947082400Z",
-     "start_time": "2023-08-16T11:44:35.717260100Z"
     }
    },
    "outputs": [
@@ -70,47 +70,49 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "['ef91b4d0-02a3-48c4-b6ad-610d346e5f68', 'b4e3383c-6cdb-49af-81a1-39b8f88aa5fd']\n"
+      "[UUID('024113d9-245e-4b67-afdb-9a7213d94446'),\n",
+      " UUID('9119c8d3-9894-4a88-9420-a6fa8ea05a0e'),\n",
+      " UUID('329f5a74-93ec-48de-a569-cf40a386f712')]\n"
      ]
     }
    ],
    "source": [
     "from pprint import pprint\n",
-    "eids = one.search(date_range=['2021-01-01', '2021-01-01'])\n",
-    "pprint(eids)"
+    "eids = one.search(date_range=['2023-10-25', '2023-10-25'])\n",
+    "pprint(list(eids))"
    ]
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "A single date can be provided instead of a range. Also to define only the upper or lower date bound, set the other element to None."
-   ],
+   "id": "cb4b412ba3f5369c",
    "metadata": {
     "collapsed": false,
     "pycharm": {
      "name": "#%% md\n"
     }
    },
-   "id": "cb4b412ba3f5369c"
+   "source": [
+    "A single date can be provided instead of a range. Also to define only the upper or lower date bound, set the other element to None."
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 21,
-   "outputs": [],
-   "source": [
-    "assert one.search(date_range=['2021-01-01', '2021-01-01']) == one.search(date_range='2021-01-01')"
-   ],
+   "execution_count": 9,
+   "id": "df0e2477078cc019",
    "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    },
     "ExecuteTime": {
      "end_time": "2023-08-16T11:44:35.994954600Z",
      "start_time": "2023-08-16T11:44:35.779919900Z"
+    },
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
     }
    },
-   "id": "df0e2477078cc019"
+   "outputs": [],
+   "source": [
+    "assert one.search(date_range=['2023-10-25', '2023-10-25']) == one.search(date_range='2023-10-25')"
+   ]
   },
   {
    "cell_type": "markdown",
@@ -122,18 +124,18 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 22,
+   "execution_count": 10,
    "id": "1cac7162",
    "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:36.007920Z",
+     "start_time": "2023-08-16T11:44:35.859110200Z"
+    },
     "execution": {
      "iopub.execute_input": "2021-09-07T19:19:08.638650Z",
      "iopub.status.busy": "2021-09-07T19:19:08.636895Z",
      "iopub.status.idle": "2021-09-07T19:19:08.658966Z",
      "shell.execute_reply": "2021-09-07T19:19:08.657556Z"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:36.007920Z",
-     "start_time": "2023-08-16T11:44:35.859110200Z"
     }
    },
    "outputs": [
@@ -141,23 +143,38 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "[{'date': datetime.date(2021, 1, 1),\n",
+      "[{'date': datetime.date(2023, 10, 25),\n",
+      "  'id': '024113d9-245e-4b67-afdb-9a7213d94446',\n",
+      "  'lab': 'wittenlab',\n",
+      "  'number': 1,\n",
+      "  'projects': ['witten_learning_dop'],\n",
+      "  'start_time': '2023-10-25T11:01:50.579936',\n",
+      "  'subject': 'fip_912',\n",
+      "  'task_protocol': '_iblrig_tasks_FPROptoChoiceWorld6.4.2',\n",
+      "  'url': 'https://openalyx.internationalbrainlab.org/sessions/024113d9-245e-4b67-afdb-9a7213d94446'},\n",
+      " {'date': datetime.date(2023, 10, 25),\n",
+      "  'id': '9119c8d3-9894-4a88-9420-a6fa8ea05a0e',\n",
+      "  'lab': 'wittenlab',\n",
+      "  'number': 1,\n",
+      "  'projects': ['witten_learning_dop'],\n",
+      "  'start_time': '2023-10-25T09:55:24.599600',\n",
+      "  'subject': 'fip_911',\n",
+      "  'task_protocol': '_iblrig_tasks_FPROptoChoiceWorld6.4.2',\n",
+      "  'url': 'https://openalyx.internationalbrainlab.org/sessions/9119c8d3-9894-4a88-9420-a6fa8ea05a0e'},\n",
+      " {'date': datetime.date(2023, 10, 25),\n",
+      "  'id': '329f5a74-93ec-48de-a569-cf40a386f712',\n",
       "  'lab': 'wittenlab',\n",
       "  'number': 2,\n",
-      "  'projects': 'witten_learning_dop',\n",
-      "  'subject': 'fip_12',\n",
-      "  'task_protocol': '_iblrig_tasks_FPChoiceWorld6.4.2'},\n",
-      " {'date': datetime.date(2021, 1, 1),\n",
-      "  'lab': 'wittenlab',\n",
-      "  'number': 2,\n",
-      "  'projects': 'witten_learning_dop',\n",
-      "  'subject': 'fip_11',\n",
-      "  'task_protocol': '_iblrig_tasks_FP_biasedChoiceWorld6.4.2'}]\n"
+      "  'projects': ['witten_learning_dop'],\n",
+      "  'start_time': '2023-10-25T08:57:09.804297',\n",
+      "  'subject': 'fip_910',\n",
+      "  'task_protocol': '_iblrig_tasks_FPLOptoChoiceWorld6.4.2',\n",
+      "  'url': 'https://openalyx.internationalbrainlab.org/sessions/329f5a74-93ec-48de-a569-cf40a386f712'}]\n"
      ]
     }
    ],
    "source": [
-    "eids, details = one.search(date_range=['2021-01-01', '2021-01-01'], details=True)\n",
+    "eids, details = one.search(date_range=['2023-10-25', '2023-10-25'], details=True)\n",
     "pprint(details)"
    ]
   },
@@ -171,18 +188,18 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": 11,
    "id": "98802da6",
    "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:36.149540700Z",
+     "start_time": "2023-08-16T11:44:35.904985700Z"
+    },
     "execution": {
      "iopub.execute_input": "2021-09-07T19:19:08.670654Z",
      "iopub.status.busy": "2021-09-07T19:19:08.668862Z",
      "iopub.status.idle": "2021-09-07T19:19:08.689760Z",
      "shell.execute_reply": "2021-09-07T19:19:08.690757Z"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:36.149540700Z",
-     "start_time": "2023-08-16T11:44:35.904985700Z"
     }
    },
    "outputs": [
@@ -190,100 +207,105 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "['4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a',\n",
-      " 'c6db3304-c906-400c-aa0f-45dd3945b2ea',\n",
-      " '88d24c31-52e4-49cc-9f32-6adbeb9eba87',\n",
-      " '6fb1e12c-883b-46d1-a745-473cde3232c8',\n",
-      " '695a6073-eae0-49e0-bb0f-e9e57a9275b9',\n",
-      " '6f09ba7e-e3ce-44b0-932b-c003fb44fb89',\n",
-      " 'f3ce3197-d534-4618-bf81-b687555d1883']\n"
+      "[UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a'),\n",
+      " UUID('c6db3304-c906-400c-aa0f-45dd3945b2ea'),\n",
+      " UUID('88d24c31-52e4-49cc-9f32-6adbeb9eba87'),\n",
+      " UUID('6fb1e12c-883b-46d1-a745-473cde3232c8'),\n",
+      " UUID('695a6073-eae0-49e0-bb0f-e9e57a9275b9'),\n",
+      " UUID('6f09ba7e-e3ce-44b0-932b-c003fb44fb89'),\n",
+      " UUID('f3ce3197-d534-4618-bf81-b687555d1883')]\n"
      ]
     }
    ],
    "source": [
-    "eids = one.search(subject='SWC_043', dataset=['spikes.times', 'spikes.clusters'])\n",
+    "eids = one.search(subject='SWC_043', datasets=['spikes.times.npy', 'spikes.clusters.npy'])\n",
     "pprint(eids)"
    ]
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "More search terms are available when making [remote queries](../one_modes.html) (using the remote\n",
-    "Alyx database instead of the local cache).  You can view all the remote search terms with the\n",
-    "'remote' arg:"
-   ],
+   "id": "8b568b6f5d92cc22",
    "metadata": {
     "collapsed": false
    },
-   "id": "8b568b6f5d92cc22"
+   "source": [
+    "More search terms are available when making [local queries](../one_modes.html) (using the local cache instead of the remote\n",
+    "Alyx database).  You can view all the local search terms with the\n",
+    "'local' arg:"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 24,
+   "execution_count": 12,
+   "id": "478524e9a00663b5",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:36.150538600Z",
+     "start_time": "2023-08-16T11:44:36.014900200Z"
+    },
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
    "outputs": [],
    "source": [
     "one.search_terms('remote')\n",
     "eids = one.search(performance_gte=70, query_type='remote')"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:36.150538600Z",
-     "start_time": "2023-08-16T11:44:36.014900200Z"
-    }
-   },
-   "id": "478524e9a00663b5"
+   ]
   },
   {
    "cell_type": "markdown",
+   "id": "8df01601c3a47ec6",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "<div class=\"alert alert-warning\">\n",
     "Warning.\n",
     "\n",
-    "Remote search queries behave slightly differently. See \"<a href=\"#Gochas\">Gochas</a>\" below.\n",
+    "Local search queries behave slightly differently. See \"<a href=\"#Gochas\">Gochas</a>\" below.\n",
     "</div>"
-   ],
-   "metadata": {
-    "collapsed": false
-   },
-   "id": "8df01601c3a47ec6"
+   ]
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "Search term arguments may be shortened, so long as they are not ambiguous:"
-   ],
+   "id": "962d104f9cde7022",
    "metadata": {
     "collapsed": false
    },
-   "id": "962d104f9cde7022"
+   "source": [
+    "Search term arguments may be shortened, so long as they are not ambiguous:"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 25,
-   "outputs": [],
-   "source": [
-    "assert one.search(task_protocol='training') == one.search(task='training')\n",
-    "assert one.search(project='brainwide') == one.search(proj='brainwide')\n",
-    "assert one.search(date_range='2021-01-01') == one.search(date='2021-01-01')"
-   ],
+   "execution_count": 13,
+   "id": "d694306297092437",
    "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    },
     "ExecuteTime": {
      "end_time": "2023-08-16T11:44:36.539909200Z",
      "start_time": "2023-08-16T11:44:36.030857900Z"
+    },
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
     }
    },
-   "id": "d694306297092437"
+   "outputs": [],
+   "source": [
+    "assert one.search(task_protocol='training', date_range='2020-03-23') == one.search(task='training', date='2020-03-23')"
+   ]
   },
   {
    "cell_type": "markdown",
+   "id": "865a856fc75a41c7",
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
    "source": [
     "`one.search(dat='2020-01-01')` will raise a ValueError as 'dat' could be short for both 'date_range' and 'dataset'.\n",
     "\n",
@@ -292,14 +314,7 @@
     "\n",
     "There are more search terms when using remote mode, for example 'data' can match both 'dataset' and 'datasets' in remote mode.\n",
     "</div>\n"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "id": "865a856fc75a41c7"
+   ]
   },
   {
    "cell_type": "markdown",
@@ -311,9 +326,13 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 26,
+   "execution_count": 14,
    "id": "98e5d825",
    "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:36.594649700Z",
+     "start_time": "2023-08-16T11:44:36.542894400Z"
+    },
     "execution": {
      "iopub.execute_input": "2021-09-07T19:19:08.703231Z",
      "iopub.status.busy": "2021-09-07T19:19:08.701982Z",
@@ -322,10 +341,6 @@
     },
     "pycharm": {
      "name": "#%%\n"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:36.594649700Z",
-     "start_time": "2023-08-16T11:44:36.542894400Z"
     }
    },
    "outputs": [
@@ -342,7 +357,7 @@
       "    \n",
       "        one.search_terms(query_type='remote')\n",
       "    \n",
-      "    For all of the search parameters, a single value or list may be provided.  For `dataset`,\n",
+      "    For all search parameters, a single value or list may be provided.  For `dataset`,\n",
       "    the sessions returned will contain all listed datasets.  For the other parameters,\n",
       "    the session must contain at least one of the entries.\n",
       "    \n",
@@ -352,10 +367,8 @@
       "    \n",
       "    Parameters\n",
       "    ----------\n",
-      "    dataset : str\n",
-      "        A (partial) dataset name. Returns sessions containing matching datasets.\n",
-      "        A dataset matches if it contains the search string e.g. 'wheel.position' matches\n",
-      "        '_ibl_wheel.position.npy'. C.f. `datasets` argument.\n",
+      "    datasets : str, list\n",
+      "        One or more (exact) dataset names. Returns sessions containing all of these datasets.\n",
       "    date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp\n",
       "        A single date to search or a list of 2 dates that define the range (inclusive).  To\n",
       "        define only the upper or lower date bound, set the other element to None.\n",
@@ -382,9 +395,12 @@
       "        A str or list of lab location (as per Alyx definition) name.\n",
       "        Note: this corresponds to the specific rig, not the lab geographical location per se.\n",
       "    dataset_types : str, list\n",
-      "        One or more of dataset_types.\n",
-      "    datasets : str, list\n",
-      "        One or more (exact) dataset names. Returns insertions containing all of these datasets.\n",
+      "        One or more of dataset_types. Unlike with `datasets`, the dataset types for the\n",
+      "        sessions returned may not be reachable (i.e. for recent sessions the datasets may not\n",
+      "        yet be available).\n",
+      "    dataset_qc_lte : int, str, one.alf.spec.QC\n",
+      "        The maximum QC value for associated datasets. NB: Without `datasets`, not all\n",
+      "        associated datasets with the matching QC values are guarenteed to be reachable.\n",
       "    details : bool\n",
       "        If true also returns a dict of dataset details.\n",
       "    query_type : str, None\n",
@@ -394,7 +410,7 @@
       "    \n",
       "    Returns\n",
       "    -------\n",
-      "    list\n",
+      "    list of UUID\n",
       "        List of eids.\n",
       "    (list of dicts)\n",
       "        If details is True, also returns a list of dictionaries, each entry corresponding to a\n",
@@ -428,7 +444,11 @@
       "    - In remote mode most queries are case-insensitive partial matches.\n",
       "    - In default and local mode, when the one.wildcards flag is True (default), queries are\n",
       "      interpreted as regular expressions. To turn this off set one.wildcards to False.\n",
-      "    - In remote mode regular expressions are only supported using the `django` argument.\n"
+      "    - In remote mode regular expressions are only supported using the `django` argument.\n",
+      "    - In remote mode, only the `datasets` argument returns sessions where datasets are\n",
+      "      registered *and* exist. Using `dataset_types` or `dataset_qc_lte` without `datasets`\n",
+      "      will not check that the datasets are reachable.\n",
+      "\n"
      ]
     }
    ],
@@ -438,131 +458,129 @@
   },
   {
    "cell_type": "markdown",
+   "id": "6e25560f7359a84",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "## Advanced searching\n",
     "By default ONE searches most terms function as an LIKE OR expression, returning results that contain any of\n",
     "the search values as a substring.  For example `one.search(subject=['foo', 'bar'])` returns all sessions where\n",
     "the subject name contains 'foo' or contains 'bar'. The exception is the dataset search term, which is a LIKE AND\n",
     "expression, i.e. the session must contain one or more dataset names containing 'foo' AND one or more datasets\n",
-    "containing 'bar'.  Note that all expressions are case-sensitive in auto/local mode and case-insensitive in remote mode.\n",
+    "containing 'bar'.  Note that all expressions are case-sensitive in [local mode](../one_modes.html) and case-insensitive in remote mode.\n",
     "\n",
-    "For more precise searches, regular expressions (a.k.a. regex) can be used.  This is on by default and can be\n",
+    "For more precise searches, regular expressions (a.k.a. regex) can be used in local mode.  This is on by default and can be\n",
     "deactivated by setting the wildcards flag: `one.wildcards = False` (note that this also affects the list and\n",
     "load methods, see [the advanced loading section of Loading with ONE](../one_load/one_load.html#Advanced-loading)\n",
     "for more details).\n",
     "\n",
     "Regex allows one to make exact searches by asserting the start and end of the string:"
-   ],
-   "metadata": {
-    "collapsed": false
-   },
-   "id": "6e25560f7359a84"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 27,
-   "outputs": [],
-   "source": [
-    "eids = one.search(subject='FD_04')  # includes sessions with subject 'MFD_04'\n",
-    "assert one.wildcards is True, 'the wildcards flag must be True for regex expressions'\n",
-    "eids = one.search(subject='^FD_04$')  # exact subject name match"
-   ],
+   "execution_count": 15,
+   "id": "9635db26c39d5eff",
    "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    },
     "ExecuteTime": {
      "end_time": "2023-08-16T11:44:36.732294Z",
      "start_time": "2023-08-16T11:44:36.557854400Z"
-    }
-   },
-   "id": "9635db26c39d5eff"
-  },
-  {
-   "cell_type": "markdown",
-   "source": [
-    "Likewise, to search for sessions that include one dataset OR another, we can use the `|` character in\n",
-    "our regex:"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "id": "29fc24d326d3bef7"
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 28,
-   "outputs": [
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "C:\\Users\\User\\Documents\\Github\\ONE\\one\\api.py:460: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.\n",
-      "  return all(any(x.str.contains(y, regex=self.wildcards) & exists) for y in dsets)\n"
-     ]
-    }
-   ],
-   "source": [
-    "# Sessions containing either leftCamera.times OR rightCamera.times:\n",
-    "eids = one.search(proj='brainwide', dataset='leftCamera\\.times|rightCamera\\.times')\n",
-    "# XOR expressions are also possible:\n",
-    "eids = one.search(proj='brainwide', dataset='(leftCamera\\.times|rightCamera\\.times){1}')"
-   ],
-   "metadata": {
+    },
     "collapsed": false,
     "pycharm": {
      "name": "#%%\n"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:45.248020700Z",
-     "start_time": "2023-08-16T11:44:36.757224700Z"
     }
    },
-   "id": "70645ed6cb88fd8f"
+   "outputs": [],
+   "source": [
+    "eids = one.search(subject='FD_04', query_type='local')  # includes sessions with subject 'MFD_04'\n",
+    "assert one.wildcards is True, 'the wildcards flag must be True for regex expressions'\n",
+    "eids = one.search(subject='^FD_04$', query_type='local')  # exact subject name match"
+   ]
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "Note that the wildcards flag causes certain characters to be interpreted differently (e.g. `.` matches\n",
-    "any character).  To avoid this, either set the wildcards flag to False or escape the string using `re.escape`:"
-   ],
+   "id": "29fc24d326d3bef7",
    "metadata": {
     "collapsed": false,
     "pycharm": {
      "name": "#%% md\n"
     }
    },
-   "id": "29ab986b2fbf17f2"
+   "source": [
+    "Likewise, to search for sessions that include one dataset OR another, we can use the `|` character in\n",
+    "our regex:"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 29,
+   "execution_count": 16,
+   "id": "70645ed6cb88fd8f",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:45.248020700Z",
+     "start_time": "2023-08-16T11:44:36.757224700Z"
+    },
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# Sessions containing either leftCamera.times OR rightCamera.times:\n",
+    "eids = one.search(proj='brainwide', datasets='leftCamera\\.times|rightCamera\\.times', query_type='local')\n",
+    "# XOR expressions are also possible:\n",
+    "eids = one.search(proj='brainwide', datasets='(leftCamera\\.times|rightCamera\\.times){1}', query_type='local')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "29ab986b2fbf17f2",
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
+   "source": [
+    "Note that the wildcards flag causes certain characters to be interpreted differently (e.g. `.` matches\n",
+    "any character).  To avoid this, either set the wildcards flag to False or escape the string using `re.escape`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "36d9625d2861015a",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:45.292524900Z",
+     "start_time": "2023-08-16T11:44:45.249017300Z"
+    },
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
    "outputs": [],
    "source": [
     "import re\n",
     "subject = 'NYU-14.1'\n",
     "if one.wildcards:\n",
     "    subject = re.escape(subject)\n",
-    "eids = one.search(subject=subject)  # 'NYU\\\\-14\\\\.1'"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:45.292524900Z",
-     "start_time": "2023-08-16T11:44:45.249017300Z"
-    }
-   },
-   "id": "36d9625d2861015a"
+    "eids = one.search(subject=subject, query_type='local')  # 'NYU\\\\-14\\\\.1'"
+   ]
   },
   {
    "cell_type": "markdown",
+   "id": "cc90bd9c3044710e",
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
    "source": [
     "### Gotchas\n",
     "ONE.search strikes a balance between usability, functionality, and stability. We have been careful\n",
@@ -583,18 +601,17 @@
     "\n",
     "Combinations of terms form a logical AND, for example `one.search(subject=['foo', 'bar'], project='baz')`\n",
     "searches for sessions where the subject name contains foo OR bar, AND the project contains baz.\n",
-    "NB: When `dataset_qc_lte` which is provided with `dataset(s)`, sessions are returned where ALL matching datasets\n",
+    "NB: When `dataset_qc_lte` which is provided with `datasets`, sessions are returned where ALL matching datasets\n",
     "have a less than or equal QC value. When `dataset_qc_lte` is provided alone, sessions are returned where\n",
     "ANY of the datasets have a less than or equal QC value.\n",
     "\n",
     "#### Difference between remote mode search terms\n",
-    "Many search terms perform differently between auto/local mode and [remote mode](../one_modes.html),\n",
+    "Many search terms perform differently between [local mode](../one_modes.html) and remote mode,\n",
     "namely in remote mode, search queries are case-insensitive.\n",
     "\n",
     "#### The dataset, datasets and dataset_types remote arguments\n",
-    "In remote mode there are three ways to search for datasets:\n",
+    "In remote mode there are two ways to search for datasets:\n",
     "\n",
-    "* **dataset** - a partial, case-insensitive match of a single dataset (multiple datasets not supported).\n",
     "* **datasets** - an exact, case-sensitive match of one or more datasets.  All datasets must be present. If `dataset_qc` provided, this criterion applies only to these datasets.\n",
     "* **dataset_type** - an exact, case-sensitive match of one or more [dataset types](../datasets_and_types.html#Dataset-types).  All dataset types must be present.\n",
     "\n",
@@ -605,30 +622,31 @@
     "```\n",
     "Regular expression syntax is different between modes, however: in remote mode the regex is parsed by a [PostgreSQL](https://www.postgresql.org/docs/current/functions-matching.html)\n",
     "database, while in other modes it is done using Python's [re.search](https://docs.python.org/3/library/re.html#regular-expression-syntax)."
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "id": "cc90bd9c3044710e"
+   ]
   },
   {
    "cell_type": "markdown",
+   "id": "24c8c42569004626",
+   "metadata": {
+    "collapsed": false
+   },
    "source": [
     "## Searching data with a release tag\n",
     "Datasets associated with a given paper and/or data release are associated with a tag.\n",
     "You can list the available release tags like so:"
-   ],
-   "metadata": {
-    "collapsed": false
-   },
-   "id": "24c8c42569004626"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 30,
+   "execution_count": 18,
+   "id": "24ae8df66a135d93",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:45.353794Z",
+     "start_time": "2023-08-16T11:44:45.295518300Z"
+    },
+    "collapsed": false
+   },
    "outputs": [
     {
      "name": "stdout",
@@ -642,7 +660,23 @@
       "2022_Q3_IBL_et_al_DAWG: https://doi.org/10.1101/827873\n",
       "2022_Q4_IBL_et_al_BWM: https://figshare.com/articles/preprint/Data_release_-_Brainwide_map_-_Q4_2022/21400815\n",
       "2023_Q1_Biderman_Whiteway_et_al: \n",
-      "2023_Q1_Mohammadi_et_al: \n"
+      "2023_Q1_Mohammadi_et_al: \n",
+      "2023_Q3_Findling_Hubert_et_al: https://doi.org/10.1101/2023.07.04.547684\n",
+      "2023_Q4_Bruijns_et_al: \n",
+      "2023_Q4_IBL_et_al_BWM_2: \n",
+      "2023_Q4_IBL_et_al_BWM_passive: \n",
+      "2024_Q2_Blau_et_al: \n",
+      "2024_Q2_IBL_et_al_BWM_iblsort: Spike sorting output with ibl-sorter 1.7.0 for BWM\n",
+      "2024_Q2_IBL_et_al_RepeatedSite: https://doi.org/10.1101/2022.05.09.491042\n",
+      "2024_Q3_Pan_Vazquez_et_al: \n",
+      "2025_Q1_IBL_et_al_BWM_wheel_patch: 62 patched sessions with reversed wheel polarity\n",
+      "audio sync FPGA patch: For a number of important ephys sessions the audio was somehow not wired into the FPGA, however\n",
+      "everything else was present and the Bpod recorded these TTLs so we decided to use the bpod2fpga\n",
+      "interpolation to recover the audio TTLs in FPGA time. These were then added to the _spikeglx_sync\n",
+      "object and the trials were re-extracted. These data were patched and the _spikeglx_sync datasets\n",
+      "were protected so that they would not be overwritten in the future.\n",
+      "Brainwidemap: \n",
+      "RepeatedSite: \n"
      ]
     }
    ],
@@ -651,48 +685,47 @@
     "tags = one.alyx.rest('tags', 'list')\n",
     "for tag in tags:\n",
     "    print('%s: %s' % (tag['name'], tag['description']))"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:45.353794Z",
-     "start_time": "2023-08-16T11:44:45.295518300Z"
-    }
-   },
-   "id": "24ae8df66a135d93"
+   ]
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "You can download a cache table for any given release tag, allowing you to restrict your ONE.search queries to a given tag in [auto/local mode](../one_modes).\n",
-    "See FAQ section '[How do I download the datasets cache for a specific IBL paper release?](../../FAQ.html#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release)' for more information. \n",
-    "\n",
-    "To search for session containing datasets assocaited with a given release tag in [remote mode](../one_modes), you can use the following query parameter:"
-   ],
+   "id": "2660521d6fdbf8a6",
    "metadata": {
     "collapsed": false
    },
-   "id": "2660521d6fdbf8a6"
+   "source": [
+    "You can download a cache table for any given release tag, allowing you to restrict your ONE.search queries to a given tag in [local mode](../one_modes).\n",
+    "See FAQ section '[How do I download the datasets cache for a specific IBL paper release?](../../FAQ.html#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release)' for more information. \n",
+    "\n",
+    "To search for session containing datasets assocaited with a given release tag in [remote mode](../one_modes), you can use the following query parameter:"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 31,
+   "execution_count": 19,
+   "id": "3bd59c67e75e790",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:45.403694Z",
+     "start_time": "2023-08-16T11:44:45.356819800Z"
+    },
+    "collapsed": false
+   },
    "outputs": [],
    "source": [
     "tag = '2021_Q1_IBL_et_al_Behaviour'\n",
     "eids = one.search(django='data_dataset_session_related__tags__name,' + tag, query_type='remote')"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:45.403694Z",
-     "start_time": "2023-08-16T11:44:45.356819800Z"
-    }
-   },
-   "id": "3bd59c67e75e790"
+   ]
   },
   {
    "cell_type": "markdown",
+   "id": "1690f8db1dd59a5e",
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
    "source": [
     "## Searching insertions\n",
     "\n",
@@ -709,52 +742,45 @@
     "\n",
     "The search_insertions method is only available in [remote mode](../one_modes).\n",
     "</div>"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "id": "1690f8db1dd59a5e"
+   ]
   },
   {
    "cell_type": "code",
-   "execution_count": 32,
+   "execution_count": 20,
+   "id": "2ced5d5b5e636e",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-08-16T11:44:45.441020500Z",
+     "start_time": "2023-08-16T11:44:45.402696700Z"
+    },
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
    "outputs": [],
    "source": [
     "one.search_terms('remote', 'insertions')\n",
     "pids = one.search_insertions(atlas_acronym=['STR', 'CA3'], query_type='remote')\n"
-   ],
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    },
-    "ExecuteTime": {
-     "end_time": "2023-08-16T11:44:45.441020500Z",
-     "start_time": "2023-08-16T11:44:45.402696700Z"
-    }
-   },
-   "id": "2ced5d5b5e636e"
+   ]
   },
   {
    "cell_type": "markdown",
-   "source": [
-    "For searching insertions associated with a given release tag, see the [method examples](../../_autosummary/one.api.html#one.api.OneAlyx.search_insertions) by typing `help(one.search_insertions)`."
-   ],
+   "id": "77f8bc03df582671",
    "metadata": {
     "collapsed": false
    },
-   "id": "77f8bc03df582671"
+   "source": [
+    "For searching insertions associated with a given release tag, see the [method examples](../../_autosummary/one.api.html#one.api.OneAlyx.search_insertions) by typing `help(one.search_insertions)`."
+   ]
   }
  ],
  "metadata": {
   "docs_executed": "executed",
   "kernelspec": {
-   "name": "python3",
+   "display_name": "ibl",
    "language": "python",
-   "display_name": "Python 3 (ipykernel)"
+   "name": "python3"
   },
   "language_info": {
    "codemirror_mode": {
@@ -766,7 +792,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.8.8"
+   "version": "3.11.5"
   }
  },
  "nbformat": 4,

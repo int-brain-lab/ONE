@@ -10,7 +10,7 @@ one.api
    .. autosummary::
       :toctree:
    
-      N_THREADS
+      SAVE_ON_DELETE
    
    
 

@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Experiment IDs &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -22,8 +22,6 @@
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -81,8 +79,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -116,21 +112,21 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 <h1>Experiment IDs<a class="headerlink" href="#Experiment-IDs" title="Link to this heading"></a></h1>
 <p>There are multiple ways to uniquely identify an experiment:</p>
 <ul class="simple">
-<li><p>eID (str) : An experiment UUID as a string</p></li>
-<li><p>np (int64) : An experiment UUID encoded as 2 int64s</p></li>
+<li><p>eID (uuid.UUID) : An experiment UUID object (or as a 32 hexadecimal hyphenated str)</p></li>
 <li><p>path (Path) : A pathlib ALF path of the form &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;</p></li>
 <li><p>ref (str) : An experiment reference string of the form yyyy-mm-dd_n_subject</p></li>
 <li><p>url (str) : An remote http session path of the form &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;</p></li>
+<li><p>np (int64) : An experiment UUID encoded as 2 int64s (deprecated)</p></li>
 </ul>
-<p>Internally Alyx and ONE uses eID strings to identify sessions. For example One.search returns a list of eID strings. In the ONE cache tables they are represented as a numpy array of 2 int64s because these are faster to search over. Session paths, URLs and ref strings are more readable.</p>
+<p>Internally Alyx and ONE uses eID UUID objects to identify sessions. One.search and OneAlyx.search_insertions return a list of eID UUIDs. Session paths, URLs and ref strings are more readable, however the hyphenated 36 char str form of an eID is also acceptable as input.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">UUID</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">UUID</span>
 
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="kn">from</span> <span class="nn">one.alf.spec</span> <span class="kn">import</span> <span class="n">is_session_path</span><span class="p">,</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">is_uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_session_path</span><span class="p">,</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">is_uuid</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 </pre></div>
@@ -138,11 +134,11 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 </div>
 <p>One.search returns experiment uuid strings</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s1">&#39;channels.brainLocation&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2022-08-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2022-09-01&#39;</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">is_uuid_string</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2022-08-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2022-09-01&#39;</span><span class="p">])</span>
+<span class="k">assert</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -155,8 +151,8 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 <span class="k">assert</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Session </span><span class="si">{</span><span class="s2">&quot;exists&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">session_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;does not exist&quot;</span><span class="si">}</span><span class="s1"> on disk&#39;</span><span class="p">)</span>
 
-<span class="n">uuid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
+<span class="n">uuid_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">assert</span> <span class="n">is_uuid_string</span><span class="p">(</span><span class="n">uuid_str</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -212,7 +208,7 @@ Session exists on disk
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;2022-08-19_1_NR_0027&#39;, &#39;2022-08-22_1_NR_0027&#39;, &#39;2022-08-23_1_NR_0027&#39;]
+[&#39;2022-08-02_1_UCLA049&#39;, &#39;2022-08-12_1_UCLA049&#39;, &#39;2022-08-16_1_UCLA048&#39;, &#39;2022-08-19_1_NR_0027&#39;, &#39;2022-08-20_1_NR_0027&#39;, &#39;2022-08-22_1_NR_0027&#39;, &#39;2022-08-23_1_NR_0027&#39;]
 </pre></div></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">to_eid</span></code> method will convert any form to a UUID string or raise a ValueError if invalid:</p>
@@ -230,40 +226,48 @@ Session exists on disk
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;aad23144-0e52-4eac-80c5-c4ee2decb198&#39;, &#39;ae8787b1-4229-4d56-b0c2-566b61a25b77&#39;, &#39;c7bd79c9-c47e-4ea5-aea3-74dda991b48e&#39;]
+[UUID(&#39;aad23144-0e52-4eac-80c5-c4ee2decb198&#39;), UUID(&#39;ae8787b1-4229-4d56-b0c2-566b61a25b77&#39;), UUID(&#39;c7bd79c9-c47e-4ea5-aea3-74dda991b48e&#39;)]
 </pre></div></div>
 </div>
 <p>One load functions can accept most kinds of experiment identifiers</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
 
 <span class="n">short_path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>  <span class="c1"># &#39;subject/date/number&#39;</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">path2url</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">refs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">refs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+(S3) F:\FlatIron\openalyx.internationalbrainlab.org\churchlandlab_ucla\Subjects\UCLA048\2022-08-16\001\alf\rightROIMotionEnergy.position.npy: 100%|██████████| 160/160 [00:00&lt;00:00, 595B/s]
+</pre></div></div>
 </div>
 <p>Likewise with other load methods…</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;brainLocationIds&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;brainLocationIds&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00/pykilosort&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>You can get information about an experiment from its ID using the <code class="docutils literal notranslate"><span class="pre">get_details</span></code> method:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
@@ -272,7 +276,7 @@ Session exists on disk
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -284,13 +288,13 @@ Session exists on disk
  &#39;number&#39;: 1,
  &#39;start_time&#39;: &#39;2022-08-23T09:26:09&#39;,
  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/ae8787b1-4229-4d56-b0c2-566b61a25b77&#39;,
- &#39;local_path&#39;: WindowsPath(&#39;F:/FlatIron/openalyx.internationalbrainlab.org/steinmetzlab/Subjects/NR_0027/2022-08-23/001&#39;),
+ &#39;local_path&#39;: WindowsALFPath(&#39;F:/FlatIron/openalyx.internationalbrainlab.org/steinmetzlab/Subjects/NR_0027/2022-08-23/001&#39;),
  &#39;date&#39;: datetime.date(2022, 8, 23)}
 </pre></div></div>
 </div>
 <p>In online mode you get retrieve exhaustive session information:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>

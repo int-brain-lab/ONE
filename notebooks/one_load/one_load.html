@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Loading with ONE &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -22,8 +22,6 @@
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -97,8 +95,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -131,15 +127,15 @@
 one_load.ipynb"><button id="github">Github link</button></a><section id="Loading-with-ONE">
 <h1>Loading with ONE<a class="headerlink" href="#Loading-with-ONE" title="Link to this heading"></a></h1>
 <p>The datasets are organized into directory trees by subject, date and session number. For a given session there are data files grouped by object (e.g. ‘trials’), each with a specific attribute (e.g. ‘rewardVolume’). The dataset name follows the pattern ‘object.attribute’, for example ‘trials.rewardVolume’. For more information, see the <a class="reference external" href="../alyx_files.html">ALF documentation</a>.</p>
-<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span><span class="math">\KS023</span>\2019-12-10001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
+<p>An <a class="reference external" href="../experiment_ids.html">experiment ID</a> (eid) is a string that uniquely identifies a session, for example a combinationof subject date and number (e.g. KS023/2019-12-10/001), a file path (e.g. C:<span class="math">\Users</span><span class="math">\Subjects</span><span class="math">\KS023</span>\2019-12-10\001), or a UUID (e.g. aad23144-0e52-4eac-80c5-c4ee2decb198).</p>
 <p>If the data don’t exist locally, they will be downloaded, then loaded.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
-<span class="kn">import</span> <span class="nn">one.alf.io</span> <span class="k">as</span> <span class="nn">alfio</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">one.alf.io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">alfio</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -381,7 +377,7 @@ alf/probe0[0-5] (regex), alf/probe0[0-5] (wildcard) matches...
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
-<p>Load specific attributes from an object (‘|’ represents a logical OR in regex)</p>
+<p>Load specific attributes from an object (’|’ represents a logical OR in regex)</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;times|clusters&#39;</span><span class="p">)</span>
 <span class="k">assert</span> <span class="s1">&#39;amps&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spikes</span>
 </pre></div>

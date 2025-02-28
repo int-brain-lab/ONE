@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.alf.test_cache &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
 </ul>
 
@@ -106,39 +104,42 @@
              
   <h1>Source code for one.tests.alf.test_cache</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Unit tests for the one.alf.cache module.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pandas.testing</span> <span class="kn">import</span> <span class="n">assert_frame_equal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_frame_equal</span>
 
-<span class="kn">from</span> <span class="nn">iblutil.io</span> <span class="kn">import</span> <span class="n">parquet</span>
-<span class="kn">import</span> <span class="nn">one.alf.cache</span> <span class="k">as</span> <span class="nn">apt</span>
-<span class="kn">from</span> <span class="nn">one.tests.util</span> <span class="kn">import</span> <span class="n">revisions_datasets_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">parquet</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">one.alf.cache</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.tests.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">revisions_datasets_table</span>
 
 
-<div class="viewcode-block" id="TestsONEParquet">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet">[docs]</a>
-<span class="k">class</span> <span class="nc">TestsONEParquet</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the make_parquet_db function and its helpers&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestONEParquet">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestONEParquet</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the make_parquet_db function and its helpers.&quot;&quot;&quot;</span>
+
     <span class="n">rel_ses_path</span> <span class="o">=</span> <span class="s1">&#39;mylab/Subjects/mysub/2021-02-28/001/&#39;</span>
     <span class="n">ses_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab/mysub/2021-02-28/001&#39;</span><span class="p">,</span>
         <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab&#39;</span><span class="p">,</span>
         <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;mysub&#39;</span><span class="p">,</span>
         <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2021-02-28&#39;</span><span class="p">),</span>
         <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;001&#39;</span><span class="p">),</span>
         <span class="s1">&#39;projects&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;task_protocol&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;mylab/mysub/2021-02-28/001&#39;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">rel_ses_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;alf/spikes.clusters.npy&#39;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;alf/spikes.times.npy&#39;</span><span class="p">)]</span>
 
-<div class="viewcode-block" id="TestsONEParquet.setUp">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.setUp">[docs]</a>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="TestONEParquet.setUp">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_columns&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
 
         <span class="c1"># root path:</span>
@@ -161,17 +162,17 @@
         <span class="n">second_session</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.invalid&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.test_parse">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parse">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_get_session_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="p">)</span>
+<div class="viewcode-block" id="TestONEParquet.test_parse">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_parse">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">_get_session_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">full_ses_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rel_ses_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.test_parquet">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_parquet">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestONEParquet.test_parquet">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_parquet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Test data</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;colA&#39;</span><span class="p">,</span> <span class="s1">&#39;colB&#39;</span><span class="p">)</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;a1&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;a2&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">)]</span>
@@ -188,18 +189,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">metadata</span> <span class="o">==</span> <span class="n">metadata2</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.test_sessions_df">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_sessions_df">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_sessions_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestONEParquet.test_sessions_df">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_sessions_df">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_sessions_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">_make_sessions_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sessions dataframe&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ses_info</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.test_datasets_df">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_datasets_df">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_datasets_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestONEParquet.test_datasets_df">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_datasets_df">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_datasets_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">_make_datasets_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Datasets dataframe&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -209,9 +210,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rel_path</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;invalid&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.tests_db">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.tests_db">[docs]</a>
-    <span class="k">def</span> <span class="nf">tests_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestONEParquet.tests_db">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.tests_db">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tests_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">fn_ses</span><span class="p">,</span> <span class="n">fn_dsets</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">metadata_exp</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
 
@@ -247,9 +248,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="n">df_ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;another&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.test_hash_ids">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_hash_ids">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_hash_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestONEParquet.test_hash_ids">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_hash_ids">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_hash_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Build and load caches with int UUIDs</span>
         <span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="p">(</span><span class="n">dsets</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">apt</span><span class="o">.</span><span class="n">make_parquet_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="c1"># Check ID fields in both dataframes</span>
@@ -257,9 +258,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">dsets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dsets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.test_remove_missing_datasets">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.test_remove_missing_datasets">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_remove_missing_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestONEParquet.test_remove_missing_datasets">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.test_remove_missing_datasets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_remove_missing_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Add a session that will only contains missing datasets</span>
         <span class="n">ghost_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;sub&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-30&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">)</span>
         <span class="n">ghost_session</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -302,10 +303,100 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">removed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TestsONEParquet.tearDown">
-<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestsONEParquet.tearDown">[docs]</a>
-    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="TestONEParquet.tearDown">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.tearDown">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestONETables">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONETables">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestONETables</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the cache table functions.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestONETables.test_merge_cache_tables">
+<a class="viewcode-back" href="../../../../_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONETables.test_merge_cache_tables">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_merge_cache_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test merge_cache_tables function.&quot;&quot;&quot;</span>
+        <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
+        <span class="n">caches</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="n">fixture</span><span class="p">)</span>
+
+        <span class="n">sessions_types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">datasets_types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="c1"># Update with single record (pandas.Series), one exists, one doesn&#39;t</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span>  <span class="c1"># New record</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+        <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">sessions</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">caches</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">updated</span><span class="p">,</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
+        <span class="c1"># Check that the updated data frame has kept its original dtypes</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">sessions_types</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">datasets_types</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+
+        <span class="c1"># Update a number of records</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+        <span class="c1"># Make one of the datasets a new record</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">datasets</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">))</span>
+        <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">verifiable</span> <span class="o">==</span> <span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]))</span>
+        <span class="c1"># Check that the updated data frame has kept its original dtypes</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">datasets_types</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+
+        <span class="c1"># Check behaviour when columns don&#39;t match</span>
+        <span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+        <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;extra_column&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;foo_bar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>  <span class="c1"># this column is missing in our new records</span>
+        <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;new_column&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">expected_datasets_types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="c1"># An exception is exists_* as the Alyx cache contains exists_aws and exists_flatiron</span>
+        <span class="c1"># These should simply be filled with the values of exists as Alyx won&#39;t return datasets</span>
+        <span class="c1"># that don&#39;t exist on FlatIron and if they don&#39;t exist on AWS it falls back to this.</span>
+        <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;exists_aws&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">):</span>
+            <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">)</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">verifiable</span> <span class="o">==</span> <span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]))</span>
+        <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">)</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;exists_aws&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">verifiable</span> <span class="o">==</span> <span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;exists&#39;</span><span class="p">]))</span>
+        <span class="c1"># If the extra column does not start with &#39;exists&#39; it should be set to NaN</span>
+        <span class="n">verifiable</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">datasets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;foo_bar&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">verifiable</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+        <span class="c1"># Check that the missing columns were updated to nullable fields</span>
+        <span class="n">expected_datasets_types</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">foo_bar</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span> <span class="n">exists_aws</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span> <span class="n">new_column</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">())</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">expected_datasets_types</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+
+        <span class="c1"># Check fringe cases</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+            <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">unknown</span><span class="o">=</span><span class="n">datasets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+        <span class="c1"># Absent cache table</span>
+        <span class="n">caches</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">load_tables</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">)</span>
+        <span class="n">sessions_types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">datasets_types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">apt</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">caches</span><span class="p">,</span> <span class="n">sessions</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">caches</span><span class="o">.</span><span class="n">sessions</span> <span class="o">==</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">session</span><span class="p">])))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">caches</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">datasets_types</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span></div>
 </div>
 
 

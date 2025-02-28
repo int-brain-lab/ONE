@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.alf.path &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
 </ul>
 
@@ -105,8 +103,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.alf.path</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module for identifying and parsing ALF file names.</span>
+<span></span><span class="sd">&quot;&quot;&quot;Module for identifying and parsing ALF file names.</span>
 
 <span class="sd">An ALF file has the following components (those in brackets are optional):</span>
 <span class="sd">    (_namespace_)object.attribute(_timescale)(.extra.parts).ext</span>
@@ -120,22 +117,40 @@
 <span class="sd">For more information, see the following documentation:</span>
 <span class="sd">    https://int-brain-lab.github.io/ONE/alf_intro.html</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">spec</span>
-<span class="kn">from</span> <span class="nn">.spec</span> <span class="kn">import</span> <span class="n">SESSION_SPEC</span><span class="p">,</span> <span class="n">COLLECTION_SPEC</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">REL_PATH_SPEC</span>
+<span class="sd">ALFPath differences</span>
+<span class="sd">-------------------</span>
+<span class="sd">ALFPath.iter_datasets returns full paths (close the pathlib.Path.iterdir), whereas</span>
+<span class="sd">alf.io.iter_datasets returns relative paths as POSIX strings (TODO).</span>
+
+<span class="sd">ALFPath.parse_* methods return a dict by default, whereas parse_* functions return</span>
+<span class="sd">tuples by default. Additionally, the parse_* functions raise ALFInvalid errors by</span>
+<span class="sd">default if the path can&#39;t be parsed.  ALFPath.parse_* methods have no validation</span>
+<span class="sd">option.</span>
+
+<span class="sd">ALFPath properties return empty str instead of None if ALF part isn&#39;t present..</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">Listable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALFInvalid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">SESSION_SPEC</span><span class="p">,</span> <span class="n">COLLECTION_SPEC</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">REL_PATH_SPEC</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;ALFPath&#39;</span><span class="p">,</span> <span class="s1">&#39;PureALFPath&#39;</span><span class="p">,</span> <span class="s1">&#39;WindowsALFPath&#39;</span><span class="p">,</span> <span class="s1">&#39;PosixALFPath&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PureWindowsALFPath&#39;</span><span class="p">,</span> <span class="s1">&#39;PurePosixALFPath&#39;</span>
+<span class="p">]</span>
 
 
-<div class="viewcode-block" id="rel_path_parts">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.rel_path_parts">[docs]</a>
-<span class="k">def</span> <span class="nf">rel_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rel_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a relative path into the relevant parts.</span>
 
 <span class="sd">    A relative path follows the pattern</span>
@@ -149,21 +164,19 @@
 <span class="sd">        If true, an OrderedDict of parts are returned with the keys (&#39;lab&#39;, &#39;subject&#39;, &#39;date&#39;,</span>
 <span class="sd">        &#39;number&#39;), otherwise a tuple of values are returned.</span>
 <span class="sd">    assert_valid : bool</span>
-<span class="sd">        If true a ValueError is raised when the session cannot be parsed, otherwise an empty</span>
+<span class="sd">        If true an ALFInvalid is raised when the session cannot be parsed, otherwise an empty</span>
 <span class="sd">        dict of tuple of Nones is returned.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    OrderedDict, tuple</span>
 <span class="sd">        A dict if as_dict is true, or a tuple of parsed values.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">REL_PATH_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">REL_PATH_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="session_path_parts">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.session_path_parts">[docs]</a>
-<span class="k">def</span> <span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a session path into the relevant parts.</span>
 
 <span class="sd">    Return keys:</span>
@@ -180,7 +193,7 @@
 <span class="sd">        If true, an OrderedDict of parts are returned with the keys (&#39;lab&#39;, &#39;subject&#39;, &#39;date&#39;,</span>
 <span class="sd">        &#39;number&#39;), otherwise a tuple of values are returned.</span>
 <span class="sd">    assert_valid : bool</span>
-<span class="sd">        If true a ValueError is raised when the session cannot be parsed, otherwise an empty</span>
+<span class="sd">        If true an ALFInvalid is raised when the session cannot be parsed, otherwise an empty</span>
 <span class="sd">        dict of tuple of Nones is returned.</span>
 
 <span class="sd">    Returns</span>
@@ -190,14 +203,14 @@
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
+<span class="sd">    ALFInvalid</span>
 <span class="sd">        Invalid ALF session path (assert_valid is True).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">SESSION_SPEC</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">SESSION_SPEC</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span>
 
 
-
-<span class="k">def</span> <span class="nf">_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a ALF and a spec string, parse into parts.</span>
 
 <span class="sd">    Parameters</span>
@@ -218,8 +231,9 @@
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
+<span class="sd">    ALFInvalid</span>
 <span class="sd">        Invalid ALF path (assert_valid is True).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;as_posix&#39;</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
@@ -230,16 +244,13 @@
         <span class="n">parsed_dict</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">parsed_dict</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parsed_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="k">elif</span> <span class="n">assert_valid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid ALF: &quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">empty</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">empty</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 
-<div class="viewcode-block" id="filename_parts">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.filename_parts">[docs]</a>
-<span class="k">def</span> <span class="nf">filename_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the parsed elements of a given ALF filename.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filename_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed elements of a given ALF filename.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -289,16 +300,14 @@
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
+<span class="sd">    ALFInvalid</span>
 <span class="sd">        Invalid ALF dataset (assert_valid is True).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="full_path_parts">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.full_path_parts">[docs]</a>
-<span class="k">def</span> <span class="nf">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse all filename and folder parts.</span>
 
 <span class="sd">    Parameters</span>
@@ -338,15 +347,22 @@
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
+<span class="sd">    ALFInvalid</span>
 <span class="sd">        Invalid ALF path (assert_valid is True).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="c1"># NB We try to determine whether we have a folder or filename path.  Filenames contain at</span>
     <span class="c1"># least two periods, however it is currently permitted to have any number of periods in a</span>
     <span class="c1"># collection, making the ALF path ambiguous.</span>
     <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># folder only</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">assert_valid</span><span class="p">:</span>
+            <span class="c1"># Edge case: ensure is indeed folder by checking that name is in parts</span>
+            <span class="n">invalid_file</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">folders</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="n">folders</span><span class="p">)</span>
+            <span class="n">is_revision</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">folders</span><span class="p">[</span><span class="s2">&quot;revision&quot;</span><span class="p">]</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">as_dict</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">folders</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">#&#39;</span> <span class="o">==</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_revision</span> <span class="ow">and</span> <span class="n">invalid_file</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">filename_parts</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">elif</span> <span class="s1">&#39;/&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">():</span>  <span class="c1"># filename only</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -357,13 +373,10 @@
     <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="o">**</span><span class="n">folders</span><span class="p">,</span> <span class="o">**</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">folders</span> <span class="o">+</span> <span class="n">dataset</span></div>
+        <span class="k">return</span> <span class="n">folders</span> <span class="o">+</span> <span class="n">dataset</span>
 
 
-
-<div class="viewcode-block" id="folder_parts">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.folder_parts">[docs]</a>
-<span class="k">def</span> <span class="nf">folder_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">folder_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse all folder parts, including session, collection and revision.</span>
 
 <span class="sd">    Parameters</span>
@@ -394,19 +407,19 @@
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
+<span class="sd">    ALFInvalid</span>
 <span class="sd">        Invalid ALF path (assert_valid is True).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;as_posix&#39;</span><span class="p">):</span>
         <span class="n">folder_path</span> <span class="o">=</span> <span class="n">folder_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">folder_path</span> <span class="ow">and</span> <span class="n">folder_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>  <span class="c1"># Slash required for regex pattern</span>
         <span class="n">folder_path</span> <span class="o">=</span> <span class="n">folder_path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
     <span class="n">spec_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">SESSION_SPEC</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">spec_str</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">,</span> <span class="n">assert_valid</span><span class="p">)</span>
 
 
-
-<span class="k">def</span> <span class="nf">_isdatetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_isdatetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if input is valid ISO date string.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -415,12 +428,8 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="get_session_path">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.get_session_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the session path from any filepath if the date/number pattern is found,</span>
-<span class="sd">    including the root directory.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return full session path from any file path if the date/number pattern is found.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -434,24 +443,20 @@
 
 <span class="sd">    &gt;&gt;&gt; get_session_path(&#39;C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy&#39;)</span>
 <span class="sd">    Path(&#39;C:/Data/subject/2020-01-01/1&#39;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">sess</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_isdatetime</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]):</span>
-            <span class="n">sess</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="n">sess</span></div>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
 
 
-
-<div class="viewcode-block" id="get_alf_path">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.get_alf_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_alf_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_alf_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the ALF part of a path or filename.</span>
+
 <span class="sd">    Attempts to return the first valid part of the path, first searching for a session path,</span>
 <span class="sd">    then relative path (collection/revision/filename), then just the filename.  If all invalid,</span>
 <span class="sd">    None is returned.</span>
@@ -476,29 +481,24 @@
 
 <span class="sd">    &gt;&gt;&gt; get_alf_path(&#39;collection/file.attr.ext&#39;)</span>
 <span class="sd">    &#39;collection/file.attr.ext&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
 
     <span class="c1"># Check if session path</span>
-    <span class="n">match_session</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">SESSION_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">match_session</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">match_session</span> <span class="o">:=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">SESSION_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">path</span><span class="p">[</span><span class="n">match_session</span><span class="o">.</span><span class="n">start</span><span class="p">():]</span>
 
     <span class="c1"># Check if filename / relative path (i.e. collection + filename)</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">match_filename</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">FILE_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">match_filename</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">path</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}{</span><span class="n">FILE_SPEC</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">FILE_SPEC</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="n">path</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}{</span><span class="n">FILE_SPEC</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
-
-<div class="viewcode-block" id="add_uuid_string">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.add_uuid_string">[docs]</a>
-<span class="k">def</span> <span class="nf">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a UUID to the filename of an ALF path.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a UUID to the filename of an ALF path.</span>
 
 <span class="sd">    Adds a UUID to an ALF filename as an extra part, e.g.</span>
 <span class="sd">    &#39;obj.attr.ext&#39; -&gt; &#39;obj.attr.a976e418-c8b8-4d24-be47-d05120b18341.ext&#39;.</span>
@@ -527,15 +527,17 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    one.alf.files.remove_uuid_string</span>
+<span class="sd">    one.alf.path.ALFPath.with_uuid</span>
+<span class="sd">    one.alf.path.remove_uuid_string</span>
 <span class="sd">    one.alf.spec.is_uuid</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">uuid</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Should provide a valid UUID v4&#39;</span><span class="p">)</span>
     <span class="n">uuid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
     <span class="c1"># NB: Only instantiate as Path if not already a Path, otherwise we risk changing the class</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="n">name_parts</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="o">*</span><span class="n">name_parts</span><span class="p">,</span> <span class="n">old_uuid</span> <span class="o">=</span> <span class="n">name_parts</span>
@@ -544,15 +546,11 @@
             <span class="k">return</span> <span class="n">file_path</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Replacing </span><span class="si">%s</span><span class="s1"> with </span><span class="si">%s</span><span class="s1"> in </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">old_uuid</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}{</span><span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">uuid</span><span class="si">}{</span><span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="remove_uuid_string">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.remove_uuid_string">[docs]</a>
-<span class="k">def</span> <span class="nf">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove UUID from a filename of an ALF path.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove UUID from a filename of an ALF path.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -561,7 +559,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    pathlib.Path, pathlib.PurePath</span>
+<span class="sd">    ALFPath, PureALFPath, pathlib.Path, pathlib.PurePath</span>
 <span class="sd">        A new Path or PurePath object without a UUID in the filename.</span>
 
 <span class="sd">    Examples</span>
@@ -574,23 +572,21 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    one.alf.files.add_uuid_string</span>
+<span class="sd">    one.alf.path.ALFPath.without_uuid</span>
+<span class="sd">    one.alf.path.add_uuid_string</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="n">name_parts</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_uuid_string</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">file_path</span></div>
+    <span class="k">return</span> <span class="n">file_path</span>
 
 
-
-<div class="viewcode-block" id="padded_sequence">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.padded_sequence">[docs]</a>
-<span class="k">def</span> <span class="nf">padded_sequence</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Ensures a file path contains a zero-padded experiment sequence folder.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">padded_sequence</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensures a file path contains a zero-padded experiment sequence folder.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -599,7 +595,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    pathlib.Path, pathlib.PurePath</span>
+<span class="sd">    ALFPath, PureALFPath</span>
 <span class="sd">        The same path but with the experiment sequence folder zero-padded.  If a PurePath was</span>
 <span class="sd">        passed, a PurePath will be returned, otherwise a Path object is returned.</span>
 
@@ -614,22 +610,18 @@
 <span class="sd">    &gt;&gt;&gt; session_path = pathlib.PurePosixPath(&#39;subject/2023-01-01/001&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; padded_sequence(file_path)</span>
 <span class="sd">    pathlib.PurePosixPath(&#39;subject/2023-01-01/001&#39;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">session_path</span> <span class="o">:=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;path must include a valid ALF session path, e.g. subject/YYYY-MM-DD/N&#39;</span><span class="p">)</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
     <span class="n">sequence</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># zero-pad if necessary</span>
-    <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">file_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">file_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
 
 
-
-<div class="viewcode-block" id="without_revision">
-<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.without_revision">[docs]</a>
-<span class="k">def</span> <span class="nf">without_revision</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return file path without a revision folder.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">without_revision</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return file path without a revision folder.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -645,12 +637,1015 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; without_revision(&#39;/lab/Subjects/subject/2023-01-01/001/collection/#revision#/obj.attr.ext&#39;)</span>
 <span class="sd">    Path(&#39;/lab/Subjects/subject/2023-01-01/001/collection/obj.attr.ext&#39;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">revision</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span></div>
+    <span class="k">return</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
 
+
+<div class="viewcode-block" id="PureALFPath">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PureALFPath</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">):</span>  <span class="c1"># py3.12 supports direct subclassing</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for manipulating Alyx file (ALF) paths without I/O.</span>
+
+<span class="sd">    Similar to a pathlib PurePath object but with methods for validating, parsing, and replacing</span>
+<span class="sd">    ALF path parts.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : str, pathlib.PurePath</span>
+<span class="sd">        One or more pathlike objects to combine into an ALF path object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a ALFPurePath from one or several strings and or existing PurePath objects.</span>
+
+<span class="sd">        The strings and path objects are combined so as to yield a canonicalized path, which is</span>
+<span class="sd">        incorporated into the new PurePath object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">PureALFPath</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="n">PureWindowsALFPath</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span> <span class="k">else</span> <span class="n">PurePosixALFPath</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PureALFPath.is_dataset">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.is_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if path is an ALF dataset, rather than a folder.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if filename is ALF dataset.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.is_valid_alf">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.is_valid_alf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_alf</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if path is a valid ALF path.</span>
+
+<span class="sd">        This returns true if the input path matches any part of the ALF path specification.</span>
+<span class="sd">        This method can be used as a static method with any pathlike input, or as an instance</span>
+<span class="sd">        method.  This will validate both directory paths and file paths.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, pathlib.PurePath</span>
+<span class="sd">            A path to check the validity of.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the path is recognized as a valid ALF path.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001&#39;).is_valid_alf()</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001/alf/spikes.times.npy&#39;).is_valid_alf()</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_valid_alf(&#39;_ibl_wheel.timestamps.npy&#39;)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_valid_alf(&#39;foo.bar&#39;)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        PureALFPath.is_dataset - Test whether file name is valid as well as directory path.</span>
+<span class="sd">        full_path_parts - Validates path and returns the parsed ALF path parts.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">ALFInvalid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.is_session_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.is_session_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if path is a valid ALF session path.</span>
+
+<span class="sd">        This returns true if the input path matches the ALF session path specification.</span>
+<span class="sd">        This method can be used as a static method with any pathlike input, or as an instance</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, pathlib.PurePath</span>
+<span class="sd">            A session path to check the validity of.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the path is recognized as a valid ALF session path.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001&#39;).is_session_path()</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001/alf/spikes.times.npy&#39;).is_session_path()</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_session_path(&#39;_ibl_wheel.timestamps.npy&#39;)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_valid_alf(&#39;lab/Subjects/foo/2020-01-01/001&#39;)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        PureALFPath.is_valid_alf - Test whether path is generally valid a valid ALF path.</span>
+<span class="sd">        PureALFPath.session_path_parts - Returns parsed session path parts as tuple of str.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.session_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.session_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">session_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the full session path.</span>
+
+<span class="sd">        Returns the session path from the filepath if the date/number pattern is found,</span>
+<span class="sd">        including the root directory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The session path part of the input path or None if path invalid.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;).session_path()</span>
+<span class="sd">        ALFPath(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;)</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy&#39;).session_path()</span>
+<span class="sd">        ALFPath(&#39;C:/Data/subject/2020-01-01/1&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_session_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.session_path_short">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.session_path_short">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">session_path_short</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_lab</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return only the ALF session path as a posix str.</span>
+
+<span class="sd">        Params</span>
+<span class="sd">        ------</span>
+<span class="sd">        include_lab : bool</span>
+<span class="sd">            If true, the lab/subject/date/number is returned, otherwise the lab part is dropped.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The session path part of the input path or None if path invalid.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;).session_path_short()</span>
+<span class="sd">        &#39;subject/2020-01-01/001&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; alfpath = ALFPath(&#39;/mnt/sd0/Data/lab/Subjects/subject/2020-01-01/001&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; alfpath.session_path_short(include_lab=True)</span>
+<span class="sd">        &#39;lab/subject/2020-01-01/001&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;C:\\Data\\subject\\2020-01-01\\1\\trials.intervals.npy&#39;).session_path_short()</span>
+<span class="sd">        &#39;subject/2020-01-01/1&#39;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">include_lab</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">parts</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_parts</span><span class="p">[</span><span class="n">idx</span><span class="p">:]):</span>
+            <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.without_lab">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.without_lab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">without_lab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;PureALFPath&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path without the &lt;lab&gt;/Subjects/ part.</span>
+
+<span class="sd">        If the &lt;lab&gt;/Subjects pattern is not found, the same path is returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same path without the &lt;lab&gt;/Subjects part.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">:=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{lab}</span><span class="s1">/Subjects/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">p</span><span class="p">[:</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">()],</span> <span class="n">p</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">():])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.relative_to_lab">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.relative_to_lab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relative_to_lab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;PureALFPath&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path relative to &lt;lab&gt;/Subjects/ part.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same path, relative to the &lt;lab&gt;/Subjects/ part.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The path doesn&#39;t contain a &lt;lab&gt;/Subjects/ pattern.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">:=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{lab}</span><span class="s1">/Subjects/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">():])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> does not contain &lt;lab&gt;/Subjects pattern&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.relative_to_session">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.relative_to_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relative_to_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path relative to session part.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same path, relative to the &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; part.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The path doesn&#39;t contain a &lt;lab&gt;/Subjects/ pattern.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">session_path</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">()):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> does not contain session path pattern&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.parse_alf_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.parse_alf_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_alf_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse all filename and folder parts.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        as_dict : bool</span>
+<span class="sd">            When true a dict of matches is returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OrderedDict, tuple</span>
+<span class="sd">            A dict if as_dict is true, or a tuple of parsed values.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; alfpath = PureALFPath(</span>
+<span class="sd">        ...     &#39;lab/Subjects/subject/2020-01-01/001/collection/#revision#/&#39;</span>
+<span class="sd">        ...     &#39;_namespace_obj.times_timescale.extra.foo.ext&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; alfpath.parse_alf_path()</span>
+<span class="sd">        {&#39;lab&#39;: &#39;lab&#39;,</span>
+<span class="sd">        &#39;subject&#39;: &#39;subject&#39;,</span>
+<span class="sd">        &#39;date&#39;: &#39;2020-01-01&#39;,</span>
+<span class="sd">        &#39;number&#39;: &#39;001&#39;,</span>
+<span class="sd">        &#39;collection&#39;: &#39;collection&#39;,</span>
+<span class="sd">        &#39;revision&#39;: &#39;revision&#39;,</span>
+<span class="sd">        &#39;namespace&#39;: &#39;namespace&#39;,</span>
+<span class="sd">        &#39;object&#39;: &#39;obj&#39;,</span>
+<span class="sd">        &#39;attribute&#39;: &#39;times&#39;,</span>
+<span class="sd">        &#39;timescale&#39;: &#39;timescale&#39;,</span>
+<span class="sd">        &#39;extra&#39;: &#39;extra.foo&#39;,</span>
+<span class="sd">        &#39;extension&#39;: &#39;ext&#39;}</span>
+
+<span class="sd">        &gt;&gt;&gt; PureALFPath(&#39;_namespace_obj.times_timescale.extra.foo.ext&#39;).parse_alf_path()</span>
+<span class="sd">        (None, None, None, None, None, None, &#39;namespace&#39;,</span>
+<span class="sd">        &#39;obj&#39;, &#39;times&#39;,&#39;timescale&#39;, &#39;extra.foo&#39;, &#39;ext&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">full_path_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="n">as_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.parse_alf_name">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.parse_alf_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_alf_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the parsed elements of a given ALF filename.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        as_dict : bool</span>
+<span class="sd">            When true a dict of matches is returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        namespace : str</span>
+<span class="sd">            The _namespace_ or None if not present.</span>
+<span class="sd">        object : str</span>
+<span class="sd">            ALF object.</span>
+<span class="sd">        attribute : str</span>
+<span class="sd">            The ALF attribute.</span>
+<span class="sd">        timescale : str</span>
+<span class="sd">            The ALF _timescale or None if not present.</span>
+<span class="sd">        extra : str</span>
+<span class="sd">            Any extra parts to the filename, or None if not present.</span>
+<span class="sd">        extension : str</span>
+<span class="sd">            The file extension.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; alfpath = PureALFPath(</span>
+<span class="sd">        ...     &#39;lab/Subjects/subject/2020-01-01/001/collection/#revision#/&#39;</span>
+<span class="sd">        ...     &#39;_namespace_obj.times_timescale.extra.foo.ext&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; alfpath.parse_alf_name()</span>
+<span class="sd">        {&#39;namespace&#39;: &#39;namespace&#39;,</span>
+<span class="sd">        &#39;object&#39;: &#39;obj&#39;,</span>
+<span class="sd">        &#39;attribute&#39;: &#39;times&#39;,</span>
+<span class="sd">        &#39;timescale&#39;: &#39;timescale&#39;,</span>
+<span class="sd">        &#39;extra&#39;: &#39;extra.foo&#39;,</span>
+<span class="sd">        &#39;extension&#39;: &#39;ext&#39;}</span>
+
+<span class="sd">        &gt;&gt;&gt; PureALFPath(&#39;spikes.clusters.npy&#39;, as_dict=False)</span>
+<span class="sd">        (None, &#39;spikes&#39;, &#39;clusters&#39;, None, None, npy)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">filename_parts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="n">as_dict</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_name_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;tuple of str: the dataset name parts, with empty strings for missing parts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_alf_name</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">session_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;tuple of str: the session path parts, with empty strings for missing parts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alf_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;tuple of str: the full ALF path parts, with empty strings for missing parts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The namespace part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The object part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The attribute part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">timescale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The timescale part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The extra part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PureALFPath.with_object">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_object">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF object changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : str</span>
+<span class="sd">            An ALF object name part to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the object part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF dataset (e.g. doesn&#39;t have a three-part filename, or</span>
+<span class="sd">            contains invalid characters).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">ns_obj</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ns</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">FILE_SPEC</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ns_obj</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">ns</span><span class="si">}</span><span class="s1">_&#39;</span> <span class="k">if</span> <span class="n">ns</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ns</span><span class="si">}{</span><span class="n">obj</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">rest</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_namespace">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_namespace">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ns</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF namespace added or changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        namespace : str</span>
+<span class="sd">            An ALF namespace part to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the namespace part added/replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF dataset (e.g. doesn&#39;t have a three-part filename, or</span>
+<span class="sd">            contains invalid characters).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ns_obj</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">FILE_SPEC</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ns_obj</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">ns</span><span class="si">}</span><span class="s1">_&#39;</span> <span class="k">if</span> <span class="n">ns</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ns</span><span class="si">}{</span><span class="n">obj</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">rest</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_attribute">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_attribute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF attribute changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attribute : str</span>
+<span class="sd">            An ALF attribute part to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the attribute part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF dataset (e.g. doesn&#39;t have a three-part filename, or</span>
+<span class="sd">            contains invalid characters).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ns_obj</span><span class="p">,</span> <span class="n">attr_ts</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ts</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{attribute}</span><span class="s1">(?:_</span><span class="si">{timescale}</span><span class="s1">)?&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">attr_ts</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">ts</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">ts</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ns_obj</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">attr</span><span class="si">}{</span><span class="n">ts</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">rest</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_timescale">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_timescale">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_timescale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timescale</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF timescale added or changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timescale : str</span>
+<span class="sd">            An ALF timescale part to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the timescale part added/replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF dataset (e.g. doesn&#39;t have a three-part filename, or</span>
+<span class="sd">            contains invalid characters).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ns_obj</span><span class="p">,</span> <span class="n">attr_ts</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">attr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{attribute}</span><span class="s1">(?:_</span><span class="si">{timescale}</span><span class="s1">)?&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">attr_ts</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">timescale</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">timescale</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ns_obj</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">attr</span><span class="si">}{</span><span class="n">ts</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">rest</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_extra">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_extra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_extra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with extra ALF parts added or changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extra : str, list of str</span>
+<span class="sd">            Extra ALF parts to add/replace.</span>
+<span class="sd">        append : bool</span>
+<span class="sd">            When false (default) any existing extra parts are replaced instead of added to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the extra part(s) replaced or appended to with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF dataset (e.g. doesn&#39;t have a three-part filename, or</span>
+<span class="sd">            contains invalid characters).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="n">extra</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">prev</span> <span class="o">:=</span> <span class="n">parts</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">append</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="o">*</span><span class="n">extra</span><span class="p">)</span>
+        <span class="n">obj_attr</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="o">:=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">obj_attr</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="n">obj_attr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_extension">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_extension">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF extension (suffix) changed.</span>
+
+<span class="sd">        Note that unlike PurePath&#39;s `with_suffix` method, this asserts that the filename is a valid</span>
+<span class="sd">        ALF dataset and the `ext` argument should be without the period.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ext : str</span>
+<span class="sd">            An ALF extension part to use (sans period).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the extension part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF dataset (e.g. doesn&#39;t have a three-part filename, or</span>
+<span class="sd">            contains invalid characters).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_padded_sequence">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_padded_sequence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_padded_sequence</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures a file path contains a zero-padded experiment sequence folder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str pathlib.PurePath</span>
+<span class="sd">            A session or file path to convert.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ALFPath, PureALFPath</span>
+<span class="sd">            The same path but with the experiment sequence folder zero-padded.  If a PurePath was</span>
+<span class="sd">            passed, a PurePath will be returned, otherwise a Path object is returned.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Supports calling as static function</span>
+
+<span class="sd">        &gt;&gt;&gt; file_path = &#39;/iblrigdata/subject/2023-01-01/1/_ibl_experiment.description.yaml&#39;</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath.with_padded_sequence(file_path)</span>
+<span class="sd">        ALFPath(&#39;/iblrigdata/subject/2023-01-01/001/_ibl_experiment.description.yaml&#39;)</span>
+
+<span class="sd">        Supports folders and will not affect already padded paths</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;subject/2023-01-01/001&#39;).with_padded_sequence(file_path)</span>
+<span class="sd">        ALFPath(&#39;subject/2023-01-01/001&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">padded_sequence</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_revision">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_revision">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">revision</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF revision part added/changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        revision : str</span>
+<span class="sd">            An ALF revision part to use (NB: do not include the pound sign &#39;#&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the revision part added or replaced with the input.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        If not in the ALF path, one will be added</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/subject/2023-01-01/1/alf/obj.attr.ext&#39;).with_revision(&#39;revision&#39;)</span>
+<span class="sd">        ALFPath(&#39;/subject/2023-01-01/1/alf/#xxx#/obj.attr.ext&#39;)</span>
+
+<span class="sd">        If a revision is already in the ALF path it will be replaced</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/subject/2023-01-01/1/alf/#revision#/obj.attr.ext&#39;).with_revision(&#39;xxx&#39;)</span>
+<span class="sd">        ALFPath(&#39;/subject/2023-01-01/1/alf/#xxx#/obj.attr.ext&#39;)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The ALF path is not valid or is relative to the session path.  The path must include</span>
+<span class="sd">            the session parts otherwise the path is too ambiguous to determine validity.</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The revision provided does not match the ALF specification pattern.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        PureALFPath.without_revision</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate the revision input</span>
+        <span class="n">revision</span><span class="p">,</span> <span class="o">=</span> <span class="n">_path_parts</span><span class="p">(</span><span class="n">revision</span><span class="p">,</span> <span class="s1">&#39;^</span><span class="si">{revision}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">PureALFPath</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">without_revision</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">revision</span><span class="si">}</span><span class="s1">#&#39;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">without_revision</span><span class="p">()</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">revision</span><span class="si">}</span><span class="s1">#&#39;</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.without_revision">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.without_revision">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">without_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF revision part removed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the revision part removed.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        If not in the ALF path, no change occurs</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/subject/2023-01-01/1/alf/obj.attr.ext&#39;).with_revision(&#39;revision&#39;)</span>
+<span class="sd">        ALFPath(&#39;/subject/2023-01-01/1/alf/obj.attr.ext&#39;)</span>
+
+<span class="sd">        If a revision is in the ALF path it will be removed</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/subject/2023-01-01/1/alf/#revision#/obj.attr.ext&#39;).without_revision()</span>
+<span class="sd">        ALFPath(&#39;/subject/2023-01-01/1/alf/obj.attr.ext&#39;)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The ALF path is not valid or is relative to the session path.  The path must include</span>
+<span class="sd">            the session parts otherwise the path is too ambiguous to determine validity.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        PureALFPath.with_revision</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">PureALFPath</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c1"># Is a file path (rather than folder path)</span>
+            <span class="k">return</span> <span class="n">without_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_alf</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> not a valid ALF path or is relative to session&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;^#</span><span class="si">{revision}</span><span class="s1">#$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="c1"># Includes revision</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Does not include revision</span>
+            <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_uuid">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_uuid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF UUID part added/changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        uuid : str, uuid.UUID</span>
+<span class="sd">            The UUID to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            A new ALFPath object with a UUID in the filename.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; uuid = &#39;a976e418-c8b8-4d24-be47-d05120b18341&#39;</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/path/to/trials.intervals.npy&#39;).with_uuid(uuid)</span>
+<span class="sd">        ALFPath(&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            `uuid` must be a valid hyphen-separated hexadecimal UUID.</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            Path is not a valid ALF file path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> is not a valid ALF dataset file path&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">add_uuid_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.without_uuid">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.without_uuid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">without_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF UUID part removed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            A new ALFPath object with a UUID removed from the filename, if present.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; alfpath = ALFPath(&#39;/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; alfpath.without_uuid(uuid)</span>
+<span class="sd">        ALFPath(&#39;/path/to/trials.intervals.npy&#39;)</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/path/to/trials.intervals.npy&#39;).without_uuid(uuid)</span>
+<span class="sd">        ALFPath(&#39;/path/to/trials.intervals.npy&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">remove_uuid_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ALFPath">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.ALFPath">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ALFPath</span><span class="p">(</span><span class="n">PureALFPath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for manipulating Alyx file (ALF) paths with system calls.</span>
+
+<span class="sd">    Similar to a pathlib Path object but with methods for validating, parsing, and replacing ALF</span>
+<span class="sd">    path parts. This class also contains methods that work on system files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : str, pathlib.PurePath</span>
+<span class="sd">        One or more pathlike objects to combine into an ALF path object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a ALFPurePath from one or several strings and or existing PurePath objects.</span>
+
+<span class="sd">        The strings and path objects are combined so as to yield a canonicalized path, which is</span>
+<span class="sd">        incorporated into the new PurePath object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">WindowsALFPath</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span> <span class="k">else</span> <span class="n">PosixALFPath</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ALFPath.is_dataset">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.ALFPath.is_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if path is an ALF dataset, rather than a folder.</span>
+
+<span class="sd">        Unlike pathlib and PureALFPath methods, this will return False if the path exists but</span>
+<span class="sd">        is a folder, otherwise this simply tests the path name, whether it exists or not.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if filename is ALF dataset.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ALFPath.is_session_path">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.ALFPath.is_session_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_session_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if path is a valid ALF session path.</span>
+
+<span class="sd">        This returns true if the input path matches the ALF session path specification.</span>
+<span class="sd">        This method can be used as a static method with any pathlike input, or as an instance</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        Unlike the PureALFPath method, this will return false if the path matches but is in fact</span>
+<span class="sd">        a file on disk.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, pathlib.PurePath</span>
+<span class="sd">            A session path to check the validity of.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the path is recognized as a valid ALF session path.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001&#39;).is_session_path()</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001/alf/spikes.times.npy&#39;).is_session_path()</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_session_path(&#39;_ibl_wheel.timestamps.npy&#39;)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_valid_alf(&#39;lab/Subjects/foo/2020-01-01/001&#39;)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        PureALFPath.is_valid_alf - Test whether path is generally valid a valid ALF path.</span>
+<span class="sd">        PureALFPath.session_path_parts - Returns parsed session path parts as tuple of str.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ALFPath.is_valid_alf">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.ALFPath.is_valid_alf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_alf</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if path is a valid ALF path.</span>
+
+<span class="sd">        This returns true if the input path matches any part of the ALF path specification.</span>
+<span class="sd">        This method can be used as a static method with any pathlike input, or as an instance</span>
+<span class="sd">        method.  This will validate both directory paths and file paths.</span>
+
+<span class="sd">        Unlike the PureALFPath method, this one will return false if the path matches a dataset</span>
+<span class="sd">        file pattern but is actually a folder on disk, or if the path matches as a file but is</span>
+<span class="sd">        is a folder on disk.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, pathlib.PurePath</span>
+<span class="sd">            A path to check the validity of.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the path is recognized as a valid ALF path.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001&#39;).is_valid_alf()</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath(&#39;/home/foo/2020-01-01/001/alf/spikes.times.npy&#39;).is_valid_alf()</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_valid_alf(&#39;_ibl_wheel.timestamps.npy&#39;)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ALFPath.is_valid_alf(&#39;foo.bar&#39;)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        PureALFPath.is_dataset - Test whether file name is valid as well as directory path.</span>
+<span class="sd">        full_path_parts - Validates path and returns the parsed ALF path parts.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="n">full_path_parts</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ALFInvalid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">is_dataset</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="s1">&#39;object&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;is_file&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">is_dataset</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;is_dir&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="n">is_dataset</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="ALFPath.iter_datasets">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.ALFPath.iter_datasets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over all files in path, and yield relative dataset paths.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        recursive : bool</span>
+<span class="sd">            If true, yield datasets in subdirectories.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        ALFPath</span>
+<span class="sd">            The next valid dataset path in lexicographical order.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        one.alf.io.iter_datasets - Equivalent function that can take any pathlike input and returns</span>
+<span class="sd">         paths relative to the input path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">glob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rglob</span> <span class="k">if</span> <span class="n">recursive</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">glob</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.*.*&#39;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">p</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PureWindowsALFPath">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureWindowsALFPath">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PureWindowsALFPath</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">PureWindowsPath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PureALFPath subclass for Windows systems.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="PurePosixALFPath">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PurePosixALFPath">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PurePosixALFPath</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">PurePosixPath</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PureALFPath subclass for non-Windows systems.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="WindowsALFPath">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.WindowsALFPath">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WindowsALFPath</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">WindowsPath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ALFPath subclass for Windows systems.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="PosixALFPath">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PosixALFPath">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PosixALFPath</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">,</span> <span class="n">ALFPath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ALFPath subclass for non-Windows systems.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_alf_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Listable</span><span class="p">(</span><span class="n">PureALFPath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure path is a PureALFPath instance.</span>
+
+<span class="sd">    Ensures the path entered is cast to a PureALFPath instance. If input class is PureALFPath or</span>
+<span class="sd">    pathlib.PurePath, a PureALFPath instance is returned, otherwise an ALFPath instance is</span>
+<span class="sd">    returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str, pathlib.PurePath, ALFPath, iterable</span>
+<span class="sd">        One or more path-like objects.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ALFPath, PureALFPath, list of ALFPath, list of PureALFPath</span>
+<span class="sd">        One or more ALFPath objects.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        Unexpected path instance; input must be a str or pathlib.PurePath instance, or an</span>
+<span class="sd">        iterable thereof.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">PureALFPath</span><span class="p">):</span>
+        <span class="c1"># Already an ALFPath instance</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">):</span>
+        <span class="c1"># Cast pathlib instance to equivalent ALFPath</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePosixPath</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PurePosixALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PureWindowsPath</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PureWindowsALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PureALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Cast str to ALFPath</span>
+        <span class="k">return</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="c1"># Cast list, generator, tuple, etc. to list of ALFPath</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">ensure_alf_path</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected os.PathLike type, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="si">}</span><span class="s1"> instead&#39;</span><span class="p">)</span>
 </pre></div>
 
            </div>

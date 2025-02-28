@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Searching with ONE &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -22,8 +22,6 @@
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -95,8 +93,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -130,10 +126,10 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <h1>Searching with ONE<a class="headerlink" href="#Searching-with-ONE" title="Link to this heading"></a></h1>
 <p>ONE contains a method that allows you to search for sessions of interest. The possible search terms can be listed using,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
@@ -145,17 +141,17 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(&#39;dataset&#39;, &#39;date_range&#39;, &#39;laboratory&#39;, &#39;number&#39;, &#39;projects&#39;, &#39;subject&#39;, &#39;task_protocol&#39;)
+(&#39;auto_datetime&#39;, &#39;limit&#39;, &#39;django&#39;, &#39;end_time&#39;, &#39;performance_gte&#39;, &#39;parent_session&#39;, &#39;project&#39;, &#39;dataset_qc_lte&#39;, &#39;id&#39;, &#39;start_time&#39;, &#39;histology&#39;, &#39;offset&#39;, &#39;performance_lte&#39;, &#39;procedures&#39;, &#39;json&#39;, &#39;narrative&#39;, &#39;name&#39;, &#39;atlas_name&#39;, &#39;nickname&#39;, &#39;number&#39;, &#39;type&#39;, &#39;extended_qc&#39;, &#39;atlas_id&#39;, &#39;date_range&#39;, &#39;n_trials&#39;, &#39;n_correct_trials&#39;, &#39;projects&#39;, &#39;laboratory&#39;, &#39;qc&#39;, &#39;task_protocol&#39;, &#39;datasets&#39;, &#39;users&#39;, &#39;dataset_types&#39;, &#39;subject&#39;, &#39;location&#39;, &#39;tag&#39;, &#39;atlas_acronym&#39;)
 </pre></div></div>
 </div>
 <p>We can search for sessions within a specified date range (inclusive)</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">])</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-10-25&#39;</span><span class="p">])</span>
+<span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">eids</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -164,24 +160,26 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;ef91b4d0-02a3-48c4-b6ad-610d346e5f68&#39;, &#39;b4e3383c-6cdb-49af-81a1-39b8f88aa5fd&#39;]
+[UUID(&#39;024113d9-245e-4b67-afdb-9a7213d94446&#39;),
+ UUID(&#39;9119c8d3-9894-4a88-9420-a6fa8ea05a0e&#39;),
+ UUID(&#39;329f5a74-93ec-48de-a569-cf40a386f712&#39;)]
 </pre></div></div>
 </div>
 <p>A single date can be provided instead of a range. Also to define only the upper or lower date bound, set the other element to None.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-10-25&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>To get more information about the sessions we can add a details=True flag</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">],</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-10-25&#39;</span><span class="p">],</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -191,26 +189,41 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{&#39;date&#39;: datetime.date(2021, 1, 1),
+[{&#39;date&#39;: datetime.date(2023, 10, 25),
+  &#39;id&#39;: &#39;024113d9-245e-4b67-afdb-9a7213d94446&#39;,
+  &#39;lab&#39;: &#39;wittenlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;witten_learning_dop&#39;],
+  &#39;start_time&#39;: &#39;2023-10-25T11:01:50.579936&#39;,
+  &#39;subject&#39;: &#39;fip_912&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_FPROptoChoiceWorld6.4.2&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/024113d9-245e-4b67-afdb-9a7213d94446&#39;},
+ {&#39;date&#39;: datetime.date(2023, 10, 25),
+  &#39;id&#39;: &#39;9119c8d3-9894-4a88-9420-a6fa8ea05a0e&#39;,
+  &#39;lab&#39;: &#39;wittenlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;witten_learning_dop&#39;],
+  &#39;start_time&#39;: &#39;2023-10-25T09:55:24.599600&#39;,
+  &#39;subject&#39;: &#39;fip_911&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_FPROptoChoiceWorld6.4.2&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/9119c8d3-9894-4a88-9420-a6fa8ea05a0e&#39;},
+ {&#39;date&#39;: datetime.date(2023, 10, 25),
+  &#39;id&#39;: &#39;329f5a74-93ec-48de-a569-cf40a386f712&#39;,
   &#39;lab&#39;: &#39;wittenlab&#39;,
   &#39;number&#39;: 2,
-  &#39;projects&#39;: &#39;witten_learning_dop&#39;,
-  &#39;subject&#39;: &#39;fip_12&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_FPChoiceWorld6.4.2&#39;},
- {&#39;date&#39;: datetime.date(2021, 1, 1),
-  &#39;lab&#39;: &#39;wittenlab&#39;,
-  &#39;number&#39;: 2,
-  &#39;projects&#39;: &#39;witten_learning_dop&#39;,
-  &#39;subject&#39;: &#39;fip_11&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_FP_biasedChoiceWorld6.4.2&#39;}]
+  &#39;projects&#39;: [&#39;witten_learning_dop&#39;],
+  &#39;start_time&#39;: &#39;2023-10-25T08:57:09.804297&#39;,
+  &#39;subject&#39;: &#39;fip_910&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_FPLOptoChoiceWorld6.4.2&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/329f5a74-93ec-48de-a569-cf40a386f712&#39;}]
 </pre></div></div>
 </div>
 <p>Multiple search terms can also be combined, for example we can search for any sessions from the subject SWC_043 that contain the datasets spikes.times and spikes.clusters</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_043&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_043&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">])</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -220,18 +233,18 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;,
- &#39;c6db3304-c906-400c-aa0f-45dd3945b2ea&#39;,
- &#39;88d24c31-52e4-49cc-9f32-6adbeb9eba87&#39;,
- &#39;6fb1e12c-883b-46d1-a745-473cde3232c8&#39;,
- &#39;695a6073-eae0-49e0-bb0f-e9e57a9275b9&#39;,
- &#39;6f09ba7e-e3ce-44b0-932b-c003fb44fb89&#39;,
- &#39;f3ce3197-d534-4618-bf81-b687555d1883&#39;]
+[UUID(&#39;4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a&#39;),
+ UUID(&#39;c6db3304-c906-400c-aa0f-45dd3945b2ea&#39;),
+ UUID(&#39;88d24c31-52e4-49cc-9f32-6adbeb9eba87&#39;),
+ UUID(&#39;6fb1e12c-883b-46d1-a745-473cde3232c8&#39;),
+ UUID(&#39;695a6073-eae0-49e0-bb0f-e9e57a9275b9&#39;),
+ UUID(&#39;6f09ba7e-e3ce-44b0-932b-c003fb44fb89&#39;),
+ UUID(&#39;f3ce3197-d534-4618-bf81-b687555d1883&#39;)]
 </pre></div></div>
 </div>
-<p>More search terms are available when making <a class="reference external" href="../one_modes.html">remote queries</a> (using the remote Alyx database instead of the local cache). You can view all the remote search terms with the ‘remote’ arg:</p>
+<p>More search terms are available when making <a class="reference external" href="../one_modes.html">local queries</a> (using the local cache instead of the remote Alyx database). You can view all the local search terms with the ‘local’ arg:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
@@ -241,16 +254,14 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <div class="admonition warning">
 <p class="admonition-title fa fa-exclamation-circle">Warning.</p>
-<p>Remote search queries behave slightly differently. See “Gochas” below.</p>
+<p>Local search queries behave slightly differently. See “Gochas” below.</p>
 </div>
 <p>Search term arguments may be shortened, so long as they are not ambiguous:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="n">date_range</span><span class="o">=</span><span class="s1">&#39;2020-03-23&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2020-03-23&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -261,7 +272,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </div>
 <p>To find out more information about the <code class="docutils literal notranslate"><span class="pre">one.search</span></code> method we can use the help function</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">)</span>
@@ -282,7 +293,7 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
 
         one.search_terms(query_type=&#39;remote&#39;)
 
-    For all of the search parameters, a single value or list may be provided.  For `dataset`,
+    For all search parameters, a single value or list may be provided.  For `dataset`,
     the sessions returned will contain all listed datasets.  For the other parameters,
     the session must contain at least one of the entries.
 
@@ -292,10 +303,8 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
 
     Parameters
     ----------
-    dataset : str
-        A (partial) dataset name. Returns sessions containing matching datasets.
-        A dataset matches if it contains the search string e.g. &#39;wheel.position&#39; matches
-        &#39;_ibl_wheel.position.npy&#39;. C.f. `datasets` argument.
+    datasets : str, list
+        One or more (exact) dataset names. Returns sessions containing all of these datasets.
     date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
         A single date to search or a list of 2 dates that define the range (inclusive).  To
         define only the upper or lower date bound, set the other element to None.
@@ -322,9 +331,12 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
         A str or list of lab location (as per Alyx definition) name.
         Note: this corresponds to the specific rig, not the lab geographical location per se.
     dataset_types : str, list
-        One or more of dataset_types.
-    datasets : str, list
-        One or more (exact) dataset names. Returns insertions containing all of these datasets.
+        One or more of dataset_types. Unlike with `datasets`, the dataset types for the
+        sessions returned may not be reachable (i.e. for recent sessions the datasets may not
+        yet be available).
+    dataset_qc_lte : int, str, one.alf.spec.QC
+        The maximum QC value for associated datasets. NB: Without `datasets`, not all
+        associated datasets with the matching QC values are guarenteed to be reachable.
     details : bool
         If true also returns a dict of dataset details.
     query_type : str, None
@@ -334,7 +346,7 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
 
     Returns
     -------
-    list
+    list of UUID
         List of eids.
     (list of dicts)
         If details is True, also returns a list of dictionaries, each entry corresponding to a
@@ -369,55 +381,50 @@ search(details=False, query_type=None, **kwargs) method of one.api.OneAlyx insta
     - In default and local mode, when the one.wildcards flag is True (default), queries are
       interpreted as regular expressions. To turn this off set one.wildcards to False.
     - In remote mode regular expressions are only supported using the `django` argument.
+    - In remote mode, only the `datasets` argument returns sessions where datasets are
+      registered *and* exist. Using `dataset_types` or `dataset_qc_lte` without `datasets`
+      will not check that the datasets are reachable.
+
 </pre></div></div>
 </div>
 <section id="Advanced-searching">
 <h2>Advanced searching<a class="headerlink" href="#Advanced-searching" title="Link to this heading"></a></h2>
 <p>By default ONE searches most terms function as an LIKE OR expression, returning results that contain any of the search values as a substring. For example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'])</span></code> returns all sessions where the subject name contains ‘foo’ or contains ‘bar’. The exception is the dataset search term, which is a LIKE AND expression, i.e. the session must contain one or more dataset names containing ‘foo’ AND one or more datasets containing ‘bar’. Note that all expressions are
-case-sensitive in auto/local mode and case-insensitive in remote mode.</p>
-<p>For more precise searches, regular expressions (a.k.a. regex) can be used. This is on by default and can be deactivated by setting the wildcards flag: <code class="docutils literal notranslate"><span class="pre">one.wildcards</span> <span class="pre">=</span> <span class="pre">False</span></code> (note that this also affects the list and load methods, see <a class="reference external" href="../one_load/one_load.html#Advanced-loading">the advanced loading section of Loading with ONE</a> for more details).</p>
+case-sensitive in <a class="reference external" href="../one_modes.html">local mode</a> and case-insensitive in remote mode.</p>
+<p>For more precise searches, regular expressions (a.k.a. regex) can be used in local mode. This is on by default and can be deactivated by setting the wildcards flag: <code class="docutils literal notranslate"><span class="pre">one.wildcards</span> <span class="pre">=</span> <span class="pre">False</span></code> (note that this also affects the list and load methods, see <a class="reference external" href="../one_load/one_load.html#Advanced-loading">the advanced loading section of Loading with ONE</a> for more details).</p>
 <p>Regex allows one to make exact searches by asserting the start and end of the string:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;FD_04&#39;</span><span class="p">)</span>  <span class="c1"># includes sessions with subject &#39;MFD_04&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;FD_04&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># includes sessions with subject &#39;MFD_04&#39;</span>
 <span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;the wildcards flag must be True for regex expressions&#39;</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">)</span>  <span class="c1"># exact subject name match</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># exact subject name match</span>
 </pre></div>
 </div>
 </div>
 <p>Likewise, to search for sessions that include one dataset OR another, we can use the <code class="docutils literal notranslate"><span class="pre">|</span></code> character in our regex:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sessions containing either leftCamera.times OR rightCamera.times:</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;leftCamera\.times|rightCamera\.times&#39;</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;leftCamera\.times|rightCamera\.times&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
 <span class="c1"># XOR expressions are also possible:</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;(leftCamera\.times|rightCamera\.times)</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;(leftCamera\.times|rightCamera\.times)</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
-  return all(any(x.str.contains(y, regex=self.wildcards) &amp; exists) for y in dsets)
-</pre></div></div>
 </div>
 <p>Note that the wildcards flag causes certain characters to be interpreted differently (e.g. <code class="docutils literal notranslate"><span class="pre">.</span></code> matches any character). To avoid this, either set the wildcards flag to False or escape the string using <code class="docutils literal notranslate"><span class="pre">re.escape</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;NYU-14.1&#39;</span>
 <span class="k">if</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span><span class="p">:</span>
     <span class="n">subject</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">)</span>  <span class="c1"># &#39;NYU\\-14\\.1&#39;</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># &#39;NYU\\-14\\.1&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -451,17 +458,16 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 </tr>
 </tbody>
 </table>
-<p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contains foo OR bar, AND the project contains baz. NB: When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> which is provided with <code class="docutils literal notranslate"><span class="pre">dataset(s)</span></code>, sessions are returned where ALL matching datasets have a less than or equal QC value. When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> is provided alone, sessions are returned where ANY of the datasets have a less than or equal QC value.</p>
+<p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contains foo OR bar, AND the project contains baz. NB: When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> which is provided with <code class="docutils literal notranslate"><span class="pre">datasets</span></code>, sessions are returned where ALL matching datasets have a less than or equal QC value. When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> is provided alone, sessions are returned where ANY of the datasets have a less than or equal QC value.</p>
 </section>
 <section id="Difference-between-remote-mode-search-terms">
 <h4>Difference between remote mode search terms<a class="headerlink" href="#Difference-between-remote-mode-search-terms" title="Link to this heading"></a></h4>
-<p>Many search terms perform differently between auto/local mode and <a class="reference external" href="../one_modes.html">remote mode</a>, namely in remote mode, search queries are case-insensitive.</p>
+<p>Many search terms perform differently between <a class="reference external" href="../one_modes.html">local mode</a> and remote mode, namely in remote mode, search queries are case-insensitive.</p>
 </section>
 <section id="The-dataset,-datasets-and-dataset_types-remote-arguments">
 <h4>The dataset, datasets and dataset_types remote arguments<a class="headerlink" href="#The-dataset,-datasets-and-dataset_types-remote-arguments" title="Link to this heading"></a></h4>
-<p>In remote mode there are three ways to search for datasets:</p>
+<p>In remote mode there are two ways to search for datasets:</p>
 <ul class="simple">
-<li><p><strong>dataset</strong> - a partial, case-insensitive match of a single dataset (multiple datasets not supported).</p></li>
 <li><p><strong>datasets</strong> - an exact, case-sensitive match of one or more datasets. All datasets must be present. If <code class="docutils literal notranslate"><span class="pre">dataset_qc</span></code> provided, this criterion applies only to these datasets.</p></li>
 <li><p><strong>dataset_type</strong> - an exact, case-sensitive match of one or more <a class="reference external" href="../datasets_and_types.html#Dataset-types">dataset types</a>. All dataset types must be present.</p></li>
 </ul>
@@ -480,7 +486,7 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 <h2>Searching data with a release tag<a class="headerlink" href="#Searching-data-with-a-release-tag" title="Link to this heading"></a></h2>
 <p>Datasets associated with a given paper and/or data release are associated with a tag. You can list the available release tags like so:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;ONE must be online to query tags&#39;</span>
@@ -504,12 +510,28 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 2022_Q4_IBL_et_al_BWM: https://figshare.com/articles/preprint/Data_release_-_Brainwide_map_-_Q4_2022/21400815
 2023_Q1_Biderman_Whiteway_et_al:
 2023_Q1_Mohammadi_et_al:
+2023_Q3_Findling_Hubert_et_al: https://doi.org/10.1101/2023.07.04.547684
+2023_Q4_Bruijns_et_al:
+2023_Q4_IBL_et_al_BWM_2:
+2023_Q4_IBL_et_al_BWM_passive:
+2024_Q2_Blau_et_al:
+2024_Q2_IBL_et_al_BWM_iblsort: Spike sorting output with ibl-sorter 1.7.0 for BWM
+2024_Q2_IBL_et_al_RepeatedSite: https://doi.org/10.1101/2022.05.09.491042
+2024_Q3_Pan_Vazquez_et_al:
+2025_Q1_IBL_et_al_BWM_wheel_patch: 62 patched sessions with reversed wheel polarity
+audio sync FPGA patch: For a number of important ephys sessions the audio was somehow not wired into the FPGA, however
+everything else was present and the Bpod recorded these TTLs so we decided to use the bpod2fpga
+interpolation to recover the audio TTLs in FPGA time. These were then added to the _spikeglx_sync
+object and the trials were re-extracted. These data were patched and the _spikeglx_sync datasets
+were protected so that they would not be overwritten in the future.
+Brainwidemap:
+RepeatedSite:
 </pre></div></div>
 </div>
-<p>You can download a cache table for any given release tag, allowing you to restrict your ONE.search queries to a given tag in <a class="reference external" href="../one_modes">auto/local mode</a>. See FAQ section ‘<a class="reference external" href="../../FAQ.html#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a>’ for more information.</p>
+<p>You can download a cache table for any given release tag, allowing you to restrict your ONE.search queries to a given tag in <a class="reference external" href="../one_modes">local mode</a>. See FAQ section ‘<a class="reference external" href="../../FAQ.html#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a>’ for more information.</p>
 <p>To search for session containing datasets assocaited with a given release tag in <a class="reference external" href="../one_modes">remote mode</a>, you can use the following query parameter:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>
@@ -527,7 +549,7 @@ C:\Users\User\Documents\Github\ONE\one\api.py:460: UserWarning: This pattern is 
 <p>The search_insertions method is only available in <a class="reference external" href="../one_modes">remote mode</a>.</p>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">,</span> <span class="s1">&#39;insertions&#39;</span><span class="p">)</span>

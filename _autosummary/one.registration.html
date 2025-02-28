@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.registration &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
@@ -97,8 +97,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -152,7 +150,7 @@ register_files - Register a list of files to their respective sessions on Alyx</
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.registration.RegistrationClient" title="one.registration.RegistrationClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegistrationClient</span></code></a></p></td>
-<td><p>Object that keeps the ONE instance and provides method to create sessions and register data.</p></td>
+<td><p>Methods to create sessions and register data.</p></td>
 </tr>
 </tbody>
 </table>
@@ -186,9 +184,9 @@ register_files - Register a list of files to their respective sessions on Alyx</
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RegistrationClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RegistrationClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Object that keeps the ONE instance and provides method to create sessions and register data.</p>
+<p>Methods to create sessions and register data.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.create_sessions">
 <span class="sig-name descname"><span class="pre">create_sessions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_data_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glob_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'**/create_me.flag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.create_sessions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.create_sessions" title="Link to this definition"></a></dt>
@@ -301,8 +299,8 @@ cache directory.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.ensure_ISO8601">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensure_ISO8601</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.ensure_ISO8601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.ensure_ISO8601" title="Link to this definition"></a></dt>
-<dd><p>Ensure provided date is ISO 8601 compliant</p>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensure_ISO8601</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.ensure_ISO8601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.ensure_ISO8601" title="Link to this definition"></a></dt>
+<dd><p>Ensure provided date is ISO 8601 compliant.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>date</strong> (<em>str</em><em>, </em><em>None</em><em>, </em><em>datetime.date</em><em>, </em><em>datetime.datetime</em>) – An optional date to convert to ISO string.  If None, the current datetime is used.</p>
@@ -369,8 +367,7 @@ path.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.prepare_files">
 <span class="sig-name descname"><span class="pre">prepare_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.prepare_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.prepare_files" title="Link to this definition"></a></dt>
-<dd><p>Validates file list for registration and splits files into a list of files per
-session path.</p>
+<dd><p>Validate file list for registration and group files by session path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -393,7 +390,7 @@ session path.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.check_protected_files">
 <span class="sig-name descname"><span class="pre">check_protected_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.check_protected_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.check_protected_files" title="Link to this definition"></a></dt>
-<dd><p>Check whether a set of files associated to a session are protected</p>
+<dd><p>Check whether a set of files associated to a session are protected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -462,7 +459,7 @@ a 403 HTTP status may be returned.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.register_water_administration">
 <span class="sig-name descname"><span class="pre">register_water_administration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.register_water_administration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.register_water_administration" title="Link to this definition"></a></dt>
-<dd><p>Register a water administration to Alyx for a given subject</p>
+<dd><p>Register a water administration to Alyx for a given subject.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

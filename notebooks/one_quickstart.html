@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ONE Quick Start &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -22,8 +22,6 @@
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -81,8 +79,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -121,19 +117,27 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 <p class="admonition-title fa fa-exclamation-circle">Info.</p>
 <p>IBL internal users may use their Alyx credentials to access all IBL data. <a class="reference external" href="https://int-brain-lab.github.io/ONE/one_installation.html#connecting-to-specific-database-relevant-for-ibl-users">Click here</a> for details.</p>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">one.api</span> <span class="kn">import</span> <span class="n">ONE</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">password</span><span class="o">=</span><span class="s1">&#39;international&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Connected to https://openalyx.internationalbrainlab.org as user &#34;intbrainlab&#34;
+</pre></div></div>
+</div>
 <p>Now we are going to search for an experiment to analyze. First let’s find out what we can search by:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
@@ -145,17 +149,17 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(&#39;dataset&#39;, &#39;date_range&#39;, &#39;laboratory&#39;, &#39;number&#39;, &#39;projects&#39;, &#39;subject&#39;, &#39;task_protocol&#39;)
+(&#39;task_protocol&#39;, &#39;datasets&#39;, &#39;name&#39;, &#39;offset&#39;, &#39;atlas_acronym&#39;, &#39;performance_gte&#39;, &#39;number&#39;, &#39;n_correct_trials&#39;, &#39;end_time&#39;, &#39;date_range&#39;, &#39;parent_session&#39;, &#39;type&#39;, &#39;narrative&#39;, &#39;qc&#39;, &#39;laboratory&#39;, &#39;project&#39;, &#39;extended_qc&#39;, &#39;dataset_types&#39;, &#39;atlas_id&#39;, &#39;django&#39;, &#39;procedures&#39;, &#39;auto_datetime&#39;, &#39;atlas_name&#39;, &#39;tag&#39;, &#39;histology&#39;, &#39;performance_lte&#39;, &#39;subject&#39;, &#39;limit&#39;, &#39;location&#39;, &#39;n_trials&#39;, &#39;dataset_qc_lte&#39;, &#39;start_time&#39;, &#39;projects&#39;, &#39;id&#39;, &#39;nickname&#39;, &#39;json&#39;, &#39;users&#39;)
 </pre></div></div>
 </div>
-<p>Let’s search for sessions recorded in August 2020, which contain a dataset ‘probes.description’, meaning that electrophysiology was recorded. By adding the argument <code class="docutils literal notranslate"><span class="pre">details=True</span></code>, we get two outputs - the experiment IDs uniquely identifying these sessions, and some information about the experiments.</p>
+<p>Let’s search for sessions recorded in August 2020, which contain a dataset ‘probes.description.json’, meaning that electrophysiology was recorded. By adding the argument <code class="docutils literal notranslate"><span class="pre">details=True</span></code>, we get two outputs - the experiment IDs uniquely identifying these sessions, and some information about the experiments.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-08-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-08-31&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;probes.description&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2020-08-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-08-31&#39;</span><span class="p">],</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;probes.description.json&#39;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 </pre></div>
@@ -166,39 +170,191 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;71e55bfe-5a3a-4cba-bdc7-f085140d798e&#39;,
- &#39;7f6b86f9-879a-4ea2-8531-294a221af5d0&#39;,
- &#39;61e11a11-ab65-48fb-ae08-3cb80662e5d6&#39;,
- &#39;c7248e09-8c0d-40f2-9eb4-700a8973d8c8&#39;]
-[{&#39;date&#39;: datetime.date(2020, 8, 18),
-  &#39;lab&#39;: &#39;angelakilab&#39;,
-  &#39;number&#39;: 1,
-  &#39;projects&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
-  &#39;subject&#39;: &#39;NYU-26&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;},
- {&#39;date&#39;: datetime.date(2020, 8, 14),
+[UUID(&#39;b69b86be-af7d-4ecf-8cbf-0cd356afa1bd&#39;),
+ UUID(&#39;ebe2efe3-e8a1-451a-8947-76ef42427cc9&#39;),
+ UUID(&#39;edd22318-216c-44ff-bc24-49ce8be78374&#39;),
+ UUID(&#39;626126d5-eecf-4e9b-900e-ec29a17ece07&#39;),
+ UUID(&#39;71e55bfe-5a3a-4cba-bdc7-f085140d798e&#39;),
+ UUID(&#39;49e0ab27-827a-4c91-bcaa-97eea27a1b8d&#39;),
+ UUID(&#39;81a78eac-9d36-4f90-a73a-7eb3ad7f770b&#39;),
+ UUID(&#39;5adab0b7-dfd0-467d-b09d-43cb7ca5d59c&#39;),
+ UUID(&#39;e56541a5-a6d5-4750-b1fe-f6b5257bfe7c&#39;),
+ UUID(&#39;7f6b86f9-879a-4ea2-8531-294a221af5d0&#39;),
+ UUID(&#39;5d01d14e-aced-4465-8f8e-9a1c674f62ec&#39;),
+ UUID(&#39;8c33abef-3d3e-4d42-9f27-445e9def08f9&#39;),
+ UUID(&#39;c557324b-b95d-414c-888f-6ee1329a2329&#39;),
+ UUID(&#39;61e11a11-ab65-48fb-ae08-3cb80662e5d6&#39;),
+ UUID(&#39;c7248e09-8c0d-40f2-9eb4-700a8973d8c8&#39;),
+ UUID(&#39;280ee768-f7b8-4c6c-9ea0-48ca75d6b6f3&#39;),
+ UUID(&#39;ff48aa1d-ef30-4903-ac34-8c41b738c1b9&#39;),
+ UUID(&#39;03063955-2523-47bd-ae57-f7489dd40f15&#39;)]
+[{&#39;date&#39;: datetime.date(2020, 8, 19),
+  &#39;id&#39;: &#39;b69b86be-af7d-4ecf-8cbf-0cd356afa1bd&#39;,
   &#39;lab&#39;: &#39;zadorlab&#39;,
   &#39;number&#39;: 1,
-  &#39;projects&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-19T14:53:39&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_026&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/b69b86be-af7d-4ecf-8cbf-0cd356afa1bd&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 19),
+  &#39;id&#39;: &#39;ebe2efe3-e8a1-451a-8947-76ef42427cc9&#39;,
+  &#39;lab&#39;: &#39;angelakilab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-19T12:43:13.897987&#39;,
+  &#39;subject&#39;: &#39;NYU-21&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/ebe2efe3-e8a1-451a-8947-76ef42427cc9&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 19),
+  &#39;id&#39;: &#39;edd22318-216c-44ff-bc24-49ce8be78374&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-19T11:31:40&#39;,
   &#39;subject&#39;: &#39;CSH_ZAD_019&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;},
- {&#39;date&#39;: datetime.date(2020, 8, 10),
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/edd22318-216c-44ff-bc24-49ce8be78374&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 18),
+  &#39;id&#39;: &#39;626126d5-eecf-4e9b-900e-ec29a17ece07&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-18T13:33:19&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_026&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/626126d5-eecf-4e9b-900e-ec29a17ece07&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 18),
+  &#39;id&#39;: &#39;71e55bfe-5a3a-4cba-bdc7-f085140d798e&#39;,
+  &#39;lab&#39;: &#39;angelakilab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-18T11:23:34&#39;,
+  &#39;subject&#39;: &#39;NYU-26&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/71e55bfe-5a3a-4cba-bdc7-f085140d798e&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 18),
+  &#39;id&#39;: &#39;49e0ab27-827a-4c91-bcaa-97eea27a1b8d&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-18T07:41:02&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_019&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/49e0ab27-827a-4c91-bcaa-97eea27a1b8d&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 17),
+  &#39;id&#39;: &#39;81a78eac-9d36-4f90-a73a-7eb3ad7f770b&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-17T08:20:00&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_026&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/81a78eac-9d36-4f90-a73a-7eb3ad7f770b&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 16),
+  &#39;id&#39;: &#39;5adab0b7-dfd0-467d-b09d-43cb7ca5d59c&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-16T07:39:40&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_019&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/5adab0b7-dfd0-467d-b09d-43cb7ca5d59c&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 15),
+  &#39;id&#39;: &#39;e56541a5-a6d5-4750-b1fe-f6b5257bfe7c&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-15T07:52:05&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_026&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/e56541a5-a6d5-4750-b1fe-f6b5257bfe7c&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 14),
+  &#39;id&#39;: &#39;7f6b86f9-879a-4ea2-8531-294a221af5d0&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-14T11:36:42&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_019&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/7f6b86f9-879a-4ea2-8531-294a221af5d0&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 14),
+  &#39;id&#39;: &#39;5d01d14e-aced-4465-8f8e-9a1c674f62ec&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 2,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-14T08:16:11&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_026&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/5d01d14e-aced-4465-8f8e-9a1c674f62ec&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 13),
+  &#39;id&#39;: &#39;8c33abef-3d3e-4d42-9f27-445e9def08f9&#39;,
   &#39;lab&#39;: &#39;angelakilab&#39;,
   &#39;number&#39;: 2,
-  &#39;projects&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-13T12:03:36.351962&#39;,
   &#39;subject&#39;: &#39;NYU-21&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;},
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/8c33abef-3d3e-4d42-9f27-445e9def08f9&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 12),
+  &#39;id&#39;: &#39;c557324b-b95d-414c-888f-6ee1329a2329&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-12T13:20:22.874103&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_025&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/c557324b-b95d-414c-888f-6ee1329a2329&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 10),
+  &#39;id&#39;: &#39;61e11a11-ab65-48fb-ae08-3cb80662e5d6&#39;,
+  &#39;lab&#39;: &#39;angelakilab&#39;,
+  &#39;number&#39;: 2,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-10T16:06:01.844113&#39;,
+  &#39;subject&#39;: &#39;NYU-21&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/61e11a11-ab65-48fb-ae08-3cb80662e5d6&#39;},
  {&#39;date&#39;: datetime.date(2020, 8, 5),
+  &#39;id&#39;: &#39;c7248e09-8c0d-40f2-9eb4-700a8973d8c8&#39;,
   &#39;lab&#39;: &#39;mainenlab&#39;,
   &#39;number&#39;: 1,
-  &#39;projects&#39;: &#39;ibl_neuropixel_brainwide_01&#39;,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-05T15:39:03&#39;,
   &#39;subject&#39;: &#39;ZM_3001&#39;,
-  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;}]
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/c7248e09-8c0d-40f2-9eb4-700a8973d8c8&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 4),
+  &#39;id&#39;: &#39;280ee768-f7b8-4c6c-9ea0-48ca75d6b6f3&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 2,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-04T08:06:38&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_025&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/280ee768-f7b8-4c6c-9ea0-48ca75d6b6f3&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 3),
+  &#39;id&#39;: &#39;ff48aa1d-ef30-4903-ac34-8c41b738c1b9&#39;,
+  &#39;lab&#39;: &#39;zadorlab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-03T13:31:08&#39;,
+  &#39;subject&#39;: &#39;CSH_ZAD_025&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/ff48aa1d-ef30-4903-ac34-8c41b738c1b9&#39;},
+ {&#39;date&#39;: datetime.date(2020, 8, 1),
+  &#39;id&#39;: &#39;03063955-2523-47bd-ae57-f7489dd40f15&#39;,
+  &#39;lab&#39;: &#39;mrsicflogellab&#39;,
+  &#39;number&#39;: 1,
+  &#39;projects&#39;: [&#39;ibl_neuropixel_brainwide_01&#39;],
+  &#39;start_time&#39;: &#39;2020-08-01T15:51:23.913929&#39;,
+  &#39;subject&#39;: &#39;SWC_038&#39;,
+  &#39;task_protocol&#39;: &#39;_iblrig_tasks_ephysChoiceWorld6.4.1&#39;,
+  &#39;url&#39;: &#39;https://openalyx.internationalbrainlab.org/sessions/03063955-2523-47bd-ae57-f7489dd40f15&#39;}]
 </pre></div></div>
 </div>
 <p>So there were four experiments matching the criteria in the public database. Now let’s load the probe information for the first experiment. <code class="docutils literal notranslate"><span class="pre">one.load_dataset</span></code> returns a single named dataset</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eid</span> <span class="o">=</span> <span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Select the first experiment</span>
@@ -209,7 +365,15 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+(S3) F:\FlatIron\openalyx.internationalbrainlab.org\zadorlab\Subjects\CSH_ZAD_026\2020-08-19\001\alf\probes.description.json: 100%|██████████| 482/482 [00:00&lt;00:00, 1.66kB/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -217,13 +381,21 @@ one_quickstart.ipynb"><button id="github">Github link</button></a><section id="O
 N probes = 2
 {&#39;label&#39;: &#39;probe00&#39;,
  &#39;model&#39;: &#39;3B2&#39;,
- &#39;raw_file_name&#39;: &#39;D:/iblrig_data/Subjects/NYU-26/2020-08-18/001/raw_ephys_data/_spikeglx_ephysData_g0/_spikeglx_ephysData_g0_imec0/_spikeglx_ephysData_g0_t0.imec0.ap.bin&#39;,
- &#39;serial&#39;: 19051004302}
+ &#39;raw_file_name&#39;: &#39;D:/iblrig_data/Subjects/CSH_ZAD_026/2020-08-19/001/raw_ephys_data/_spikeglx_ephysData__g0/_spikeglx_ephysData__g0_imec0/_spikeglx_ephysData__g0_t0.imec0.ap.bin&#39;,
+ &#39;serial&#39;: 18194814382}
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
 </pre></div></div>
 </div>
 <p>Now let’s see all the datasets associated with the first of these experiments. The command one.list_datasets returns the full path of all datasets, including the collection name and the extension. The ‘alf’ collection contains the preprocessed data we usually want to work with, and the data for each probe are in labeled subdirectories. We use the wildcard * because the data can be saved in different subdirectories for different spike sorters.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">probe_label</span> <span class="o">=</span> <span class="n">probe_insertions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
@@ -232,7 +404,7 @@ N probes = 2
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -240,6 +412,41 @@ N probes = 2
 [&#39;alf/probe00/electrodeSites.brainLocationIds_ccf_2017.npy&#39;,
  &#39;alf/probe00/electrodeSites.localCoordinates.npy&#39;,
  &#39;alf/probe00/electrodeSites.mlapdv.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/_ibl_log.info_pykilosort.log&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/_kilosort_whitening.matrix.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/_phy_spikes_subset.channels.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/_phy_spikes_subset.spikes.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/_phy_spikes_subset.waveforms.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/channels.brainLocationIds_ccf_2017.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/channels.labels.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/channels.localCoordinates.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/channels.mlapdv.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/channels.rawInd.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.amps.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.channels.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.depths.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.metrics.pqt&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.peakToTrough.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.uuids.csv&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.waveforms.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/clusters.waveformsChannels.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/drift.times.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/drift.um.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/drift_depths.um.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/passingSpikes.table.pqt&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/spikes.amps.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/spikes.clusters.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/spikes.depths.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/spikes.samples.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/spikes.templates.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/spikes.times.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/templates.amps.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/templates.waveforms.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/templates.waveformsChannels.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/waveforms.channels.npz&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/waveforms.table.pqt&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/waveforms.templates.npy&#39;,
+ &#39;alf/probe00/pykilosort/#2024-05-06#/waveforms.traces.npy&#39;,
  &#39;alf/probe00/pykilosort/_ibl_log.info_pykilosort.log&#39;,
  &#39;alf/probe00/pykilosort/_kilosort_whitening.matrix.npy&#39;,
  &#39;alf/probe00/pykilosort/_phy_spikes_subset.channels.npy&#39;,
@@ -273,7 +480,7 @@ N probes = 2
 </div>
 <p>We might be interested in the data of this session that is not specific to the probe recording, e.g. the behavioural data or video data. We can find that if we list datasets in the alf collection without specifying the probe.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf&#39;</span><span class="p">)</span>
@@ -281,7 +488,7 @@ N probes = 2
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[7]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -289,8 +496,10 @@ N probes = 2
 [&#39;alf/_ibl_bodyCamera.dlc.pqt&#39;,
  &#39;alf/_ibl_bodyCamera.times.npy&#39;,
  &#39;alf/_ibl_leftCamera.dlc.pqt&#39;,
+ &#39;alf/_ibl_leftCamera.features.pqt&#39;,
  &#39;alf/_ibl_leftCamera.times.npy&#39;,
  &#39;alf/_ibl_rightCamera.dlc.pqt&#39;,
+ &#39;alf/_ibl_rightCamera.features.pqt&#39;,
  &#39;alf/_ibl_rightCamera.times.npy&#39;,
  &#39;alf/_ibl_trials.goCueTrigger_times.npy&#39;,
  &#39;alf/_ibl_trials.stimOff_times.npy&#39;,
@@ -303,6 +512,7 @@ N probes = 2
  &#39;alf/bodyROIMotionEnergy.position.npy&#39;,
  &#39;alf/leftCamera.ROIMotionEnergy.npy&#39;,
  &#39;alf/leftROIMotionEnergy.position.npy&#39;,
+ &#39;alf/licks.times.npy&#39;,
  &#39;alf/probes.description.json&#39;,
  &#39;alf/rightCamera.ROIMotionEnergy.npy&#39;,
  &#39;alf/rightROIMotionEnergy.position.npy&#39;]
@@ -310,7 +520,7 @@ N probes = 2
 </div>
 <p>Let’s load the preprocessed data associated with the left camera. There are two ways to do this. <code class="docutils literal notranslate"><span class="pre">one.load_dataset</span></code> or <code class="docutils literal notranslate"><span class="pre">one.load_object</span></code>, which returns all the datasets with the same name part, as an object. Let’s use the second method to load all left camera data in the alf folder.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cam</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;leftCamera&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf&#39;</span><span class="p">)</span>
@@ -318,18 +528,29 @@ N probes = 2
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+(S3) F:\FlatIron\openalyx.internationalbrainlab.org\zadorlab\Subjects\CSH_ZAD_026\2020-08-19\001\alf\_ibl_leftCamera.times.npy: 100%|██████████| 2.61M/2.61M [00:01&lt;00:00, 2.19MB/s]
+(S3) F:\FlatIron\openalyx.internationalbrainlab.org\zadorlab\Subjects\CSH_ZAD_026\2020-08-19\001\alf\leftCamera.ROIMotionEnergy.npy: 100%|██████████| 2.61M/2.61M [00:00&lt;00:00, 5.70MB/s]
+(S3) F:\FlatIron\openalyx.internationalbrainlab.org\zadorlab\Subjects\CSH_ZAD_026\2020-08-19\001\alf\_ibl_leftCamera.dlc.pqt: 100%|██████████| 47.2M/47.2M [00:03&lt;00:00, 13.1MB/s]
+(S3) F:\FlatIron\openalyx.internationalbrainlab.org\zadorlab\Subjects\CSH_ZAD_026\2020-08-19\001\alf\_ibl_leftCamera.features.pqt: 100%|██████████| 15.4k/15.4k [00:00&lt;00:00, 57.5kB/s]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-dict_keys([&#39;times&#39;, &#39;ROIMotionEnergy&#39;, &#39;dlc&#39;])
+dict_keys([&#39;times&#39;, &#39;ROIMotionEnergy&#39;, &#39;dlc&#39;, &#39;features&#39;])
 </pre></div></div>
 </div>
 <p>To load only specific data associated with this object, we can use the attribute keyword. Let’s load the times and the DLC traces.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cam</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;leftCamera&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;dlc&#39;</span><span class="p">])</span>
@@ -338,7 +559,7 @@ dict_keys([&#39;times&#39;, &#39;ROIMotionEnergy&#39;, &#39;dlc&#39;])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>Out[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -348,7 +569,7 @@ dict_keys([&#39;times&#39;, &#39;dlc&#39;])
 </div>
 <p>And that’s the end of the quick start tutorial! For more information on any of these commands you can use the standard help function:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">)</span>
@@ -362,10 +583,11 @@ dict_keys([&#39;times&#39;, &#39;dlc&#39;])
 <div class="highlight"><pre>
 Help on method list_datasets in module one.api:
 
-list_datasets(eid=None, filename=None, collection=None, revision=None, details=False, query_type=None) -&gt; Union[numpy.ndarray, pandas.core.frame.DataFrame] method of one.api.OneAlyx instance
-    Given an eid, return the datasets for those sessions.  If no eid is provided,
-    a list of all datasets is returned.  When details is false, a sorted array of unique
-    datasets is returned (their relative paths).
+list_datasets(eid=None, filename=None, collection=None, revision=None, qc=&lt;QC.FAIL: 40&gt;, ignore_qc_not_set=False, details=False, query_type=None, default_revisions_only=False, keep_eid_index=False) -&gt; Union[numpy.ndarray, pandas.core.frame.DataFrame] method of one.api.OneAlyx instance
+    Given an eid, return the datasets for those sessions.
+
+    If no eid is provided, a list of all datasets is returned.  When details is false, a sorted
+    array of unique datasets is returned (their relative paths).
 
     Parameters
     ----------
@@ -373,25 +595,37 @@ list_datasets(eid=None, filename=None, collection=None, revision=None, details=F
         Experiment session identifier; may be a UUID, URL, experiment reference string
         details dict or Path.
     filename : str, dict, list
-        Filters datasets and returns only the ones matching the filename
+        Filters datasets and returns only the ones matching the filename.
         Supports lists asterisks as wildcards.  May be a dict of ALF parts.
     collection : str, list
         The collection to which the object belongs, e.g. &#39;alf/probe01&#39;.
         This is the relative path of the file from the session root.
         Supports asterisks as wildcards.
     revision : str
-        Filters datasets and returns only the ones matching the revision
-        Supports asterisks as wildcards
+        Filters datasets and returns only the ones matching the revision.
+        Supports asterisks as wildcards.
+    qc : str, int, one.alf.spec.QC
+        Returns datasets at or below this QC level.  Integer values should correspond to the QC
+        enumeration NOT the qc category column codes in the pandas table.
+    ignore_qc_not_set : bool
+        When true, do not return datasets for which QC is NOT_SET.
     details : bool
         When true, a pandas DataFrame is returned, otherwise a numpy array of
         relative paths (collection/revision/filename) - see one.alf.spec.describe for details.
     query_type : str
-        Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;)
+        Query cache (&#39;local&#39;) or Alyx database (&#39;remote&#39;).
+    default_revisions_only : bool
+        When true, only matching datasets that are considered default revisions are returned.
+        If no &#39;default_revision&#39; column is present, and ALFError is raised.
+    keep_eid_index : bool
+        If details is true, this determines whether the returned data frame contains the eid
+        in the index. When false (default) the returned data frame index is the dataset id
+        only, otherwise the index is a MultIndex with levels (eid, id).
 
     Returns
     -------
     np.ndarray, pd.DataFrame
-        Slice of datasets table or numpy array if details is False
+        Slice of datasets table or numpy array if details is False.
 
     Examples
     --------

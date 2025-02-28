@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.remote.test_aws &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
@@ -75,8 +75,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
 </ul>
 
@@ -106,19 +104,19 @@
              
   <h1>Source code for one.tests.remote.test_aws</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Tests for the one.remote.aws module.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 
-<span class="kn">from</span> <span class="nn">one.tests</span> <span class="kn">import</span> <span class="n">TEST_DB_1</span><span class="p">,</span> <span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">one.webclient</span> <span class="kn">import</span> <span class="n">AlyxClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.tests</span><span class="w"> </span><span class="kn">import</span> <span class="n">TEST_DB_1</span><span class="p">,</span> <span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.webclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlyxClient</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">one.remote.aws</span> <span class="k">as</span> <span class="nn">aws</span>
-    <span class="kn">from</span> <span class="nn">botocore</span> <span class="kn">import</span> <span class="n">UNSIGNED</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">one.remote.aws</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">aws</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">botocore</span><span class="w"> </span><span class="kn">import</span> <span class="n">UNSIGNED</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="k">raise</span> <span class="n">unittest</span><span class="o">.</span><span class="n">SkipTest</span><span class="p">(</span><span class="s1">&#39;boto3 module not installed&#39;</span><span class="p">)</span>
 
@@ -126,17 +124,18 @@
 <div class="viewcode-block" id="TestAWSPublic">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWSPublic">[docs]</a>
 <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">OFFLINE_ONLY</span><span class="p">,</span> <span class="s1">&#39;online only test&#39;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">TestAWSPublic</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This test relies on downloading the cache folder for open alyx as it is rather small</span>
-<span class="sd">    The assertions may change if the content does change.</span>
-<span class="sd">    If the folder grows bigger, we could create a dedicated test folder for this test</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAWSPublic</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This test relies on downloading the cache folder for open alyx as it is rather small.</span>
+
+<span class="sd">    The assertions may change if the content does change. If the folder grows bigger, we could</span>
+<span class="sd">    create a dedicated test folder for this test.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/openalyx/cache_info.json&#39;</span>
 
 <div class="viewcode-block" id="TestAWSPublic.test_download_file">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWSPublic.test_download_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.aws.remote.s3_download_file function.&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">td</span><span class="p">:</span>
             <span class="n">destination</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">td</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;caches/unit_test/cache_info.json&#39;</span><span class="p">)</span>
@@ -162,7 +161,7 @@
 
 <div class="viewcode-block" id="TestAWSPublic.test_download_folder">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWSPublic.test_download_folder">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_download_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_download_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.remote.aws.s3_download_public_folder function.&quot;&quot;&quot;</span>
         <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;caches/openalyx/2021_Q2_Varol_et_al&#39;</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">td</span><span class="p">:</span>
@@ -180,8 +179,8 @@
 
 <div class="viewcode-block" id="TestAWS">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWS">[docs]</a>
-<span class="k">class</span> <span class="nc">TestAWS</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for AlyxClient authentication, token storage, login/out methods and user prompts&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAWS</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for AlyxClient authentication, token storage, login/out methods and user prompts.&quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for our repo fixture.&quot;&quot;&quot;</span>
     <span class="n">repo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -191,7 +190,7 @@
 <div class="viewcode-block" id="TestAWS.setUpClass">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWS.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">set_up_env</span><span class="p">()</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">expected_credentials</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;aws_access_key_id&#39;</span><span class="p">:</span> <span class="s1">&#39;ABCDEF&#39;</span><span class="p">,</span>
@@ -207,7 +206,7 @@
 
 <div class="viewcode-block" id="TestAWS.test_credentials">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWS.test_credentials">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for one.remote.aws.get_aws_access_keys function.&quot;&quot;&quot;</span>
         <span class="n">cred</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_aws_access_keys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="p">,</span> <span class="s1">&#39;aws_cortexlab&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">cred</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_credentials</span><span class="p">)</span>
@@ -217,8 +216,8 @@
 <div class="viewcode-block" id="TestAWS.test_get_s3_from_alyx">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestAWS.test_get_s3_from_alyx">[docs]</a>
     <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;boto3.Session&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_get_s3_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.get_s3_from_alyx function&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_get_s3_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.get_s3_from_alyx function.&quot;&quot;&quot;</span>
         <span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_from_alyx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="p">,</span> <span class="s1">&#39;aws_cortexlab&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="s1">&#39;s3_bucket&#39;</span><span class="p">)</span>
         <span class="n">session_mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_credentials</span><span class="p">)</span>
@@ -246,12 +245,12 @@
 
 <div class="viewcode-block" id="TestUtils">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils">[docs]</a>
-<span class="k">class</span> <span class="nc">TestUtils</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws utility functions&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestUtils</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws utility functions.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestUtils.test_get_s3_virtual_host">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_s3_virtual_host">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_get_s3_virtual_host</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_get_s3_virtual_host</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.get_s3_virtual_host function.&quot;&quot;&quot;</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;https://my-s3-bucket.s3.eu-east-1.amazonaws.com/&#39;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_virtual_host</span><span class="p">(</span><span class="s1">&#39;s3://my-s3-bucket&#39;</span><span class="p">,</span> <span class="s1">&#39;eu-east-1&#39;</span><span class="p">)</span>
@@ -270,7 +269,7 @@
 
 <div class="viewcode-block" id="TestUtils.test_url2uri">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_url2uri">[docs]</a>
-    <span class="k">def</span> <span class="nf">test_url2uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_url2uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests for one.remote.aws.url2uri function.&quot;&quot;&quot;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://my-s3-bucket.s3.eu-east-1.amazonaws.com/path/to/file&#39;</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;s3://my-s3-bucket/path/to/file&#39;</span>
@@ -282,7 +281,7 @@
 <div class="viewcode-block" id="TestUtils.test_get_ibl_s3">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_ibl_s3">[docs]</a>
     <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;boto3.Session&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_get_ibl_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_get_ibl_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
         <span class="n">s3</span><span class="p">,</span> <span class="n">bucket</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_public</span><span class="p">()</span>
         <span class="n">resource</span> <span class="o">=</span> <span class="n">session_mock</span><span class="p">()</span><span class="o">.</span><span class="n">resource</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">s3</span><span class="p">,</span> <span class="n">resource</span><span class="p">())</span>
@@ -292,7 +291,7 @@
 <div class="viewcode-block" id="TestUtils.test_get_allen_s3">
 <a class="viewcode-back" href="../../../../_autosummary/one.tests.remote.test_aws.html#one.tests.remote.test_aws.TestUtils.test_get_allen_s3">[docs]</a>
     <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;boto3.Session&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_get_allen_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_get_allen_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_mock</span><span class="p">):</span>
         <span class="n">s3</span><span class="p">,</span> <span class="n">bucket</span> <span class="o">=</span> <span class="n">aws</span><span class="o">.</span><span class="n">get_s3_allen</span><span class="p">()</span>
         <span class="n">resource</span> <span class="o">=</span> <span class="n">session_mock</span><span class="p">()</span><span class="o">.</span><span class="n">resource</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">s3</span><span class="p">,</span> <span class="n">resource</span><span class="p">())</span>

@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.test_alyxclient &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
@@ -103,8 +103,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -137,12 +135,12 @@
              
   <section id="module-one.tests.test_alyxclient">
 <span id="one-tests-test-alyxclient"></span><h1>one.tests.test_alyxclient<a class="headerlink" href="#module-one.tests.test_alyxclient" title="Link to this heading"></a></h1>
-<p>Unit tests for the one.webclient module</p>
+<p>Unit tests for the one.webclient module.</p>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestAuthentication" title="one.tests.test_alyxclient.TestAuthentication"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestAuthentication</span></code></a></p></td>
-<td><p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts</p></td>
+<td><p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestDownloadHTTP" title="one.tests.test_alyxclient.TestDownloadHTTP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestDownloadHTTP</span></code></a></p></td>
 <td><p></p></td>
@@ -154,15 +152,15 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestRestCache" title="one.tests.test_alyxclient.TestRestCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRestCache</span></code></a></p></td>
-<td><p>Tests for REST caching system, the cache decorator and cache flags</p></td>
+<td><p>Tests for REST caching system, the cache decorator and cache flags.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAuthentication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAuthentication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts</p>
+<p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.setUp" title="Link to this definition"></a></dt>
@@ -172,26 +170,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_authentication">
 <span class="sig-name descname"><span class="pre">test_authentication</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_authentication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_authentication" title="Link to this definition"></a></dt>
-<dd><p>Test for AlyxClient.authenticate and AlyxClient.is_logged_in property</p>
+<dd><p>Test for AlyxClient.authenticate and AlyxClient.is_logged_in property.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_auth_methods">
 <span class="sig-name descname"><span class="pre">test_auth_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_auth_methods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_auth_methods" title="Link to this definition"></a></dt>
-<dd><p>Test behaviour when calling AlyxClient._generic_request when logged out</p>
+<dd><p>Test behaviour when calling AlyxClient._generic_request when logged out.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_auth_errors">
 <span class="sig-name descname"><span class="pre">test_auth_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_auth_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_auth_errors" title="Link to this definition"></a></dt>
-<dd><p>Test behaviour when authentication fails</p>
+<dd><p>Test behaviour when authentication fails.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestJsonFieldMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestJsonFieldMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Tests for AlyxClient methods that modify the JSON field of a REST endpoint.</p>
 <p>These tests are over-engineered in order to test Alyx Django queries with JSON fields.
@@ -205,13 +203,19 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods.test_json_methods">
 <span class="sig-name descname"><span class="pre">test_json_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods.test_json_methods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods.test_json_methods" title="Link to this definition"></a></dt>
-<dd><p>Test for AlyxClient.json_field* methods (write, update, remove_key and delete)</p>
+<dd><p>Test for AlyxClient.json_field* methods (write, update, remove_key and delete).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods.test_empty">
 <span class="sig-name descname"><span class="pre">test_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods.test_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods.test_empty" title="Link to this definition"></a></dt>
-<dd><p>Test for AlyxClient.json_field* methods when JSON field is empty</p>
+<dd><p>Test for AlyxClient.json_field* methods when JSON field is empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods.test_uuid_serialize">
+<span class="sig-name descname"><span class="pre">test_uuid_serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods.test_uuid_serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods.test_uuid_serialize" title="Link to this definition"></a></dt>
+<dd><p>Check that UUID objects are serialized to JSON.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -224,9 +228,9 @@ Django queries are also tested in TestRemote.test_search.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestRestCache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestRestCache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Tests for REST caching system, the cache decorator and cache flags</p>
+<p>Tests for REST caching system, the cache decorator and cache flags.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.setUp" title="Link to this definition"></a></dt>
@@ -236,43 +240,43 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_loads_cached">
 <span class="sig-name descname"><span class="pre">test_loads_cached</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_loads_cached"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_loads_cached" title="Link to this definition"></a></dt>
-<dd><p>Test for one.webclient._cache_response decorator, checks returns cached result</p>
+<dd><p>Test for one.webclient._cache_response decorator, checks returns cached result.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_expired_cache">
 <span class="sig-name descname"><span class="pre">test_expired_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_expired_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_expired_cache" title="Link to this definition"></a></dt>
-<dd><p>Test behaviour when cached REST query is expired</p>
+<dd><p>Test behaviour when cached REST query is expired.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_caches_response">
 <span class="sig-name descname"><span class="pre">test_caches_response</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_caches_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_caches_response" title="Link to this definition"></a></dt>
-<dd><p>Test caches query response before returning</p>
+<dd><p>Test caches query response before returning.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_cache_mode">
 <span class="sig-name descname"><span class="pre">test_cache_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_cache_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_cache_mode" title="Link to this definition"></a></dt>
-<dd><p>Test for AlyxClient.cache_mode property</p>
+<dd><p>Test for AlyxClient.cache_mode property.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_expiry_param">
 <span class="sig-name descname"><span class="pre">test_expiry_param</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_expiry_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_expiry_param" title="Link to this definition"></a></dt>
-<dd><p>Test for expires kwarg in one.webclient._cache_response decorator</p>
+<dd><p>Test for expires kwarg in one.webclient._cache_response decorator.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_cache_returned_on_error">
 <span class="sig-name descname"><span class="pre">test_cache_returned_on_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_cache_returned_on_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_cache_returned_on_error" title="Link to this definition"></a></dt>
-<dd><p>Test behaviour when connection error occurs and cached response exists</p>
+<dd><p>Test behaviour when connection error occurs and cached response exists.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.test_clear_cache">
 <span class="sig-name descname"><span class="pre">test_clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.test_clear_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.test_clear_cache" title="Link to this definition"></a></dt>
-<dd><p>Test for AlyxClient.clear_rest_cache</p>
+<dd><p>Test for AlyxClient.clear_rest_cache.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -285,7 +289,7 @@ Django queries are also tested in TestRemote.test_search.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestDownloadHTTP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestDownloadHTTP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP.setUp">
@@ -307,24 +311,24 @@ Django queries are also tested in TestRemote.test_search.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_update_url_params">
 <span class="sig-name descname"><span class="pre">test_update_url_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_update_url_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_update_url_params" title="Link to this definition"></a></dt>
-<dd><p>Test for one.webclient.update_url_params</p>
+<dd><p>Test for one.webclient.update_url_params.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_validate_file_url">
 <span class="sig-name descname"><span class="pre">test_validate_file_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_validate_file_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_validate_file_url" title="Link to this definition"></a></dt>
-<dd><p>Test for AlyxClient._validate_file_url</p>
+<dd><p>Test for AlyxClient._validate_file_url.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_no_cache_context_manager">
 <span class="sig-name descname"><span class="pre">test_no_cache_context_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_no_cache_context_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_no_cache_context_manager" title="Link to this definition"></a></dt>
-<dd><p>Test for one.webclient.no_cache function</p>
+<dd><p>Test for one.webclient.no_cache function.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -337,6 +341,12 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_paginated_response">
 <span class="sig-name descname"><span class="pre">test_paginated_response</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_paginated_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_paginated_response" title="Link to this definition"></a></dt>
 <dd><p>Test the _PaginatedResponse class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_json_encoder">
+<span class="sig-name descname"><span class="pre">test_json_encoder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_json_encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_json_encoder" title="Link to this definition"></a></dt>
+<dd><p>Test that the JSONEncoder subclass serializes UUID objects.</p>
 </dd></dl>
 
 </dd></dl>

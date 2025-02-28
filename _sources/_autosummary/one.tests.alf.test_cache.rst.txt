@@ -18,7 +18,8 @@ one.tests.alf.test\_cache
    .. autosummary::
       :nosignatures:
    
-      TestsONEParquet
+      TestONEParquet
+      TestONETables
    
    
 

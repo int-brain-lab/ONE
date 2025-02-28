@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.alf.exceptions &mdash; ONE  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="one.alf.files" href="one.alf.files.html" />
-    <link rel="prev" title="one.alf.cache" href="one.alf.cache.html" /> 
+    <link rel="next" title="one.alf.io" href="one.alf.io.html" />
+    <link rel="prev" title="one.alf.cache.EMPTY_SESSIONS_FRAME" href="one.alf.cache.EMPTY_SESSIONS_FRAME.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -82,7 +82,6 @@
 <li class="toctree-l3 current"><a class="reference internal" href="one.alf.html">one.alf</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="one.alf.cache.html">one.alf.cache</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">one.alf.exceptions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="one.alf.files.html">one.alf.files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.alf.io.html">one.alf.io</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.alf.path.html">one.alf.path</a></li>
 <li class="toctree-l4"><a class="reference internal" href="one.alf.spec.html">one.alf.spec</a></li>
@@ -100,8 +99,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html#contributing-to-code">Contributing to code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 </ul>
 
@@ -143,29 +140,32 @@ issues.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFError</span></code></a>(*args[, terse])</p></td>
 <td><p>A base class for ALF-related errors.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFMultipleCollectionsFound" title="one.alf.exceptions.ALFMultipleCollectionsFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFMultipleCollectionsFound</span></code></a>(*args[, terse])</p></td>
-<td><p>'Multiple collections found' error</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFInvalid" title="one.alf.exceptions.ALFInvalid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFInvalid</span></code></a>(*args[, terse])</p></td>
+<td><p>ALF path invalid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFMultipleObjectsFound" title="one.alf.exceptions.ALFMultipleObjectsFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFMultipleObjectsFound</span></code></a>(*args[, terse])</p></td>
-<td><p>'Multiple objects found' error</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFMultipleCollectionsFound" title="one.alf.exceptions.ALFMultipleCollectionsFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFMultipleCollectionsFound</span></code></a>(*args[, terse])</p></td>
+<td><p>'Multiple collections found' error.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFMultipleRevisionsFound" title="one.alf.exceptions.ALFMultipleRevisionsFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFMultipleRevisionsFound</span></code></a>(*args[, terse])</p></td>
-<td><p>'Multiple objects found' error</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFMultipleObjectsFound" title="one.alf.exceptions.ALFMultipleObjectsFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFMultipleObjectsFound</span></code></a>(*args[, terse])</p></td>
+<td><p>'Multiple objects found' error.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFObjectNotFound" title="one.alf.exceptions.ALFObjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFObjectNotFound</span></code></a>(*args[, terse])</p></td>
-<td><p>'Object not found' error</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFMultipleRevisionsFound" title="one.alf.exceptions.ALFMultipleRevisionsFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFMultipleRevisionsFound</span></code></a>(*args[, terse])</p></td>
+<td><p>'Multiple objects found' error.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFWarning" title="one.alf.exceptions.ALFWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFWarning</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFObjectNotFound" title="one.alf.exceptions.ALFObjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFObjectNotFound</span></code></a>(*args[, terse])</p></td>
+<td><p>'Object not found' error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.ALFWarning" title="one.alf.exceptions.ALFWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALFWarning</span></code></a></p></td>
 <td><p>Cautions when loading ALF datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlyxSubjectNotFound</span></code></a>(*args[, terse])</p></td>
-<td><p>'Subject not found' error</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.alf.exceptions.AlyxSubjectNotFound" title="one.alf.exceptions.AlyxSubjectNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AlyxSubjectNotFound</span></code></a>(*args[, terse])</p></td>
+<td><p>'Subject not found' error.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFError" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFError" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>A base class for ALF-related errors.</p>
 <dl class="py attribute">
@@ -189,9 +189,9 @@ the same explanation.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.AlyxSubjectNotFound">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AlyxSubjectNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#AlyxSubjectNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.AlyxSubjectNotFound" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AlyxSubjectNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#AlyxSubjectNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.AlyxSubjectNotFound" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
-<p>‘Subject not found’ error</p>
+<p>‘Subject not found’ error.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.AlyxSubjectNotFound.explanation">
 <span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">subject</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span> <span class="pre">in</span> <span class="pre">Alyx</span> <span class="pre">database'</span></em><a class="headerlink" href="#one.alf.exceptions.AlyxSubjectNotFound.explanation" title="Link to this definition"></a></dt>
@@ -201,9 +201,9 @@ the same explanation.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFObjectNotFound">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFObjectNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFObjectNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFObjectNotFound" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFObjectNotFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFObjectNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFObjectNotFound" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
-<p>‘Object not found’ error</p>
+<p>‘Object not found’ error.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFObjectNotFound.explanation">
 <span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">ALF</span> <span class="pre">object</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found.</span>&#160; <span class="pre">This</span> <span class="pre">may</span> <span class="pre">occur</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">object</span> <span class="pre">or</span> <span class="pre">namespace</span> <span class="pre">or</span> <span class="pre">incorrectly</span> <span class="pre">formatted</span> <span class="pre">e.g.</span> <span class="pre">the</span> <span class="pre">object</span> <span class="pre">&quot;_ibl_trials.intervals.npy&quot;</span> <span class="pre">would</span> <span class="pre">be</span> <span class="pre">found</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">filters</span> <span class="pre">`object=&quot;trials&quot;,</span> <span class="pre">namespace=&quot;ibl&quot;`'</span></em><a class="headerlink" href="#one.alf.exceptions.ALFObjectNotFound.explanation" title="Link to this definition"></a></dt>
@@ -213,9 +213,9 @@ the same explanation.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleObjectsFound">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleObjectsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleObjectsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleObjectsFound" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleObjectsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleObjectsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleObjectsFound" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
-<p>‘Multiple objects found’ error</p>
+<p>‘Multiple objects found’ error.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleObjectsFound.explanation">
 <span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Dataset</span> <span class="pre">files</span> <span class="pre">belonging</span> <span class="pre">to</span> <span class="pre">more</span> <span class="pre">than</span> <span class="pre">one</span> <span class="pre">object</span> <span class="pre">found.</span>&#160; <span class="pre">ALF</span> <span class="pre">names</span> <span class="pre">have</span> <span class="pre">the</span> <span class="pre">pattern</span> <span class="pre">(_namespace_)object.attribute(_timescale).extension,</span> <span class="pre">e.g.</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">file</span> <span class="pre">&quot;_ibl_trials.intervals.npy&quot;</span> <span class="pre">the</span> <span class="pre">object</span> <span class="pre">is</span> <span class="pre">&quot;trials&quot;'</span></em><a class="headerlink" href="#one.alf.exceptions.ALFMultipleObjectsFound.explanation" title="Link to this definition"></a></dt>
@@ -225,9 +225,9 @@ the same explanation.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleCollectionsFound">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleCollectionsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleCollectionsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleCollectionsFound" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleCollectionsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleCollectionsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleCollectionsFound" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
-<p>‘Multiple collections found’ error</p>
+<p>‘Multiple collections found’ error.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleCollectionsFound.explanation">
 <span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">matching</span> <span class="pre">object/file(s)</span> <span class="pre">belong</span> <span class="pre">to</span> <span class="pre">more</span> <span class="pre">than</span> <span class="pre">one</span> <span class="pre">collection.</span>&#160; <span class="pre">ALF</span> <span class="pre">names</span> <span class="pre">have</span> <span class="pre">the</span> <span class="pre">pattern</span> <span class="pre">collection/(_namespace_)object.attribute(_timescale).extension,</span> <span class="pre">e.g.</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">file</span> <span class="pre">&quot;alf/probe01/spikes.times.npy&quot;</span> <span class="pre">the</span> <span class="pre">collection</span> <span class="pre">is</span> <span class="pre">&quot;alf/probe01&quot;'</span></em><a class="headerlink" href="#one.alf.exceptions.ALFMultipleCollectionsFound.explanation" title="Link to this definition"></a></dt>
@@ -237,9 +237,9 @@ the same explanation.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleRevisionsFound">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleRevisionsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleRevisionsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleRevisionsFound" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFMultipleRevisionsFound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFMultipleRevisionsFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFMultipleRevisionsFound" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a></p>
-<p>‘Multiple objects found’ error</p>
+<p>‘Multiple objects found’ error.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFMultipleRevisionsFound.explanation">
 <span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">matching</span> <span class="pre">object/file(s)</span> <span class="pre">belong</span> <span class="pre">to</span> <span class="pre">more</span> <span class="pre">than</span> <span class="pre">one</span> <span class="pre">revision.</span>&#160; <span class="pre">Multiple</span> <span class="pre">datasets</span> <span class="pre">in</span> <span class="pre">different</span> <span class="pre">revision</span> <span class="pre">folders</span> <span class="pre">were</span> <span class="pre">found</span> <span class="pre">with</span> <span class="pre">no</span> <span class="pre">default</span> <span class="pre">specified.'</span></em><a class="headerlink" href="#one.alf.exceptions.ALFMultipleRevisionsFound.explanation" title="Link to this definition"></a></dt>
@@ -249,9 +249,21 @@ the same explanation.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="one.alf.exceptions.ALFWarning">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFWarning</span></span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFWarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFWarning" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFWarning</span></span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFWarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFWarning" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
 <p>Cautions when loading ALF datasets.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="one.alf.exceptions.ALFInvalid">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ALFInvalid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/alf/exceptions.html#ALFInvalid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.alf.exceptions.ALFInvalid" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#one.alf.exceptions.ALFError" title="one.alf.exceptions.ALFError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ALFError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>ALF path invalid.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.alf.exceptions.ALFInvalid.explanation">
+<span class="sig-name descname"><span class="pre">explanation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">file</span> <span class="pre">path</span> <span class="pre">provided</span> <span class="pre">is</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">match</span> <span class="pre">the</span> <span class="pre">ALF</span> <span class="pre">path</span> <span class="pre">specification</span> <span class="pre">defined</span> <span class="pre">in</span> <span class="pre">`one.alf.spec`.'</span></em><a class="headerlink" href="#one.alf.exceptions.ALFInvalid.explanation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -260,8 +272,8 @@ the same explanation.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one.alf.cache.html" class="btn btn-neutral float-left" title="one.alf.cache" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="one.alf.files.html" class="btn btn-neutral float-right" title="one.alf.files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="one.alf.cache.EMPTY_SESSIONS_FRAME.html" class="btn btn-neutral float-left" title="one.alf.cache.EMPTY_SESSIONS_FRAME" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one.alf.io.html" class="btn btn-neutral float-right" title="one.alf.io" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
