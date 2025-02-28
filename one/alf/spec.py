@@ -130,6 +130,7 @@ class QC(IntEnum):
 
     This enumeration is used by the Alyx database.  NB: Pandas cache tables use different codes.
     """
+
     CRITICAL = 50
     """Dataset practically unusable, e.g. clock can't be aligned; data missing or inaccurate."""
     FAIL = 40
@@ -146,8 +147,7 @@ class QC(IntEnum):
 
     @staticmethod
     def validate(v):
-        """
-        Validate QC input and return equivalent enumeration.
+        """Validate QC input and return equivalent enumeration.
 
         Parameters
         ----------
@@ -163,6 +163,7 @@ class QC(IntEnum):
         ------
         ValueError
             An invalid QC value was passed.
+
         """
         if isinstance(v, QC):
             return v
@@ -179,6 +180,7 @@ class QC(IntEnum):
 
 def path_pattern() -> str:
     """Returns a template string representing the where the ALF parts lie in an ALF path.
+
     Brackets denote optional parts.  This is used for documentation purposes only.
     """
     return ''.join(filter(lambda c: c not in '{}?*\\$', FULL_SPEC))
@@ -186,6 +188,7 @@ def path_pattern() -> str:
 
 def describe(part=None, width=99):
     """Print a description of an ALF part.
+
     Prints the path pattern along with a description of the given ALF part (or all parts if None).
 
     Parameters
@@ -201,10 +204,11 @@ def describe(part=None, width=99):
     None
 
     Examples
-    -------
+    --------
     >>> describe()
     >>> describe('collection')
     >>> describe('extension', width=120)
+
     """
     full_spec = path_pattern()
     print(full_spec)
@@ -227,8 +231,7 @@ def describe(part=None, width=99):
 
 
 def _dromedary(string) -> str:
-    """
-    Convert a string to camel case.  Acronyms/initialisms are preserved.
+    """Convert a string to camel case.  Acronyms/initialisms are preserved.
 
     Parameters
     ----------
@@ -246,13 +249,15 @@ def _dromedary(string) -> str:
     >>> _dromedary('motion_energy') == 'motionEnergy'
     >>> _dromedary('passive_RFM') == 'passive RFM'
     >>> _dromedary('FooBarBaz') == 'fooBarBaz'
+    >>> _dromedary('mpci ROIs') == 'mpciROIs'
 
     See Also
     --------
     readableALF
+
     """
     def _capitalize(x):
-        return x if x.isupper() else x.capitalize()
+        return x if re.match(r'^[A-Z]+s?$', x) else x.capitalize()
     if not string:  # short circuit on None and ''
         return string
     first, *other = re.split(r'[_\s]', string)
@@ -260,18 +265,17 @@ def _dromedary(string) -> str:
         # Already camel/Pascal case, ensure first letter lower case
         return first[0].lower() + first[1:]
     # Convert to camel case, preserving all-uppercase elements
-    first = first if first.isupper() else first.casefold()
+    first = first if re.match(r'^[A-Z]+s?$', first) else first.lower()
     return ''.join([first, *map(_capitalize, other)])
 
 
 def _named(pattern, name):
-    """Wraps a regex pattern in a named capture group"""
+    """Wraps a regex pattern in a named capture group."""
     return f'(?P<{name}>{pattern})'
 
 
 def regex(spec: str = FULL_SPEC, **kwargs) -> re.Pattern:
-    """
-    Construct a regular expression pattern for parsing or validating an ALF
+    """Construct a regular expression pattern for parsing or validating an ALF.
 
     Parameters
     ----------
@@ -298,6 +302,7 @@ def regex(spec: str = FULL_SPEC, **kwargs) -> re.Pattern:
     Regex pattern for specific object name
 
     >>> pattern = regex(object='trials')
+
     """
     fields = dict(_DEFAULT)
     if not fields.keys() >= kwargs.keys():
@@ -309,8 +314,7 @@ def regex(spec: str = FULL_SPEC, **kwargs) -> re.Pattern:
 
 
 def is_valid(filename):
-    """
-    Returns a True for a given file name if it is an ALF file, otherwise returns False
+    """Returns a True for a given file name if it is an ALF file, otherwise returns False.
 
     Parameters
     ----------
@@ -332,14 +336,15 @@ def is_valid(filename):
     False
     >>> is_valid('channels._phy_ids.csv')  # WARNING: attribute level namespaces are deprecated
     True
+
     """
     return regex(FILE_SPEC).match(filename) is not None
 
 
 def is_session_path(path_object):
-    """
-    Checks if the syntax corresponds to a session path.  Note that there is no physical check
-    about existence nor contents
+    """Checks if the syntax corresponds to a session path.
+
+    Note that there is no physical check about existence nor contents.
 
     Parameters
     ----------
@@ -350,6 +355,7 @@ def is_session_path(path_object):
     -------
     bool
         True if session path a valid ALF session path
+
     """
     session_spec = re.compile(regex(SESSION_SPEC).pattern + '$')
     if hasattr(path_object, 'as_posix'):
@@ -359,16 +365,32 @@ def is_session_path(path_object):
 
 
 def is_uuid_string(string: str) -> bool:
-    """
-    Bool test for randomly generated hexadecimal uuid validity.
+    """Bool test for randomly generated hexadecimal uuid validity.
+
     NB: unlike is_uuid, is_uuid_string checks that uuid is correctly hyphen separated
     """
     return isinstance(string, str) and is_uuid(string, (3, 4, 5)) and str(UUID(string)) == string
 
 
-def is_uuid(uuid: Union[str, int, bytes, UUID], versions=(4,)) -> bool:
+def is_uuid(uuid: Union[str, int, bytes, UUID], versions=(4, 3)) -> bool:
     """Bool test for randomly generated hexadecimal uuid validity.
-    Unlike `is_uuid_string`, this function accepts UUID objects
+
+    By default only uuid versions 3 and 4 are considered valid. Version 4 uuids are generated by
+    Alyx while version 3 uuids are generated by :mod:`one.alf.cache`.
+
+    Unlike `is_uuid_string`, this function accepts UUID objects and compatible representations.
+
+    Parameters
+    ----------
+    uuid : str, int, bytes, UUID
+        An object to test for UUID validity.
+    versions : tuple of int
+        The UUID versions to considered valid, by default (4, 3).
+
+    Returns
+    -------
+    bool
+        True if the input can be cast to a UUID object and is of the specified version(s).
     """
     if not isinstance(uuid, (UUID, str, bytes, int)):
         return False
@@ -381,9 +403,9 @@ def is_uuid(uuid: Union[str, int, bytes, UUID], versions=(4,)) -> bool:
 
 
 def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=None):
-    """
-    Given a set of ALF file parts, return a valid ALF file name.  Essential periods and
-    underscores are added by the function.
+    """Given a set of ALF file parts, return a valid ALF file name.
+
+    Essential periods and underscores are added by the function.
 
     Parameters
     ----------
@@ -419,6 +441,7 @@ def to_alf(object, attribute, extension, namespace=None, timescale=None, extra=N
     '_ibl_spikes.times_ephysClock.raw.npy'
     >>> to_alf('wheel', 'timestamps', 'npy', 'ibl', 'bpod', ('raw', 'v12'))
     '_ibl_wheel.timestamps_bpod.raw.v12.npy'
+
     """
     # Validate inputs
     if not extension:
@@ -483,13 +506,14 @@ def readableALF(name: str, capitalize: bool = False) -> str:
     See Also
     --------
     _dromedary
+
     """
     words = []
     i = 0
-    matches = re.finditer(r'[A-Z](?=[a-z0-9])|(?<=[a-z0-9])[A-Z]', name)
+    matches = re.finditer(r'[A-Z](?=[a-rt-z0-9])|(?<=[a-z0-9])[A-Z]', name)
     for j in map(re.Match.start, matches):
         words.append(name[i:j])
         i = j
     words.append(name[i:])
-    display_str = ' '.join(map(lambda s: s if s.isupper() else s.lower(), words))
+    display_str = ' '.join(map(lambda s: s if re.match(r'^[A-Z]+s?$', s) else s.lower(), words))
     return display_str[0].upper() + display_str[1:] if capitalize else display_str

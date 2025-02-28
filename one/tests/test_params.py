@@ -10,12 +10,12 @@ import tempfile
 
 import one.params
 import one.params as params
-from . import util
-from . import TEST_DB_1
+from one.tests import util, TEST_DB_1
 
 
 class TestParamSetup(unittest.TestCase):
-    """Test for one.params.setup function"""
+    """Test for one.params.setup function."""
+
     def setUp(self) -> None:
         self.par_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.par_dir.cleanup)
@@ -27,10 +27,10 @@ class TestParamSetup(unittest.TestCase):
         self.addCleanup(self.get_file_mock.stop)
 
     def _mock_input(self, prompt, **kwargs):
-        """Stub function for builtins.input"""
-        if prompt.lower().startswith('warning'):
+        """Stub function for builtins.input."""
+        if prompt.casefold().startswith('warning'):
             return 'n'
-        elif 'url' in prompt.lower():
+        elif 'url' in prompt.casefold():
             return self.url
         else:
             for k, v in kwargs.items():
@@ -40,7 +40,7 @@ class TestParamSetup(unittest.TestCase):
 
     @mock.patch('one.params.getpass', return_value='mock_pwd')
     def test_setup(self, _):
-        """Test fresh setup with default args"""
+        """Test fresh setup with default args."""
         with mock.patch('one.params.input', new=self._mock_input):
             cache = one.params.setup()
         # Check client map contains our url sans schema
@@ -88,12 +88,13 @@ class TestParamSetup(unittest.TestCase):
 
 
 class TestONEParamUtil(unittest.TestCase):
-    """Test class for one.params utility functions"""
+    """Test class for one.params utility functions."""
+
     def setUp(self) -> None:
         pass
 
     def test_key_from_url(self):
-        """Test for one.params._key_from_url"""
+        """Test for one.params._key_from_url."""
         key = params._key_from_url('https://sub.domain.org/')
         self.assertEqual(key, 'sub.domain.org')
 
@@ -101,7 +102,7 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertEqual(key, 'www.domain.org_db__rest_true')
 
     def test_get_params_dir(self):
-        """Test for one.params.get_params_dir"""
+        """Test for one.params.get_params_dir."""
         par_dir = Path('path', 'to', 'params')
         with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, par_dir)):
             path = params.get_params_dir()
@@ -109,7 +110,7 @@ class TestONEParamUtil(unittest.TestCase):
         self.assertEqual('path/to/params/.one', path.as_posix())
 
     def test_get_default_client(self):
-        """Test for one.params.get_default_client"""
+        """Test for one.params.get_default_client."""
         temp_dir = util.set_up_env()
         self.addCleanup(temp_dir.cleanup)
         with mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, temp_dir.name)):
@@ -123,7 +124,7 @@ class TestONEParamUtil(unittest.TestCase):
             self.assertEqual(client, 'openalyx.internationalbrainlab.org')
 
     def test_get_cache_dir(self):
-        """Test for one.params.get_cache_dir"""
+        """Test for one.params.get_cache_dir."""
         temp_dir = util.set_up_env()
         cache_dir = Path(temp_dir.name) / 'download_cache'
         assert not cache_dir.exists()
@@ -133,6 +134,30 @@ class TestONEParamUtil(unittest.TestCase):
             out = params.get_cache_dir()
         self.assertEqual(cache_dir, out)
         self.assertTrue(cache_dir.exists())
+
+    def test_delete_params(self):
+        """Test for one.params.delete_params."""
+        with tempfile.TemporaryDirectory() as tmp:
+            par_dir = Path(tmp, f'.{params._PAR_ID_STR}')
+            # Change the location of the parameters to our temp dir
+            get_file = partial(util.get_file, tmp)
+            with mock.patch('iblutil.io.params.getfile', new=get_file):
+                # Set up some params
+                params.setup(silent=True)
+                assert par_dir.exists()
+                # Test deleting all params
+                params.delete_params()
+                self.assertFalse(par_dir.exists())
+                # Test deleting specific params
+                params.setup(silent=True)
+                url = params.default().ALYX_URL
+                caches_file = par_dir.joinpath('.caches')
+                db_params = par_dir.joinpath(f'.{url[8:]}')
+                assert caches_file.exists() and db_params.exists()
+                params.delete_params(params.default().ALYX_URL)
+                self.assertFalse(db_params.exists())
+                self.assertTrue(caches_file.exists())
+                self.assertWarns(UserWarning, params.delete_params, params.default().ALYX_URL)
 
 
 if __name__ == '__main__':

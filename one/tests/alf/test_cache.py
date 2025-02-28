@@ -4,8 +4,10 @@ import tempfile
 from pathlib import Path
 import shutil
 import datetime
+from uuid import uuid4
 
 import pandas as pd
+import numpy as np
 from pandas.testing import assert_frame_equal
 
 from iblutil.io import parquet
@@ -13,17 +15,18 @@ import one.alf.cache as apt
 from one.tests.util import revisions_datasets_table
 
 
-class TestsONEParquet(unittest.TestCase):
-    """Tests for the make_parquet_db function and its helpers"""
+class TestONEParquet(unittest.TestCase):
+    """Tests for the make_parquet_db function and its helpers."""
+
     rel_ses_path = 'mylab/Subjects/mysub/2021-02-28/001/'
     ses_info = {
+        'id': 'mylab/mysub/2021-02-28/001',
         'lab': 'mylab',
         'subject': 'mysub',
         'date': datetime.date.fromisoformat('2021-02-28'),
         'number': int('001'),
         'projects': '',
         'task_protocol': '',
-        'id': 'mylab/mysub/2021-02-28/001',
     }
     rel_ses_files = [Path('alf/spikes.clusters.npy'), Path('alf/spikes.times.npy')]
 
@@ -50,7 +53,7 @@ class TestsONEParquet(unittest.TestCase):
         second_session.joinpath('.invalid').touch()
 
     def test_parse(self):
-        self.assertEqual(apt._get_session_info(self.rel_ses_path), self.ses_info)
+        self.assertEqual(apt._get_session_info(self.rel_ses_path), tuple(self.ses_info.values()))
         self.assertTrue(
             self.full_ses_path.as_posix().endswith(self.rel_ses_path[:-1]))
 
@@ -171,6 +174,90 @@ class TestsONEParquet(unittest.TestCase):
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
+
+
+class TestONETables(unittest.TestCase):
+    """Tests for the cache table functions."""
+
+    def test_merge_cache_tables(self):
+        """Test merge_cache_tables function."""
+        fixture = Path(__file__).parents[1].joinpath('fixtures')
+        caches = apt.load_tables(fixture)
+
+        sessions_types = caches.sessions.reset_index().dtypes.to_dict()
+        datasets_types = caches.datasets.reset_index().dtypes.to_dict()
+        # Update with single record (pandas.Series), one exists, one doesn't
+        session = caches.sessions.iloc[0].squeeze()
+        session.name = uuid4()  # New record
+        dataset = caches.datasets.iloc[0].squeeze()
+        dataset['exists'] = not dataset['exists']
+        apt.merge_tables(caches, sessions=session, datasets=dataset)
+        self.assertTrue(session.name in caches.sessions.index)
+        updated, = dataset['exists'] == caches.datasets.loc[dataset.name, 'exists']
+        self.assertTrue(updated)
+        # Check that the updated data frame has kept its original dtypes
+        types = caches.sessions.reset_index().dtypes.to_dict()
+        self.assertDictEqual(sessions_types, types)
+        types = caches.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, types)
+
+        # Update a number of records
+        datasets = caches.datasets.iloc[:3].copy()
+        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
+        # Make one of the datasets a new record
+        idx = datasets.index.values
+        idx[-1] = (idx[-1][0], uuid4())
+        datasets.index = pd.MultiIndex.from_tuples(idx, names=('eid', 'id'))
+        apt.merge_tables(caches, datasets=datasets)
+        self.assertTrue(idx[-1] in caches.datasets.index)
+        verifiable = caches.datasets.loc[datasets.index.values, 'exists']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        # Check that the updated data frame has kept its original dtypes
+        types = caches.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, types)
+
+        # Check behaviour when columns don't match
+        datasets.loc[:, 'exists'] = ~datasets.loc[:, 'exists']
+        datasets['extra_column'] = True
+        caches.datasets['foo_bar'] = 12  # this column is missing in our new records
+        caches.datasets['new_column'] = False
+        expected_datasets_types = caches.datasets.reset_index().dtypes.to_dict()
+        # An exception is exists_* as the Alyx cache contains exists_aws and exists_flatiron
+        # These should simply be filled with the values of exists as Alyx won't return datasets
+        # that don't exist on FlatIron and if they don't exist on AWS it falls back to this.
+        caches.datasets['exists_aws'] = False
+        with self.assertRaises(AssertionError):
+            apt.merge_tables(caches, datasets=datasets, strict=True)
+        apt.merge_tables(caches, datasets=datasets)
+        verifiable = caches.datasets.loc[datasets.index.values, 'exists']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        apt.merge_tables(caches, datasets=datasets)
+        verifiable = caches.datasets.loc[datasets.index.values, 'exists_aws']
+        self.assertTrue(np.all(verifiable == datasets.loc[:, 'exists']))
+        # If the extra column does not start with 'exists' it should be set to NaN
+        verifiable = caches.datasets.loc[datasets.index.values, 'foo_bar']
+        self.assertTrue(np.isnan(verifiable).all())
+        # Check that the missing columns were updated to nullable fields
+        expected_datasets_types.update(
+            foo_bar=pd.Int64Dtype(), exists_aws=pd.BooleanDtype(), new_column=pd.BooleanDtype())
+        types = caches.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(expected_datasets_types, types)
+
+        # Check fringe cases
+        with self.assertRaises(KeyError):
+            apt.merge_tables(caches, unknown=datasets)
+        self.assertIsNone(apt.merge_tables(caches, datasets=None))
+        # Absent cache table
+        caches = apt.load_tables('/foo')
+        sessions_types = caches.sessions.reset_index().dtypes.to_dict()
+        datasets_types = caches.datasets.reset_index().dtypes.to_dict()
+        apt.merge_tables(caches, sessions=session, datasets=dataset)
+        self.assertTrue(all(caches.sessions == pd.DataFrame([session])))
+        self.assertEqual(1, len(caches.datasets))
+        self.assertEqual(caches.datasets.squeeze().name, dataset.name)
+        self.assertCountEqual(caches.datasets.squeeze().to_dict(), dataset.to_dict())
+        types = caches.datasets.reset_index().dtypes.to_dict()
+        self.assertDictEqual(datasets_types, types)
 
 
 if __name__ == '__main__':

@@ -14,6 +14,7 @@ For a folder, the following:
 >>> source = 'caches/unit_test'
 >>> destination = '/home/olivier/scratch/caches/unit_test'
 >>> local_files = aws.s3_download_folder(source, destination)
+
 """
 import re
 from pathlib import Path, PurePosixPath
@@ -55,8 +56,8 @@ def _callback_hook(t):
 
 
 def get_s3_virtual_host(uri, region) -> str:
-    """
-    Convert a given bucket URI to a generic Amazon virtual host URL.
+    """Convert a given bucket URI to a generic Amazon virtual host URL.
+
     URI may be the bucket (+ path) or a full URI starting with 's3://'
 
     .. _S3 documentation
@@ -73,6 +74,7 @@ def get_s3_virtual_host(uri, region) -> str:
     -------
     str
         The Web URL (virtual host name and https scheme).
+
     """
     assert region and re.match(r'\w{2}-\w+-[1-3]', region), 'Invalid region'
     parsed = urllib.parse.urlparse(uri)  # remove scheme if necessary
@@ -83,8 +85,7 @@ def get_s3_virtual_host(uri, region) -> str:
 
 
 def url2uri(data_path, return_location=False):
-    """
-    Convert a generic Amazon virtual host URL to an S3 URI.
+    """Convert a generic Amazon virtual host URL to an S3 URI.
 
     Parameters
     ----------
@@ -99,6 +100,7 @@ def url2uri(data_path, return_location=False):
         An S3 URI with scheme 's3://'.
     str
         If return_location is true, returns the bucket location, e.g. 'eu-east-1'.
+
     """
     parsed = urllib.parse.urlparse(data_path)
     assert parsed.netloc and parsed.scheme and parsed.path
@@ -108,8 +110,7 @@ def url2uri(data_path, return_location=False):
 
 
 def is_folder(obj_summery) -> bool:
-    """
-    Given an S3 ObjectSummery instance, returns true if the associated object is a directory.
+    """Given an S3 ObjectSummery instance, returns true if the associated object is a directory.
 
     Parameters
     ----------
@@ -120,13 +121,13 @@ def is_folder(obj_summery) -> bool:
     -------
     bool
         True if object is a directory.
+
     """
     return obj_summery.key.endswith('/') and obj_summery.size == 0
 
 
 def get_aws_access_keys(alyx, repo_name=REPO_DEFAULT):
-    """
-    Query Alyx database to get credentials in the json field of an aws repository.
+    """Query Alyx database to get credentials in the json field of an aws repository.
 
     Parameters
     ----------
@@ -141,6 +142,7 @@ def get_aws_access_keys(alyx, repo_name=REPO_DEFAULT):
         The API access keys and region name to use with boto3.
     str
         The name of the S3 bucket associated with the Alyx data repository.
+
     """
     repo_json = alyx.rest('data-repository', 'read', id=repo_name)['json']
     bucket_name = repo_json['bucket_name']
@@ -153,8 +155,7 @@ def get_aws_access_keys(alyx, repo_name=REPO_DEFAULT):
 
 
 def get_s3_public():
-    """
-    Retrieve the IBL public S3 service resource.
+    """Retrieve the IBL public S3 service resource.
 
     Returns
     -------
@@ -162,6 +163,7 @@ def get_s3_public():
         An S3 ServiceResource instance with the provided.
     str
         The name of the S3 bucket.
+
     """
     session = boto3.Session(region_name=REGION_NAME)
     s3 = session.resource('s3', config=Config(signature_version=UNSIGNED))
@@ -169,8 +171,7 @@ def get_s3_public():
 
 
 def get_s3_allen():
-    """
-    Retrieve the Allen public S3 service resource.
+    """Retrieve the Allen public S3 service resource.
 
     Returns
     -------
@@ -178,6 +179,7 @@ def get_s3_allen():
         An S3 ServiceResource instance with the provided.
     str
         The name of the S3 bucket.
+
     """
     S3_BUCKET_ALLEN = 'allen-brain-cell-atlas'
     session = boto3.Session(region_name='us-west-2')
@@ -186,8 +188,7 @@ def get_s3_allen():
 
 
 def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
-    """
-    Create an S3 resource instance using credentials from an Alyx data repository.
+    """Create an S3 resource instance using credentials from an Alyx data repository.
 
     Parameters
     ----------
@@ -209,11 +210,12 @@ def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
       AWS profile settings instead.
     - If there are no credentials for the bucket and the bucket has 'public' in the name, the
       returned resource will use an unsigned signature.
+
     """
     session_keys, bucket_name = get_aws_access_keys(alyx, repo_name)
-    no_creds = not any(filter(None, (v for k, v in session_keys.items() if 'key' in k.lower())))
+    no_creds = not any(filter(None, (v for k, v in session_keys.items() if 'key' in k.casefold())))
     session = boto3.Session(**session_keys)
-    if no_creds and 'public' in bucket_name.lower():
+    if no_creds and 'public' in bucket_name.casefold():
         config = Config(signature_version=UNSIGNED)
     else:
         config = None
@@ -222,8 +224,7 @@ def get_s3_from_alyx(alyx, repo_name=REPO_DEFAULT):
 
 
 def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=False):
-    """
-    Downloads a file from an S3 instance to a local folder.
+    """Downloads a file from an S3 instance to a local folder.
 
     Parameters
     ----------
@@ -242,6 +243,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=F
     -------
     pathlib.Path
         The local file path of the downloaded file.
+
     """
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -268,8 +270,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=F
 
 
 def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, overwrite=False):
-    """
-    Downloads S3 folder content to a local folder.
+    """Downloads S3 folder content to a local folder.
 
     Parameters
     ----------
@@ -289,6 +290,7 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
     -------
     list of pathlib.Path
         The local file paths.
+
     """
     destination = Path(destination)
     if destination.exists():
@@ -302,7 +304,7 @@ def s3_download_folder(source, destination, s3=None, bucket_name=S3_BUCKET_IBL, 
         # is in the subpath of the source folder
         # for example, if source is '/toto/tata' and obj_summary.key is
         # '/toto/tata_alaternate/titi.txt', we need to exclude it
-        if not PurePosixPath(source) in PurePosixPath(obj_summary.key).parents:
+        if PurePosixPath(source) not in PurePosixPath(obj_summary.key).parents:
             continue
         local_file = Path(destination).joinpath(Path(obj_summary.key).relative_to(source))
         lf = s3_download_file(obj_summary.key, local_file, s3=s3, bucket_name=bucket_name,

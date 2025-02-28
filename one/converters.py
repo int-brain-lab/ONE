@@ -1,7 +1,7 @@
 """A module for inter-converting experiment identifiers.
 
 There are multiple ways to uniquely identify an experiment:
-    - eid (str) : An experiment UUID as a string
+    - eid (UUID) : An experiment UUID (or 36 char hexadecimal string)
     - np (int64) : An experiment UUID encoded as 2 int64s
     - path (Path) : A pathlib ALF path of the form `<lab>/Subjects/<subject>/<date>/<number>`
     - ref (str) : An experiment reference string of the form `yyyy-mm-dd_n_subject`
@@ -10,17 +10,20 @@ There are multiple ways to uniquely identify an experiment:
 import re
 import functools
 import datetime
+import urllib.parse
 from uuid import UUID
 from inspect import unwrap
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Optional, Union, Mapping, List, Iterable as Iter
 
 import pandas as pd
-from iblutil.util import Bunch
+from iblutil.util import Bunch, Listable, ensure_list
 
-from one.alf.spec import is_session_path, is_uuid_string
-from one.alf.path import get_session_path, add_uuid_string, session_path_parts, get_alf_path
-from .util import Listable
+from one.alf.spec import is_session_path, is_uuid_string, is_uuid
+from one.alf.cache import EMPTY_DATASETS_FRAME
+from one.alf.path import (
+    ALFPath, PurePosixALFPath, ensure_alf_path, get_session_path, get_alf_path, remove_uuid_string)
+from one.util import LazyId
 
 
 def recurse(func):
@@ -40,6 +43,7 @@ def recurse(func):
     -------
     function
         The decorated method.
+
     """
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
@@ -47,7 +51,8 @@ def recurse(func):
             return func(*args, **kwargs)
         obj, first = args[:2]
         exclude = (str, Mapping, pd.Series, pd.DataFrame)
-        if isinstance(first, Iter) and not isinstance(first, exclude):
+        is_lazy_id = isinstance(first, LazyId)
+        if is_lazy_id or (isinstance(first, Iter) and not isinstance(first, exclude)):
             return [func(obj, item, *args[2:], **kwargs) for item in first]
         else:
             return func(obj, first, *args[2:], **kwargs)
@@ -57,10 +62,11 @@ def recurse(func):
 def parse_values(func):
     """Convert str values in reference dict to appropriate type.
 
-    Example
-    -------
+    Examples
+    --------
     >>> parse_values(lambda x: x)({'date': '2020-01-01', 'sequence': '001'}, parse=True)
     {'date': datetime.date(2020, 1, 1), 'sequence': 1}
+
     """
     def parse_ref(ref):
         if ref:
@@ -78,7 +84,7 @@ def parse_values(func):
         ref = func(*args, **kwargs)
         if not parse or isinstance(ref, str):
             return ref
-        elif isinstance(ref, list):
+        elif isinstance(ref, (list, LazyId)):
             return list(map(parse_ref, ref))
         else:
             return parse_ref(ref)
@@ -86,7 +92,7 @@ def parse_values(func):
 
 
 class ConversionMixin:
-    """A mixin providing methods to interconvert experiment identifiers."""
+    """A mixin providing methods to inter-convert experiment identifiers."""
 
     def __init__(self):
         self._cache = None
@@ -95,7 +101,7 @@ class ConversionMixin:
     @recurse
     def to_eid(self,
                id: Listable(Union[str, Path, UUID, dict]) = None,
-               cache_dir: Optional[Union[str, Path]] = None) -> Listable(str):
+               cache_dir: Optional[Union[str, Path]] = None) -> Listable(UUID):
         """Given any kind of experiment identifier, return a corresponding eid string.
 
         NB: Currently does not support integer IDs.
@@ -109,21 +115,22 @@ class ConversionMixin:
 
         Returns
         -------
-        str, None
-            An experiment ID string or None if session not in cache
+        uuid.UUID, None
+            An experiment ID or None if session not in cache
 
         Raises
         ------
         ValueError
             Input ID invalid
+
         """
         # TODO Could add np2str here
         # if isinstance(id, (list, tuple)):  # Recurse
         #     return [self.to_eid(i, cache_dir) for i in id]
         if id is None:
             return
-        elif isinstance(id, UUID):
-            return str(id)
+        elif isinstance(id, (UUID, LazyId)):
+            return id
         elif self.is_exp_ref(id):
             return self.ref2eid(id)
         elif isinstance(id, dict):
@@ -145,28 +152,30 @@ class ConversionMixin:
             if not is_uuid_string(id):
                 raise ValueError('Invalid experiment ID')
             else:
-                return id
+                return UUID(id)
         else:
             raise ValueError('Unrecognized experiment ID')
 
     @recurse
-    def eid2path(self, eid: str) -> Optional[Listable(Path)]:
-        """
-        From an experiment id or a list of experiment ids, gets the local cache path.
+    def eid2path(self, eid: str) -> Optional[Listable(ALFPath)]:
+        """From an experiment id or a list of experiment ids, gets the local cache path.
 
         Parameters
         ----------
         eid : str, uuid.UUID
-            Experiment ID (UUID) or list of UUIDs
+            Experiment ID (UUID) or list of UUIDs.
 
         Returns
         -------
-        pathlib.Path
-            A session path
+        one.alf.path.ALFPath
+            A session path.
+
         """
         # If not valid return None
-        if not is_uuid_string(eid):
-            raise ValueError(eid + " is not a valid eID/UUID string")
+        if not is_uuid(eid):
+            raise ValueError(f"{eid} is not a valid eID/UUID string")
+        if isinstance(eid, str):
+            eid = UUID(eid)
         if self._cache['sessions'].size == 0:
             return
 
@@ -180,8 +189,7 @@ class ConversionMixin:
 
     @recurse
     def path2eid(self, path_obj):
-        """
-        From a local path, gets the experiment id.
+        """From a local path, gets the experiment id.
 
         Parameters
         ----------
@@ -191,7 +199,8 @@ class ConversionMixin:
         Returns
         -------
         eid, list
-            Experiment ID (eid) string or list of eids.
+            Experiment ID (eid) or list of eids.
+
         """
         # else ensure the path ends with mouse,date, number
         session_path = get_session_path(path_obj)
@@ -218,24 +227,26 @@ class ConversionMixin:
     def path2record(self, path) -> pd.Series:
         """Convert a file or session path to a dataset or session cache record.
 
-        NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern
+        NB: Assumes <lab>/Subjects/<subject>/<date>/<number> pattern.
 
         Parameters
         ----------
         path : str, pathlib.Path
-            Local path or HTTP URL
+            Local path or HTTP URL.
 
         Returns
         -------
         pandas.Series
-            A cache file record
+            A cache file record.
+
         """
+        path = ALFPath(path)
         is_session = is_session_path(path)
         if self._cache['sessions' if is_session else 'datasets'].empty:
             return  # short circuit: no records in the cache
 
         if is_session_path(path):
-            lab, subject, date, number = session_path_parts(path)
+            lab, subject, date, number = path.session_parts
             df = self._cache['sessions']
             rec = df[
                 (df['lab'] == lab) & (df['subject'] == subject) &
@@ -244,14 +255,11 @@ class ConversionMixin:
             ]
             return None if rec.empty else rec.squeeze()
 
-        # Deal with dataset path
-        if isinstance(path, str):
-            path = Path(path)
         # If there's a UUID in the path, use that to fetch the record
         name_parts = path.stem.split('.')
         if is_uuid_string(uuid := name_parts[-1]):
             try:
-                return self._cache['datasets'].loc[pd.IndexSlice[:, uuid], :].squeeze()
+                return self._cache['datasets'].loc[pd.IndexSlice[:, UUID(uuid)], :].squeeze()
             except KeyError:
                 return
 
@@ -262,7 +270,7 @@ class ConversionMixin:
             return
 
         # Find row where relative path matches
-        rec = df[df['rel_path'] == path.relative_to(get_session_path(path)).as_posix()]
+        rec = df[df['rel_path'] == path.relative_to_session().as_posix()]
         assert len(rec) < 2, 'Multiple records found'
         if rec.empty:
             return None
@@ -271,8 +279,7 @@ class ConversionMixin:
 
     @recurse
     def path2url(self, filepath):
-        """
-        Given a local file path, constructs the URL of the remote file.
+        """Given a local file path, constructs the URL of the remote file.
 
         Parameters
         ----------
@@ -283,11 +290,12 @@ class ConversionMixin:
         -------
         str
             A remote URL string
+
         """
         record = self.path2record(filepath)
         if record is None:
             return
-        return unwrap(self.record2url)(record)
+        return self.record2url(record)
 
     def record2url(self, record):
         """Convert a session or dataset record to a remote URL.
@@ -303,6 +311,7 @@ class ConversionMixin:
         -------
         str, list
             A dataset URL or list if input is DataFrame
+
         """
         webclient = getattr(self, '_web_client', False)
         assert webclient, 'No Web client found for instance'
@@ -319,25 +328,30 @@ class ConversionMixin:
         else:
             raise TypeError(
                 f'record must be pandas.DataFrame or pandas.Series, got {type(record)} instead')
-        assert isinstance(record.name, tuple) and len(record.name) == 2
-        eid, uuid = record.name  # must be (eid, did)
-        session_path = self.eid2path(eid)
-        url = PurePosixPath(get_alf_path(session_path), record['rel_path'])
-        return webclient.rel_path2url(add_uuid_string(url, uuid).as_posix())
+        if 'session_path' in record:
+            # Check for session_path field (aggregate datasets have no eid in name)
+            session_path = record['session_path']
+            uuid = record.name if isinstance(record.name, UUID) else record.name[-1]
+        else:
+            assert isinstance(record.name, tuple) and len(record.name) == 2
+            eid, uuid = record.name  # must be (eid, did)
+            session_path = get_alf_path(self.eid2path(eid))
+        url = PurePosixALFPath(session_path, record['rel_path'])
+        return webclient.rel_path2url(url.with_uuid(uuid).as_posix())
 
-    def record2path(self, dataset) -> Optional[Path]:
-        """
-        Given a set of dataset records, returns the corresponding paths
+    def record2path(self, dataset) -> Optional[ALFPath]:
+        """Given a set of dataset records, returns the corresponding paths.
 
         Parameters
         ----------
         dataset : pd.DataFrame, pd.Series
-            A datasets dataframe slice
+            A datasets dataframe slice.
 
         Returns
         -------
-        pathlib.Path
-            File path for the record
+        one.alf.path.ALFPath
+            File path for the record.
+
         """
         if isinstance(dataset, pd.DataFrame):
             return [self.record2path(r) for _, r in dataset.iterrows()]
@@ -350,14 +364,13 @@ class ConversionMixin:
             raise ValueError(f'Failed to determine session path for eid "{eid}"')
         file = session_path / dataset['rel_path']
         if self.uuid_filenames:
-            file = add_uuid_string(file, uuid)
+            file = file.with_uuid(uuid)
         return file
 
     @recurse
     def eid2ref(self, eid: Union[str, Iter], as_dict=True, parse=True) \
             -> Union[str, Mapping, List]:
-        """
-        Get human-readable session ref from path.
+        """Get human-readable session ref from path.
 
         Parameters
         ----------
@@ -389,6 +402,7 @@ class ConversionMixin:
         >>> one.eid2ref([eid, '7dc3c44b-225f-4083-be3d-07b8562885f4'])
         [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},
          {'subject': 'KS005', 'date': datetime.date(2019, 4, 11), 'sequence': 1}]
+
         """
         d = self.get_details(eid)
         if parse:
@@ -403,8 +417,7 @@ class ConversionMixin:
 
     @recurse
     def ref2eid(self, ref: Union[Mapping, str, Iter]) -> Union[str, List]:
-        """
-        Returns experiment uuid, given one or more experiment references.
+        """Returns experiment uuid, given one or more experiment references.
 
         Parameters
         ----------
@@ -414,7 +427,7 @@ class ConversionMixin:
 
         Returns
         -------
-        str, list
+        uuid.UUID, list
             One or more experiment uuid strings.
 
         Examples
@@ -424,10 +437,11 @@ class ConversionMixin:
         Connected to...
         >>> ref = {'date': datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}
         >>> one.ref2eid(ref)
-        '4e0b3320-47b7-416e-b842-c34dc9004cf8'
+        UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8')
         >>> one.ref2eid(['2018-07-13_1_flowers', '2019-04-11_1_KS005'])
-        ['4e0b3320-47b7-416e-b842-c34dc9004cf8',
-         '7dc3c44b-225f-4083-be3d-07b8562885f4']
+        [UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8'),
+         UUID('7dc3c44b-225f-4083-be3d-07b8562885f4')]
+
         """
         ref = self.ref2dict(ref, parse=False)  # Ensure dict
         session = self.search(
@@ -439,8 +453,7 @@ class ConversionMixin:
 
     @recurse
     def ref2path(self, ref):
-        """
-        Convert one or more experiment references to session path(s).
+        """Convert one or more experiment references to session path(s).
 
         Parameters
         ----------
@@ -450,7 +463,7 @@ class ConversionMixin:
 
         Returns
         -------
-        pathlib.Path
+        one.alf.path.ALFPath
             Path object(s) for the experiment session(s).
 
         Examples
@@ -464,6 +477,7 @@ class ConversionMixin:
         >>> one.ref2path(['2018-07-13_1_flowers', '2019-04-11_1_KS005'])
         [WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001'),
          WindowsPath('E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001')]
+
         """
         eid2path = unwrap(self.eid2path)
         ref2eid = unwrap(self.ref2eid)
@@ -472,8 +486,7 @@ class ConversionMixin:
     @staticmethod
     @parse_values
     def path2ref(path_str: Union[str, Path, Iter], as_dict=True) -> Union[Bunch, List]:
-        """
-        Returns a human-readable experiment reference, given a session path.
+        """Returns a human-readable experiment reference, given a session path.
 
         The path need not exist.
 
@@ -500,6 +513,7 @@ class ConversionMixin:
         >>> path2ref([path_str, path_str2])
         [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},
          {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}]
+
         """
         if isinstance(path_str, (list, tuple)):
             return [unwrap(ConversionMixin.path2ref)(x) for x in path_str]
@@ -511,8 +525,7 @@ class ConversionMixin:
 
     @staticmethod
     def is_exp_ref(ref: Union[str, Mapping, Iter]) -> Union[bool, List[bool]]:
-        """
-        Returns True is ref is a valid experiment reference.
+        """Returns True is ref is a valid experiment reference.
 
         Parameters
         ----------
@@ -534,6 +547,7 @@ class ConversionMixin:
         True
         >>> is_exp_ref('invalid_ref')
         False
+
         """
         if isinstance(ref, (list, tuple)):
             return [ConversionMixin.is_exp_ref(x) for x in ref]
@@ -548,8 +562,7 @@ class ConversionMixin:
     @staticmethod
     @parse_values
     def ref2dict(ref: Union[str, Mapping, Iter]) -> Union[Bunch, List]:
-        """
-        Returns a Bunch (dict-like) from a reference string (or list thereof).
+        """Returns a Bunch (dict-like) from a reference string (or list thereof).
 
         Parameters
         ----------
@@ -570,6 +583,7 @@ class ConversionMixin:
         >>> ref2dict(['2018-07-13_1_flowers', '2020-01-23_002_ibl_witten_01'])
         [{'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'},
          {'date': datetime.date(2020, 1, 23), 'sequence': 2, 'subject': 'ibl_witten_01'}]
+
         """
         if isinstance(ref, (list, tuple)):
             return [ConversionMixin.ref2dict(x) for x in ref]
@@ -580,8 +594,7 @@ class ConversionMixin:
 
     @staticmethod
     def dict2ref(ref_dict) -> Union[str, List]:
-        """
-        Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.
+        """Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.
 
         Parameters
         ----------
@@ -592,6 +605,7 @@ class ConversionMixin:
         -------
         str, list:
             An experiment reference string, or list thereof.
+
         """
         if isinstance(ref_dict, (list, tuple)):
             return [ConversionMixin.dict2ref(x) for x in ref_dict]
@@ -614,8 +628,8 @@ class ConversionMixin:
 
 
 def one_path_from_dataset(dset, one_cache):
-    """
-    Returns local one file path from a dset record or a list of dsets records from REST.
+    """Returns local one file path from a dset record or a list of dsets records from REST.
+
     Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
 
     Parameters
@@ -627,15 +641,16 @@ def one_path_from_dataset(dset, one_cache):
 
     Returns
     -------
-    pathlib.Path
+    one.alf.path.ALFPath
         The local path for a given dataset.
+
     """
     return path_from_dataset(dset, root_path=one_cache, uuid=False)
 
 
-def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=False):
-    """
-    Returns the local file path from a dset record from a REST query.
+def path_from_dataset(dset, root_path=PurePosixALFPath('/'), repository=None, uuid=False):
+    """Returns the local file path from a dset record from a REST query.
+
     Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.
 
     Parameters
@@ -652,8 +667,9 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
 
     Returns
     -------
-    pathlib.Path, list
+    one.alf.path.ALFPath, list
         File path or list of paths.
+
     """
     if isinstance(dset, list):
         return [path_from_dataset(d) for d in dset]
@@ -665,11 +681,11 @@ def path_from_dataset(dset, root_path=PurePosixPath('/'), repository=None, uuid=
     return path_from_filerecord(fr, root_path=root_path, uuid=uuid)
 
 
-def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
-    """
-    Returns a data file Path constructed from an Alyx file record.  The Path type returned
-    depends on the type of root_path: If root_path is a string a Path object is returned,
-    otherwise if the root_path is a PurePath, the same path type is returned.
+def path_from_filerecord(fr, root_path=PurePosixALFPath('/'), uuid=None):
+    """Returns a data file Path constructed from an Alyx file record.
+
+    The Path type returned depends on the type of root_path: If root_path is a string an ALFPath
+    object is returned, otherwise if the root_path is a PurePath, a PureALFPath is returned.
 
     Parameters
     ----------
@@ -682,26 +698,23 @@ def path_from_filerecord(fr, root_path=PurePosixPath('/'), uuid=None):
 
     Returns
     -------
-    pathlib.Path
+    one.alf.path.ALFPath
         A filepath as a pathlib object.
+
     """
     if isinstance(fr, list):
         return [path_from_filerecord(f) for f in fr]
     repo_path = (p := fr['data_repository_path'])[p[0] == '/':]  # Remove slash at start, if any
-    file_path = PurePosixPath(repo_path, fr['relative_path'])
+    file_path = PurePosixALFPath(repo_path, fr['relative_path'])
     if root_path:
-        # NB: By checking for string we won't cast any PurePaths
-        if isinstance(root_path, str):
-            root_path = Path(root_path)
+        # NB: this function won't cast any PurePaths
+        root_path = ensure_alf_path(root_path)
         file_path = root_path / file_path
-    if uuid:
-        file_path = add_uuid_string(file_path, uuid)
-    return file_path
+    return file_path.with_uuid(uuid) if uuid else file_path
 
 
 def session_record2path(session, root_dir=None):
-    """
-    Convert a session record into a path.
+    """Convert a session record into a path.
 
     If a lab key is present, the path will be in the form
     root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm-dd/nnn.
@@ -715,7 +728,7 @@ def session_record2path(session, root_dir=None):
 
     Returns
     -------
-    pathlib.Path, Pathlib.PurePath
+    one.alf.path.ALFPath, one.alf.path.PureALFPath
         A constructed path of the session.
 
     Examples
@@ -727,14 +740,111 @@ def session_record2path(session, root_dir=None):
     ...           'number': '001', 'lab': 'foo', 'subject': 'ALK01'}
     >>> session_record2path(record, Path('/home/user'))
     Path('/home/user/foo/Subjects/ALK01/2020-01-01/001')
+
     """
-    rel_path = PurePosixPath(
+    rel_path = PurePosixALFPath(
         session.get('lab') if session.get('lab') else '',
         'Subjects' if session.get('lab') else '',
         session['subject'], str(session['date']), str(session['number']).zfill(3)
     )
     if not root_dir:
         return rel_path
-    elif isinstance(root_dir, str):
-        root_dir = Path(root_dir)
-    return Path(root_dir).joinpath(rel_path)
+    return ensure_alf_path(root_dir).joinpath(rel_path)
+
+
+def ses2records(ses: dict):
+    """Extract session cache record and datasets cache from a remote session data record.
+
+    Parameters
+    ----------
+    ses : dict
+        Session dictionary from Alyx REST endpoint.
+
+    Returns
+    -------
+    pd.Series
+        Session record.
+    pd.DataFrame
+        Datasets frame.
+
+    """
+    # Extract session record
+    # id used for session_info field of probe insertion
+    eid = UUID(ses.get('id') or ses['url'][-36:])
+    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
+    session_data = {k: v for k, v in ses.items() if k in session_keys}
+    session = (
+        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
+    )
+    session['projects'] = ','.join(session.pop('projects'))
+    session['date'] = datetime.datetime.fromisoformat(session['date']).date()
+
+    # Extract datasets table
+    def _to_record(d):
+        did = UUID(d['id'])
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=did)
+        rec['eid'] = session.name
+        file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
+        file_path = get_alf_path(remove_uuid_string(file_path))
+        session_path = get_session_path(file_path).as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
+        rec['default_revision'] = d['default_revision'] == 'True'
+        rec['qc'] = d.get('qc', 'NOT_SET')
+        return rec
+
+    if not ses.get('data_dataset_session_related'):
+        return session, EMPTY_DATASETS_FRAME.copy()
+    records = map(_to_record, ses['data_dataset_session_related'])
+    index = ['eid', 'id']
+    dtypes = EMPTY_DATASETS_FRAME.dtypes
+    datasets = pd.DataFrame(records).astype(dtypes).set_index(index).sort_index()
+    return session, datasets
+
+
+def datasets2records(datasets, additional=None) -> pd.DataFrame:
+    """Extract datasets DataFrame from one or more Alyx dataset records.
+
+    Parameters
+    ----------
+    datasets : dict, list
+        One or more records from the Alyx 'datasets' endpoint.
+    additional : list of str
+        A set of optional fields to extract from dataset records.
+
+    Returns
+    -------
+    pd.DataFrame
+        Datasets frame.
+
+    Examples
+    --------
+    >>> datasets = ONE().alyx.rest('datasets', 'list', subject='foobar')
+    >>> df = datasets2records(datasets)
+
+    """
+    records = []
+
+    for d in ensure_list(datasets):
+        file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
+        if not file_record:
+            continue  # Ignore files that are not accessible
+        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
+        rec['id'] = UUID(d['url'][-36:])
+        rec['eid'] = UUID(d['session'][-36:]) if d['session'] else pd.NA
+        data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
+        file_path = get_alf_path(data_url.path.strip('/'))
+        file_path = remove_uuid_string(file_path).as_posix()
+        session_path = get_session_path(file_path) or ''
+        if session_path:
+            session_path = session_path.as_posix()
+        rec['rel_path'] = file_path[len(session_path):].strip('/')
+        rec['default_revision'] = d['default_dataset']
+        rec['qc'] = d.get('qc')
+        for field in additional or []:
+            rec[field] = d.get(field)
+        records.append(rec)
+
+    if not records:
+        return EMPTY_DATASETS_FRAME
+    index = EMPTY_DATASETS_FRAME.index.names
+    return pd.DataFrame(records).set_index(index).sort_index().astype(EMPTY_DATASETS_FRAME.dtypes)

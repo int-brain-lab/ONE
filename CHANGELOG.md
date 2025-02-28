@@ -1,5 +1,57 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [2.11.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
+This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
+Also adds a new ALFPath class to replace alf path functions and now returns UUID objects instead of str.
+
+### Modified
+
+- supports python >= 3.10 only
+- OneAlyx uses remote mode by default, instead of auto
+- OneAlyx.search now updates the cache tables in remote mode as paginated sessions are accessed
+- datasets table file_size column nullable by default
+- one.alf.io.save_metadata now returns the saved filepath
+- paths returned by One methods and functions in one.alf.io are now ALFPath instances
+- bugfix: one.alf.path.full_path_parts didn't always raise when invalid path passed
+- one.alf.path module containing ALFPath class
+- ALF cache table generation has lower memory footprint
+- setup in silent mode now uses defaults if base url matches default one
+- bugfix: error downloading from http server with keep_uuids=True
+- one.alf.spec.readableALF and one.alf.spec._dromedary preserve plural acronyms, e.g. 'ROIs'
+- UUID objects returned by to_eid, search, and search_insertions instead of str
+- LazyId objects now handled correctly by One converter methods
+- LazyId object only returned when greater than 1 page of results
+- OneAlyx.search_insertions now updates local cache with query results
+- bugfix: OneAlyx.list_datasets behaves the same as One.list_datasets w.r.t. revisions and default datasets
+- default REST cache expiry reduced from 24 hours to 5 minutes
+- One._update_cache_from_records -> one.alf.cache.merge_tables
+- One.save_cache now updates any tables on disk unless clobber is True
+- one.util.patch_cache -> one.alf.cache.patch_tables
+- One object will save modified tables to disk upon delete
+- bugfix: ONE_HTTP_DL_THREADS environment variable now works as intended
+
+### Added
+
+- one.alf.cache.remove_table_files and One.\_remove_table_files for deleting cache table files
+- one.alf.cache.EMPTY_DATASETS_FRAME and EMPTY_SESSION_FRAME vars for table column, index, and dtype template
+- pyproject.toml replaces deprecated setup file
+- one.alf.exceptions.InvalidALF exception
+- one.params.delete_params
+- One._search_insertions for offline query of insertions when cache table present
+- one.alf.cache.load_tables function to load cache table files with correct index, etc.
+
+### Removed
+
+- setup.py
+- one.alf.files; use one.alf.path instead
+- one.alf.io.remove_uuid_file
+- one.alf.io.remove_uuid_recursive
+- one.util.ensure_list; use iblutil.util.ensure_list instead
+- one.remote.globus.create_globus_client; use one.remote.globus.Globus class instead
+- 'auto' and 'refresh' cache modes have been removed
+- One.refresh_cache
+- `dataset` parameter removed from One.search. Use `datasets` instead.
+
+## [2.11.2]
 
 ### Modified
 
@@ -29,7 +81,7 @@ This version deprecates one.alf.files in preparation for replacing with one.alf.
 - HOTFIX: include Subject/lab part in destination path when downloading from S3
 
 ## [2.10.0]
-This version improves behaviour of loading revisions and loading datasets from list_datasets output.
+This version fixes issues with Alyx authentication in silent mode, and improves behaviour of loading revisions.
 
 ### Modified
 
@@ -44,10 +96,12 @@ This version improves behaviour of loading revisions and loading datasets from l
 - always force authentication when password passed, even when token cached
 - bugfix: negative indexing of paginated response objects now functions correctly
 - deprecate one.util.ensure_list; moved to iblutil.util.ensure_list
+- OneAlyx uses remote mode by default, instead of auto
 
 ### Added
 
 - one.alf.exceptions.ALFWarning category allows users to filter warnings relating to mixed revisions
+- one.alf.cache.remove_cache_table_files and One._remove_cache_table_files for deleting cache table files
 
 ## [2.9.1]
 

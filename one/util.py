@@ -1,132 +1,26 @@
 """Decorators and small standalone functions for api module."""
 import re
+from uuid import UUID
 import logging
-import urllib.parse
 import fnmatch
 import warnings
 from functools import wraps, partial
-from typing import Sequence, Union, Iterable, Optional, List
+from typing import Iterable, Optional, List
 from collections.abc import Mapping
-from datetime import datetime
 
 import pandas as pd
-from iblutil.io import parquet
-from iblutil.util import ensure_list as _ensure_list
 import numpy as np
-from packaging import version
+from iblutil.util import ensure_list
 
 import one.alf.exceptions as alferr
-from one.alf.path import rel_path_parts, get_session_path, get_alf_path, remove_uuid_string
+from one.alf.path import rel_path_parts
 from one.alf.spec import QC, FILE_SPEC, regex as alf_regex
 
 logger = logging.getLogger(__name__)
 
-QC_TYPE = pd.CategoricalDtype(categories=[e.name for e in sorted(QC)], ordered=True)
-"""pandas.api.types.CategoricalDtype: The cache table QC column data type."""
-
-
-def Listable(t):
-    """Return a typing.Union if the input and sequence of input."""
-    return Union[t, Sequence[t]]
-
-
-def ses2records(ses: dict):
-    """Extract session cache record and datasets cache from a remote session data record.
-
-    Parameters
-    ----------
-    ses : dict
-        Session dictionary from Alyx REST endpoint.
-
-    Returns
-    -------
-    pd.Series
-        Session record.
-    pd.DataFrame
-        Datasets frame.
-    """
-    # Extract session record
-    eid = ses['url'][-36:]
-    session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
-    session_data = {k: v for k, v in ses.items() if k in session_keys}
-    session = (
-        pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
-    )
-    session['projects'] = ','.join(session.pop('projects'))
-    session['date'] = datetime.fromisoformat(session['date']).date()
-
-    # Extract datasets table
-    def _to_record(d):
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True, id=d['id'])
-        rec['eid'] = session.name
-        file_path = urllib.parse.urlsplit(d['data_url'], allow_fragments=False).path.strip('/')
-        file_path = get_alf_path(remove_uuid_string(file_path))
-        session_path = get_session_path(file_path).as_posix()
-        rec['rel_path'] = file_path[len(session_path):].strip('/')
-        rec['default_revision'] = d['default_revision'] == 'True'
-        rec['qc'] = d.get('qc', 'NOT_SET')
-        return rec
-
-    if not ses.get('data_dataset_session_related'):
-        return session, pd.DataFrame()
-    records = map(_to_record, ses['data_dataset_session_related'])
-    index = ['eid', 'id']
-    datasets = pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
-    return session, datasets
-
-
-def datasets2records(datasets, additional=None) -> pd.DataFrame:
-    """Extract datasets DataFrame from one or more Alyx dataset records.
-
-    Parameters
-    ----------
-    datasets : dict, list
-        One or more records from the Alyx 'datasets' endpoint.
-    additional : list of str
-        A set of optional fields to extract from dataset records.
-
-    Returns
-    -------
-    pd.DataFrame
-        Datasets frame.
-
-    Examples
-    --------
-    >>> datasets = ONE().alyx.rest('datasets', 'list', subject='foobar')
-    >>> df = datasets2records(datasets)
-    """
-    records = []
-
-    for d in _ensure_list(datasets):
-        file_record = next((x for x in d['file_records'] if x['data_url'] and x['exists']), None)
-        if not file_record:
-            continue  # Ignore files that are not accessible
-        rec = dict(file_size=d['file_size'], hash=d['hash'], exists=True)
-        rec['id'] = d['url'][-36:]
-        rec['eid'] = (d['session'] or '')[-36:]
-        data_url = urllib.parse.urlsplit(file_record['data_url'], allow_fragments=False)
-        file_path = get_alf_path(data_url.path.strip('/'))
-        file_path = remove_uuid_string(file_path).as_posix()
-        session_path = get_session_path(file_path) or ''
-        if session_path:
-            session_path = session_path.as_posix()
-        rec['rel_path'] = file_path[len(session_path):].strip('/')
-        rec['default_revision'] = d['default_dataset']
-        rec['qc'] = d.get('qc')
-        for field in additional or []:
-            rec[field] = d.get(field)
-        records.append(rec)
-
-    index = ['eid', 'id']
-    if not records:
-        keys = (*index, 'file_size', 'hash', 'session_path', 'rel_path', 'default_revision', 'qc')
-        return pd.DataFrame(columns=keys).set_index(index)
-    return pd.DataFrame(records).set_index(index).sort_index().astype({'qc': QC_TYPE})
-
 
 def parse_id(method):
-    """
-    Ensures the input experiment identifier is an experiment UUID string.
+    """Ensure the input experiment identifier is an experiment UUID.
 
     Parameters
     ----------
@@ -142,6 +36,7 @@ def parse_id(method):
     ------
     ValueError
         Unable to convert input to a valid experiment ID.
+
     """
 
     @wraps(method)
@@ -154,23 +49,8 @@ def parse_id(method):
     return wrapper
 
 
-def refresh(method):
-    """Refresh cache depending on query_type kwarg."""
-
-    @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        mode = kwargs.get('query_type', None)
-        if not mode or mode == 'auto':
-            mode = self.mode
-        self.refresh_cache(mode=mode)
-        return method(self, *args, **kwargs)
-
-    return wrapper
-
-
 def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
-    """
-    Validates and arrange date range in a 2 elements list.
+    """Validate and arrange date range in a 2 elements list.
 
     Parameters
     ----------
@@ -197,6 +77,7 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
     ------
     ValueError
         Size of date range tuple must be 1 or 2.
+
     """
     if date_range is None:
         return
@@ -227,10 +108,10 @@ def validate_date_range(date_range) -> (pd.Timestamp, pd.Timestamp):
 
 
 def _collection_spec(collection=None, revision=None) -> str:
-    """
-    Return a template string for a collection/revision regular expression.  Because both are
-    optional in the ALF spec, None will match any (including absent), while an empty string will
-    match absent.
+    """Return a template string for a collection/revision regular expression.
+
+    Because both are optional in the ALF spec, None will match any (including absent), while an
+    empty string will match absent.
 
     Parameters
     ----------
@@ -243,6 +124,7 @@ def _collection_spec(collection=None, revision=None) -> str:
     -------
     str
         A string format for matching the collection/revision.
+
     """
     spec = ''
     for value, default in zip((collection, revision), ('{collection}/', '#{revision}#/')):
@@ -253,10 +135,11 @@ def _collection_spec(collection=None, revision=None) -> str:
 
 
 def _file_spec(**kwargs):
-    """
-    Return a template string for a ALF dataset regular expression.  Because 'namespace',
-    'timescale', and 'extra' are optional None will match any (including absent).  This function
-    removes the regex flags from the file spec string that make certain parts optional.
+    """Return a template string for a ALF dataset regular expression.
+
+    Because 'namespace', 'timescale', and 'extra' are optional, None will match any
+    (including absent).  This function removes the regex flags from the file spec string that make
+    certain parts optional.
 
     TODO an empty string should only match absent; this could be achieved by removing parts from
      spec string
@@ -277,6 +160,7 @@ def _file_spec(**kwargs):
     -------
     str
         A string format for matching an ALF dataset.
+
     """
     OPTIONAL = {'namespace': '?', 'timescale': '?', 'extra': '*'}
     filespec = FILE_SPEC
@@ -291,8 +175,8 @@ def _file_spec(**kwargs):
 def filter_datasets(
         all_datasets, filename=None, collection=None, revision=None, revision_last_before=True,
         qc=QC.FAIL, ignore_qc_not_set=False, assert_unique=True, wildcards=False):
-    """
-    Filter the datasets cache table by the relative path (dataset name, collection and revision).
+    """Filter the datasets cache table by relative path (dataset name, collection and revision).
+
     When None is passed, all values will match.  To match on empty parts, use an empty string.
     When revision_last_before is true, None means return latest revision.
 
@@ -380,6 +264,8 @@ def filter_datasets(
     - It is not possible to match datasets that are in a given collection OR NOT in ANY collection.
       e.g. filter_datasets(dsets, collection=['alf', '']) will not match the latter. For this you
       must use two separate queries.
+    - It is not possible to match datasets with no revision when wildcards=True.
+
     """
     # Create a regular expression string to match relative path against
     filename = filename or {}
@@ -397,7 +283,7 @@ def filter_datasets(
         exclude_slash = partial(re.sub, fr'^({flagless_token})?\.\*', r'\g<1>[^/]*')
         spec_str += '|'.join(
             exclude_slash(fnmatch.translate(x)) if wildcards else x + '$'
-            for x in _ensure_list(filename)
+            for x in ensure_list(filename)
         )
 
     # If matching revision name, add to regex string
@@ -409,7 +295,7 @@ def filter_datasets(
             continue
         if wildcards:
             # Convert to regex, remove \\Z which asserts end of string
-            v = (fnmatch.translate(x).replace('\\Z', '') for x in _ensure_list(v))
+            v = (fnmatch.translate(x).replace('\\Z', '') for x in ensure_list(v))
         if not isinstance(v, str):
             regex_args[k] = '|'.join(v)  # logical OR
 
@@ -455,9 +341,7 @@ def filter_datasets(
 
 def filter_revision_last_before(
         datasets, revision=None, assert_unique=True, assert_consistent=False):
-    """
-    Filter datasets by revision, returning previous revision in ordered list if revision
-    doesn't exactly match.
+    """Filter datasets by revision, returning previous revision if no exact match is found.
 
     Parameters
     ----------
@@ -501,9 +385,10 @@ def filter_revision_last_before(
       the default one (uncommon), passing in a revision may lead to a newer revision being returned
       than if revision is None.
     - A view is returned if a revision column is present, otherwise a copy is returned.
+
     """
     def _last_before(df):
-        """Takes a DataFrame with only one dataset and multiple revisions, returns matching row"""
+        """Takes a DataFrame with only one dataset and multiple revisions, returns matching row."""
         if revision is None:
             dset_name = df['rel_path'].iloc[0]
             if 'default_revision' in df.columns:
@@ -545,9 +430,10 @@ def filter_revision_last_before(
 
 
 def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional[int]:
-    """
-    Returns the index of string that occurs directly before the provided revision string when
-    lexicographic sorted.  If revision is None, the index of the most recent revision is returned.
+    """Return index of string occurring directly before provided revision string when sorted.
+
+    Revisions are lexicographically sorted. If `revision` is None, the index of the most recent
+    revision is returned.
 
     Parameters
     ----------
@@ -564,6 +450,7 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
     Examples
     --------
     >>> idx = index_last_before([], '2020-08-01')
+
     """
     if len(revisions) == 0:
         return  # No revisions, just return
@@ -575,14 +462,19 @@ def index_last_before(revisions: List[str], revision: Optional[str]) -> Optional
 
 
 def autocomplete(term, search_terms) -> str:
+    """Validate search term and return complete name.
+
+    Examples
+    --------
+    >>> autocomplete('subj')
+    'subject'
+
     """
-    Validate search term and return complete name, e.g. autocomplete('subj') == 'subject'.
-    """
-    term = term.lower()
+    term = term.casefold()
     # Check if term already complete
     if term in search_terms:
         return term
-    full_key = (x for x in search_terms if x.lower().startswith(term))
+    full_key = (x for x in search_terms if x.casefold().startswith(term))
     key_ = next(full_key, None)
     if not key_:
         raise ValueError(f'Invalid search term "{term}", see `one.search_terms()`')
@@ -591,18 +483,12 @@ def autocomplete(term, search_terms) -> str:
     return key_
 
 
-def ensure_list(value):
-    """Ensure input is a list."""
-    warnings.warn(
-        'one.util.ensure_list is deprecated, use iblutil.util.ensure_list instead',
-        DeprecationWarning)
-    return _ensure_list(value)
-
-
 class LazyId(Mapping):
+    """Return UUID from records when indexed.
+
+    Uses a paginated response object or list of Alyx REST records.
     """
-    Using a paginated response object or list of session records, extracts eid string when required
-    """
+
     def __init__(self, pg, func=None):
         self._pg = pg
         self.func = func or self.ses2eid
@@ -629,58 +515,10 @@ class LazyId(Mapping):
         -------
         str, list
             One or more experiment ID strings.
+
         """
         if isinstance(ses, list):
             return [LazyId.ses2eid(x) for x in ses]
         else:
-            return ses.get('id', None) or ses['url'].split('/').pop()
-
-
-def cache_int2str(table: pd.DataFrame) -> pd.DataFrame:
-    """Convert int ids to str ids for cache table.
-
-    Parameters
-    ----------
-    table : pd.DataFrame
-        A cache table (from One._cache).
-
-    """
-    # Convert integer uuids to str uuids
-    if table.index.nlevels < 2 or not any(x.endswith('_0') for x in table.index.names):
-        return table
-    table = table.reset_index()
-    int_cols = table.filter(regex=r'_\d{1}$').columns.sort_values()
-    assert not len(int_cols) % 2, 'expected even number of columns ending in _0 or _1'
-    names = sorted(set(c.rsplit('_', 1)[0] for c in int_cols.values))
-    for i, name in zip(range(0, len(int_cols), 2), names):
-        table[name] = parquet.np2str(table[int_cols[i:i + 2]])
-    table = table.drop(int_cols, axis=1).set_index(names)
-    return table
-
-
-def patch_cache(table: pd.DataFrame, min_api_version=None, name=None) -> pd.DataFrame:
-    """Reformat older cache tables to comply with this version of ONE.
-
-    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'
-    column to 'projects'.
-
-    Parameters
-    ----------
-    table : pd.DataFrame
-        A cache table (from One._cache).
-    min_api_version : str
-        The minimum API version supported by this cache table.
-    name : {'dataset', 'session'} str
-        The name of the table.
-    """
-    min_version = version.parse(min_api_version or '0.0.0')
-    table = cache_int2str(table)
-    # Rename project column
-    if min_version < version.Version('1.13.0') and 'project' in table.columns:
-        table.rename(columns={'project': 'projects'}, inplace=True)
-    if name == 'datasets' and min_version < version.Version('2.7.0') and 'qc' not in table.columns:
-        qc = pd.Categorical.from_codes(np.zeros(len(table.index), dtype=int), dtype=QC_TYPE)
-        table = table.assign(qc=qc)
-    if name == 'datasets' and 'session_path' in table.columns:
-        table = table.drop('session_path', axis=1)
-    return table
+            eid = ses.get('id', None) or ses['url'].split('/').pop()
+            return UUID(eid)

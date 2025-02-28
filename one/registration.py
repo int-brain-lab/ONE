@@ -26,7 +26,7 @@ from iblutil.io import hashfile
 from iblutil.util import Bunch, ensure_list
 
 import one.alf.io as alfio
-from one.alf.path import session_path_parts, get_session_path, folder_parts, filename_parts
+from one.alf.path import ALFPath, session_path_parts, ensure_alf_path, folder_parts
 from one.alf.spec import is_valid
 import one.alf.exceptions as alferr
 from one.api import ONE
@@ -59,22 +59,22 @@ def get_dataset_type(filename, dtypes):
     ValueError
         filename doesn't match any of the dataset types
         filename matches multiple dataset types
+
     """
     dataset_types = []
-    if isinstance(filename, str):
-        filename = PurePosixPath(filename)
+    filename = ensure_alf_path(filename)
     for dt in dtypes:
         if not dt.filename_pattern.strip():
             # If the filename pattern is null, check whether the filename object.attribute matches
             # the dataset type name.
             if is_valid(filename.name):
-                obj_attr = '.'.join(filename_parts(filename.name)[1:3])
+                obj_attr = '.'.join(filename.dataset_name_parts[1:3])
             else:  # will match name against filename sans extension
                 obj_attr = filename.stem
             if dt.name == obj_attr:
                 dataset_types.append(dt)
         # Check whether pattern matches filename
-        elif fnmatch(filename.name.lower(), dt.filename_pattern.lower()):
+        elif fnmatch(filename.name.casefold(), dt.filename_pattern.casefold()):
             dataset_types.append(dt)
     n = len(dataset_types)
     if n == 0:
@@ -86,9 +86,8 @@ def get_dataset_type(filename, dtypes):
 
 
 class RegistrationClient:
-    """
-    Object that keeps the ONE instance and provides method to create sessions and register data.
-    """
+    """Methods to create sessions and register data."""
+
     def __init__(self, one=None):
         self.one = one
         if not one:
@@ -104,8 +103,7 @@ class RegistrationClient:
 
     def create_sessions(self, root_data_folder, glob_pattern='**/create_me.flag',
                         register_files=False, dry=False):
-        """
-        Create sessions looking recursively for flag files.
+        """Create sessions looking recursively for flag files.
 
         Parameters
         ----------
@@ -124,6 +122,7 @@ class RegistrationClient:
             Newly created session paths.
         list of dicts
             Alyx session records.
+
         """
         flag_files = list(Path(root_data_folder).glob(glob_pattern))
         records = []
@@ -131,12 +130,13 @@ class RegistrationClient:
             if dry:
                 records.append(print(flag_file))
                 continue
-            _logger.info('creating session for ' + str(flag_file.parent))
+            session_path = ALFPath(flag_file.parent)
+            _logger.info('creating session for ' + str(session_path))
             # providing a false flag stops the registration after session creation
-            session_info, _ = self.register_session(flag_file.parent, file_list=register_files)
+            session_info, _ = self.register_session(session_path, file_list=register_files)
             records.append(session_info)
             flag_file.unlink()
-        return [ff.parent for ff in flag_files], records
+        return [ALFPath(ff.parent) for ff in flag_files], records
 
     def create_new_session(self, subject, session_root=None, date=None, register=True, **kwargs):
         """Create a new local session folder and optionally create session record on Alyx.
@@ -175,6 +175,7 @@ class RegistrationClient:
         Create a session for a given date
 
         >>> session_path, eid = RegistrationClient().create_new_session('Ian', date='2020-01-01')
+
         """
         assert not self.one.offline, 'ONE must be in online mode'
         date = self.ensure_ISO8601(date)  # Format, validate
@@ -191,8 +192,7 @@ class RegistrationClient:
         return session_path, eid
 
     def find_files(self, session_path):
-        """
-        Returns a generator of file names that match one of the dataset type patterns in Alyx.
+        """Returns a generator of file names that match one of the dataset type patterns in Alyx.
 
         Parameters
         ----------
@@ -200,13 +200,14 @@ class RegistrationClient:
             The session path to search.
 
         Yields
-        -------
+        ------
         pathlib.Path
             File paths that match the dataset type patterns in Alyx.
+
         """
-        session_path = Path(session_path)
-        for p in session_path.rglob('*.*.*'):
-            if p.is_file() and any(p.name.endswith(ext) for ext in self.file_extensions):
+        session_path = ALFPath(session_path)
+        for p in session_path.iter_datasets(recursive=True):
+            if any(p.name.endswith(ext) for ext in self.file_extensions):
                 try:
                     get_dataset_type(p, self.dtypes)
                     yield p
@@ -230,7 +231,7 @@ class RegistrationClient:
         >>> client.assert_exists('local_server', 'repositories')
 
         Raises
-        -------
+        ------
         one.alf.exceptions.AlyxSubjectNotFound
             Subject does not exist on Alyx
         one.alf.exceptions.ALFError
@@ -242,6 +243,7 @@ class RegistrationClient:
         -------
         dict, list of dict
             The endpoint data if member exists.
+
         """
         if isinstance(member, (str, UUID)):
             try:
@@ -258,7 +260,7 @@ class RegistrationClient:
 
     @staticmethod
     def ensure_ISO8601(date) -> str:
-        """Ensure provided date is ISO 8601 compliant
+        """Ensure provided date is ISO 8601 compliant.
 
         Parameters
         ----------
@@ -269,6 +271,7 @@ class RegistrationClient:
         -------
         str
             The datetime as an ISO 8601 string
+
         """
         date = date or datetime.datetime.now()  # If None get current time
         if isinstance(date, str):
@@ -279,8 +282,7 @@ class RegistrationClient:
         return datetime.datetime.isoformat(date)
 
     def register_session(self, ses_path, users=None, file_list=True, **kwargs):
-        """
-        Register session in Alyx.
+        """Register session in Alyx.
 
         NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)
         and date of the session path.
@@ -340,9 +342,9 @@ class RegistrationClient:
             int instead of a str); A 500 status code means there was a server error.
         ConnectionError
             Failed to connect to Alyx, most likely due to a bad internet connection.
+
         """
-        if isinstance(ses_path, str):
-            ses_path = Path(ses_path)
+        ses_path = ALFPath(ses_path)
         details = session_path_parts(ses_path.as_posix(), as_dict=True, assert_valid=True)
         # query alyx endpoints for subject, error if not found
         self.assert_exists(details['subject'], 'subjects')
@@ -395,9 +397,7 @@ class RegistrationClient:
         return session, recs
 
     def prepare_files(self, file_list, versions=None):
-        """
-        Validates file list for registration and splits files into a list of files per
-        session path.
+        """Validate file list for registration and group files by session path.
 
         Parameters
         ----------
@@ -416,14 +416,14 @@ class RegistrationClient:
             A list of files converted to paths.
         bool
             A boolean indicating if input was a single file.
-        """
 
+        """
         F = defaultdict(list)  # empty map whose keys will be session paths
         V = defaultdict(list)  # empty map for versions
 
         if single_file := isinstance(file_list, (str, pathlib.Path)):
             file_list = [file_list]
-        file_list = list(map(pathlib.Path, file_list))  # Ensure list of path objects
+        file_list = list(map(ALFPath, file_list))  # Ensure list of path objects
 
         if versions is None or isinstance(versions, str):
             versions = itertools.repeat(versions)
@@ -432,7 +432,7 @@ class RegistrationClient:
 
         # Filter valid files and sort by session
         for fn, ver in zip(file_list, versions):
-            session_path = get_session_path(fn)
+            session_path = fn.session_path()
             if not session_path:
                 _logger.debug(f'{fn}: Invalid session path')
                 continue
@@ -450,8 +450,8 @@ class RegistrationClient:
         return F, V, file_list, single_file
 
     def check_protected_files(self, file_list, created_by=None):
-        """
-        Check whether a set of files associated to a session are protected
+        """Check whether a set of files associated to a session are protected.
+
         Parameters
         ----------
         file_list : list, str, pathlib.Path
@@ -466,8 +466,8 @@ class RegistrationClient:
             datasets or not.If none of the datasets are protected, a response with status
             200 is returned, if any of the files are protected a response with status
             403 is returned.
-        """
 
+        """
         # Validate files and rearrange into list per session
         F, _, _, single_file = self.prepare_files(file_list)
 
@@ -489,8 +489,7 @@ class RegistrationClient:
     def register_files(self, file_list,
                        versions=None, default=True, created_by=None, server_only=False,
                        repository=None, exists=True, dry=False, max_md5_size=None, **kwargs):
-        """
-        Registers a set of files belonging to a session only on the server.
+        """Registers a set of files belonging to a session only on the server.
 
         Parameters
         ----------
@@ -538,8 +537,8 @@ class RegistrationClient:
             Submitted data not valid (400 status code)
             Server side database error (500 status code)
             Revision protected (403 status code)
-        """
 
+        """
         F, V, file_list, single_file = self.prepare_files(file_list, versions=versions)
 
         # For each unique session, make a separate POST request
@@ -697,8 +696,8 @@ class RegistrationClient:
 
     @staticmethod
     def _next_revision(revision: str, reserved: list = None, alpha: str = 'a') -> str:
-        """
-        Return the next logical revision that is not already in the provided list.
+        """Return the next logical revision that is not already in the provided list.
+
         Revisions will increment by appending a letter to a date or other identifier.
 
         Parameters
@@ -723,6 +722,7 @@ class RegistrationClient:
         '2020-01-01c'
         >>> RegistrationClient._next_revision('2020-01-01', ['2020-01-01a', '2020-01-01b'])
         '2020-01-01c'
+
         """
         if len(alpha) != 1:
             raise TypeError(
@@ -736,8 +736,7 @@ class RegistrationClient:
         return new_revision
 
     def register_water_administration(self, subject, volume, **kwargs):
-        """
-        Register a water administration to Alyx for a given subject
+        """Register a water administration to Alyx for a given subject.
 
         Parameters
         ----------
@@ -771,6 +770,7 @@ class RegistrationClient:
             date_time is not a valid ISO date time or session ID is not valid
         requests.exceptions.HTTPError
             Failed to connect to database, or submitted data not valid (500)
+
         """
         # Ensure subject exists
         self.assert_exists(subject, 'subjects')
@@ -791,15 +791,14 @@ class RegistrationClient:
         }
         # Ensure session is valid; convert to eid
         if kwargs.get('session', False):
-            wa_['session'] = self.one.to_eid(kwargs.pop('session'))
+            wa_['session'] = str(self.one.to_eid(kwargs.pop('session')) or '')
             if not wa_['session']:
                 raise ValueError('Failed to parse session ID')
 
         return self.one.alyx.rest('water-administrations', 'create', data=wa_)
 
     def register_weight(self, subject, weight, date_time=None, user=None):
-        """
-        Register a subject weight to Alyx.
+        """Register a subject weight to Alyx.
 
         Parameters
         ----------
@@ -827,6 +826,7 @@ class RegistrationClient:
             date_time is not a valid ISO date time or weight < 1e-4
         requests.exceptions.HTTPError
             Failed to connect to database, or submitted data not valid (500)
+
         """
         # Ensure subject exists
         self.assert_exists(subject, 'subjects')

@@ -1,8 +1,10 @@
-"""Unit tests for the one.webclient module"""
+"""Unit tests for the one.webclient module."""
 import unittest
 from unittest import mock
 import urllib.parse
 import random
+import weakref
+import uuid
 import os
 import one.webclient as wc
 import one.params
@@ -16,8 +18,8 @@ from datetime import datetime, timedelta
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
 
-from . import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
-from . import util
+from one.tests import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
+from one.tests import util
 
 par = one.params.get(silent=True)
 
@@ -30,12 +32,13 @@ if 'public' in ac._par.HTTP_DATA_SERVER:
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAuthentication(unittest.TestCase):
-    """Tests for AlyxClient authentication, token storage, login/out methods and user prompts"""
+    """Tests for AlyxClient authentication, token storage, login/out methods and user prompts."""
+
     def setUp(self) -> None:
         self.ac = wc.AlyxClient(**TEST_DB_2)
 
     def test_authentication(self):
-        """Test for AlyxClient.authenticate and AlyxClient.is_logged_in property"""
+        """Test for AlyxClient.authenticate and AlyxClient.is_logged_in property."""
         ac = self.ac
         self.assertTrue(ac.is_logged_in)
         ac.logout()
@@ -99,7 +102,7 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()  # Shouldn't complain
 
     def test_auth_methods(self):
-        """Test behaviour when calling AlyxClient._generic_request when logged out"""
+        """Test behaviour when calling AlyxClient._generic_request when logged out."""
         # Check that authentication happens when making a logged out request
         self.ac.logout()
         assert self.ac.is_logged_in is False
@@ -127,7 +130,7 @@ class TestAuthentication(unittest.TestCase):
         self.assertTrue(self.ac.is_logged_in)
 
     def test_auth_errors(self):
-        """Test behaviour when authentication fails"""
+        """Test behaviour when authentication fails."""
         self.ac.logout()  # Make sure logged out
         with self.assertRaises(requests.HTTPError) as ex:
             self.ac.authenticate(password='wrong_pass')
@@ -153,6 +156,7 @@ class TestJsonFieldMethods(unittest.TestCase):
     These tests are over-engineered in order to test Alyx Django queries with JSON fields.
     Django queries are also tested in TestRemote.test_search.
     """
+
     def setUp(self):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
 
@@ -167,7 +171,7 @@ class TestJsonFieldMethods(unittest.TestCase):
             'users': [TEST_DB_1['username']],
         }) for _ in range(2)]
 
-        self.eids = [x['url'].split('/')[-1] for x in sessions]
+        self.eids = [uuid.UUID(x['url'].split('/')[-1]) for x in sessions]
         self.endpoint = 'sessions'
         self.field_name = 'extended_qc'
         # We filter by key value so we use randint to avoid race condition in concurrent tests
@@ -217,14 +221,14 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.assertTrue(len(ses) == 1)
 
     def test_json_methods(self):
-        """Test for AlyxClient.json_field* methods (write, update, remove_key and delete)"""
+        """Test for AlyxClient.json_field* methods (write, update, remove_key and delete)."""
         self._json_field_write()
         self._json_field_update()
         self._json_field_remove_key()
         self._json_field_delete()
 
     def test_empty(self):
-        """Test for AlyxClient.json_field* methods when JSON field is empty"""
+        """Test for AlyxClient.json_field* methods when JSON field is empty."""
         eid = self.eids[0]
         # Check behaviour when fields are empty
         self.ac.rest(self.endpoint, 'partial_update', id=eid, data={self.field_name: None})
@@ -250,12 +254,21 @@ class TestJsonFieldMethods(unittest.TestCase):
             modified = self.ac.json_field_remove_key(self.endpoint, eid, self.field_name)
         self.assertIsNone(modified)
 
+    def test_uuid_serialize(self):
+        """Check that UUID objects are serialized to JSON."""
+        data = {'uid': self.eids[-1], **self.data_dict}
+        written = self.ac.json_field_write(self.endpoint, self.eids[0], self.field_name, data)
+        self.assertIsInstance(written, dict)
+        # Encoder should have cast uuid to str
+        self.assertEqual(str(self.eids[-1]), written.get('uid'))
+
     def tearDown(self):
         self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
 
 
 class TestRestCache(unittest.TestCase):
-    """Tests for REST caching system, the cache decorator and cache flags"""
+    """Tests for REST caching system, the cache decorator and cache flags."""
+
     def setUp(self):
         util.setup_test_params()  # Ensure test alyx set up
         util.setup_rest_cache(ac.cache_dir)  # Copy rest cache fixtures
@@ -269,7 +282,7 @@ class TestRestCache(unittest.TestCase):
         self.cache_mode = ac.cache_mode
 
     def test_loads_cached(self):
-        """Test for one.webclient._cache_response decorator, checks returns cached result"""
+        """Test for one.webclient._cache_response decorator, checks returns cached result."""
         # Check returns cache
         wrapped = wc._cache_response(lambda *args: self.assertTrue(False))
         client = ac  # Bunch({'base_url': 'https://test.alyx.internationalbrainlab.org'})
@@ -277,7 +290,7 @@ class TestRestCache(unittest.TestCase):
         self.assertEqual(res['id'], self.query.split('/')[-1])
 
     def test_expired_cache(self):
-        """Test behaviour when cached REST query is expired"""
+        """Test behaviour when cached REST query is expired."""
         # Checks expired
         wrapped = wc._cache_response(lambda *args: 'called')
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')
@@ -285,7 +298,7 @@ class TestRestCache(unittest.TestCase):
         self.assertTrue(res == 'called')
 
     def test_caches_response(self):
-        """Test caches query response before returning"""
+        """Test caches query response before returning."""
         # Default expiry time
         ac.default_expiry = timedelta(minutes=1)
         wrapped = wc._cache_response(lambda *args: 'called')
@@ -303,7 +316,7 @@ class TestRestCache(unittest.TestCase):
         self.assertEqual(when, '2021-05-13T00:01:00')
 
     def test_cache_mode(self):
-        """Test for AlyxClient.cache_mode property"""
+        """Test for AlyxClient.cache_mode property."""
         # With cache mode off, wrapped method should be called even in presence of valid cache
         ac.cache_mode = None  # cache nothing
         wrapped = wc._cache_response(lambda *args: 'called')
@@ -311,7 +324,7 @@ class TestRestCache(unittest.TestCase):
         self.assertTrue(res == 'called')
 
     def test_expiry_param(self):
-        """Test for expires kwarg in one.webclient._cache_response decorator"""
+        """Test for expires kwarg in one.webclient._cache_response decorator."""
         # Check expiry param
         wrapped = wc._cache_response(lambda *args: '123')
         res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
@@ -328,7 +341,7 @@ class TestRestCache(unittest.TestCase):
         self.assertTrue(res == '789')
 
     def test_cache_returned_on_error(self):
-        """Test behaviour when connection error occurs and cached response exists"""
+        """Test behaviour when connection error occurs and cached response exists."""
         func = mock.Mock(side_effect=requests.ConnectionError())
         wrapped = wc._cache_response(func)
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')  # Expired
@@ -341,7 +354,7 @@ class TestRestCache(unittest.TestCase):
             wrapped(ac, requests.get, self.query, clobber=True)
 
     def test_clear_cache(self):
-        """Test for AlyxClient.clear_rest_cache"""
+        """Test for AlyxClient.clear_rest_cache."""
         assert any(self.cache_dir.glob('*'))
         ac.clear_rest_cache()
         self.assertFalse(any(self.cache_dir.glob('*')))
@@ -434,7 +447,7 @@ class TestDownloadHTTP(unittest.TestCase):
 
 class TestMisc(unittest.TestCase):
     def test_update_url_params(self):
-        """Test for one.webclient.update_url_params"""
+        """Test for one.webclient.update_url_params."""
         url = wc.update_url_params('website.com/?q=', {'pg': 5})
         self.assertEqual('website.com/?pg=5', url)
 
@@ -453,7 +466,7 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(url, wc.update_url_params(url, {}))
 
     def test_validate_file_url(self):
-        """Test for AlyxClient._validate_file_url"""
+        """Test for AlyxClient._validate_file_url."""
         # Should assert that domain matches data server parameter
         with self.assertRaises(AssertionError):
             ac._validate_file_url('https://webserver.net/path/to/file')
@@ -464,7 +477,7 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(ac._validate_file_url('/path/to/file.ext'), expected)
 
     def test_no_cache_context_manager(self):
-        """Test for one.webclient.no_cache function"""
+        """Test for one.webclient.no_cache function."""
         assert ac.cache_mode is not None
         with wc.no_cache(ac):
             self.assertIsNone(ac.cache_mode)
@@ -498,12 +511,24 @@ class TestMisc(unittest.TestCase):
         self.assertTrue(not any(pg._cache[lim:]))
         self.assertIs(pg.alyx, alyx)
 
+        # Check adding callbacks
+        self.assertRaises(TypeError, pg.add_callback, None)
+        wf = mock.Mock(spec_set=weakref.ref)
+        cb1, cb2 = mock.MagicMock(), wf()
+        pg.add_callback(cb1)
+        pg.add_callback(wf)
+        self.assertEqual(2, len(pg._callbacks))
+
         # Check fetching cached item with +ve int
         self.assertEqual({'id': 1}, pg[1])
         alyx._generic_request.assert_not_called()
+        for cb in [cb1, cb2]:
+            cb.assert_not_called()
         # Check fetching cached item with +ve slice
         self.assertEqual([{'id': 1}, {'id': 2}], pg[1:3])
         alyx._generic_request.assert_not_called()
+        for cb in [cb1, cb2]:
+            cb.assert_not_called()
         # Check fetching cached item with -ve int
         self.assertEqual({'id': 100}, pg[-1900])
         alyx._generic_request.assert_not_called()
@@ -518,6 +543,10 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(res['results'], pg._cache[offset:offset + lim])
         alyx._generic_request.assert_called_once_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        for cb in [cb1, cb2]:
+            cb.assert_called_once_with(res['results'])
+        # Check that dead weakreaf will be removed from the list on next call
+        wf.return_value = None
         # Check fetching uncached item with -ve int
         offset = lim * 3
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
@@ -527,6 +556,7 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(res['results'], pg._cache[offset:offset + lim])
         alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
+        self.assertEqual(1, len(pg._callbacks), 'failed to remove weakref callback')
         # Check fetching uncached item with +ve slice
         offset = lim * 5
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
@@ -548,6 +578,10 @@ class TestMisc(unittest.TestCase):
         self.assertEqual(expected_calls := 4, alyx._generic_request.call_count)
         self.assertEqual((expected_calls + 1) * lim, sum(list(map(bool, pg._cache))))
 
+        # Check callbacks cleared when cache fully populated
+        self.assertTrue(all(map(bool, pg)))
+        self.assertEqual(0, len(pg._callbacks))
+
     def _check_get_query(self, call_args, limit, offset):
         """Check URL get query contains the expected limit and offset params."""
         (_, url), _ = call_args
@@ -555,6 +589,22 @@ class TestMisc(unittest.TestCase):
         query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
         expected = {'foo': ['bar'], 'offset': [str(offset)], 'limit': [str(limit)]}
         self.assertDictEqual(query, expected)
+
+    def test_json_encoder(self):
+        """Test that the JSONEncoder subclass serializes UUID objects."""
+        uid = uuid.uuid4()
+        # Check encoder subclass behaviour for UUID objects
+        self.assertEqual(str(uid), wc._JSONEncoder().default(uid))
+        # Encoder should still raise for other object types
+        self.assertRaises(TypeError, wc._JSONEncoder().default, b'foo')
+        # Using json dumps
+        data = {'foo': 12, 'bar': uid}
+        # First check that the default encoder raises;
+        # python could add support for UUID objects in the future
+        self.assertRaises(TypeError, json.dumps, data)
+        serialized = json.dumps(data, cls=wc._JSONEncoder)
+        expected = '{"foo": 12, "bar": "' + str(uid) + '"}'
+        self.assertEqual(expected, serialized)
 
 
 if __name__ == '__main__':

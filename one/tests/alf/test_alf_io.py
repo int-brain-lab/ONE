@@ -18,6 +18,7 @@ from iblutil.io import jsonable
 import one.alf.io as alfio
 from one.alf.exceptions import ALFObjectNotFound
 from one.alf.spec import FILE_SPEC, regex
+from one.alf.path import ALFPath
 
 try:
     import sparse
@@ -55,7 +56,7 @@ class TestAlfBunch(unittest.TestCase):
                          'failed to truncate columns')
 
     def test_from_dataframe(self):
-        """Tests for AlfBunch.from_df method"""
+        """Tests for AlfBunch.from_df method."""
         cols = ['foo_0', 'foo_1', 'bar_0', 'bar_1', 'baz']
         df = pd.DataFrame(np.random.rand(10, 5), columns=cols)
         a = alfio.AlfBunch.from_df(df)
@@ -160,7 +161,7 @@ class TestsAlfPartsFilters(unittest.TestCase):
         alfio.load_object(self.tmpdir, 'neuveux', short_keys=False)
 
     def test_filter_by(self):
-        """Test for one.alf.io.filter_by"""
+        """Test for one.alf.io.filter_by."""
         spec_idx_map = regex(FILE_SPEC).groupindex
         file_names = [
             'noalf.file',
@@ -181,27 +182,29 @@ class TestsAlfPartsFilters(unittest.TestCase):
             'wheel.timestamps.npy',
             'wheelMoves.intervals.npy',
             '_ibl_trials.intervals.npy']
-        self.assertCountEqual(alf_files, expected, 'failed to filter with None attribute')
+        self.assertTrue(all(isinstance(x, ALFPath) for x in alf_files))
+        self.assertCountEqual(
+            alf_files, map(ALFPath, expected), 'failed to filter with None attribute')
 
         # Test filtering by object; should return only 'wheel' ALF objects
         alf_files, parts = alfio.filter_by(self.tmpdir, object='wheel')
         expected = ['wheel.position.npy', 'wheel.timestamps.npy']
-        self.assertCountEqual(alf_files, expected, 'failed to filter by object')
+        self.assertCountEqual(alf_files, map(ALFPath, expected), 'failed to filter by object')
         self.assertEqual(len(alf_files), len(parts))
 
         # Test wildcards; should return 'wheel' and 'wheelMoves' ALF objects
         alf_files, _ = alfio.filter_by(self.tmpdir, object='wh*')
         expected = ['wheel.position.npy', 'wheel.timestamps.npy', 'wheelMoves.intervals.npy']
-        self.assertCountEqual(alf_files, expected, 'failed to filter with wildcard')
+        self.assertCountEqual(alf_files, map(ALFPath, expected), 'failed to filter with wildcard')
 
         # Test wildcard arrays
         alf_files, _ = alfio.filter_by(self.tmpdir, object='wh*', attribute=['time*', 'pos*'])
         expected = ['wheel.position.npy', 'wheel.timestamps.npy']
-        self.assertCountEqual(alf_files, expected, 'failed to filter with wildcard')
+        self.assertCountEqual(alf_files, map(ALFPath, expected), 'failed to filter with wildcard')
 
         # Test filtering by specific timescale; test parts returned
         alf_files, parts = alfio.filter_by(self.tmpdir, timescale='bpod')
-        expected = ['_ibl_trials.intervals_bpod.csv']
+        expected = [ALFPath('_ibl_trials.intervals_bpod.csv')]
         self.assertEqual(alf_files, expected, 'failed to filter by timescale')
         expected = ('ibl', 'trials', 'intervals', 'bpod', None, 'csv')
         self.assertTupleEqual(parts[0], expected)
@@ -211,11 +214,13 @@ class TestsAlfPartsFilters(unittest.TestCase):
         # Test filtering multiple attributes; should return only trials intervals
         alf_files, _ = alfio.filter_by(self.tmpdir, attribute='intervals', object='trials')
         expected = ['_ibl_trials.intervals.npy', '_ibl_trials.intervals_bpod.csv']
-        self.assertCountEqual(alf_files, expected, 'failed to filter by multiple attribute')
+        self.assertCountEqual(
+            alf_files, map(ALFPath, expected), 'failed to filter by multiple attribute')
 
         # Test returning only ALF files
         alf_files, _ = alfio.filter_by(self.tmpdir)
-        self.assertCountEqual(alf_files, file_names[1:], 'failed to return ALF files')
+        self.assertCountEqual(
+            alf_files, map(ALFPath, file_names[1:]), 'failed to return ALF files')
 
         # Test return empty
         out = alfio.filter_by(self.tmpdir, object=None)
@@ -223,11 +228,11 @@ class TestsAlfPartsFilters(unittest.TestCase):
 
         # Test extras
         alf_files, _ = alfio.filter_by(self.tmpdir, extra='v12')
-        expected = ['_namespace_obj.attr_timescale.raw.v12.ext']
+        expected = [ALFPath('_namespace_obj.attr_timescale.raw.v12.ext')]
         self.assertEqual(alf_files, expected, 'failed to filter extra attributes')
 
         alf_files, _ = alfio.filter_by(self.tmpdir, extra=['v12', 'raw'])
-        expected = ['_namespace_obj.attr_timescale.raw.v12.ext']
+        expected = [ALFPath('_namespace_obj.attr_timescale.raw.v12.ext')]
         self.assertEqual(alf_files, expected, 'failed to filter extra attributes as list')
 
         alf_files, _ = alfio.filter_by(self.tmpdir, extra=['foo', 'v12'])
@@ -240,10 +245,10 @@ class TestsAlfPartsFilters(unittest.TestCase):
         # Check regular expression search
         alf_files, _ = alfio.filter_by(self.tmpdir, object='^wheel.*', wildcards=False)
         expected = ['wheel.position.npy', 'wheel.timestamps.npy', 'wheelMoves.intervals.npy']
-        self.assertCountEqual(alf_files, expected, 'failed to filter by regex')
+        self.assertCountEqual(alf_files, map(ALFPath, expected), 'failed to filter by regex')
         # Should work with lists
         alf_files, _ = alfio.filter_by(self.tmpdir, object=['^wheel$', '.*Moves'], wildcards=False)
-        self.assertCountEqual(alf_files, expected, 'failed to filter by regex')
+        self.assertCountEqual(alf_files, map(ALFPath, expected), 'failed to filter by regex')
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
@@ -273,7 +278,7 @@ class TestsAlf(unittest.TestCase):
         pd.DataFrame(np.random.rand(10, 5), columns=cols).to_parquet(self.object_files[-1])
 
     def test_exists(self):
-        """Test for one.alf.io.exists"""
+        """Test for one.alf.io.exists."""
         self.assertFalse(alfio.exists(self.tmpdir, 'asodiujfas'))
         self.assertTrue(alfio.exists(self.tmpdir, 'neuveu'))
         # test with attribute string only
@@ -297,7 +302,9 @@ class TestsAlf(unittest.TestCase):
         cols = ['titi', 'tutu', 'toto', 'tata']
         np.save(file_alf, data)
         np.save(self.tmpdir / '_ns_object.gnagna.npy', data[:, -1])
-        alfio.save_metadata(file_alf, {'columns': cols})
+        path = alfio.save_metadata(file_alf, {'columns': cols})
+        self.assertIsInstance(path, ALFPath)
+        self.assertEqual('_ns_object.attribute.metadata.json', path.name)
         dread = alfio.load_object(self.tmpdir, 'object', namespace='ns', short_keys=False)
         self.assertTrue(np.all(dread['titi'] == data[:, 0]))
         self.assertTrue(np.all(dread['gnagna'] == data[:, -1]))
@@ -321,7 +328,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(np.all(dread['titi'] == data[:, 0]))
 
     def test_read_ts(self):
-        """Test for one.alf.io.read_ts"""
+        """Test for one.alf.io.read_ts."""
         # simplest test possible with one column in each file
         t = np.arange(0, 10)
         d = np.random.rand(10)
@@ -346,7 +353,7 @@ class TestsAlf(unittest.TestCase):
             alfio.read_ts(self.vfile)
 
     def test_load_object(self):
-        """Test for one.alf.io.load_object"""
+        """Test for one.alf.io.load_object."""
         # first usage of load object is to provide one of the files belonging to the object
         expected_keys = {'riri', 'fifi', 'loulou', 'foobar_matlab', 'timestamps'}
         obj = alfio.load_object(self.object_files[0])
@@ -398,10 +405,10 @@ class TestsAlf(unittest.TestCase):
         self.assertCountEqual(expected, new_obj.keys())
 
     def test_ls(self):
-        """Test for one.alf.io._ls"""
+        """Test for one.alf.io._ls."""
         # Test listing all ALF files in a directory
         alf_files, _ = alfio._ls(self.tmpdir)
-        self.assertIsInstance(alf_files[0], Path)
+        self.assertIsInstance(alf_files[0], ALFPath)
         self.assertEqual(8, len(alf_files))
 
         # Test with filepath
@@ -414,7 +421,7 @@ class TestsAlf(unittest.TestCase):
             alfio._ls(self.tmpdir.joinpath('foobar'))
 
     def test_save_npy(self):
-        """Test for one.alf.io.save_npy"""
+        """Test for one.alf.io.save_npy."""
         # test with straight vectors
         a = {'riri': np.random.rand(100),
              'fifi': np.random.rand(100)}
@@ -441,7 +448,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue('Dimensions are not consistent' in str(context.exception))
 
     def test_check_dimensions(self):
-        """Test for one.alf.io.check_dimensions"""
+        """Test for one.alf.io.check_dimensions."""
         a = {'a': np.ones([10, 10]), 'b': np.ones([10, 2]), 'c': np.ones([10])}
         status = alfio.check_dimensions(a)
         self.assertTrue(status == 0)
@@ -465,7 +472,7 @@ class TestsAlf(unittest.TestCase):
         self.assertTrue(status == 1)
 
     def test_ts2vec(self):
-        """Test for one.alf.io.ts2vec"""
+        """Test for one.alf.io.ts2vec."""
         n = 10
         # Test interpolate
         ts = np.array([[0, 10], [0, 100]]).T
@@ -526,7 +533,7 @@ class TestsLoadFile(unittest.TestCase):
         np.savez_compressed(self.npz2, np.random.rand(5), np.random.rand(5))
 
     def test_load_file_content(self):
-        """Test for one.alf.io.load_file_content"""
+        """Test for one.alf.io.load_file_content."""
         self.assertIsNone(alfio.load_file_content(self.empty))
         # csv / ssv / tsv files
         self.assertIsInstance(alfio.load_file_content(self.npy), np.ndarray)
@@ -547,9 +554,10 @@ class TestsLoadFile(unittest.TestCase):
         pqt = next(Path(__file__).parents[1].joinpath('fixtures').glob('*.pqt'))
         loaded = alfio.load_file_content(pqt)
         self.assertIsInstance(loaded, pd.DataFrame)
-        # Unknown file should return Path
+        # Unknown file should return ALFPath
         file = alfio.load_file_content(str(self.xyz))
         self.assertEqual(file, self.xyz)
+        self.assertIsInstance(file, ALFPath)
         self.assertIsNone(alfio.load_file_content(None))
         # Load YAML file
         loaded = alfio.load_file_content(str(self.yaml))
@@ -584,42 +592,6 @@ class TestsLoadFileNonStandard(unittest.TestCase):
                 self.assertWarns(UserWarning):
             loaded = alfio.load_file_content(str(self.sparse_npz))
             self.assertEqual(loaded, self.sparse_npz)
-
-
-class TestUUID_Files(unittest.TestCase):
-
-    def test_remove_uuid(self):
-        with tempfile.TemporaryDirectory() as dir:
-            f1 = Path(dir).joinpath('tutu.part1.part1.30c09473-4d3d-4f51-9910-c89a6840096e.json')
-            f2 = Path(dir).joinpath('tata.part1.part1.json')
-            f3 = Path(dir).joinpath('toto.json')
-            f1.touch()
-            f2.touch()
-            f2.touch()
-            self.assertTrue(alfio.remove_uuid_file(f1) ==
-                            Path(dir).joinpath('tutu.part1.part1.json'))
-            self.assertTrue(alfio.remove_uuid_file(f2) ==
-                            Path(dir).joinpath('tata.part1.part1.json'))
-            self.assertTrue(alfio.remove_uuid_file(f3) ==
-                            Path(dir).joinpath('toto.json'))
-            self.assertTrue(alfio.remove_uuid_file(str(f3)) ==
-                            Path(dir).joinpath('toto.json'))
-
-    def test_remove_uuid_recusive(self):
-        uuid = '30c09473-4d3d-4f51-9910-c89a6840096e'
-        with tempfile.TemporaryDirectory() as dir:
-            f1 = Path(dir).joinpath(f'tutu.part1.part1.{uuid}.json')
-            f2 = Path(dir).joinpath('tata.part1.part1.json')
-            f3 = Path(dir).joinpath('toto.json')
-            f4 = Path(dir).joinpath('collection', f'tutu.part1.part1.{uuid}.json')
-            f1.touch()
-            f2.touch()
-            f2.touch()
-            f3.touch()
-            f4.parent.mkdir()
-            f4.touch()
-            alfio.remove_uuid_recursive(Path(dir))
-            self.assertFalse(len(list(Path(dir).rglob(f'*{uuid}*'))))
 
 
 class TestALFFolders(unittest.TestCase):
@@ -687,11 +659,13 @@ class TestALFFolders(unittest.TestCase):
         self.assertEqual(next(valid_sessions), self.session_path)
         self.assertFalse(next(valid_sessions, False))
         # makes sure that the session path returns itself on the iterator
-        self.assertEqual(self.session_path, next(alfio.iter_sessions(self.session_path)))
+        path = next(alfio.iter_sessions(self.session_path))
+        self.assertEqual(self.session_path, path)
+        self.assertIsInstance(path, ALFPath)
         # test pattern arg
-        valid_sessions = alfio.iter_sessions(
-            self.tempdir.name, pattern='*/Subjects/*/????-??-??/*')
-        self.assertEqual(self.session_path, next(valid_sessions))
+        valid_sessions = list(alfio.iter_sessions(
+            self.tempdir.name, pattern='*/Subjects/*/????-??-??/*'))
+        self.assertEqual([ALFPath(self.session_path)], valid_sessions)
         subjects_path = Path(self.tempdir.name, 'fakelab', 'Subjects')
         valid_sessions = alfio.iter_sessions(subjects_path, pattern='*/????-??-??/*')
         self.assertEqual(self.session_path, next(valid_sessions))
@@ -709,6 +683,7 @@ class TestALFFolders(unittest.TestCase):
 
         ses_files = list(alfio.iter_datasets(self.session_path))
         self.assertEqual([Path(*dset.parts[-2:])], ses_files)
+        self.assertIsInstance(ses_files[0], ALFPath)
 
 
 class TestFindVariants(unittest.TestCase):
@@ -738,6 +713,8 @@ class TestFindVariants(unittest.TestCase):
         dupes = alfio.find_variants(self.dsets)
         self.assertCountEqual(self.dsets, dupes.keys(), 'expected keys to match input files')
         self.assertFalse(any(map(any, dupes.values())), 'expected no duplicates')
+        paths = filter(None, (*dupes.keys(), *dupes.values()))
+        self.assertTrue(all(isinstance(x, ALFPath) for x in paths))
 
         # With extra=False should treat files with extra parts as a variant
         dupes = alfio.find_variants(self.dsets, extra=False)

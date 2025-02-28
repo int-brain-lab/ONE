@@ -18,11 +18,12 @@ except ModuleNotFoundError:
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAWSPublic(unittest.TestCase):
+    """This test relies on downloading the cache folder for open alyx as it is rather small.
+
+    The assertions may change if the content does change. If the folder grows bigger, we could
+    create a dedicated test folder for this test.
     """
-    This test relies on downloading the cache folder for open alyx as it is rather small
-    The assertions may change if the content does change.
-    If the folder grows bigger, we could create a dedicated test folder for this test
-    """
+
     source = 'caches/openalyx/cache_info.json'
 
     def test_download_file(self):
@@ -63,7 +64,7 @@ class TestAWSPublic(unittest.TestCase):
 
 
 class TestAWS(unittest.TestCase):
-    """Tests for AlyxClient authentication, token storage, login/out methods and user prompts"""
+    """Tests for AlyxClient authentication, token storage, login/out methods and user prompts."""
 
     """Data for our repo fixture."""
     repo = None
@@ -92,7 +93,7 @@ class TestAWS(unittest.TestCase):
 
     @mock.patch('boto3.Session')
     def test_get_s3_from_alyx(self, session_mock):
-        """Tests for one.remote.aws.get_s3_from_alyx function"""
+        """Tests for one.remote.aws.get_s3_from_alyx function."""
         s3, bucket_name = aws.get_s3_from_alyx(self.alyx, 'aws_cortexlab')
         self.assertEqual(bucket_name, 's3_bucket')
         session_mock.assert_called_once_with(**self.expected_credentials)
@@ -117,7 +118,7 @@ class TestAWS(unittest.TestCase):
 
 
 class TestUtils(unittest.TestCase):
-    """Tests for one.remote.aws utility functions"""
+    """Tests for one.remote.aws utility functions."""
 
     def test_get_s3_virtual_host(self):
         """Tests for one.remote.aws.get_s3_virtual_host function."""

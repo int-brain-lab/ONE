@@ -18,12 +18,12 @@ from one.api import ONE
 from one import registration
 import one.alf.exceptions as alferr
 from one.alf.io import next_num_folder
-from . import TEST_DB_1, OFFLINE_ONLY
-from one.tests import util
+from one.tests import TEST_DB_1, OFFLINE_ONLY, util
 
 
 class TestDatasetTypes(unittest.TestCase):
     """Tests for dataset type validation."""
+
     def test_get_dataset_type(self):
         """Test one.registration.get_dataset_type function."""
         dtypes = [
@@ -51,6 +51,7 @@ class TestDatasetTypes(unittest.TestCase):
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestRegistrationClient(unittest.TestCase):
     """Test class for RegistrationClient class."""
+
     one = None
     subject = None
     temp_dir = None
@@ -60,6 +61,7 @@ class TestRegistrationClient(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.temp_dir = util.set_up_env()
         cls.one = ONE(**TEST_DB_1, cache_dir=cls.temp_dir.name)
+        cls.one.load_cache()
         cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
         cls.one.alyx.rest('subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
         # Create a tag if doesn't already exist
@@ -72,6 +74,8 @@ class TestRegistrationClient(unittest.TestCase):
             filepath = session_path.joinpath(rel_path)
             filepath.parent.mkdir(exist_ok=True, parents=True)
             filepath.touch()
+        # Ensure cache empty so we don't needlessly save to disk
+        cls.addClassCleanup(cls.one._reset_cache)
 
     def setUp(self) -> None:
         self.client = registration.RegistrationClient(one=self.one)
@@ -91,8 +95,8 @@ class TestRegistrationClient(unittest.TestCase):
              }
         ses = self.one.alyx.rest('sessions', 'create', data=d)
         volume = random.random()
-        record = self.client.register_water_administration(self.subject, volume,
-                                                           session=ses['url'])
+        record = self.client.register_water_administration(
+            self.subject, volume, session=ses['url'])
         self.assertEqual(record['subject'], self.subject)
         self.assertEqual(record['session'], ses['url'][-36:])
         # Check validations
@@ -175,7 +179,8 @@ class TestRegistrationClient(unittest.TestCase):
     def test_register_session(self):
         """Test for RegistrationClient.register_session."""
         # Find some datasets to create
-        datasets = self.one.list_datasets(self.one.search(dataset='raw')[0])
+        eid, *_ = self.one.search(datasets='_iblrig_taskData.raw.jsonable')
+        datasets = self.one.list_datasets(eid)
         session_path = self.one.alyx.cache_dir.joinpath(
             'mainenlab', 'Subjects', self.subject, '2020-01-01', '001'
         )
@@ -223,8 +228,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(session_paths[0], session_path)
 
     def test_prepare_files(self):
-        """Test for RegistrationClient.prepare_files"""
-
+        """Test for RegistrationClient.prepare_files method."""
         session_path = self.session_path.parent / next_num_folder(self.session_path.parent)
         session_path_2 = session_path.parent / next_num_folder(session_path)
         file_list = [session_path.joinpath('wheel.position.npy'),
@@ -247,8 +251,7 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertListEqual(V[session_path_2], [versions[-1]])
 
     def test_check_protected(self):
-        """Test for RegistrationClient.check_protected_files"""
-
+        """Test for RegistrationClient.check_protected_files method."""
         session_path, eid = self.client.create_new_session(self.subject)
         file_name = session_path.joinpath('wheel.timestamps.npy')
         file_name.touch()
@@ -437,7 +440,7 @@ class TestRegistrationClient(unittest.TestCase):
         for ses in cls.one.alyx.rest('sessions', 'list', subject=cls.subject, no_cache=True):
             cls.one.alyx.rest('sessions', 'delete', id=ses['url'][-36:])
         cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
-        cls.one.alyx.rest('tags', 'delete', id=cls.tag['id'])
+        cls.one.alyx.rest('tags', 'delete', id=cls.tag['name'])
         cls.temp_dir.cleanup()
 
 

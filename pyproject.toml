@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ONE-api"
+dynamic = ["version", "readme", "dependencies"]
+description = "Open Neurophysiology Environment"
+authors = [
+    {name = "IBL Staff"},
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+[project.urls]
+Homepage = "https://github.com/int-brain-lab/ONE"
+Documentation = "https://one.internationalbrainlab.org"
+Repository = "https://github.com/int-brain-lab/ONE.git"
+Issues = "https://github.com/int-brain-lab/ONE/issues"
+Changelog = "https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md"
+
+[tool.setuptools.dynamic]
+version = {attr = "one.__version__"}
+readme = {file = ["README.md"], content-type = "text/markdown"}
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["one*"]
+exclude = ["one.tests*"]
+
+[tool.ruff]
+line-length = 99
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["D", "E", "F", "W"]
+ignore = ["E266", "D401", "D105", "D107", "D102", "D417", "D101", "D404", "D100", "D301", "D103", "D403"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

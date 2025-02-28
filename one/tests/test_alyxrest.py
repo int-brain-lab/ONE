@@ -17,6 +17,7 @@ from one.tests import TEST_DB_1, OFFLINE_ONLY
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestREST(unittest.TestCase):
     """Tests for AlyxClient.rest method and remote Alyx REST interactions."""
+
     EID = 'cf264653-2deb-44cb-aa84-89b82507028a'
     EID_EPHYS = 'b1c968ad-4874-468d-b2e4-5ffa9b9964e9'
     alyx = None
@@ -105,7 +106,7 @@ class TestREST(unittest.TestCase):
         self.assertEqual(sub1, sub2)
 
     def test_rest_all_actions(self):
-        """Test for AlyxClient.rest method using subjects endpoint"""
+        """Test for AlyxClient.rest method using subjects endpoint."""
         # randint reduces conflicts with parallel tests
         nickname = f'foobar_{random.randint(0, 10000)}'
         newsub = {
@@ -141,7 +142,7 @@ class TestREST(unittest.TestCase):
         self.assertFalse(sub)
 
     def test_endpoints_docs(self):
-        """Test for AlyxClient.list_endpoints method and AlyxClient.rest"""
+        """Test for AlyxClient.list_endpoints method and AlyxClient.rest."""
         # Test endpoint documentation and validation
         endpoints = self.alyx.list_endpoints()
         self.assertTrue('auth-token' not in endpoints)
@@ -192,8 +193,7 @@ class TestREST(unittest.TestCase):
 
     """Specific Alyx REST endpoint tests"""
     def test_water_restriction(self):
-        """
-        Test listing water-restriction endpoint.
+        """Test listing water-restriction endpoint.
 
         Examples of how to list all water restrictions and water-restriction for a given
         subject.
@@ -208,8 +208,7 @@ class TestREST(unittest.TestCase):
         self.assertTrue(len(all_wr) > len(wr_sub2))
 
     def test_list_pk_query(self):
-        """
-        Test REST list with id keyword argument.
+        """Test REST list with id keyword argument.
 
         It's a bit stupid but the REST endpoint can't forward a direct query of the uuid via
         the pk keyword. The AlyxClient has already an id parameter, which on the list method

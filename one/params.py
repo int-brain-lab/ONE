@@ -26,7 +26,7 @@ CACHE_DIR_DEFAULT = str(Path.home() / 'Downloads' / 'ONE')
 
 
 def default():
-    """Default Web client parameters"""
+    """Default Web client parameters."""
     par = {'ALYX_URL': 'https://openalyx.internationalbrainlab.org',
            'ALYX_LOGIN': 'intbrainlab',
            'HTTP_DATA_SERVER': 'https://ibl.flatironinstitute.org/public',
@@ -36,8 +36,7 @@ def default():
 
 
 def _get_current_par(k, par_current):
-    """
-    Return the current parameter value or the default.
+    """Return the current parameter value or the default.
 
     Parameters
     ----------
@@ -50,6 +49,7 @@ def _get_current_par(k, par_current):
     -------
     any
         The current parameter value or default if None or not set.
+
     """
     cpar = getattr(par_current, k, None)
     if cpar is None:
@@ -58,9 +58,10 @@ def _get_current_par(k, par_current):
 
 
 def _key_from_url(url: str) -> str:
-    """
-    Convert a URL str to one valid for use as a file name or dict key.  URL Protocols are
-    removed entirely.  The returned string will have characters in the set [a-zA-Z.-_].
+    """Convert a URL str to one valid for use as a file name or dict key.
+
+    URL Protocols are removed entirely.
+    The returned string will have characters in the set [a-zA-Z.-_].
 
     Parameters
     ----------
@@ -75,7 +76,8 @@ def _key_from_url(url: str) -> str:
     Example
     -------
     >>> url = _key_from_url('http://test.alyx.internationalbrainlab.org/')
-   'test.alyx.internationalbrainlab.org'
+    'test.alyx.internationalbrainlab.org'
+
     """
     url = unicodedata.normalize('NFKC', url)  # Ensure ASCII
     url = re.sub('^https?://', '', url).strip('/')  # Remove protocol and trialing slashes
@@ -84,10 +86,11 @@ def _key_from_url(url: str) -> str:
 
 
 def setup(client=None, silent=False, make_default=None, username=None, cache_dir=None):
-    """
-    Set up ONE parameters.  If a client (i.e. Alyx database URL) is provided, settings for
-    that instance will be set.  If silent, the user will be prompted to input each parameter
-    value.  Pressing return will use either current parameter or the default.
+    """Set up ONE parameters.
+
+    If a client (i.e. Alyx database URL) is provided, settings for that instance will be set.
+    If silent, the user will be prompted to input each parameter value.  Pressing return will use
+    either current parameter or the default.
 
     Parameters
     ----------
@@ -107,14 +110,22 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
     -------
     IBLParams
         An updated cache map.
+
     """
     # First get default parameters
     par_default = default()
-    client_key = _key_from_url(client or par_default.ALYX_URL)
+    default_url = par_default.ALYX_URL
+    client_key = _key_from_url(client or default_url)
 
     # If a client URL has been provided, set it as the default URL
-    par_default = par_default.set('ALYX_URL', client or par_default.ALYX_URL)
-    par_current = iopar.read(f'{_PAR_ID_STR}/{client_key}', par_default)
+    par_default = par_default.set('ALYX_URL', client or default_url)
+
+    # When silent=True, if setting up default database use default parameters
+    # instead of current ones to reset credentials
+    if silent and client_key == _key_from_url(default_url):
+        par_current = par_default
+    else:
+        par_current = iopar.read(f'{_PAR_ID_STR}/{client_key}', par_default)
     if username:
         par_current = par_current.set('ALYX_LOGIN', username)
 
@@ -146,7 +157,7 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
             if par[k] and len(par[k]) >= 2 and par[k][0] in quotes and par[k][-1] in quotes:
                 warnings.warn('Do not use quotation marks with input answers', UserWarning)
                 ans = input('Strip quotation marks from response? [Y/n]:').strip() or 'y'
-                if ans.lower()[0] == 'y':
+                if ans.casefold()[0] == 'y':
                     par[k] = par[k].strip(quotes)
             if k == 'ALYX_URL':
                 client = par[k]
@@ -178,17 +189,17 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
             answer = input(
                 'Warning: the directory provided is already a cache for another URL.  '
                 'This may cause conflicts.  Would you like to change the cache location? [Y/n]')
-            if answer and answer[0].lower() == 'n':
+            if answer and answer[0].casefold() == 'n':
                 break
             cache_dir = input(prompt) or cache_dir  # Prompt for another directory
 
         if make_default is None:
             answer = input('Would you like to set this URL as the default one? [Y/n]')
-            make_default = (answer or 'y')[0].lower() == 'y'
+            make_default = (answer or 'y')[0].casefold() == 'y'
 
         # Verify setup pars
         answer = input('Are the above settings correct? [Y/n]')
-        if answer and answer.lower()[0] == 'n':
+        if answer and answer.casefold()[0] == 'n':
             print('SETUP ABANDONED.  Please re-run.')
             return par_current
     else:
@@ -216,7 +227,7 @@ def setup(client=None, silent=False, make_default=None, username=None, cache_dir
 
 
 def get(client=None, silent=False, username=None):
-    """Returns the AlyxClient parameters
+    """Returns the AlyxClient parameters.
 
     Parameters
     ----------
@@ -231,7 +242,9 @@ def get(client=None, silent=False, username=None):
     -------
     IBLParams
         A Params object for the AlyxClient.
+
     """
+    client = client or get_default_client(include_schema=True)
     client_key = _key_from_url(client) if client else None
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
     # If there are no params for this client, run setup routine
@@ -245,7 +258,7 @@ def get(client=None, silent=False, username=None):
 
 
 def get_default_client(include_schema=True) -> str:
-    """Returns the default AlyxClient URL, or None if no default is set
+    """Returns the default AlyxClient URL, or None if no default is set.
 
     Parameters
     ----------
@@ -257,6 +270,7 @@ def get_default_client(include_schema=True) -> str:
     -------
     str
         The default database URL with or without the schema, or None if no default is set
+
     """
     cache_map = iopar.as_dict(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})) or {}
     client_key = cache_map.get('DEFAULT', None)
@@ -266,8 +280,7 @@ def get_default_client(include_schema=True) -> str:
 
 
 def save(par, client):
-    """
-    Save a set of parameters for a given client.
+    """Save a set of parameters for a given client.
 
     Parameters
     ----------
@@ -275,6 +288,7 @@ def save(par, client):
         A set of Web client parameters to save
     client : str
         The Alyx URL that corresponds to these parameters
+
     """
     # Remove cache dir variable before saving
     par = {k: v for k, v in iopar.as_dict(par).items() if 'CACHE_DIR' not in k}
@@ -295,27 +309,30 @@ def get_cache_dir(client=None) -> Path:
     -------
     pathlib.Path
         The download cache path
+
     """
     cache_map = iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {})
-    client = _key_from_url(client) if client else cache_map.DEFAULT
+    client = _key_from_url(client) if client else getattr(cache_map, 'DEFAULT', None)
     cache_dir = Path(cache_map.CLIENT_MAP[client] if cache_map else CACHE_DIR_DEFAULT)
     cache_dir.mkdir(exist_ok=True, parents=True)
     return cache_dir
 
 
 def get_params_dir() -> Path:
-    """Return the path to the root ONE parameters directory
+    """Return the path to the root ONE parameters directory.
 
     Returns
     -------
     pathlib.Path
         The root ONE parameters directory
+
     """
     return Path(iopar.getfile(_PAR_ID_STR))
 
 
 def check_cache_conflict(cache_dir):
-    """Asserts that a given directory is not currently used as a cache directory.
+    """Assert that a given directory is not currently used as a cache directory.
+
     This function checks whether a given directory is used as a cache directory for an Alyx
     Web client.  This function is called by the ONE factory to determine whether to return an
     OneAlyx object or not.  It is also used when setting up params for a new client.
@@ -329,15 +346,38 @@ def check_cache_conflict(cache_dir):
     ------
     AssertionError
         The directory is set as a cache for a Web client
+
     """
     cache_map = getattr(iopar.read(f'{_PAR_ID_STR}/{_CLIENT_ID_STR}', {}), 'CLIENT_MAP', None)
     if cache_map:
         assert not any(x == str(cache_dir) for x in cache_map.values())
 
 
-def _patch_params(par):
+def delete_params(base_url=None):
+    """Delete parameter files.
+
+    This will fully reset the ONE database and remote client parameters.
+
+    Parameters
+    ----------
+    base_url : str, optional
+        If provided, delete specific database parameters. If None, all parameters are removed.
+
     """
-    Patch previous version of parameters, if required.
+    if base_url:
+        client_key = _key_from_url(base_url)
+        params_file = Path(iopar.getfile(f'{_PAR_ID_STR}/{client_key}'))
+        if params_file.exists():
+            params_file.unlink()
+        else:
+            warnings.warn(f'{base_url}: params file not found')
+    else:
+        if (params_dir := get_params_dir()).exists():
+            shutil.rmtree(params_dir)
+
+
+def _patch_params(par):
+    """Patch previous version of parameters, if required.
 
     Parameters
     ----------
