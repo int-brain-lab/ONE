@@ -1,5 +1,14 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.0.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.1.0]
+This version fixes issues with loading the local cache files build from remote queries.
+
+### Modified
+
+- bugfix: no longer skips cache tables build from remote queries during load
+- one.alf.cache.merge_tables handles immutable arrays by making a copy when required
+- better tracking of cache table data origins
+
+## [3.0.0]
 This version drops support for python 3.9 and below, and ONE is now in remote mode by default.
 Also adds a new ALFPath class to replace alf path functions and now returns UUID objects instead of str.
 

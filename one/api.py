@@ -6,6 +6,7 @@ import logging
 from weakref import WeakMethod
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
+from itertools import chain
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
@@ -31,7 +32,7 @@ import one.alf.exceptions as alferr
 from one.alf.path import ALFPath
 from .alf.cache import (
     make_parquet_db, load_tables, remove_table_files, merge_tables,
-    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME, cast_index_object)
+    default_cache, cast_index_object)
 from .alf.spec import is_uuid, is_uuid_string, QC, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path, ses2records, datasets2records
@@ -113,16 +114,7 @@ class One(ConversionMixin):
 
     def _reset_cache(self):
         """Replace the cache object with a Bunch that contains the right fields."""
-        self._cache = Bunch({
-            'datasets': EMPTY_DATASETS_FRAME.copy(),
-            'sessions': EMPTY_SESSIONS_FRAME.copy(),
-            '_meta': {
-                'created_time': None,
-                'loaded_time': None,
-                'modified_time': None,
-                'saved_time': None,
-                'raw': {}}  # map of original table metadata
-        })
+        self._cache = default_cache()
 
     def _remove_table_files(self, tables=None):
         """Delete cache tables on disk.
@@ -216,6 +208,14 @@ class One(ConversionMixin):
             caches = load_tables(save_dir)
             merge_tables(
                 caches, **{k: v for k, v in self._cache.items() if not k.startswith('_')})
+            # Ensure we use the minimum created date for each table
+            for table in caches['_meta']['raw']:
+                raw_meta = [x['_meta']['raw'].get(table, {}) for x in (caches, self._cache)]
+                created = filter(None, (x.get('date_created') for x in raw_meta))
+                if any(created := list(created)):
+                    created = min(map(datetime.fromisoformat, created))
+                    created = created.isoformat(sep=' ', timespec='minutes')
+                    meta['raw'][table]['date_created'] = created
 
         with FileLock(save_dir, log=_logger, timeout=TIMEOUT, timeout_action='delete'):
             _logger.info('Saving cache tables...')
@@ -1715,7 +1715,13 @@ class OneAlyx(One):
             remote_created = datetime.fromisoformat(cache_info['date_created'])
             local_created = cache_meta.get('created_time', None)
             fresh = local_created and (remote_created - local_created) < timedelta(minutes=1)
-            if fresh and not different_tag:
+            # The local cache may have been created locally more recently, but if it doesn't
+            # contain the same tag or origin, we need to download the remote one.
+            origin = cache_info.get('origin', 'unknown')
+            local_origin = (x.get('origin', []) for x in raw_meta)
+            local_origin = set(chain.from_iterable(map(ensure_list, local_origin)))
+            different_origin = origin not in local_origin
+            if fresh and not (different_tag or different_origin):
                 _logger.info('No newer cache available')
                 return cache_meta['loaded_time']
 
@@ -1729,19 +1735,27 @@ class OneAlyx(One):
                 self._tables_dir = self._tables_dir or self.cache_dir
 
             # Check if the origin has changed. This is to warn users if downloading from a
-            # different database to the one currently loaded.
-            prev_origin = list(set(filter(None, (x.get('origin') for x in raw_meta))))
-            origin = cache_info.get('origin', 'unknown')
-            if prev_origin and origin not in prev_origin:
+            # different database to the one currently loaded. When building the cache from
+            # remote queries the origin is set to the Alyx database URL. If the cache info
+            # origin name and URL are different, warn the user.
+            if different_origin and local_origin and self.alyx.base_url not in local_origin:
                 warnings.warn(
                     'Downloading cache tables from another origin '
-                    f'("{origin}" instead of "{", ".join(prev_origin)}")')
+                    f'("{origin}" instead of "{", ".join(local_origin)}")')
 
             # Download the remote cache files
             _logger.info('Downloading remote caches...')
             files = self.alyx.download_cache_tables(cache_info.get('location'), self._tables_dir)
             assert any(files)
-            return super(OneAlyx, self).load_cache(self._tables_dir)  # Reload cache after download
+            # Reload cache after download
+            loaded_time = super(OneAlyx, self).load_cache(self._tables_dir)
+            # Add db URL to origin set so we know where the cache came from
+            for raw_meta in self._cache['_meta']['raw'].values():
+                table_origin = set(filter(None, ensure_list(raw_meta.get('origin', []))))
+                if origin in table_origin:
+                    table_origin.add(self.alyx.base_url)
+                raw_meta['origin'] = table_origin
+            return loaded_time
         except (requests.exceptions.HTTPError, wc.HTTPError, requests.exceptions.SSLError) as ex:
             _logger.debug(ex)
             _logger.error(f'{type(ex).__name__}: Failed to load the remote cache file')
@@ -1851,7 +1865,8 @@ class OneAlyx(One):
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         session, datasets = ses2records(self.alyx.rest('sessions', 'read', id=eid))
         # Add to cache tables
-        merge_tables(self._cache, sessions=session, datasets=datasets.copy())
+        merge_tables(
+            self._cache, sessions=session, datasets=datasets.copy(), origin=self.alyx.base_url)
         if datasets is None or datasets.empty:
             return self._cache['datasets'].iloc[0:0] if details else []  # Return empty
         assert set(datasets.index.unique('eid')) == {eid}
@@ -2177,7 +2192,8 @@ class OneAlyx(One):
         # Build sessions table
         session_records = (x['session_info'] for x in insertions_records)
         sessions_df = pd.DataFrame(next(zip(*map(ses2records, session_records))))
-        return merge_tables(self._cache, insertions=df, sessions=sessions_df)
+        return merge_tables(
+            self._cache, insertions=df, sessions=sessions_df, origin=self.alyx.base_url)
 
     def search(self, details=False, query_type=None, **kwargs):
         """Searches sessions matching the given criteria and returns a list of matching eids.
@@ -2346,7 +2362,7 @@ class OneAlyx(One):
 
         """
         df = pd.DataFrame(next(zip(*map(ses2records, session_records))))
-        return merge_tables(self._cache, sessions=df)
+        return merge_tables(self._cache, sessions=df, origin=self.alyx.base_url)
 
     def _download_datasets(self, dsets, **kwargs) -> List[ALFPath]:
         """Download a single or multitude of datasets if stored on AWS.

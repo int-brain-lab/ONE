@@ -1211,7 +1211,7 @@ class Globus(DownloadClient):
     async def task_wait_async(self, task_id, polling_interval=10, timeout=10):
         """Asynchronously wait until a Task is complete or fails, with a time limit.
 
-        If the task status is ACTIVE after timout, returns False, otherwise returns True.
+        If the task status is ACTIVE after timeout, returns False, otherwise returns True.
 
         Parameters
         ----------
