@@ -2032,9 +2032,8 @@ class OneAlyx(One):
             Query mode - options include 'remote', and 'refresh'.
         details : bool
             Additionally return the complete Alyx records from insertions endpoint.
-        **kwargs : unpacked keyword arguments
-            additional parameters to filter insertions Alyx endpoint.
-            for example, to filter by probe name: name='probe00
+        kwargs
+            Additional parameters to filter insertions Alyx endpoint.
 
         Returns
         -------
@@ -2044,6 +2043,16 @@ class OneAlyx(One):
             Probe labels, e.g. 'probe00'.
         list of dict (optional)
             If details is true, returns the Alyx records from insertions endpoint.
+
+        Examples
+        --------
+        Get the probe IDs and details for a given session ID
+
+        >>> pids, labels, recs = one.eid2pid(eid, details=True)
+
+        Get the probe ID for a given session ID and label
+
+        >>> (pid,), _ = one.eid2pid(eid, details=False, name='probe00')
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
