@@ -1318,7 +1318,8 @@
             <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span>
             <span class="c1"># add to url data if it is a string</span>
             <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
-                <span class="c1"># this is a special case of the list where we query a uuid. Usually read is better</span>
+                <span class="c1"># this is a special case of the list where we query a uuid</span>
+                <span class="c1"># usually read is better but list may return fewer data and therefore be faster</span>
                 <span class="k">if</span> <span class="s1">&#39;django&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1326,6 +1327,9 @@
                 <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">pk,</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="c1"># otherwise, look for a dictionary of filter terms</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="c1"># if django arg is present but is None, server will return a cryptic 500 status</span>
+                <span class="k">if</span> <span class="s1">&#39;django&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span>
                 <span class="c1"># Convert all lists in query params to comma separated list</span>
                 <span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
                 <span class="n">url</span> <span class="o">=</span> <span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query_params</span><span class="p">)</span>

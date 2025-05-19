@@ -26,6 +26,7 @@ one.alf.cache
       :nosignatures:
    
       cast_index_object
+      default_cache
       load_tables
       make_parquet_db
       merge_tables

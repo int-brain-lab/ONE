@@ -131,7 +131,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">packaging</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bunch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bunch</span><span class="p">,</span> <span class="n">ensure_list</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">parquet</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io.hashfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">md5</span>
 
@@ -140,8 +140,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">session_path_parts</span><span class="p">,</span> <span class="n">get_alf_path</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;make_parquet_db&#39;</span><span class="p">,</span> <span class="s1">&#39;patch_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;merge_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;QC_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;remove_table_files&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;remove_missing_datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;load_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;EMPTY_DATASETS_FRAME&#39;</span><span class="p">,</span> <span class="s1">&#39;EMPTY_SESSIONS_FRAME&#39;</span><span class="p">]</span>
+    <span class="s1">&#39;make_parquet_db&#39;</span><span class="p">,</span> <span class="s1">&#39;load_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;patch_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;merge_tables&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;remove_table_files&#39;</span><span class="p">,</span> <span class="s1">&#39;remove_missing_datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;default_cache&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;QC_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;EMPTY_DATASETS_FRAME&#39;</span><span class="p">,</span> <span class="s1">&#39;EMPTY_SESSIONS_FRAME&#39;</span><span class="p">]</span>
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
@@ -364,6 +365,36 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">DATASETS_COLUMNS</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATASETS_COLUMNS</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="default_cache">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.default_cache">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_cache</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns an empty cache dictionary with the default tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    origin : str, optional</span>
+<span class="sd">        The origin of the cache (e.g. a computer name or database name).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Bunch</span>
+<span class="sd">        A Bunch object containing the loaded cache tables and associated metadata.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table_meta</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Bunch</span><span class="p">({</span>
+            <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">)}}</span>
+        <span class="p">})</span></div>
+
+
+
 <div class="viewcode-block" id="make_parquet_db">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.make_parquet_db">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_parquet_db</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -485,17 +516,8 @@
 <span class="sd">        A Bunch object containing the loaded cache tables and associated metadata.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{}</span>
-    <span class="p">}</span>
-    <span class="n">caches</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">({</span>
-            <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="n">meta</span><span class="p">})</span>
+    <span class="n">caches</span> <span class="o">=</span> <span class="n">default_cache</span><span class="p">()</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
     <span class="n">INDEX_KEY</span> <span class="o">=</span> <span class="s1">&#39;.?id&#39;</span>
     <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">tables_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_pattern</span><span class="p">):</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">cache_file</span><span class="o">.</span><span class="n">stem</span>
@@ -538,8 +560,11 @@
 
 <div class="viewcode-block" id="merge_tables">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.merge_tables">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">merge_tables</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_tables</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update the cache tables with new records.</span>
+
+<span class="sd">    Note: A copy of the tables in cache may be returned if the original tables are immutable.</span>
+<span class="sd">    This can happen when tables are loaded from a parquet file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -548,6 +573,8 @@
 <span class="sd">    strict : bool</span>
 <span class="sd">        If not True, the columns don&#39;t need to match.  Extra columns in input tables are</span>
 <span class="sd">        dropped and missing columns are added and filled with np.nan.</span>
+<span class="sd">    origin : str</span>
+<span class="sd">        The origin of the cache (e.g. a computer name or database name).</span>
 <span class="sd">    kwargs</span>
 <span class="sd">        pandas.DataFrame or pandas.Series to insert/update for each table.</span>
 
@@ -601,13 +628,31 @@
         <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
         <span class="c1"># Update existing rows</span>
         <span class="n">to_update</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_update</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">to_update</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_update</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">to_update</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;assignment destination is read-only&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="c1"># NB: nullable integer and categorical dtypes may be backed by immutable arrays</span>
+                <span class="c1"># after loading from parquet and therefore must be copied before assignment</span>
+                <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_update</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">to_update</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>  <span class="c1"># pragma: no cover</span>
+
         <span class="c1"># Assign new rows</span>
         <span class="n">to_assign</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="o">~</span><span class="n">to_update</span><span class="p">]</span>
         <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">],</span> <span class="n">to_assign</span><span class="p">]</span>
         <span class="c1"># Concatenate and sort</span>
         <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
         <span class="n">updated</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="c1"># Update the table metadata with the origin</span>
+        <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">table_meta</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">):</span>
+                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">origin</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="o">*</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]),</span> <span class="n">origin</span><span class="p">))</span>
+            <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_meta</span>
     <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
     <span class="k">return</span> <span class="n">updated</span></div>
 
