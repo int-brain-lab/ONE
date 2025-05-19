@@ -7,6 +7,7 @@ This version fixes issues with loading the local cache files build from remote q
 - bugfix: no longer skips cache tables build from remote queries during load
 - one.alf.cache.merge_tables handles immutable arrays by making a copy when required
 - better tracking of cache table data origins
+- OneAlyx.eid2pid now supports Django filter args for e.g. reducing by probe name
 
 ## [3.0.0]
 This version drops support for python 3.9 and below, and ONE is now in remote mode by default.

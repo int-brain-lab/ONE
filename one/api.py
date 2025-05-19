@@ -2018,7 +2018,7 @@ class OneAlyx(One):
         rec = self.alyx.rest('insertions', 'read', id=str(pid))
         return UUID(rec['session']), rec['name']
 
-    def eid2pid(self, eid, query_type=None, details=False):
+    def eid2pid(self, eid, query_type=None, details=False, **kwargs) -> (UUID, str, list):
         """Given an experiment UUID (eID), return the probe IDs and labels (i.e. ALF collection).
 
         NB: Requires a connection to the Alyx database.
@@ -2032,6 +2032,8 @@ class OneAlyx(One):
             Query mode - options include 'remote', and 'refresh'.
         details : bool
             Additionally return the complete Alyx records from insertions endpoint.
+        kwargs
+            Additional parameters to filter insertions Alyx endpoint.
 
         Returns
         -------
@@ -2042,6 +2044,15 @@ class OneAlyx(One):
         list of dict (optional)
             If details is true, returns the Alyx records from insertions endpoint.
 
+        Examples
+        --------
+        Get the probe IDs and details for a given session ID
+
+        >>> pids, labels, recs = one.eid2pid(eid, details=True)
+
+        Get the probe ID for a given session ID and label
+
+        >>> (pid,), _ = one.eid2pid(eid, details=False, name='probe00')
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
@@ -2049,7 +2060,7 @@ class OneAlyx(One):
         eid = self.to_eid(eid)  # Ensure we have a UUID str
         if not eid:
             return (None,) * (3 if details else 2)
-        recs = self.alyx.rest('insertions', 'list', session=eid)
+        recs = self.alyx.rest('insertions', 'list', session=eid, **kwargs)
         pids = [UUID(x['id']) for x in recs]
         labels = [x['name'] for x in recs]
         if details:
