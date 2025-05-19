@@ -26,7 +26,7 @@ import logging
 import pandas as pd
 import numpy as np
 from packaging import version
-from iblutil.util import Bunch
+from iblutil.util import Bunch, ensure_list
 from iblutil.io import parquet
 from iblutil.io.hashfile import md5
 
@@ -35,8 +35,9 @@ from one.alf.io import iter_sessions
 from one.alf.path import session_path_parts, get_alf_path
 
 __all__ = [
-    'make_parquet_db', 'patch_tables', 'merge_tables', 'QC_TYPE', 'remove_table_files',
-    'remove_missing_datasets', 'load_tables', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME']
+    'make_parquet_db', 'load_tables', 'patch_tables', 'merge_tables',
+    'remove_table_files', 'remove_missing_datasets', 'default_cache',
+    'QC_TYPE', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME']
 _logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
@@ -259,6 +260,33 @@ def _make_datasets_df(root_dir, hash_files=False) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=DATASETS_COLUMNS).astype(DATASETS_COLUMNS)
 
 
+def default_cache(origin=''):
+    """Returns an empty cache dictionary with the default tables.
+
+    Parameters
+    ----------
+    origin : str, optional
+        The origin of the cache (e.g. a computer name or database name).
+
+    Returns
+    -------
+    Bunch
+        A Bunch object containing the loaded cache tables and associated metadata.
+
+    """
+    table_meta = _metadata(origin)
+    return Bunch({
+            'datasets': EMPTY_DATASETS_FRAME.copy(),
+            'sessions': EMPTY_SESSIONS_FRAME.copy(),
+            '_meta': {
+                'created_time': None,
+                'loaded_time': None,
+                'modified_time': None,
+                'saved_time': None,
+                'raw': {k: table_meta.copy() for k in ('datasets', 'sessions')}}
+        })
+
+
 def make_parquet_db(root_dir, out_dir=None, hash_ids=True, hash_files=False, lab=None):
     """Given a data directory, index the ALF datasets and save the generated cache tables.
 
@@ -375,17 +403,8 @@ def load_tables(tables_dir, glob_pattern='*.pqt'):
         A Bunch object containing the loaded cache tables and associated metadata.
 
     """
-    meta = {
-        'created_time': None,
-        'loaded_time': None,
-        'modified_time': None,
-        'saved_time': None,
-        'raw': {}
-    }
-    caches = Bunch({
-            'datasets': EMPTY_DATASETS_FRAME.copy(),
-            'sessions': EMPTY_SESSIONS_FRAME.copy(),
-            '_meta': meta})
+    caches = default_cache()
+    meta = caches['_meta']
     INDEX_KEY = '.?id'
     for cache_file in Path(tables_dir).glob(glob_pattern):
         table = cache_file.stem
@@ -425,8 +444,11 @@ def load_tables(tables_dir, glob_pattern='*.pqt'):
     return caches
 
 
-def merge_tables(cache, strict=False, **kwargs):
+def merge_tables(cache, strict=False, origin=None, **kwargs):
     """Update the cache tables with new records.
+
+    Note: A copy of the tables in cache may be returned if the original tables are immutable.
+    This can happen when tables are loaded from a parquet file.
 
     Parameters
     ----------
@@ -435,6 +457,8 @@ def merge_tables(cache, strict=False, **kwargs):
     strict : bool
         If not True, the columns don't need to match.  Extra columns in input tables are
         dropped and missing columns are added and filled with np.nan.
+    origin : str
+        The origin of the cache (e.g. a computer name or database name).
     kwargs
         pandas.DataFrame or pandas.Series to insert/update for each table.
 
@@ -488,13 +512,31 @@ def merge_tables(cache, strict=False, **kwargs):
         records = records.astype(cache[table].dtypes)
         # Update existing rows
         to_update = records.index.isin(cache[table].index)
-        cache[table].loc[records.index[to_update], :] = records[to_update]
+        try:
+            cache[table].loc[records.index[to_update], :] = records[to_update]
+        except ValueError as e:
+            if 'assignment destination is read-only' in str(e):
+                # NB: nullable integer and categorical dtypes may be backed by immutable arrays
+                # after loading from parquet and therefore must be copied before assignment
+                cache[table] = cache[table].copy()
+                cache[table].loc[records.index[to_update], :] = records[to_update]
+            else:
+                raise e  # pragma: no cover
+
         # Assign new rows
         to_assign = records[~to_update]
         frames = [cache[table], to_assign]
         # Concatenate and sort
         cache[table] = pd.concat(frames).sort_index()
         updated = datetime.datetime.now()
+        # Update the table metadata with the origin
+        if origin is not None:
+            table_meta = cache['_meta']['raw'].get(table, {})
+            if not table_meta.get('origin'):
+                table_meta['origin'] = origin
+            else:
+                table_meta['origin'] = set((*ensure_list(table_meta['origin']), origin))
+            cache['_meta']['raw'][table] = table_meta
     cache['_meta']['modified_time'] = updated
     return updated
 

@@ -1025,12 +1025,23 @@ class TestONECache(unittest.TestCase):
             self.one._cache.datasets = pd.concat([dataset_1, dataset_2.to_frame().T])
             self.one._cache.datasets.index.set_names(('eid', 'id'), inplace=True)
             self.one._cache['_meta']['modified_time'] = datetime.datetime.now()
+            # The cache on disk has a created date of 2021 for both tables
+            # Check how merge handles conflicting dates
+            raw_meta = self.one._cache['_meta']['raw']
+            assert raw_meta['datasets']['date_created'] == '2021-05-13 20:38'
+            self.one._cache['_meta']['raw']['datasets']['date_created'] = '2024-01-01 00:00'
+            self.one._cache['_meta']['raw']['sessions']['date_created'] = '2020-01-01 00:00'
             self.one.save_cache(save_dir=tdir)
             # Load with One and check modified time is preserved
             merged = One(cache_dir=tdir)._cache
             raw_modified = merged['_meta']['raw']['datasets']['date_modified']
             expected = self.one._cache['_meta']['modified_time'].strftime('%Y-%m-%d %H:%M')
             self.assertEqual(raw_modified, expected)
+            # Date created for each table should be the minimum of the two dates
+            self.assertEqual(
+                '2021-05-13 20:38', merged['_meta']['raw']['datasets']['date_created'])
+            self.assertEqual(
+                '2020-01-01 00:00', merged['_meta']['raw']['sessions']['date_created'])
             # Should drop duplicates and add new dataset
             self.assertEqual(n_datasets + 1, len(merged.datasets))
             self.assertIn(dataset_2.name, merged.datasets.index)
@@ -1819,6 +1830,38 @@ class TestOneRemote(unittest.TestCase):
         det = self.one.get_details([self.eid, self.eid], full=True)
         self.assertIsInstance(det, list)
         self.assertIn('data_dataset_session_related', det[0])
+
+    def test_cache_buildup(self):
+        """Test build up of cache table via remote queries.
+
+        Tests a regression where a cache table built up from remote queries could not be loaded
+        as the cache table meta data was empty.
+        """
+        assert not any(self.one.cache_dir.glob('*.pqt'))  # tempdir must be empty
+        # Check that default cache is empty with raw meta data fields defined
+        meta_raw = self.one._cache['_meta']['raw']
+        self.assertCountEqual(('sessions', 'datasets'), meta_raw)
+        # Should be empty origin and a defined created date
+        self.assertTrue(all(
+            x['origin'] == '' and isinstance(x['date_created'], str)
+            and len(x['date_created']) > 0) for x in meta_raw.values())
+        # Update the session table from a remote query
+        self.one.search(subject='KS005')
+        # Database URL should be added as origin to the sessions table meta only
+        self.assertEqual('', meta_raw['datasets']['origin'])
+        self.assertEqual(self.one.alyx.base_url, meta_raw['sessions']['origin'])
+        self.one.save_cache()  # write the tables to disk
+        self.assertEqual(2, len(list(self.one.cache_dir.glob('*.pqt'))))
+        # Load the cache from disk into a new offline instance
+        # Previously this skipped the tables for being invalid
+        one = ONE(cache_dir=self.one.cache_dir, mode='local')
+        self.assertTrue(one._cache.datasets.empty)
+        self.assertFalse(one._cache.sessions.empty)
+        meta_raw = one._cache['_meta']['raw']
+        # save method should have added the date_modified field
+        self.assertIn('date_modified', meta_raw['sessions'])
+        self.assertEqual('', meta_raw['datasets']['origin'])
+        self.assertEqual(self.one.alyx.base_url, meta_raw['sessions']['origin'])
 
     def tearDown(self):
         """Ensure the cache is not saved when the object is deleted."""
