@@ -135,6 +135,10 @@ class TestREST(unittest.TestCase):
         sub = self.alyx.rest('subjects', 'list', nickname=nickname)
         self.assertEqual(sub[0]['nickname'], newsub['nickname'])
         self.assertTrue(len(sub) == 1)
+        # Check that django=None is removed from kwargs
+        with unittest.mock.patch.object(self.alyx, 'get') as mock_get:
+            self.alyx.rest('subjects', 'list', django=None, lab='foo')
+        mock_get.assert_called_once_with('/subjects?lab=foo', clobber=False, expires=False)
         # delete
         self.alyx.rest('subjects', 'delete', id=nickname)
         self.alyx.clear_rest_cache()  # Make sure we hit db
