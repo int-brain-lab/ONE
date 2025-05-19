@@ -1,10 +1,14 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.1.0]
-This version fixes issues with loading the local cache files build from remote queries.
+This version fixes issues with loading the local cache files built from remote queries.
+
+### Added
+
+- one.alf.cache.default_cache function to generate initial cache Bunch with default tables
 
 ### Modified
 
-- bugfix: no longer skips cache tables build from remote queries during load
+- bugfix: no longer skips cache tables built from remote queries during load
 - one.alf.cache.merge_tables handles immutable arrays by making a copy when required
 - better tracking of cache table data origins
 - OneAlyx.eid2pid now supports Django filter args for e.g. reducing by probe name

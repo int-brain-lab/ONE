@@ -35,8 +35,9 @@ from one.alf.io import iter_sessions
 from one.alf.path import session_path_parts, get_alf_path
 
 __all__ = [
-    'make_parquet_db', 'patch_tables', 'merge_tables', 'QC_TYPE', 'remove_table_files',
-    'remove_missing_datasets', 'load_tables', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME']
+    'make_parquet_db', 'load_tables', 'patch_tables', 'merge_tables',
+    'remove_table_files', 'remove_missing_datasets', 'default_cache',
+    'QC_TYPE', 'EMPTY_DATASETS_FRAME', 'EMPTY_SESSIONS_FRAME']
 _logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------------------------------------
