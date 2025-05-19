@@ -1155,7 +1155,8 @@ class AlyxClient:
             assert endpoint_scheme[action]['action'] == 'get'
             # add to url data if it is a string
             if id:
-                # this is a special case of the list where we query a uuid. Usually read is better
+                # this is a special case of the list where we query a uuid
+                # usually read is better but list may return fewer data and therefore be faster
                 if 'django' in kwargs.keys():
                     kwargs['django'] = kwargs['django'] + ','
                 else:
@@ -1163,6 +1164,9 @@ class AlyxClient:
                 kwargs['django'] = f"{kwargs['django']}pk,{id}"
             # otherwise, look for a dictionary of filter terms
             if kwargs:
+                # if django arg is present but is None, server will return a cryptic 500 status
+                if 'django' in kwargs and kwargs['django'] is None:
+                    del kwargs['django']
                 # Convert all lists in query params to comma separated list
                 query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
                 url = update_url_params(url, query_params)
