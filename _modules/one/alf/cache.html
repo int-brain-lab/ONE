@@ -127,6 +127,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -382,6 +383,9 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">table_meta</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+    <span class="c1"># The origin is now a set, however we leave _metadata as Alyx relies on this and sets</span>
+    <span class="c1"># can&#39;t be serialized to JSON</span>
+    <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">origin</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">Bunch</span><span class="p">({</span>
             <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
             <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
@@ -390,7 +394,7 @@
                 <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">)}}</span>
+                <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">table_meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">)}}</span>
         <span class="p">})</span></div>
 
 
@@ -548,6 +552,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cache</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_monotonic_increasing</span><span class="p">:</span>
             <span class="n">cache</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="c1"># Ensure origin is a set (supports multiple origins)</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">][</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">))))</span>
+
         <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span>
 
     <span class="n">created</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;date_created&#39;</span><span class="p">])</span>
@@ -648,10 +656,10 @@
         <span class="c1"># Update the table metadata with the origin</span>
         <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">table_meta</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">):</span>
-                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">origin</span>
+            <span class="k">if</span> <span class="s1">&#39;origin&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_meta</span><span class="p">:</span>
+                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="o">*</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]),</span> <span class="n">origin</span><span class="p">))</span>
+                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
             <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_meta</span>
     <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
     <span class="k">return</span> <span class="n">updated</span></div>

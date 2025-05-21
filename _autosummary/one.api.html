@@ -225,11 +225,14 @@ cache_dir.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.api.One.load_cache">
-<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_cache" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/api.html#One.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.api.One.load_cache" title="Link to this definition"></a></dt>
 <dd><p>Load parquet cache files from a local directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tables_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An optional directory location of the parquet files, defaults to One._tables_dir.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tables_dir</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – An optional directory location of the parquet files, defaults to One._tables_dir.</p></li>
+<li><p><strong>clobber</strong> (<em>bool</em>) – If true, the cache is loaded without merging with existing table files.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A timestamp of when the cache was loaded.</p>
