@@ -22,6 +22,7 @@ from functools import partial
 from pathlib import Path
 import warnings
 import logging
+from copy import deepcopy
 
 import pandas as pd
 import numpy as np
@@ -275,6 +276,9 @@ def default_cache(origin=''):
 
     """
     table_meta = _metadata(origin)
+    # The origin is now a set, however we leave _metadata as Alyx relies on this and sets
+    # can't be serialized to JSON
+    table_meta['origin'] = set(filter(None, [origin]))
     return Bunch({
             'datasets': EMPTY_DATASETS_FRAME.copy(),
             'sessions': EMPTY_SESSIONS_FRAME.copy(),
@@ -283,7 +287,7 @@ def default_cache(origin=''):
                 'loaded_time': None,
                 'modified_time': None,
                 'saved_time': None,
-                'raw': {k: table_meta.copy() for k in ('datasets', 'sessions')}}
+                'raw': {k: deepcopy(table_meta) for k in ('datasets', 'sessions')}}
         })
 
 
@@ -435,6 +439,10 @@ def load_tables(tables_dir, glob_pattern='*.pqt'):
         if not cache.index.is_monotonic_increasing:
             cache.sort_index(inplace=True)
 
+        # Ensure origin is a set (supports multiple origins)
+        meta['raw'][table]['origin'] = set(
+            filter(None, ensure_list(meta['raw'][table].get('origin', 'unknown'))))
+
         caches[table] = cache
 
     created = [datetime.datetime.fromisoformat(x['date_created'])
@@ -532,10 +540,10 @@ def merge_tables(cache, strict=False, origin=None, **kwargs):
         # Update the table metadata with the origin
         if origin is not None:
             table_meta = cache['_meta']['raw'].get(table, {})
-            if not table_meta.get('origin'):
-                table_meta['origin'] = origin
+            if 'origin' not in table_meta:
+                table_meta['origin'] = set(origin)
             else:
-                table_meta['origin'] = set((*ensure_list(table_meta['origin']), origin))
+                table_meta['origin'].add(origin)
             cache['_meta']['raw'][table] = table_meta
     cache['_meta']['modified_time'] = updated
     return updated

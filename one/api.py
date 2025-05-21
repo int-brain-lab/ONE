@@ -6,7 +6,6 @@ import logging
 from weakref import WeakMethod
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
-from itertools import chain
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
@@ -135,20 +134,25 @@ class One(ConversionMixin):
         tables = tables or filter(lambda x: x[0] != '_', self._cache)
         return remove_table_files(self._tables_dir, tables)
 
-    def load_cache(self, tables_dir=None, **kwargs):
+    def load_cache(self, tables_dir=None, clobber=True, **kwargs):
         """Load parquet cache files from a local directory.
 
         Parameters
         ----------
         tables_dir : str, pathlib.Path
             An optional directory location of the parquet files, defaults to One._tables_dir.
+        clobber : bool
+            If true, the cache is loaded without merging with existing table files.
 
         Returns
         -------
         datetime.datetime
             A timestamp of when the cache was loaded.
         """
-        self._reset_cache()
+        if clobber:
+            self._reset_cache()
+        else:
+            raise NotImplementedError('clobber=False not implemented yet')
         self._tables_dir = Path(tables_dir or self._tables_dir or self.cache_dir)
         self._cache = load_tables(self._tables_dir)
 
@@ -161,7 +165,7 @@ class One(ConversionMixin):
         # prompt the user to delete them to improve load times
         raw_meta = self._cache['_meta'].get('raw', {}).values() or [{}]
         tagged = any(filter(None, flatten(x.get('database_tags') for x in raw_meta)))
-        origin = set(x['origin'] for x in raw_meta if 'origin' in x)
+        origin = set(filter(None, flatten(ensure_list(x.get('origin', [])) for x in raw_meta)))
         older = (self._cache['_meta']['created_time'] or datetime.now()) < datetime(2025, 2, 13)
         remote = not self.offline and self.mode == 'remote'
         if remote and origin == {'alyx'} and older and not self._web_client.silent and not tagged:
@@ -221,6 +225,8 @@ class One(ConversionMixin):
             _logger.info('Saving cache tables...')
             for table in filter(lambda x: not x[0] == '_', caches.keys()):
                 metadata = meta['raw'].get(table, {})
+                if isinstance(metadata.get('origin'), set):
+                    metadata['origin'] = list(metadata['origin'])
                 metadata['date_modified'] = modified.isoformat(sep=' ', timespec='minutes')
                 filename = save_dir.joinpath(f'{table}.pqt')
                 # Cast indices to str before saving
@@ -1696,7 +1702,8 @@ class OneAlyx(One):
         tag = tag or current_tags[0]  # For refreshes take the current tag as default
         different_tag = any(x != tag for x in current_tags)
         if not (clobber or different_tag):
-            super(OneAlyx, self).load_cache(tables_dir)  # Load any present cache
+            # Load any present cache
+            super(OneAlyx, self).load_cache(tables_dir, clobber=True)
             cache_meta = self._cache.get('_meta', {})
             raw_meta = cache_meta.get('raw', {}).values() or [{}]
 
@@ -1719,7 +1726,7 @@ class OneAlyx(One):
             # contain the same tag or origin, we need to download the remote one.
             origin = cache_info.get('origin', 'unknown')
             local_origin = (x.get('origin', []) for x in raw_meta)
-            local_origin = set(chain.from_iterable(map(ensure_list, local_origin)))
+            local_origin = set(flatten(map(ensure_list, local_origin)))
             different_origin = origin not in local_origin
             if fresh and not (different_tag or different_origin):
                 _logger.info('No newer cache available')

@@ -940,7 +940,8 @@ class TestONECache(unittest.TestCase):
         """Test One._load_cache."""
         # Test loading unsorted table with no id index set
         df = cast_index_object(self.one._cache['datasets'], str).reset_index()
-        info = self.one._cache['_meta']['raw']['datasets']
+        info = self.one._cache['_meta']['raw']['datasets'].copy()
+        info['origin'] = list(info['origin'])  # ensures serializable
         with tempfile.TemporaryDirectory() as tdir:
             # Loading from empty dir
             # In offline mode, load_cache will not raise, but should warn when no tables found
@@ -968,9 +969,12 @@ class TestONECache(unittest.TestCase):
             parquet.save(Path(tdir) / 'datasets.pqt', df, info)
             with self.assertRaises(KeyError):
                 self.one.load_cache(tdir)
+            # Loading cache in local mode with clobber=False should raise NotImplementedError
+            with self.assertRaises(NotImplementedError):
+                self.one.load_cache(tdir, clobber=False)
 
         # Test loading large Alyx tables
-        raw = {'origin': 'alyx'}
+        raw = {'origin': {'alyx'}}
         cache = Bunch({
             'datasets': EMPTY_DATASETS_FRAME.copy(),
             'sessions': EMPTY_SESSIONS_FRAME.copy(),
@@ -1843,13 +1847,13 @@ class TestOneRemote(unittest.TestCase):
         self.assertCountEqual(('sessions', 'datasets'), meta_raw)
         # Should be empty origin and a defined created date
         self.assertTrue(all(
-            x['origin'] == '' and isinstance(x['date_created'], str)
+            x['origin'] == set() and isinstance(x['date_created'], str)
             and len(x['date_created']) > 0) for x in meta_raw.values())
         # Update the session table from a remote query
         self.one.search(subject='KS005')
         # Database URL should be added as origin to the sessions table meta only
-        self.assertEqual('', meta_raw['datasets']['origin'])
-        self.assertEqual(self.one.alyx.base_url, meta_raw['sessions']['origin'])
+        self.assertEqual(set(), meta_raw['datasets']['origin'])
+        self.assertEqual({self.one.alyx.base_url}, meta_raw['sessions']['origin'])
         self.one.save_cache()  # write the tables to disk
         self.assertEqual(2, len(list(self.one.cache_dir.glob('*.pqt'))))
         # Load the cache from disk into a new offline instance
@@ -1860,8 +1864,8 @@ class TestOneRemote(unittest.TestCase):
         meta_raw = one._cache['_meta']['raw']
         # save method should have added the date_modified field
         self.assertIn('date_modified', meta_raw['sessions'])
-        self.assertEqual('', meta_raw['datasets']['origin'])
-        self.assertEqual(self.one.alyx.base_url, meta_raw['sessions']['origin'])
+        self.assertEqual(set(), meta_raw['datasets']['origin'])
+        self.assertEqual({self.one.alyx.base_url}, meta_raw['sessions']['origin'])
 
     def tearDown(self):
         """Ensure the cache is not saved when the object is deleted."""
