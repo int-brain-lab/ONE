@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.1.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.1.1]
+This version fixes issues with saving cache files.
+
+### Modified
+
+- HOTFIX: fixes `TypeError: set is not JSON serializable` in One.save_cache
+
+## [3.1.0]
 This version fixes issues with loading the local cache files built from remote queries.
 
 ### Added
