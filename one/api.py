@@ -39,7 +39,7 @@ from one import util
 
 _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
-SAVE_ON_DELETE = (os.environ.get('ONE_SAVE_ON_DELETE') or '1').casefold() in ('true', '1')
+SAVE_ON_DELETE = (os.environ.get('ONE_SAVE_ON_DELETE') or '0').casefold() in ('true', '1')
 """bool: Whether to save modified cache tables on delete."""
 
 _logger.debug('ONE_SAVE_ON_DELETE: %s', SAVE_ON_DELETE)
