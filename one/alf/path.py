@@ -860,6 +860,26 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         return tuple(p or '' for p in self.parse_alf_path(as_dict=False))
 
     @property
+    def lab(self):
+        """str: The lab part of the ALF path, or an empty str if not present."""
+        return self.session_parts[0]
+
+    @property
+    def subject(self):
+        """str: The subject part of the ALF path, or an empty str if not present."""
+        return self.session_parts[1]
+
+    @property
+    def date(self):
+        """str: The date part of the ALF path, or an empty str if not present."""
+        return self.session_parts[2]
+
+    @property
+    def sequence(self):
+        """str: The number part of the ALF path, or an empty str if not present."""
+        return self.session_parts[3]
+
+    @property
     def namespace(self):
         """str: The namespace part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[0]
@@ -883,6 +903,134 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
     def extra(self):
         """str: The extra part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[4]
+
+    def with_lab(self, lab, strict=False):
+        """Return a new path with the ALF lab changed.
+
+        Parameters
+        ----------
+        lab : str
+            An ALF lab name part to use.
+        strict : bool, optional
+            If True, the lab part must be present in the path, otherwise the lab/Subjects/ part
+            is added if not present.
+
+        Returns
+        -------
+        PureALFPath
+            The same file path but with the lab part replaced with the input.
+
+        Raises
+        ------
+        ValueError
+            The lab name is invalid.
+        ALFInvalid
+            The path is not a valid ALF session path, or the lab part is not present in the path
+            when strict is True.
+
+        """
+        if not (lab and spec.regex('^{lab}$').match(lab)):
+            raise ValueError(f'Invalid lab name: {lab}')
+        if not self.subject or (strict and not self.lab):  # FIXME check logic
+            raise ALFInvalid(str(self))
+
+        pattern = spec.regex(SESSION_SPEC)
+        repl = fr'{lab}/Subjects/\g<subject>/\g<date>/\g<number>'
+        return self.__class__(pattern.sub(repl, self.as_posix(), count=1))
+
+    def with_subject(self, subject):
+        """Return a new path with the ALF subject changed.
+
+        Parameters
+        ----------
+        subject : str
+            An ALF subject name part to use.
+
+        Returns
+        -------
+        PureALFPath
+            The same file path but with the subject part replaced with the input.
+
+        Raises
+        ------
+        ValueError
+            The subject name is invalid.
+        ALFInvalid
+            The path is not a valid ALF session path.
+
+        """
+        if not (subject and spec.regex('^{subject}$').match(subject)):
+            raise ValueError(f'Invalid subject name: {subject}')
+        if not self.subject:
+            raise ALFInvalid(str(self))
+
+        pattern = spec.regex('{subject}/{date}/{number}')
+        repl = fr'{subject}/\g<date>/\g<number>'
+        return self.__class__(pattern.sub(repl, self.as_posix()), count=1)
+
+    def with_date(self, date):
+        """Return a new path with the ALF date changed.
+
+        Parameters
+        ----------
+        date : str, datetime.datetime, datetime.date
+            An ALF date part to use, in YYYY-MM-DD format.
+
+        Returns
+        -------
+        PureALFPath
+            The same file path but with the date part replaced with the input.
+
+        Raises
+        ------
+        ValueError
+            The date is not in YYYY-MM-DD format.
+        ALFInvalid
+            The path is not a valid ALF session path.
+
+        """
+        if date and not isinstance(date, str):
+            date = str(date)[:10]
+        if not (date and spec.regex('^{date}$').match(date)):
+            raise ValueError(f'Invalid date: {date}')
+        if not self.date:
+            raise ALFInvalid(str(self))
+
+        pattern = spec.regex('{subject}/{date}/{number}')
+        repl = fr'\g<subject>/{date}/\g<number>'
+        return self.__class__(pattern.sub(repl, self.as_posix()), count=1)
+
+    def with_sequence(self, number):
+        """Return a new path with the ALF number changed.
+
+        Parameters
+        ----------
+        number : str, int
+            An ALF number part to use, as a string or integer.
+
+        Returns
+        -------
+        PureALFPath
+            The same file path but with the number part replaced with the input.
+
+        Raises
+        ------
+        ValueError
+            The number is not a valid ALF number.
+        ALFInvalid
+            The path is not a valid ALF session path.
+
+        """
+        if isinstance(number, str):
+            number = int(number.strip())
+        if number is None or not spec.regex('^{number}$').match(str(number)):
+            raise ValueError(f'Invalid number: {number}')
+        if not self.sequence:
+            raise ALFInvalid(str(self))
+
+        pattern = spec.regex('{subject}/{date}/{number}')
+        repl = fr'\g<subject>/\g<date>/{number:03d}'
+        return self.__class__(pattern.sub(repl, self.as_posix()), count=1)
 
     def with_object(self, obj):
         """Return a new path with the ALF object changed.

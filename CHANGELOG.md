@@ -2,6 +2,11 @@
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.2.0]
 This version adds session part properties to the ALFPath class and turns off save on delete by default.
 
+### Added
+
+- session part properties in one.alf.path.PureALFPath (lab, subject, date, sequence)
+- with_\* methods in one.alf.path.PureALFPath for replacing session parts
+
 ### Modified
 
 - by default, cache tables are not saved when One.\_\_del\_\_ is called

@@ -1,6 +1,7 @@
 """Unit tests for the one.alf.path module."""
 import unittest
 import tempfile
+from datetime import datetime
 from types import GeneratorType
 from uuid import uuid4
 from pathlib import Path, PurePath, PureWindowsPath, PurePosixPath
@@ -496,6 +497,67 @@ class TestALFPath(unittest.TestCase):
         self.assertRaises(ValueError, self.alfpath.with_extension, '')
         self.assertRaises(ALFInvalid, self.alfpath.with_stem('foo').with_extension, 'ext')
 
+    def test_with_lab(self):
+        """Test for PureALFPath.with_lab method."""
+        # Test with lab
+        expected = ALFPath(*self.alfpath.parts[:-8], 'newlab', *self.alfpath.parts[-7:])
+        self.assertEqual(expected, self.alfpath.with_lab('newlab'))
+        # Test without lab
+        alfpath = ALFPath(*self.alfpath.parts[:-8], *self.alfpath.parts[-6:])
+        self.assertEqual(expected, alfpath.with_lab('newlab'))
+        # Test strict
+        self.assertEqual(expected, self.alfpath.with_lab('newlab', strict=True))
+        self.assertRaises(ALFInvalid, alfpath.with_lab, 'newlab', strict=True)
+        # Test validation
+        self.assertRaises(ValueError, self.alfpath.with_lab, '')
+        self.assertRaises(ValueError, self.alfpath.with_lab, None)
+        self.assertRaises(ValueError, self.alfpath.with_lab, '#s!@#')
+        self.assertRaises(ALFInvalid, self.alfpath.relative_to_session().with_lab, 'lab')
+
+    def test_with_subject(self):
+        """Test for PureALFPath.with_subject method."""
+        # Test with subject
+        expected = ALFPath(*self.alfpath.parts[:-6], 'foo', *self.alfpath.parts[-5:])
+        self.assertEqual(expected, self.alfpath.with_subject('foo'))
+        # Test without lab (should not depend on Subjects folder)
+        alfpath = ALFPath(*self.alfpath.parts[:-8], *self.alfpath.parts[-6:])
+        expected = ALFPath(*alfpath.parts[:-6], 'foo', *alfpath.parts[-5:])
+        self.assertEqual(expected, alfpath.with_subject('foo'))
+        # Test validation
+        self.assertRaises(ValueError, self.alfpath.with_subject, '')
+        self.assertRaises(ValueError, self.alfpath.with_subject, None)
+        self.assertRaises(ValueError, self.alfpath.with_subject, '#s!@#')
+        self.assertRaises(ALFInvalid, self.alfpath.relative_to_session().with_subject, 'subject')
+
+    def test_with_date(self):
+        """Test for PureALFPath.with_date method."""
+        # Test with date
+        expected = ALFPath(*self.alfpath.parts[:-5], '2020-01-02', *self.alfpath.parts[-4:])
+        self.assertEqual(expected, self.alfpath.with_date('2020-01-02'))
+        # Test with datetime object
+        date = datetime.fromisoformat('2020-01-02T00:00:00')
+        self.assertEqual(expected, self.alfpath.with_date(date))
+        # Test validation
+        self.assertRaises(ValueError, self.alfpath.with_date, '')
+        self.assertRaises(ValueError, self.alfpath.with_date, None)
+        self.assertRaises(ValueError, self.alfpath.with_date, '6/1/2020')
+        self.assertRaises(ALFInvalid, self.alfpath.relative_to_session().with_date, '2020-01-02')
+
+    def test_with_sequence(self):
+        """Test for PureALFPath.with_sequence method."""
+        # Test with number
+        expected = ALFPath(*self.alfpath.parts[:-4], '002', *self.alfpath.parts[-3:])
+        self.assertEqual(expected, self.alfpath.with_sequence(2))
+        self.assertEqual(expected, self.alfpath.with_sequence('002'))
+        # Test with zero
+        self.assertEqual('000', self.alfpath.with_sequence(0).parts[-4])
+        # Test validation
+        self.assertRaises(ValueError, self.alfpath.with_sequence, '')
+        self.assertRaises(ValueError, self.alfpath.with_sequence, None)
+        self.assertRaises(ValueError, self.alfpath.with_sequence, 'foo')
+        self.assertRaises(ValueError, self.alfpath.with_sequence, 1e4)
+        self.assertRaises(ALFInvalid, self.alfpath.relative_to_session().with_sequence, 2)
+
     def test_parts_properties(self):
         """Test the PureALFPath ALF dataset part properties."""
         # Namespace
@@ -521,6 +583,18 @@ class TestALFPath(unittest.TestCase):
         alfpath = self.alfpath.with_name('_ns_obj.attr_times_bpod.foo.bar.ext')
         expected = ('ns', 'obj', 'attr_times', 'bpod', 'foo.bar', 'ext')
         self.assertEqual(expected, alfpath.dataset_name_parts)
+        # Lab
+        self.assertEqual('labname', self.alfpath.lab)
+        self.assertEqual('', self.alfpath.relative_to_session().lab)
+        # Subject
+        self.assertEqual('subject', self.alfpath.subject)
+        self.assertEqual('', self.alfpath.relative_to_session().subject)
+        # Date
+        self.assertEqual('1900-01-01', self.alfpath.date)
+        self.assertEqual('', self.alfpath.relative_to_session().date)
+        # Number
+        self.assertEqual('001', self.alfpath.sequence)
+        self.assertEqual('', self.alfpath.relative_to_session().sequence)
         # session_parts
         self.assertEqual(('labname', 'subject', '1900-01-01', '001'), self.alfpath.session_parts)
         alfpath = ALFPath(*self.alfpath.parts[5:])
