@@ -221,7 +221,7 @@ class One(ConversionMixin):
                     created = created.isoformat(sep=' ', timespec='minutes')
                     meta['raw'][table]['date_created'] = created
 
-        with FileLock(save_dir, log=_logger, timeout=TIMEOUT, timeout_action='delete'):
+        with FileLock(save_dir / '.ONE', log=_logger, timeout=TIMEOUT, timeout_action='delete'):
             _logger.info('Saving cache tables...')
             for table in filter(lambda x: not x[0] == '_', caches.keys()):
                 metadata = meta['raw'].get(table, {})
