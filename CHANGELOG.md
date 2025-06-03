@@ -4,7 +4,7 @@ This version adds session part properties to the ALFPath class and turns off sav
 
 ### Added
 
-- session part properties in one.alf.path.PureALFPath (lab, subject, date, sequence)
+- session part properties in one.alf.path.PureALFPath (lab, subject, date, sequence, collection, revision)
 - with_\* methods in one.alf.path.PureALFPath for replacing session parts
 
 ### Modified

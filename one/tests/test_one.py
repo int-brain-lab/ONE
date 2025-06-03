@@ -1244,7 +1244,7 @@ class TestOneAlyx(unittest.TestCase):
             'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
         }
         try:
-            self.one.alyx.rest('revisions', 'read', id=record['name'], no_cache=True)
+            self.one.alyx.rest('revisions', 'partial_update', id=record['name'], data=record)
         except HTTPError:
             self.one.alyx.rest('revisions', 'create', data=record)
         self.one.describe_revision(record['name'])

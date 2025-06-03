@@ -880,6 +880,16 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         return self.session_parts[3]
 
     @property
+    def collection(self):
+        """str: The collection part of the ALF path, or an empty str if not present."""
+        return self.alf_parts[4]
+
+    @property
+    def revision(self):
+        """str: The revision part of the ALF path, or an empty str if not present."""
+        return self.alf_parts[5]
+
+    @property
     def namespace(self):
         """str: The namespace part of the ALF name, or and empty str if not present."""
         return self.dataset_name_parts[0]
@@ -1231,6 +1241,58 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         """
         return padded_sequence(path)
+
+    def with_collection(self, collection):
+        """Return a new path with the ALF collection part added/changed.
+
+        NB: The ALFPath must include the session parts (subject/date/number) for this to work.
+
+        Parameters
+        ----------
+        collection : str
+            An ALF collection part to use.
+
+        Returns
+        -------
+        PureALFPath
+            The same file path but with the collection part added or replaced with the input.
+
+        Raises
+        ------
+        ValueError
+            The collection name is invalid.
+            The path does not include the session parts (subject/date/number).
+        ALFInvalid
+            The path is not a valid ALF session path.
+
+        """
+        collection = pathlib.PurePath(collection or '').as_posix().strip('/')
+        if not (collection and spec.regex('^{collection}$').match(collection)):
+            raise ValueError(f'Invalid collection name: {collection}')
+        # Check path contains session parts
+        if not self.session_path():
+            raise ValueError(
+                'Cannot add collection to a path without session parts, e.g. subject/date/number'
+            )
+        # If the path is a session path, simply append the collection to it
+        if self.is_session_path():
+            return self.joinpath(collection)
+        # Otherwise substitute the collection with regex
+        string = self.as_posix()
+        if not self.is_dataset():
+            cpat = spec.regex(f'^{COLLECTION_SPEC}$')
+            if cpat.match(self.relative_to_session().as_posix() + '/'):
+                string += '/'  # ensure trailing slash for matching folder paths
+            else:
+                raise ALFInvalid(str(self))
+        # Replace the collection part in the path
+        # NB: We don't use SESSION_SPEC here to avoid handling optional lab part
+        pattern = spec.regex('{subject}/{date}/{number}/' + COLLECTION_SPEC)
+        match = pattern.search(string)
+        repl = fr'\g<subject>/\g<date>/\g<number>/{collection}/'
+        if match.groupdict()['revision']:
+            repl += r'#\g<revision>#/'
+        return self.__class__(pattern.sub(repl, string), count=1)
 
     def with_revision(self, revision):
         """Return a new path with the ALF revision part added/changed.
