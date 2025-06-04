@@ -40,6 +40,7 @@ Welcome to ONE's documentation!
 
    alf_intro
    notebooks/alyx_files
+   notebooks/alf_paths
    notebooks/datasets_and_types
 
 .. toctree::

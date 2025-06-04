@@ -77,7 +77,7 @@ class _JSONEncoder(json.JSONEncoder):
 
 
 def _cache_response(method):
-    """Decorator for the generic request method for caching REST reponses.
+    """Decorator for the generic request method for caching REST responses.
 
     Caches the result of the query and on subsequent calls, returns cache instead of hitting the
     database.

@@ -1244,7 +1244,7 @@ class TestOneAlyx(unittest.TestCase):
             'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
         }
         try:
-            self.one.alyx.rest('revisions', 'read', id=record['name'], no_cache=True)
+            self.one.alyx.rest('revisions', 'partial_update', id=record['name'], data=record)
         except HTTPError:
             self.one.alyx.rest('revisions', 'create', data=record)
         self.one.describe_revision(record['name'])
@@ -1403,11 +1403,14 @@ class TestOneAlyx(unittest.TestCase):
 
             # Check table_dir behaviour
             prev_loc = self.one._tables_dir  # should be same location as previous
-            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files):
+            del cache_info['database_tags']
+            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files), \
+                    mock.patch.object(self.one.alyx, 'get', return_value=cache_info):
                 self.one.load_cache(clobber=True)
             self.assertEqual(prev_loc, self.one._tables_dir)
             new_loc = prev_loc.parent  # user input should override default
-            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files):
+            with mock.patch.object(self.one.alyx, 'download_cache_tables', return_value=files), \
+                    mock.patch.object(self.one.alyx, 'get', return_value=cache_info):
                 self.one.load_cache(tables_dir=new_loc, clobber=True)
             self.assertEqual(new_loc, self.one._tables_dir)
 
