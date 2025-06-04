@@ -69,6 +69,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../alf_intro.html">ALyx Filenames (ALF)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/alf_paths.html">ALF Path objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -997,6 +998,36 @@
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_alf_path</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The lab part of the ALF path, or an empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The subject part of the ALF path, or an empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The date part of the ALF path, or an empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The number part of the ALF path, or an empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_parts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The collection part of the ALF path, or an empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alf_parts</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The revision part of the ALF path, or an empty str if not present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alf_parts</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The namespace part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1020,6 +1051,146 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">extra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The extra part of the ALF name, or and empty str if not present.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PureALFPath.with_lab">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_lab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_lab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lab</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF lab changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lab : str</span>
+<span class="sd">            An ALF lab name part to use.</span>
+<span class="sd">        strict : bool, optional</span>
+<span class="sd">            If True, the lab part must be present in the path, otherwise the lab/Subjects/ part</span>
+<span class="sd">            is added if not present.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the lab part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The lab name is invalid.</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF session path, or the lab part is not present in the path</span>
+<span class="sd">            when strict is True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">lab</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;^</span><span class="si">{lab}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">lab</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid lab name: </span><span class="si">{</span><span class="n">lab</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span> <span class="ow">or</span> <span class="p">(</span><span class="n">strict</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lab</span><span class="p">):</span>  <span class="c1"># FIXME check logic</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="n">SESSION_SPEC</span><span class="p">)</span>
+        <span class="n">repl</span> <span class="o">=</span> <span class="sa">fr</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lab</span><span class="si">}</span><span class="s1">/Subjects/\g&lt;subject&gt;/\g&lt;date&gt;/\g&lt;number&gt;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_subject">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_subject">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF subject changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subject : str</span>
+<span class="sd">            An ALF subject name part to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the subject part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The subject name is invalid.</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF session path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">subject</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;^</span><span class="si">{subject}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid subject name: </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">repl</span> <span class="o">=</span> <span class="sa">fr</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">/\g&lt;date&gt;/\g&lt;number&gt;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_date">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_date">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF date changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        date : str, datetime.datetime, datetime.date</span>
+<span class="sd">            An ALF date part to use, in YYYY-MM-DD format.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the date part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The date is not in YYYY-MM-DD format.</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF session path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">date</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">date</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;^</span><span class="si">{date}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">date</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid date: </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">repl</span> <span class="o">=</span> <span class="sa">fr</span><span class="s1">&#39;\g&lt;subject&gt;/</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1">/\g&lt;number&gt;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_sequence">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_sequence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF number changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        number : str, int</span>
+<span class="sd">            An ALF number part to use, as a string or integer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the number part replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The number is not a valid ALF number.</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF session path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">number</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;^</span><span class="si">{number}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid number: </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">repl</span> <span class="o">=</span> <span class="sa">fr</span><span class="s1">&#39;\g&lt;subject&gt;/\g&lt;date&gt;/</span><span class="si">{</span><span class="n">number</span><span class="si">:</span><span class="s1">03d</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="PureALFPath.with_object">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_object">[docs]</a>
@@ -1240,6 +1411,61 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">padded_sequence</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PureALFPath.with_collection">
+<a class="viewcode-back" href="../../../_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_collection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new path with the ALF collection part added/changed.</span>
+
+<span class="sd">        NB: The ALFPath must include the session parts (subject/date/number) for this to work.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        collection : str</span>
+<span class="sd">            An ALF collection part to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PureALFPath</span>
+<span class="sd">            The same file path but with the collection part added or replaced with the input.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            The collection name is invalid.</span>
+<span class="sd">            The path does not include the session parts (subject/date/number).</span>
+<span class="sd">        ALFInvalid</span>
+<span class="sd">            The path is not a valid ALF session path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">(</span><span class="n">collection</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">collection</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;^</span><span class="si">{collection}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">collection</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid collection name: </span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Check path contains session parts</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_path</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Cannot add collection to a path without session parts, e.g. subject/date/number&#39;</span>
+            <span class="p">)</span>
+        <span class="c1"># If the path is a session path, simply append the collection to it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_session_path</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
+        <span class="c1"># Otherwise substitute the collection with regex</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">():</span>
+            <span class="n">cpat</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;^</span><span class="si">{</span><span class="n">COLLECTION_SPEC</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cpat</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">):</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;/&#39;</span>  <span class="c1"># ensure trailing slash for matching folder paths</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ALFInvalid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="c1"># Replace the collection part in the path</span>
+        <span class="c1"># NB: We don&#39;t use SESSION_SPEC here to avoid handling optional lab part</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">regex</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number}</span><span class="s1">/&#39;</span> <span class="o">+</span> <span class="n">COLLECTION_SPEC</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">repl</span> <span class="o">=</span> <span class="sa">fr</span><span class="s1">&#39;\g&lt;subject&gt;/\g&lt;date&gt;/\g&lt;number&gt;/</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s1">/&#39;</span>
+        <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()[</span><span class="s1">&#39;revision&#39;</span><span class="p">]:</span>
+            <span class="n">repl</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;#\g&lt;revision&gt;#/&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="n">string</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PureALFPath.with_revision">

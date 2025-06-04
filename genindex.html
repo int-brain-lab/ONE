@@ -69,6 +69,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="alf_intro.html">ALyx Filenames (ALF)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/alyx_files.html">Listing Alyx Filenames</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/alf_paths.html">ALF Path objects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/datasets_and_types.html">Datasets and their types</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Misc</span></p>
@@ -212,11 +213,13 @@
 </li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient.check_protected_files">check_protected_files() (RegistrationClient method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">clear_rest_cache() (AlyxClient method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.remote.globus.CLIENT_KEY.html#one.remote.globus.CLIENT_KEY">CLIENT_KEY (in module one.remote.globus)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.collection">collection (PureALFPath property)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.COLLECTION_SPEC.html#one.alf.spec.COLLECTION_SPEC">COLLECTION_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.COLLECTION_SPEC">[1]</a>
 </li>
@@ -250,6 +253,8 @@
 </li>
       <li><a href="_autosummary/one.alf.cache.DATASETS_COLUMNS.html#one.alf.cache.DATASETS_COLUMNS">DATASETS_COLUMNS (in module one.alf.cache)</a>
 </li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.date">date (PureALFPath property)</a>
+</li>
       <li><a href="_autosummary/one.params.html#one.params.default">default() (in module one.params)</a>
 </li>
       <li><a href="_autosummary/one.alf.cache.html#one.alf.cache.default_cache">default_cache() (in module one.alf.cache)</a>
@@ -258,10 +263,10 @@
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.delete">delete() (AlyxClient method)</a>
 </li>
-      <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus.delete_data">delete_data() (Globus method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.remote.globus.html#one.remote.globus.Globus.delete_data">delete_data() (Globus method)</a>
+</li>
       <li><a href="_autosummary/one.params.html#one.params.delete_params">delete_params() (in module one.params)</a>
 </li>
       <li><a href="_autosummary/one.alf.spec.html#one.alf.spec.describe">describe() (in module one.alf.spec)</a>
@@ -496,6 +501,8 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.lab">lab (PureALFPath property)</a>
+</li>
       <li><a href="_autosummary/one.util.html#one.util.LazyId">LazyId (class in one.util)</a>
 </li>
       <li><a href="_autosummary/one.api.html#one.api.OneAlyx.list_aggregates">list_aggregates() (OneAlyx method)</a>
@@ -522,10 +529,10 @@
         <li><a href="_autosummary/one.api.html#one.api.OneAlyx.load_cache">(OneAlyx method)</a>
 </li>
       </ul></li>
-      <li><a href="_autosummary/one.remote.base.html#one.remote.base.load_client_params">load_client_params() (in module one.remote.base)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.remote.base.html#one.remote.base.load_client_params">load_client_params() (in module one.remote.base)</a>
+</li>
       <li><a href="_autosummary/one.api.html#one.api.One.load_collection">load_collection() (One method)</a>
 </li>
       <li><a href="_autosummary/one.api.html#one.api.One.load_dataset">load_dataset() (One method)</a>
@@ -1039,10 +1046,10 @@
 </li>
       <li><a href="_autosummary/one.registration.html#one.registration.RegistrationClient">RegistrationClient (class in one.registration)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.rel_path2url">rel_path2url() (AlyxClient method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.alf.spec.REL_PATH_SPEC.html#one.alf.spec.REL_PATH_SPEC">REL_PATH_SPEC (in module one.alf.spec)</a>, <a href="_autosummary/one.alf.spec.html#one.alf.spec.REL_PATH_SPEC">[1]</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_cache.html#one.tests.alf.test_cache.TestONEParquet.rel_ses_files">rel_ses_files (TestONEParquet attribute)</a>
@@ -1066,6 +1073,8 @@
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.rest">rest() (AlyxClient method)</a>
 </li>
       <li><a href="_autosummary/one.webclient.html#one.webclient.AlyxClient.rest_schemes">rest_schemes (AlyxClient property)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.revision">revision (PureALFPath property)</a>
 </li>
       <li><a href="_autosummary/one.tests.util.html#one.tests.util.revisions_datasets_table">revisions_datasets_table() (in module one.tests.util)</a>
 </li>
@@ -1109,6 +1118,8 @@
         <li><a href="_autosummary/one.api.html#one.api.OneAlyx.search_terms">(OneAlyx method)</a>
 </li>
       </ul></li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.sequence">sequence (PureALFPath property)</a>
+</li>
       <li><a href="_autosummary/one.util.html#one.util.LazyId.ses2eid">ses2eid() (LazyId static method)</a>
 </li>
       <li><a href="_autosummary/one.converters.html#one.converters.ses2records">ses2records() (in module one.converters)</a>
@@ -1217,8 +1228,12 @@
 </li>
       <li><a href="_autosummary/one.remote.globus.STATUS_MAP.html#one.remote.globus.STATUS_MAP">STATUS_MAP (in module one.remote.globus)</a>
 </li>
-      <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.subject">subject (TestRegistrationClient attribute)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.subject">subject (PureALFPath property)</a>
+
+      <ul>
+        <li><a href="_autosummary/one.tests.test_registration.html#one.tests.test_registration.TestRegistrationClient.subject">(TestRegistrationClient attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1591,14 +1606,14 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns">test_metadata_columns() (TestsAlf method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestsAlf.test_metadata_columns_UUID">test_metadata_columns_UUID() (TestsAlf method)</a>
 </li>
       <li><a href="_autosummary/one.tests.test_one.html#one.tests.test_one.TestONECache.test_mode_validation">test_mode_validation() (TestONECache method)</a>
 </li>
       <li><a href="_autosummary/one.tests.remote.test_globus.html#one.tests.remote.test_globus.TestGlobusClient.test_mv">test_mv() (TestGlobusClient method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_autosummary/one.tests.alf.test_alf_spec.html#one.tests.alf.test_alf_spec.TestALFSpec.test_named_group">test_named_group() (TestALFSpec method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_io.html#one.tests.alf.test_alf_io.TestALFFolders.test_next_num_folder">test_next_num_folder() (TestALFFolders method)</a>
@@ -1811,9 +1826,15 @@
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_attribute">test_with_attribute() (TestALFPath method)</a>
 </li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_collection">test_with_collection() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_date">test_with_date() (TestALFPath method)</a>
+</li>
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_extension">test_with_extension() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_extra">test_with_extra() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_lab">test_with_lab() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_namespace">test_with_namespace() (TestALFPath method)</a>
 </li>
@@ -1822,6 +1843,10 @@
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_padded_sequence">test_with_padded_sequence() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_revision">test_with_revision() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_sequence">test_with_sequence() (TestALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_subject">test_with_subject() (TestALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.tests.alf.test_alf_path.html#one.tests.alf.test_alf_path.TestALFPath.test_with_timescale">test_with_timescale() (TestALFPath method)</a>
 </li>
@@ -1981,19 +2006,29 @@
 </li>
       <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_attribute">with_attribute() (PureALFPath method)</a>
 </li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_collection">with_collection() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_date">with_date() (PureALFPath method)</a>
+</li>
       <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_extension">with_extension() (PureALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_extra">with_extra() (PureALFPath method)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_namespace">with_namespace() (PureALFPath method)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_lab">with_lab() (PureALFPath method)</a>
 </li>
-      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_object">with_object() (PureALFPath method)</a>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_namespace">with_namespace() (PureALFPath method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_object">with_object() (PureALFPath method)</a>
+</li>
       <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_padded_sequence">with_padded_sequence() (PureALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_revision">with_revision() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_sequence">with_sequence() (PureALFPath method)</a>
+</li>
+      <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_subject">with_subject() (PureALFPath method)</a>
 </li>
       <li><a href="_autosummary/one.alf.path.html#one.alf.path.PureALFPath.with_timescale">with_timescale() (PureALFPath method)</a>
 </li>
