@@ -1,5 +1,11 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.2.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.2.1]
+
+### Modified
+
+- improved test coverage
+
+## [3.2.0]
 This version adds session part properties to the ALFPath class and turns off save on delete by default.
 
 ### Added
