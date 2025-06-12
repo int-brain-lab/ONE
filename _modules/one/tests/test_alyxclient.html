@@ -622,6 +622,32 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestDownloadHTTP.test_download_cache_tables_auth">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestDownloadHTTP.test_download_cache_tables_auth">[docs]</a>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.webclient.zipfile.ZipFile&#39;</span><span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.webclient.http_download_file&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_download_cache_tables_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_file_mock</span><span class="p">,</span> <span class="n">zipfile_mock</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for AlyxClient.download_cache_tables with authentication.</span>
+
+<span class="sd">        NB: This test simply checks that alex is authenticated automatically before</span>
+<span class="sd">        downloading the tables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Force re-authentication</span>
+            <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="p">,</span> <span class="s1">&#39;authenticate&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_auth</span><span class="p">:</span>
+                <span class="c1"># When the URL is different from the database, no need to authenticate</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="s1">&#39;https://example.com/cache.zip&#39;</span><span class="p">)</span>
+                <span class="n">mock_auth</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+                <span class="n">download_file_mock</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+                <span class="n">zipfile_mock</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+                <span class="c1"># When the URL is the same as the database, should authenticate</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">download_cache_tables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s1">&#39;/cache.zip&#39;</span><span class="p">)</span>
+                <span class="n">mock_auth</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span></div>
 </div>
 
 
