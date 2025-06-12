@@ -46,6 +46,7 @@ from iblutil.io import parquet
 from iblutil.util import Bunch
 
 from one import __version__
+import one.api  # required for patching SAVE_ON_DELETE
 from one.api import ONE, One, OneAlyx
 from one.util import (
     validate_date_range, index_last_before, filter_datasets, _collection_spec,
@@ -102,11 +103,22 @@ class TestONECache(unittest.TestCase):
         shutil.rmtree(self.one.eid2path(eid))
         datasets = self.one._cache.datasets.loc[eid]
         self.one._check_filesystem(datasets, update_exists=True, check_hash=False)
-        # Check that the cache tables are updated and saved upon delete
-        self.one.__del__()
+        self.assertFalse(self.one._cache.datasets.loc[eid, 'exists'].any())
+        # Save cache should not be called when SAVE_ON_DELETE is False
+        with mock.patch.object(one.api, 'SAVE_ON_DELETE', False), \
+                mock.patch.object(self.one, 'save_cache') as save_cache:
+            self.one.__del__()
+            save_cache.assert_not_called()
+        # Check that the cache tables are updated and saved upon delete with SAVE_ON_DELETE = True
+        self.one = One(mode='local', cache_dir=self.tempdir.name)
+        datasets = self.one._cache.datasets.loc[eid]
+        self.one._check_filesystem(datasets, update_exists=True, check_hash=False)
+        self.assertFalse(self.one._cache.datasets.loc[eid, 'exists'].any())
+        with mock.patch.object(one.api, 'SAVE_ON_DELETE', True):
+            self.one.__del__()
         while Path(self.tempdir.name, '.lock').exists():
             time.sleep(.1)
-        self.one = ONE(mode='local', cache_dir=self.tempdir.name)
+        self.one = One(mode='local', cache_dir=self.tempdir.name)
         self.assertFalse(self.one._cache.datasets.loc[eid, 'exists'].any())
 
     def test_list_subjects(self):

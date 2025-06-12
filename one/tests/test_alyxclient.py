@@ -444,6 +444,29 @@ class TestDownloadHTTP(unittest.TestCase):
                 data = json.load(json_file)
             self.assertTrue(len(data) > 0)
 
+    @mock.patch('one.webclient.zipfile.ZipFile')
+    @mock.patch('one.webclient.http_download_file')
+    def test_download_cache_tables_auth(self, download_file_mock, zipfile_mock):
+        """Test for AlyxClient.download_cache_tables with authentication.
+
+        NB: This test simply checks that alex is authenticated automatically before
+        downloading the tables.
+        """
+        try:
+            token = self.ac._token
+            self.ac._token = None  # Force re-authentication
+            with mock.patch.object(self.ac, 'authenticate') as mock_auth:
+                # When the URL is different from the database, no need to authenticate
+                self.ac.download_cache_tables('https://example.com/cache.zip')
+                mock_auth.assert_not_called()
+                download_file_mock.assert_called_once()
+                zipfile_mock.assert_called_once()
+                # When the URL is the same as the database, should authenticate
+                self.ac.download_cache_tables(self.ac.base_url + '/cache.zip')
+                mock_auth.assert_called_once()
+        finally:
+            self.ac._token = token
+
 
 class TestMisc(unittest.TestCase):
     def test_update_url_params(self):
