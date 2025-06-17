@@ -1,5 +1,12 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.2.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.3.0]
+This version makes ALFPath objects more performant.
+
+### Modified
+
+- cache ALFPath properties
+
+## [3.2.1]
 
 ### Modified
 
