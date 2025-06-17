@@ -52,6 +52,7 @@ from one.util import (
     validate_date_range, index_last_before, filter_datasets, _collection_spec,
     filter_revision_last_before, parse_id, autocomplete, LazyId
 )
+from one.webclient import AlyxClient
 import one.params
 import one.alf.exceptions as alferr
 from one.converters import datasets2records
@@ -1845,10 +1846,17 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(1, det['number'])
         self.assertNotIn('data_dataset_session_related', det)
 
-        # Test list
-        det = self.one.get_details([self.eid, self.eid], full=True)
+        # Test with a list
+        # For duplicate eids, we should avoid multiple queries
+        with mock.patch.object(AlyxClient, 'rest', wraps=self.one.alyx.rest) as m:
+            det = self.one.get_details([self.eid, self.eid], full=True)
+        m.assert_called_once_with('sessions', 'read', id=str(self.eid))
         self.assertIsInstance(det, list)
+        self.assertEqual(2, len(det))
         self.assertIn('data_dataset_session_related', det[0])
+        # Check that the details dicts are copies (modifying one should not affect the other)
+        self.assertEqual(det[0], det[1])  # details should be the same
+        self.assertIsNot(det[0], det[1])  # should be different objects
 
     def test_cache_buildup(self):
         """Test build up of cache table via remote queries.

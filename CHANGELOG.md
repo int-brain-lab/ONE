@@ -1,10 +1,13 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.3.0]
-This version makes ALFPath objects more performant.
+This version makes ALFPath objects and OneAlyx.get_details more performant, and will
+update the cache tables when OneAlyx.x2y methods are called.
 
 ### Modified
 
 - cache ALFPath properties
+- improvements to OneAlyx.get_details performance
+- update cache tables with calls to OneAlyx.eid2pid, pid2eid, eid2path, path2eid, get_details
 
 ## [3.2.1]
 

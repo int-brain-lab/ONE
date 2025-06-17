@@ -340,6 +340,9 @@ class TestOnlineConverters(unittest.TestCase):
         """Test for OneAlyx.pid2eid method."""
         self.assertRaises(NotImplementedError, self.one.pid2eid, self.pid, query_type='local')
         self.assertEqual((self.eid, 'probe00'), self.one.pid2eid(self.pid))
+        # Check cache table updated
+        self.assertIn('insertions', self.one._cache)
+        self.assertIn(self.eid, self.one._cache['insertions'].index)
 
     def test_eid2pid(self):
         """Test for OneAlyx.eid2pid method."""
@@ -357,6 +360,10 @@ class TestOnlineConverters(unittest.TestCase):
         expected_keys = {'id', 'name', 'model', 'serial'}
         for d in det:
             self.assertTrue(set(d.keys()) >= expected_keys)
+        # Check cache table updated
+        cache = self.one._cache
+        self.assertIn('insertions', cache)
+        self.assertTrue(cache['insertions'].index.get_level_values(1).isin(expected[0]).all())
 
     def test_ses2records(self):
         """Test one.converters.ses2records function."""
