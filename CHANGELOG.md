@@ -1,13 +1,13 @@
 # Changelog
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.3.0]
-This version makes ALFPath objects and OneAlyx.get_details more performant, and will
-update the cache tables when OneAlyx.x2y methods are called.
+This version makes some performance improvements and supports local mode eid2pid/pid2eid.
 
 ### Modified
 
 - cache ALFPath properties
 - improvements to OneAlyx.get_details performance
 - update cache tables with calls to OneAlyx.eid2pid, pid2eid, eid2path, path2eid, get_details
+- OneAlyx.eid2pid and pid2eid support local mode queries so long as the insertions table exists
 
 ## [3.2.1]
 

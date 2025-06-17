@@ -2021,9 +2021,25 @@ class OneAlyx(One):
 
         """
         query_type = query_type or self.mode
-        if query_type == 'local' and 'insertions' not in self._cache.keys():
-            raise NotImplementedError('Converting probe IDs required remote connection')
-        rec = self.alyx.rest('insertions', 'read', id=str(pid))
+        if query_type == 'local':  # and 'insertions' not in self._cache.keys():
+            if 'insertions' not in self._cache.keys():
+                raise NotImplementedError('Converting probe IDs requires remote connection')
+            else:
+                # If local, use the cache table
+                pid = UUID(pid) if isinstance(pid, str) else pid
+                try:
+                    rec = self._cache['insertions'].loc[pd.IndexSlice[:, pid], 'name']
+                    (eid, _), name = next(rec.items())
+                    return eid, name
+                except KeyError:
+                    return None, None
+        try:
+            rec = self.alyx.rest('insertions', 'read', id=pid)
+        except requests.exceptions.HTTPError as ex:
+            if ex.response.status_code == 404:
+                _logger.error(f'Probe {pid} not found in Alyx')
+                return None, None
+            raise ex
         self._update_insertions_table([rec])
         return UUID(rec['session']), rec['name']
 
@@ -2065,16 +2081,33 @@ class OneAlyx(One):
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
-            raise NotImplementedError('Converting probe IDs required remote connection')
+            raise NotImplementedError('Converting to probe ID requires remote connection')
         eid = self.to_eid(eid)  # Ensure we have a UUID str
         if not eid:
             return (None,) * (3 if details else 2)
-        recs = self.alyx.rest('insertions', 'list', session=eid, **kwargs)
-        self._update_insertions_table(recs)
-        pids = [UUID(x['id']) for x in recs]
-        labels = [x['name'] for x in recs]
+        if query_type == 'local':
+            try:  # If local, use the cache table
+                rec = self._cache['insertions'].loc[(eid,), :]
+                pids, names = map(list, zip(*rec.sort_values('name')['name'].items()))
+                if details:
+                    rec['session'] = str(eid)
+                    session_info = self._cache['sessions'].loc[eid].to_dict()
+                    session_info['date'] = session_info['date'].isoformat()
+                    session_info['projects'] = session_info['projects'].split(',')
+                    rec['session_info'] = session_info
+                    # Convert to list of dicts after casting UUIDs to strings
+                    recs = cast_index_object(rec, str).reset_index().to_dict('records')
+                    return pids, names, recs
+                return pids, names
+            except KeyError:
+                return (None,) * (3 if details else 2)
+
+        if recs := self.alyx.rest('insertions', 'list', session=eid, **kwargs):
+            self._update_insertions_table(recs)
+        pids = [UUID(x['id']) for x in recs] or None
+        labels = [x['name'] for x in recs] or None
         if details:
-            return pids, labels, recs
+            return pids, labels, recs or None
         else:
             return pids, labels
 

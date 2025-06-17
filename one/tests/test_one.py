@@ -1239,13 +1239,15 @@ class TestOneAlyx(unittest.TestCase):
             self.one.dataset2type(bad_id)
 
     def test_pid2eid(self):
-        """Test OneAlyx.pid2eid."""
+        """Test OneAlyx.pid2eid.
+
+        For a more complete test see `test_converters.TestOnlineConverters.test_pid2eid`.
+        This test uses the REST fixtures and therefore can be run offline.
+        """
         pid = 'b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
         eid, collection = self.one.pid2eid(pid, query_type='remote')
         self.assertEqual(UUID('fc737f3c-2a57-4165-9763-905413e7e341'), eid)
         self.assertEqual('probe00', collection)
-        with self.assertRaises(NotImplementedError):
-            self.one.pid2eid(pid, query_type='local')
 
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe_revision(self, mock_stdout):
