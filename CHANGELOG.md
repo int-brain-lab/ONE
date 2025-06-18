@@ -9,6 +9,10 @@ This version makes some performance improvements and supports local mode eid2pid
 - update cache tables with calls to OneAlyx.eid2pid, pid2eid, eid2path, path2eid, get_details
 - OneAlyx.eid2pid and pid2eid support local mode queries so long as the insertions table exists
 
+### Added
+
+- AlyxClient.rest_cache_dir property allows users to change location of REST response cache
+
 ## [3.2.1]
 
 ### Modified
