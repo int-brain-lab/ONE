@@ -342,7 +342,7 @@ token if available.</p>
 <li><p><strong>source_endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The source endpoint name or uuid.</p></li>
 <li><p><strong>recursive</strong> (<em>bool</em>) – If true, transfer the contents of nested directories (NB: all data_paths must be
 directories).</p></li>
-<li><p><strong>**kwargs</strong> – See Globus.transfer_data.</p></li>
+<li><p><strong>kwargs</strong> – See Globus.transfer_data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -387,7 +387,7 @@ directories).</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>client_name</strong> (<em>str</em>) – Parameter profile name to set up e.g. ‘default’, ‘admin’.</p></li>
-<li><p><strong>**kwargs</strong> – Optional Globus constructor arguments.</p></li>
+<li><p><strong>kwargs</strong> – Optional Globus constructor arguments.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -431,7 +431,7 @@ be provided, however if recursive is true, all paths must be directories.</p>
 <li><p><strong>destination_endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The name or UUID of the destination endpoint.</p></li>
 <li><p><strong>recursive</strong> (<em>bool</em>) – If true, transfer the contents of nested directories (NB: all data_paths must be
 directories).</p></li>
-<li><p><strong>**kwargs</strong> – See globus_sdk.TransferData.</p></li>
+<li><p><strong>kwargs</strong> – See globus_sdk.TransferData.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -472,7 +472,7 @@ be directories.</p>
 <li><p><strong>endpoint</strong> (<em>str</em><em>, </em><em>uuid.UUID</em>) – The name or UUID of the endpoint.</p></li>
 <li><p><strong>recursive</strong> (<em>bool</em>) – If true, delete the contents of nested directories (NB: all data_paths must be
 directories).</p></li>
-<li><p><strong>**kwargs</strong> – See globus_sdk.DeleteData.</p></li>
+<li><p><strong>kwargs</strong> – See globus_sdk.DeleteData.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -543,7 +543,7 @@ a UUID, the path must be absolute.</p></li>
 <li><p><strong>target_paths</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>Path</em><em> or </em><em>PurePath</em>) – The absolute or relative Globus paths of destination files to moves.  Note: if endpoint
 is a UUID, the path must be absolute.</p></li>
 <li><p><strong>timeout</strong> (<em>int</em>) – Maximum time in seconds to wait for the task to complete.</p></li>
-<li><p><strong>**kwargs</strong> – Optional arguments for globus_sdk.TransferData.</p></li>
+<li><p><strong>kwargs</strong> – Optional arguments for globus_sdk.TransferData.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
