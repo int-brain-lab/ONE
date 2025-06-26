@@ -2,6 +2,7 @@
 import unittest
 from unittest import mock
 from pathlib import Path, PurePosixPath, PureWindowsPath
+from requests.exceptions import HTTPError
 from uuid import UUID, uuid4
 import datetime
 
@@ -338,11 +339,29 @@ class TestOnlineConverters(unittest.TestCase):
 
     def test_pid2eid(self):
         """Test for OneAlyx.pid2eid method."""
+        if 'insertions' in self.one._cache:
+            del self.one._cache['insertions']
         self.assertRaises(NotImplementedError, self.one.pid2eid, self.pid, query_type='local')
         self.assertEqual((self.eid, 'probe00'), self.one.pid2eid(self.pid))
+        # Check cache table updated
+        self.assertIn('insertions', self.one._cache)
+        self.assertIn(self.eid, self.one._cache['insertions'].index)
+        # Local mode should now work
+        self.assertEqual((self.eid, 'probe00'), self.one.pid2eid(self.pid, query_type='local'))
+        # Test behaviour when pid not found
+        pid = UUID('00000000-0000-0000-0000-000000000000')
+        self.assertEqual((None, None), self.one.pid2eid(pid, query_type='local'))
+        self.assertEqual((None, None), self.one.pid2eid(pid, query_type='remote'))
+        # Non-404 status code should raise
+        err = HTTPError()
+        err.response = self.one._cache.__class__({'status_code': 500})
+        with mock.patch.object(self.one.alyx, 'get', side_effect=err):
+            self.assertRaises(HTTPError, self.one.pid2eid, pid, query_type='remote')
 
     def test_eid2pid(self):
         """Test for OneAlyx.eid2pid method."""
+        if 'insertions' in self.one._cache:
+            del self.one._cache['insertions']
         self.assertRaises(NotImplementedError, self.one.eid2pid, self.eid, query_type='local')
         # Check invalid eid
         self.assertEqual((None, None), self.one.eid2pid(None))
@@ -357,6 +376,20 @@ class TestOnlineConverters(unittest.TestCase):
         expected_keys = {'id', 'name', 'model', 'serial'}
         for d in det:
             self.assertTrue(set(d.keys()) >= expected_keys)
+        # Check cache table updated
+        cache = self.one._cache
+        self.assertIn('insertions', cache)
+        self.assertTrue(cache['insertions'].index.get_level_values(1).isin(expected[0]).all())
+        # Check local mode should now work
+        self.assertEqual(expected, self.one.eid2pid(self.eid, query_type='local'))
+        *_, det = self.one.eid2pid(self.eid, details=True, query_type='local')
+        for d in det:
+            self.assertTrue(set(d.keys()) >= expected_keys)
+        # Check behaviour when eid not found in local mode
+        eid = UUID('00000000-0000-0000-0000-000000000000')
+        self.assertEqual((None, None), self.one.eid2pid(eid, query_type='local'))
+        out = self.one.eid2pid(eid, query_type='local', details=True)
+        self.assertEqual((None, None, None), out)
 
     def test_ses2records(self):
         """Test one.converters.ses2records function."""

@@ -109,7 +109,7 @@ def _cache_response(method):
             response will not be used on subsequent calls.  If None, the default expiry is applied.
         clobber : bool
             If True any existing cached response is overwritten.
-        **kwargs
+        kwargs
             Keyword arguments for applying to wrapped function.
 
         Returns
@@ -123,7 +123,7 @@ def _cache_response(method):
         if args[0].__name__ != mode and mode != '*':
             return method(alyx_client, *args, **kwargs)
         # Check cache
-        rest_cache = alyx_client.cache_dir.joinpath('.rest')
+        rest_cache = alyx_client.rest_cache_dir
         sha1 = hashlib.sha1()
         sha1.update(bytes(args[1], 'utf-8'))
         name = sha1.hexdigest()
@@ -577,6 +577,7 @@ class AlyxClient:
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
         # turned off.
         self.default_expiry = timedelta(minutes=5)
+        self.rest_cache_dir = self.cache_dir.joinpath('.rest')
         self.cache_mode = cache_rest
         self._obj_id = id(self)
 
@@ -1368,5 +1369,5 @@ class AlyxClient:
 
     def clear_rest_cache(self):
         """Clear all REST response cache files for the base url."""
-        for file in self.cache_dir.joinpath('.rest').glob('*'):
+        for file in self.rest_cache_dir.glob('*'):
             file.unlink()

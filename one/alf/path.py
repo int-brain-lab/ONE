@@ -27,6 +27,7 @@ ALFPath properties return empty str instead of None if ALF part isn't present..
 """
 import os
 import pathlib
+from functools import cached_property
 from collections import OrderedDict
 from datetime import datetime
 from typing import Union, Optional, Iterable
@@ -844,17 +845,17 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         """
         return filename_parts(self.name, assert_valid=False, as_dict=as_dict)
 
-    @property
+    @cached_property
     def dataset_name_parts(self):
         """tuple of str: the dataset name parts, with empty strings for missing parts."""
         return tuple(p or '' for p in self.parse_alf_name(as_dict=False))
 
-    @property
+    @cached_property
     def session_parts(self):
         """tuple of str: the session path parts, with empty strings for missing parts."""
         return tuple(p or '' for p in session_path_parts(self, assert_valid=False))
 
-    @property
+    @cached_property
     def alf_parts(self):
         """tuple of str: the full ALF path parts, with empty strings for missing parts."""
         return tuple(p or '' for p in self.parse_alf_path(as_dict=False))

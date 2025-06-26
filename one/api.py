@@ -6,6 +6,7 @@ import logging
 from weakref import WeakMethod
 from datetime import datetime, timedelta
 from functools import lru_cache, partial
+from itertools import islice
 from inspect import unwrap
 from pathlib import Path, PurePosixPath
 from typing import Any, Union, Optional, List
@@ -28,7 +29,7 @@ import one.webclient as wc
 import one.alf.io as alfio
 import one.alf.path as alfiles
 import one.alf.exceptions as alferr
-from one.alf.path import ALFPath
+from one.alf.path import ALFPath, ensure_alf_path
 from .alf.cache import (
     make_parquet_db, load_tables, remove_table_files, merge_tables,
     default_cache, cast_index_object)
@@ -2020,9 +2021,26 @@ class OneAlyx(One):
 
         """
         query_type = query_type or self.mode
-        if query_type == 'local' and 'insertions' not in self._cache.keys():
-            raise NotImplementedError('Converting probe IDs required remote connection')
-        rec = self.alyx.rest('insertions', 'read', id=str(pid))
+        if query_type == 'local':  # and 'insertions' not in self._cache.keys():
+            if 'insertions' not in self._cache.keys():
+                raise NotImplementedError('Converting probe IDs requires remote connection')
+            else:
+                # If local, use the cache table
+                pid = UUID(pid) if isinstance(pid, str) else pid
+                try:
+                    rec = self._cache['insertions'].loc[pd.IndexSlice[:, pid], 'name']
+                    (eid, _), name = next(rec.items())
+                    return eid, name
+                except KeyError:
+                    return None, None
+        try:
+            rec = self.alyx.rest('insertions', 'read', id=pid)
+        except requests.exceptions.HTTPError as ex:
+            if ex.response.status_code == 404:
+                _logger.error(f'Probe {pid} not found in Alyx')
+                return None, None
+            raise ex
+        self._update_insertions_table([rec])
         return UUID(rec['session']), rec['name']
 
     def eid2pid(self, eid, query_type=None, details=False, **kwargs) -> (UUID, str, list):
@@ -2063,15 +2081,33 @@ class OneAlyx(One):
         """
         query_type = query_type or self.mode
         if query_type == 'local' and 'insertions' not in self._cache.keys():
-            raise NotImplementedError('Converting probe IDs required remote connection')
+            raise NotImplementedError('Converting to probe ID requires remote connection')
         eid = self.to_eid(eid)  # Ensure we have a UUID str
         if not eid:
             return (None,) * (3 if details else 2)
-        recs = self.alyx.rest('insertions', 'list', session=eid, **kwargs)
-        pids = [UUID(x['id']) for x in recs]
-        labels = [x['name'] for x in recs]
+        if query_type == 'local':
+            try:  # If local, use the cache table
+                rec = self._cache['insertions'].loc[(eid,), :]
+                pids, names = map(list, zip(*rec.sort_values('name')['name'].items()))
+                if details:
+                    rec['session'] = str(eid)
+                    session_info = self._cache['sessions'].loc[eid].to_dict()
+                    session_info['date'] = session_info['date'].isoformat()
+                    session_info['projects'] = session_info['projects'].split(',')
+                    rec['session_info'] = session_info
+                    # Convert to list of dicts after casting UUIDs to strings
+                    recs = cast_index_object(rec, str).reset_index().to_dict('records')
+                    return pids, names, recs
+                return pids, names
+            except KeyError:
+                return (None,) * (3 if details else 2)
+
+        if recs := self.alyx.rest('insertions', 'list', session=eid, **kwargs):
+            self._update_insertions_table(recs)
+        pids = [UUID(x['id']) for x in recs] or None
+        labels = [x['name'] for x in recs] or None
         if details:
-            return pids, labels, recs
+            return pids, labels, recs or None
         else:
             return pids, labels
 
@@ -2757,10 +2793,11 @@ class OneAlyx(One):
             return [unwrapped(self, e, query_type='remote') for e in eid]
 
         # if it wasn't successful, query Alyx
-        ses = self.alyx.rest('sessions', 'list', django=f'pk,{str(eid)}')
+        ses = self.alyx.rest('sessions', 'list', id=eid)
         if len(ses) == 0:
             return None
         else:
+            self._update_sessions_table(ses)
             return ALFPath(self.cache_dir).joinpath(
                 ses[0]['lab'], 'Subjects', ses[0]['subject'], ses[0]['start_time'][:10],
                 str(ses[0]['number']).zfill(3))
@@ -2788,7 +2825,7 @@ class OneAlyx(One):
                 eid_list.append(self.path2eid(p))
             return eid_list
         # else ensure the path ends with mouse, date, number
-        path_obj = ALFPath(path_obj)
+        path_obj = ensure_alf_path(path_obj)
 
         # try the cached info to possibly avoid hitting database
         mode = query_type or self.mode
@@ -2969,26 +3006,40 @@ class OneAlyx(One):
             [Errno 404] Remote session not found on Alyx.
 
         """
+        def process(d, root=self.cache_dir):
+            """Returns dict in similar format to One.search output."""
+            det_fields = ['subject', 'start_time', 'number', 'lab', 'projects',
+                          'url', 'task_protocol', 'local_path']
+            out = {k: v for k, v in d.items() if k in det_fields}
+            out['projects'] = ','.join(out['projects'])
+            out['date'] = datetime.fromisoformat(out['start_time']).date()
+            out['local_path'] = session_record2path(out, root)
+            return out
+
         if (query_type or self.mode) == 'local':
             return super().get_details(eid, full=full)
         # If eid is a list of eIDs recurse through list and return the results
-        if isinstance(eid, (list, util.LazyId)):
-            details_list = []
-            for p in eid:
-                details_list.append(self.get_details(p, full=full))
-            return details_list
-        # load all details
-        dets = self.alyx.rest('sessions', 'read', eid)
+        eids = ensure_list(eid)
+        details = dict.fromkeys(map(str, eids), None)  # create map to skip duplicates
         if full:
-            return dets
-        # If it's not full return the normal output like from a one.search
-        det_fields = ['subject', 'start_time', 'number', 'lab', 'projects',
-                      'url', 'task_protocol', 'local_path']
-        out = {k: v for k, v in dets.items() if k in det_fields}
-        out['projects'] = ','.join(out['projects'])
-        out.update({'local_path': self.eid2path(eid),
-                    'date': datetime.fromisoformat(out['start_time']).date()})
-        return out
+            for e in details:
+                # check for duplicates
+                details[e] = self.alyx.rest('sessions', 'read', id=e)
+                session, datasets = ses2records(details[e])
+                merge_tables(
+                    self._cache, sessions=session, datasets=datasets.copy(),
+                    origin=self.alyx.base_url)
+            details = [details[str(e)].copy() for e in eids]
+        else:
+            # batch to ensure the list is not too long for the GET request
+            iterator = iter(details.keys())
+            while batch := tuple(islice(iterator, 50)):
+                ret = self.alyx.rest('sessions', 'list', django=f'pk__in,{batch}')
+                details.update({d['id']: d for d in ret})
+            self._update_sessions_table(details.values())
+            details = [process(details[str(e)]) for e in eids]
+        # Return either a single dict or a list of dicts depending on the input type
+        return (details if isinstance(eid, (list, util.LazyId)) else details[0])
 
 
 def _setup(**kwargs):
