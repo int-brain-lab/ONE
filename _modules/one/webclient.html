@@ -215,7 +215,7 @@
 <span class="sd">            response will not be used on subsequent calls.  If None, the default expiry is applied.</span>
 <span class="sd">        clobber : bool</span>
 <span class="sd">            If True any existing cached response is overwritten.</span>
-<span class="sd">        **kwargs</span>
+<span class="sd">        kwargs</span>
 <span class="sd">            Keyword arguments for applying to wrapped function.</span>
 
 <span class="sd">        Returns</span>
@@ -229,7 +229,7 @@
         <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="n">mode</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">alyx_client</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># Check cache</span>
-        <span class="n">rest_cache</span> <span class="o">=</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span>
+        <span class="n">rest_cache</span> <span class="o">=</span> <span class="n">alyx_client</span><span class="o">.</span><span class="n">rest_cache_dir</span>
         <span class="n">sha1</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">()</span>
         <span class="n">sha1</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">sha1</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
@@ -703,6 +703,7 @@
         <span class="c1"># The default expiry is overridden by the `expires` kwarg.  If False, the caching is</span>
         <span class="c1"># turned off.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_expiry</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="n">cache_rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1547,7 +1548,7 @@
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.clear_rest_cache">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clear_rest_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all REST response cache files for the base url.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_cache_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
             <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span></div>
 </div>
 

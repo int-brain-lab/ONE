@@ -158,6 +158,7 @@
     <span class="n">validate_date_range</span><span class="p">,</span> <span class="n">index_last_before</span><span class="p">,</span> <span class="n">filter_datasets</span><span class="p">,</span> <span class="n">_collection_spec</span><span class="p">,</span>
     <span class="n">filter_revision_last_before</span><span class="p">,</span> <span class="n">parse_id</span><span class="p">,</span> <span class="n">autocomplete</span><span class="p">,</span> <span class="n">LazyId</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.webclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlyxClient</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">one.params</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">one.alf.exceptions</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">alferr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.converters</span><span class="w"> </span><span class="kn">import</span> <span class="n">datasets2records</span>
@@ -1438,13 +1439,15 @@
 <div class="viewcode-block" id="TestOneAlyx.test_pid2eid">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.test_one.html#one.tests.test_one.TestOneAlyx.test_pid2eid">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_pid2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test OneAlyx.pid2eid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test OneAlyx.pid2eid.</span>
+
+<span class="sd">        For a more complete test see `test_converters.TestOnlineConverters.test_pid2eid`.</span>
+<span class="sd">        This test uses the REST fixtures and therefore can be run offline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pid</span> <span class="o">=</span> <span class="s1">&#39;b529f2d8-cdae-4d59-aba2-cbd1b5572e36&#39;</span>
         <span class="n">eid</span><span class="p">,</span> <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="s1">&#39;fc737f3c-2a57-4165-9763-905413e7e341&#39;</span><span class="p">),</span> <span class="n">eid</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;probe00&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">pid2eid</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;probe00&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestOneAlyx.test_describe_revision">
@@ -2105,10 +2108,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">det</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">,</span> <span class="n">det</span><span class="p">)</span>
 
-        <span class="c1"># Test list</span>
-        <span class="n">det</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">get_details</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">],</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Test with a list</span>
+        <span class="c1"># For duplicate eids, we should avoid multiple queries</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">AlyxClient</span><span class="p">,</span> <span class="s1">&#39;rest&#39;</span><span class="p">,</span> <span class="n">wraps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">)</span> <span class="k">as</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">det</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">get_details</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">],</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">det</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">,</span> <span class="n">det</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">det</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">,</span> <span class="n">det</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># Check that the details dicts are copies (modifying one should not affect the other)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">det</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># details should be the same</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNot</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">det</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># should be different objects</span></div>
 
 
 <div class="viewcode-block" id="TestOneRemote.test_cache_buildup">
