@@ -642,7 +642,7 @@ class Globus(DownloadClient):
         recursive : bool
             If true, transfer the contents of nested directories (NB: all data_paths must be
             directories).
-        **kwargs
+        kwargs
             See Globus.transfer_data.
 
         Returns
@@ -715,7 +715,7 @@ class Globus(DownloadClient):
         ----------
         client_name : str
             Parameter profile name to set up e.g. 'default', 'admin'.
-        **kwargs
+        kwargs
             Optional Globus constructor arguments.
 
         Returns
@@ -937,7 +937,7 @@ class Globus(DownloadClient):
         recursive : bool
             If true, transfer the contents of nested directories (NB: all data_paths must be
             directories).
-        **kwargs
+        kwargs
             See globus_sdk.TransferData.
 
         Returns
@@ -996,7 +996,7 @@ class Globus(DownloadClient):
         recursive : bool
             If true, delete the contents of nested directories (NB: all data_paths must be
             directories).
-        **kwargs
+        kwargs
             See globus_sdk.DeleteData.
 
         Returns
@@ -1108,7 +1108,7 @@ class Globus(DownloadClient):
             is a UUID, the path must be absolute.
         timeout : int
             Maximum time in seconds to wait for the task to complete.
-        **kwargs
+        kwargs
             Optional arguments for globus_sdk.TransferData.
 
         Returns
