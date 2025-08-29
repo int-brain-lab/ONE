@@ -400,9 +400,6 @@ def filter_revision_last_before(
                     return df[df.default_revision]
                 if len(df) == 1:  # This may be the case when called from load_datasets
                     return df  # It's not the default but there's only one available revision
-                # default_revision column all False; default isn't copied to remote repository
-                if assert_unique:
-                    raise alferr.ALFError(f'No default revision for dataset {dset_name}')
             warnings.warn(
                 f'No default revision for dataset {dset_name}; using most recent',
                 alferr.ALFWarning)
