@@ -1816,7 +1816,7 @@ class OneAlyx(One):
 
         endpoint = endpoint or self._search_endpoint
         # Return search terms from REST schema
-        fields = self.alyx.rest_schemes[endpoint]['list']['fields']
+        fields = self.alyx.rest_schemes.fields(endpoint, action='list')
         excl = ('lab',)  # 'laboratory' already in search terms
         if endpoint != 'sessions':
             return tuple(x['name'] for x in fields)

@@ -542,6 +542,243 @@ def dataset_record_to_url(dataset_record) -> list:
     return urls
 
 
+class RestScheme(abc.ABC):
+    EXCLUDE = ("_type", "_meta", "", "auth-token", "api")
+
+    def __init__(self, rest_scheme: dict):
+        self._rest_scheme = rest_scheme
+
+    def _validate(self, endpoint: str, action: str = None) -> bool:
+        if endpoint not in self.endpoints:
+            print(f'Endpoint "{endpoint}" does not exist')
+            return False
+        if action is not None and action not in self.actions(endpoint):
+            print(
+                f'Endpoint "{endpoint}" does not have action "{action}": '
+                f"available actions: {', '.join(self.actions(endpoint))}"
+            )
+            return False
+        return True
+
+    @abc.abstractmethod
+    def endpoints(self) -> list:
+        """Return the list of available endpoints.
+
+        Returns
+        -------
+        list
+            List of available endpoints
+        """
+        pass
+
+    @abc.abstractmethod
+    def actions(self, endpoint: str) -> list:
+        """Return a list of available actions for a given endpoint.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find actions for
+
+        Returns
+        -------
+        list
+            List of available actions for the endpoint
+        """
+        pass
+
+    @abc.abstractmethod
+    def fields(self, endpoint: str, action: str) -> list:
+        pass
+
+    @abc.abstractmethod
+    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
+        """Prints relevant information about an endpoint and its actions.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find actions for
+        action : str
+            The Django REST action to perform:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
+
+        Returns
+        -------
+        None
+        """
+        pass
+
+    def url(self, endpoint: str, action: str):
+        pass
+
+
+class RestSchemeCoreApi(RestScheme):
+    backend = "core_api"
+
+    @property
+    def endpoints(self) -> list:
+        return sorted(x for x in self._rest_scheme.keys() if x not in self.EXCLUDE)
+
+    def actions(self, endpoint: str) -> list:
+        if not self._validate(endpoint):
+            return
+        return sorted(x for x in self._rest_scheme[endpoint].keys() if x not in self.EXCLUDE)
+
+    def url(self, endpoint: str, action: str) -> str:
+        if not self._validate(endpoint, action):
+            return
+        return self._rest_scheme[endpoint][action]["url"]
+
+    def fields(self, endpoint: str, action: str) -> list:
+        if not self._validate(endpoint, action):
+            return
+        return self._rest_scheme[endpoint][action]["fields"]
+
+    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
+        if not self._validate(endpoint, action):
+            return
+        for _action in self._rest_scheme[endpoint] if action is None else [action]:
+            doc = []
+            pprint(_action)
+            for f in self._rest_scheme[endpoint][_action]["fields"]:
+                required = " (required): " if f.get("required", False) else ": "
+                doc.append(
+                    f'\t"{f["name"]}"{required}{f["schema"]["_type"]}'
+                    f", {f['schema']['description']}"
+                )
+            doc.sort()
+            [print(d) for d in doc if "(required)" in d]
+            [print(d) for d in doc if "(required)" not in d]
+
+
+class RestSchemeOpenApi(RestScheme):
+    backend = "open_api_v3"
+
+    @property
+    def endpoints(self) -> list:
+        endpoints = set()
+        for path in self._rest_scheme["paths"].keys():
+            # Extract the endpoint name (word between first and second slash,
+            # or after first slash if no second slash)
+            match = re.match(r"^/([^/]+)", path)
+            if match and match.group(1) not in self.EXCLUDE:
+                endpoints.add(match.group(1))
+        return sorted(list(endpoints))
+
+    def _get_endpoint_actions(self, endpoint: str) -> dict:
+        if not self._validate(endpoint):
+            return
+        # Find all paths that start with this endpoint
+        endpoint_paths = []
+        for path in self._rest_scheme["paths"].keys():
+            # Match either /endpoint or /endpoint/{something}
+            if path == f"/{endpoint}" or path.startswith(f"/{endpoint}/"):
+                endpoint_paths.append(path)
+        # Extract available HTTP methods (actions) for these paths
+        actions = {}
+        for path in endpoint_paths:
+            for method in self._rest_scheme["paths"][path].keys():
+                # Convert HTTP methods to standard action names
+                if method == "get":
+                    # Determine if this is a list or read action based on path pattern
+                    if "{" in path:  # Path has a parameter, likely a read action
+                        action = "read"
+                    else:
+                        action = "list"
+                elif method == "post":
+                    action = "create"
+                elif method == "put":
+                    action = "update"
+                elif method == "patch":
+                    action = "partial_update"
+                elif method == "delete":
+                    action = "delete"
+                actions[action] = path
+        return actions
+
+    def _endpoint_action_info(self, endpoint: str, action: str) -> dict:
+        if not self._validate(endpoint):
+            return
+        # Find all paths that start with this endpoint
+        endpoint_paths = []
+        for path in self._rest_scheme["paths"].keys():
+            # Match either /endpoint or /endpoint/{something}
+            if path == f"/{endpoint}" and not action == "read" or path.startswith(f"/{endpoint}/"):
+                endpoint_paths.append(path)
+        # Extract available HTTP methods (actions) for these paths
+        rest2http = {
+            "list": "get",
+            "read": "get",
+            "create": "post",
+            "update": "put",
+            "partial_update": "patch",
+            "delete": "delete",
+        }
+
+        endpoint_method_info = {"fields": [], "description": "", "parameters": [], "url": ""}
+        for path in endpoint_paths:
+            operation = self._rest_scheme["paths"][path].get(rest2http[action], None)
+            if operation is not None:
+                endpoint_method_info["url"] = path
+                if "requestBody" in operation:
+                    schema = operation["requestBody"]["content"]["application/json"]["schema"][
+                        "$ref"
+                    ].split("/")[-1]
+                    endpoint_method_info["fields"] = self._rest_scheme["components"]["schemas"][
+                        schema
+                    ]["properties"]
+                if "description" in operation:
+                    endpoint_method_info["description"] = operation["description"]
+                if "parameters" in operation:
+                    endpoint_method_info["parameters"] = operation["parameters"]
+                break
+        return endpoint_method_info
+
+    def fields(self, endpoint: str, action: str) -> list:
+        return self._endpoint_action_info(endpoint, action)["fields"]
+
+    def actions(self, endpoint: str) -> list:
+        if not self._validate(endpoint):
+            return
+        actions = self._get_endpoint_actions(endpoint)
+        return sorted(list(actions.keys()))
+
+    def url(self, endpoint: str, action: str) -> str:
+        return self._endpoint_action_info(endpoint, action)["url"]
+
+    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
+        """Print detailed information about an endpoint's actions and parameters.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to display information for
+        action : str, optional
+            If provided, only show information for this specific action
+
+        Returns
+        -------
+        dict
+            A dictionary containing the endpoint information
+        """
+        if not self._validate(endpoint, action):
+            return
+        actions = self._get_endpoint_actions(endpoint) if action is None else [action]
+        for action in actions:
+            endpoint_action_info = self._endpoint_action_info(endpoint, action)
+            print(80 * "*")
+            print(endpoint, action)
+            print(80 * "-")
+            print(self.url(endpoint, action))
+            print(80 * "-")
+            print("Fields:")
+            pprint(self.fields(endpoint, action))
+            print(80 * "-")
+            print("Description: \n", endpoint_action_info["description"])
+            print(80 * "-")
+
+
 class AlyxClient:
     """Class that implements simple GET/POST wrappers for the Alyx REST API.
 
@@ -606,7 +843,7 @@ class AlyxClient:
         self._obj_id = id(self)
 
     @property
-    def rest_schemes(self):
+    def rest_schemes(self) -> RestScheme:
         """dict: The REST endpoints and their parameters."""
         # Delayed fetch of rest schemes speeds up instantiation
         if not self._rest_schemes:
@@ -1102,7 +1339,7 @@ class AlyxClient:
         """
         # if endpoint is None, list available endpoints
         if not url:
-            pprint(self.list_endpoints())
+            pprint(self.rest_schemes.endpoints)
             return
         # remove beginning slash if any
         if url.startswith("/"):
@@ -1360,243 +1597,3 @@ class AlyxClient:
         """Clear all REST response cache files for the base url."""
         for file in self.rest_cache_dir.glob("*"):
             file.unlink()
-
-
-class RestScheme(abc.ABC):
-    EXCLUDE = ("_type", "_meta", "", "auth-token", "api")
-
-    def __init__(self, rest_scheme: dict):
-        self._rest_scheme = rest_scheme
-
-    def _validate(self, endpoint: str, action: str = None) -> bool:
-        if endpoint not in self.endpoints:
-            print(f'Endpoint "{endpoint}" does not exist')
-            return False
-        if action is not None and action not in self.actions(endpoint):
-            print(
-                f'Endpoint "{endpoint}" does not have action "{action}": '
-                f"available actions: {', '.join(self.actions(endpoint))}"
-            )
-            return False
-        return True
-
-    @abc.abstractmethod
-    def endpoints(self) -> list:
-        """Return the list of available endpoints.
-
-        Returns
-        -------
-        list
-            List of available endpoints
-        """
-        pass
-
-    @abc.abstractmethod
-    def actions(self, endpoint: str) -> list:
-        """Return a list of available actions for a given endpoint.
-
-        Parameters
-        ----------
-        endpoint : str
-            The endpoint name to find actions for
-
-        Returns
-        -------
-        list
-            List of available actions for the endpoint
-        """
-        pass
-
-    @abc.abstractmethod
-    def fields(self, endpoint: str, action: str) -> list:
-        pass
-
-    @abc.abstractmethod
-    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
-        """Return a list of available actions for a given endpoint.
-
-        Parameters
-        ----------
-        endpoint : str
-            The endpoint name to find actions for
-        action : str
-            The Django REST action to perform:
-             'list', 'read', 'create', 'update', 'delete', 'partial_update'
-
-        Returns
-        -------
-        None
-        """
-        pass
-
-    def url(self, endpoint: str, action: str):
-        pass
-
-
-class RestSchemeCoreApi(RestScheme):
-    backend = "core_api"
-
-    @property
-    def endpoints(self) -> list:
-        return sorted(x for x in self._rest_scheme.keys() if x not in self.EXCLUDE)
-
-    def actions(self, endpoint: str) -> list:
-        if not self._validate(endpoint):
-            return
-        return sorted(x for x in self._rest_scheme[endpoint].keys() if x not in self.EXCLUDE)
-
-    def url(self, endpoint: str, action: str) -> str:
-        if not self._validate(endpoint, action):
-            return
-        return self._rest_scheme[endpoint][action]["url"]
-
-    def fields(self, endpoint: str, action: str) -> list:
-        if not self._validate(endpoint, action):
-            return
-        return self._rest_scheme[endpoint][action]["fields"]
-
-    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
-        if not self._validate(endpoint, action):
-            return
-        for _action in self._rest_scheme[endpoint] if action is None else [action]:
-            doc = []
-            pprint(_action)
-            for f in self._rest_scheme[endpoint][_action]["fields"]:
-                required = " (required): " if f.get("required", False) else ": "
-                doc.append(
-                    f'\t"{f["name"]}"{required}{f["schema"]["_type"]}'
-                    f", {f['schema']['description']}"
-                )
-            doc.sort()
-            [print(d) for d in doc if "(required)" in d]
-            [print(d) for d in doc if "(required)" not in d]
-        return (
-            self._rest_scheme[endpoint] if action is None else self._rest_scheme[endpoint][action]
-        ).copy()
-
-
-class RestSchemeOpenApi(RestScheme):
-    backend = "open_api_v3"
-
-    @property
-    def endpoints(self) -> list:
-        endpoints = set()
-        for path in self._rest_scheme["paths"].keys():
-            # Extract the endpoint name (word between first and second slash,
-            # or after first slash if no second slash)
-            match = re.match(r"^/([^/]+)", path)
-            if match and match.group(1) not in self.EXCLUDE:
-                endpoints.add(match.group(1))
-        return sorted(list(endpoints))
-
-    def _get_endpoint_actions(self, endpoint: str) -> dict:
-        if not self._validate(endpoint):
-            return
-        # Find all paths that start with this endpoint
-        endpoint_paths = []
-        for path in self._rest_scheme["paths"].keys():
-            # Match either /endpoint or /endpoint/{something}
-            if path == f"/{endpoint}" or path.startswith(f"/{endpoint}/"):
-                endpoint_paths.append(path)
-        # Extract available HTTP methods (actions) for these paths
-        actions = {}
-        for path in endpoint_paths:
-            for method in self._rest_scheme["paths"][path].keys():
-                # Convert HTTP methods to standard action names
-                if method == "get":
-                    # Determine if this is a list or read action based on path pattern
-                    if "{" in path:  # Path has a parameter, likely a read action
-                        action = "read"
-                    else:
-                        action = "list"
-                elif method == "post":
-                    action = "create"
-                elif method == "put":
-                    action = "update"
-                elif method == "patch":
-                    action = "partial_update"
-                elif method == "delete":
-                    action = "delete"
-                actions[action] = path
-        return actions
-
-    def _endpoint_action_info(self, endpoint: str, action: str) -> dict:
-        if not self._validate(endpoint):
-            return
-        # Find all paths that start with this endpoint
-        endpoint_paths = []
-        for path in self._rest_scheme["paths"].keys():
-            # Match either /endpoint or /endpoint/{something}
-            if path == f"/{endpoint}" and not action == "read" or path.startswith(f"/{endpoint}/"):
-                endpoint_paths.append(path)
-        # Extract available HTTP methods (actions) for these paths
-        rest2http = {
-            "list": "get",
-            "read": "get",
-            "create": "post",
-            "update": "put",
-            "partial_update": "patch",
-            "delete": "delete",
-        }
-
-        endpoint_method_info = {"fields": [], "description": "", "parameters": [], "url": ""}
-        for path in endpoint_paths:
-            operation = self._rest_scheme["paths"][path].get(rest2http[action], None)
-            if operation is not None:
-                endpoint_method_info["url"] = path
-                if "requestBody" in operation:
-                    schema = operation["requestBody"]["content"]["application/json"]["schema"][
-                        "$ref"
-                    ].split("/")[-1]
-                    endpoint_method_info["fields"] = self._rest_scheme["components"]["schemas"][
-                        schema
-                    ]["properties"]
-                if "description" in operation:
-                    endpoint_method_info["description"] = operation["description"]
-                if "parameters" in operation:
-                    endpoint_method_info["parameters"] = operation["parameters"]
-                break
-        return endpoint_method_info
-
-    def fields(self, endpoint: str, action: str) -> list:
-        return self._endpoint_action_info(endpoint, action)["fields"]
-
-    def actions(self, endpoint: str) -> list:
-        if not self._validate(endpoint):
-            return
-        actions = self._get_endpoint_actions(endpoint)
-        return sorted(list(actions.keys()))
-
-    def url(self, endpoint: str, action: str) -> str:
-        return self._endpoint_action_info(endpoint, action)["url"]
-
-    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
-        """Print detailed information about an endpoint's actions and parameters.
-
-        Parameters
-        ----------
-        endpoint : str
-            The endpoint name to display information for
-        action : str, optional
-            If provided, only show information for this specific action
-
-        Returns
-        -------
-        dict
-            A dictionary containing the endpoint information
-        """
-        if not self._validate(endpoint, action):
-            return
-        actions = self._get_endpoint_actions(endpoint) if action is None else [action]
-        for action in actions:
-            endpoint_action_info = self._endpoint_action_info(endpoint, action)
-            print(80 * "*")
-            print(endpoint, action)
-            print(80 * "-")
-            print(self.url(endpoint, action))
-            print(80 * "-")
-            print("Fields:")
-            pprint(self.fields(endpoint, action))
-            print(80 * "-")
-            print("Description: \n", endpoint_action_info["description"])
-            print(80 * "-")

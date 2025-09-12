@@ -148,7 +148,7 @@ class TestREST(unittest.TestCase):
     def test_endpoints_docs(self):
         """Test for AlyxClient.list_endpoints method and AlyxClient.rest."""
         # Test endpoint documentation and validation
-        endpoints = self.alyx.list_endpoints()
+        endpoints = self.alyx.rest_schemes.endpoints
         self.assertTrue('auth-token' not in endpoints)
         # Check that calling rest method with no args prints endpoints
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
@@ -157,9 +157,9 @@ class TestREST(unittest.TestCase):
         # Same but with no action
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             self.assertIsNone(self.alyx.rest('sessions'))
-            actions = self.alyx.rest_schemes['sessions'].keys()
+            actions = self.alyx.rest_schemes.actions('sessions')
             self.assertTrue(all(k in stdout.getvalue() for k in actions))
-            expected = "['list', 'create', 'read', 'update', 'partial_update', 'delete']\n"
+            expected = "['create', 'delete', 'list', 'partial_update', 'read', 'update']\n"
             self.assertEqual(expected, stdout.getvalue()[:65])
         # Check raises when endpoint invalid
         self.assertRaises(ValueError, self.alyx.rest, 'foobar')
@@ -172,28 +172,6 @@ class TestREST(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self.alyx.json_field_write('foobar')
         self.assertTrue(k in str(e.exception) for k in endpoints)
-
-    def test_print_endpoint_info(self):
-        """Test endpoint query params are printed when calling AlyxClient.rest without action."""
-        # Check behaviour when endpoint invalid
-        endpoint = 'foobar'
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            self.assertIsNone(self.alyx.print_endpoint_info(endpoint))
-            self.assertRegex(stdout.getvalue(), f'"{endpoint}" does not exist')
-        # Check returns endpoint info as well as printing
-        endpoint = 'subjects'
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            info = self.alyx.print_endpoint_info(endpoint)
-            self.assertEqual(self.alyx.rest_schemes[endpoint], info)
-            self.assertIsNot(self.alyx.rest_schemes[endpoint], info)  # Ensure copy returned
-            self.assertTrue(stdout.getvalue().strip(), 'failed to print endpoint info')
-        # Check action input
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            info = self.alyx.print_endpoint_info(endpoint, 'create')
-            self.assertEqual(self.alyx.rest_schemes[endpoint]['create'], info)
-            self.assertIsNot(self.alyx.rest_schemes[endpoint]['create'], info)  # Ensure copy
-            self.assertTrue(stdout.getvalue().strip(), 'failed to print endpoint info')
-            self.assertEqual("'create'\n\t", stdout.getvalue().strip()[:10])
 
     """Specific Alyx REST endpoint tests"""
     def test_water_restriction(self):

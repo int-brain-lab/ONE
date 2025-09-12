@@ -8,6 +8,7 @@ import random
 import weakref
 import uuid
 import os
+import io
 import one.webclient as wc
 import one.params
 import tempfile
@@ -35,36 +36,50 @@ if "public" in ac._par.HTTP_DATA_SERVER:
 class TestRestDocumentation(unittest.TestCase):
     def setUp(self) -> None:
         self.path_fixtures = Path(__file__).parent.joinpath("fixtures", "rest_responses")
-
-    def test_rest_schema_core_api(self):
         with open(self.path_fixtures.joinpath("coreapi.json"), "r") as f:
             rest_scheme = json.load(f)
-        scheme_coreapi = wc.RestSchemeCoreApi(rest_scheme)
+        self.scheme_coreapi = wc.RestSchemeCoreApi(rest_scheme)
 
         with open(self.path_fixtures.joinpath("openapiv3.json"), "r") as f:
             rest_scheme = json.load(f)
-        scheme_openapi = wc.RestSchemeOpenApi(rest_scheme)
+        self.scheme_openapi = wc.RestSchemeOpenApi(rest_scheme)
 
+    def test_rest_schema_core_api(self):
         # test the list of endpoints
-        self.assertEqual(set(scheme_openapi.endpoints), set(scheme_coreapi.endpoints))
+        self.assertEqual(set(self.scheme_openapi.endpoints), set(self.scheme_coreapi.endpoints))
         # test the list of actions for each endpoint
         self.assertEqual(
-            set(scheme_coreapi.actions("sessions")),
+            set(self.scheme_coreapi.actions("sessions")),
             {"create", "delete", "list", "partial_update", "read", "update"},
         )
         self.assertEqual(
-            set(scheme_openapi.actions("sessions")),
+            set(self.scheme_openapi.actions("sessions")),
             {"create", "delete", "list", "partial_update", "read", "update"},
         )
         # test getting the URL for each endpoint/action
-        self.assertEqual(scheme_openapi.url("sessions", "read"), "/sessions/{id}")
-        self.assertEqual(scheme_coreapi.url("sessions", "read"), "/sessions/{id}")
+        self.assertEqual(self.scheme_openapi.url("sessions", "read"), "/sessions/{id}")
+        self.assertEqual(self.scheme_coreapi.url("sessions", "read"), "/sessions/{id}")
         # test getting the parameters for each endpoint/action
-        self.assertTrue(len(scheme_openapi.fields("sessions", "partial_update")) >= 19)
-        self.assertTrue(len(scheme_coreapi.fields("sessions", "partial_update")) >= 19)
-        scheme_coreapi.print_endpoint_info("sessions", "list")
-        scheme_openapi.print_endpoint_info("sessions", "list")
+        self.assertTrue(len(self.scheme_openapi.fields("sessions", "partial_update")) >= 19)
+        self.assertTrue(len(self.scheme_coreapi.fields("sessions", "partial_update")) >= 19)
 
+
+    def test_print_endpoint_info(self):
+        """Test endpoint query params are printed when calling AlyxClient.rest without action."""
+        # Check behaviour when endpoint invalid
+        endpoint = 'foobar'
+        for scheme in [self.scheme_openapi, self.scheme_coreapi]:
+            with self.subTest(scheme=scheme):
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    self.scheme_openapi.print_endpoint_info(endpoint)
+                    self.assertRegex(stdout.getvalue(), f'"{endpoint}" does not exist')
+                # Check returns endpoint info as well as printing
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    self.scheme_coreapi.print_endpoint_info("sessions", "partial_update")
+                    self.assertRegex(stdout.getvalue(), 'parent_session')
+                    self.assertRegex(stdout.getvalue(), 'extended_qc')
+
+        # Check action input
 
 @unittest.skipIf(OFFLINE_ONLY, "online only test")
 class TestAuthentication(unittest.TestCase):
