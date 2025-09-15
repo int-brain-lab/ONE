@@ -79,7 +79,10 @@ class TestRestDocumentation(unittest.TestCase):
                     self.assertRegex(stdout.getvalue(), 'parent_session')
                     self.assertRegex(stdout.getvalue(), 'extended_qc')
 
-        # Check action input
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    self.scheme_coreapi.print_endpoint_info('sessions')
+                    self.assertRegex(stdout.getvalue(), 'partial_update')
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAuthentication(unittest.TestCase):
