@@ -71,16 +71,16 @@ class TestRestDocumentation(unittest.TestCase):
         for scheme in [self.scheme_openapi, self.scheme_coreapi]:
             with self.subTest(scheme=scheme):
                 with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-                    self.scheme_openapi.print_endpoint_info(endpoint)
+                    scheme.print_endpoint_info(endpoint)
                     self.assertRegex(stdout.getvalue(), f'"{endpoint}" does not exist')
                 # Check returns endpoint info as well as printing
                 with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-                    self.scheme_coreapi.print_endpoint_info('sessions', 'partial_update')
+                    scheme.print_endpoint_info('sessions', 'partial_update')
                     self.assertRegex(stdout.getvalue(), 'parent_session')
                     self.assertRegex(stdout.getvalue(), 'extended_qc')
 
                 with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-                    self.scheme_coreapi.print_endpoint_info('sessions')
+                    scheme.print_endpoint_info('sessions')
                     self.assertRegex(stdout.getvalue(), 'partial_update')
 
 

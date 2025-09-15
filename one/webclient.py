@@ -577,7 +577,6 @@ class RestScheme(abc.ABC):
         list
             List of available endpoints
         """
-        pass
 
     @abc.abstractmethod
     def actions(self, endpoint: str) -> list:
@@ -593,25 +592,24 @@ class RestScheme(abc.ABC):
         list
             List of available actions for the endpoint
         """
-        pass
 
     @abc.abstractmethod
     def fields(self, endpoint: str, action: str) -> list:
-        """Return a list of fields for a given endpoint and action.
+        """Return a list of fields for a given endpoint/action combination.
 
         Parameters
         ----------
         endpoint : str
-            The endpoint name.
+            The endpoint name to find actions for
         action : str
-            The action name.
+            The Django REST action to perform:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
 
         Returns
         -------
         list
-            List of fields for the endpoint and action
+            List of available actions for the endpoint
         """
-        pass
 
     @abc.abstractmethod
     def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
@@ -629,24 +627,23 @@ class RestScheme(abc.ABC):
         -------
         None
         """
-        pass
 
     def url(self, endpoint: str, action: str):
-        """Return the URL for a given endpoint and action.
+        """Returns the url for a given endpoint/action combination.
 
         Parameters
         ----------
         endpoint : str
-            The endpoint name.
+            The endpoint name to find actions for
         action : str
-            The action name.
+            The Django REST action to perform:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
 
         Returns
         -------
         str
-            The URL for the endpoint and action.
+            url of the endpoint: for example /sessions/{id}
         """
-        pass
 
 
 class RestSchemeCoreApi(RestScheme):
@@ -808,16 +805,14 @@ class RestSchemeOpenApi(RestScheme):
         actions = self._get_endpoint_actions(endpoint) if action is None else [action]
         for action in actions:
             endpoint_action_info = self._endpoint_action_info(endpoint, action)
-            print(80 * '*')
-            print(endpoint, action)
-            print(80 * '-')
-            print(self.url(endpoint, action))
-            print(80 * '-')
-            print('Fields:')
-            pprint(self.fields(endpoint, action))
-            print(80 * '-')
-            print('Description: \n', endpoint_action_info['description'])
-            print(80 * '-')
+            print(action)
+            for par in endpoint_action_info.get('parameters', []):
+                print(f'\t{par["name"]}')
+            all_fields = endpoint_action_info.get('fields', {})
+            if isinstance(all_fields, dict):
+                for field, field_info in all_fields.items():
+                    print(f'\t{field}: ({field_info.get("type", "")}), '
+                          f'{field_info.get("description", "")}')
 
 
 class AlyxClient:
