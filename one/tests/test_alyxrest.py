@@ -121,8 +121,8 @@ class TestREST(unittest.TestCase):
         if sub:
             self.alyx.rest('subjects', 'delete', id=nickname)
         self.alyx.rest('subjects', 'create', data=newsub)
-        # partial update and full update
-        newsub = self.alyx.rest('subjects', 'partial_update',
+        # partial update (with hyphen correction) and full update
+        newsub = self.alyx.rest('subjects', 'partial-update',
                                 id=nickname, data={'description': 'hey'})
         self.assertEqual(newsub['description'], 'hey')
         newsub['description'] = 'hoy'
