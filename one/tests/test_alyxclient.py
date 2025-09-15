@@ -83,6 +83,15 @@ class TestRestDocumentation(unittest.TestCase):
                     scheme.print_endpoint_info('sessions')
                     self.assertRegex(stdout.getvalue(), 'partial_update')
 
+    def test_alyx_client_methods(self):
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            self.assertTrue(len(ac.list_endpoints()) > 20)
+            self.assertRegex(stdout.getvalue(), 'sessions')
+
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            ac.print_endpoint_info('sessions')
+            self.assertRegex(stdout.getvalue(), 'partial_update')
+
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestAuthentication(unittest.TestCase):

@@ -878,17 +878,6 @@ class AlyxClient:
         self.cache_mode = cache_rest
         self._obj_id = id(self)
 
-    @property
-    def rest_schemes(self) -> RestScheme:
-        """dict: The REST endpoints and their parameters."""
-        # Delayed fetch of rest schemes speeds up instantiation
-        if not self._rest_schemes:
-            raw_schema = self.get('/docs', expires=timedelta(weeks=1))
-            if 'openapi' in raw_schema:
-                self._rest_schemes = RestSchemeOpenApi(raw_schema)
-            else:
-                self._rest_schemes = RestSchemeCoreApi(raw_schema)
-        return self._rest_schemes
 
     @property
     def cache_dir(self):
@@ -905,6 +894,26 @@ class AlyxClient:
     def is_logged_in(self):
         """bool: Check if user logged into Alyx database; True if user is authenticated."""
         return bool(self.user and self._token and 'Authorization' in self._headers)
+
+    @property
+    def rest_schemes(self) -> RestScheme:
+        """dict: The REST endpoints and their parameters."""
+        # Delayed fetch of rest schemes speeds up instantiation
+        if not self._rest_schemes:
+            raw_schema = self.get('/docs', expires=timedelta(weeks=1))
+            if 'openapi' in raw_schema:
+                self._rest_schemes = RestSchemeOpenApi(raw_schema)
+            else:
+                self._rest_schemes = RestSchemeCoreApi(raw_schema)
+        return self._rest_schemes
+
+    def list_endpoints(self):
+        endpoints = self.rest_schemes.endpoints
+        pprint(endpoints)
+        return endpoints
+
+    def print_endpoint_info(self, endpoint: str, action: str = None):
+        self.rest_schemes.print_endpoint_info(endpoint, action)
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
