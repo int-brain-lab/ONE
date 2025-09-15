@@ -531,12 +531,32 @@ def dataset_record_to_url(dataset_record) -> list:
 
 
 class RestScheme(abc.ABC):
+    """Alyx REST scheme documentation."""
+
     EXCLUDE = ('_type', '_meta', '', 'auth-token', 'api')
+    """list: A list of endpoint names to exclude from listings."""
 
     def __init__(self, rest_scheme: dict):
         self._rest_scheme = rest_scheme
 
     def _validate(self, endpoint: str, action: str = None) -> bool:
+        """Validate that an endpoint and action exist.
+
+        This is used by `print_endpoint_info` to print a message if the endpoint or action do not
+        exist.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name.
+        action : str
+            The action name.
+
+        Returns
+        -------
+        bool
+            True if the endpoint and action exist, False otherwise.
+        """
         if endpoint not in self.endpoints:
             print(f'Endpoint "{endpoint}" does not exist')
             return False
@@ -577,6 +597,20 @@ class RestScheme(abc.ABC):
 
     @abc.abstractmethod
     def fields(self, endpoint: str, action: str) -> list:
+        """Return a list of fields for a given endpoint and action.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name.
+        action : str
+            The action name.
+
+        Returns
+        -------
+        list
+            List of fields for the endpoint and action
+        """
         pass
 
     @abc.abstractmethod
@@ -598,11 +632,28 @@ class RestScheme(abc.ABC):
         pass
 
     def url(self, endpoint: str, action: str):
+        """Return the URL for a given endpoint and action.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name.
+        action : str
+            The action name.
+
+        Returns
+        -------
+        str
+            The URL for the endpoint and action.
+        """
         pass
 
 
 class RestSchemeCoreApi(RestScheme):
+    """Legacy Alyx REST scheme documentation."""
+
     backend = 'core_api'
+    """str: The name of the backend that generates the REST API documentation."""
 
     @property
     def endpoints(self) -> list:
@@ -641,7 +692,10 @@ class RestSchemeCoreApi(RestScheme):
 
 
 class RestSchemeOpenApi(RestScheme):
+    """OpenAPI v3 Alyx REST scheme documentation."""
+
     backend = 'open_api_v3'
+    """str: The name of the backend that generates the REST API documentation."""
 
     @property
     def endpoints(self) -> list:
@@ -747,8 +801,7 @@ class RestSchemeOpenApi(RestScheme):
 
         Returns
         -------
-        dict
-            A dictionary containing the endpoint information
+        None
         """
         if not self._validate(endpoint, action):
             return
