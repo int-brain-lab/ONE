@@ -62,7 +62,8 @@ class TestRestDocumentation(unittest.TestCase):
         # test getting the parameters for each endpoint/action
         self.assertTrue(len(self.scheme_openapi.fields('sessions', 'partial_update')) >= 19)
         self.assertTrue(len(self.scheme_coreapi.fields('sessions', 'partial_update')) >= 19)
-
+        self.assertTrue(len(self.scheme_openapi.field_names('sessions', 'partial_update')) >= 19)
+        self.assertTrue(len(self.scheme_coreapi.field_names('sessions', 'partial_update')) >= 19)
 
     def test_print_endpoint_info(self):
         """Test endpoint query params are printed when calling AlyxClient.rest without action."""
@@ -91,6 +92,11 @@ class TestRestDocumentation(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             ac.print_endpoint_info('sessions')
             self.assertRegex(stdout.getvalue(), 'partial_update')
+
+    def test_mistyped_parameters(self):
+        self.scheme_openapi.field_names('insertions', 'list')
+        self.scheme_coreapi.field_names('insertions', 'list')
+
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')

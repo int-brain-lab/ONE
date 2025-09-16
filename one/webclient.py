@@ -43,7 +43,7 @@ import urllib.request
 from urllib.error import HTTPError
 import urllib.parse
 from collections.abc import Mapping
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timedelta
 from pathlib import Path
 from weakref import ReferenceType
@@ -594,22 +594,40 @@ class RestScheme(abc.ABC):
         """
 
     @abc.abstractmethod
-    def fields(self, endpoint: str, action: str) -> list:
+    def fields(self, endpoint: str, action: str) -> List[dict]:
         """Return a list of fields for a given endpoint/action combination.
 
         Parameters
         ----------
         endpoint : str
-            The endpoint name to find actions for
+            The endpoint name to find fields and parameters for
         action : str
-            The Django REST action to perform:
+            The Django REST action:
              'list', 'read', 'create', 'update', 'delete', 'partial_update'
 
         Returns
         -------
         list
-            List of available actions for the endpoint
+            List of dictionaries containing fields for the endpoint
         """
+
+    def field_names(self, endpoint: str, action: str) -> List[str]:
+        """Return a list of fields for a given endpoint/action combination.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find fields and parameters for
+        action : str
+            The Django REST action:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
+
+        Returns
+        -------
+        list
+            List of strings containing fields names for the endpoint
+        """
+        return [field['name'] for field in self.fields(endpoint, action)]
 
     @abc.abstractmethod
     def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
@@ -766,7 +784,7 @@ class RestSchemeOpenApi(RestScheme):
             'delete': 'delete',
         }
 
-        endpoint_method_info = {'fields': [], 'description': '', 'parameters': [], 'url': ''}
+        endpoint_method_info = {'fields': {}, 'description': '', 'parameters': [], 'url': ''}
         for path in endpoint_paths:
             operation = self._rest_scheme['paths'][path].get(rest2http[action], None)
             if operation is not None:
@@ -786,7 +804,11 @@ class RestSchemeOpenApi(RestScheme):
         return endpoint_method_info
 
     def fields(self, endpoint: str, action: str) -> list:
-        return self._endpoint_action_info(endpoint, action)['fields']
+        # in openapi there is a distinction between fields and parameters
+        params = self._endpoint_action_info(endpoint, action)['parameters']
+        fields = self._endpoint_action_info(endpoint, action)['fields']
+        fields = [{'name': k, 'schema': v} for k, v in fields.items()]
+        return params + fields 
 
     @validate_endpoint_action
     def actions(self, endpoint: str, *args) -> list:
