@@ -84,6 +84,12 @@ class TestRestDocumentation(unittest.TestCase):
                     scheme.print_endpoint_info('sessions')
                     self.assertRegex(stdout.getvalue(), 'partial_update')
 
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    scheme.print_endpoint_info('insertions', 'erase')
+                    self.assertRegex(stdout.getvalue(),
+                                     'Endpoint "insertions" does not have action "erase"')
+
+    @unittest.skipIf(OFFLINE_ONLY, 'online only test')
     def test_alyx_client_methods(self):
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             self.assertTrue(len(ac.list_endpoints()) > 20)
@@ -92,11 +98,6 @@ class TestRestDocumentation(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             ac.print_endpoint_info('sessions')
             self.assertRegex(stdout.getvalue(), 'partial_update')
-
-    def test_mistyped_parameters(self):
-        self.scheme_openapi.field_names('insertions', 'list')
-        self.scheme_coreapi.field_names('insertions', 'list')
-
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')

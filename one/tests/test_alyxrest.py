@@ -26,6 +26,18 @@ class TestREST(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.alyx = AlyxClient(**TEST_DB_1)
 
+    def test_validation_list_fields(self):
+            # test raising an error when specifying a non-existent action
+        with self.assertRaises(ValueError) as cm:
+            self.alyx.rest('datasets', 'erase')
+        self.assertIn(
+            'Action "erase" for REST endpoint "datasets" does not exist', str(cm.exception))
+
+        # test raising an error when specifying a non-existent field
+        with self.assertRaises(ValueError) as cm:
+            self.alyx.rest('insertions', 'list', djangodd='boum')
+        self.assertIn("Unsupported fields '{'djangodd'}' in query parameters", str(cm.exception))
+
     def test_paginated_request(self):
         """Check that paginated response object is returned upon making large queries."""
         rep = self.alyx.rest('datasets', 'list')

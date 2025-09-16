@@ -808,7 +808,7 @@ class RestSchemeOpenApi(RestScheme):
         params = self._endpoint_action_info(endpoint, action)['parameters']
         fields = self._endpoint_action_info(endpoint, action)['fields']
         fields = [{'name': k, 'schema': v} for k, v in fields.items()]
-        return params + fields 
+        return params + fields
 
     @validate_endpoint_action
     def actions(self, endpoint: str, *args) -> list:
@@ -932,7 +932,7 @@ class AlyxClient:
         # Delayed fetch of rest schemes speeds up instantiation
         if not self._rest_schemes:
             raw_schema = self.get('/docs', expires=timedelta(weeks=1))
-            if 'openapi' in raw_schema:
+            if 'openapi' in raw_schema:  #nocov
                 self._rest_schemes = RestSchemeOpenApi(raw_schema)
             else:
                 self._rest_schemes = RestSchemeCoreApi(raw_schema)
@@ -986,7 +986,7 @@ class AlyxClient:
                 message.pop('status_code', None)  # Get status code from response object instead
                 message = message.get('detail') or message  # Get details if available
                 _logger.debug(message)
-            except json.decoder.JSONDecodeError:
+            except json.decoder.JSONDecodeError:  #nocov
                 message = r.text
             raise requests.HTTPError(r.status_code, rest_query, message, response=r)
 
@@ -1489,6 +1489,10 @@ class AlyxClient:
                 if 'django' in kwargs and kwargs['django'] is None:
                     del kwargs['django']
                 # Convert all lists in query params to comma separated list
+                if len(set(kwargs.keys()) - set(self.rest_schemes.field_names(endpoint, action))):
+                    missing = set(kwargs.keys()) - set(
+                        self.rest_schemes.field_names(endpoint, action))
+                    raise ValueError(f"Error: Unsupported fields '{missing}' in query parameters.")
                 query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
                 url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)
