@@ -579,7 +579,7 @@ class RestScheme(abc.ABC):
         """
 
     @abc.abstractmethod
-    def actions(self, endpoint: str) -> list:
+    def actions(self, endpoint: str, *args) -> list:
         """Return a list of available actions for a given endpoint.
 
         Parameters
@@ -646,6 +646,23 @@ class RestScheme(abc.ABC):
         """
 
 
+def validate_endpoint_action(func):
+    """Decorator to validate endpoint and action before executing a method.
+
+    This decorator checks if the endpoint exists and, if an action is provided,
+    whether the action exists for that endpoint. If validation fails, it returns
+    None, otherwise it executes the decorated function.
+    """
+
+    @functools.wraps(func)
+    def wrapper(self, endpoint, action=None, *args, **kwargs):
+        if not self._validate(endpoint, action):
+            return
+        return func(self, endpoint, action, *args, **kwargs)
+
+    return wrapper
+
+
 class RestSchemeCoreApi(RestScheme):
     """Legacy Alyx REST scheme documentation."""
 
@@ -656,24 +673,20 @@ class RestSchemeCoreApi(RestScheme):
     def endpoints(self) -> list:
         return sorted(x for x in self._rest_scheme.keys() if x not in self.EXCLUDE)
 
-    def actions(self, endpoint: str) -> list:
-        if not self._validate(endpoint):
-            return
+    @validate_endpoint_action
+    def actions(self, endpoint: str, *args) -> list:
         return sorted(x for x in self._rest_scheme[endpoint].keys() if x not in self.EXCLUDE)
 
+    @validate_endpoint_action
     def url(self, endpoint: str, action: str) -> str:
-        if not self._validate(endpoint, action):
-            return
         return self._rest_scheme[endpoint][action]['url']
 
+    @validate_endpoint_action
     def fields(self, endpoint: str, action: str) -> list:
-        if not self._validate(endpoint, action):
-            return
         return self._rest_scheme[endpoint][action]['fields']
 
+    @validate_endpoint_action
     def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
-        if not self._validate(endpoint, action):
-            return
         for _action in self._rest_scheme[endpoint] if action is None else [action]:
             doc = []
             pprint(_action)
@@ -705,9 +718,8 @@ class RestSchemeOpenApi(RestScheme):
                 endpoints.add(match.group(1))
         return sorted(list(endpoints))
 
-    def _get_endpoint_actions(self, endpoint: str) -> dict:
-        if not self._validate(endpoint):
-            return
+    @validate_endpoint_action
+    def _get_endpoint_actions(self, endpoint: str, *args) -> dict:
         # Find all paths that start with this endpoint
         endpoint_paths = []
         for path in self._rest_scheme['paths'].keys():
@@ -736,9 +748,8 @@ class RestSchemeOpenApi(RestScheme):
                 actions[action] = path
         return actions
 
+    @validate_endpoint_action
     def _endpoint_action_info(self, endpoint: str, action: str) -> dict:
-        if not self._validate(endpoint):
-            return
         # Find all paths that start with this endpoint
         endpoint_paths = []
         for path in self._rest_scheme['paths'].keys():
@@ -777,15 +788,15 @@ class RestSchemeOpenApi(RestScheme):
     def fields(self, endpoint: str, action: str) -> list:
         return self._endpoint_action_info(endpoint, action)['fields']
 
-    def actions(self, endpoint: str) -> list:
-        if not self._validate(endpoint):
-            return
+    @validate_endpoint_action
+    def actions(self, endpoint: str, *args) -> list:
         actions = self._get_endpoint_actions(endpoint)
         return sorted(list(actions.keys()))
 
     def url(self, endpoint: str, action: str) -> str:
         return self._endpoint_action_info(endpoint, action)['url']
 
+    @validate_endpoint_action
     def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
         """Print detailed information about an endpoint's actions and parameters.
 
@@ -800,8 +811,6 @@ class RestSchemeOpenApi(RestScheme):
         -------
         None
         """
-        if not self._validate(endpoint, action):
-            return
         actions = self._get_endpoint_actions(endpoint) if action is None else [action]
         for action in actions:
             endpoint_action_info = self._endpoint_action_info(endpoint, action)
