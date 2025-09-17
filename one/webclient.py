@@ -59,6 +59,7 @@ from tqdm import tqdm
 
 from pprint import pprint
 import one.params
+from one import __version__
 from iblutil.io import hashfile
 from iblutil.io.params import set_hidden
 from iblutil.util import ensure_list
@@ -899,7 +900,8 @@ class AlyxClient:
             self.authenticate(username, password)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers = {**self._headers, 'Accept': 'application/json'}
+        self._headers = {
+            **self._headers, 'Accept': 'application/json', 'ONE-API-Version': __version__}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -959,10 +961,12 @@ class AlyxClient:
         if files is None:
             to_json = functools.partial(json.dumps, cls=_JSONEncoder)
             data = to_json(data) if isinstance(data, dict) or isinstance(data, list) else data
+            # __ONE_API_VERSION__
             headers['Content-Type'] = 'application/json'
         if rest_query.startswith('/docs'):
-            # the mixed accept application may cause errors sometimes, only necessary for the docs
-            headers['Accept'] = 'application/coreapi+json'
+            # the docs are now served as openapi media, so we need to change the accept header
+            headers['Accept'] = 'application/vnd.oai.openapi+json'
+            headers['Accept-Version'] = '3.0'
         r = reqfunction(
             self.base_url + rest_query, stream=True, headers=headers, data=data, files=files
         )
