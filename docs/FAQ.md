@@ -131,12 +131,13 @@ from one.api import ONE
 one = ONE()
 TAG = '2021_Q1_IBL_et_al_Behaviour'  # Release tag to download cache for
 one.load_cache(tag=TAG)
+one.mode = 'local'  # Tell API to use loaded table instead of Alyx db
 ```
 
 To return to the full cache containing an index of all experiments:
 ```python
 ONE.cache_clear()
-one = ONE()
+one = ONE(mode='remote')
 ```
 
 ## How do I check which version of ONE I'm using within Python?
