@@ -140,6 +140,10 @@ ONE.cache_clear()
 one = ONE(mode='remote')
 ```
 
+## How do I ensure my own analyses don't change when the database is updated?
+You can record then 'freeze' your data access by loading the saved data access tables in local mode.
+See the [Data reproducibility guide](notebooks/recording_data_access.html#Data-reproducibility).
+
 ## How do I check which version of ONE I'm using within Python?
 You can check your version with the following: `print(ONE.version)`.\
 The latest version can be found in the CHANGELOG, [here](https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md). \
@@ -192,12 +196,11 @@ eids = one.search(django=f'subject__nickname__exact,{subject}')
 ## Why are my search results inconsistent and/or seem to change?
 This may be caused by one of two things:
 
-First, each day when connecting to the database you download an updated cache table. The data on the database
-may simply have changed, or you are loading a different cache table from somewhere. This may be because you
+First, the data on the database may simply have changed, or you are loading a different cache table (in local mode). This may be because you
 are connecting to a different database (check `one.alyx.base_url`), providing a different cache location (check `one._tables_dir`),
 or provided a different tag (see [this question](#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release)).
 
-Second, there are minor differences between the default/local modes and remote mode. Namely that in remote mode
+Second, there are minor differences between the default/remote modes and local mode. Namely that in remote mode
 queries are generally case-insensitive.  See the 'gotcha' section of
 '[Searching with ONE](notebooks/one_search/one_search.html#Gotchas)' for more information.
 
