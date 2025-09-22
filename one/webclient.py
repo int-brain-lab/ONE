@@ -933,11 +933,15 @@ class AlyxClient:
         """dict: The REST endpoints and their parameters."""
         # Delayed fetch of rest schemes speeds up instantiation
         if not self._rest_schemes:
-            raw_schema = self.get('/docs', expires=timedelta(weeks=1))
-            if 'openapi' in raw_schema:  #nocov
+            try:
+                raw_schema = self.get('/api/schema', expires=timedelta(weeks=1))
                 self._rest_schemes = RestSchemeOpenApi(raw_schema)
-            else:
-                self._rest_schemes = RestSchemeCoreApi(raw_schema)
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    raw_schema = self.get('/docs', expires=timedelta(weeks=1))
+                    self._rest_schemes = RestSchemeCoreApi(raw_schema)
+                else:
+                    raise e
         return self._rest_schemes
 
     def list_endpoints(self):
@@ -964,6 +968,8 @@ class AlyxClient:
             # __ONE_API_VERSION__
             headers['Content-Type'] = 'application/json'
         if rest_query.startswith('/docs'):
+            headers['Accept'] = 'application/coreapi+json'
+        if rest_query.startswith('/api/schema'):
             # the docs are now served as openapi media, so we need to change the accept header
             headers['Accept'] = 'application/vnd.oai.openapi+json'
             headers['Accept-Version'] = '3.0'
