@@ -26,8 +26,23 @@ class TestREST(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.alyx = AlyxClient(**TEST_DB_1)
 
+    def test_id_django_fields(self):
+        """
+        Test.
+
+        The id and django kwargs have a specific meaning when using the list actions
+        on endpoints that implement the Alyx base REST framework. On endpoints that
+        do not implement the base REST framework, such as dataset_types and revisions,
+        the id/django args should yield an error.
+        :return:
+        """
+        with self.assertRaises(ValueError):
+            self.alyx.rest('revisions', 'list', id='boum')
+        with self.assertRaises(ValueError):
+            self.alyx.rest('revisions', 'list', django='boum')
+
     def test_validation_list_fields(self):
-            # test raising an error when specifying a non-existent action
+        # test raising an error when specifying a non-existent action
         with self.assertRaises(ValueError) as cm:
             self.alyx.rest('datasets', 'erase')
         self.assertIn(
