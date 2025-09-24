@@ -2397,13 +2397,10 @@ class TestOneMisc(unittest.TestCase):
         # Test with default revisions
         df['default_revision'] = False
         with self.assertWarnsRegex(alferr.ALFWarning, 'No default revision for dataset'):
-            verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
+            verifiable = filter_revision_last_before(df.copy())
         self.assertTrue(len(verifiable) == 2)
-
         # Should have fallen back on lexicographical ordering
         self.assertTrue(verifiable.rel_path.str.contains('#2021-07-06#').all())
-        with self.assertRaises(alferr.ALFError):
-            filter_revision_last_before(df.copy(), assert_unique=True)
 
         # Add unique default revisions
         df.iloc[[0, 4], -1] = True
