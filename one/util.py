@@ -351,7 +351,7 @@ def filter_revision_last_before(
         A revision string to match (regular expressions not permitted).
     assert_unique : bool
         When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
-        default revisions are found; an alferr.ALFError when no default revision is found.
+        default revisions are found; an alferr.ALFWarning when no default revision is found.
     assert_consistent : bool
         Will raise alferr.ALFMultipleRevisionsFound if matching revision is different between
         datasets.
@@ -379,6 +379,17 @@ def filter_revision_last_before(
         revision specified. This is typically an error in the cache table itself as all datasets
         should have one and only one default revision specified.
 
+    Warnings
+    --------
+    one.alf.exceptions.ALFWarning
+        When the 'default_revision' column exists and no revision is passed, this warning means
+        that one or more matching datasets have no default revision specified. This is typically
+        an error in the cache table itself as all datasets should have one and only one default
+        revision specified.  It may be that the default revision is unavailable (e.g. deleted).
+    one.alf.exceptions.ALFWarning
+        When `assert_consistent` is False, this warning may mean that the matching datasets have
+        mixed revisions.
+
     Notes
     -----
     - When `revision` is not None, the default revision value is not used. If an older revision is
@@ -400,9 +411,6 @@ def filter_revision_last_before(
                     return df[df.default_revision]
                 if len(df) == 1:  # This may be the case when called from load_datasets
                     return df  # It's not the default but there's only one available revision
-                # default_revision column all False; default isn't copied to remote repository
-                if assert_unique:
-                    raise alferr.ALFError(f'No default revision for dataset {dset_name}')
             warnings.warn(
                 f'No default revision for dataset {dset_name}; using most recent',
                 alferr.ALFWarning)
