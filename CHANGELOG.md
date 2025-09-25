@@ -1,5 +1,18 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.3.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.4.0]
+This version supports OpenAPI v3 REST endpoint documentation.
+
+### Modified
+
+- support for updated Alyx /docs endpoint
+- ONE API version now included in REST request header
+- warning instead of error when no default revision found
+
+### Added
+
+- ONE_REVISION_LAST_BEFORE environment variable may be set instead of passing revision args
+
+## [3.3.0]
 This version makes some performance improvements and supports local mode eid2pid/pid2eid.
 
 ### Modified

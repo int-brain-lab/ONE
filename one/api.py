@@ -42,6 +42,8 @@ _logger = logging.getLogger(__name__)
 __all__ = ['ONE', 'One', 'OneAlyx']
 SAVE_ON_DELETE = (os.environ.get('ONE_SAVE_ON_DELETE') or '0').casefold() in ('true', '1')
 """bool: Whether to save modified cache tables on delete."""
+REVISION_LAST_BEFORE = os.environ.get('ONE_REVISION_LAST_BEFORE')
+"""str: If set, the revision string to use when loading data before a given date."""
 
 _logger.debug('ONE_SAVE_ON_DELETE: %s', SAVE_ON_DELETE)
 
@@ -1002,7 +1004,7 @@ class One(ConversionMixin):
             The dataset revision (typically an ISO date).  If no exact match, the previous
             revision (ordered lexicographically) is returned.  If None, the default revision is
             returned (usually the most recent revision).  Regular expressions/wildcards not
-            permitted.
+            permitted.  May be set with `ONE_REVISION_LAST_BEFORE` environment variable.
         query_type : str
             Query cache ('local') or Alyx database ('remote').
         download_only : bool
@@ -1042,6 +1044,7 @@ class One(ConversionMixin):
             raise alferr.ALFObjectNotFound(obj)
 
         dataset = {'object': obj, **kwargs}
+        revision = revision or REVISION_LAST_BEFORE  # Use env var if set
         datasets = util.filter_datasets(datasets, dataset, collection, revision,
                                         assert_unique=False, wildcards=self.wildcards)
 
@@ -1095,7 +1098,7 @@ class One(ConversionMixin):
             The dataset revision (typically an ISO date).  If no exact match, the previous
             revision (ordered lexicographically) is returned.  If None, the default revision is
             returned (usually the most recent revision).  Regular expressions/wildcards not
-            permitted.
+            permitted.  May be set with `ONE_REVISION_LAST_BEFORE` environment variable.
         query_type : str
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
@@ -1151,6 +1154,7 @@ class One(ConversionMixin):
             dataset += '.*'
             _logger.debug('Appending extension wildcard: ' + dataset)
 
+        revision = revision or REVISION_LAST_BEFORE  # Use env var if set
         assert_unique = ('/' if isinstance(dataset, str) else 'collection') not in dataset
         # Check if wildcard was used (this is not an exhaustive check)
         if not assert_unique and isinstance(dataset, str) and '*' in dataset:
@@ -1205,7 +1209,7 @@ class One(ConversionMixin):
             The dataset revision (typically an ISO date).  If no exact match, the previous
             revision (ordered lexicographically) is returned.  If None, the default revision is
             returned (usually the most recent revision).  Regular expressions/wildcards not
-            permitted.
+            permitted.  May be set with `ONE_REVISION_LAST_BEFORE` environment variable.
         query_type : str
             Query cache ('local') or Alyx database ('remote')
         assert_present : bool
@@ -1282,9 +1286,11 @@ class One(ConversionMixin):
         # Check if rel paths have been used (e.g. the output of list_datasets)
         is_frame = isinstance(datasets, pd.DataFrame)
         if is_rel_paths := (is_frame or any('/' in x for x in datasets)):
-            if not (collections, revisions) == (None, None):
+            if not (collections, revisions) == (None, None) or REVISION_LAST_BEFORE:
                 raise ValueError(
-                    'collection and revision kwargs must be None when dataset is a relative path')
+                    'collection and revision kwargs must be None when dataset is a relative path '
+                    '(ONE_REVISION_LAST_BEFORE env var must also be unset)'
+                )
             if is_frame:
                 if 'eid' in datasets.index.names:
                     assert set(datasets.index.get_level_values('eid')) == {eid}
@@ -1323,6 +1329,7 @@ class One(ConversionMixin):
             ]
 
         # Check input args
+        revisions = revisions or REVISION_LAST_BEFORE
         collections, revisions = _verify_specifiers([collections, revisions])
 
         # If collections provided in datasets list, e.g. [collection/x.y.z], do not assert unique
@@ -1457,7 +1464,7 @@ class One(ConversionMixin):
             The dataset revision (typically an ISO date).  If no exact match, the previous
             revision (ordered lexicographically) is returned.  If None, the default revision is
             returned (usually the most recent revision).  Regular expressions/wildcards not
-            permitted.
+            permitted.  May be set with `ONE_REVISION_LAST_BEFORE` environment variable.
         query_type : str
             Query cache ('local') or Alyx database ('remote')
         download_only : bool
@@ -1496,6 +1503,7 @@ class One(ConversionMixin):
             raise alferr.ALFError(f'{collection} not found for session {eid}')
 
         dataset = {'object': object, **kwargs}
+        revision = revision or REVISION_LAST_BEFORE  # use env var if set
         datasets = util.filter_datasets(datasets, dataset, revision,
                                         assert_unique=False, wildcards=self.wildcards)
 
@@ -1816,7 +1824,7 @@ class OneAlyx(One):
 
         endpoint = endpoint or self._search_endpoint
         # Return search terms from REST schema
-        fields = self.alyx.rest_schemes[endpoint]['list']['fields']
+        fields = self.alyx.rest_schemes.fields(endpoint, action='list')
         excl = ('lab',)  # 'laboratory' already in search terms
         if endpoint != 'sessions':
             return tuple(x['name'] for x in fields)
@@ -1982,6 +1990,9 @@ class OneAlyx(One):
 
         >>> trials = one.load_aggregate('subjects', 'SP026', '_ibl_subjectTraining.table')
 
+        Notes
+        -----
+        Unlike other loading functions, this function loads datasets with a matching revision.
         """
         # If only two parts and wildcards are on, append ext wildcard
         if self.wildcards and isinstance(dataset, str) and len(dataset.split('.')) == 2:
@@ -2361,12 +2372,6 @@ class OneAlyx(One):
             # check that the input matches one of the defined filters
             if field == 'date_range':
                 params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
-            elif field == 'dataset':
-                if not isinstance(value, str):
-                    raise TypeError(
-                        '"dataset" parameter must be a string. For lists use "datasets"')
-                query = f'data_dataset_session_related__name__icontains,{value}'
-                params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
                 params['lab'] = value
             else:

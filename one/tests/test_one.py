@@ -1602,7 +1602,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        expected_n_datasets = 253  # this may change after a BWM release or patch
+        expected_n_datasets = 267  # this may change after a BWM release or patch
         self.assertEqual(expected_n_datasets, len(dsets))
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
@@ -1787,7 +1787,7 @@ class TestOneRemote(unittest.TestCase):
                          'failed to update sessions cache with first page of search results')
         self.assertIsInstance(pids, LazyId)
         assert len(pids) > 5, 'in order to check paginated response callback we need several pages'
-        p = pids[-3]  # access an uncached value
+        p = pids[-2]  # access an uncached value
         self.assertEqual(4, len(self.one._cache.insertions),
                          'failed to update insertions cache after page access')
         self.assertEqual(4, len(self.one._cache.sessions),
@@ -2397,13 +2397,10 @@ class TestOneMisc(unittest.TestCase):
         # Test with default revisions
         df['default_revision'] = False
         with self.assertWarnsRegex(alferr.ALFWarning, 'No default revision for dataset'):
-            verifiable = filter_revision_last_before(df.copy(), assert_unique=False)
+            verifiable = filter_revision_last_before(df.copy())
         self.assertTrue(len(verifiable) == 2)
-
         # Should have fallen back on lexicographical ordering
         self.assertTrue(verifiable.rel_path.str.contains('#2021-07-06#').all())
-        with self.assertRaises(alferr.ALFError):
-            filter_revision_last_before(df.copy(), assert_unique=True)
 
         # Add unique default revisions
         df.iloc[[0, 4], -1] = True
